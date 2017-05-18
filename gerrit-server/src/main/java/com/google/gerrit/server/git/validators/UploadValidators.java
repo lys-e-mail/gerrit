@@ -63,9 +63,24 @@ public class UploadValidators implements PreUploadHook {
   }
 
   @Override
+<<<<<<< HEAD   (5a1194 ConfigSuite: Fix error message)
   public void onBeginNegotiateRound(
       UploadPack up, Collection<? extends ObjectId> wants, int cntOffered)
       throws ServiceMayNotContinueException {}
+=======
+  public void onBeginNegotiateRound(UploadPack up,
+      Collection<? extends ObjectId> wants, int cntOffered)
+      throws ServiceMayNotContinueException {
+    for (UploadValidationListener validator : uploadValidationListeners) {
+      try {
+        validator.onBeginNegotiate(repository, project, remoteHost, up, wants,
+            cntOffered);
+      } catch (ValidationException e) {
+        throw new UploadValidationException(e.getMessage());
+      }
+    }
+  }
+>>>>>>> BRANCH (273b00 Merge "Enhance UploadValidators to allow listening to negota)
 
   @Override
   public void onEndNegotiateRound(
