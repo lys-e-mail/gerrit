@@ -23,9 +23,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.gerrit.extensions.events.LifecycleListener;
+<<<<<<< HEAD   (ec18bf Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.index.IndexDefinition;
 import com.google.gerrit.index.SchemaDefinitions;
+=======
+>>>>>>> BRANCH (ba250e Merge changes from topic "issue-7611" into stable-2.14)
 import com.google.gerrit.lifecycle.LifecycleModule;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.git.WorkQueue;
@@ -128,8 +131,11 @@ public class IndexModule extends LifecycleModule {
       // registration of the ShutdownIndexExecutors LifecycleListener must happen afterwards.
       listener().to(ShutdownIndexExecutors.class);
     }
+<<<<<<< HEAD   (ec18bf Merge branch 'stable-2.14' into stable-2.15)
 
     DynamicSet.setOf(binder(), OnlineUpgradeListener.class);
+=======
+>>>>>>> BRANCH (ba250e Merge changes from topic "issue-7611" into stable-2.14)
   }
 
   @Provides
