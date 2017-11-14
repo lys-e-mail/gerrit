@@ -1143,6 +1143,7 @@ bower_archive(
     package = "polymer/polymer",
     sha1 = "62ce80a5079c1b97f6c5c6ebf6b350e741b18b9c",
     version = "1.11.0",
+<<<<<<< HEAD   (00c3b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 bower_archive(
@@ -1150,6 +1151,8 @@ bower_archive(
     package = "polymer/polymer-resin",
     sha1 = "93ac118f2b9209cfbfd6dc8022d9492743d17f24",
     version = "1.2.7",
+=======
+>>>>>>> BRANCH (7eb6be Update polymer to 1.11.0)
 )
 
 bower_archive(
