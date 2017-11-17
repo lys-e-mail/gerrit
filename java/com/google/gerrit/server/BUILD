@@ -103,6 +103,7 @@ java_library(
         "//lib/guice:guice-servlet",
         "//lib/httpcomponents:httpclient",
         "//lib/jsoup",
+        "//lib/log:api",
         "//lib/log:log4j",
         "//lib/lucene:lucene-analyzers-common",
         "//lib/lucene:lucene-core",
