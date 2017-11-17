@@ -31,19 +31,20 @@ import static com.google.gerrit.pgm.http.jetty.HttpLog.P_USER_AGENT;
 
 import com.google.gerrit.util.logging.JsonLayout;
 import com.google.gerrit.util.logging.JsonLogEntry;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.LogEvent;
 
+@SuppressWarnings("ClassCanBeStatic")
 public class HttpLogJsonLayout extends JsonLayout {
 
   @Override
-  public JsonLogEntry toJsonLogEntry(LoggingEvent event) {
+  public JsonLogEntry toJsonLogEntry(final LogEvent event) {
     return new HttpJsonLogEntry(event);
   }
 
   @SuppressWarnings("unused")
   private class HttpJsonLogEntry extends JsonLogEntry {
     public String host;
-    public String thread;
+    /*public String thread;
     public String user;
     public String timestamp;
     public String method;
@@ -57,11 +58,11 @@ public class HttpLogJsonLayout extends JsonLayout {
     public String memory;
     public String referer;
     public String userAgent;
-    public String commandStatus;
+    public String commandStatus;*/
 
-    public HttpJsonLogEntry(LoggingEvent event) {
+    public HttpJsonLogEntry(final LogEvent event) {
       this.host = getMdcString(event, P_HOST);
-      this.thread = event.getThreadName();
+      /*this.thread = event.getThreadName();
       this.user = getMdcString(event, P_USER);
       this.timestamp = timestampFormatter.format(event.getTimeStamp());
       this.method = getMdcString(event, P_METHOD);
@@ -75,7 +76,7 @@ public class HttpLogJsonLayout extends JsonLayout {
       this.memory = getMdcString(event, P_MEMORY);
       this.referer = getMdcString(event, P_REFERER);
       this.userAgent = getMdcString(event, P_USER_AGENT);
-      this.commandStatus = getMdcString(event, P_COMMAND_STATUS);
+      this.commandStatus = getMdcString(event, P_COMMAND_STATUS);*/
     }
   }
 }

@@ -30,20 +30,20 @@ import com.google.common.base.Splitter;
 import com.google.gerrit.util.logging.JsonLayout;
 import com.google.gerrit.util.logging.JsonLogEntry;
 import java.util.List;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.LogEvent;
 
 public class SshLogJsonLayout extends JsonLayout {
   private static final Splitter SPLITTER = Splitter.on(" ");
 
   @Override
-  public JsonLogEntry toJsonLogEntry(LoggingEvent event) {
+  public JsonLogEntry toJsonLogEntry(LogEvent event) {
     return new SshJsonLogEntry(event);
   }
 
   @SuppressWarnings("unused")
   private class SshJsonLogEntry extends JsonLogEntry {
     public String timestamp;
-    public String session;
+    /*public String session;
     public String thread;
     public String user;
     public String accountId;
@@ -65,11 +65,11 @@ public class SshLogJsonLayout extends JsonLayout {
     public String bitmapIndexMisses;
     public String deltasTotal;
     public String objectsTotal;
-    public String bytesTotal;
+    public String bytesTotal;*/
 
-    public SshJsonLogEntry(LoggingEvent event) {
-      this.timestamp = timestampFormatter.format(event.getTimeStamp());
-      this.session = getMdcString(event, P_SESSION);
+    public SshJsonLogEntry(LogEvent event) {
+      this.timestamp = timestampFormatter.format(event.getTimeMillis());
+      /*this.session = getMdcString(event, P_SESSION);
       this.thread = event.getThreadName();
       this.user = getMdcString(event, P_USER_NAME);
       this.accountId = getMdcString(event, P_ACCOUNT_ID);
@@ -96,7 +96,7 @@ public class SshLogJsonLayout extends JsonLayout {
         this.deltasTotal = ssh_metrics.get(8);
         this.objectsTotal = ssh_metrics.get(9);
         this.bytesTotal = ssh_metrics.get(10);
-      }
+      }*/
     }
   }
 }

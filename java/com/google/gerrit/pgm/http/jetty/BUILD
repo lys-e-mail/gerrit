@@ -26,6 +26,7 @@ java_library(
         "//lib/jetty:jmx",
         "//lib/jetty:server",
         "//lib/jetty:servlet",
+        "//lib/log:api",
         "//lib/log:log4j",
     ],
 )
