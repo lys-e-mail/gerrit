@@ -64,10 +64,42 @@ def declare_nongoogle_deps():
         params.update(**dependency)
         maybe(http_archive, params.pop("name"), **params)
 
+    LOG4J_VERS = "2.11.2"
+
     maven_jar(
-        name = "log4j",
-        artifact = "ch.qos.reload4j:reload4j:1.2.25",
-        sha1 = "45921e383a1001c2a599fc4c6cf59af80cdd1cf1",
+        name = "impl-log4j",
+        artifact = "org.apache.logging.log4j:log4j-slf4j-impl:" + LOG4J_VERS,
+        sha1 = "4d44e4edc4a7fb39f09b95b09f560a15976fa1ba",
+    )
+
+    maven_jar(
+        name = "log4j-api",
+        artifact = "org.apache.logging.log4j:log4j-api:" + LOG4J_VERS,
+        sha1 = "f5e9a2ffca496057d6891a3de65128efc636e26e",
+    )
+
+    maven_jar(
+        name = "log4j-core",
+        artifact = "org.apache.logging.log4j:log4j-core:" + LOG4J_VERS,
+        sha1 = "6c2fb3f5b7cd27504726aef1b674b542a0c9cf53",
+    )
+
+    maven_jar(
+        name = "log4j-web",
+        artifact = "org.apache.logging.log4j:log4j-web:" + LOG4J_VERS,
+        sha1 = "d11ebc03fdf773d32143e0f7ea0fc131c21311e7",
+    )
+
+    maven_jar(
+        name = "log4j1.2-api",
+        artifact = "org.apache.logging.log4j:log4j-1.2-api:" + LOG4J_VERS,
+        sha1 = "afb9ef0baba766725c3733e6a2626877dba72715",
+    )
+
+    maven_jar(
+        name = "disruptor",
+        artifact = "com.lmax:disruptor:3.3.7",
+        sha1 = "8549fdcbda5d64db98871e64a4cd0045611686d1",
     )
 
     SLF4J_VERS = "1.7.36"
@@ -82,12 +114,6 @@ def declare_nongoogle_deps():
         name = "log-ext",
         artifact = "org.slf4j:slf4j-ext:" + SLF4J_VERS,
         sha1 = "99f282aea4b6dbca04d00f0ade6e5ed61ee7091a",
-    )
-
-    maven_jar(
-        name = "impl-log4j",
-        artifact = "org.slf4j:slf4j-reload4j:" + SLF4J_VERS,
-        sha1 = "db708f7d959dee1857ac524636e85ecf2e1781c1",
     )
 
     maven_jar(
@@ -196,9 +222,9 @@ def declare_nongoogle_deps():
     )
 
     maven_jar(
-        name = "flogger-log4j-backend",
-        artifact = "com.google.flogger:flogger-log4j-backend:" + FLOGGER_VERS,
-        sha1 = "7486b1c0138647cd7714eccb8ce37b5f2ae20a76",
+        name = "flogger-log4j2-backend",
+        artifact = "com.google.flogger:flogger-log4j2-backend:" + FLOGGER_VERS,
+        sha1 = "e9a7e135278af15bd890d7caa011f8bc7583de1c",
     )
 
     maven_jar(
