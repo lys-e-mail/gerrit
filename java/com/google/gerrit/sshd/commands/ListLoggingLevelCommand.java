@@ -24,8 +24,9 @@ import com.google.gerrit.sshd.CommandMetaData;
 import com.google.gerrit.sshd.SshCommand;
 import java.util.Map;
 import java.util.TreeMap;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.kohsuke.args4j.Argument;
 
 @RequiresCapability(GlobalCapability.ADMINISTRATE_SERVER)
@@ -42,11 +43,13 @@ public class ListLoggingLevelCommand extends SshCommand {
   protected void run() {
     enableGracefulStop();
     Map<String, String> logs = new TreeMap<>();
-    for (Logger logger : getCurrentLoggers()) {
-      if (name == null || logger.getName().contains(name)) {
-        logs.put(logger.getName(), logger.getEffectiveLevel().toString());
+    LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    for (final Logger loggerConfig : ctx.getLoggers()) {
+      if (name == null || loggerConfig.getName().contains(name)) {
+        logs.put(loggerConfig.getName(), loggerConfig.getLevel().toString());
       }
     }
+
     for (Map.Entry<String, String> e : logs.entrySet()) {
       stdout.println(e.getKey() + ": " + e.getValue());
     }

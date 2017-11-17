@@ -196,9 +196,9 @@ def declare_nongoogle_deps():
     )
 
     maven_jar(
-        name = "flogger-log4j-backend",
-        artifact = "com.google.flogger:flogger-log4j-backend:" + FLOGGER_VERS,
-        sha1 = "7486b1c0138647cd7714eccb8ce37b5f2ae20a76",
+        name = "flogger-log4j2-backend",
+        artifact = "com.google.flogger:flogger-log4j2-backend:" + FLOGGER_VERS,
+        sha1 = "e9a7e135278af15bd890d7caa011f8bc7583de1c",
     )
 
     maven_jar(
