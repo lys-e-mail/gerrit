@@ -282,9 +282,19 @@ class ReviewDbBatchUpdate extends BatchUpdate {
           throw new IllegalStateException("invalid execution order: " + order);
       }
 
+<<<<<<< HEAD   (04a6d2 Merge branch 'stable-2.14' into stable-2.15)
       ChangeIndexer.allAsList(
               updates.stream().flatMap(u -> u.indexFutures.stream()).collect(toList()))
           .get();
+=======
+      @SuppressWarnings("deprecation")
+      List<com.google.common.util.concurrent.CheckedFuture<?, IOException>> indexFutures =
+          new ArrayList<>();
+      for (ReviewDbBatchUpdate u : updates) {
+        indexFutures.addAll(u.indexFutures);
+      }
+      ChangeIndexer.allAsList(indexFutures).get();
+>>>>>>> BRANCH (03908c RebuildNoteDbIT: Replace to be deprecated Files.append with )
 
       // Fire ref update events only after all mutations are finished, since callers may assume a
       // patch set ref being created means the change was created, or a branch advancing meaning
@@ -317,6 +327,13 @@ class ReviewDbBatchUpdate extends BatchUpdate {
   private final ReviewDb db;
   private final SchemaFactory<ReviewDb> schemaFactory;
   private final long skewMs;
+<<<<<<< HEAD   (04a6d2 Merge branch 'stable-2.14' into stable-2.15)
+=======
+
+  @SuppressWarnings("deprecation")
+  private final List<com.google.common.util.concurrent.CheckedFuture<?, IOException>> indexFutures =
+      new ArrayList<>();
+>>>>>>> BRANCH (03908c RebuildNoteDbIT: Replace to be deprecated Files.append with )
 
   @SuppressWarnings("deprecation")
   private final List<com.google.common.util.concurrent.CheckedFuture<?, IOException>> indexFutures =
