@@ -78,7 +78,10 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
     this.accountManager = accountManager;
     this.registerNewEmailFactory = registerNewEmailFactory;
     this.putPreferred = putPreferred;
+<<<<<<< HEAD   (dae6df CreateEmail: Trim new email)
     this.validator = validator;
+=======
+>>>>>>> BRANCH (1cf862 CreateEmail: Trim new email)
     this.email = email != null ? email.trim() : null;
     this.isDevMode = authConfig.getAuthType() == DEVELOPMENT_BECOME_ANY_ACCOUNT;
   }
@@ -92,8 +95,13 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
       input = new EmailInput();
     }
 
+<<<<<<< HEAD   (dae6df CreateEmail: Trim new email)
     if (self.get() != rsrc.getUser() || input.noConfirmation) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+    if (input.noConfirmation && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to use no_confirmation");
+>>>>>>> BRANCH (1cf862 CreateEmail: Trim new email)
     }
 
     if (!realm.allowsEdit(AccountFieldName.REGISTER_NEW_EMAIL)) {
@@ -107,7 +115,11 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
   public Response<EmailInfo> apply(IdentifiedUser user, EmailInput input)
       throws AuthException, BadRequestException, ResourceConflictException,
           ResourceNotFoundException, OrmException, EmailException, MethodNotAllowedException,
+<<<<<<< HEAD   (dae6df CreateEmail: Trim new email)
           IOException, ConfigInvalidException, PermissionBackendException {
+=======
+          IOException, ConfigInvalidException {
+>>>>>>> BRANCH (1cf862 CreateEmail: Trim new email)
     if (input == null) {
       input = new EmailInput();
     }
@@ -116,7 +128,11 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
       throw new BadRequestException("email address must match URL");
     }
 
+<<<<<<< HEAD   (dae6df CreateEmail: Trim new email)
     if (!validator.isValid(email)) {
+=======
+    if (!OutgoingEmailValidator.isValid(email)) {
+>>>>>>> BRANCH (1cf862 CreateEmail: Trim new email)
       throw new BadRequestException("invalid email address");
     }
 
