@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (52f385 Exclude local gerrit accounts from scheduled deactivation ta)
   <version>2.15-rc2</version>
+=======
+  <version>2.14.7-SNAPSHOT</version>
+>>>>>>> BRANCH (62359b Set version to 2.14.7-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>
