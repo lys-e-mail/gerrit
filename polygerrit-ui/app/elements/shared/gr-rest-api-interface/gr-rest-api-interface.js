@@ -2039,6 +2039,7 @@
         return result;
       });
     },
+<<<<<<< HEAD   (ddb415 Merge branch 'stable-2.15')
 
     /**
      * Fetch a project dashboard definition.
@@ -2054,5 +2055,7 @@
           encodeURIComponent(dashboard);
       return this._fetchSharedCacheURL(url, opt_errFn);
     },
+=======
+>>>>>>> BRANCH (41d9ee PolyGerrit: Add some more missing configs to gr-project)
   });
 })();
