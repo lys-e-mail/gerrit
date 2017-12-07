@@ -219,6 +219,7 @@
       let url = '';
       const Views = Gerrit.Nav.View;
 
+<<<<<<< HEAD   (da1d6f Merge branch 'stable-2.15')
       if (params.view === Views.SEARCH) {
         url = this._generateSearchUrl(params);
       } else if (params.view === Views.CHANGE) {
@@ -230,6 +231,69 @@
       } else if (params.view === Views.GROUP) {
         url = this._generateGroupUrl(params);
       } else if (params.view === Views.SETTINGS) {
+=======
+      if (params.view === Gerrit.Nav.View.SEARCH) {
+        const operators = [];
+        if (params.owner) {
+          operators.push('owner:' + this.encodeURL(params.owner, false));
+        }
+        if (params.project) {
+          operators.push('project:' + this.encodeURL(params.project, false));
+        }
+        if (params.branch) {
+          operators.push('branch:' + this.encodeURL(params.branch, false));
+        }
+        if (params.topic) {
+          operators.push('topic:"' + this.encodeURL(params.topic, false) + '"');
+        }
+        if (params.hashtag) {
+          operators.push('hashtag:"' +
+              this.encodeURL(params.hashtag.toLowerCase(), false) + '"');
+        }
+        if (params.statuses) {
+          if (params.statuses.length === 1) {
+            operators.push(
+                'status:' + this.encodeURL(params.statuses[0], false));
+          } else if (params.statuses.length > 1) {
+            operators.push(
+                '(' +
+                params.statuses.map(s => `status:${this.encodeURL(s, false)}`)
+                    .join(' OR ') +
+                ')');
+          }
+        }
+        url = '/q/' + operators.join('+');
+      } else if (params.view === Gerrit.Nav.View.CHANGE) {
+        let range = this._getPatchRangeExpression(params);
+        if (range.length) { range = '/' + range; }
+        if (params.project) {
+          url = `/c/${params.project}/+/${params.changeNum}${range}`;
+        } else {
+          url = `/c/${params.changeNum}${range}`;
+        }
+      } else if (params.view === Gerrit.Nav.View.DASHBOARD) {
+        url = `/dashboard/${params.user || 'self'}`;
+      } else if (params.view === Gerrit.Nav.View.DIFF) {
+        let range = this._getPatchRangeExpression(params);
+        if (range.length) { range = '/' + range; }
+
+        let suffix = `${range}/${this.encodeURL(params.path, true)}`;
+        if (params.lineNum) {
+          suffix += '#';
+          if (params.leftSide) { suffix += 'b'; }
+          suffix += params.lineNum;
+        }
+
+        if (params.project) {
+          url = `/c/${params.project}/+/${params.changeNum}${suffix}`;
+        } else {
+          url = `/c/${params.changeNum}${suffix}`;
+        }
+        if (params.edit) {
+          url += ',edit';
+        }
+      } else if (params.view === Gerrit.Nav.View.SETTINGS) {
+>>>>>>> BRANCH (df87a1 Merge changes from topic "username" into stable-2.15)
         url = this._generateSettingsUrl(params);
       } else {
         throw new Error('Can\'t generate');
@@ -242,6 +306,7 @@
      * @param {!Object} params
      * @return {string}
      */
+<<<<<<< HEAD   (da1d6f Merge branch 'stable-2.15')
     _generateSearchUrl(params) {
       const operators = [];
       if (params.owner) {
@@ -361,6 +426,8 @@
      * @param {!Object} params
      * @return {string}
      */
+=======
+>>>>>>> BRANCH (df87a1 Merge changes from topic "username" into stable-2.15)
     _generateSettingsUrl(params) {
       return '/settings';
     },
