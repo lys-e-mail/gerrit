@@ -14,6 +14,7 @@
 (function(window) {
   'use strict';
 
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
   /**
    * Ensure GrChangeActionsInterface instance has access to gr-change-actions
    * element and retrieve if the interface was created before element.
@@ -46,6 +47,14 @@
   function GrChangeActionsInterface(plugin, el) {
     this.plugin = plugin;
     setEl(this, el);
+=======
+  function GrChangeActionsInterface(plugin, el) {
+    this.plugin = plugin;
+    this._el = el;
+    this.RevisionActions = el.RevisionActions;
+    this.ChangeActions = el.ChangeActions;
+    this.ActionType = el.ActionType;
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
   }
 
   GrChangeActionsInterface.prototype.addPrimaryActionKey = function(key) {
@@ -112,7 +121,10 @@
   };
 
   GrChangeActionsInterface.prototype.getActionDetails = function(action) {
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
     ensureEl(this);
+=======
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     return this._el.getActionDetails(action) ||
       this._el.getActionDetails(this.plugin.getPluginName() + '~' + action);
   };

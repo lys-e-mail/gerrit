@@ -326,7 +326,11 @@
     observers: [
       '_actionsChanged(actions.*, revisionActions.*, _additionalActions.*, ' +
           'editLoaded, editBasedOnCurrentPatchSet, change)',
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
       '_changeChanged(change)',
+=======
+      '_changeOrPatchNumChanged(changeNum, patchNum)',
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     ],
 
     listeners: {
@@ -357,7 +361,11 @@
       });
     },
 
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
     _changeChanged() {
+=======
+    _changeOrPatchNumChanged() {
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
       this.reload();
     },
 
@@ -638,6 +646,16 @@
           return;
         } else if (!values.includes(a)) {
           return;
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
+=======
+        }
+        if (actions[a].label === 'Delete') {
+          // This label is common within change and revision actions. Make it
+          // more explicit to the user.
+          if (type === ActionType.CHANGE) {
+            actions[a].label += ' Change';
+          }
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
         }
         actions[a].label = this._getActionLabel(actions[a], type);
 
@@ -663,6 +681,7 @@
       this.$.restAPI.getChangeActionURL(
           this.changeNum, patchNum, '/' + action.__key)
           .then(url => action.__url = url);
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
     },
 
     /**
@@ -689,6 +708,8 @@
     _toSentenceCase(s) {
       if (!s.length) { return ''; }
       return s[0].toUpperCase() + s.slice(1).toLowerCase();
+=======
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     },
 
     _computeLoadingLabel(action) {

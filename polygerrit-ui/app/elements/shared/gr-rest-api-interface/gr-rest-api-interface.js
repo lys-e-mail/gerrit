@@ -1417,6 +1417,7 @@
         }
         options.body = opt_body;
       }
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
       if (opt_headers) {
         if (!options.headers) { options.headers = new Headers(); }
         for (const header in opt_headers) {
@@ -1424,6 +1425,8 @@
           options.headers.set(header, opt_headers[header]);
         }
       }
+=======
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
       if (!url.startsWith('http')) {
         url = this.getBaseUrl() + url;
       }

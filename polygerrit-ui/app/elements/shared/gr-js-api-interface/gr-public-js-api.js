@@ -174,10 +174,13 @@
   Plugin.prototype.delete = function(url, opt_callback) {
     return Gerrit.delete(this.url(url), opt_callback);
   };
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
 
   Plugin.prototype.annotationApi = function() {
     return new GrAnnotationActionsInterface(this);
   };
+=======
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 
   Plugin.prototype.changeActions = function() {
     return new GrChangeActionsInterface(this,
@@ -259,11 +262,14 @@
       }
       this.on('showchange', (change, revision) => {
         const details = this.changeActions().getActionDetails(action);
+<<<<<<< HEAD   (686a19 Merge "Merge branch 'stable-2.15'")
         if (!details) {
           console.warn(
               `${this.getPluginName()} onAction error: ${action} not found!`);
           return;
         }
+=======
+>>>>>>> BRANCH (791f08 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
         this.changeActions().addTapListener(details.__key, () => {
           callback(new GrPluginActionContext(this, details, change, revision));
         });
