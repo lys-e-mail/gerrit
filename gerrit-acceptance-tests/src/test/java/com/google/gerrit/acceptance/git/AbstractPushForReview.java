@@ -1442,7 +1442,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     PushOneCommit.Result r = push1.to("refs/for/master");
     r.assertOkStatus();
 
-    //abandon the change
+    // abandon the change
     String changeId = r.getChangeId();
     assertThat(info(changeId).status).isEqualTo(ChangeStatus.NEW);
     gApi.changes().id(changeId).abandon();
@@ -2050,6 +2050,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
       assertThat(refUpdate.getMessage()).contains(expectedMessage);
     }
   }
+<<<<<<< HEAD   (a32859 Merge branch 'stable-2.14' into stable-2.15)
 
   private void enableCreateNewChangeForAllNotInTarget() throws Exception {
     ProjectConfig config = projectCache.checkedGet(project).getConfig();
@@ -2067,4 +2068,6 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     Util.allow(config, Permission.PUSH_MERGE, groupUuid, "refs/for/" + ref);
     saveProjectConfig(project, config);
   }
+=======
+>>>>>>> BRANCH (ef1a74 Merge "Fix submit on push for same commit on multiple branch)
 }
