@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_LOCAL", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (8dac85 Sentence case 'No topic' text)
 _JGIT_VERS = "4.9.1.201712030800-r.66-gf8eff40ca"
+=======
+_JGIT_VERS = "4.9.2.201712150930-r"
+>>>>>>> BRANCH (0979e3 Update JGit to 4.9.2.201712150930-r)
 
 _DOC_VERS = "4.9.1.201712030800-r"  # Set to _JGIT_VERS unless using a snapshot
 
@@ -26,28 +30,45 @@ def jgit_maven_repos():
         name = "jgit_lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8dac85 Sentence case 'No topic' text)
         sha1 = "0b974aa9c6c929c39c506ab2705d42f3d7da84c7",
         src_sha1 = "8884bef0415e092563b60b2167adbb09ac19d131",
+=======
+        sha1 = "a3a2d1df793245ebfc7322db3c2b9828ee184850",
+        src_sha1 = "afa9a25e5502aeeb3b93d773ee445866fb316069",
+>>>>>>> BRANCH (0979e3 Update JGit to 4.9.2.201712150930-r)
         unsign = True,
     )
     maven_jar(
         name = "jgit_servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8dac85 Sentence case 'No topic' text)
         sha1 = "19c6bcdf5e0ba1907f6eeb18ae02d6ae04f630e3",
+=======
+        sha1 = "87b4d287feff8b6b4c4f38a504460d2a3d4624f3",
+>>>>>>> BRANCH (0979e3 Update JGit to 4.9.2.201712150930-r)
         unsign = True,
     )
     maven_jar(
         name = "jgit_archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8dac85 Sentence case 'No topic' text)
         sha1 = "0063dde3c017e05ee4e84ae16c97cb8817b91782",
+=======
+        sha1 = "ce4133fb0735d454dc8f6695fe6c6d5eff18a452",
+>>>>>>> BRANCH (0979e3 Update JGit to 4.9.2.201712150930-r)
     )
     maven_jar(
         name = "jgit_junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8dac85 Sentence case 'No topic' text)
         sha1 = "a9cb1e58df9bd876a2e81130f61a9bac0f182520",
+=======
+        sha1 = "127074493f6a6ee5e6232a707d9adb523479e3bb",
+>>>>>>> BRANCH (0979e3 Update JGit to 4.9.2.201712150930-r)
         unsign = True,
     )
 
