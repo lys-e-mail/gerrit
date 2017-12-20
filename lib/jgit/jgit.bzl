@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_LOCAL", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (bf55d9 Upgrade JGit to 4.9.2.201712150930-r.142-g1e141469f)
 _JGIT_VERS = "4.9.2.201712150930-r.142-g1e141469f"
+=======
+_JGIT_VERS = "4.9.2.201712150930-r"
+>>>>>>> BRANCH (9787ae Merge changes I59202222,Ia8f600e2,Ic2830c57 into stable-2.15)
 
 _DOC_VERS = "4.9.2.201712150930-r"  # Set to _JGIT_VERS unless using a snapshot
 
@@ -26,28 +30,45 @@ def jgit_maven_repos():
         name = "jgit_lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bf55d9 Upgrade JGit to 4.9.2.201712150930-r.142-g1e141469f)
         sha1 = "02712aedca31bd600043158005bfaf43600e5ac0",
         src_sha1 = "2f35b28108cb3f5983cd4642c620fa509fb816fa",
+=======
+        sha1 = "a3a2d1df793245ebfc7322db3c2b9828ee184850",
+        src_sha1 = "afa9a25e5502aeeb3b93d773ee445866fb316069",
+>>>>>>> BRANCH (9787ae Merge changes I59202222,Ia8f600e2,Ic2830c57 into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit_servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bf55d9 Upgrade JGit to 4.9.2.201712150930-r.142-g1e141469f)
         sha1 = "f1d998ce393ea6ff1b401be7d5d8e5db46e86a42",
+=======
+        sha1 = "87b4d287feff8b6b4c4f38a504460d2a3d4624f3",
+>>>>>>> BRANCH (9787ae Merge changes I59202222,Ia8f600e2,Ic2830c57 into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit_archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bf55d9 Upgrade JGit to 4.9.2.201712150930-r.142-g1e141469f)
         sha1 = "1b340d4d3d2b9191d6b67af2301081e0a74705bb",
+=======
+        sha1 = "ce4133fb0735d454dc8f6695fe6c6d5eff18a452",
+>>>>>>> BRANCH (9787ae Merge changes I59202222,Ia8f600e2,Ic2830c57 into stable-2.15)
     )
     maven_jar(
         name = "jgit_junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bf55d9 Upgrade JGit to 4.9.2.201712150930-r.142-g1e141469f)
         sha1 = "65d1de265b7296e8a8af25d8ffb8f5ea76911fdf",
+=======
+        sha1 = "127074493f6a6ee5e6232a707d9adb523479e3bb",
+>>>>>>> BRANCH (9787ae Merge changes I59202222,Ia8f600e2,Ic2830c57 into stable-2.15)
         unsign = True,
     )
 
