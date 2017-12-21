@@ -5387,8 +5387,13 @@ request:
 Identifier that uniquely identifies one change. It contains the URL-encoded
 project name as well as the change number: "'$$<project>~<numericId>$$'"
 
+<<<<<<< HEAD   (7f92f9 Update JGit to 4.9.2.201712150930-r.175-gd8a24ac1c)
 Depending on the server's configuration, Gerrit can still support the following
 deprecated identifiers. These will be removed in a future release:
+=======
+Gerrit still supports the following deprecated identifiers. These will be
+removed in a future release:
+>>>>>>> BRANCH (6979cc NoteDbMigrator: Set checkExisting(false) on PackInserter)
 
 * an ID of the change in the format "'$$<project>~<branch>~<Change-Id>$$'",
   where for the branch the `refs/heads/` prefix can be omitted
