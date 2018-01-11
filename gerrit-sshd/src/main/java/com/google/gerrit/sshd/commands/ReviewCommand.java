@@ -247,7 +247,16 @@ public class ReviewCommand extends SshCommand {
     }
   }
 
+<<<<<<< HEAD   (3a6b92 Documentation: fix ProjectAccessInfo links in rest-api-proje)
   private void applyReview(PatchSet patchSet, ReviewInput review) throws RestApiException {
+=======
+  @Override
+  protected String getTaskDescription() {
+    return "gerrit review";
+  }
+
+  private void applyReview(PatchSet patchSet, final ReviewInput review) throws RestApiException {
+>>>>>>> BRANCH (9dd0e0 SSH commands: Set task name for ReviewCommand)
     gApi.changes()
         .id(patchSet.getId().getParentKey().get())
         .revision(patchSet.getRevision().get())
