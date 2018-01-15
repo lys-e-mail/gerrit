@@ -171,18 +171,27 @@ public class ProjectCacheImpl implements ProjectCache {
   }
 
   @Override
+<<<<<<< HEAD   (a625c0 Merge branch 'stable-2.14' into stable-2.15)
   public void remove(Project p) {
+=======
+  public void remove(final Project p) {
+    remove(p.getNameKey());
+  }
+
+  @Override
+  public void remove(Project.NameKey name) {
+>>>>>>> BRANCH (bbdaf4 Add ProjectCache.remove(Project.NameKey name) method)
     listLock.lock();
     try {
       SortedSet<Project.NameKey> n = Sets.newTreeSet(list.get(ListKey.ALL));
-      n.remove(p.getNameKey());
+      n.remove(name);
       list.put(ListKey.ALL, Collections.unmodifiableSortedSet(n));
     } catch (ExecutionException e) {
       log.warn("Cannot list available projects", e);
     } finally {
       listLock.unlock();
     }
-    evict(p);
+    evict(name);
   }
 
   @Override
