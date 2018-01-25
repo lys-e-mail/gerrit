@@ -19,10 +19,23 @@
    */
   const plugins = {};
 
+<<<<<<< HEAD   (3d8223 Merge changes I8ccca824,I184f3a57,I05432b20)
   const PANEL_ENDPOINTS_MAPPING = {
     CHANGE_SCREEN_BELOW_COMMIT_INFO_BLOCK: 'change-view-integration',
     CHANGE_SCREEN_BELOW_CHANGE_INFO_BLOCK: 'change-metadata-item',
   };
+=======
+  /**
+   * Hash of loaded and installed plugins, name to Plugin object.
+   */
+  const plugins = {};
+
+  const stubbedMethods = ['_loadedGwt', 'screen', 'settingsScreen', 'panel'];
+  const GWT_PLUGIN_STUB = {};
+  for (const name of stubbedMethods) {
+    GWT_PLUGIN_STUB[name] = warnNotSupported.bind(null, name);
+  }
+>>>>>>> BRANCH (feeee8 Merge changes I72768e6b,I1a98a2b8,I9c65fed0,I7307a0ec into s)
 
   let _restAPI;
   const getRestAPI = () => {
@@ -87,11 +100,15 @@
           url.href, '— Unable to determine name.');
       return;
     }
+<<<<<<< HEAD   (3d8223 Merge changes I8ccca824,I184f3a57,I05432b20)
     // Pathname should normally look like this:
     // /plugins/PLUGINNAME/static/SCRIPTNAME.html
     // Or, for app/samples:
     // /plugins/PLUGINNAME.html
     return pathname.split('/')[2].split('.')[0];
+=======
+    return pathname.split('/')[2];
+>>>>>>> BRANCH (feeee8 Merge changes I72768e6b,I1a98a2b8,I9c65fed0,I7307a0ec into s)
   }
 
   function Plugin(opt_url) {
@@ -103,6 +120,7 @@
       return;
     }
     this.deprecated = {
+<<<<<<< HEAD   (3d8223 Merge changes I8ccca824,I184f3a57,I05432b20)
       _loadedGwt: deprecatedAPI._loadedGwt.bind(this),
       install: deprecatedAPI.install.bind(this),
       onAction: deprecatedAPI.onAction.bind(this),
@@ -110,6 +128,11 @@
       popup: deprecatedAPI.popup.bind(this),
       screen: deprecatedAPI.screen.bind(this),
       settingsScreen: deprecatedAPI.settingsScreen.bind(this),
+=======
+      install: deprecatedAPI.install.bind(this),
+      popup: deprecatedAPI.popup.bind(this),
+      onAction: deprecatedAPI.onAction.bind(this),
+>>>>>>> BRANCH (feeee8 Merge changes I72768e6b,I1a98a2b8,I9c65fed0,I7307a0ec into s)
     };
 
     this._url = new URL(opt_url);
