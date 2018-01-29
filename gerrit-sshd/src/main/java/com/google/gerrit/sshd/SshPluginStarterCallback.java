@@ -32,14 +32,26 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
   private static final Logger log = LoggerFactory.getLogger(SshPluginStarterCallback.class);
 
   private final DispatchCommandProvider root;
+<<<<<<< HEAD   (58f4cc Merge branch 'stable-2.14' into stable-2.15)
   private final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
+=======
+  private final SshCommandSensitiveFieldsCache cache;
+>>>>>>> BRANCH (5adfe0 Merge "Hide sensitive data from audit and gerrit logs" into )
 
   @Inject
   SshPluginStarterCallback(
       @CommandName(Commands.ROOT) DispatchCommandProvider root,
+<<<<<<< HEAD   (58f4cc Merge branch 'stable-2.14' into stable-2.15)
       DynamicMap<DynamicOptions.DynamicBean> dynamicBeans) {
+=======
+      SshCommandSensitiveFieldsCache cache) {
+>>>>>>> BRANCH (5adfe0 Merge "Hide sensitive data from audit and gerrit logs" into )
     this.root = root;
+<<<<<<< HEAD   (58f4cc Merge branch 'stable-2.14' into stable-2.15)
     this.dynamicBeans = dynamicBeans;
+=======
+    this.cache = cache;
+>>>>>>> BRANCH (5adfe0 Merge "Hide sensitive data from audit and gerrit logs" into )
   }
 
   @Override
@@ -56,6 +68,7 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
     if (cmd != null) {
       newPlugin.add(root.replace(Commands.named(newPlugin.getName()), cmd));
     }
+    cache.evictAll();
   }
 
   private Provider<Command> load(Plugin plugin) {
