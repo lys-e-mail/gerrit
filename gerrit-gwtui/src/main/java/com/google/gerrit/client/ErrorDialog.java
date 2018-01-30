@@ -88,7 +88,7 @@ public class ErrorDialog extends PopupPanel {
   /** Create a dialog box to show a single message string. */
   public ErrorDialog(String message) {
     this();
-    body.add(new Label(message));
+    body.add(createErrorMsgLabel(message));
   }
 
   /** Create a dialog box to show a single message string. */
@@ -145,13 +145,21 @@ public class ErrorDialog extends PopupPanel {
     }
 
     if (msg != null) {
-      final Label m = new Label(msg);
-      m.getElement().getStyle().setProperty("whiteSpace", "pre");
-      body.add(m);
+      body.add(createErrorMsgLabel(msg));
     }
   }
 
+<<<<<<< HEAD   (5cd43b Merge branch 'stable-2.14' into stable-2.15)
   public ErrorDialog setText(String t) {
+=======
+  private Label createErrorMsgLabel(String message) {
+    Label m = new Label(message);
+    m.getElement().getStyle().setProperty("white-space", "pre");
+    return m;
+  }
+
+  public ErrorDialog setText(final String t) {
+>>>>>>> BRANCH (bf5cfe Fix error dialog not honoring line breaks)
     text.setText(t);
     return this;
   }
