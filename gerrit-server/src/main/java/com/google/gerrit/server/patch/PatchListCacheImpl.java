@@ -15,9 +15,12 @@
 
 package com.google.gerrit.server.patch;
 
+<<<<<<< HEAD   (6d125c Merge "Avoid NPE when listing groups of a user in Gerrit sla)
 import static com.google.gerrit.server.patch.DiffSummaryLoader.toDiffSummary;
 
 import com.google.common.annotations.VisibleForTesting;
+=======
+>>>>>>> BRANCH (22ae81 Merge branch 'stable-2.13' into stable-2.14)
 import com.google.common.cache.Cache;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gerrit.extensions.client.DiffPreferencesInfo.Whitespace;
@@ -102,6 +105,7 @@ public class PatchListCacheImpl implements PatchListCache {
       throws PatchListNotAvailableException {
     try {
       PatchList pl = fileCache.get(key, fileLoaderFactory.create(key, project));
+<<<<<<< HEAD   (6d125c Merge "Avoid NPE when listing groups of a user in Gerrit sla)
       if (pl instanceof LargeObjectTombstone) {
         throw new PatchListNotAvailableException(
             "Error computing " + key + ". Previous attempt failed with LargeObjectException");
@@ -109,6 +113,8 @@ public class PatchListCacheImpl implements PatchListCache {
       if (key.getAlgorithm() == PatchListKey.Algorithm.OPTIMIZED_DIFF) {
         diffSummaryCache.put(DiffSummaryKey.fromPatchListKey(key), toDiffSummary(pl));
       }
+=======
+>>>>>>> BRANCH (22ae81 Merge branch 'stable-2.13' into stable-2.14)
       return pl;
     } catch (ExecutionException e) {
       PatchListLoader.log.warn("Error computing " + key, e);
