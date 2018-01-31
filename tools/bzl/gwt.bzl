@@ -99,6 +99,11 @@ USER_AGENT_XML = """<module rename-to='gerrit_ui'>
 def gwt_module(gwt_xml=None, resources=[], srcs=[], **kwargs):
   if gwt_xml:
     resources = resources + [gwt_xml]
+<<<<<<< HEAD   (ed482e Merge "polygerrit: Add note in README about npm install" int)
+=======
+  if srcs:
+    resources = resources + srcs
+>>>>>>> BRANCH (e48671 Fix build for bazel 0.9.0)
 
   java_library2(
     srcs = srcs,
