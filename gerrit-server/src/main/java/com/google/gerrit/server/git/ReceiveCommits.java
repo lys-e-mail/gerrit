@@ -180,8 +180,13 @@ import org.slf4j.LoggerFactory;
 public class ReceiveCommits {
   private static final Logger log = LoggerFactory.getLogger(ReceiveCommits.class);
 
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
   public static final Pattern NEW_PATCHSET =
       Pattern.compile("^" + REFS_CHANGES + "(?:[0-9][0-9]/)?([1-9][0-9]*)(?:/new)?$");
+=======
+  public static final Pattern NEW_PATCHSET = Pattern.compile(
+      "^" + REFS_CHANGES + "(?:[0-9][0-9]/)?([1-9][0-9]*)(?:/[1-9][0-9]*)?$");
+>>>>>>> BRANCH (fcc660 Set version to 2.13.10)
 
   private static final String COMMAND_REJECTION_MESSAGE_FOOTER =
       "Please read the documentation and contact an administrator\n"

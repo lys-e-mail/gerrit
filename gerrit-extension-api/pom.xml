@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
   <version>2.14.7</version>
+=======
+  <version>2.13.10</version>
+>>>>>>> BRANCH (fcc660 Set version to 2.13.10)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

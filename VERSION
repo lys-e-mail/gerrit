@@ -1,0 +1,8 @@
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
+=======
+# Maven style API version (e.g. '2.x-SNAPSHOT').
+# Used by :api_install and :api_deploy targets
+# when talking to the destination repository.
+#
+GERRIT_VERSION = '2.13.10'
+>>>>>>> BRANCH (fcc660 Set version to 2.13.10)
