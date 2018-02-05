@@ -42,7 +42,12 @@ import com.google.gerrit.extensions.common.CommitInfo;
 import com.google.gerrit.extensions.common.MergeInput;
 import com.google.gerrit.extensions.common.RevisionInfo;
 import com.google.gerrit.extensions.restapi.BadRequestException;
+<<<<<<< HEAD   (773d67 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
+=======
+import com.google.gerrit.extensions.restapi.MethodNotAllowedException;
+import com.google.gerrit.extensions.restapi.ResourceConflictException;
+>>>>>>> BRANCH (613177 Merge "Bazel: Use rules_closure from HEAD" into stable-2.14)
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.reviewdb.client.Branch;
@@ -94,6 +99,16 @@ public class CreateChangeIT extends AbstractDaemonTest {
   public void createEmptyChange_InvalidStatus() throws Exception {
     ChangeInput ci = newChangeInput(ChangeStatus.MERGED);
     assertCreateFails(ci, BadRequestException.class, "unsupported change status");
+  }
+
+  @Test
+  public void createEmptyChange_InvalidChangeId() throws Exception {
+    ChangeInput ci = newChangeInput(ChangeStatus.NEW);
+    ci.subject = "Subject\n\nChange-Id: I0000000000000000000000000000000000000000";
+    assertCreateFails(
+        ci,
+        ResourceConflictException.class,
+        "invalid Change-Id line format in commit message footer");
   }
 
   @Test

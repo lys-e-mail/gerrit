@@ -27,6 +27,77 @@ polygerrit_bundle(
             "**/*_test.html",
         ],
     ),
+<<<<<<< HEAD   (773d67 Merge branch 'stable-2.14' into stable-2.15)
+=======
+    app = "elements/gr-app.html",
+    deps = ["//polygerrit-ui:polygerrit_components.bower_components"],
+)
+
+closure_js_library(
+    name = "closure_lib",
+    srcs = ["gr-app.js"],
+    convention = "GOOGLE",
+    # TODO(davido): Clean up these issues: http://paste.openstack.org/show/608548
+    # and remove this supression
+    suppress = [
+        "JSC_JSDOC_MISSING_TYPE_WARNING",
+        "JSC_UNNECESSARY_ESCAPE",
+        "JSC_UNUSED_LOCAL_ASSIGNMENT",
+    ],
+    deps = [
+        "//lib/polymer_externs:polymer_closure",
+        "@io_bazel_rules_closure//closure/library",
+    ],
+)
+
+closure_js_binary(
+    name = "closure_bin",
+    # Known issue: Closure compilation not compatible with Polymer behaviors.
+    # See: https://github.com/google/closure-compiler/issues/2042
+    compilation_level = "WHITESPACE_ONLY",
+    defs = [
+        "--polymer_pass",
+        "--jscomp_off=duplicate",
+        "--force_inject_library=es6_runtime",
+    ],
+    language = "ECMASCRIPT5",
+    deps = [":closure_lib"],
+)
+
+filegroup(
+    name = "top_sources",
+    srcs = [
+        "favicon.ico",
+        "index.html",
+    ],
+)
+
+filegroup(
+    name = "css_sources",
+    srcs = glob(["styles/**/*.css"]),
+)
+
+filegroup(
+    name = "app_sources",
+    srcs = [
+        "closure_bin.js",
+        "gr-app.html",
+    ],
+)
+
+genrule2(
+    name = "polygerrit_ui",
+    srcs = [
+        "//lib/fonts:sourcecodepro",
+        "//lib/js:highlightjs_files",
+        ":top_sources",
+        ":css_sources",
+        ":app_sources",
+        # we extract from the zip, but depend on the component for license checking.
+        "@webcomponentsjs//:zipfile",
+        "//lib/js:webcomponentsjs",
+    ],
+>>>>>>> BRANCH (613177 Merge "Bazel: Use rules_closure from HEAD" into stable-2.14)
     outs = ["polygerrit_ui.zip"],
     app = "elements/gr-app.html",
 )

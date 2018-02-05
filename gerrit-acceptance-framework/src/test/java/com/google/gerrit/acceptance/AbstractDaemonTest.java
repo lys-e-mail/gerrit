@@ -849,8 +849,22 @@ public abstract class AbstractDaemonTest {
     }
   }
 
+<<<<<<< HEAD   (773d67 Merge branch 'stable-2.14' into stable-2.15)
   protected void deny(String ref, String permission, AccountGroup.UUID id) throws Exception {
     deny(project, ref, permission, id);
+=======
+  protected void setRequireChangeId(InheritableBoolean value) throws Exception {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      ProjectConfig config = ProjectConfig.read(md);
+      config.getProject().setRequireChangeID(value);
+      config.commit(md);
+      projectCache.evict(config.getProject());
+    }
+  }
+
+  protected void deny(String permission, AccountGroup.UUID id, String ref) throws Exception {
+    deny(project, permission, id, ref);
+>>>>>>> BRANCH (613177 Merge "Bazel: Use rules_closure from HEAD" into stable-2.14)
   }
 
   protected void deny(Project.NameKey p, String ref, String permission, AccountGroup.UUID id)

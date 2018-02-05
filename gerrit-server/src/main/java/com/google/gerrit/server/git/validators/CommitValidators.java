@@ -251,6 +251,7 @@ public class CommitValidators {
       String sha1 = commit.abbreviate(RevId.ABBREV_LEN).name();
 
       if (idList.isEmpty()) {
+<<<<<<< HEAD   (773d67 Merge branch 'stable-2.14' into stable-2.15)
         if (projectState.isRequireChangeID()) {
           String shortMsg = commit.getShortMessage();
           if (shortMsg.startsWith(CHANGE_ID_PREFIX)
@@ -260,6 +261,15 @@ public class CommitValidators {
             String errMsg = String.format(MISSING_SUBJECT_MSG, sha1);
             throw new CommitValidationException(errMsg);
           }
+=======
+        String shortMsg = commit.getShortMessage();
+        if (shortMsg.startsWith(CHANGE_ID_PREFIX)
+            && CHANGE_ID.matcher(shortMsg.substring(CHANGE_ID_PREFIX.length()).trim()).matches()) {
+          String errMsg = String.format(MISSING_SUBJECT_MSG, sha1);
+          throw new CommitValidationException(errMsg);
+        }
+        if (projectControl.getProjectState().isRequireChangeID()) {
+>>>>>>> BRANCH (613177 Merge "Bazel: Use rules_closure from HEAD" into stable-2.14)
           String errMsg = String.format(MISSING_CHANGE_ID_MSG, sha1);
           messages.add(getMissingChangeIdErrorMsg(errMsg, commit));
           throw new CommitValidationException(errMsg, messages);
