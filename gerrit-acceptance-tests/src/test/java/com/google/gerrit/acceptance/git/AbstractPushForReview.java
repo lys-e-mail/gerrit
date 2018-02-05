@@ -988,9 +988,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     assertThat(GitUtil.getChangeId(testRepo, c).isPresent()).isFalse();
     pushForReviewRejected(testRepo, "missing Change-Id in commit message footer");
 
-    ProjectConfig config = projectCache.checkedGet(project).getConfig();
-    config.getProject().setRequireChangeID(InheritableBoolean.FALSE);
-    saveProjectConfig(project, config);
+    setRequireChangeId(InheritableBoolean.FALSE);
     pushForReviewOk(testRepo);
   }
 
@@ -1014,10 +1012,16 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
             + "Change-Id: Ie9a132e107def33bdd513b7854b50de911edba0a\n");
     pushForReviewRejected(testRepo, "multiple Change-Id lines in commit message footer");
 
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
     ProjectConfig config = projectCache.checkedGet(project).getConfig();
     config.getProject().setRequireChangeID(InheritableBoolean.FALSE);
     saveProjectConfig(project, config);
     pushForReviewRejected(testRepo, "multiple Change-Id lines in commit message footer");
+=======
+    setRequireChangeId(InheritableBoolean.FALSE);
+    pushForReviewRejected(testRepo,
+        "multiple Change-Id lines in commit message footer");
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
   }
 
   @Test
@@ -1035,10 +1039,16 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     createCommit(testRepo, "Message with invalid Change-Id\n\nChange-Id: X\n");
     pushForReviewRejected(testRepo, "invalid Change-Id line format in commit message footer");
 
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
     ProjectConfig config = projectCache.checkedGet(project).getConfig();
     config.getProject().setRequireChangeID(InheritableBoolean.FALSE);
     saveProjectConfig(project, config);
     pushForReviewRejected(testRepo, "invalid Change-Id line format in commit message footer");
+=======
+    setRequireChangeId(InheritableBoolean.FALSE);
+    pushForReviewRejected(testRepo,
+        "invalid Change-Id line format in commit message footer");
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
   }
 
   @Test
@@ -1061,13 +1071,20 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
             + "Change-Id: I0000000000000000000000000000000000000000\n");
     pushForReviewRejected(testRepo, "invalid Change-Id line format in commit message footer");
 
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
     ProjectConfig config = projectCache.checkedGet(project).getConfig();
     config.getProject().setRequireChangeID(InheritableBoolean.FALSE);
     saveProjectConfig(project, config);
     pushForReviewRejected(testRepo, "invalid Change-Id line format in commit message footer");
+=======
+    setRequireChangeId(InheritableBoolean.FALSE);
+    pushForReviewRejected(testRepo,
+        "invalid Change-Id line format in commit message footer");
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
   }
 
   @Test
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
   public void pushCommitWithSameChangeIdAsPredecessorChange() throws Exception {
     PushOneCommit push =
         pushFactory.create(
@@ -1134,6 +1151,22 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
             .add("a.txt", "content")
             .create();
     return testRepo.getRevWalk().parseCommit(c);
+=======
+  public void pushWithChangeIdInSubjectLine() throws Exception {
+    createCommit(testRepo, "Change-Id: I1234000000000000000000000000000000000000");
+    pushForReviewRejected(testRepo,
+        "missing subject; Change-Id must be in commit message footer");
+
+    setRequireChangeId(InheritableBoolean.FALSE);
+    pushForReviewRejected(testRepo,
+        "missing subject; Change-Id must be in commit message footer");
+  }
+
+  private static RevCommit createCommit(TestRepository<?> testRepo,
+      String message) throws Exception {
+    return testRepo.branch("HEAD").commit().message(message)
+        .add("a.txt", "content").create();
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
   }
 
   @Test

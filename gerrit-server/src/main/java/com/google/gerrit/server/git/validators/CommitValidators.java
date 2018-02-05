@@ -248,7 +248,15 @@ public class CommitValidators {
       String sha1 = commit.abbreviate(RevId.ABBREV_LEN).name();
 
       if (idList.isEmpty()) {
+        String shortMsg = commit.getShortMessage();
+        if (shortMsg.startsWith(CHANGE_ID_PREFIX)
+            && CHANGE_ID.matcher(shortMsg.substring(
+                CHANGE_ID_PREFIX.length()).trim()).matches()) {
+          String errMsg = String.format(MISSING_SUBJECT_MSG, sha1);
+          throw new CommitValidationException(errMsg);
+        }
         if (projectControl.getProjectState().isRequireChangeID()) {
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
           String shortMsg = commit.getShortMessage();
           if (shortMsg.startsWith(CHANGE_ID_PREFIX)
               && CHANGE_ID
@@ -257,6 +265,8 @@ public class CommitValidators {
             String errMsg = String.format(MISSING_SUBJECT_MSG, sha1);
             throw new CommitValidationException(errMsg);
           }
+=======
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
           String errMsg = String.format(MISSING_CHANGE_ID_MSG, sha1);
           messages.add(getMissingChangeIdErrorMsg(errMsg, commit));
           throw new CommitValidationException(errMsg, messages);

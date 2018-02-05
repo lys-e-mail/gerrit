@@ -823,7 +823,21 @@ public abstract class AbstractDaemonTest {
     }
   }
 
+<<<<<<< HEAD   (1dafa6 Merge "Bump jsinterop-annotations to 1.0.2" into stable-2.14)
   protected void deny(String permission, AccountGroup.UUID id, String ref) throws Exception {
+=======
+  protected void setRequireChangeId(InheritableBoolean value) throws Exception {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      ProjectConfig config = ProjectConfig.read(md);
+      config.getProject().setRequireChangeID(value);
+      config.commit(md);
+      projectCache.evict(config.getProject());
+    }
+  }
+
+  protected void deny(String permission, AccountGroup.UUID id, String ref)
+      throws Exception {
+>>>>>>> BRANCH (67e053 ReceiveCommits: Fix NEW_PATCHSET regex pattern)
     deny(project, permission, id, ref);
   }
 
