@@ -32,17 +32,27 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
   private static final Logger log = LoggerFactory.getLogger(SshPluginStarterCallback.class);
 
   private final DispatchCommandProvider root;
+<<<<<<< HEAD   (520114 Merge "Move downloaded artifact cache from buck-cache to baz)
   private final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
   private final SshCommandSensitiveFieldsCache cache;
+=======
+>>>>>>> BRANCH (7788ae Move downloaded artifact cache from buck-cache to bazel-cach)
 
   @Inject
+<<<<<<< HEAD   (520114 Merge "Move downloaded artifact cache from buck-cache to baz)
   SshPluginStarterCallback(
       @CommandName(Commands.ROOT) DispatchCommandProvider root,
       DynamicMap<DynamicOptions.DynamicBean> dynamicBeans,
       SshCommandSensitiveFieldsCache cache) {
+=======
+  SshPluginStarterCallback(@CommandName(Commands.ROOT) DispatchCommandProvider root) {
+>>>>>>> BRANCH (7788ae Move downloaded artifact cache from buck-cache to bazel-cach)
     this.root = root;
+<<<<<<< HEAD   (520114 Merge "Move downloaded artifact cache from buck-cache to baz)
     this.dynamicBeans = dynamicBeans;
     this.cache = cache;
+=======
+>>>>>>> BRANCH (7788ae Move downloaded artifact cache from buck-cache to bazel-cach)
   }
 
   @Override
@@ -59,7 +69,6 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
     if (cmd != null) {
       newPlugin.add(root.replace(Commands.named(newPlugin.getName()), cmd));
     }
-    cache.evictAll();
   }
 
   private Provider<Command> load(Plugin plugin) {
