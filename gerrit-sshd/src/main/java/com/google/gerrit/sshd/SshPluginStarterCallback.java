@@ -32,17 +32,27 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
   private static final Logger log = LoggerFactory.getLogger(SshPluginStarterCallback.class);
 
   private final DispatchCommandProvider root;
+<<<<<<< HEAD   (0af28d Merge "Disallow tabbing on paper-button" into stable-2.15)
   private final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
   private final SshCommandSensitiveFieldsCache cache;
+=======
+>>>>>>> BRANCH (dcaa30 Merge "Revert "Hide sensitive data from audit and gerrit log)
 
   @Inject
+<<<<<<< HEAD   (0af28d Merge "Disallow tabbing on paper-button" into stable-2.15)
   SshPluginStarterCallback(
       @CommandName(Commands.ROOT) DispatchCommandProvider root,
       DynamicMap<DynamicOptions.DynamicBean> dynamicBeans,
       SshCommandSensitiveFieldsCache cache) {
+=======
+  SshPluginStarterCallback(@CommandName(Commands.ROOT) DispatchCommandProvider root) {
+>>>>>>> BRANCH (dcaa30 Merge "Revert "Hide sensitive data from audit and gerrit log)
     this.root = root;
+<<<<<<< HEAD   (0af28d Merge "Disallow tabbing on paper-button" into stable-2.15)
     this.dynamicBeans = dynamicBeans;
     this.cache = cache;
+=======
+>>>>>>> BRANCH (dcaa30 Merge "Revert "Hide sensitive data from audit and gerrit log)
   }
 
   @Override
@@ -59,7 +69,6 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
     if (cmd != null) {
       newPlugin.add(root.replace(Commands.named(newPlugin.getName()), cmd));
     }
-    cache.evictAll();
   }
 
   private Provider<Command> load(Plugin plugin) {
