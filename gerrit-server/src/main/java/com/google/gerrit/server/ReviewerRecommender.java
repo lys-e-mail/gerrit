@@ -135,8 +135,13 @@ public class ReviewerRecommender {
                   .getProvider()
                   .get()
                   .suggestReviewers(
+<<<<<<< HEAD   (ec9608 Merge tracking 'stable-2.14' into stable-2.15)
                       projectState.getNameKey(),
                       changeNotes.getChangeId(),
+=======
+                      projectControl.getProject().getNameKey(),
+                      changeNotes != null ? changeNotes.getChangeId() : null,
+>>>>>>> BRANCH (315542 Merge "Provide mvn command output when VERBOSE set" into sta)
                       query,
                       reviewerScores.keySet()));
       String key = plugin.getPluginName() + "-" + plugin.getExportName();
