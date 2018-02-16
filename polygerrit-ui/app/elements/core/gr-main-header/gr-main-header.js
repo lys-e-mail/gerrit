@@ -202,12 +202,34 @@
       this.$.restAPI.getPreferences().then(prefs => {
         this._userLinks =
             prefs.my.map(this._fixMyMenuItem).filter(this._isSupportedLink);
+<<<<<<< HEAD   (bd834d Merge branch 'stable-2.14' into stable-2.15)
       });
+=======
+      }.bind(this));
+      this._loadAccountCapabilities();
+>>>>>>> BRANCH (7823da Merge changes I1cad36de,I2455bca5 into stable-2.14)
     },
 
+<<<<<<< HEAD   (bd834d Merge branch 'stable-2.14' into stable-2.15)
     _fixMyMenuItem(linkObj) {
       // Normalize all urls to PolyGerrit style.
       if (linkObj.url.startsWith('#')) {
+=======
+    _loadAccountCapabilities: function() {
+      var params = ['createProject', 'createGroup', 'viewPlugins'];
+      return this.$.restAPI.getAccountCapabilities(params)
+          .then(function(capabilities) {
+        this._adminLinks = ADMIN_LINKS.filter(function(link) {
+          return !link.capability ||
+              capabilities.hasOwnProperty(link.capability);
+        });
+      }.bind(this));
+    },
+
+    _fixMyMenuItem: function(linkObj) {
+      // Normalize all urls to PolyGerrit style.
+      if (linkObj.url.indexOf('#') === 0) {
+>>>>>>> BRANCH (7823da Merge changes I1cad36de,I2455bca5 into stable-2.14)
         linkObj.url = linkObj.url.slice(1);
       }
 

@@ -52,11 +52,21 @@ limitations under the License.
       sandbox.restore();
     });
 
+<<<<<<< HEAD   (bd834d Merge branch 'stable-2.14' into stable-2.15)
     test('fix my menu item', () => {
+=======
+    test('fix my menu item', function() {
+>>>>>>> BRANCH (7823da Merge changes I1cad36de,I2455bca5 into stable-2.14)
       assert.deepEqual([
         {url: 'https://awesometown.com/#hashyhash'},
         {url: 'url', target: '_blank'},
+<<<<<<< HEAD   (bd834d Merge branch 'stable-2.14' into stable-2.15)
       ].map(element._fixMyMenuItem), [
+=======
+      ].map(element._fixMyMenuItem),
+      [
+        {url: '/q/owner:self+is:draft', external: true},
+>>>>>>> BRANCH (7823da Merge changes I1cad36de,I2455bca5 into stable-2.14)
         {url: 'https://awesometown.com/#hashyhash', external: true},
         {url: 'url', external: true},
       ]);
