@@ -363,6 +363,19 @@ The entries in the map are sorted by cache name.
       "entries": {},
       "hit_ratio": {}
     },
+<<<<<<< HEAD   (0f94a4 Merge changes If917e10d,Ic5fae13c)
+=======
+    groups_subgroups": {
+      "type": "MEM",
+      "entries": {
+        "mem": 4
+      },
+      "average_get": "697.8us",
+      "hit_ratio": {
+        "mem": 82
+      }
+    },
+>>>>>>> BRANCH (ff03f0 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     "permission_sort": {
       "type": "MEM",
       "entries": {
@@ -467,6 +480,10 @@ The cache names are lexicographically sorted.
     "groups_bysubgroup",
     "groups_byuuid",
     "groups_external",
+<<<<<<< HEAD   (0f94a4 Merge changes If917e10d,Ic5fae13c)
+=======
+    "groups_subgroups",
+>>>>>>> BRANCH (ff03f0 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     "permission_sort",
     "plugin_resources",
     "project_list",
