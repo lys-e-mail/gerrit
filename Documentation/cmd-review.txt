@@ -120,9 +120,16 @@ branch.
 	Votes that are not permitted for the user are silently ignored.
 
 --label::
+<<<<<<< HEAD   (0f94a4 Merge changes If917e10d,Ic5fae13c)
 	Set a label by name to the value 'N'.  Invalid votes (invalid label
 	or invalid value) and votes that are not permitted for the user are
 	silently ignored.
+=======
+	Set a label by name to the value 'N'. The ability to vote on all specified
+	labels is required. If the vote is invalid (invalid label or invalid name),
+	the vote is not permitted for the user, or the vote is on an outdated or
+	closed patch set, return an error instead of silently discarding the vote.
+>>>>>>> BRANCH (ff03f0 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 
 --tag::
 -t::
