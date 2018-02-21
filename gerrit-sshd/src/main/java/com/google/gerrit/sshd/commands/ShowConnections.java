@@ -173,8 +173,13 @@ final class ShowConnections extends SshCommand {
     return sd != null ? IdGenerator.format(sd.getSessionId()) : "";
   }
 
+<<<<<<< HEAD   (26126b Merge "Fix IndexCollection propagation into plugin guice inj)
   private static String time(long now, long time) {
     if (time - now < 24 * 60 * 60 * 1000L) {
+=======
+  private static String time(final long now, final long time) {
+    if (now - time < 24 * 60 * 60 * 1000L) {
+>>>>>>> BRANCH (1e8548 SiteLibraryLoaderUtil: Add debug log of the loaded libraries)
       return new SimpleDateFormat("HH:mm:ss").format(new Date(time));
     }
     return new SimpleDateFormat("MMM-dd").format(new Date(time));
