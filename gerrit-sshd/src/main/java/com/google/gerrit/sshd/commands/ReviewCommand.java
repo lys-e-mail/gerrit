@@ -247,12 +247,16 @@ public class ReviewCommand extends SshCommand {
     }
   }
 
+<<<<<<< HEAD   (e1faf7 Merge branch 'stable-2.14' into stable-2.15)
   @Override
   protected String getTaskDescription() {
     return "gerrit review";
   }
 
   private void applyReview(PatchSet patchSet, ReviewInput review) throws RestApiException {
+=======
+  private void applyReview(PatchSet patchSet, final ReviewInput review) throws RestApiException {
+>>>>>>> BRANCH (a0ae28 Trim multi-line arguments for task name and ssh_log)
     gApi.changes()
         .id(patchSet.getId().getParentKey().get())
         .revision(patchSet.getRevision().get())
