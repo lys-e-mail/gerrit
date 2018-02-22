@@ -1126,6 +1126,7 @@ Allow blame on side by side diff. If set to false, blame cannot be used.
 +
 Default is true.
 
+<<<<<<< HEAD   (aaf9e9 Merge "Remove declarations of unthrown OrmException")
 [[change.allowDrafts]]change.allowDrafts::
 +
 Allow drafts workflow. If set to false, drafts cannot be created,
@@ -1145,6 +1146,8 @@ explicitly.
 +
 Default is `ALL`.
 
+=======
+>>>>>>> BRANCH (2e609b ChangeQueryBuilder: Remove unused Config parameter from cons)
 [[change.cacheAutomerge]]change.cacheAutomerge::
 +
 When reviewing diff commits, the left-hand side shows the output of the
