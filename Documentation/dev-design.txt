@@ -183,9 +183,15 @@ repositories for each project.
 
 Gerrit is developed as a self-hosting open source project:
 
+<<<<<<< HEAD   (bc24c1 MergeUtil: Use InMemoryInserter for dry runs)
 * link:https://www.gerritcodereview.com/[Project Homepage]
 * link:https://www.gerritcodereview.com/download/index.html[Release Versions]
 * link:https://gerrit.googlesource.com/gerrit[Source]
+=======
+* link:http://code.google.com/p/gerrit/[Project Homepage]
+* link:http://code.google.com/p/gerrit/downloads/list[Release Versions]
+* link:http://code.google.com/p/gerrit/source/checkout[Source]
+>>>>>>> BRANCH (3ca7f7 Set version to 2.11.11)
 * link:https://bugs.chromium.org/p/gerrit/issues/list[Issue Tracking]
 * link:https://review.source.android.com/[Change Review]
 
@@ -342,7 +348,7 @@ automate interfaces may make it impossible for non-browser agents
 to be used with the JSON-RPC interface.
 
 * link:http://json-rpc.org/wd/JSON-RPC-1-1-WD-20060807.html[JSON-RPC 1.1]
-* link:http://code.google.com/p/gerrit/source/browse/README?repo=gwtjsonrpc&name=master[XSRF JSON-RPC]
+* link:https://gerrit.googlesource.com/gwtjsonrpc/+/master/README[XSRF JSON-RPC]
 
 
 == Privacy Considerations
