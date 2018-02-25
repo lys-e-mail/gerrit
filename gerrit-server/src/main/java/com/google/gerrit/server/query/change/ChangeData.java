@@ -961,8 +961,21 @@ public class ChangeData {
           return null;
         }
         PatchSet ps = currentPatchSet();
+<<<<<<< HEAD   (a896a3 Make ChangeControl package-private)
         if (ps == null) {
           return null;
+=======
+        try {
+          if (ps == null
+              || (!changeControl().isOwner() && !changeControl().isPatchVisible(ps, db))) {
+            return null;
+          }
+        } catch (OrmException e) {
+          if (e.getCause() instanceof NoSuchChangeException) {
+            return null;
+          }
+          throw e;
+>>>>>>> BRANCH (0dfab1 Merge changes from topic "issue-8381" into stable-2.14)
         }
 
         try (Repository repo = repoManager.openRepository(project())) {
