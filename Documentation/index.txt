@@ -77,11 +77,19 @@
 
 == Resources
 * link:licenses.html[Licenses and Notices]
+<<<<<<< HEAD   (bc24c1 MergeUtil: Use InMemoryInserter for dry runs)
 * link:https://www.gerritcodereview.com/[Homepage]
 * link:https://www.gerritcodereview.com/download/index.html[Downloads]
 * link:https://bugs.chromium.org/p/gerrit/issues/list[Issue Tracking]
 * link:https://gerrit.googlesource.com/gerrit[Source Code]
 * link:https://www.gerritcodereview.com/about.md[A History of Gerrit Code Review]
+=======
+* link:http://code.google.com/p/gerrit/[Homepage]
+* link:http://gerrit-releases.storage.googleapis.com/index.html[Downloads]
+* link:https://bugs.chromium.org/p/gerrit/issues/list[Issue Tracking]
+* link:http://code.google.com/p/gerrit/source/checkout[Source Code]
+* link:http://code.google.com/p/gerrit/wiki/Background[A History of Gerrit Code Review]
+>>>>>>> BRANCH (9ea197 Set version to 2.11.11)
 
 SEARCHBOX
 ---------
