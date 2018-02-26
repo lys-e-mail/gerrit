@@ -15,7 +15,13 @@ EXPORTS = [
     "//gerrit-gwtexpui:server",
     "//gerrit-server:metrics",
     "//gerrit-reviewdb:server",
+<<<<<<< HEAD   (681e48 Merge branch 'stable-2.14' into stable-2.15)
     "//gerrit-server:prolog-common",
+=======
+    "//gerrit-server/src/main/prolog:common",
+    "//lib:caffeine",
+    "//lib:caffeine_guava",
+>>>>>>> BRANCH (80ce3f Merge "Reduce chance of deadlock in account cache" into stab)
     "//lib/commons:dbcp",
     "//lib/commons:lang",
     "//lib/commons:lang3",
