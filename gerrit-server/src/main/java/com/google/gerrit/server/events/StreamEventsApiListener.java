@@ -167,9 +167,14 @@ public class StreamEventsApiListener
         new Supplier<AccountAttribute>() {
           @Override
           public AccountAttribute get() {
+<<<<<<< HEAD   (80ce3f Merge "Reduce chance of deadlock in account cache" into stab)
             return account != null
                 ? eventFactory.asAccountAttribute(new Account.Id(account._accountId))
                 : null;
+=======
+            return account != null ? eventFactory.asAccountAttribute(
+                new Account.Id(account._accountId)) : null;
+>>>>>>> BRANCH (2fee1f Set version to 2.13.11)
           }
         });
   }
