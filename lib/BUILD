@@ -87,7 +87,36 @@ java_library(
     data = ["//lib:LICENSE-Apache2.0"],
     visibility = ["//visibility:public"],
     exports = ["@guava//jar"],
+<<<<<<< HEAD   (87d95b Merge "Expand docs on how to include external dependencies i)
     runtime_deps = [":j2objc"],
+=======
+)
+
+java_library(
+    name = "caffeine",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@caffeine//jar"],
+)
+
+java_library(
+    name = "caffeine_guava",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@caffeine_guava//jar"],
+)
+
+java_library(
+    name = "velocity",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@velocity//jar"],
+    runtime_deps = [
+        "//lib/commons:collections",
+        "//lib/commons:lang",
+        "//lib/commons:oro",
+    ],
+>>>>>>> BRANCH (3ffeee Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 )
 
 java_library(
