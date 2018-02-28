@@ -58,11 +58,16 @@ limitations under the License.
         width: 100%;
       }
       .actions {
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
         background-color: var(--view-background-color);
         bottom: 0;
         display: flex;
         justify-content: space-between;
         position: sticky;
+=======
+        display: flex;
+        justify-content: space-between;
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       }
       .actions .right gr-button {
         margin-left: 1em;
@@ -138,6 +143,17 @@ limitations under the License.
       #savingLabel.saving {
         display: inline;
       }
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
+=======
+      @media screen and (max-width: 50em) {
+        :host {
+          max-height: none;
+        }
+        .container {
+          max-height: none;
+        }
+      }
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
     </style>
     <div class="container" tabindex="-1">
       <section class="peopleContainer">
@@ -265,7 +281,11 @@ limitations under the License.
           <span
               id="notLatestLabel"
               hidden$="[[!_isState(knownLatestState, 'not-latest')]]">
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
             [[_computePatchSetWarning(patchNum, _labelsChanged)]]
+=======
+            Patch [[patchNum]] is not latest.
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
             <gr-button link on-tap="_reload">Reload</gr-button>
           </span>
         </div>
@@ -278,7 +298,11 @@ limitations under the License.
           <gr-button
               link
               primary
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
               disabled="[[_computeSendButtonDisabled(_sendButtonLabel, diffDrafts, draft, _reviewersMutated, _labelsChanged, _includeComments)]]"
+=======
+              disabled="[[_computeSendButtonDisabled(knownLatestState, _sendButtonLabel, diffDrafts, draft, _reviewersMutated, _labelsChanged, _includeComments)]]"
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
               class="action send"
               has-tooltip
               title$="[[_computeSendButtonTooltip(canBeStarted)]]"

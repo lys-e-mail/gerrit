@@ -28,11 +28,14 @@
         value: false,
         reflectToAttribute: true,
       },
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
       raised: {
         type: Boolean,
         reflectToAttribute: true,
         computed: '_isRaised(link)',
       },
+=======
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       loading: {
         type: Boolean,
         value: false,
@@ -95,6 +98,10 @@
       }
       this.setAttribute('tabindex', disabled ? '-1' : this._enabledTabindex);
       this.updateStyles();
+    },
+
+    _computeDisabled(disabled, loading) {
+      return disabled || loading;
     },
 
     _computeDisabled(disabled, loading) {

@@ -40,9 +40,17 @@ limitations under the License.
         text-transform: none;
       }
       paper-button {
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
         /* paper-button sets this to anti-aliased, which appears different than
         roboto-medium elsewhere. */
         -webkit-font-smoothing: initial;
+=======
+        /* Some of these are overridden for link style buttons since buttons
+         without the link attribute are raised */
+        background-color: var(--gr-button-background, #fff);
+        color: var(--gr-button-color, var(--color-link));
+        display: flex;
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
         align-items: center;
         background-color: var(--background-color);
         color: var(--button-color);
@@ -54,12 +62,19 @@ limitations under the License.
         padding: var(--padding, 5px 10px);
         @apply --gr-button;
       }
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
       paper-button:hover {
         background: linear-gradient(
           rgba(0, 0, 0, .12),
           rgba(0, 0, 0, .12)
         ), var(--background-color);
+=======
+      paper-button:hover,
+      paper-button:focus {
+        color: var(--gr-button-hover-color, var(--color-button-hover));
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       }
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
 
       /* Styles for raised buttons specifically */
       :host([primary][raised]),
@@ -90,6 +105,13 @@ limitations under the License.
       }
 
       /* Styles for the optional down arrow */
+=======
+      :host([disabled]) paper-button {
+        color: #a8a8a8;
+        cursor: wait;
+      }
+      /* styles for the optional down arrow */
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       :host:not([down-arrow]) .downArrow {display: none; }
       :host([down-arrow]) .downArrow {
         border-top: .36em solid #ccc;
@@ -100,14 +122,68 @@ limitations under the License.
         transition: border-top-color 200ms;
       }
       :host([down-arrow]) paper-button:hover .downArrow {
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
         border-top-color: #666;
+=======
+        border-top-color: var(--gr-button-arrow-hover-color, #666);
+      }
+
+      /* styles for raised buttons specifically*/
+      :host([primary]) paper-button[raised],
+      :host([secondary]) paper-button[raised] {
+        background-color: var(--color-link);
+        color: #fff;
+      }
+      :host([primary]) paper-button[raised]:hover,
+      :host([primary]) paper-button[raised]:focus,
+      :host([secondary]) paper-button[raised]:hover,
+      :host([secondary]) paper-button[raised]:focus {
+        background-color: var(--gr-button-hover-background-color, var(--color-button-hover));
+        color: var(--gr-button-color, #fff);
+      }
+      :host([disabled]) paper-button[raised] {
+        background-color: #eaeaea;
+        color: #a8a8a8;
+      }
+      /* styles for link buttons specifically */
+      :host([link]) {
+        background-color: transparent;
+        border: none;
+        color: var(--color-link);
+        font-size: inherit;
+        font-family: var(--font-family-bold);
+        text-transform: none;
+      }
+      :host([link][tertiary]) {
+        color: var(--color-link-tertiary);
+      }
+      :host([link]) paper-button {
+        background-color: transparent;
+        margin: 0;
+        padding: 0;
+        --paper-button: {
+          padding: 0;
+        }
+        @apply --gr-button;
+      }
+      :host([disabled][link]) paper-button {
+        background-color: transparent;
+      }
+      :host([link]) paper-button:hover,
+      :host([link]) paper-button:focus {
+        color: var(--gr-button-hover-color, var(--color-button-hover));
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       }
     </style>
     <paper-button
         raised="[[!link]]"
         disabled="[[_computeDisabled(disabled, loading)]]"
         tabindex="-1">
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
       <slot></slot>
+=======
+      <content></content>
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
       <i class="downArrow"></i>
     </paper-button>
   </template>

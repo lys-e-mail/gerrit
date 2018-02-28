@@ -58,8 +58,13 @@ limitations under the License.
       <header><slot name="header"></slot></header>
       <main><slot name="main"></slot></main>
       <footer>
+<<<<<<< HEAD   (b10ddd Merge "Improve layout of comment list in mobile")
         <gr-button link on-tap="_handleCancelTap">[[cancelLabel]]</gr-button>
         <gr-button link primary on-tap="_handleConfirm" disabled="[[disabled]]">
+=======
+        <gr-button link on-tap="_handleCancelTap">Cancel</gr-button>
+        <gr-button link primary on-tap="_handleConfirmTap" disabled="[[disabled]]">
+>>>>>>> BRANCH (c6facd Revert "Reduce chance of deadlock in account cache")
           [[confirmLabel]]
         </gr-button>
       </footer>
