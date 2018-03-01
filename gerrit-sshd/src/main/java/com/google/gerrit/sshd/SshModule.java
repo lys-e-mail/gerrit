@@ -17,7 +17,11 @@ package com.google.gerrit.sshd;
 import static com.google.gerrit.extensions.registration.PrivateInternals_DynamicTypes.registerInParentInjectors;
 import static com.google.inject.Scopes.SINGLETON;
 
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
 import com.google.gerrit.extensions.registration.DynamicMap;
+=======
+import com.google.gerrit.extensions.registration.DynamicItem;
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
 import com.google.gerrit.lifecycle.LifecycleModule;
 import com.google.gerrit.server.DynamicOptions;
 import com.google.gerrit.server.PeerDaemonUser;
@@ -96,8 +100,12 @@ public class SshModule extends LifecycleModule {
         .annotatedWith(UniqueAnnotations.create())
         .to(SshPluginStarterCallback.class);
 
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
     DynamicMap.mapOf(binder(), DynamicOptions.DynamicBean.class);
 
+=======
+    DynamicItem.itemOf(binder(), SshCreateCommandInterceptor.class);
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
     listener().toInstance(registerInParentInjectors());
     listener().to(SshLog.class);
     listener().to(SshDaemon.class);

@@ -171,16 +171,50 @@ public class PostReviewers
 
   public Addition prepareApplication(
       ChangeResource rsrc, AddReviewerInput input, boolean allowGroup)
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
       throws OrmException, IOException, PermissionBackendException, ConfigInvalidException {
     String reviewer = input.reviewer;
     ReviewerState state = input.state();
     NotifyHandling notify = input.notify;
     ListMultimap<RecipientType, Account.Id> accountsToNotify = null;
+=======
+      throws OrmException, RestApiException, IOException {
+    IdentifiedUser user = null;
+    boolean accountFound = true;
+    boolean isExactMatch = false;
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
     try {
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
       accountsToNotify = notifyUtil.resolveAccounts(input.notifyDetails);
     } catch (BadRequestException e) {
       return fail(reviewer, e.getMessage());
+=======
+      user = accounts.parse(input.reviewer);
+      if (input.reviewer.equalsIgnoreCase(user.getName())
+          || input.reviewer.equals(String.valueOf(user.getAccountId()))) {
+        isExactMatch = true;
+      }
+    } catch (UnprocessableEntityException e) {
+      accountFound = false;
     }
+
+    if (allowGroup && !isExactMatch) {
+      try {
+        return putGroup(rsrc, input);
+      } catch (UnprocessableEntityException e2) {
+        if (!accountFound) {
+          throw new UnprocessableEntityException(
+              MessageFormat.format(
+                  ChangeMessages.get().reviewerNotFoundUserOrGroup, input.reviewer));
+        }
+      }
+    }
+    if (!accountFound) {
+      throw new UnprocessableEntityException(
+          MessageFormat.format(ChangeMessages.get().reviewerNotFoundUser, input.reviewer));
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
+    }
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
     boolean confirmed = input.confirmed();
     boolean allowByEmail = projectCache.checkedGet(rsrc.getProject()).isEnableReviewerByEmail();
 
@@ -198,6 +232,14 @@ public class PostReviewers
     }
 
     return addByEmail(reviewer, rsrc, state, notify, accountsToNotify);
+=======
+    return putAccount(
+        input.reviewer,
+        reviewerFactory.create(rsrc, user.getAccountId()),
+        input.state(),
+        input.notify,
+        notifyUtil.resolveAccounts(input.notifyDetails));
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
   }
 
   Addition ccCurrentUser(CurrentUser user, RevisionResource revision) {

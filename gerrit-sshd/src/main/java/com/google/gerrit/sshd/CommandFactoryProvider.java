@@ -17,6 +17,7 @@ package com.google.gerrit.sshd;
 import com.google.common.util.concurrent.Atomics;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gerrit.extensions.events.LifecycleListener;
+import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.reviewdb.server.ReviewDb;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.git.WorkQueue;
@@ -57,19 +58,31 @@ class CommandFactoryProvider implements Provider<CommandFactory>, LifecycleListe
   private final ScheduledExecutorService startExecutor;
   private final ExecutorService destroyExecutor;
   private final SchemaFactory<ReviewDb> schemaFactory;
+  private final DynamicItem<SshCreateCommandInterceptor> createCommandInterceptor;
 
   @Inject
   CommandFactoryProvider(
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
       @CommandName(Commands.ROOT) DispatchCommandProvider d,
       @GerritServerConfig Config cfg,
       WorkQueue workQueue,
       SshLog l,
       SshScope s,
       SchemaFactory<ReviewDb> sf) {
+=======
+      @CommandName(Commands.ROOT) final DispatchCommandProvider d,
+      @GerritServerConfig final Config cfg,
+      final WorkQueue workQueue,
+      final SshLog l,
+      final SshScope s,
+      SchemaFactory<ReviewDb> sf,
+      DynamicItem<SshCreateCommandInterceptor> i) {
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
     dispatcher = d;
     log = l;
     sshScope = s;
     schemaFactory = sf;
+    createCommandInterceptor = i;
 
     int threads = cfg.getInt("sshd", "commandStartThreads", 2);
     startExecutor = workQueue.createQueue(threads, "SshCommandStart");
@@ -93,8 +106,18 @@ class CommandFactoryProvider implements Provider<CommandFactory>, LifecycleListe
   public CommandFactory get() {
     return new CommandFactory() {
       @Override
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
       public Command createCommand(String requestCommand) {
         return new Trampoline(requestCommand);
+=======
+      public Command createCommand(final String requestCommand) {
+        String c = requestCommand;
+        SshCreateCommandInterceptor interceptor = createCommandInterceptor.get();
+        if (interceptor != null) {
+          c = interceptor.intercept(c);
+        }
+        return new Trampoline(c);
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
       }
     };
   }

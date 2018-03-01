@@ -15,7 +15,11 @@ EXPORTS = [
     "//gerrit-gwtexpui:server",
     "//gerrit-server:metrics",
     "//gerrit-reviewdb:server",
+<<<<<<< HEAD   (56cd57 GWT/Poly: Default to "Create initial commit" during project )
     "//gerrit-server:prolog-common",
+=======
+    "//gerrit-server/src/main/prolog:common",
+>>>>>>> BRANCH (b5d4df config-plugins: Consistently use "/+doc/" for documentation )
     "//lib/commons:dbcp",
     "//lib/commons:lang",
     "//lib/commons:lang3",
