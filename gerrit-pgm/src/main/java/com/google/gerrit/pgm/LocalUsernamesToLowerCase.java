@@ -64,9 +64,18 @@ public class LocalUsernamesToLowerCase extends SiteProgram {
     Collection<ExternalId> todo = externalIds.all();
     monitor.beginTask("Converting local usernames", todo.size());
 
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
     for (ExternalId extId : todo) {
       convertLocalUserToLowerCase(extId);
       monitor.update(1);
+=======
+      for (ExternalId extId : todo) {
+        convertLocalUserToLowerCase(extId);
+        monitor.update(1);
+      }
+
+      externalIdsBatchUpdate.commit(db);
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
     }
 
     externalIdsBatchUpdate.commit("Convert local usernames to lower case");

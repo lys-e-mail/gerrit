@@ -14,6 +14,7 @@
 
 package com.google.gerrit.pgm.init;
 
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.pgm.init.api.AllUsersNameOnInitProvider;
 import com.google.gerrit.pgm.init.api.InitFlags;
 import com.google.gerrit.reviewdb.client.Project;
@@ -23,24 +24,17 @@ import com.google.gerrit.server.account.externalids.ExternalIdReader;
 import com.google.gerrit.server.account.externalids.ExternalIdsUpdate;
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
+=======
+import static com.google.gerrit.server.account.ExternalId.toAccountExternalIds;
+
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.server.account.ExternalId;
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import com.google.gwtorm.server.OrmException;
-import com.google.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
-import org.eclipse.jgit.errors.ConfigInvalidException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectInserter;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryCache.FileKey;
-import org.eclipse.jgit.notes.NoteMap;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.util.FS;
 
 public class ExternalIdsOnInit {
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
   private final InitFlags flags;
   private final SitePaths site;
   private final String allUsers;
@@ -90,5 +84,9 @@ public class ExternalIdsOnInit {
       throw new IllegalStateException("gerrit.basePath must be configured");
     }
     return FileKey.resolve(basePath.resolve(allUsers).toFile(), FS.DETECTED);
+=======
+  public synchronized void insert(ReviewDb db, Collection<ExternalId> extIds) throws OrmException {
+    db.accountExternalIds().insert(toAccountExternalIds(extIds));
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
   }
 }

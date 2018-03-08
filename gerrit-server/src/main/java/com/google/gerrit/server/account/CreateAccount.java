@@ -160,8 +160,13 @@ public class CreateAccount implements RestModifyView<TopLevelResource, AccountIn
         externalIdsUpdate.insert(ExternalId.createEmail(id, input.email));
       } catch (OrmDuplicateKeyException duplicateKey) {
         try {
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
           externalIdsUpdate.delete(extUser);
         } catch (IOException | ConfigInvalidException cleanupError) {
+=======
+          externalIdsUpdate.delete(db, extUser);
+        } catch (IOException | OrmException cleanupError) {
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
           // Ignored
         }
         throw new UnprocessableEntityException("email '" + input.email + "' already exists");

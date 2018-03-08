@@ -107,7 +107,11 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
   public Response<EmailInfo> apply(IdentifiedUser user, EmailInput input)
       throws AuthException, BadRequestException, ResourceConflictException,
           ResourceNotFoundException, OrmException, EmailException, MethodNotAllowedException,
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
           IOException, ConfigInvalidException, PermissionBackendException {
+=======
+          IOException {
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
     if (input == null) {
       input = new EmailInput();
     }

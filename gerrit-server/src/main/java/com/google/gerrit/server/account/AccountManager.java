@@ -171,6 +171,7 @@ public class AccountManager {
     }
   }
 
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
   private Account updateAccountActiveStatus(AuthRequest authRequest, Account account)
       throws AccountException {
     if (!shouldUpdateActiveStatus(authRequest) || authRequest.isActive() == account.isActive()) {
@@ -199,6 +200,10 @@ public class AccountManager {
 
   private void update(AuthRequest who, ExternalId extId)
       throws OrmException, IOException, ConfigInvalidException {
+=======
+  private void update(ReviewDb db, AuthRequest who, ExternalId extId)
+      throws OrmException, IOException {
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
     IdentifiedUser user = userFactory.create(extId.accountId());
     List<Consumer<Account>> accountUpdates = new ArrayList<>();
 
@@ -354,8 +359,18 @@ public class AccountManager {
    * @throws OrmException thrown if cleaning the database failed
    */
   private void handleSettingUserNameFailure(
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
       Account account, ExternalId extId, String errorMessage, Exception e, boolean logException)
       throws AccountUserNameException, OrmException, IOException, ConfigInvalidException {
+=======
+      ReviewDb db,
+      Account account,
+      ExternalId extId,
+      String errorMessage,
+      Exception e,
+      boolean logException)
+      throws AccountUserNameException, OrmException, IOException {
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
     if (logException) {
       log.error(errorMessage, e);
     } else {
@@ -385,12 +400,38 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult link(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
       throws AccountException, OrmException, IOException, ConfigInvalidException {
     ExternalId extId = externalIds.get(who.getExternalIdKey());
     if (extId != null) {
       if (!extId.accountId().equals(to)) {
         throw new AccountException(
             "Identity '" + extId.key().get() + "' in use by another account");
+=======
+      throws AccountException, OrmException, IOException {
+    try (ReviewDb db = schema.open()) {
+      ExternalId extId = findExternalId(db, who.getExternalIdKey());
+      if (extId != null) {
+        if (!extId.accountId().equals(to)) {
+          throw new AccountException("Identity in use by another account");
+        }
+        update(db, who, extId);
+      } else {
+        externalIdsUpdateFactory
+            .create()
+            .insert(
+                db, ExternalId.createWithEmail(who.getExternalIdKey(), to, who.getEmailAddress()));
+
+        if (who.getEmailAddress() != null) {
+          Account a = db.accounts().get(to);
+          if (a.getPreferredEmail() == null) {
+            a.setPreferredEmail(who.getEmailAddress());
+            db.accounts().update(Collections.singleton(a));
+            byIdCache.evict(to);
+          }
+          byEmailCache.evict(who.getEmailAddress());
+        }
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
       }
       update(who, extId);
     } else {
@@ -428,9 +469,19 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult updateLink(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
       throws OrmException, AccountException, IOException, ConfigInvalidException {
     Collection<ExternalId> filteredExtIdsByScheme =
         externalIds.byAccount(to, who.getExternalIdKey().scheme());
+=======
+      throws OrmException, AccountException, IOException {
+    try (ReviewDb db = schema.open()) {
+      Collection<ExternalId> filteredExtIdsByScheme =
+          ExternalId.from(db.accountExternalIds().byAccount(to).toList())
+              .stream()
+              .filter(e -> e.isScheme(who.getExternalIdKey().scheme()))
+              .collect(toSet());
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 
     if (!filteredExtIdsByScheme.isEmpty()
         && (filteredExtIdsByScheme.size() > 1
@@ -452,6 +503,7 @@ public class AccountManager {
    * @throws AccountException the identity belongs to a different account, or the identity was not
    *     found
    */
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
   public void unlink(Account.Id from, ExternalId.Key extIdKey)
       throws AccountException, OrmException, IOException, ConfigInvalidException {
     unlink(from, ImmutableList.of(extIdKey));
@@ -474,6 +526,12 @@ public class AccountManager {
     List<ExternalId> extIds = new ArrayList<>(extIdKeys.size());
     for (ExternalId.Key extIdKey : extIdKeys) {
       ExternalId extId = externalIds.get(extIdKey);
+=======
+  public AuthResult unlink(Account.Id from, AuthRequest who)
+      throws AccountException, OrmException, IOException {
+    try (ReviewDb db = schema.open()) {
+      ExternalId extId = findExternalId(db, who.getExternalIdKey());
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
       if (extId != null) {
         if (!extId.accountId().equals(from)) {
           throw new AccountException("Identity '" + extIdKey.get() + "' in use by another account");

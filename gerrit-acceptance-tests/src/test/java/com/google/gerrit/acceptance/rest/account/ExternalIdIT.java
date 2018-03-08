@@ -15,6 +15,7 @@
 package com.google.gerrit.acceptance.rest.account;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.gerrit.acceptance.GitUtil.fetch;
 import static com.google.gerrit.acceptance.GitUtil.pushHead;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_MAILTO;
@@ -25,7 +26,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
 import static org.junit.Assert.fail;
+=======
+import static com.google.gerrit.server.account.ExternalId.SCHEME_USERNAME;
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import com.github.rholder.retry.BlockStrategy;
 import com.github.rholder.retry.Retryer;
 import com.github.rholder.retry.RetryerBuilder;
@@ -33,16 +38,22 @@ import com.github.rholder.retry.StopStrategies;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.RestResponse;
 import com.google.gerrit.acceptance.Sandboxed;
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.config.ConsistencyCheckInfo;
 import com.google.gerrit.extensions.api.config.ConsistencyCheckInfo.ConsistencyProblemInfo;
 import com.google.gerrit.extensions.api.config.ConsistencyCheckInput;
 import com.google.gerrit.extensions.api.config.ConsistencyCheckInput.CheckAccountExternalIdsInput;
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import com.google.gerrit.extensions.common.AccountExternalIdInfo;
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.metrics.MetricMaker;
@@ -57,16 +68,23 @@ import com.google.gerrit.server.account.externalids.ExternalIdsUpdate.RefsMetaEx
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
 import com.google.gerrit.server.git.LockFailureException;
+=======
+import com.google.gerrit.server.account.ExternalId;
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import com.google.gson.reflect.TypeToken;
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gwtorm.server.OrmDuplicateKeyException;
 import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
 import java.io.IOException;
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,15 +103,20 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.eclipse.jgit.util.MutableInteger;
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 import org.junit.Test;
 
 @Sandboxed
 public class ExternalIdIT extends AbstractDaemonTest {
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
   @Inject private AllUsersName allUsers;
   @Inject private ExternalIdsUpdate.Server extIdsUpdate;
   @Inject private ExternalIds externalIds;
   @Inject private ExternalIdReader externalIdReader;
   @Inject private MetricMaker metricMaker;
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 
   @Test
   public void getExternalIds() throws Exception {
@@ -251,6 +274,7 @@ public class ExternalIdIT extends AbstractDaemonTest {
     assertThat(response.getEntityContent())
         .isEqualTo(String.format("External id %s does not exist", externalIdStr));
   }
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
 
   @Test
   public void fetchExternalIdsBranch() throws Exception {
@@ -947,4 +971,6 @@ public class ExternalIdIT extends AbstractDaemonTest {
     assertThat(update.getStatus()).isEqualTo(Status.REJECTED_OTHER_REASON);
     assertThat(update.getMessage()).isEqualTo(msg);
   }
+=======
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 }

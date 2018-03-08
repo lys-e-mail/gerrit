@@ -123,7 +123,11 @@ public class InitAdminUser implements InitStep {
           if (email != null) {
             extIds.add(ExternalId.createEmail(id, email));
           }
+<<<<<<< HEAD   (f12894 Merge branch 'stable-2.14' into stable-2.15)
           externalIds.insert("Add external IDs for initial admin user", extIds);
+=======
+          externalIds.insert(db, extIds);
+>>>>>>> BRANCH (b5f32d Merge "ExternalIds NoteDb migration: Avoid intermediate migr)
 
           Account a = new Account(id, TimeUtil.nowTs());
           a.setFullName(name);
