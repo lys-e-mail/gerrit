@@ -39,14 +39,22 @@ try:
             continue
           elif n.startswith(SERVICES):
             # Concatenate all provider configuration files.
+<<<<<<< HEAD   (d0a966 Make PrivateStateChanged and WorkInProgressStateChanged sing)
             myfile = inzip.open(n, 'r')
             myfile = io.TextIOWrapper(myfile, encoding='iso-8859-1', newline='')
             services[n] += myfile.read()
+=======
+            services[n] += inzip.read(n).decode("UTF-8")
+>>>>>>> BRANCH (927689 Document that the build works with Python 2 or 3)
             continue
           outzip.writestr(info, inzip.read(n))
           seen.add(n)
 
+<<<<<<< HEAD   (d0a966 Make PrivateStateChanged and WorkInProgressStateChanged sing)
     for n, v in services.items():
+=======
+    for n, v in list(services.items()):
+>>>>>>> BRANCH (927689 Document that the build works with Python 2 or 3)
       outzip.writestr(n, v)
 except Exception as err:
   exit('Failed to merge jars: %s' % err)
