@@ -3,7 +3,11 @@
 [[installation]]
 == Prerequisites
 
+<<<<<<< HEAD   (3106bc Update z-index of main header)
 To build Gerrit from source, you need:
+=======
+You need to use Python (2 or 3), Java 8, and Node.js for building gerrit.
+>>>>>>> BRANCH (b6ca28 Merge branch 'stable-2.14' into stable-2.15)
 
 * A Linux or macOS system (Windows is not supported at this time)
 * A JDK for Java 8
