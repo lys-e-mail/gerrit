@@ -14,6 +14,12 @@
 
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (1e0559 Set version to 2.15-SNAPSHOT)
+=======
+import static com.google.gerrit.server.account.ExternalId.SCHEME_USERNAME;
+import static java.util.stream.Collectors.toSet;
+
+>>>>>>> BRANCH (67d786 ProjectLevelConfig: Import Collectors.toList static)
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.common.data.AccessSection;
@@ -136,8 +142,22 @@ public class AccountManager {
       try (ReviewDb db = schema.open()) {
         ExternalId id = externalIds.get(who.getExternalIdKey());
         if (id == null) {
+          if (who.getUserName() != null) {
+            ExternalId.Key key = ExternalId.Key.create(SCHEME_USERNAME, who.getUserName());
+            ExternalId existingId = findExternalId(db, key);
+            if (existingId != null) {
+              // An inconsistency is detected in the database, having a record for scheme "username:"
+              // but no record for scheme "gerrit:". Try to recover by linking
+              // "gerrit:" identity to the existing account.
+              log.warn(
+                  "User {} already has an account; link new identity to the existing account.",
+                  who.getUserName());
+              return link(existingId.accountId(), who);
+            }
+          }
           // New account, automatically create and return.
           //
+          log.info("External ID not found. Attempting to create new account.");
           return create(db, who);
         }
 
@@ -385,12 +405,41 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult link(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (1e0559 Set version to 2.15-SNAPSHOT)
       throws AccountException, OrmException, IOException, ConfigInvalidException {
     ExternalId extId = externalIds.get(who.getExternalIdKey());
     if (extId != null) {
       if (!extId.accountId().equals(to)) {
         throw new AccountException(
             "Identity '" + extId.key().get() + "' in use by another account");
+=======
+      throws AccountException, OrmException, IOException {
+    try (ReviewDb db = schema.open()) {
+      log.info("Link another authentication identity to an existing account");
+      ExternalId extId = findExternalId(db, who.getExternalIdKey());
+      if (extId != null) {
+        if (!extId.accountId().equals(to)) {
+          throw new AccountException("Identity in use by another account");
+        }
+        log.info("Updating existing external ID data");
+        update(db, who, extId);
+      } else {
+        log.info("Linking new external ID to the existing account");
+        externalIdsUpdateFactory
+            .create()
+            .insert(
+                db, ExternalId.createWithEmail(who.getExternalIdKey(), to, who.getEmailAddress()));
+
+        if (who.getEmailAddress() != null) {
+          Account a = db.accounts().get(to);
+          if (a.getPreferredEmail() == null) {
+            a.setPreferredEmail(who.getEmailAddress());
+            db.accounts().update(Collections.singleton(a));
+            byIdCache.evict(to);
+          }
+          byEmailCache.evict(who.getEmailAddress());
+        }
+>>>>>>> BRANCH (67d786 ProjectLevelConfig: Import Collectors.toList static)
       }
       update(who, extId);
     } else {
