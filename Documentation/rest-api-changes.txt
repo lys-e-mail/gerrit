@@ -523,6 +523,67 @@ describes the change.
   }
 ----
 
+<<<<<<< HEAD   (c1c2a5 Fix logic in NoteDbMigrator#canSkipPrimaryStorageMigration)
+=======
+[[create-merge-patch-set-for-change]]
+=== Create Merge Patch Set For Change
+--
+'POST /changes/link:#change-id[\{change-id\}]/merge'
+--
+
+Update an existing change by using a
+link:#merge-patch-set-input[MergePatchSetInput] entity.
+
+Gerrit will create a merge commit based on the information of
+MergePatchSetInput and add a new patch set to the change corresponding
+to the new merge commit.
+
+.Request
+----
+  POST /changes/test~master~Ic5466d107c5294414710935a8ef3b0180fb848dc/merge  HTTP/1.0
+  Content-Type: application/json; charset=UTF-8
+
+  {
+    "subject": "Merge dev_branch into master",
+    "merge": {
+      "source": "refs/changes/34/1234/1"
+    }
+  }
+----
+
+As response a link:#change-info[ChangeInfo] entity with current revision is
+returned that describes the resulting change.
+
+.Response
+----
+  HTTP/1.1 200 OK
+  Content-Disposition: attachment
+  Content-Type: application/json; charset=UTF-8
+
+  )]}'
+  {
+    "id": "test~master~Ic5466d107c5294414710935a8ef3b0180fb848dc",
+    "project": "test",
+    "branch": "master",
+    "hashtags": [],
+    "change_id": "Ic5466d107c5294414710935a8ef3b0180fb848dc",
+    "subject": "Merge dev_branch into master",
+    "status": "NEW",
+    "created": "2016-09-23 18:08:53.238000000",
+    "updated": "2016-09-23 18:09:25.934000000",
+    "submit_type": "MERGE_IF_NECESSARY",
+    "mergeable": true,
+    "insertions": 5,
+    "deletions": 0,
+    "_number": 72,
+    "owner": {
+      "_account_id": 1000000
+    },
+    "current_revision": "27cc4558b5a3d3387dd11ee2df7a117e7e581822"
+  }
+----
+
+>>>>>>> BRANCH (ae7c5d Merge "LightweightPluginDaemonTest: Expose plugin guice inje)
 [[get-change-detail]]
 === Get Change Detail
 --
@@ -6425,8 +6486,8 @@ The `MergeInput` entity contains information about the merge
 |Field Name      ||Description
 |`source`   ||
 The source to merge from, e.g. a complete or abbreviated commit SHA-1,
-a complete reference name, a short reference name under refs/heads, refs/tags,
-or refs/remotes namespace, etc.
+a complete reference name, a short reference name under `refs/heads`, `refs/tags`,
+or `refs/remotes` namespace, etc.
 |`strategy`     |optional|
 The strategy of the merge, can be `recursive`, `resolve`,
 `simple-two-way-in-core`, `ours` or `theirs`, default will use project settings.

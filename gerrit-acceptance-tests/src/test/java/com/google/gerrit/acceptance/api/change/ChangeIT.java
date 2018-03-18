@@ -2675,8 +2675,19 @@ public class ChangeIT extends AbstractDaemonTest {
     in.subject = "update change by merge ps2";
     gApi.changes().id(changeId).createMergePatchSet(in);
     ChangeInfo changeInfo =
+<<<<<<< HEAD   (c1c2a5 Fix logic in NoteDbMigrator#canSkipPrimaryStorageMigration)
         gApi.changes().id(changeId).get(ALL_REVISIONS, CURRENT_COMMIT, CURRENT_REVISION);
     assertThat(changeInfo.revisions.size()).isEqualTo(2);
+=======
+        gApi.changes()
+            .id(changeId)
+            .get(
+                EnumSet.of(
+                    ListChangesOption.ALL_REVISIONS,
+                    ListChangesOption.CURRENT_COMMIT,
+                    ListChangesOption.CURRENT_REVISION));
+    assertThat(changeInfo.revisions).hasSize(2);
+>>>>>>> BRANCH (ae7c5d Merge "LightweightPluginDaemonTest: Expose plugin guice inje)
     assertThat(changeInfo.subject).isEqualTo(in.subject);
     assertThat(changeInfo.revisions.get(changeInfo.currentRevision).commit.parents.get(0).commit)
         .isEqualTo(parent);
@@ -2714,7 +2725,7 @@ public class ChangeIT extends AbstractDaemonTest {
     ChangeInfo changeInfo =
         gApi.changes().id(changeId).get(ALL_REVISIONS, CURRENT_COMMIT, CURRENT_REVISION);
 
-    assertThat(changeInfo.revisions.size()).isEqualTo(2);
+    assertThat(changeInfo.revisions).hasSize(2);
     assertThat(changeInfo.subject).isEqualTo(in.subject);
     assertThat(changeInfo.revisions.get(changeInfo.currentRevision).commit.parents.get(0).commit)
         .isEqualTo(parent);
