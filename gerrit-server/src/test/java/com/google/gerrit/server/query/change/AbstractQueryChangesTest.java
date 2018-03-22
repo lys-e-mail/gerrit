@@ -47,8 +47,12 @@ import com.google.gerrit.extensions.api.changes.ReviewInput.DraftHandling;
 import com.google.gerrit.extensions.api.changes.ReviewInput.RobotCommentInput;
 import com.google.gerrit.extensions.api.changes.StarsInput;
 import com.google.gerrit.extensions.api.groups.GroupInput;
+<<<<<<< HEAD   (ccbd33 Update git submodules)
 import com.google.gerrit.extensions.api.projects.ConfigInput;
 import com.google.gerrit.extensions.client.InheritableBoolean;
+=======
+import com.google.gerrit.extensions.client.ProjectWatchInfo;
+>>>>>>> BRANCH (767604 AbstractQueryChangesTest: Extend byDraftBy to include test f)
 import com.google.gerrit.extensions.client.ReviewerState;
 import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
@@ -374,6 +378,20 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("status:close", expected);
     assertQuery("status:closed", expected);
     assertQuery("is:closed", expected);
+  }
+
+  @Test
+  public void byStatusAbandoned() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus(repo, Change.Status.MERGED);
+    insert(repo, ins1);
+    ChangeInserter ins2 = newChangeWithStatus(repo, Change.Status.ABANDONED);
+    Change change1 = insert(repo, ins2);
+    insert(repo, newChangeWithStatus(repo, Change.Status.NEW));
+
+    assertQuery("status:abandoned", change1);
+    assertQuery("status:ABANDONED", change1);
+    assertQuery("is:abandoned", change1);
   }
 
   @Test
@@ -1494,6 +1512,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(repo, newChange(repo));
     Change change2 = insert(repo, newChange(repo));
 
+    assertQuery("has:draft");
+
     DraftInput in = new DraftInput();
     in.line = 1;
     in.message = "nit: trailing whitespace";
@@ -1509,6 +1529,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     int user2 =
         accountManager.authenticate(AuthRequest.forUser("anotheruser")).getAccountId().get();
 
+    assertQuery("has:draft", change2, change1);
     assertQuery("draftby:" + userId.get(), change2, change1);
     assertQuery("draftby:" + user2);
   }
@@ -2148,6 +2169,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+<<<<<<< HEAD   (ccbd33 Update git submodules)
   public void selfAndMe() throws Exception {
     TestRepository<Repo> repo = createProject("repo");
     Change change1 = insert(repo, newChange(repo));
@@ -2191,6 +2213,33 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
     assertQueryByIds(
         "revertof:" + changeToRevert._number, new Change.Id(changeThatReverts._number));
+=======
+  public void watched() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus(repo, Change.Status.NEW);
+    Change change1 = insert(repo, ins1);
+
+    TestRepository<Repo> repo2 = createProject("repo2");
+
+    ChangeInserter ins2 = newChangeWithStatus(repo2, Change.Status.NEW);
+    insert(repo2, ins2);
+
+    assertQuery("is:watched");
+    assertQuery("watchedby:self");
+
+    List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
+    ProjectWatchInfo pwi = new ProjectWatchInfo();
+    pwi.project = "repo";
+    pwi.filter = null;
+    pwi.notifyAbandonedChanges = true;
+    pwi.notifyNewChanges = true;
+    pwi.notifyAllComments = true;
+    projectsToWatch.add(pwi);
+    gApi.accounts().self().setWatchedProjects(projectsToWatch);
+
+    assertQuery("is:watched", change1);
+    assertQuery("watchedby:self", change1);
+>>>>>>> BRANCH (767604 AbstractQueryChangesTest: Extend byDraftBy to include test f)
   }
 
   protected ChangeInserter newChange(TestRepository<Repo> repo) throws Exception {
