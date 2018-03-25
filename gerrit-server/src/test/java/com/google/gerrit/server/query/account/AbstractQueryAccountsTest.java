@@ -18,8 +18,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.fail;
 
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
+=======
+import com.google.common.collect.ImmutableList;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.api.access.AccessSectionInfo;
 import com.google.gerrit.extensions.api.access.PermissionInfo;
@@ -70,6 +75,10 @@ import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import java.util.ArrayList;
 import java.util.Arrays;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
+=======
+import java.util.Collections;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -498,7 +507,11 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
     PermissionInfo p = new PermissionInfo(null, null);
     p.rules =
         ImmutableMap.of(group.id, new PermissionRuleInfo(PermissionRuleInfo.Action.BLOCK, false));
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
     a.permissions = ImmutableMap.of("read", p);
+=======
+    a.permissions = ImmutableMap.of(Permission.READ, p);
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
     in.add = ImmutableMap.of("refs/*", a);
 
     gApi.projects().name(project.get()).access(in);

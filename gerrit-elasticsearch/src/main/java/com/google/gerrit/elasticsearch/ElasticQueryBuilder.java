@@ -14,6 +14,7 @@
 
 package com.google.gerrit.elasticsearch;
 
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
 import com.google.gerrit.index.FieldDef;
 import com.google.gerrit.index.FieldType;
 import com.google.gerrit.index.query.AndPredicate;
@@ -26,6 +27,20 @@ import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.index.query.RegexPredicate;
 import com.google.gerrit.index.query.TimestampRangePredicate;
+=======
+import com.google.gerrit.server.index.FieldDef;
+import com.google.gerrit.server.index.FieldType;
+import com.google.gerrit.server.index.IndexPredicate;
+import com.google.gerrit.server.index.IntegerRangePredicate;
+import com.google.gerrit.server.index.RegexPredicate;
+import com.google.gerrit.server.index.TimestampRangePredicate;
+import com.google.gerrit.server.query.AndPredicate;
+import com.google.gerrit.server.query.NotPredicate;
+import com.google.gerrit.server.query.OrPredicate;
+import com.google.gerrit.server.query.PostFilterPredicate;
+import com.google.gerrit.server.query.Predicate;
+import com.google.gerrit.server.query.QueryParseException;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import com.google.gerrit.server.query.change.AfterPredicate;
 import java.time.Instant;
 import org.apache.lucene.search.BooleanQuery;

@@ -28,10 +28,18 @@ import com.google.gerrit.server.ChangeFinder;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.account.AccountState;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.permissions.ChangePermission;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
+=======
+import com.google.gerrit.server.project.ChangeControl;
+import com.google.gerrit.server.query.LimitPredicate;
+import com.google.gerrit.server.query.Predicate;
+import com.google.gerrit.server.query.QueryBuilder;
+import com.google.gerrit.server.query.QueryParseException;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import com.google.gwtorm.server.OrmException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -54,8 +62,13 @@ public class AccountQueryBuilder extends QueryBuilder<AccountState> {
   public static class Arguments {
     final Provider<ReviewDb> db;
     final ChangeFinder changeFinder;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
     final IdentifiedUser.GenericFactory userFactory;
     final PermissionBackend permissionBackend;
+=======
+    final ChangeControl.GenericFactory changeControlFactory;
+    final IdentifiedUser.GenericFactory userFactory;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 
     private final Provider<CurrentUser> self;
 
@@ -64,13 +77,23 @@ public class AccountQueryBuilder extends QueryBuilder<AccountState> {
         Provider<CurrentUser> self,
         Provider<ReviewDb> db,
         ChangeFinder changeFinder,
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
         IdentifiedUser.GenericFactory userFactory,
         PermissionBackend permissionBackend) {
+=======
+        ChangeControl.GenericFactory changeControlFactory,
+        IdentifiedUser.GenericFactory userFactory) {
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
       this.self = self;
       this.db = db;
       this.changeFinder = changeFinder;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
       this.userFactory = userFactory;
       this.permissionBackend = permissionBackend;
+=======
+      this.changeControlFactory = changeControlFactory;
+      this.userFactory = userFactory;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
     }
 
     IdentifiedUser getIdentifiedUser() throws QueryParseException {
@@ -103,6 +126,7 @@ public class AccountQueryBuilder extends QueryBuilder<AccountState> {
   }
 
   @Operator
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
   public Predicate<AccountState> cansee(String change)
       throws QueryParseException, OrmException, PermissionBackendException {
     ChangeNotes changeNotes = args.changeFinder.findOne(change);
@@ -116,6 +140,15 @@ public class AccountQueryBuilder extends QueryBuilder<AccountState> {
     }
 
     return AccountPredicates.cansee(args, changeNotes);
+=======
+  public Predicate<AccountState> cansee(String change) throws QueryParseException, OrmException {
+    ChangeControl changeControl = args.changeFinder.findOne(change, args.getUser());
+    if (changeControl == null || !changeControl.isVisible(args.db.get())) {
+      throw error(String.format("change %s not found", change));
+    }
+
+    return AccountPredicates.cansee(args, changeControl.getNotes());
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
   }
 
   @Operator
@@ -161,6 +194,13 @@ public class AccountQueryBuilder extends QueryBuilder<AccountState> {
 
   @Override
   protected Predicate<AccountState> defaultField(String query) {
+    if (query.startsWith("cansee:")) {
+      try {
+        return cansee(query.substring(7));
+      } catch (OrmException | QueryParseException e) {
+        // Ignore, fall back to default query
+      }
+    }
     Predicate<AccountState> defaultPredicate = AccountPredicates.defaultPredicate(query);
     if (query.startsWith("cansee:")) {
       try {

@@ -21,6 +21,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 import com.google.common.collect.Lists;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
 import com.google.gerrit.index.FieldType;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.index.query.AndPredicate;
@@ -33,6 +34,20 @@ import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.index.query.RegexPredicate;
 import com.google.gerrit.index.query.TimestampRangePredicate;
+=======
+import com.google.gerrit.server.index.FieldType;
+import com.google.gerrit.server.index.IndexPredicate;
+import com.google.gerrit.server.index.IntegerRangePredicate;
+import com.google.gerrit.server.index.RegexPredicate;
+import com.google.gerrit.server.index.Schema;
+import com.google.gerrit.server.index.TimestampRangePredicate;
+import com.google.gerrit.server.query.AndPredicate;
+import com.google.gerrit.server.query.NotPredicate;
+import com.google.gerrit.server.query.OrPredicate;
+import com.google.gerrit.server.query.PostFilterPredicate;
+import com.google.gerrit.server.query.Predicate;
+import com.google.gerrit.server.query.QueryParseException;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import java.util.Date;
 import java.util.List;
 import org.apache.lucene.analysis.Analyzer;

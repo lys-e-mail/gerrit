@@ -26,6 +26,12 @@ import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.index.account.AccountField;
 import com.google.gerrit.server.notedb.ChangeNotes;
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
+=======
+import com.google.gerrit.server.query.Matchable;
+import com.google.gerrit.server.query.Predicate;
+import com.google.gerrit.server.query.QueryBuilder;
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
 import com.google.gwtorm.server.OrmException;
 import java.util.List;
 
@@ -104,10 +110,17 @@ public class AccountPredicates {
     return new AccountPredicate(AccountField.WATCHED_PROJECT, project.get());
   }
 
+<<<<<<< HEAD   (08606b Limit assignee suggestions to users that can see the change)
   public static Predicate<AccountState> cansee(
       AccountQueryBuilder.Arguments args, ChangeNotes changeNotes) {
     return new CanSeeChangePredicate(
         args.db, args.permissionBackend, args.userFactory, changeNotes);
+=======
+  static Predicate<AccountState> cansee(
+      AccountQueryBuilder.Arguments args, ChangeNotes changeNotes) {
+    return new CanSeeChangePredicate(
+        args.db, args.changeControlFactory, args.userFactory, changeNotes);
+>>>>>>> BRANCH (354f9e Limit assignee suggestions to users that can see the change)
   }
 
   static class AccountPredicate extends IndexPredicate<AccountState>
