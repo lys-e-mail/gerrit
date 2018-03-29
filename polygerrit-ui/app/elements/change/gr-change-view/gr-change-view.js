@@ -529,6 +529,10 @@
       this.$.fileList.openDiffPrefs();
     },
 
+<<<<<<< HEAD   (cad4f4 Merge "Fix gr-cla-view to correctly add back hideAgreementsT)
+=======
+
+>>>>>>> BRANCH (38b149 Merge "Release 2.15" into stable-2.15)
     _handleOpenIncludedInDialog() {
       this.$.includedInDialog.loadData().then(() => {
         Polymer.dom.flush();
