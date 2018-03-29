@@ -146,6 +146,9 @@ limitations under the License.
       .fileViewActionsLabel {
         margin-right: .2rem;
       }
+      .container.includedInContainer.hide {
+        display: none;
+      }
       @media screen and (max-width: 50em) {
         .patchInfo-header .desktop {
           display: none;
@@ -176,6 +179,21 @@ limitations under the License.
             <span class="separator"></span>
             <a href$="[[changeUrl]]">Go to latest patch set</a>
           </span>
+<<<<<<< HEAD   (cad4f4 Merge "Fix gr-cla-view to correctly add back hideAgreementsT)
+=======
+          <span class="container downloadContainer desktop">
+            <span class="separator"></span>
+            <gr-button link
+                class="download"
+                on-tap="_handleDownloadTap">Download</gr-button>
+          </span>
+        <span class$="container includedInContainer [[_hideIncludedIn(change)]] desktop">
+          <span class="separator"></span>
+          <gr-button link
+              class="includedIn"
+              on-tap="_handleIncludedInTap">Included In</gr-button>
+        </span>
+>>>>>>> BRANCH (38b149 Merge "Release 2.15" into stable-2.15)
           <span class="container descriptionContainer hideOnEdit">
             <span class="separator"></span>
             <template
