@@ -92,9 +92,9 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
     }
   }
 
-  static final String CHANGES_PREFIX = "changes_";
-  static final String OPEN_CHANGES = "open_changes";
-  static final String CLOSED_CHANGES = "closed_changes";
+  static final String CHANGES = "changes";
+  static final String OPEN_CHANGES = "open_" + CHANGES;
+  static final String CLOSED_CHANGES = "closed_" + CHANGES;
 
   private final ChangeMapping mapping;
   private final Provider<ReviewDb> db;
@@ -108,7 +108,11 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
       SitePaths sitePaths,
       JestClientBuilder clientBuilder,
       @Assisted Schema<ChangeData> schema) {
+<<<<<<< HEAD   (2f1e39 Merge "PG: Make convert_for_template_tests.py compatible wit)
     super(cfg, sitePaths, schema, clientBuilder, CHANGES_PREFIX);
+=======
+    super(cfg, fillArgs, sitePaths, schema, clientBuilder, CHANGES);
+>>>>>>> BRANCH (8cd3ec ElasticTestUtils: also reuse index name constants)
     this.db = db;
     this.changeDataFactory = changeDataFactory;
     mapping = new ChangeMapping(schema);
@@ -134,7 +138,7 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
     Bulk bulk =
         new Bulk.Builder()
             .defaultIndex(indexName)
-            .defaultType("changes")
+            .defaultType(CHANGES)
             .addAction(insert(insertIndex, cd))
             .addAction(delete(deleteIndex, cd.getId()))
             .refresh(true)

@@ -68,7 +68,6 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
   }
 
   static final String GROUPS = "groups";
-  static final String GROUPS_PREFIX = GROUPS + "_";
 
   private static final Logger log = LoggerFactory.getLogger(ElasticGroupIndex.class);
 
@@ -81,8 +80,14 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
       SitePaths sitePaths,
       Provider<GroupCache> groupCache,
       JestClientBuilder clientBuilder,
+<<<<<<< HEAD   (2f1e39 Merge "PG: Make convert_for_template_tests.py compatible wit)
       @Assisted Schema<InternalGroup> schema) {
     super(cfg, sitePaths, schema, clientBuilder, GROUPS_PREFIX);
+=======
+      @Assisted Schema<AccountGroup> schema) {
+    // No parts of FillArgs are currently required, just use null.
+    super(cfg, null, sitePaths, schema, clientBuilder, GROUPS);
+>>>>>>> BRANCH (8cd3ec ElasticTestUtils: also reuse index name constants)
     this.groupCache = groupCache;
     this.mapping = new GroupMapping(schema);
   }

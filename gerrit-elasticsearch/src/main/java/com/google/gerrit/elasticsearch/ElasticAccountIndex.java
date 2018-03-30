@@ -69,7 +69,6 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
   }
 
   static final String ACCOUNTS = "accounts";
-  static final String ACCOUNTS_PREFIX = ACCOUNTS + "_";
 
   private static final Logger log = LoggerFactory.getLogger(ElasticAccountIndex.class);
 
@@ -83,7 +82,12 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
       Provider<AccountCache> accountCache,
       JestClientBuilder clientBuilder,
       @Assisted Schema<AccountState> schema) {
+<<<<<<< HEAD   (2f1e39 Merge "PG: Make convert_for_template_tests.py compatible wit)
     super(cfg, sitePaths, schema, clientBuilder, ACCOUNTS_PREFIX);
+=======
+    // No parts of FillArgs are currently required, just use null.
+    super(cfg, null, sitePaths, schema, clientBuilder, ACCOUNTS);
+>>>>>>> BRANCH (8cd3ec ElasticTestUtils: also reuse index name constants)
     this.accountCache = accountCache;
     this.mapping = new AccountMapping(schema);
   }

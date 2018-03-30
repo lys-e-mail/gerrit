@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public class LuceneVersionManager extends VersionManager {
   private static final Logger log = LoggerFactory.getLogger(LuceneVersionManager.class);
 
+<<<<<<< HEAD   (2f1e39 Merge "PG: Make convert_for_template_tests.py compatible wit)
   private static class Version<V> extends VersionManager.Version<V> {
     private final boolean exists;
 
@@ -51,6 +52,10 @@ public class LuceneVersionManager extends VersionManager {
 
   static Path getDir(SitePaths sitePaths, String name, Schema<?> schema) {
     return sitePaths.index_dir.resolve(String.format("%s_%04d", name, schema.getVersion()));
+=======
+  static Path getDir(SitePaths sitePaths, String prefix, Schema<?> schema) {
+    return sitePaths.index_dir.resolve(String.format("%s%04d", prefix, schema.getVersion()));
+>>>>>>> BRANCH (8cd3ec ElasticTestUtils: also reuse index name constants)
   }
 
   @Inject
@@ -63,6 +68,7 @@ public class LuceneVersionManager extends VersionManager {
   }
 
   @Override
+<<<<<<< HEAD   (2f1e39 Merge "PG: Make convert_for_template_tests.py compatible wit)
   protected <V> boolean isDirty(
       Collection<com.google.gerrit.server.index.VersionManager.Version<V>> inUse,
       com.google.gerrit.server.index.VersionManager.Version<V> v) {
@@ -73,6 +79,12 @@ public class LuceneVersionManager extends VersionManager {
   protected <K, V, I extends Index<K, V>> TreeMap<Integer, VersionManager.Version<V>> scanVersions(
       IndexDefinition<K, V, I> def, GerritIndexStatus cfg) {
     TreeMap<Integer, VersionManager.Version<V>> versions = new TreeMap<>();
+=======
+  protected <K, V, I extends Index<K, V>>
+      TreeMap<Integer, AbstractVersionManager.Version<V>> scanVersions(
+          IndexDefinition<K, V, I> def, GerritIndexStatus cfg) {
+    TreeMap<Integer, AbstractVersionManager.Version<V>> versions = new TreeMap<>();
+>>>>>>> BRANCH (8cd3ec ElasticTestUtils: also reuse index name constants)
     for (Schema<V> schema : def.getSchemas().values()) {
       // This part is Lucene-specific.
       Path p = getDir(sitePaths, def.getName(), schema);
