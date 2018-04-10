@@ -19,6 +19,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.gerrit.index.IndexConfig;
 import com.google.gerrit.lifecycle.LifecycleModule;
 import com.google.gerrit.server.config.GerritServerConfig;
+<<<<<<< HEAD   (042ead Merge branch 'stable-2.14' into stable-2.15)
+=======
+import com.google.gerrit.server.index.AbstractVersionManager;
+import com.google.gerrit.server.index.IndexConfig;
+>>>>>>> BRANCH (12c5d1 Merge "GerritServerId: Update comment for correct location o)
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader;
 import com.google.gerrit.server.index.SingleVersionModule;
@@ -82,6 +87,7 @@ public class ElasticIndexModule extends AbstractModule {
     } else {
       install(new SingleVersionModule(singleVersions));
     }
+    bind(AbstractVersionManager.class).to(ElasticVersionManager.class);
   }
 
   @Provides
