@@ -82,7 +82,10 @@ public class ElasticIndexModule extends AbstractModule {
     } else {
       install(new SingleVersionModule(singleVersions));
     }
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
     bind(VersionManager.class).to(ElasticVersionManager.class);
+=======
+>>>>>>> BRANCH (c57c5c SshCommandsIT: Include `logging ls` and `logging set` comman)
   }
 
   @Provides
@@ -98,6 +101,14 @@ public class ElasticIndexModule extends AbstractModule {
       if (onlineUpgrade) {
         listener().to(OnlineUpgrader.class);
       }
+    }
+  }
+
+  private static class MultiVersionModule extends LifecycleModule {
+    @Override
+    public void configure() {
+      bind(AbstractVersionManager.class).to(ElasticVersionManager.class);
+      listener().to(ElasticVersionManager.class);
     }
   }
 }
