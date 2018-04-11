@@ -92,7 +92,10 @@ public class LuceneIndexModule extends AbstractModule {
     } else {
       install(new SingleVersionModule(singleVersions));
     }
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
     bind(VersionManager.class).to(LuceneVersionManager.class);
+=======
+>>>>>>> BRANCH (b309ae Align ElasticIndexModule with LuceneIndexModule)
   }
 
   @Provides
@@ -106,6 +109,7 @@ public class LuceneIndexModule extends AbstractModule {
   private class MultiVersionModule extends LifecycleModule {
     @Override
     public void configure() {
+      bind(AbstractVersionManager.class).to(LuceneVersionManager.class);
       listener().to(LuceneVersionManager.class);
       if (onlineUpgrade) {
         listener().to(OnlineUpgrader.class);
