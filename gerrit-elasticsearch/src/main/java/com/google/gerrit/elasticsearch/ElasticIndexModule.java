@@ -78,11 +78,19 @@ public class ElasticIndexModule extends AbstractModule {
 
     install(new IndexModule(threads));
     if (singleVersions == null) {
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
       install(new MultiVersionModule());
+=======
+      bind(AbstractVersionManager.class).to(ElasticVersionManager.class);
+      listener().to(ElasticVersionManager.class);
+>>>>>>> BRANCH (532ea1 Remove unneeded nested MultiVersionModule class)
     } else {
       install(new SingleVersionModule(singleVersions));
     }
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
     bind(VersionManager.class).to(ElasticVersionManager.class);
+=======
+>>>>>>> BRANCH (532ea1 Remove unneeded nested MultiVersionModule class)
   }
 
   @Provides

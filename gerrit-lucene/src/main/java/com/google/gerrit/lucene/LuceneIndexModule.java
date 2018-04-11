@@ -88,11 +88,15 @@ public class LuceneIndexModule extends AbstractModule {
 
     install(new IndexModule(threads));
     if (singleVersions == null) {
-      install(new MultiVersionModule());
+      bind(AbstractVersionManager.class).to(LuceneVersionManager.class);
+      listener().to(LuceneVersionManager.class);
     } else {
       install(new SingleVersionModule(singleVersions));
     }
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
     bind(VersionManager.class).to(LuceneVersionManager.class);
+=======
+>>>>>>> BRANCH (532ea1 Remove unneeded nested MultiVersionModule class)
   }
 
   @Provides
@@ -102,6 +106,7 @@ public class LuceneIndexModule extends AbstractModule {
         cfg.getInt("index", "maxTerms", BooleanQuery.getMaxClauseCount()));
     return IndexConfig.fromConfig(cfg).separateChangeSubIndexes(true).build();
   }
+<<<<<<< HEAD   (8a8ab9 Allow percent encoding in patch set titles.)
 
   private class MultiVersionModule extends LifecycleModule {
     @Override
@@ -112,4 +117,6 @@ public class LuceneIndexModule extends AbstractModule {
       }
     }
   }
+=======
+>>>>>>> BRANCH (532ea1 Remove unneeded nested MultiVersionModule class)
 }
