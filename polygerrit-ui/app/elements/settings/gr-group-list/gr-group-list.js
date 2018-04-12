@@ -24,6 +24,11 @@
       _groups: Array,
     },
 
+    behaviors: [
+      Gerrit.BaseUrlBehavior,
+      Gerrit.URLEncodingBehavior,
+    ],
+
     loadData() {
       return this.$.restAPI.getAccountGroups().then(groups => {
         this._groups = groups.sort((a, b) => {
@@ -39,7 +44,13 @@
     _computeGroupPath(group) {
       if (!group || !group.id) { return; }
 
+<<<<<<< HEAD   (4f51e4 Fix failing template test)
       return Gerrit.Nav.getUrlForGroup(group.id);
+=======
+      const encodeGroup = this.encodeURL(group.id, true);
+
+      return `${this.getBaseUrl()}/admin/groups/${encodeGroup}`;
+>>>>>>> BRANCH (c2fde0 Merge branch 'stable-2.14' into stable-2.15)
     },
   });
 })();

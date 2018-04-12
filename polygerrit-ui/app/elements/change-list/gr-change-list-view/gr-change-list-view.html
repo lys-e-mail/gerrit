@@ -79,8 +79,13 @@ limitations under the License.
       <gr-user-header
           user-id="[[_userId]]"
           show-dashboard-link
+<<<<<<< HEAD   (4f51e4 Fix failing template test)
           logged-in="[[_loggedIn]]"
           class$="[[_computeHeaderClass(_userId)]]"></gr-user-header>
+=======
+          logged-in="[[loggedIn]]"
+          class$="[[_computeUserHeaderClass(_userId)]]"></gr-user-header>
+>>>>>>> BRANCH (c2fde0 Merge branch 'stable-2.14' into stable-2.15)
       <gr-change-list
           account="[[account]]"
           changes="{{_changes}}"

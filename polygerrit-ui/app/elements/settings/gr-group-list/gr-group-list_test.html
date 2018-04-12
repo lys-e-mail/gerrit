@@ -90,6 +90,7 @@ limitations under the License.
     });
 
     test('_computeGroupPath', () => {
+<<<<<<< HEAD   (4f51e4 Fix failing template test)
       sandbox.stub(Gerrit.Nav, 'getUrlForGroup',
           () => '/admin/groups/e2cd66f88a2db4d391ac068a92d987effbe872f5');
 
@@ -104,6 +105,17 @@ limitations under the License.
         name: 'admin',
       };
 
+=======
+      let group = {
+        id: 'e2cd66f88a2db4d391ac068a92d987effbe872f5',
+      };
+      assert.equal(element._computeGroupPath(group),
+          '/admin/groups/e2cd66f88a2db4d391ac068a92d987effbe872f5');
+
+      group = {
+        name: 'admin',
+      };
+>>>>>>> BRANCH (c2fde0 Merge branch 'stable-2.14' into stable-2.15)
       assert.isUndefined(element._computeGroupPath(group));
     });
   });
