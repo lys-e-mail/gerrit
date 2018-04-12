@@ -157,6 +157,12 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   public static Config defaultConfig() {
     Config cfg = new Config();
     cfg.setInt("index", null, "maxPages", 10);
+    cfg.setString("trackingid", "query-bug", "footer", "Bug:");
+    cfg.setString("trackingid", "query-bug", "match", "QUERY\\d{2,8}");
+    cfg.setString("trackingid", "query-bug", "system", "querytests");
+    cfg.setString("trackingid", "query-feature", "footer", "Feature");
+    cfg.setString("trackingid", "query-feature", "match", "QUERY\\d{2,8}");
+    cfg.setString("trackingid", "query-feature", "system", "querytests");
     return cfg;
   }
 
@@ -2310,6 +2316,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+<<<<<<< HEAD   (8d348d Merge branch 'stable-2.14' into stable-2.15)
   public void selfAndMe() throws Exception {
     TestRepository<Repo> repo = createProject("repo");
     Change change1 = insert(repo, newChange(repo));
@@ -2353,6 +2360,27 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
     assertQueryByIds(
         "revertof:" + changeToRevert._number, new Change.Id(changeThatReverts._number));
+=======
+  public void trackingid() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(repo.commit().message("Change one\n\nBug:QUERY123").create());
+    Change change1 = insert(repo, newChangeForCommit(repo, commit1));
+    RevCommit commit2 =
+        repo.parseBody(repo.commit().message("Change two\n\nFeature:QUERY456").create());
+    Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+
+    assertQuery("tr:QUERY123", change1);
+    assertQuery("bug:QUERY123", change1);
+    assertQuery("tr:QUERY456", change2);
+    assertQuery("bug:QUERY456", change2);
+    assertQuery("tr:QUERY-123");
+    assertQuery("bug:QUERY-123");
+    assertQuery("tr:QUERY12");
+    assertQuery("bug:QUERY12");
+    assertQuery("tr:QUERY789");
+    assertQuery("bug:QUERY789");
+>>>>>>> BRANCH (ad4bc4 AbstractQueryChangesTest: Add test coverage for the tr: and )
   }
 
   protected ChangeInserter newChange(TestRepository<Repo> repo) throws Exception {
