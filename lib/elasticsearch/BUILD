@@ -26,6 +26,7 @@ java_library(
     ],
 )
 
+<<<<<<< HEAD   (f29f2b Update git submodules)
 java_library(
     name = "jest-common",
     data = ["//lib:LICENSE-Apache2.0"],
@@ -47,6 +48,8 @@ java_library(
     ],
 )
 
+=======
+>>>>>>> BRANCH (84e378 Elasticsearch lib: extract Jest into its own (lib))
 java_library(
     name = "compress-lzf",
     data = ["//lib:LICENSE-Apache2.0"],
