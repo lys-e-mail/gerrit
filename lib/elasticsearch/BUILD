@@ -27,6 +27,7 @@ java_library(
 )
 
 java_library(
+<<<<<<< HEAD   (9e85fe Update git submodules)
     name = "jest-common",
     data = ["//lib:LICENSE-Apache2.0"],
     exports = ["@jest_common//jar"],
@@ -61,6 +62,8 @@ java_library(
 )
 
 java_library(
+=======
+>>>>>>> BRANCH (573864 Merge branch 'stable-2.14' into stable-2.15)
     name = "compress-lzf",
     data = ["//lib:LICENSE-Apache2.0"],
     visibility = ["//lib/elasticsearch:__pkg__"],
