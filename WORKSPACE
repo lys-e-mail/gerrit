@@ -460,12 +460,15 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
     name = "lucene_codecs",
     artifact = "org.apache.lucene:lucene-codecs:" + LUCENE_VERS,
     sha1 = "afdad570668469b1734fbd32b8f98561561bed48",
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
     name = "backward_codecs",
     artifact = "org.apache.lucene:lucene-backward-codecs:" + LUCENE_VERS,
     sha1 = "a933f42e758c54c43083398127ea7342b54d8212",
@@ -502,12 +505,15 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
     name = "lucene_sandbox",
     artifact = "org.apache.lucene:lucene-sandbox:" + LUCENE_VERS,
     sha1 = "49498bbb2adc333e98bdca4bf6170ae770cbad11",
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
     name = "lucene_spatial",
     artifact = "org.apache.lucene:lucene-spatial:" + LUCENE_VERS,
     sha1 = "0217d302dc0ef4d9b8b475ffe327d83c1e0ceba5",
@@ -971,6 +977,7 @@ maven_jar(
     sha1 = "84ccf145ac2215e6bfa63baa3101c0af41017cfc",
 )
 
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
 maven_jar(
     name = "jna",
     artifact = "net.java.dev.jna:jna:4.1.0",
@@ -978,6 +985,9 @@ maven_jar(
 )
 
 JACKSON_VERSION = "2.8.9"
+=======
+JACKSON_VERSION = "2.6.6"
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
 
 maven_jar(
     name = "jackson_core",
@@ -986,12 +996,15 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
     name = "jackson_dataformat_smile",
     artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:" + JACKSON_VERSION,
     sha1 = "d36cbae6b06ac12fca16fda403759e479316141b",
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
     name = "jackson_dataformat_cbor",
     artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:" + JACKSON_VERSION,
     sha1 = "93242092324cad33d777e06c0515e40a6b862659",
@@ -1007,13 +1020,6 @@ maven_jar(
     name = "httpcore_nio",
     artifact = "org.apache.httpcomponents:httpcore-nio:" + HTTPCOMP_VERS,
     sha1 = "a8c5e3c3bfea5ce23fb647c335897e415eb442e3",
-)
-
-maven_jar(
-    name = "httpcore_niossl",
-    artifact = "org.apache.httpcomponents:httpcore-niossl:4.0-alpha6",
-    attach_source = False,
-    sha1 = "9c662e7247ca8ceb1de5de629f685c9ef3e4ab58",
 )
 
 load("//tools/bzl:js.bzl", "npm_binary", "bower_archive")

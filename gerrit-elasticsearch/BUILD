@@ -4,25 +4,24 @@ java_library(
     visibility = ["//visibility:public"],
     deps = [
         "//gerrit-extension-api:api",
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
         "//gerrit-index:index",
         "//gerrit-index:query_exception",
+=======
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
         "//gerrit-reviewdb:server",
         "//gerrit-server:server",
         "//lib:gson",
         "//lib:guava",
         "//lib:gwtorm",
-        "//lib:protobuf",
         "//lib/commons:codec",
-        "//lib/commons:lang",
         "//lib/elasticsearch",
         "//lib/guice",
         "//lib/guice:guice-assistedinject",
         "//lib/jest",
         "//lib/jest:jest-common",
         "//lib/jgit/org.eclipse.jgit:jgit",
-        "//lib/joda:joda-time",
         "//lib/log:api",
-        "//lib/lucene:lucene-analyzers-common",
         "//lib/lucene:lucene-core",
     ],
 )
@@ -35,17 +34,18 @@ java_library(
     srcs = glob(["src/test/java/**/ElasticTestUtils.java"]),
     deps = [
         ":elasticsearch",
+<<<<<<< HEAD   (1f3298 Fix logging of a change ID that failed to rebuild.)
         "//gerrit-extension-api:api",
         "//gerrit-index:index",
         "//gerrit-reviewdb:server",
+=======
+        "//gerrit-reviewdb:client",
+>>>>>>> BRANCH (40744d lib/elasticsearch: remove unnecessary dependencies)
         "//gerrit-server:server",
         "//lib:gson",
-        "//lib:guava",
-        "//lib:junit",
         "//lib:truth",
         "//lib/elasticsearch",
         "//lib/jgit/org.eclipse.jgit:jgit",
-        "//lib/jgit/org.eclipse.jgit.junit:junit",
     ],
 )
 
@@ -60,7 +60,6 @@ junit_tests(
         ":elasticsearch",
         ":elasticsearch_test_utils",
         "//gerrit-server:query_tests_code",
-        "//gerrit-server:server",
         "//gerrit-server:testutil",
         "//lib/guice",
         "//lib/jgit/org.eclipse.jgit:jgit",
