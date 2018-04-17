@@ -231,8 +231,18 @@ public class RefControlTest {
           @Override
           public void remove(Project p) {}
 
+<<<<<<< HEAD   (789bb2 Clarify behavior of ownerin: and reviewerin: predicates)
           @Override
           public void remove(Project.NameKey name) {}
+=======
+      @Override
+      public void remove(Project.NameKey name) {}
+
+      @Override
+      public Iterable<Project.NameKey> all() {
+        return Collections.emptySet();
+      }
+>>>>>>> BRANCH (703fc3 Set 2.13.12-SNAPSHOT in pom.xml and plugin documentation)
 
           @Override
           public Iterable<Project.NameKey> all() {
