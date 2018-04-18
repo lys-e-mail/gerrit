@@ -492,13 +492,24 @@ public class ChangeRebuilderIT extends AbstractDaemonTest {
 
     // TODO(dborowitz): Re-enable these assertions once we fix auto-rebuilding
     // in the BatchUpdate path.
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
     // As an implementation detail, change wasn't actually rebuilt inside the
     // BatchUpdate transaction, but it was rebuilt during read for the
     // subsequent reindex. Thus it's impossible to actually observe an
     // out-of-date state in the caller.
+=======
+    //// As an implementation detail, change wasn't actually rebuilt inside the
+    //// BatchUpdate transaction, but it was rebuilt during read for the
+    //// subsequent reindex. Thus it's impossible to actually observe an
+    //// out-of-date state in the caller.
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
     // assertChangeUpToDate(true, id);
 
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
     // Check that the bundles are equal.
+=======
+    //// Check that the bundles are equal.
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
     // ChangeNotes notes = notesFactory.create(dbProvider.get(), project, id);
     // ChangeBundle actual = ChangeBundle.fromNotes(commentsUtil, notes);
     // ChangeBundle expected = bundleReader.fromReviewDb(getUnwrappedDb(), id);

@@ -1553,7 +1553,11 @@ public class ChangeIT extends AbstractDaemonTest {
     Timestamp oldTs = rsrc.getChange().getLastUpdatedOn();
 
     // create a group named "ab" with one user: testUser
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
     TestAccount testUser = accountCreator.create("abcd", "abcd@test.com", "abcd");
+=======
+    TestAccount testUser = accounts.create("abcd", "abcd@test.com", "abcd");
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
     String testGroup = createGroupWithRealName("ab");
     GroupApi groupApi = gApi.groups().id(testGroup);
     groupApi.description("test group");
@@ -1597,8 +1601,13 @@ public class ChangeIT extends AbstractDaemonTest {
     Timestamp oldTs = rsrc.getChange().getLastUpdatedOn();
 
     // create a group named "kobe" with one user: lee
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
     TestAccount testUser = accountCreator.create("kobebryant", "kobebryant@test.com", "kobebryant");
     TestAccount myGroupUser = accountCreator.create("lee", "lee@test.com", "lee");
+=======
+    TestAccount testUser = accounts.create("kobebryant", "kobebryant@test.com", "kobebryant");
+    TestAccount myGroupUser = accounts.create("lee", "lee@test.com", "lee");
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
 
     String testGroup = createGroupWithRealName("kobe");
     GroupApi groupApi = gApi.groups().id(testGroup);

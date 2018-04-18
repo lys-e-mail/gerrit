@@ -66,7 +66,10 @@ public abstract class NewChangeSender extends ChangeEmail {
       case ALL:
       default:
         add(RecipientType.CC, extraCC);
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
         extraCCByEmail.stream().forEach(cc -> add(RecipientType.CC, cc));
+=======
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
         // $FALL-THROUGH$
       case OWNER_REVIEWERS:
         add(RecipientType.TO, reviewers, true);

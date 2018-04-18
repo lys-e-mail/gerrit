@@ -480,7 +480,11 @@ public class SubmoduleOp {
     commit.setTreeId(newTreeId);
     commit.setParentIds(currentCommit.getParents());
     if (verboseSuperProject != VerboseSuperprojectUpdate.FALSE) {
+<<<<<<< HEAD   (c370e9 Document that google-java-format 1.5 should be used)
       // TODO(czhen): handle cherrypick footer
+=======
+      // TODO:czhen handle cherrypick footer
+>>>>>>> BRANCH (8787a1 Document that google-java-format 1.5 should be used)
       commit.setMessage(currentCommit.getFullMessage() + "\n\n* submodules:\n" + msgbuf.toString());
     } else {
       commit.setMessage(currentCommit.getFullMessage());
