@@ -285,11 +285,14 @@ public abstract class AbstractDaemonTest {
     if (commonServer != null) {
       try {
         commonServer.close();
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
       } catch (Throwable t) {
         throw new AssertionError(
             "Error stopping common server in "
                 + (firstTest != null ? firstTest.getTestClass().getName() : "unknown test class"),
             t);
+=======
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
       } finally {
         commonServer = null;
       }

@@ -14,11 +14,16 @@
 
 package com.google.gerrit.acceptance.pgm;
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
 import static com.google.gerrit.extensions.client.ListGroupsOption.MEMBERS;
+=======
+import static com.google.common.truth.Truth8.assertThat;
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
@@ -38,10 +43,20 @@ import java.nio.file.Files;
 import java.util.Set;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
+=======
+import com.google.common.io.MoreFiles;
+import com.google.gerrit.acceptance.NoHttpd;
+import com.google.gerrit.acceptance.StandaloneSiteTest;
+import com.google.gerrit.extensions.api.GerritApi;
+import com.google.gerrit.extensions.common.ChangeInput;
+import com.google.gerrit.reviewdb.client.Project;
+import java.nio.file.Files;
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
 import org.junit.Test;
 
 @NoHttpd
 public class ReindexIT extends StandaloneSiteTest {
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   private static final String CHANGES = ChangeSchemaDefinitions.NAME;
 
   private Project.NameKey project;
@@ -79,7 +94,10 @@ public class ReindexIT extends StandaloneSiteTest {
     }
   }
 
+=======
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
   @Test
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   public void onlineUpgradeChanges() throws Exception {
     int prevVersion = ChangeSchemaDefinitions.INSTANCE.getPrevious().getVersion();
     int currVersion = ChangeSchemaDefinitions.INSTANCE.getLatest().getVersion();
@@ -129,7 +147,16 @@ public class ReindexIT extends StandaloneSiteTest {
       assertThat(queryProvider.get().byTopicOpen("topic2")).hasSize(1);
     }
   }
+=======
+  public void reindexFromScratch() throws Exception {
+    Project.NameKey project = new Project.NameKey("project");
+    String changeId;
+    try (ServerContext ctx = startServer()) {
+      GerritApi gApi = ctx.getInjector().getInstance(GerritApi.class);
+      gApi.projects().create("project");
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   private void setUpChange() throws Exception {
     project = new Project.NameKey("project");
     try (ServerContext ctx = startServer()) {
@@ -141,7 +168,17 @@ public class ReindexIT extends StandaloneSiteTest {
       changeId = gApi.changes().create(in).info().changeId;
     }
   }
+=======
+      ChangeInput in = new ChangeInput();
+      in.project = project.get();
+      in.branch = "master";
+      in.subject = "Test change";
+      in.newBranch = true;
+      changeId = gApi.changes().create(in).info().changeId;
+    }
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   private void setOnlineUpgradeConfig(boolean enable) throws Exception {
     FileBasedConfig cfg = new FileBasedConfig(sitePaths.gerrit_config.toFile(), FS.detect());
     cfg.load();
@@ -178,5 +215,18 @@ public class ReindexIT extends StandaloneSiteTest {
             allVersions.stream().collect(toImmutableMap(v -> v, v -> status.getReady(CHANGES, v))))
         .named("ready state for index versions")
         .isEqualTo(allVersions.stream().collect(toImmutableMap(v -> v, v -> v == expectedReady)));
+=======
+    MoreFiles.deleteRecursively(sitePaths.index_dir);
+    Files.createDirectory(sitePaths.index_dir);
+    assertServerStartupFails();
+
+    runGerrit("reindex", "-d", sitePaths.site_path.toString(), "--show-stack-trace");
+
+    try (ServerContext ctx = startServer()) {
+      GerritApi gApi = ctx.getInjector().getInstance(GerritApi.class);
+      assertThat(gApi.changes().query("message:Test").get().stream().map(c -> c.changeId))
+          .containsExactly(changeId);
+    }
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
   }
 }

@@ -37,7 +37,6 @@ import com.google.gerrit.testutil.FakeEmailSender;
 import com.google.gerrit.testutil.NoteDbChecker;
 import com.google.gerrit.testutil.NoteDbMode;
 import com.google.gerrit.testutil.SshMode;
-import com.google.gerrit.testutil.TempFileUtil;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
@@ -47,7 +46,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Path;
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
 import java.util.Arrays;
+=======
+import java.nio.file.Paths;
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -80,7 +83,11 @@ public class GerritServer implements AutoCloseable {
       return new AutoValue_GerritServer_Description(
           testDesc,
           configName,
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
           !has(UseLocalDisk.class, testDesc.getTestClass()) && !forceLocalDisk(),
+=======
+          !has(UseLocalDisk.class, testDesc.getTestClass()),
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
           !has(NoHttpd.class, testDesc.getTestClass()),
           has(Sandboxed.class, testDesc.getTestClass()),
           has(UseSsh.class, testDesc.getTestClass()),
@@ -95,9 +102,14 @@ public class GerritServer implements AutoCloseable {
       return new AutoValue_GerritServer_Description(
           testDesc,
           configName,
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
           (testDesc.getAnnotation(UseLocalDisk.class) == null
                   && !has(UseLocalDisk.class, testDesc.getTestClass()))
               && !forceLocalDisk(),
+=======
+          testDesc.getAnnotation(UseLocalDisk.class) == null
+              && !has(UseLocalDisk.class, testDesc.getTestClass()),
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
           testDesc.getAnnotation(NoHttpd.class) == null
               && !has(NoHttpd.class, testDesc.getTestClass()),
           testDesc.getAnnotation(Sandboxed.class) != null
@@ -181,11 +193,110 @@ public class GerritServer implements AutoCloseable {
     }
   }
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   private static boolean forceLocalDisk() {
     String value = Strings.nullToEmpty(System.getenv("GERRIT_FORCE_LOCAL_DISK"));
     if (value.isEmpty()) {
       value = Strings.nullToEmpty(System.getProperty("gerrit.forceLocalDisk"));
+=======
+  /**
+   * Initializes on-disk site but does not start server.
+   *
+   * @param desc server description
+   * @param baseConfig default config values; merged with config from {@code desc} and then written
+   *     into {@code site/etc/gerrit.config}.
+   * @param site temp directory where site will live.
+   * @throws Exception
+   */
+  public static void init(Description desc, Config baseConfig, Path site) throws Exception {
+    checkArgument(!desc.memory(), "can't initialize site path for in-memory test: %s", desc);
+    Config cfg = desc.buildConfig(baseConfig);
+    Map<String, Config> pluginConfigs = desc.buildPluginConfigs();
+    Init init = new Init();
+    int rc =
+        init.main(
+            new String[] {
+              "-d", site.toString(), "--batch", "--no-auto-start", "--skip-plugins",
+            });
+    if (rc != 0) {
+      throw new RuntimeException("Couldn't initialize site");
     }
+
+    MergeableFileBasedConfig gerritConfig =
+        new MergeableFileBasedConfig(
+            site.resolve("etc").resolve("gerrit.config").toFile(), FS.DETECTED);
+    gerritConfig.load();
+    gerritConfig.merge(cfg);
+    mergeTestConfig(gerritConfig);
+    gerritConfig.save();
+
+    for (String pluginName : pluginConfigs.keySet()) {
+      MergeableFileBasedConfig pluginCfg =
+          new MergeableFileBasedConfig(
+              site.resolve("etc").resolve(pluginName + ".config").toFile(), FS.DETECTED);
+      pluginCfg.load();
+      pluginCfg.merge(pluginConfigs.get(pluginName));
+      pluginCfg.save();
+    }
+  }
+
+  /**
+   * Initializes new Gerrit site and returns started server.
+   *
+   * @param desc server description.
+   * @param baseConfig default config values; merged with config from {@code desc}. Must contain a
+   *     value for {@code gerrit.tempSiteDir} pointing to a temporary directory. This directory is
+   *     only actually used for on-disk sites ({@link Description#memory()} returns false), but it
+   *     must nonetheless exist for in-memory sites.
+   * @return started server.
+   * @throws Exception
+   */
+  public static GerritServer initAndStart(Description desc, Config baseConfig) throws Exception {
+    Path site = Paths.get(baseConfig.getString("gerrit", null, "tempSiteDir"));
+    if (!desc.memory()) {
+      init(desc, baseConfig, site);
+    }
+    return start(desc, baseConfig, site);
+  }
+
+  /**
+   * Starts Gerrit server from existing on-disk site.
+   *
+   * @param desc server description.
+   * @param baseConfig default config values; merged with config from {@code desc}.
+   * @param site existing temporary directory for site. Required, but may be empty, for in-memory
+   *     servers. For on-disk servers, assumes that {@link #init} was previously called to
+   *     initialize this directory.
+   * @return started server.
+   * @throws Exception
+   */
+  public static GerritServer start(Description desc, Config baseConfig, Path site)
+      throws Exception {
+    checkArgument(site != null, "site is required (even for in-memory server");
+    desc.checkValidAnnotations();
+    Logger.getLogger("com.google.gerrit").setLevel(Level.DEBUG);
+    final CyclicBarrier serverStarted = new CyclicBarrier(2);
+    final Daemon daemon =
+        new Daemon(
+            new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  serverStarted.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+            },
+            site);
+    daemon.setEmailModuleForTesting(new FakeEmailSender.Module());
+    daemon.setEnableSshd(SshMode.useSsh());
+
+    if (desc.memory()) {
+      return startInMemory(desc, baseConfig, daemon);
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
+    }
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
     switch (value.trim().toLowerCase(Locale.US)) {
       case "1":
       case "yes":
@@ -194,8 +305,12 @@ public class GerritServer implements AutoCloseable {
       default:
         return false;
     }
+=======
+    return startOnDisk(desc, site, daemon, serverStarted);
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
   }
 
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   /**
    * Initializes on-disk site but does not start server.
    *
@@ -235,9 +350,58 @@ public class GerritServer implements AutoCloseable {
       pluginCfg.load();
       pluginCfg.merge(pluginConfigs.get(pluginName));
       pluginCfg.save();
-    }
+=======
+  private static GerritServer startInMemory(Description desc, Config baseConfig, Daemon daemon)
+      throws Exception {
+    Config cfg = desc.buildConfig(baseConfig);
+    mergeTestConfig(cfg);
+    // Set the log4j configuration to an invalid one to prevent system logs
+    // from getting configured and creating log files.
+    System.setProperty(SystemLog.LOG4J_CONFIGURATION, "invalidConfiguration");
+    cfg.setBoolean("httpd", null, "requestLog", false);
+    cfg.setBoolean("sshd", null, "requestLog", false);
+    cfg.setBoolean("index", "lucene", "testInmemory", true);
+    cfg.setString("gitweb", null, "cgi", "");
+    daemon.setEnableHttpd(desc.httpd());
+    daemon.setLuceneModule(LuceneIndexModule.singleVersionAllLatest(0));
+    daemon.setDatabaseForTesting(ImmutableList.<Module>of(new InMemoryTestingDatabaseModule(cfg)));
+    daemon.start();
+    return new GerritServer(desc, createTestInjector(daemon), daemon, null);
   }
 
+  private static GerritServer startOnDisk(
+      Description desc, Path site, Daemon daemon, CyclicBarrier serverStarted) throws Exception {
+    checkNotNull(site);
+    ExecutorService daemonService = Executors.newSingleThreadExecutor();
+    @SuppressWarnings("unused")
+    Future<?> possiblyIgnoredError =
+        daemonService.submit(
+            () -> {
+              int rc =
+                  daemon.main(
+                      new String[] {
+                        "-d", site.toString(), "--headless", "--console-log", "--show-stack-trace",
+                      });
+              if (rc != 0) {
+                System.err.println("Failed to start Gerrit daemon");
+                serverStarted.reset();
+              }
+              return null;
+            });
+    try {
+      serverStarted.await();
+    } catch (BrokenBarrierException e) {
+      daemon.stop();
+      throw new StartupException("Failed to start Gerrit daemon; see log", e);
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
+    }
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
+  }
+=======
+    System.out.println("Gerrit Server Started");
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
+
+<<<<<<< HEAD   (e4591b ElasticQueryChangesTest: Remove duplicate TestName rule)
   /**
    * Initializes new Gerrit site and returns started server.
    *
@@ -368,6 +532,9 @@ public class GerritServer implements AutoCloseable {
     System.out.println("Gerrit Server Started");
 
     return new GerritServer(desc, site, createTestInjector(daemon), daemon, daemonService);
+=======
+    return new GerritServer(desc, createTestInjector(daemon), daemon, daemonService);
+>>>>>>> BRANCH (c7bdc5 Expand test for Reindex program)
   }
 
   private static void mergeTestConfig(Config cfg) {
