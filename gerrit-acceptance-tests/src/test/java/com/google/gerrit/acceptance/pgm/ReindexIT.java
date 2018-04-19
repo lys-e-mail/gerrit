@@ -24,33 +24,78 @@ import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.StandaloneSiteTest;
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
 import com.google.gerrit.acceptance.pgm.IndexUpgradeController.UpgradeAttempt;
+=======
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils.ElasticNodeInfo;
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.common.ChangeInput;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
 import com.google.gerrit.server.index.GerritIndexStatus;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.ChangeSchemaDefinitions;
 import com.google.gerrit.server.query.change.InternalChangeQuery;
 import com.google.inject.Provider;
+=======
+import com.google.gerrit.testutil.ConfigSuite;
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
 import java.nio.file.Files;
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
 import java.util.Set;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
+=======
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import org.eclipse.jgit.lib.Config;
+import org.junit.AfterClass;
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
 import org.junit.Test;
 
 @NoHttpd
 public class ReindexIT extends StandaloneSiteTest {
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
   private static final String CHANGES = ChangeSchemaDefinitions.NAME;
 
   private Project.NameKey project;
   private String changeId;
+=======
+
+  @ConfigSuite.Config
+  public static Config elasticsearch() throws InterruptedException, ExecutionException {
+    if (elasticNodeInfo == null) {
+      elasticNodeInfo = ElasticTestUtils.startElasticsearchNode();
+    }
+    String indicesPrefix = UUID.randomUUID().toString();
+    ElasticTestUtils.createAllIndexes(elasticNodeInfo, indicesPrefix);
+
+    Config cfg = new Config();
+    ElasticTestUtils.configure(cfg, elasticNodeInfo.port, indicesPrefix);
+    return cfg;
+  }
+
+  private static ElasticNodeInfo elasticNodeInfo;
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
 
   @Test
   public void reindexFromScratch() throws Exception {
     setUpChange();
 
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
+=======
+      ChangeInput in = new ChangeInput();
+      in.project = project.get();
+      in.branch = "master";
+      in.subject = "Test change";
+      in.newBranch = true;
+      changeId = gApi.changes().create(in).info().changeId;
+    }
+
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
     MoreFiles.deleteRecursively(sitePaths.index_dir, RecursiveDeleteOption.ALLOW_INSECURE);
     Files.createDirectory(sitePaths.index_dir);
     assertServerStartupFails();
@@ -79,6 +124,7 @@ public class ReindexIT extends StandaloneSiteTest {
     }
   }
 
+<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
   @Test
   public void onlineUpgradeChanges() throws Exception {
     int prevVersion = ChangeSchemaDefinitions.INSTANCE.getPrevious().getVersion();
@@ -178,5 +224,14 @@ public class ReindexIT extends StandaloneSiteTest {
             allVersions.stream().collect(toImmutableMap(v -> v, v -> status.getReady(CHANGES, v))))
         .named("ready state for index versions")
         .isEqualTo(allVersions.stream().collect(toImmutableMap(v -> v, v -> v == expectedReady)));
+=======
+  @AfterClass
+  public static void stopElasticServer() {
+    if (elasticNodeInfo != null) {
+      elasticNodeInfo.node.close();
+      elasticNodeInfo.elasticDir.delete();
+      elasticNodeInfo = null;
+    }
+>>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
   }
 }

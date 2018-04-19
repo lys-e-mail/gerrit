@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (79ea76 Fix typo in cmd-stream-events.txt)
 // Copyright (C) 2016 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.elasticsearch;
+package com.google.gerrit.elasticsearch.testing;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.elasticsearch.ElasticAccountIndex.ACCOUNTS;
@@ -24,13 +23,15 @@ import static com.google.gerrit.elasticsearch.ElasticGroupIndex.GROUPS;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.google.gerrit.elasticsearch.ElasticAccountIndex;
 import com.google.gerrit.elasticsearch.ElasticAccountIndex.AccountMapping;
 import com.google.gerrit.elasticsearch.ElasticChangeIndex.ChangeMapping;
+import com.google.gerrit.elasticsearch.ElasticGroupIndex;
 import com.google.gerrit.elasticsearch.ElasticGroupIndex.GroupMapping;
-import com.google.gerrit.index.Schema;
+import com.google.gerrit.reviewdb.client.AccountGroup;
 import com.google.gerrit.server.account.AccountState;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.index.IndexModule.IndexType;
+import com.google.gerrit.server.index.Schema;
 import com.google.gerrit.server.index.account.AccountSchemaDefinitions;
 import com.google.gerrit.server.index.change.ChangeSchemaDefinitions;
 import com.google.gerrit.server.index.group.GroupSchemaDefinitions;
@@ -49,16 +50,16 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 
-final class ElasticTestUtils {
+public final class ElasticTestUtils {
   static final Gson gson =
       new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
           .create();
 
-  static class ElasticNodeInfo {
-    final Node node;
-    final String port;
-    final File elasticDir;
+  public static class ElasticNodeInfo {
+    public final Node node;
+    public final String port;
+    public final File elasticDir;
 
     private ElasticNodeInfo(Node node, File rootDir, String port) {
       this.node = node;
@@ -67,7 +68,7 @@ final class ElasticTestUtils {
     }
   }
 
-  static void configure(Config config, String port, String prefix) {
+  public static void configure(Config config, String port, String prefix) {
     config.setEnum("index", null, "type", IndexType.ELASTICSEARCH);
     config.setString("elasticsearch", "test", "protocol", "http");
     config.setString("elasticsearch", "test", "hostname", "localhost");
@@ -75,7 +76,8 @@ final class ElasticTestUtils {
     config.setString("elasticsearch", null, "prefix", prefix);
   }
 
-  static ElasticNodeInfo startElasticsearchNode() throws InterruptedException, ExecutionException {
+  public static ElasticNodeInfo startElasticsearchNode()
+      throws InterruptedException, ExecutionException {
     File elasticDir = Files.createTempDir();
     Path elasticDirPath = elasticDir.toPath();
     Settings settings =
@@ -107,19 +109,19 @@ final class ElasticTestUtils {
     return new ElasticNodeInfo(node, elasticDir, getHttpPort(node));
   }
 
-  static void deleteAllIndexes(ElasticNodeInfo nodeInfo) {
+  public static void deleteAllIndexes(ElasticNodeInfo nodeInfo) {
     nodeInfo.node.client().admin().indices().prepareDelete("_all").execute();
   }
 
-  static class NodeInfo {
+  public static class NodeInfo {
     String httpAddress;
   }
 
-  static class Info {
+  public static class Info {
     Map<String, NodeInfo> nodes;
   }
 
-  static void createAllIndexes(ElasticNodeInfo nodeInfo, String prefix) {
+  public static void createAllIndexes(ElasticNodeInfo nodeInfo, String prefix) {
     Schema<ChangeData> changeSchema = ChangeSchemaDefinitions.INSTANCE.getLatest();
     ChangeMapping openChangesMapping = new ChangeMapping(changeSchema);
     ChangeMapping closedChangesMapping = new ChangeMapping(changeSchema);
@@ -148,7 +150,7 @@ final class ElasticTestUtils {
         .execute()
         .actionGet();
 
-    Schema<InternalGroup> groupSchema = GroupSchemaDefinitions.INSTANCE.getLatest();
+    Schema<AccountGroup> groupSchema = GroupSchemaDefinitions.INSTANCE.getLatest();
     GroupMapping groupMapping = new GroupMapping(groupSchema);
     nodeInfo
         .node
@@ -187,5 +189,3 @@ final class ElasticTestUtils {
     // hide default constructor
   }
 }
-=======
->>>>>>> BRANCH (dbabc2 ReindexIT: Allow insecure directory deletion)
