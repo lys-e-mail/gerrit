@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (56a3a9 Clarify that ProjectCache accepts null projectName)
   <version>2.15.1</version>
+=======
+  <version>2.14.8</version>
+>>>>>>> BRANCH (d2b8ed Set version to 2.14.8)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>
