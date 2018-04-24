@@ -17,25 +17,41 @@ package com.google.gerrit.lucene;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.ImmutableMap;
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.index.IndexConfig;
 import com.google.gerrit.lifecycle.LifecycleModule;
+=======
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
 import com.google.gerrit.server.config.GerritServerConfig;
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader;
 import com.google.gerrit.server.index.SingleVersionModule;
 import com.google.gerrit.server.index.VersionManager;
+=======
+import com.google.gerrit.server.index.AbstractIndexModule;
+import com.google.gerrit.server.index.AbstractVersionManager;
+import com.google.gerrit.server.index.IndexConfig;
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
 import com.google.gerrit.server.index.account.AccountIndex;
 import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.group.GroupIndex;
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+=======
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
 import java.util.Map;
 import org.apache.lucene.search.BooleanQuery;
 import org.eclipse.jgit.lib.Config;
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 public class LuceneIndexModule extends AbstractModule {
+=======
+public class LuceneIndexModule extends AbstractIndexModule {
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   public static LuceneIndexModule singleVersionAllLatest(int threads) {
     return new LuceneIndexModule(ImmutableMap.<String, Integer>of(), threads, false);
   }
@@ -57,6 +73,7 @@ public class LuceneIndexModule extends AbstractModule {
     return cfg.getBoolean("index", "lucene", "testInmemory", false);
   }
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
   private final Map<String, Integer> singleVersions;
   private final int threads;
   private final boolean onlineUpgrade;
@@ -69,36 +86,37 @@ public class LuceneIndexModule extends AbstractModule {
     this.singleVersions = singleVersions;
     this.threads = threads;
     this.onlineUpgrade = onlineUpgrade;
+=======
+  private LuceneIndexModule(Map<String, Integer> singleVersions, int threads) {
+    super(singleVersions, threads);
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   }
 
   @Override
-  protected void configure() {
-    install(
-        new FactoryModuleBuilder()
-            .implement(AccountIndex.class, LuceneAccountIndex.class)
-            .build(AccountIndex.Factory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(ChangeIndex.class, LuceneChangeIndex.class)
-            .build(ChangeIndex.Factory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(GroupIndex.class, LuceneGroupIndex.class)
-            .build(GroupIndex.Factory.class));
-
-    install(new IndexModule(threads));
-    if (singleVersions == null) {
-      install(new MultiVersionModule());
-    } else {
-      install(new SingleVersionModule(singleVersions));
-    }
+  protected Class<? extends AccountIndex> getAccountIndex() {
+    return LuceneAccountIndex.class;
   }
 
-  @Provides
-  @Singleton
-  IndexConfig getIndexConfig(@GerritServerConfig Config cfg) {
+  @Override
+  protected Class<? extends ChangeIndex> getChangeIndex() {
+    return LuceneChangeIndex.class;
+  }
+
+  @Override
+  protected Class<? extends GroupIndex> getGroupIndex() {
+    return LuceneGroupIndex.class;
+  }
+
+  @Override
+  protected Class<? extends AbstractVersionManager> getVersionManager() {
+    return LuceneVersionManager.class;
+  }
+
+  @Override
+  protected IndexConfig getIndexConfig(@GerritServerConfig Config cfg) {
     BooleanQuery.setMaxClauseCount(
         cfg.getInt("index", "maxTerms", BooleanQuery.getMaxClauseCount()));
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
     return IndexConfig.fromConfig(cfg).separateChangeSubIndexes(true).build();
   }
 
@@ -111,5 +129,8 @@ public class LuceneIndexModule extends AbstractModule {
         listener().to(OnlineUpgrader.class);
       }
     }
+=======
+    return super.getIndexConfig(cfg);
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   }
 }

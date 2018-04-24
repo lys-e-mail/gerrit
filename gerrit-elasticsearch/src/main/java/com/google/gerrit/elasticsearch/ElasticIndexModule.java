@@ -14,6 +14,7 @@
 
 package com.google.gerrit.elasticsearch;
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gerrit.index.IndexConfig;
@@ -23,17 +24,28 @@ import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader;
 import com.google.gerrit.server.index.SingleVersionModule;
 import com.google.gerrit.server.index.VersionManager;
+=======
+import com.google.gerrit.server.index.AbstractIndexModule;
+import com.google.gerrit.server.index.AbstractVersionManager;
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
 import com.google.gerrit.server.index.account.AccountIndex;
 import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.group.GroupIndex;
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+=======
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
 import java.util.Map;
-import org.eclipse.jgit.lib.Config;
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
 public class ElasticIndexModule extends AbstractModule {
+=======
+public class ElasticIndexModule extends AbstractIndexModule {
+
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   public static ElasticIndexModule singleVersionWithExplicitVersions(
       Map<String, Integer> versions, int threads) {
     return new ElasticIndexModule(versions, threads, false);
@@ -43,6 +55,7 @@ public class ElasticIndexModule extends AbstractModule {
     return new ElasticIndexModule(null, 0, true);
   }
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
   public static ElasticIndexModule latestVersionWithoutOnlineUpgrade() {
     return new ElasticIndexModule(null, 0, false);
   }
@@ -59,37 +72,30 @@ public class ElasticIndexModule extends AbstractModule {
     this.singleVersions = singleVersions;
     this.threads = threads;
     this.onlineUpgrade = onlineUpgrade;
+=======
+  private ElasticIndexModule(Map<String, Integer> singleVersions, int threads) {
+    super(singleVersions, threads);
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   }
 
   @Override
-  protected void configure() {
-    install(
-        new FactoryModuleBuilder()
-            .implement(AccountIndex.class, ElasticAccountIndex.class)
-            .build(AccountIndex.Factory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(ChangeIndex.class, ElasticChangeIndex.class)
-            .build(ChangeIndex.Factory.class));
-    install(
-        new FactoryModuleBuilder()
-            .implement(GroupIndex.class, ElasticGroupIndex.class)
-            .build(GroupIndex.Factory.class));
-
-    install(new IndexModule(threads));
-    if (singleVersions == null) {
-      install(new MultiVersionModule());
-    } else {
-      install(new SingleVersionModule(singleVersions));
-    }
+  protected Class<? extends AccountIndex> getAccountIndex() {
+    return ElasticAccountIndex.class;
   }
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
   @Provides
   @Singleton
   IndexConfig getIndexConfig(@GerritServerConfig Config cfg) {
     return IndexConfig.fromConfig(cfg).separateChangeSubIndexes(true).build();
+=======
+  @Override
+  protected Class<? extends ChangeIndex> getChangeIndex() {
+    return ElasticChangeIndex.class;
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   }
 
+<<<<<<< HEAD   (a7f8e5 Merge branch 'stable-2.14' into stable-2.15)
   private class MultiVersionModule extends LifecycleModule {
     @Override
     public void configure() {
@@ -99,5 +105,15 @@ public class ElasticIndexModule extends AbstractModule {
         listener().to(OnlineUpgrader.class);
       }
     }
+=======
+  @Override
+  protected Class<? extends GroupIndex> getGroupIndex() {
+    return ElasticGroupIndex.class;
+  }
+
+  @Override
+  protected Class<? extends AbstractVersionManager> getVersionManager() {
+    return ElasticVersionManager.class;
+>>>>>>> BRANCH (6ca35f Remove duplication between both index modules)
   }
 }
