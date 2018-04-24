@@ -154,7 +154,7 @@ public class AccountManager {
           }
           // New account, automatically create and return.
           //
-          log.info("External ID not found. Attempting to create new account.");
+          log.debug("External ID not found. Attempting to create new account.");
           return create(db, who);
         }
 
@@ -244,9 +244,7 @@ public class AccountManager {
     if (!realm.allowsEdit(AccountFieldName.USER_NAME)
         && who.getUserName() != null
         && !eq(user.getUserName(), who.getUserName())) {
-      log.warn(
-          String.format(
-              "Not changing already set username %s to %s", user.getUserName(), who.getUserName()));
+      log.warn("Not changing already set username {} to {}", user.getUserName(), who.getUserName());
     }
 
     if (!accountUpdates.isEmpty()) {
@@ -402,6 +400,7 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult link(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (f90efd ForcePushIT#deleteAllowedWithDeletePermission: Fix permissio)
       throws AccountException, OrmException, IOException, ConfigInvalidException {
     ExternalId extId = externalIds.get(who.getExternalIdKey());
     log.info("Link another authentication identity to an existing account");
@@ -409,6 +408,34 @@ public class AccountManager {
       if (!extId.accountId().equals(to)) {
         throw new AccountException(
             "Identity '" + extId.key().get() + "' in use by another account");
+=======
+      throws AccountException, OrmException, IOException {
+    try (ReviewDb db = schema.open()) {
+      log.debug("Link another authentication identity to an existing account");
+      ExternalId extId = findExternalId(db, who.getExternalIdKey());
+      if (extId != null) {
+        if (!extId.accountId().equals(to)) {
+          throw new AccountException("Identity in use by another account");
+        }
+        log.debug("Updating existing external ID data");
+        update(db, who, extId);
+      } else {
+        log.debug("Linking new external ID to the existing account");
+        externalIdsUpdateFactory
+            .create()
+            .insert(
+                db, ExternalId.createWithEmail(who.getExternalIdKey(), to, who.getEmailAddress()));
+
+        if (who.getEmailAddress() != null) {
+          Account a = db.accounts().get(to);
+          if (a.getPreferredEmail() == null) {
+            a.setPreferredEmail(who.getEmailAddress());
+            db.accounts().update(Collections.singleton(a));
+            byIdCache.evict(to);
+          }
+          byEmailCache.evict(who.getEmailAddress());
+        }
+>>>>>>> BRANCH (3ecb51 AccountManager: Reduce logs to debug level)
       }
       update(who, extId);
     } else {
