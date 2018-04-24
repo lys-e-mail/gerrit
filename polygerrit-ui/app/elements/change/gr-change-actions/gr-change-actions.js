@@ -372,10 +372,16 @@
     ],
 
     observers: [
+<<<<<<< HEAD   (bdb121 Merge "Documentation: clarify what happens if you override a)
       '_actionsChanged(actions.*, revisionActions.*, _additionalActions.*)',
       '_changeChanged(change)',
       '_editStatusChanged(editMode, editPatchsetLoaded, ' +
           'editBasedOnCurrentPatchSet, actions.*, change)',
+=======
+      '_actionsChanged(actions.*, revisionActions.*, _additionalActions.*, ' +
+          'editLoaded, editBasedOnCurrentPatchSet, change)',
+      '_changeChanged(change)',
+>>>>>>> BRANCH (f90efd ForcePushIT#deleteAllowedWithDeletePermission: Fix permissio)
     ],
 
     listeners: {
