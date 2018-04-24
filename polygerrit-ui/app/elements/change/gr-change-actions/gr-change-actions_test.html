@@ -1264,6 +1264,7 @@ limitations under the License.
       const reloadStub = sandbox.stub(element, 'reload');
       element.changeNum = 123;
       assert.isFalse(reloadStub.called);
+<<<<<<< HEAD   (bdb121 Merge "Documentation: clarify what happens if you override a)
       element.latestPatchNum = 456;
       assert.isFalse(reloadStub.called);
     });
@@ -1274,6 +1275,10 @@ limitations under the License.
       assert.equal(element._toSentenceCase('b'), 'B');
       assert.equal(element._toSentenceCase(''), '');
       assert.equal(element._toSentenceCase('!@#$%^&*()'), '!@#$%^&*()');
+=======
+      element.patchNum = 456;
+      assert.isFalse(reloadStub.called);
+>>>>>>> BRANCH (f90efd ForcePushIT#deleteAllowedWithDeletePermission: Fix permissio)
     });
 
     suite('setActionOverflow', () => {
