@@ -261,10 +261,22 @@ public class AccountManager {
 
   private AuthResult create(ReviewDb db, AuthRequest who)
       throws OrmException, AccountException, IOException, ConfigInvalidException {
+<<<<<<< HEAD   (4e34c1 Merge branch 'stable-2.14' into stable-2.15)
     Account.Id newId = new Account.Id(sequences.nextAccountId());
+=======
+    Account.Id newId = new Account.Id(db.nextAccountId());
+    log.debug("Assigning new Id {} to account", newId);
+    Account account = new Account(newId, TimeUtil.nowTs());
+>>>>>>> BRANCH (679c04 Add more debug logging to account creation)
 
     ExternalId extId =
         ExternalId.createWithEmail(who.getExternalIdKey(), newId, who.getEmailAddress());
+<<<<<<< HEAD   (4e34c1 Merge branch 'stable-2.14' into stable-2.15)
+=======
+    log.debug("Created external Id: {}", extId);
+    account.setFullName(who.getDisplayName());
+    account.setPreferredEmail(extId.email());
+>>>>>>> BRANCH (679c04 Add more debug logging to account creation)
 
     boolean isFirstAccount = awaitsFirstAccountCheck.getAndSet(false) && !accounts.hasAnyAccount();
 
@@ -322,9 +334,16 @@ public class AccountManager {
       }
     }
 
+    log.debug("Username from AuthRequest: {}", who.getUserName());
     if (who.getUserName() != null) {
+      log.debug("Setting username for: {}", who.getUserName());
       // Only set if the name hasn't been used yet, but was given to us.
       //
+<<<<<<< HEAD   (4e34c1 Merge branch 'stable-2.14' into stable-2.15)
+=======
+      IdentifiedUser user = userFactory.create(newId);
+      log.debug("Identified user {} was created from {}", user, who.getUserName());
+>>>>>>> BRANCH (679c04 Add more debug logging to account creation)
       try {
         changeUserNameFactory.create(user, who.getUserName()).call();
       } catch (NameAlreadyUsedException e) {
