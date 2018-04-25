@@ -545,9 +545,15 @@ submit_rule(submit(Author)) :-
     Author = label('Author-is-John-Doe', need(_)).
 
 submit_rule(submit(Author)) :-
+<<<<<<< HEAD   (e22e06 Merge "Make zip generation (more) reproducible")
     gerrit:commit_author(_, 'John Doe', 'john.doe@example.com'),
     gerrit:uploader(U),
     Author = label('Author-is-John-Doe', ok(U)).
+=======
+    A = user(1000000),
+    gerrit:commit_author(A, 'John Doe', 'john.doe@example.com'),
+    Author = label('Author-is-John-Doe', ok(A)).
+>>>>>>> BRANCH (dcb0d6 Merge branch 'stable-2.14' into stable-2.15)
 ----
 
 === Example 7: Make change submittable if commit message starts with "Fix "
@@ -901,7 +907,10 @@ add_category_min_score(In, Category, Min,  P) :-
     findall(X, gerrit:commit_label(label(Category,X),R),Z),
     sum_list(Z, Sum),
     Sum >= Min, !,
-    P = [label(Category,ok(R)) | In].
+    gerrit:commit_label(label(Category, V), U),
+    V >= 1,
+    !,
+    P = [label(Category,ok(U)) | In].
 
 add_category_min_score(In, Category,Min,P) :-
     P = [label(Category,need(Min)) | In].
