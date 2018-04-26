@@ -2013,6 +2013,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       assertQuery("project:repo reviewerin:" + group, change2, change3);
       assertQuery("status:merged reviewerin:" + group, change2);
     }
+<<<<<<< HEAD   (7dee34 AbstractQueryChangesTest#reviewerin: Expand to cover CC)
   }
 
   @Test
@@ -2100,6 +2101,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
           "reviewer:\"" + someoneEmail + "\"", "User " + someoneEmail + " not found");
       assertFailingQuery("cc:\"" + someoneEmail + "\"", "User " + someoneEmail + " not found");
     }
+=======
+>>>>>>> BRANCH (5dd017 AbstractQueryChangesTest#reviewerin: Expand to cover CC)
   }
 
   @Test
