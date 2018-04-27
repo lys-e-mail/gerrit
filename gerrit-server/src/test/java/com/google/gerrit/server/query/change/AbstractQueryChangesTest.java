@@ -2013,6 +2013,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       assertQuery("project:repo reviewerin:" + group, change2, change3);
       assertQuery("status:merged reviewerin:" + group, change2);
     }
+<<<<<<< HEAD   (e4b7cc ReviewerinPredicate: Only return users in state REVIEWER)
   }
 
   @Test
@@ -2100,6 +2101,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
           "reviewer:\"" + someoneEmail + "\"", "User " + someoneEmail + " not found");
       assertFailingQuery("cc:\"" + someoneEmail + "\"", "User " + someoneEmail + " not found");
     }
+=======
+>>>>>>> BRANCH (89050c Remove documentation about cleaning the build cache)
   }
 
   @Test
