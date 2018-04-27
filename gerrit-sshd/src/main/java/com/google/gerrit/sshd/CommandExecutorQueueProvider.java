@@ -19,9 +19,15 @@ import com.google.gerrit.server.config.ThreadSettingsConfig;
 import com.google.gerrit.server.git.QueueProvider;
 import com.google.gerrit.server.git.WorkQueue;
 import com.google.inject.Inject;
+<<<<<<< HEAD   (2e34e9 Merge branch 'stable-2.14' into stable-2.15)
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+=======
+import com.google.inject.Singleton;
+import java.util.concurrent.ThreadFactory;
+>>>>>>> BRANCH (ec304a CommandExecutorQueueProvider: Fix singleton binding)
 import org.eclipse.jgit.lib.Config;
 
+@Singleton
 public class CommandExecutorQueueProvider implements QueueProvider {
 
   private int poolSize;
