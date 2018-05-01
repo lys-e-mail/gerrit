@@ -363,6 +363,7 @@ To consume the JGit dependency from the development tree, edit
 `lib/jgit/jgit.bzl` setting LOCAL_JGIT_REPO to a directory holding a
 JGit repository.
 
+<<<<<<< HEAD   (12f92e Merge changes I5726cae3,Ie3acbfa4)
 [[clean-download-cache]]
 === Cleaning The download cache
 
@@ -424,6 +425,8 @@ build --experimental_repository_cache=/home/<user>/.gerritcodereview/bazel-cache
 unfortunately not supported yet. This is also the reason why we can't activate this
 feature by default yet (by adjusting tools/bazel.rc file).
 
+=======
+>>>>>>> BRANCH (e03ae6 Merge branch 'stable-2.14' into stable-2.15)
 GERRIT
 ------
 Part of link:index.html[Gerrit Code Review]
