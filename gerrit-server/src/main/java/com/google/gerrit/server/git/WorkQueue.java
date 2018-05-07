@@ -83,8 +83,13 @@ public class WorkQueue {
         }
       };
 
+<<<<<<< HEAD   (56426b Filter account entry suggestions)
   private ScheduledExecutorService defaultQueue;
   private int defaultQueueSize;
+=======
+  private Executor defaultQueue;
+  private final int defaultQueueSize;
+>>>>>>> BRANCH (6255d1 WorkQueue: Make defaultQueueSize final)
   private final IdGenerator idGenerator;
   private final CopyOnWriteArrayList<Executor> queues;
 
