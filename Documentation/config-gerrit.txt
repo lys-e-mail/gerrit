@@ -1144,6 +1144,7 @@ Allow blame on side by side diff. If set to false, blame cannot be used.
 +
 Default is true.
 
+<<<<<<< HEAD   (49edee Merge "Use URL.origin instead of URL.pathname")
 [[change.api.allowedIdentifier]]change.api.allowedIdentifier::
 +
 Change identifier(s) that are allowed on the API. See
@@ -1155,6 +1156,18 @@ Possible values are `ALL`, `TRIPLET`, `NUMERIC_ID`, `I_HASH`, and
 explicitly.
 +
 Default is `ALL`.
+=======
+[[change.allowDrafts]]change.allowDrafts::
++
+Legacy support for drafts workflow. If set to true, pushing a new change
+with draft option will create a private change. Pushing with draft option
+to an existing change will create change edit.
++
+Enabling this option allows to push to the `refs/drafts/branch`. When
+disabled any push to `refs/drafts/branch` will be rejected.
++
+Default is false.
+>>>>>>> BRANCH (ad8c4e Merge "Disable draft magic branch option per default" into s)
 
 [[change.cacheAutomerge]]change.cacheAutomerge::
 +
@@ -2423,6 +2436,14 @@ Pattern to print user in Tomcat AccessLog.
 
 +
 Default value is true.
+
+[[http.addUserAsResponseHeader]]http.addUserAsResponseHeader::
++
+If true, the header 'User' will be added to the list of response headers so it
+can be accessed from a reverse proxy for logging purposes.
+
++
+Default value is false.
 
 [[httpd]]
 === Section httpd
