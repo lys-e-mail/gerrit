@@ -83,8 +83,12 @@ public class WorkQueue {
         }
       };
 
+<<<<<<< HEAD   (270b0e CommentEvent: Fix parameters in log message)
   private ScheduledExecutorService defaultQueue;
   private final int defaultQueueSize;
+=======
+  private final Executor defaultQueue;
+>>>>>>> BRANCH (9c1a6a WorkQueue: Don't lazy-initialize the default queue)
   private final IdGenerator idGenerator;
   private final CopyOnWriteArrayList<Executor> queues;
 
@@ -97,14 +101,18 @@ public class WorkQueue {
   public WorkQueue(IdGenerator idGenerator, int defaultThreadPoolSize) {
     this.idGenerator = idGenerator;
     this.queues = new CopyOnWriteArrayList<>();
-    this.defaultQueueSize = defaultThreadPoolSize;
+    this.defaultQueue = createQueue(defaultThreadPoolSize, "WorkQueue");
   }
 
   /** Get the default work queue, for miscellaneous tasks. */
+<<<<<<< HEAD   (270b0e CommentEvent: Fix parameters in log message)
   public synchronized ScheduledExecutorService getDefaultQueue() {
     if (defaultQueue == null) {
       defaultQueue = createQueue(defaultQueueSize, "WorkQueue");
     }
+=======
+  public Executor getDefaultQueue() {
+>>>>>>> BRANCH (9c1a6a WorkQueue: Don't lazy-initialize the default queue)
     return defaultQueue;
   }
 
