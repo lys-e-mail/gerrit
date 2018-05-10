@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (f3121d Update git submodules)
   <version>2.15.2-SNAPSHOT</version>
+=======
+  <version>2.14.9-SNAPSHOT</version>
+>>>>>>> BRANCH (eb2f45 WorkQueue: Add metrics)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
