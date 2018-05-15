@@ -38,7 +38,8 @@ import com.google.gerrit.server.account.GroupIncludeCacheImpl;
 import com.google.gerrit.server.account.Realm;
 import com.google.gerrit.server.account.externalids.ExternalIdModule;
 import com.google.gerrit.server.cache.CacheRemovalListener;
-import com.google.gerrit.server.cache.h2.DefaultCacheFactory;
+import com.google.gerrit.server.cache.h2.H2CacheModule;
+import com.google.gerrit.server.cache.mem.DefaultMemoryCacheModule;
 import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.ChangeKindCacheImpl;
 import com.google.gerrit.server.change.MergeabilityCacheImpl;
@@ -154,9 +155,14 @@ public class BatchProgramModule extends FactoryModule {
         .toInstance(Collections.<AccountGroup.UUID>emptySet());
 
     install(new BatchGitModule());
+<<<<<<< HEAD   (3c8b4d Merge branch 'stable-2.14' into stable-2.15)
     install(new DefaultPermissionBackendModule());
     install(new DefaultCacheFactory.Module());
     install(new ExternalIdModule());
+=======
+    install(new DefaultMemoryCacheModule());
+    install(new H2CacheModule());
+>>>>>>> BRANCH (0d9927 Update Eclipse compiler settings with Oxygen.3a Release (4.7)
     install(new GroupModule());
     install(new NoteDbModule(cfg));
     install(new PrologModule());
