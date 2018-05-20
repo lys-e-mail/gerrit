@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.google.gerrit.common.data.GroupDescription;
 import com.google.gerrit.common.data.GroupReference;
 import com.google.gerrit.common.data.SubmitRecord;
 import com.google.gerrit.common.errors.NotSignedInException;
@@ -761,23 +762,8 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
       }
     }
 
-    // expand a group predicate into multiple user predicates
     if (group != null) {
-      Set<Account.Id> allMembers =
-          args.listMembers
-              .get()
-              .setRecursive(true)
-              .apply(group)
-              .stream()
-              .map(a -> new Account.Id(a._accountId))
-              .collect(toSet());
-      int maxTerms = args.indexConfig.maxTerms();
-      if (allMembers.size() > maxTerms) {
-        // limit the number of query terms otherwise Gerrit will barf
-        accounts = ImmutableSet.copyOf(Iterables.limit(allMembers, maxTerms));
-      } else {
-        accounts = allMembers;
-      }
+      accounts = getMembers(group);
     }
 
     // If the vote piece looks like Code-Review=NEED with a valid non-numeric
@@ -961,12 +947,24 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
   }
 
   @Operator
-  public Predicate<ChangeData> ownerin(String group) throws QueryParseException {
+  public Predicate<ChangeData> ownerin(String group) throws QueryParseException, OrmException {
     GroupReference g = GroupBackends.findBestSuggestion(args.groupBackend, group);
     if (g == null) {
       throw error("Group " + group + " not found");
     }
-    return new OwnerinPredicate(args.userFactory, g.getUUID());
+
+    AccountGroup.UUID groupId = g.getUUID();
+    GroupDescription.Basic groupDescription = args.groupBackend.get(groupId);
+    if (!(groupDescription instanceof GroupDescription.Internal)) {
+      return new OwnerinPredicate(args.userFactory, groupId);
+    }
+
+    Set<Account.Id> accounts = getMembers(groupId);
+    List<OwnerPredicate> p = Lists.newArrayListWithCapacity(accounts.size());
+    for (Account.Id id : accounts) {
+      p.add(new OwnerPredicate(id));
+    }
+    return Predicate.or(p);
   }
 
   @Operator
@@ -1213,6 +1211,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
     return Predicate.or(predicates);
   }
 
+<<<<<<< HEAD   (a50ded Update git submodules)
   private Predicate<ChangeData> getAuthorOrCommitterPredicate(
       String who,
       Function<String, Predicate<ChangeData>> exactPredicateFunc,
@@ -1240,6 +1239,30 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
   private Set<Account.Id> parseAccount(String who)
       throws QueryParseException, OrmException, IOException, ConfigInvalidException {
     if (isSelf(who)) {
+=======
+  private Set<Account.Id> getMembers(AccountGroup.UUID g) throws OrmException {
+    Set<Account.Id> accounts;
+    Set<Account.Id> allMembers =
+        args.listMembers
+            .get()
+            .setRecursive(true)
+            .apply(g)
+            .stream()
+            .map(a -> new Account.Id(a._accountId))
+            .collect(toSet());
+    int maxTerms = args.indexConfig.maxTerms();
+    if (allMembers.size() > maxTerms) {
+      // limit the number of query terms otherwise Gerrit will barf
+      accounts = ImmutableSet.copyOf(Iterables.limit(allMembers, maxTerms));
+    } else {
+      accounts = allMembers;
+    }
+    return accounts;
+  }
+
+  private Set<Account.Id> parseAccount(String who) throws QueryParseException, OrmException {
+    if ("self".equals(who)) {
+>>>>>>> BRANCH (8f708b Update git submodules)
       return Collections.singleton(self());
     }
     Set<Account.Id> matches = args.accountResolver.findAll(who);
