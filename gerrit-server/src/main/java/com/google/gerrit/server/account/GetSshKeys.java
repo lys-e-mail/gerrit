@@ -54,9 +54,16 @@ public class GetSshKeys implements RestReadView<AccountResource> {
   @Override
   public List<SshKeyInfo> apply(AccountResource rsrc)
       throws AuthException, OrmException, RepositoryNotFoundException, IOException,
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
           ConfigInvalidException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+          ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to get SSH keys");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
     return apply(rsrc.getUser());
   }

@@ -64,9 +64,16 @@ public class SetDiffPreferences implements RestModifyView<AccountResource, DiffP
   @Override
   public DiffPreferencesInfo apply(AccountResource rsrc, DiffPreferencesInfo in)
       throws AuthException, BadRequestException, ConfigInvalidException,
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
           RepositoryNotFoundException, IOException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+          RepositoryNotFoundException, IOException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("requires Modify Account capability");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     if (in == null) {

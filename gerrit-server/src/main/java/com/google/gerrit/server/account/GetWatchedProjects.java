@@ -57,10 +57,17 @@ public class GetWatchedProjects implements RestReadView<AccountResource> {
 
   @Override
   public List<ProjectWatchInfo> apply(AccountResource rsrc)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws OrmException, AuthException, IOException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+      throws OrmException, AuthException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("It is not allowed to list project watches of other users");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     Account.Id accountId = rsrc.getUser().getAccountId();

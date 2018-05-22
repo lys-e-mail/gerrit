@@ -60,10 +60,17 @@ public class PutUsername implements RestModifyView<AccountResource, Input> {
   @Override
   public String apply(AccountResource rsrc, Input input)
       throws AuthException, MethodNotAllowedException, UnprocessableEntityException,
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
           ResourceConflictException, OrmException, IOException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+          ResourceConflictException, OrmException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("not allowed to set username");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     if (!realm.allowsEdit(AccountFieldName.USER_NAME)) {

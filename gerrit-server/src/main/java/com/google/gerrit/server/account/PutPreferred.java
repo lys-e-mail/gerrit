@@ -53,10 +53,17 @@ public class PutPreferred implements RestModifyView<AccountResource.Email, Input
 
   @Override
   public Response<String> apply(AccountResource.Email rsrc, Input input)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws AuthException, ResourceNotFoundException, OrmException, IOException,
           PermissionBackendException, ConfigInvalidException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+      throws AuthException, ResourceNotFoundException, OrmException, IOException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to set preferred email address");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
     return apply(rsrc.getUser(), rsrc.getEmail());
   }

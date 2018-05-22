@@ -87,7 +87,16 @@ public class CreateEmail implements RestModifyView<AccountResource, EmailInput> 
   public Response<EmailInfo> apply(AccountResource rsrc, EmailInput input)
       throws AuthException, BadRequestException, ResourceConflictException,
           ResourceNotFoundException, OrmException, EmailException, MethodNotAllowedException,
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
           IOException, ConfigInvalidException, PermissionBackendException {
+=======
+          IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to add email address");
+    }
+
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     if (input == null) {
       input = new EmailInput();
     }

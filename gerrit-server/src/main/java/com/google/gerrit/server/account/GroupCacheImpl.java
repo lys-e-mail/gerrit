@@ -138,8 +138,13 @@ public class GroupCacheImpl implements GroupCache {
     try {
       return byUUID.get(groupUuid.get());
     } catch (ExecutionException e) {
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       log.warn(String.format("Cannot look up group %s by uuid", groupUuid.get()), e);
       return Optional.empty();
+=======
+      log.warn(String.format("Cannot lookup group %s by uuid", uuid.get()), e);
+      return null;
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
   }
 

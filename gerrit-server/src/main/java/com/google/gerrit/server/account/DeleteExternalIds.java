@@ -60,11 +60,18 @@ public class DeleteExternalIds implements RestModifyView<AccountResource, List<S
   }
 
   @Override
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
   public Response<?> apply(AccountResource resource, List<String> extIds)
       throws RestApiException, IOException, OrmException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != resource.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ACCESS_DATABASE);
+=======
+  public Response<?> apply(AccountResource resource, List<String> externalIds)
+      throws RestApiException, IOException, OrmException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(resource.getUser())) {
+      throw new AuthException("not allowed to delete external IDs");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     if (extIds == null || extIds.size() == 0) {

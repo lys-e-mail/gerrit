@@ -62,9 +62,16 @@ public class GetDiffPreferences implements RestReadView<AccountResource> {
 
   @Override
   public DiffPreferencesInfo apply(AccountResource rsrc)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws AuthException, ConfigInvalidException, IOException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+      throws AuthException, ConfigInvalidException, IOException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("restricted to administrator");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     Account.Id id = rsrc.getUser().getAccountId();

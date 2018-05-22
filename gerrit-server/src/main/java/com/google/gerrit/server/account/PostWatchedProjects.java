@@ -67,10 +67,17 @@ public class PostWatchedProjects
 
   @Override
   public List<ProjectWatchInfo> apply(AccountResource rsrc, List<ProjectWatchInfo> input)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws OrmException, RestApiException, IOException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+      throws OrmException, RestApiException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("not allowed to edit project watches");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     Account.Id accountId = rsrc.getUser().getAccountId();

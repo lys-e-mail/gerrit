@@ -62,6 +62,7 @@ public class SshKeys implements ChildCollection<AccountResource, AccountResource
 
   @Override
   public AccountResource.SshKey parse(AccountResource rsrc, IdString id)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws ResourceNotFoundException, OrmException, IOException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
@@ -71,6 +72,12 @@ public class SshKeys implements ChildCollection<AccountResource, AccountResource
         // If lacking MODIFY_ACCOUNT claim the resource does not exist.
         throw new ResourceNotFoundException();
       }
+=======
+      throws ResourceNotFoundException, OrmException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new ResourceNotFoundException();
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
     return parse(rsrc.getUser(), id);
   }
