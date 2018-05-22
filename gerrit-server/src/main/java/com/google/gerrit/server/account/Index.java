@@ -44,10 +44,17 @@ public class Index implements RestModifyView<AccountResource, Input> {
   }
 
   @Override
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
   public Response<?> apply(AccountResource rsrc, Input input)
       throws IOException, AuthException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+  public Response<?> apply(AccountResource rsrc, Input input) throws IOException, AuthException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to index account");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     // evicting the account from the cache, reindexes the account

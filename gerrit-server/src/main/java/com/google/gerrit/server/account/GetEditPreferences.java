@@ -56,9 +56,16 @@ public class GetEditPreferences implements RestReadView<AccountResource> {
 
   @Override
   public EditPreferencesInfo apply(AccountResource rsrc)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws AuthException, IOException, ConfigInvalidException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+      throws AuthException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("requires Modify Account capability");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     return readFromGit(rsrc.getUser().getAccountId(), gitMgr, allUsersName, null);

@@ -58,9 +58,15 @@ public class GetExternalIds implements RestReadView<AccountResource> {
 
   @Override
   public List<AccountExternalIdInfo> apply(AccountResource resource)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws RestApiException, IOException, OrmException, PermissionBackendException {
     if (self.get() != resource.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ACCESS_DATABASE);
+=======
+      throws RestApiException, OrmException {
+    if (!self.get().hasSameAccountId(resource.getUser())) {
+      throw new AuthException("not allowed to get external IDs");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     Collection<ExternalId> ids = externalIds.byAccount(resource.getUser().getAccountId());

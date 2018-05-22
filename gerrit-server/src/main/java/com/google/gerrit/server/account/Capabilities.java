@@ -58,10 +58,17 @@ class Capabilities implements ChildCollection<AccountResource, AccountResource.C
 
   @Override
   public Capability parse(AccountResource parent, IdString id)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws ResourceNotFoundException, AuthException, PermissionBackendException {
     IdentifiedUser target = parent.getUser();
     if (self.get() != target) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+      throws ResourceNotFoundException, AuthException {
+    if (!self.get().hasSameAccountId(parent.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("restricted to administrator");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     GlobalOrPluginPermission perm = parse(id);
