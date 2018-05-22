@@ -81,10 +81,17 @@ public class SetPreferences implements RestModifyView<AccountResource, GeneralPr
 
   @Override
   public GeneralPreferencesInfo apply(AccountResource rsrc, GeneralPreferencesInfo i)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws AuthException, BadRequestException, IOException, ConfigInvalidException,
           PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+      throws AuthException, BadRequestException, IOException, ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("requires Modify Account capability");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     checkDownloadScheme(i.downloadScheme);

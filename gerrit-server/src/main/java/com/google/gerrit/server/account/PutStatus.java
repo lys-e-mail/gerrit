@@ -62,10 +62,17 @@ public class PutStatus implements RestModifyView<AccountResource, Input> {
 
   @Override
   public Response<String> apply(AccountResource rsrc, Input input)
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
       throws AuthException, ResourceNotFoundException, OrmException, IOException,
           PermissionBackendException, ConfigInvalidException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+      throws AuthException, ResourceNotFoundException, OrmException, IOException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("not allowed to set status");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
     return apply(rsrc.getUser(), input);
   }

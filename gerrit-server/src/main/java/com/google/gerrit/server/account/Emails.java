@@ -66,6 +66,7 @@ public class Emails {
         .collect(toImmutableSet());
   }
 
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
   /**
    * Returns the accounts for the given emails.
    *
@@ -86,5 +87,37 @@ public class Emails {
         .stream()
         .forEach(e -> builder.put(e.getKey(), e.getValue().getAccount().getId()));
     return builder.build();
+=======
+  @Override
+  public AccountResource.Email parse(AccountResource rsrc, IdString id)
+      throws ResourceNotFoundException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new ResourceNotFoundException();
+    }
+
+    if ("preferred".equals(id.get())) {
+      String email = rsrc.getUser().getAccount().getPreferredEmail();
+      if (Strings.isNullOrEmpty(email)) {
+        throw new ResourceNotFoundException();
+      }
+      return new AccountResource.Email(rsrc.getUser(), email);
+    } else if (rsrc.getUser().hasEmailAddress(id.get())) {
+      return new AccountResource.Email(rsrc.getUser(), id.get());
+    } else {
+      throw new ResourceNotFoundException();
+    }
+  }
+
+  @Override
+  public DynamicMap<RestView<Email>> views() {
+    return views;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public CreateEmail create(AccountResource parent, IdString email) {
+    return createEmailFactory.create(email.get());
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
   }
 }

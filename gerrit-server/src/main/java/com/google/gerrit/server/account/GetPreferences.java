@@ -41,10 +41,17 @@ public class GetPreferences implements RestReadView<AccountResource> {
   }
 
   @Override
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
   public GeneralPreferencesInfo apply(AccountResource rsrc)
       throws AuthException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.MODIFY_ACCOUNT);
+=======
+  public GeneralPreferencesInfo apply(AccountResource rsrc) throws AuthException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canModifyAccount()) {
+      throw new AuthException("requires Modify Account capability");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
 
     Account.Id id = rsrc.getUser().getAccountId();

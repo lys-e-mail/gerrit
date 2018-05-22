@@ -60,9 +60,16 @@ public class DeleteWatchedProjects
   @Override
   public Response<?> apply(AccountResource rsrc, List<ProjectWatchInfo> input)
       throws AuthException, UnprocessableEntityException, OrmException, IOException,
+<<<<<<< HEAD   (44dcda Merge branch 'stable-2.14' into stable-2.15)
           ConfigInvalidException, PermissionBackendException {
     if (self.get() != rsrc.getUser()) {
       permissionBackend.user(self).check(GlobalPermission.ADMINISTRATE_SERVER);
+=======
+          ConfigInvalidException {
+    if (!self.get().hasSameAccountId(rsrc.getUser())
+        && !self.get().getCapabilities().canAdministrateServer()) {
+      throw new AuthException("It is not allowed to edit project watches of other users");
+>>>>>>> BRANCH (adfefd Fix more comparisons of current user)
     }
     if (input == null) {
       return Response.none();
