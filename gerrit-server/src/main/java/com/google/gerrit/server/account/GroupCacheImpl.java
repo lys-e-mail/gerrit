@@ -88,8 +88,13 @@ public class GroupCacheImpl implements GroupCache {
     try {
       return byId.get(groupId);
     } catch (ExecutionException e) {
+<<<<<<< HEAD   (1a2c80 Update git submodules)
       log.warn("Cannot load group " + groupId, e);
       return Optional.empty();
+=======
+      log.warn("Cannot load group {}", groupId, e);
+      return missing(groupId);
+>>>>>>> BRANCH (a29b92 Merge "Doc: Fix code example in JS API" into stable-2.14)
     }
   }
 
@@ -124,8 +129,13 @@ public class GroupCacheImpl implements GroupCache {
     try {
       return byName.get(name.get());
     } catch (ExecutionException e) {
+<<<<<<< HEAD   (1a2c80 Update git submodules)
       log.warn(String.format("Cannot look up group %s by name", name.get()), e);
       return Optional.empty();
+=======
+      log.warn("Cannot lookup group {} by name", name.get(), e);
+      return null;
+>>>>>>> BRANCH (a29b92 Merge "Doc: Fix code example in JS API" into stable-2.14)
     }
   }
 
@@ -138,8 +148,13 @@ public class GroupCacheImpl implements GroupCache {
     try {
       return byUUID.get(groupUuid.get());
     } catch (ExecutionException e) {
+<<<<<<< HEAD   (1a2c80 Update git submodules)
       log.warn(String.format("Cannot look up group %s by uuid", groupUuid.get()), e);
       return Optional.empty();
+=======
+      log.warn("Cannot lookup group {} by uuid", uuid.get(), e);
+      return null;
+>>>>>>> BRANCH (a29b92 Merge "Doc: Fix code example in JS API" into stable-2.14)
     }
   }
 
