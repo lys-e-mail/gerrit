@@ -139,6 +139,7 @@
       if (!project) { return ''; }
       return this.truncatePath(project, 2);
     },
+<<<<<<< HEAD   (bf39b0 Update git submodules)
 
     _computeAccountStatusString(account) {
       return account && account.status ? `(${account.status})` : '';
@@ -174,5 +175,7 @@
         return 'XL';
       }
     },
+=======
+>>>>>>> BRANCH (206fd5 Merge "Allow some sections of the change list to overflow" i)
   });
 })();
