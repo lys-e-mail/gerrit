@@ -44,12 +44,46 @@ import org.junit.Test;
 public class ReindexIT extends StandaloneSiteTest {
   private static final String CHANGES = ChangeSchemaDefinitions.NAME;
 
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
   private Project.NameKey project;
   private String changeId;
+=======
+  @ConfigSuite.Config
+  public static Config elasticsearch() throws InterruptedException, ExecutionException {
+    if (elasticNodeInfo == null) {
+      elasticNodeInfo = ElasticTestUtils.startElasticsearchNode();
+    }
+    String indicesPrefix = UUID.randomUUID().toString();
+    Config cfg = new Config();
+    ElasticTestUtils.configure(cfg, elasticNodeInfo.port, indicesPrefix);
+    return cfg;
+  }
+
+  private static ElasticNodeInfo elasticNodeInfo;
+>>>>>>> BRANCH (792a8c Fix copyAllScoresOnMergeFirstParentUpdate's documentation)
 
   @Test
   public void reindexFromScratch() throws Exception {
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
     setUpChange();
+=======
+    Project.NameKey project = new Project.NameKey("project");
+    String changeId;
+    try (ServerContext ctx = startServer()) {
+      if (elasticNodeInfo != null) {
+        ElasticTestUtils.createAllIndexes(ctx.getInjector());
+      }
+      GerritApi gApi = ctx.getInjector().getInstance(GerritApi.class);
+      gApi.projects().create("project");
+
+      ChangeInput in = new ChangeInput();
+      in.project = project.get();
+      in.branch = "master";
+      in.subject = "Test change";
+      in.newBranch = true;
+      changeId = gApi.changes().create(in).info().changeId;
+    }
+>>>>>>> BRANCH (792a8c Fix copyAllScoresOnMergeFirstParentUpdate's documentation)
 
     MoreFiles.deleteRecursively(sitePaths.index_dir, RecursiveDeleteOption.ALLOW_INSECURE);
     Files.createDirectory(sitePaths.index_dir);
