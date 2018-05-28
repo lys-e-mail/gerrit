@@ -118,10 +118,14 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
 
   @Inject protected AllProjectsName allProjects;
 
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
   @Inject protected AllUsersName allUsers;
 
   @Inject protected GitRepositoryManager repoManager;
 
+=======
+  protected Injector injector;
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
   protected LifecycleManager lifecycle;
   protected Injector injector;
   protected ReviewDb db;
@@ -137,6 +141,7 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
     lifecycle.add(injector);
     injector.injectMembers(this);
     lifecycle.start();
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
     setUpDatabase();
   }
 
@@ -147,6 +152,9 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
   }
 
   protected void setUpDatabase() throws Exception {
+=======
+    initAfterLifecycleStart();
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
     db = schemaFactory.open();
     schemaCreator.create(db);
 
@@ -156,6 +164,17 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
     currentUserInfo = gApi.accounts().id(userId.get()).get();
   }
 
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
+=======
+  @After
+  public void cleanUp() {
+    lifecycle.stop();
+    db.close();
+  }
+
+  protected void initAfterLifecycleStart() throws Exception {}
+
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
   protected RequestContext newRequestContext(Account.Id requestUserId) {
     final CurrentUser requestUser = userFactory.create(requestUserId);
     return new RequestContext() {

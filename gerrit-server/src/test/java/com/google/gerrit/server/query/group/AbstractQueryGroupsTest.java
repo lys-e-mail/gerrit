@@ -104,10 +104,14 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
 
   @Inject protected GroupCache groupCache;
 
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
   @Inject @ServerInitiated protected Provider<GroupsUpdate> groupsUpdateProvider;
 
   @Inject protected GroupIndexCollection indexes;
 
+=======
+  protected Injector injector;
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
   protected LifecycleManager lifecycle;
   protected Injector injector;
   protected ReviewDb db;
@@ -123,7 +127,18 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
     lifecycle.add(injector);
     injector.injectMembers(this);
     lifecycle.start();
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
     setUpDatabase();
+=======
+    initAfterLifecycleStart();
+    db = schemaFactory.open();
+    schemaCreator.create(db);
+
+    Account.Id userId = createAccount("user", "User", "user@example.com", true);
+    user = userFactory.create(userId);
+    requestContext.setContext(newRequestContext(userId));
+    currentUserInfo = gApi.accounts().id(userId.get()).get();
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
   }
 
   @After
@@ -132,6 +147,7 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
     db.close();
   }
 
+<<<<<<< HEAD   (9d0978 Release 2.15.2)
   protected void setUpDatabase() throws Exception {
     db = schemaFactory.open();
     schemaCreator.create(db);
@@ -142,6 +158,9 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
     requestContext.setContext(newRequestContext(userId));
     currentUserInfo = gApi.accounts().id(userId.get()).get();
   }
+=======
+  protected void initAfterLifecycleStart() throws Exception {}
+>>>>>>> BRANCH (17c9c7 AbstractQueryChangesTest#createInjector: Remove unnecessary )
 
   protected RequestContext newRequestContext(Account.Id requestUserId) {
     final CurrentUser requestUser = userFactory.create(requestUserId);
