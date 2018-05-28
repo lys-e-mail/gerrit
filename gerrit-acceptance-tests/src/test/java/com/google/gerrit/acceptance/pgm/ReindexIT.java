@@ -17,14 +17,24 @@ package com.google.gerrit.acceptance.pgm;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.gerrit.extensions.client.ListGroupsOption.MEMBERS;
+=======
+import static com.google.common.truth.TruthJUnit.assume;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.StandaloneSiteTest;
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.acceptance.pgm.IndexUpgradeController.UpgradeAttempt;
+=======
+import com.google.gerrit.elasticsearch.testing.ElasticContainer;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils.ElasticNodeInfo;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.common.ChangeInput;
 import com.google.gerrit.reviewdb.client.Change;
@@ -35,21 +45,73 @@ import com.google.gerrit.server.index.change.ChangeSchemaDefinitions;
 import com.google.gerrit.server.query.change.InternalChangeQuery;
 import com.google.inject.Provider;
 import java.nio.file.Files;
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
 import java.util.Set;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
+=======
+import java.util.UUID;
+import org.eclipse.jgit.lib.Config;
+import org.junit.AfterClass;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 import org.junit.Test;
 
 @NoHttpd
 public class ReindexIT extends StandaloneSiteTest {
   private static final String CHANGES = ChangeSchemaDefinitions.NAME;
 
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
   private Project.NameKey project;
   private String changeId;
+=======
+  @ConfigSuite.Config
+  public static Config elasticsearch() {
+    elasticsearchTest = true;
+    if (elasticNodeInfo == null) {
+      try {
+        container = ElasticContainer.createAndStart();
+        elasticNodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
+      } catch (Throwable t) {
+        return null;
+      }
+    }
+    String indicesPrefix = UUID.randomUUID().toString();
+    Config cfg = new Config();
+    ElasticTestUtils.configure(cfg, elasticNodeInfo.port, indicesPrefix);
+    return cfg;
+  }
+
+  private static ElasticNodeInfo elasticNodeInfo;
+  private static ElasticContainer<?> container;
+  // TODO(davido): Retrieve elasticsearch config from test description
+  private static boolean elasticsearchTest;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 
   @Test
   public void reindexFromScratch() throws Exception {
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
     setUpChange();
+=======
+    if (elasticsearchTest) {
+      assume().that(elasticNodeInfo != null).isTrue();
+    }
+    Project.NameKey project = new Project.NameKey("project");
+    String changeId;
+    try (ServerContext ctx = startServer()) {
+      if (elasticNodeInfo != null) {
+        ElasticTestUtils.createAllIndexes(ctx.getInjector());
+      }
+      GerritApi gApi = ctx.getInjector().getInstance(GerritApi.class);
+      gApi.projects().create("project");
+
+      ChangeInput in = new ChangeInput();
+      in.project = project.get();
+      in.branch = "master";
+      in.subject = "Test change";
+      in.newBranch = true;
+      changeId = gApi.changes().create(in).info().changeId;
+    }
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 
     MoreFiles.deleteRecursively(sitePaths.index_dir, RecursiveDeleteOption.ALLOW_INSECURE);
     Files.createDirectory(sitePaths.index_dir);
@@ -79,6 +141,7 @@ public class ReindexIT extends StandaloneSiteTest {
     }
   }
 
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
   @Test
   public void onlineUpgradeChanges() throws Exception {
     int prevVersion = ChangeSchemaDefinitions.INSTANCE.getPrevious().getVersion();
@@ -127,6 +190,13 @@ public class ReindexIT extends StandaloneSiteTest {
       gApi.changes().id(changeId).topic("topic2");
       assertThat(queryProvider.get().byTopicOpen("topic1")).isEmpty();
       assertThat(queryProvider.get().byTopicOpen("topic2")).hasSize(1);
+=======
+  @AfterClass
+  public static void stopElasticServer() {
+    if (container != null) {
+      container.stop();
+      elasticsearchTest = false;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
     }
   }
 
