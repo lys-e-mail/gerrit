@@ -14,34 +14,40 @@
 
 package com.google.gerrit.elasticsearch;
 
+<<<<<<< HEAD   (e65498 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.elasticsearch.ElasticTestUtils.ElasticNodeInfo;
+=======
+import com.google.gerrit.elasticsearch.testing.ElasticContainer;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils.ElasticNodeInfo;
+>>>>>>> BRANCH (c33729 ElasticContainer: Allow to specify the docker container vers)
 import com.google.gerrit.server.query.account.AbstractQueryAccountsTest;
 import com.google.gerrit.testutil.InMemoryModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.util.concurrent.ExecutionException;
 import org.eclipse.jgit.lib.Config;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public class ElasticQueryAccountsTest extends AbstractQueryAccountsTest {
   private static ElasticNodeInfo nodeInfo;
+  private static ElasticContainer<?> container;
 
   @BeforeClass
-  public static void startIndexService() throws InterruptedException, ExecutionException {
+  public static void startIndexService() {
     if (nodeInfo != null) {
       // do not start Elasticsearch twice
       return;
     }
-    nodeInfo = ElasticTestUtils.startElasticsearchNode();
+
+    container = ElasticContainer.createAndStart();
+    nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
   }
 
   @AfterClass
   public static void stopElasticsearchServer() {
-    if (nodeInfo != null) {
-      nodeInfo.node.close();
-      nodeInfo.elasticDir.delete();
-      nodeInfo = null;
+    if (container != null) {
+      container.stop();
     }
   }
 
