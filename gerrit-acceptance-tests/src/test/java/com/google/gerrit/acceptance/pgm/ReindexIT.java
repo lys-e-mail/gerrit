@@ -14,6 +14,7 @@
 
 package com.google.gerrit.acceptance.pgm;
 
+<<<<<<< HEAD   (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth8.assertThat;
@@ -22,7 +23,10 @@ import static com.google.gerrit.extensions.client.ListGroupsOption.MEMBERS;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
+=======
+>>>>>>> BRANCH (21d015 AbstractElasticIndex: Don't mention "change" in exception me)
 import com.google.gerrit.acceptance.NoHttpd;
+<<<<<<< HEAD   (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.acceptance.StandaloneSiteTest;
 import com.google.gerrit.acceptance.pgm.IndexUpgradeController.UpgradeAttempt;
 import com.google.gerrit.extensions.api.GerritApi;
@@ -39,11 +43,19 @@ import java.util.Set;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
 import org.junit.Test;
+=======
+import com.google.inject.Injector;
+>>>>>>> BRANCH (21d015 AbstractElasticIndex: Don't mention "change" in exception me)
 
 @NoHttpd
+<<<<<<< HEAD   (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
 public class ReindexIT extends StandaloneSiteTest {
   private static final String CHANGES = ChangeSchemaDefinitions.NAME;
+=======
+public class ReindexIT extends AbstractReindexIT {
+>>>>>>> BRANCH (21d015 AbstractElasticIndex: Don't mention "change" in exception me)
 
+<<<<<<< HEAD   (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
   private Project.NameKey project;
   private String changeId;
 
@@ -179,4 +191,8 @@ public class ReindexIT extends StandaloneSiteTest {
         .named("ready state for index versions")
         .isEqualTo(allVersions.stream().collect(toImmutableMap(v -> v, v -> v == expectedReady)));
   }
+=======
+  @Override
+  public void configureIndex(Injector injector) throws Exception {}
+>>>>>>> BRANCH (21d015 AbstractElasticIndex: Don't mention "change" in exception me)
 }
