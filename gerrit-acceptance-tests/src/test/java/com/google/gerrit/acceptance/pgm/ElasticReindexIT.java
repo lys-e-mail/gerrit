@@ -26,8 +26,12 @@ import org.junit.After;
 import org.junit.Ignore;
 
 @NoHttpd
+<<<<<<< HEAD   (094671 Merge branch 'stable-2.14' into stable-2.15)
 @Ignore
 public class ElasticReindexIT extends AbstractReindexIT {
+=======
+public class ElasticReindexIT extends AbstractReindexTests {
+>>>>>>> BRANCH (c99a18 ElasticIndexVersionDiscovery: Convert to Java stream API)
   private static ElasticContainer<?> container;
 
   @ConfigSuite.Default

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (094671 Merge branch 'stable-2.14' into stable-2.15)
 // Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -187,3 +188,5 @@ public abstract class AbstractReindexIT extends StandaloneSiteTest {
         .isEqualTo(allVersions.stream().collect(toImmutableMap(v -> v, v -> v == expectedReady)));
   }
 }
+=======
+>>>>>>> BRANCH (c99a18 ElasticIndexVersionDiscovery: Convert to Java stream API)
