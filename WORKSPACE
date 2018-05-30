@@ -642,6 +642,12 @@ maven_jar(
 # Test-only dependencies below.
 
 maven_jar(
+    name = "elasticsearch",
+    artifact = "org.elasticsearch:elasticsearch:2.4.4",
+    sha1 = "e69930bc794c539d34778e665d6f8ccbffd42c6f",
+)
+
+maven_jar(
     name = "jimfs",
     artifact = "com.google.jimfs:jimfs:1.1",
     sha1 = "8fbd0579dc68aba6186935cc1bee21d2f3e7ec1c",
@@ -886,12 +892,20 @@ maven_jar(
     sha1 = "895706412e2fba3f842fca82ec3dece1cb4ee7d1",
 )
 
+<<<<<<< HEAD   (4b1ff1 Acceptance tests: Replace embedded ES with docker testcontai)
 JACKSON_VERSION = "2.8.9"
+=======
+JACKSON_VERSION = "2.6.6"
+>>>>>>> BRANCH (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
 
 maven_jar(
     name = "jackson_core",
     artifact = "com.fasterxml.jackson.core:jackson-core:" + JACKSON_VERSION,
+<<<<<<< HEAD   (4b1ff1 Acceptance tests: Replace embedded ES with docker testcontai)
     sha1 = "569b1752705da98f49aabe2911cc956ff7d8ed9d",
+=======
+    sha1 = "02eb801df67aacaf5b1deb4ac626e1964508e47b",
+>>>>>>> BRANCH (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
