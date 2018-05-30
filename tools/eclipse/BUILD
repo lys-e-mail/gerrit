@@ -8,7 +8,12 @@ load(
 )
 
 TEST_DEPS = [
+<<<<<<< HEAD   (0689c9 Acceptance tests: Replace embedded ES with docker testcontai)
     "//javatests/com/google/gerrit/elasticsearch:elasticsearch_test_utils",
+=======
+    "//gerrit-elasticsearch:elasticsearch_test_utils",
+    "//gerrit-gpg:gpg_tests",
+>>>>>>> BRANCH (d92ba3 Merge branch 'stable-2.14' into stable-2.15)
     "//gerrit-gwtui:ui_tests",
     "//javatests/com/google/gerrit/server:server_tests",
 ]
