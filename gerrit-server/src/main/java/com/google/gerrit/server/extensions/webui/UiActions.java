@@ -62,9 +62,54 @@ public class UiActions {
     this.userProvider = userProvider;
   }
 
+<<<<<<< HEAD   (24e748 Merge branch 'stable-2.14' into stable-2.15)
   public <R extends RestResource> Iterable<UiAction.Description> from(
       RestCollection<?, R> collection, R resource) {
     return from(collection.views(), resource);
+=======
+  public static <R extends RestResource> FluentIterable<UiAction.Description> from(
+      DynamicMap<RestView<R>> views, R resource, Provider<CurrentUser> userProvider) {
+    return FluentIterable.from(views)
+        .transform(
+            (DynamicMap.Entry<RestView<R>> e) -> {
+              int d = e.getExportName().indexOf('.');
+              if (d < 0) {
+                return null;
+              }
+
+              RestView<R> view;
+              try {
+                view = e.getProvider().get();
+              } catch (RuntimeException err) {
+                log.error("error creating view {}.{}", e.getPluginName(), e.getExportName(), err);
+                return null;
+              }
+
+              if (!(view instanceof UiAction)) {
+                return null;
+              }
+
+              try {
+                CapabilityUtils.checkRequiresCapability(
+                    userProvider, e.getPluginName(), view.getClass());
+              } catch (AuthException exc) {
+                return null;
+              }
+
+              UiAction.Description dsc = ((UiAction<R>) view).getDescription(resource);
+              if (dsc == null || !dsc.isVisible()) {
+                return null;
+              }
+
+              String name = e.getExportName().substring(d + 1);
+              PrivateInternals_UiActionDescription.setMethod(
+                  dsc, e.getExportName().substring(0, d));
+              PrivateInternals_UiActionDescription.setId(
+                  dsc, "gerrit".equals(e.getPluginName()) ? name : e.getPluginName() + '~' + name);
+              return dsc;
+            })
+        .filter(Objects::nonNull);
+>>>>>>> BRANCH (a52e91 Remove unused elasticsearch library from WORKSPACE)
   }
 
   public <R extends RestResource> Iterable<UiAction.Description> from(

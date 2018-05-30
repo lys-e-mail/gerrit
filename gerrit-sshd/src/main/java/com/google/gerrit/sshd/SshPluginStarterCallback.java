@@ -64,6 +64,7 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
       try {
         return plugin.getSshInjector().getProvider(key);
       } catch (RuntimeException err) {
+<<<<<<< HEAD   (24e748 Merge branch 'stable-2.14' into stable-2.15)
         if (!providesDynamicOptions(plugin)) {
           log.warn(
               String.format(
@@ -71,6 +72,9 @@ class SshPluginStarterCallback implements StartPluginListener, ReloadPluginListe
                   plugin.getName()),
               err);
         }
+=======
+        log.warn("Plugin {} did not define its top-level command", plugin.getName(), err);
+>>>>>>> BRANCH (a52e91 Remove unused elasticsearch library from WORKSPACE)
       }
     }
     return null;
