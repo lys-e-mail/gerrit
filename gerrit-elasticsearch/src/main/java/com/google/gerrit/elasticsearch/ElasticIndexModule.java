@@ -63,7 +63,12 @@ public class ElasticIndexModule extends AbstractIndexModule {
   }
 
   @Override
+<<<<<<< HEAD   (9f74aa Merge branch 'stable-2.14' into stable-2.15)
   protected Class<? extends VersionManager> getVersionManager() {
     return ElasticVersionManager.class;
+=======
+  protected Class<? extends AbstractVersionManager> getVersionManager() {
+    return ElasticIndexVersionManager.class;
+>>>>>>> BRANCH (09fdc3 GroupField: Change UUID fields' type to KEYWORD)
   }
 }
