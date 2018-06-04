@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (9f74aa Merge branch 'stable-2.14' into stable-2.15)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +15,13 @@
 package com.google.gerrit.elasticsearch;
 
 import com.google.common.primitives.Ints;
-import com.google.gerrit.extensions.registration.DynamicSet;
-import com.google.gerrit.index.Index;
-import com.google.gerrit.index.IndexDefinition;
-import com.google.gerrit.index.Schema;
+import com.google.gerrit.extensions.events.LifecycleListener;
 import com.google.gerrit.server.config.SitePaths;
+import com.google.gerrit.server.index.AbstractVersionManager;
 import com.google.gerrit.server.index.GerritIndexStatus;
-import com.google.gerrit.server.index.OnlineUpgradeListener;
-import com.google.gerrit.server.index.VersionManager;
+import com.google.gerrit.server.index.Index;
+import com.google.gerrit.server.index.IndexDefinition;
+import com.google.gerrit.server.index.Schema;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -33,20 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElasticVersionManager extends VersionManager {
-  private static final Logger log = LoggerFactory.getLogger(ElasticVersionManager.class);
+public class ElasticIndexVersionManager extends AbstractVersionManager
+    implements LifecycleListener {
+  private static final Logger log = LoggerFactory.getLogger(ElasticIndexVersionManager.class);
 
   private final String prefix;
   private final ElasticIndexVersionDiscovery versionDiscovery;
 
   @Inject
-  ElasticVersionManager(
+  ElasticIndexVersionManager(
       ElasticConfiguration cfg,
       SitePaths sitePaths,
-      DynamicSet<OnlineUpgradeListener> listeners,
       Collection<IndexDefinition<?, ?, ?>> defs,
       ElasticIndexVersionDiscovery versionDiscovery) {
-    super(sitePaths, listeners, defs, VersionManager.getOnlineUpgrade(cfg.getConfig()));
+    super(cfg.getConfig(), sitePaths, defs);
     this.versionDiscovery = versionDiscovery;
     prefix = cfg.prefix;
   }
@@ -76,5 +74,3 @@ public class ElasticVersionManager extends VersionManager {
     return versions;
   }
 }
-=======
->>>>>>> BRANCH (09fdc3 GroupField: Change UUID fields' type to KEYWORD)
