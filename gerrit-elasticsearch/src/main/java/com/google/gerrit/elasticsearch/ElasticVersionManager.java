@@ -14,13 +14,16 @@
 
 package com.google.gerrit.elasticsearch;
 
-import com.google.common.base.Strings;
 import com.google.common.primitives.Ints;
+<<<<<<< HEAD   (fc38be Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.index.Index;
 import com.google.gerrit.index.IndexDefinition;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.server.config.GerritServerConfig;
+=======
+import com.google.gerrit.extensions.events.LifecycleListener;
+>>>>>>> BRANCH (d294e9 Merge "Elasticsearch: Tidy up Javadoc in builders package" i)
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.index.GerritIndexStatus;
 import com.google.gerrit.server.index.OnlineUpgradeListener;
@@ -30,7 +33,6 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.TreeMap;
-import org.eclipse.jgit.lib.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +45,18 @@ public class ElasticVersionManager extends VersionManager {
 
   @Inject
   ElasticVersionManager(
-      @GerritServerConfig Config cfg,
+      ElasticConfiguration cfg,
       SitePaths sitePaths,
       DynamicSet<OnlineUpgradeListener> listeners,
       Collection<IndexDefinition<?, ?, ?>> defs,
       ElasticIndexVersionDiscovery versionDiscovery) {
+<<<<<<< HEAD   (fc38be Merge branch 'stable-2.14' into stable-2.15)
     super(sitePaths, listeners, defs, VersionManager.getOnlineUpgrade(cfg));
+=======
+    super(cfg.getConfig(), sitePaths, defs);
+>>>>>>> BRANCH (d294e9 Merge "Elasticsearch: Tidy up Javadoc in builders package" i)
     this.versionDiscovery = versionDiscovery;
-    prefix = Strings.nullToEmpty(cfg.getString("elasticsearch", null, "prefix"));
+    prefix = cfg.prefix;
   }
 
   @Override

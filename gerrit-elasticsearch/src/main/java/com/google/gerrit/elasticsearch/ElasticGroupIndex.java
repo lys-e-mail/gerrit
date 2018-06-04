@@ -29,7 +29,6 @@ import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.reviewdb.client.AccountGroup;
 import com.google.gerrit.server.account.GroupCache;
-import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.index.IndexUtils;
@@ -52,7 +51,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.eclipse.jgit.lib.Config;
 import org.elasticsearch.client.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +75,18 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
 
   @AssistedInject
   ElasticGroupIndex(
-      @GerritServerConfig Config cfg,
+      ElasticConfiguration cfg,
       SitePaths sitePaths,
       Provider<GroupCache> groupCache,
+<<<<<<< HEAD   (fc38be Merge branch 'stable-2.14' into stable-2.15)
       ElasticRestClientBuilder clientBuilder,
       @Assisted Schema<InternalGroup> schema) {
     super(cfg, sitePaths, schema, clientBuilder, GROUPS);
+=======
+      ElasticRestClientProvider client,
+      @Assisted Schema<AccountGroup> schema) {
+    super(cfg, sitePaths, schema, client, GROUPS);
+>>>>>>> BRANCH (d294e9 Merge "Elasticsearch: Tidy up Javadoc in builders package" i)
     this.groupCache = groupCache;
     this.mapping = new GroupMapping(schema);
     this.schema = schema;

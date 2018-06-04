@@ -105,6 +105,7 @@ public class WorkQueue {
   }
 
   /** Create a new executor queue. */
+<<<<<<< HEAD   (fc38be Merge branch 'stable-2.14' into stable-2.15)
   public ScheduledExecutorService createQueue(int poolsize, String prefix) {
     return createQueue(poolsize, prefix, Thread.NORM_PRIORITY);
   }
@@ -125,6 +126,14 @@ public class WorkQueue {
     }
 
     return executor;
+=======
+  public Executor createQueue(int poolsize, String queueName) {
+    final Executor r = new Executor(poolsize, queueName);
+    r.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+    r.setExecuteExistingDelayedTasksAfterShutdownPolicy(true);
+    queues.add(r);
+    return r;
+>>>>>>> BRANCH (d294e9 Merge "Elasticsearch: Tidy up Javadoc in builders package" i)
   }
 
   /** Get all of the tasks currently scheduled in any work queue. */
@@ -191,7 +200,11 @@ public class WorkQueue {
     private final ConcurrentHashMap<Integer, Task<?>> all;
     private final String queueName;
 
+<<<<<<< HEAD   (fc38be Merge branch 'stable-2.14' into stable-2.15)
     Executor(int corePoolSize, String prefix) {
+=======
+    Executor(int corePoolSize, final String queueName) {
+>>>>>>> BRANCH (d294e9 Merge "Elasticsearch: Tidy up Javadoc in builders package" i)
       super(
           corePoolSize,
           new ThreadFactory() {
@@ -201,7 +214,7 @@ public class WorkQueue {
             @Override
             public Thread newThread(Runnable task) {
               final Thread t = parent.newThread(task);
-              t.setName(prefix + "-" + tid.getAndIncrement());
+              t.setName(queueName + "-" + tid.getAndIncrement());
               t.setUncaughtExceptionHandler(LOG_UNCAUGHT_EXCEPTION);
               return t;
             }
@@ -213,7 +226,7 @@ public class WorkQueue {
               0.75f, // load factor
               corePoolSize + 4 // concurrency level
               );
-      queueName = prefix;
+      this.queueName = queueName;
     }
 
     @Override
