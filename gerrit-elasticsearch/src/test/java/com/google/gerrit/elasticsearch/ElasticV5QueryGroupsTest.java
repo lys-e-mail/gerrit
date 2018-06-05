@@ -1,4 +1,4 @@
-// Copyright (C) 2014 The Android Open Source Project
+// Copyright (C) 2018 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,22 +14,18 @@
 
 package com.google.gerrit.elasticsearch;
 
-import com.google.gerrit.elasticsearch.ElasticTestUtils.ElasticNodeInfo;
-import com.google.gerrit.server.query.change.AbstractQueryChangesTest;
+import com.google.gerrit.elasticsearch.testing.ElasticContainer;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils.ElasticNodeInfo;
+import com.google.gerrit.server.query.group.AbstractQueryGroupsTest;
 import com.google.gerrit.testutil.InMemoryModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.eclipse.jgit.lib.Config;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-<<<<<<< HEAD   (5c831c Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
-import org.junit.Test;
-=======
-import org.junit.Rule;
-import org.junit.rules.TestName;
->>>>>>> BRANCH (1492e8 ElasticReindexIT: Add tests against Elasticsearch version 5)
 
-public class ElasticQueryChangesTest extends AbstractQueryChangesTest {
+public class ElasticV5QueryGroupsTest extends AbstractQueryGroupsTest {
   private static ElasticNodeInfo nodeInfo;
   private static ElasticContainer<?> container;
 
@@ -40,7 +36,7 @@ public class ElasticQueryChangesTest extends AbstractQueryChangesTest {
       return;
     }
 
-    container = ElasticContainer.createAndStart();
+    container = ElasticContainer.createAndStart(ElasticVersion.V5_6);
     nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
   }
 

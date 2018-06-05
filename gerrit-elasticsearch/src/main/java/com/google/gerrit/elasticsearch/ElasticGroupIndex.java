@@ -60,8 +60,13 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
   static class GroupMapping {
     MappingProperties groups;
 
+<<<<<<< HEAD   (5c831c Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     GroupMapping(Schema<InternalGroup> schema) {
       this.groups = ElasticMapping.createMapping(schema);
+=======
+    public GroupMapping(Schema<AccountGroup> schema, ElasticQueryAdapter adapter) {
+      this.groups = ElasticMapping.createMapping(schema, adapter);
+>>>>>>> BRANCH (1492e8 ElasticReindexIT: Add tests against Elasticsearch version 5)
     }
   }
 
@@ -82,7 +87,7 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
       @Assisted Schema<InternalGroup> schema) {
     super(cfg, sitePaths, schema, client, GROUPS);
     this.groupCache = groupCache;
-    this.mapping = new GroupMapping(schema);
+    this.mapping = new GroupMapping(schema, client.adapter());
     this.schema = schema;
   }
 
@@ -132,7 +137,7 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
       QueryBuilder qb = queryBuilder.toQueryBuilder(p);
       fields = IndexUtils.groupFields(opts);
       SearchSourceBuilder searchSource =
-          new SearchSourceBuilder()
+          new SearchSourceBuilder(client.adapter())
               .query(qb)
               .from(opts.start())
               .size(opts.limit())
