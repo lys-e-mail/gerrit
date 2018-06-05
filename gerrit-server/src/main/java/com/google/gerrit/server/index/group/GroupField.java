@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.index.group;
 
+<<<<<<< HEAD   (efe749 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.gerrit.index.FieldDef.exact;
 import static com.google.gerrit.index.FieldDef.fullText;
@@ -21,6 +22,12 @@ import static com.google.gerrit.index.FieldDef.integer;
 import static com.google.gerrit.index.FieldDef.keyword;
 import static com.google.gerrit.index.FieldDef.prefix;
 import static com.google.gerrit.index.FieldDef.timestamp;
+=======
+import static com.google.gerrit.server.index.FieldDef.exact;
+import static com.google.gerrit.server.index.FieldDef.fullText;
+import static com.google.gerrit.server.index.FieldDef.integer;
+import static com.google.gerrit.server.index.FieldDef.prefix;
+>>>>>>> BRANCH (0f6c9b FieldType: Remove unnecessary KEYWORD type)
 
 import com.google.gerrit.index.FieldDef;
 import com.google.gerrit.index.SchemaUtil;
@@ -36,12 +43,22 @@ public class GroupField {
       integer("id").build(g -> g.getId().get());
 
   /** Group UUID. */
+<<<<<<< HEAD   (efe749 Merge branch 'stable-2.14' into stable-2.15)
   public static final FieldDef<InternalGroup, String> UUID =
       keyword("uuid").stored().build(g -> g.getGroupUUID().get());
+=======
+  public static final FieldDef<AccountGroup, String> UUID =
+      exact("uuid").stored().build(g -> g.getGroupUUID().get());
+>>>>>>> BRANCH (0f6c9b FieldType: Remove unnecessary KEYWORD type)
 
   /** Group owner UUID. */
+<<<<<<< HEAD   (efe749 Merge branch 'stable-2.14' into stable-2.15)
   public static final FieldDef<InternalGroup, String> OWNER_UUID =
       keyword("owner_uuid").build(g -> g.getOwnerGroupUUID().get());
+=======
+  public static final FieldDef<AccountGroup, String> OWNER_UUID =
+      exact("owner_uuid").build(g -> g.getOwnerGroupUUID().get());
+>>>>>>> BRANCH (0f6c9b FieldType: Remove unnecessary KEYWORD type)
 
   /** Timestamp indicating when this group was created. */
   public static final FieldDef<InternalGroup, Timestamp> CREATED_ON =
