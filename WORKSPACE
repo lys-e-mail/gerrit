@@ -434,6 +434,7 @@ maven_jar(
     sha1 = "da725083ee79fdcd86d9f3d8a76e38174a01892a",
 )
 
+<<<<<<< HEAD   (aa2547 Merge "Measure and report time to reply to changes")
 # Transitive dependency of commons-compress
 maven_jar(
     name = "tukaani_xz",
@@ -441,6 +442,8 @@ maven_jar(
     sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
 )
 
+=======
+>>>>>>> BRANCH (5c831c Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 LUCENE_VERS = "5.5.4"
 
 maven_jar(
