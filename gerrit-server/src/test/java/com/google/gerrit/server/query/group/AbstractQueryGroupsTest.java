@@ -78,10 +78,13 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
     return cfg;
   }
 
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
   @Inject protected Accounts accounts;
 
   @Inject protected AccountsUpdate.Server accountsUpdate;
 
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
   @Inject protected AccountCache accountCache;
 
   @Inject protected AccountManager accountManager;

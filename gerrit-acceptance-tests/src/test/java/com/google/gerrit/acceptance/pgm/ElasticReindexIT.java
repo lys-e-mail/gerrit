@@ -14,10 +14,17 @@
 
 package com.google.gerrit.acceptance.pgm;
 
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.elasticsearch.ElasticContainer;
 import com.google.gerrit.elasticsearch.ElasticTestUtils;
 import com.google.gerrit.elasticsearch.ElasticTestUtils.ElasticNodeInfo;
+=======
+import com.google.gerrit.elasticsearch.ElasticVersion;
+import com.google.gerrit.elasticsearch.testing.ElasticContainer;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils;
+import com.google.gerrit.elasticsearch.testing.ElasticTestUtils.ElasticNodeInfo;
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 import com.google.gerrit.testutil.ConfigSuite;
 import com.google.inject.Injector;
 import java.util.UUID;
@@ -25,8 +32,11 @@ import org.eclipse.jgit.lib.Config;
 import org.junit.After;
 import org.junit.Ignore;
 
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
 @NoHttpd
 @Ignore
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 public class ElasticReindexIT extends AbstractReindexTests {
   private static ElasticContainer<?> container;
 

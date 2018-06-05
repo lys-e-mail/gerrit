@@ -30,6 +30,7 @@ public abstract class GerritBaseTests {
 
   @Rule public ExpectedException exception = ExpectedException.none();
   @Rule public final TestName testName = new TestName();
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
 
   protected String getSanitizedMethodName() {
     String name = testName.getMethodName().toLowerCase();
@@ -37,4 +38,6 @@ public abstract class GerritBaseTests {
     name = CharMatcher.is('_').trimTrailingFrom(name);
     return name;
   }
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 }

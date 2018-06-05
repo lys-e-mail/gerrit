@@ -36,14 +36,16 @@ import com.google.gerrit.server.query.change.InternalChangeQuery;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import java.nio.file.Files;
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
 import java.util.Set;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.util.FS;
 import org.junit.Ignore;
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 import org.junit.Test;
 
 @NoHttpd
-@Ignore
 public abstract class AbstractReindexTests extends StandaloneSiteTest {
   /** @param injector injector */
   public abstract void configureIndex(Injector injector) throws Exception;

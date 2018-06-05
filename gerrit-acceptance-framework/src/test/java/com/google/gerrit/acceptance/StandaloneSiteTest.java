@@ -19,7 +19,10 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.Streams;
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.common.Nullable;
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.api.groups.GroupInput;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
@@ -130,7 +133,10 @@ public abstract class StandaloneSiteTest {
   protected Account.Id adminId;
 
   private GerritServer.Description serverDesc;
+<<<<<<< HEAD   (3c7530 Merge branch 'stable-2.14' into stable-2.15)
   private SystemReader oldSystemReader;
+=======
+>>>>>>> BRANCH (852e5a Remove unnecessary annotations from reindex test classes)
 
   private void beforeTest(Description description) throws Exception {
     // SystemReader must be overridden before creating any repos, since they read the user/system
