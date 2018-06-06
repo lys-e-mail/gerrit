@@ -33,7 +33,26 @@ class StreamCommandExecutorProvider implements Provider<ScheduledThreadPoolExecu
   }
 
   @Override
+<<<<<<< HEAD   (c65850 Update git submodules)
   public ScheduledThreadPoolExecutor get() {
     return queues.createQueue(poolSize, "SSH-Stream-Worker", Thread.MIN_PRIORITY);
+=======
+  public WorkQueue.Executor get() {
+    final WorkQueue.Executor executor;
+
+    executor = queues.createQueue(poolSize, "SSH-Stream-Worker", true);
+
+    final ThreadFactory parent = executor.getThreadFactory();
+    executor.setThreadFactory(
+        new ThreadFactory() {
+          @Override
+          public Thread newThread(final Runnable task) {
+            final Thread t = parent.newThread(task);
+            t.setPriority(Thread.MIN_PRIORITY);
+            return t;
+          }
+        });
+    return executor;
+>>>>>>> BRANCH (7d293e Merge changes from topic "queue-metrics" into stable-2.14)
   }
 }
