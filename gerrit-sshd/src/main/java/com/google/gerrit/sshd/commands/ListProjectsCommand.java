@@ -27,8 +27,13 @@ import java.util.List;
     name = "ls-projects",
     description = "List projects visible to the caller",
     runsAt = MASTER_OR_SLAVE)
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
 public class ListProjectsCommand extends SshCommand {
   @Inject @Options public ListProjects impl;
+=======
+final class ListProjectsCommand extends SshCommand {
+  @Inject private ListProjects impl;
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
 
   @Override
   public void run() throws Exception {

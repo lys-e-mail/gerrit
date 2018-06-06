@@ -41,6 +41,7 @@ public class ListGroupsCommand extends SshCommand {
 
   @Inject @Options public ListGroups listGroups;
 
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   @Option(
       name = "--verbose",
       aliases = {"-v"},
@@ -49,6 +50,22 @@ public class ListGroupsCommand extends SshCommand {
               + "group name, UUID, description, owner group name, "
               + "owner group UUID, and whether the group is visible to all")
   private boolean verboseOutput;
+=======
+  @Override
+  protected void parseCommandLine() throws UnloggedFailure {
+    parseCommandLine(impl);
+  }
+
+  private static class MyListGroups extends ListGroups {
+    @Option(
+        name = "--verbose",
+        aliases = {"-v"},
+        usage =
+            "verbose output format with tab-separated columns for the "
+                + "group name, UUID, description, owner group name, "
+                + "owner group UUID, and whether the group is visible to all")
+    private boolean verboseOutput;
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
 
   @Override
   public void run() throws Exception {

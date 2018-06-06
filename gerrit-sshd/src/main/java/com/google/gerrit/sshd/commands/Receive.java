@@ -64,8 +64,13 @@ final class Receive extends AbstractGitCommand {
       aliases = {"--re"},
       metaVar = "EMAIL",
       usage = "request reviewer for change(s)")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addReviewer(Account.Id id) {
     reviewers.put(ReviewerStateInternal.REVIEWER, id);
+=======
+  void addReviewer(final Account.Id id) {
+    reviewerId.add(id);
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
   }
 
   @Option(
@@ -73,8 +78,13 @@ final class Receive extends AbstractGitCommand {
       aliases = {},
       metaVar = "EMAIL",
       usage = "CC user on change(s)")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addCC(Account.Id id) {
     reviewers.put(ReviewerStateInternal.CC, id);
+=======
+  void addCC(final Account.Id id) {
+    ccId.add(id);
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
   }
 
   @Override

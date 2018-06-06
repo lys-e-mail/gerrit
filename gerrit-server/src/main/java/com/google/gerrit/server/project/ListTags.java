@@ -67,7 +67,11 @@ public class ListTags implements RestReadView<ProjectResource> {
 
   @Option(
       name = "--start",
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
       aliases = {"-S", "-s"},
+=======
+      aliases = {"-S"},
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
       metaVar = "CNT",
       usage = "number of tags to skip")
   public void setStart(int start) {

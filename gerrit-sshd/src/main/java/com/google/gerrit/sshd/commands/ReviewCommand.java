@@ -78,7 +78,11 @@ public class ReviewCommand extends SshCommand {
       multiValued = true,
       metaVar = "{COMMIT | CHANGE,PATCHSET}",
       usage = "list of commits or patch sets to review")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addPatchSetId(String token) {
+=======
+  void addPatchSetId(final String token) {
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
     try {
       PatchSet ps = psParser.parsePatchSet(token, projectControl, branch);
       patchSets.add(ps);
@@ -131,6 +135,14 @@ public class ReviewCommand extends SshCommand {
   private boolean json;
 
   @Option(
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
+=======
+      name = "--strict-labels",
+      usage = "Strictly check if the labels specified can be applied to the given patch set(s)")
+  private boolean strictLabels;
+
+  @Option(
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
       name = "--tag",
       aliases = "-t",
       usage = "applies a tag to the given review",
@@ -142,7 +154,11 @@ public class ReviewCommand extends SshCommand {
       aliases = "-l",
       usage = "custom label(s) to assign",
       metaVar = "LABEL=VALUE")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addLabel(String token) {
+=======
+  void addLabel(final String token) {
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
     LabelVote v = LabelVote.parseWithEquals(token);
     LabelType.checkName(v.label()); // Disallow SUBM.
     customLabels.put(v.label(), v.value());

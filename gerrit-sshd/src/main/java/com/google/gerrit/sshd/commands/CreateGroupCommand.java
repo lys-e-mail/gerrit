@@ -73,7 +73,11 @@ final class CreateGroupCommand extends SshCommand {
       aliases = {"-m"},
       metaVar = "USERNAME",
       usage = "initial set of users to become members of the group")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addMember(Account.Id id) {
+=======
+  void addMember(final Account.Id id) {
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
     initialMembers.add(id);
   }
 
@@ -87,7 +91,11 @@ final class CreateGroupCommand extends SshCommand {
       aliases = "-g",
       metaVar = "GROUP",
       usage = "initial set of groups to be included in the group")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   void addGroup(AccountGroup.UUID id) {
+=======
+  void addGroup(final AccountGroup.UUID id) {
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
     initialGroups.add(id);
   }
 

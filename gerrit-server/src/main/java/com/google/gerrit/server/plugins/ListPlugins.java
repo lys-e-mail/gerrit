@@ -50,6 +50,7 @@ public class ListPlugins implements RestReadView<TopLevelResource> {
       name = "--all",
       aliases = {"-a"},
       usage = "List all plugins, including disabled plugins")
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
   public void setAll(boolean all) {
     this.all = all;
   }
@@ -94,6 +95,9 @@ public class ListPlugins implements RestReadView<TopLevelResource> {
   public void setMatchRegex(String matchRegex) {
     this.matchRegex = matchRegex;
   }
+=======
+  private boolean all;
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
 
   @Inject
   protected ListPlugins(PluginLoader pluginLoader) {

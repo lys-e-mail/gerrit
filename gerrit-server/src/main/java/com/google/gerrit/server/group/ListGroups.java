@@ -172,6 +172,7 @@ public class ListGroups implements RestReadView<TopLevelResource> {
   }
 
   @Option(
+<<<<<<< HEAD   (54c04f Reformat all Java files with google-java-format 1.6)
       name = "--regex",
       aliases = {"-r"},
       metaVar = "REGEX",
@@ -181,6 +182,8 @@ public class ListGroups implements RestReadView<TopLevelResource> {
   }
 
   @Option(
+=======
+>>>>>>> BRANCH (edc6a4 Reformat all Java files with google-java-format 1.6)
       name = "--suggest",
       aliases = {"-s"},
       usage = "to get a suggestion of groups")
