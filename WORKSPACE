@@ -316,12 +316,15 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (7b5187 DropWizardMetricMaker: Move sanitizeMetricName to MetricMake)
     name = "commons_lang3",
     artifact = "org.apache.commons:commons-lang3:3.6",
     sha1 = "9d28a6b23650e8a7e9063c04588ace6cf7012c17",
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (b989f3 Merge branch 'stable-2.14' into stable-2.15)
     name = "commons_dbcp",
     artifact = "commons-dbcp:commons-dbcp:1.4",
     sha1 = "30be73c965cc990b153a100aaaaafcf239f82d39",
