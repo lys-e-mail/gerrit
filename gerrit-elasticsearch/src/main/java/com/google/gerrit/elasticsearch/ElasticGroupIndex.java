@@ -70,8 +70,12 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
 
   private final GroupMapping mapping;
   private final Provider<GroupCache> groupCache;
+<<<<<<< HEAD   (a55517 Merge branch 'stable-2.14' into stable-2.15)
   private final Schema<InternalGroup> schema;
   private final String type;
+=======
+  private final Schema<AccountGroup> schema;
+>>>>>>> BRANCH (76f375 AbstractElasticIndex: Make type field protected)
 
   @AssistedInject
   ElasticGroupIndex(
@@ -84,7 +88,6 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
     this.groupCache = groupCache;
     this.mapping = new GroupMapping(schema, client.adapter());
     this.schema = schema;
-    this.type = client.adapter().getType(GROUPS);
   }
 
   @Override
