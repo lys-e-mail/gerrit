@@ -41,6 +41,24 @@ public class ElasticReindexIT extends AbstractReindexTests {
     return cfg;
   }
 
+<<<<<<< HEAD   (5ef592 Merge branch 'stable-2.14' into stable-2.15)
+=======
+  @ConfigSuite.Default
+  public static Config elasticsearchV2() {
+    return getConfig(ElasticVersion.V2_4);
+  }
+
+  @ConfigSuite.Config
+  public static Config elasticsearchV5() {
+    return getConfig(ElasticVersion.V5_6);
+  }
+
+  @ConfigSuite.Config
+  public static Config elasticsearchV6() {
+    return getConfig(ElasticVersion.V6_2);
+  }
+
+>>>>>>> BRANCH (a3cb06 ElasticReindexIT: Add tests against Elasticsearch version 6)
   @Override
   public void configureIndex(Injector injector) throws Exception {
     ElasticTestUtils.createAllIndexes(injector);

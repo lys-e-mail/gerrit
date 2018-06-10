@@ -14,7 +14,6 @@
 
 package com.google.gerrit.elasticsearch;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gerrit.elasticsearch.ElasticMapping.MappingProperties;
 import com.google.gerrit.elasticsearch.builders.QueryBuilder;
@@ -71,7 +70,12 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
 
   private final GroupMapping mapping;
   private final Provider<GroupCache> groupCache;
+<<<<<<< HEAD   (5ef592 Merge branch 'stable-2.14' into stable-2.15)
   private final Schema<InternalGroup> schema;
+=======
+  private final Schema<AccountGroup> schema;
+  private final String type;
+>>>>>>> BRANCH (a3cb06 ElasticReindexIT: Add tests against Elasticsearch version 6)
 
   @AssistedInject
   ElasticGroupIndex(
@@ -84,14 +88,16 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
     this.groupCache = groupCache;
     this.mapping = new GroupMapping(schema, client.adapter());
     this.schema = schema;
+    this.type = client.adapter().getType(GROUPS);
   }
 
   @Override
   public void replace(InternalGroup group) throws IOException {
     BulkRequest bulk =
-        new IndexRequest(getId(group), indexName, GROUPS).add(new UpdateRequest<>(schema, group));
+        new IndexRequest(getId(group), indexName, type, client.adapter())
+            .add(new UpdateRequest<>(schema, group));
 
-    String uri = getURI(GROUPS, BULK);
+    String uri = getURI(type, BULK);
     Response response = postRequest(bulk, uri, getRefreshParam());
     int statusCode = response.getStatusLine().getStatusCode();
     if (statusCode != HttpStatus.SC_OK) {
@@ -110,13 +116,12 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
 
   @Override
   protected String getDeleteActions(AccountGroup.UUID g) {
-    return delete(GROUPS, g);
+    return delete(type, g);
   }
 
   @Override
   protected String getMappings() {
-    ImmutableMap<String, GroupMapping> mappings = ImmutableMap.of("mappings", mapping);
-    return gson.toJson(mappings);
+    return getMappingsForSingleType(GROUPS, mapping.groups);
   }
 
   @Override
@@ -150,8 +155,13 @@ public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, I
     @Override
     public ResultSet<InternalGroup> read() throws OrmException {
       try {
+<<<<<<< HEAD   (5ef592 Merge branch 'stable-2.14' into stable-2.15)
         List<InternalGroup> results = Collections.emptyList();
         String uri = getURI(GROUPS, SEARCH);
+=======
+        List<AccountGroup> results = Collections.emptyList();
+        String uri = getURI(type, SEARCH);
+>>>>>>> BRANCH (a3cb06 ElasticReindexIT: Add tests against Elasticsearch version 6)
         Response response = postRequest(search, uri, Collections.emptyMap());
         StatusLine statusLine = response.getStatusLine();
         if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
