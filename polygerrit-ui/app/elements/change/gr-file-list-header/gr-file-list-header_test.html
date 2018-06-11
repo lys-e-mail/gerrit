@@ -120,6 +120,7 @@ limitations under the License.
       element.loggedIn = true;
 
       flushAsynchronousOperations();
+<<<<<<< HEAD   (859db5 Elasticsearch: Add tests for project queries against version)
 
       // The element has a description, so the account chip should be visible
       // and the description label should not exist.
@@ -160,6 +161,17 @@ limitations under the License.
         assert.equal(getComputedStyle(label).display, 'none');
         assert.notEqual(getComputedStyle(chip).display, 'none');
       });
+=======
+      const label = element.$.descriptionLabel;
+      assert.equal(label.value, 'test');
+      label.editing = true;
+      label._inputText = 'test2';
+      label._save();
+      flushAsynchronousOperations();
+      assert.isTrue(putDescStub.called);
+      assert.equal(putDescStub.args[0][2], 'test2');
+      assert.equal(element.change.revisions.rev1.description, 'test');
+>>>>>>> BRANCH (09097b Fix updated description not showing in file list)
     });
 
     test('expandAllDiffs called when expand button clicked', () => {

@@ -151,9 +151,13 @@
       return this.$.restAPI.setDescription(this.changeNum, this.patchNum, desc)
           .then(res => {
             if (res.ok) {
+<<<<<<< HEAD   (859db5 Elasticsearch: Add tests for project queries against version)
               if (target) { target.disabled = false; }
               this.set(['change', 'revisions', sha, 'description'], desc);
               this._patchsetDescription = desc;
+=======
+              this.set(['change', 'revisions', sha, 'description'], desc);
+>>>>>>> BRANCH (09097b Fix updated description not showing in file list)
             }
           }).catch(err => {
             if (target) { target.disabled = false; }
