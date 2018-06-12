@@ -77,6 +77,10 @@ java_library(
         "//lib:soy",
         "//lib:tukaani-xz",
         "//lib:velocity",
+<<<<<<< HEAD   (6344f2 Merge changes I929a6777,I4598a6fb into stable-2.15)
+=======
+        "//lib/antlr:java-runtime",
+>>>>>>> BRANCH (a5b51d Merge "Bazel: Harmonize names of external repositories" into)
         "//lib/auto:auto-value",
         "//lib/bouncycastle:bcpkix-neverlink",
         "//lib/bouncycastle:bcprov-neverlink",
@@ -184,7 +188,7 @@ TESTUTIL_DEPS = [
     "//lib/jgit/org.eclipse.jgit.junit:junit",
     "//lib/joda:joda-time",
     "//lib/log:api",
-    "//lib/log:impl_log4j",
+    "//lib/log:impl-log4j",
     "//lib/log:log4j",
 ]
 
@@ -284,6 +288,13 @@ java_library(
     deps = TESTUTIL_DEPS + [
         ":prolog-common",
         ":testutil",
+<<<<<<< HEAD   (6344f2 Merge changes I929a6777,I4598a6fb into stable-2.15)
+=======
+        "//gerrit-antlr:query_exception",
+        "//gerrit-antlr:query_parser",
+        "//gerrit-server/src/main/prolog:common",
+        "//lib/antlr:java-runtime",
+>>>>>>> BRANCH (a5b51d Merge "Bazel: Harmonize names of external repositories" into)
     ],
 )
 
@@ -295,6 +306,13 @@ junit_tests(
     deps = TESTUTIL_DEPS + [
         ":prolog-common",
         ":testutil",
+<<<<<<< HEAD   (6344f2 Merge changes I929a6777,I4598a6fb into stable-2.15)
+=======
+        "//gerrit-antlr:query_exception",
+        "//gerrit-antlr:query_parser",
+        "//gerrit-server/src/main/prolog:common",
+        "//lib/antlr:java-runtime",
+>>>>>>> BRANCH (a5b51d Merge "Bazel: Harmonize names of external repositories" into)
     ],
 )
 
