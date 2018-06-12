@@ -42,11 +42,17 @@ import com.google.gerrit.server.account.AccountsUpdate;
 import com.google.gerrit.server.account.AuthRequest;
 import com.google.gerrit.server.account.GroupCache;
 import com.google.gerrit.server.config.AllProjectsName;
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
 import com.google.gerrit.server.group.GroupsUpdate;
 import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.ServerInitiated;
 import com.google.gerrit.server.index.group.GroupField;
 import com.google.gerrit.server.index.group.GroupIndexCollection;
+=======
+import com.google.gerrit.server.index.group.GroupIndex;
+import com.google.gerrit.server.index.group.GroupIndexCollection;
+import com.google.gerrit.server.query.account.InternalAccountQuery;
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
 import com.google.gerrit.server.schema.SchemaCreator;
 import com.google.gerrit.server.util.ManualRequestContext;
 import com.google.gerrit.server.util.OneOffRequestContext;
@@ -104,10 +110,16 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
 
   @Inject protected GroupCache groupCache;
 
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
   @Inject @ServerInitiated protected Provider<GroupsUpdate> groupsUpdateProvider;
 
   @Inject protected GroupIndexCollection indexes;
 
+=======
+  @Inject private GroupIndexCollection groupIndexes;
+
+  protected Injector injector;
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
   protected LifecycleManager lifecycle;
   protected Injector injector;
   protected ReviewDb db;
@@ -386,8 +398,26 @@ public abstract class AbstractQueryGroupsTest extends GerritServerTests {
     assertQuery("description:" + newDescription, group1);
   }
 
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
   private Account.Id createAccountOutsideRequestContext(
       String username, String fullName, String email, boolean active) throws Exception {
+=======
+  @Test
+  public void byDeletedGroup() throws Exception {
+    GroupInfo group = createGroup(name("group"));
+    String query = "uuid:" + group.id;
+    assertQuery(query, group);
+
+    AccountGroup account = db.accountGroups().get(new AccountGroup.Id(group.groupId));
+    for (GroupIndex index : groupIndexes.getWriteIndexes()) {
+      index.delete(account.getGroupUUID());
+    }
+    assertQuery(query);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
     try (ManualRequestContext ctx = oneOffRequestContext.open()) {
       Account.Id id = accountManager.authenticate(AuthRequest.forUser(username)).getAccountId();
       if (email != null) {

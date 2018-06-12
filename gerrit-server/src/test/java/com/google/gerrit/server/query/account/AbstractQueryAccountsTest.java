@@ -52,10 +52,15 @@ import com.google.gerrit.server.account.Accounts;
 import com.google.gerrit.server.account.AccountsUpdate;
 import com.google.gerrit.server.account.AuthRequest;
 import com.google.gerrit.server.config.AllProjectsName;
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.MetaDataUpdate;
+=======
+import com.google.gerrit.server.index.account.AccountIndex;
+import com.google.gerrit.server.index.account.AccountIndexCollection;
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
 import com.google.gerrit.server.schema.SchemaCreator;
 import com.google.gerrit.server.util.ManualRequestContext;
 import com.google.gerrit.server.util.OneOffRequestContext;
@@ -118,10 +123,16 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
 
   @Inject protected AllProjectsName allProjects;
 
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
   @Inject protected AllUsersName allUsers;
 
   @Inject protected GitRepositoryManager repoManager;
 
+=======
+  @Inject protected AccountIndexCollection accountIndexes;
+
+  protected Injector injector;
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
   protected LifecycleManager lifecycle;
   protected Injector injector;
   protected ReviewDb db;
@@ -342,6 +353,18 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
     assertAccounts(queryProvider.get().byWatchedProject(p), user1, user2);
     assertAccounts(queryProvider.get().byWatchedProject(p2), user3);
     assertAccounts(queryProvider.get().byWatchedProject(allProjects), user3);
+  }
+
+  @Test
+  public void byDeletedAccount() throws Exception {
+    AccountInfo user = newAccountWithFullName("jdoe", "John Doe");
+    Account.Id userId = Account.Id.parse(user._accountId.toString());
+    assertQuery("John", user);
+
+    for (AccountIndex index : accountIndexes.getWriteIndexes()) {
+      index.delete(userId);
+    }
+    assertQuery("John");
   }
 
   @Test

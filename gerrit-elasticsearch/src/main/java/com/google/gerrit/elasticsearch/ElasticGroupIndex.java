@@ -56,17 +56,26 @@ import org.slf4j.LoggerFactory;
 
 public class ElasticGroupIndex extends AbstractElasticIndex<AccountGroup.UUID, InternalGroup>
     implements GroupIndex {
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
   static class GroupMapping {
     MappingProperties groups;
+=======
+  private static final Logger log = LoggerFactory.getLogger(ElasticGroupIndex.class);
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
 
+<<<<<<< HEAD   (6c54b4 Don't fail on removing star labels from change without star )
     GroupMapping(Schema<InternalGroup> schema, ElasticQueryAdapter adapter) {
+=======
+  static class GroupMapping {
+    final MappingProperties groups;
+
+    GroupMapping(Schema<AccountGroup> schema, ElasticQueryAdapter adapter) {
+>>>>>>> BRANCH (99289a AbstractQueryAccountsTest: Add byDeletedAccount to ensure co)
       this.groups = ElasticMapping.createMapping(schema, adapter);
     }
   }
 
-  public static final String GROUPS = "groups";
-
-  private static final Logger log = LoggerFactory.getLogger(ElasticGroupIndex.class);
+  private static final String GROUPS = "groups";
 
   private final GroupMapping mapping;
   private final Provider<GroupCache> groupCache;
