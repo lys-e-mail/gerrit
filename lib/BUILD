@@ -214,6 +214,31 @@ java_library(
     data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
     visibility = ["//visibility:public"],
     exports = ["@hamcrest-core//jar"],
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
+=======
+)
+
+java_library(
+    name = "truth",
+    data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
+    visibility = ["//visibility:public"],
+    exports = [
+        ":guava",
+        ":junit",
+        "@truth//jar",
+    ],
+)
+
+java_library(
+    name = "truth-java8-extension",
+    data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
+    visibility = ["//visibility:public"],
+    exports = [
+        ":guava",
+        ":truth",
+        "@truth-java8-extension//jar",
+    ],
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 java_library(
@@ -273,3 +298,13 @@ java_library(
     visibility = ["//visibility:public"],
     exports = ["@postgresql//jar"],
 )
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
+=======
+
+java_library(
+    name = "commons-io",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@commons-io//jar"],
+)
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)

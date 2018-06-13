@@ -1,11 +1,24 @@
 java_library(
     name = "api",
     data = ["//lib:LICENSE-slf4j"],
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     visibility = [
         "//lib/jgit/org.eclipse.jgit:__pkg__",
         "//plugins:__pkg__",
     ],
     exports = ["@log-api//jar"],
+=======
+    visibility = ["//visibility:public"],
+    exports = ["@log-api//jar"],
+)
+
+java_library(
+    name = "nop",
+    data = ["//lib:LICENSE-slf4j"],
+    visibility = ["//visibility:public"],
+    exports = ["@log-nop//jar"],
+    runtime_deps = [":api"],
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 java_library(
