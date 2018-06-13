@@ -4,7 +4,12 @@ java_library(
     visibility = ["//visibility:public"],
     exports = [
         ":guice-library",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
         ":javax_inject",
+=======
+        ":javax-inject",
+        ":multibindings",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     ],
 )
 

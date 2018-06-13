@@ -104,8 +104,13 @@ maven_jar(
 
 maven_jar(
     name = "servlet-api-3_1",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     artifact = "org.apache.tomcat:tomcat-servlet-api:8.5.23",
     sha1 = "021a212688ec94fe77aff74ab34cc74f6f940e60",
+=======
+    artifact = "org.apache.tomcat:tomcat-servlet-api:8.0.24",
+    sha1 = "5d9e2e895e3111622720157d0aa540066d5fce3a",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 GWT_VERS = "2.8.2"
@@ -216,8 +221,25 @@ maven_jar(
 
 maven_jar(
     name = "protobuf",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     artifact = "com.google.protobuf:protobuf-java:3.5.1",
     sha1 = "8c3492f7662fa1cbf8ca76a0f5eb1146f7725acd",
+=======
+    artifact = "com.google.protobuf:protobuf-java:3.0.0-beta-2",
+    sha1 = "de80fe047052445869b96f6def6baca7182c95af",
+)
+
+maven_jar(
+    name = "joda-time",
+    artifact = "joda-time:joda-time:2.9.9",
+    sha1 = "f7b520c458572890807d143670c9b24f4de90897",
+)
+
+maven_jar(
+    name = "joda-convert",
+    artifact = "org.joda:joda-convert:1.8.1",
+    sha1 = "675642ac208e0b741bc9118dcbcae44c271b992a",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 load("//lib:guava.bzl", "GUAVA_VERSION", "GUAVA_BIN_SHA1")
@@ -255,6 +277,15 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
+=======
+    name = "log-nop",
+    artifact = "org.slf4j:slf4j-nop:" + SLF4J_VERS,
+    sha1 = "6cca9a3b999ff28b7a35ca762b3197cd7e4c2ad1",
+)
+
+maven_jar(
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     name = "log-ext",
     artifact = "org.slf4j:slf4j-ext:" + SLF4J_VERS,
     sha1 = "09a8f58c784c37525d2624062414358acf296717",
@@ -304,24 +335,42 @@ maven_jar(
 
 # When upgrading commons-compress, also upgrade tukaani-xz
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     name = "commons-compress",
     artifact = "org.apache.commons:commons-compress:1.15",
     sha1 = "b686cd04abaef1ea7bc5e143c080563668eec17e",
+=======
+    name = "commons-collections",
+    artifact = "commons-collections:commons-collections:3.2.2",
+    sha1 = "8ad72fe39fa8c91eaaf12aadb21e0c3661fe26d5",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
+=======
+    name = "commons-compress",
+    artifact = "org.apache.commons:commons-compress:1.13",
+    sha1 = "15c5e9584200122924e50203ae210b57616b75ee",
+)
+
+maven_jar(
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     name = "commons-lang",
     artifact = "commons-lang:commons-lang:2.6",
     sha1 = "0ce1edb914c94ebc388f086c6827e8bdeec71ac2",
 )
 
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     name = "commons-lang3",
     artifact = "org.apache.commons:commons-lang3:3.6",
     sha1 = "9d28a6b23650e8a7e9063c04588ace6cf7012c17",
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     name = "commons-dbcp",
     artifact = "commons-dbcp:commons-dbcp:1.4",
     sha1 = "30be73c965cc990b153a100aaaaafcf239f82d39",
@@ -335,11 +384,25 @@ maven_jar(
 
 maven_jar(
     name = "commons-net",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     artifact = "commons-net:commons-net:3.6",
     sha1 = "b71de00508dcb078d2b24b5fa7e538636de9b3da",
+=======
+    artifact = "commons-net:commons-net:3.5",
+    sha1 = "342fc284019f590e1308056990fdb24a08f06318",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
+=======
+    name = "commons-oro",
+    artifact = "oro:oro:2.0.8",
+    sha1 = "5592374f834645c4ae250f4c9fbb314c9369d698",
+)
+
+maven_jar(
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     name = "commons-validator",
     artifact = "commons-validator:commons-validator:1.6",
     sha1 = "e989d1e87cdd60575df0765ed5bac65c905d7908",
@@ -446,16 +509,27 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     name = "auto-value-annotations",
     artifact = "com.google.auto.value:auto-value-annotations:" + AUTO_VALUE_VERSION,
     sha1 = "da725083ee79fdcd86d9f3d8a76e38174a01892a",
+=======
+    name = "auto-value",
+    artifact = "com.google.auto.value:auto-value:1.4.1",
+    sha1 = "8172ebbd7970188aff304c8a420b9f17168f6f48",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 # Transitive dependency of commons-compress
 maven_jar(
     name = "tukaani-xz",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     artifact = "org.tukaani:xz:1.6",
     sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
+=======
+    artifact = "org.tukaani:xz:1.4",
+    sha1 = "18a9a2ce6abf32ea1b5fd31dae5210ad93f4e5e3",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 LUCENE_VERS = "5.5.4"
@@ -547,7 +621,11 @@ maven_jar(
 
 maven_jar(
     name = "blame-cache",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     artifact = "com/google/gitiles:blame-cache:0.2-6",
+=======
+    artifact = "com/google/gitiles:blame-cache:0.2-5",
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
     attach_source = False,
     repository = GERRIT,
     sha1 = "64827f1bc2cbdbb6515f1d29ce115db94c03bb6a",
@@ -860,13 +938,13 @@ maven_jar(
 )
 
 maven_jar(
-    name = "codemirror_minified",
+    name = "codemirror-minified",
     artifact = "org.webjars.npm:codemirror-minified:" + CM_VERSION,
     sha1 = "36558ea3b8e30782e1e09c0e7bd781e09614f139",
 )
 
 maven_jar(
-    name = "codemirror_original",
+    name = "codemirror-original",
     artifact = "org.webjars.npm:codemirror:" + CM_VERSION,
     sha1 = "f1f8fbbc3e2d224fdccc43d2f4180658a92320f9",
 )

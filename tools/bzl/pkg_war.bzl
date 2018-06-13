@@ -24,7 +24,10 @@ LIBS = [
     "//lib/bouncycastle:bcprov",
     "//lib/bouncycastle:bcpg",
     "//lib/log:impl-log4j",
+<<<<<<< HEAD   (e1359a Bazel: Harmonize names of external repositories)
     "//resources:log4j-config",
+=======
+>>>>>>> BRANCH (5271b3 Merge branch 'stable-2.14' into stable-2.15)
 ]
 
 PGMLIBS = [
