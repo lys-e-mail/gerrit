@@ -29,12 +29,17 @@ public class ElasticReindexIT extends AbstractReindexTests {
   @ConfigSuite.Default
   public static Config elasticsearch() {
     ElasticNodeInfo elasticNodeInfo;
+<<<<<<< HEAD   (f1cc5e Add missing build dependencies for ElasticReindexIT)
     try {
       container = ElasticContainer.createAndStart();
       elasticNodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
     } catch (Throwable t) {
       return null;
     }
+=======
+    container = ElasticContainer.createAndStart(version);
+    elasticNodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
+>>>>>>> BRANCH (99e825 Make ElasticReindexIT tests fail if test container fails to )
     String indicesPrefix = UUID.randomUUID().toString();
     Config cfg = new Config();
     ElasticTestUtils.configure(cfg, elasticNodeInfo.port, indicesPrefix);
