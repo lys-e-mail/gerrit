@@ -4,7 +4,18 @@ package(
 
 load(":rules.bzl", "polygerrit_bundle")
 load("//tools/bzl:genrule2.bzl", "genrule2")
+<<<<<<< HEAD   (dc76da Merge "Modify gr-change-requirements to use label chips")
 load("//tools/bzl:js.bzl", "bower_component_bundle")
+=======
+load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load(
+    "//tools/bzl:js.bzl",
+    "bower_component",
+    "bower_component_bundle",
+    "js_component",
+    "vulcanize",
+)
+>>>>>>> BRANCH (703e9d Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 
 polygerrit_bundle(
     name = "polygerrit_ui",
