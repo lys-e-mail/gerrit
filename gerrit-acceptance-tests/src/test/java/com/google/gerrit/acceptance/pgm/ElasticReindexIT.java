@@ -37,6 +37,29 @@ public class ElasticReindexIT extends AbstractReindexTests {
     return cfg;
   }
 
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
+=======
+  @ConfigSuite.Default
+  public static Config elasticsearchV2() {
+    return getConfig(ElasticVersion.V2_4);
+  }
+
+  @ConfigSuite.Config
+  public static Config elasticsearchV5() {
+    return getConfig(ElasticVersion.V5_6);
+  }
+
+  @ConfigSuite.Config
+  public static Config elasticsearchV6_2() {
+    return getConfig(ElasticVersion.V6_2);
+  }
+
+  @ConfigSuite.Config
+  public static Config elasticsearchV6_3() {
+    return getConfig(ElasticVersion.V6_3);
+  }
+
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
   @Override
   public void configureIndex(Injector injector) throws Exception {
     ElasticTestUtils.createAllIndexes(injector);

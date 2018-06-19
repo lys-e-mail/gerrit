@@ -15,7 +15,6 @@
 package com.google.gerrit.acceptance.ssh;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assert_;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
@@ -52,7 +51,11 @@ public class SetReviewersIT extends AbstractDaemonTest {
   private void setReviewer(boolean add, String id) throws Exception {
     adminSshSession.exec(
         String.format("gerrit set-reviewers -%s %s %s", add ? "a" : "r", user.email, id));
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
     assert_().withMessage(adminSshSession.getError()).that(adminSshSession.hasError()).isFalse();
+=======
+    adminSshSession.assertSuccess();
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
     ImmutableSet<Id> reviewers = change.getChange().getReviewers().all();
     if (add) {
       assertThat(reviewers).contains(user.id);

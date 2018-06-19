@@ -15,7 +15,11 @@
 package com.google.gerrit.acceptance.ssh;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
 import static com.google.common.truth.Truth.assertWithMessage;
+=======
+import static com.google.gerrit.acceptance.GitUtil.initSsh;
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
 
 import com.google.common.collect.Lists;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
@@ -149,8 +153,7 @@ public class QueryIT extends AbstractDaemonTest {
   public void shouldFailWithFilesWithoutPatchSetsOrCurrentPatchSetsOption() throws Exception {
     String changeId = createChange().getChangeId();
     adminSshSession.exec("gerrit query --files " + changeId);
-    assertThat(adminSshSession.hasError()).isTrue();
-    assertThat(adminSshSession.getError()).contains("needs --patch-sets or --current-patch-set");
+    adminSshSession.assertFailure("needs --patch-sets or --current-patch-set");
   }
 
   @Test
@@ -305,7 +308,11 @@ public class QueryIT extends AbstractDaemonTest {
   private List<ChangeAttribute> executeSuccessfulQuery(String params, SshSession session)
       throws Exception {
     String rawResponse = session.exec("gerrit query --format=JSON " + params);
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
     assertWithMessage(session.getError()).that(session.hasError()).isFalse();
+=======
+    session.assertSuccess();
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
     return getChanges(rawResponse);
   }
 
