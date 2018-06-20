@@ -14,6 +14,8 @@
 
 package com.google.gerrit.server;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -29,6 +31,7 @@ public class GerritPersonIdentProvider implements Provider<PersonIdent> {
   private final String email;
 
   @Inject
+<<<<<<< HEAD   (a09a74 Merge branch 'stable-2.14' into stable-2.15)
   public GerritPersonIdentProvider(@GerritServerConfig Config cfg) {
     String name = cfg.getString("user", null, "name");
     if (name == null) {
@@ -36,6 +39,17 @@ public class GerritPersonIdentProvider implements Provider<PersonIdent> {
     }
     this.name = name;
     email = cfg.get(UserConfig.KEY).getCommitterEmail();
+=======
+  public GerritPersonIdentProvider(@GerritServerConfig final Config cfg) {
+    StringBuilder name = new StringBuilder();
+    PersonIdent.appendSanitized(
+        name, firstNonNull(cfg.getString("user", null, "name"), "Gerrit Code Review"));
+    this.name = name.toString();
+
+    StringBuilder email = new StringBuilder();
+    PersonIdent.appendSanitized(email, cfg.get(UserConfig.KEY).getCommitterEmail());
+    this.email = email.toString();
+>>>>>>> BRANCH (d6b455 GerritPersonIdentProvider: Sanitize user.name and user.email)
   }
 
   @Override
