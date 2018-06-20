@@ -15,7 +15,10 @@
 package com.google.gerrit.acceptance.ssh;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
 import static com.google.common.truth.Truth.assertWithMessage;
+=======
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.GcAssert;
@@ -56,7 +59,11 @@ public class GarbageCollectionIT extends AbstractDaemonTest {
   public void testGc() throws Exception {
     String response =
         adminSshSession.exec("gerrit gc \"" + project.get() + "\" \"" + project2.get() + "\"");
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
     assertWithMessage(adminSshSession.getError()).that(adminSshSession.hasError()).isFalse();
+=======
+    adminSshSession.assertSuccess();
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
     assertNoError(response);
     gcAssert.assertHasPackFile(project, project2);
     gcAssert.assertHasNoPackFile(allProjects, project3);
@@ -66,7 +73,11 @@ public class GarbageCollectionIT extends AbstractDaemonTest {
   @UseLocalDisk
   public void testGcAll() throws Exception {
     String response = adminSshSession.exec("gerrit gc --all");
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
     assertWithMessage(adminSshSession.getError()).that(adminSshSession.hasError()).isFalse();
+=======
+    adminSshSession.assertSuccess();
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
     assertNoError(response);
     gcAssert.assertHasPackFile(allProjects, project, project2, project3);
   }
@@ -74,7 +85,7 @@ public class GarbageCollectionIT extends AbstractDaemonTest {
   @Test
   public void gcWithoutCapability_Error() throws Exception {
     userSshSession.exec("gerrit gc --all");
-    assertThat(userSshSession.hasError()).isTrue();
+    userSshSession.assertFailure();
     String error = userSshSession.getError();
     assertThat(error).isNotNull();
     assertError("maintain server not permitted", error);

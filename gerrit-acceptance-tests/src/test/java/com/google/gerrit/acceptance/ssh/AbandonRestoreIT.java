@@ -15,7 +15,10 @@
 package com.google.gerrit.acceptance.ssh;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
 import static com.google.common.truth.Truth.assertWithMessage;
+=======
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
 
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
@@ -62,7 +65,11 @@ public class AbandonRestoreIT extends AbstractDaemonTest {
       command.append(" --message ").append(message);
     }
     String response = adminSshSession.exec(command.toString());
+<<<<<<< HEAD   (eb9e9c Move: Fix NPE when label doesn't exist in target branch)
     assertWithMessage(adminSshSession.getError()).that(adminSshSession.hasError()).isFalse();
+=======
+    adminSshSession.assertSuccess();
+>>>>>>> BRANCH (ccaf58 AbstractIndexTests: Add --wide option to show-queue command )
     assertThat(response.toLowerCase(Locale.US)).doesNotContain("error");
   }
 
