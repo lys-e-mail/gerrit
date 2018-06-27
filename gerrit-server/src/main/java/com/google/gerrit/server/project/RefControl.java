@@ -286,8 +286,13 @@ public class RefControl {
   }
 
   /** @return true if this user can delete their own changes. */
+<<<<<<< HEAD   (bb27c3 Merge branch 'stable-2.14' into stable-2.15)
   boolean canDeleteOwnChanges() {
     return canPerform(Permission.DELETE_OWN_CHANGES);
+=======
+  public boolean canDeleteOwnChanges(boolean isChangeOwner) {
+    return canPerform(Permission.DELETE_OWN_CHANGES, isChangeOwner);
+>>>>>>> BRANCH (801bc2 Allow to assign "Delete Own Changes" permission to Change Ow)
   }
 
   /** @return true if this user can edit topic names. */

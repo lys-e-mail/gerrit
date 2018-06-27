@@ -156,8 +156,12 @@ class ChangeControl {
     switch (status) {
       case NEW:
       case ABANDONED:
+<<<<<<< HEAD   (bb27c3 Merge branch 'stable-2.14' into stable-2.15)
         return (isOwner() && getRefControl().canDeleteOwnChanges())
             || getProjectControl().isAdmin();
+=======
+        return (isAdmin() || (isOwner() && getRefControl().canDeleteOwnChanges(isOwner())));
+>>>>>>> BRANCH (801bc2 Allow to assign "Delete Own Changes" permission to Change Ow)
       case MERGED:
       default:
         return false;

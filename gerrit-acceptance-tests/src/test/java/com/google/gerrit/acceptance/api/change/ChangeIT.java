@@ -950,9 +950,24 @@ public class ChangeIT extends AbstractDaemonTest {
 
   @Test
   @TestProjectInput(cloneAs = "user")
+<<<<<<< HEAD   (bb27c3 Merge branch 'stable-2.14' into stable-2.15)
   public void deleteChangeAsUserWithDeleteOwnChangesPermission() throws Exception {
     allow("refs/*", Permission.DELETE_OWN_CHANGES, REGISTERED_USERS);
+=======
+  public void deleteChangeAsUserWithDeleteOwnChangesPermissionForGroup() throws Exception {
+    allow(Permission.DELETE_OWN_CHANGES, REGISTERED_USERS, "refs/*");
+    deleteChangeAsUser();
+  }
+>>>>>>> BRANCH (801bc2 Allow to assign "Delete Own Changes" permission to Change Ow)
 
+  @Test
+  @TestProjectInput(cloneAs = "user")
+  public void deleteChangeAsUserWithDeleteOwnChangesPermissionForOwners() throws Exception {
+    allow(Permission.DELETE_OWN_CHANGES, CHANGE_OWNER, "refs/*");
+    deleteChangeAsUser();
+  }
+
+  private void deleteChangeAsUser() throws Exception {
     try {
       PushOneCommit.Result changeResult =
           pushFactory.create(db, user.getIdent(), testRepo).to("refs/for/master");
