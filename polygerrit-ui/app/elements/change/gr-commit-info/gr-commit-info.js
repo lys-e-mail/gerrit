@@ -51,8 +51,36 @@
     },
 
     _computeWebLink(change, commitInfo, serverConfig) {
+<<<<<<< HEAD   (461dc3 Merge "Mark RestApiModule#view as private")
       const {url} = this._getWeblink(change, commitInfo, serverConfig) || {};
       return url;
+=======
+      if (!this._computeShowWebLink(change, commitInfo, serverConfig)) {
+        return;
+      }
+
+      if (serverConfig.gitweb && serverConfig.gitweb.url &&
+          serverConfig.gitweb.type && serverConfig.gitweb.type.revision) {
+        return serverConfig.gitweb.url +
+            serverConfig.gitweb.type.revision
+                .replace('${project}', change.project)
+                .replace('${commit}', commitInfo.commit);
+      }
+
+      let webLink = null;
+      for (const link of commitInfo.web_links) {
+        if (this._isWebLink(link)) {
+          webLink = link.url;
+          break;
+        }
+      }
+
+      if (!webLink) {
+        return;
+      }
+
+      return webLink;
+>>>>>>> BRANCH (29e9ca Merge "Assume correct relative or absolute URL from Weblink )
     },
 
     _computeShortHash(commitInfo) {
