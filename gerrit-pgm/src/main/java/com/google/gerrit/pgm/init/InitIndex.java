@@ -15,8 +15,11 @@
 package com.google.gerrit.pgm.init;
 
 import com.google.common.collect.Iterables;
+<<<<<<< HEAD   (a236eb Merge branch 'stable-2.14' into stable-2.15)
 import com.google.common.collect.Sets;
 import com.google.gerrit.index.SchemaDefinitions;
+=======
+>>>>>>> BRANCH (ba1f8b ElasticTestUtils: Set index.maxLimit as integer rather than )
 import com.google.gerrit.pgm.init.api.ConsoleUI;
 import com.google.gerrit.pgm.init.api.InitFlags;
 import com.google.gerrit.pgm.init.api.InitStep;
@@ -63,13 +66,7 @@ class InitIndex implements InitStep {
     if (type == IndexType.ELASTICSEARCH) {
       Section elasticsearch = sections.get("elasticsearch", null);
       elasticsearch.string("Index Prefix", "prefix", "gerrit_");
-      String name = ui.readString("default", "Server Name");
-
-      Section defaultServer = sections.get("elasticsearch", name);
-      defaultServer.select(
-          "Transport protocol", "protocol", "http", Sets.newHashSet("http", "https"));
-      defaultServer.string("Hostname", "hostname", "localhost");
-      defaultServer.string("Port", "port", "9200");
+      elasticsearch.string("Server", "server", "http://localhost:9200");
       index.string("Result window size", "maxLimit", "10000");
     }
 
