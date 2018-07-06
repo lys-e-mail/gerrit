@@ -44,6 +44,7 @@ import static com.google.gerrit.reviewdb.server.ReviewDbUtil.unwrapDb;
 import static com.google.gerrit.server.StarredChangesUtil.DEFAULT_LABEL;
 import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
 import static com.google.gerrit.server.group.SystemGroupBackend.CHANGE_OWNER;
+import static com.google.gerrit.server.group.SystemGroupBackend.PROJECT_OWNERS;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static com.google.gerrit.server.project.Util.category;
 import static com.google.gerrit.server.project.Util.value;
@@ -88,7 +89,12 @@ import com.google.gerrit.extensions.api.changes.RevisionApi;
 import com.google.gerrit.extensions.api.changes.StarsInput;
 import com.google.gerrit.extensions.api.groups.GroupApi;
 import com.google.gerrit.extensions.api.projects.BranchInput;
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.extensions.api.projects.ConfigInput;
+=======
+import com.google.gerrit.extensions.api.projects.ProjectApi;
+import com.google.gerrit.extensions.api.projects.ProjectInput;
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
 import com.google.gerrit.extensions.client.ChangeKind;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.Comment.Range;
@@ -927,12 +933,7 @@ public class ChangeIT extends AbstractDaemonTest {
 
   @Test
   public void deleteNewChangeAsAdmin() throws Exception {
-    PushOneCommit.Result changeResult = createChange();
-    String changeId = changeResult.getChangeId();
-
-    gApi.changes().id(changeId).delete();
-
-    assertThat(query(changeId)).isEmpty();
+    deleteChangeAsUser(admin, admin);
   }
 
   @Test
@@ -949,19 +950,47 @@ public class ChangeIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
   @TestProjectInput(cloneAs = "user")
   public void deleteChangeAsUserWithDeleteOwnChangesPermissionForGroup() throws Exception {
     allow("refs/*", Permission.DELETE_OWN_CHANGES, REGISTERED_USERS);
     deleteChangeAsUser();
+=======
+  public void deleteNewChangeAsUserWithDeleteChangesPermissionForGroup() throws Exception {
+    allow(Permission.DELETE_CHANGES, REGISTERED_USERS, "refs/*");
+    deleteChangeAsUser(admin, user);
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
   }
 
   @Test
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
   @TestProjectInput(cloneAs = "user")
   public void deleteChangeAsUserWithDeleteOwnChangesPermissionForOwners() throws Exception {
     allow("refs/*", Permission.DELETE_OWN_CHANGES, CHANGE_OWNER);
     deleteChangeAsUser();
+=======
+  public void deleteNewChangeAsUserWithDeleteChangesPermissionForProjectOwners() throws Exception {
+    GroupApi groupApi = gApi.groups().create(name("delete-change"));
+    groupApi.addMembers("user");
+
+    ProjectInput in = new ProjectInput();
+    in.name = name("delete-change");
+    in.owners = Lists.newArrayListWithCapacity(1);
+    in.owners.add(groupApi.name());
+    in.createEmptyCommit = true;
+    ProjectApi api = gApi.projects().create(in);
+
+    Project.NameKey nameKey = new Project.NameKey(api.get().name);
+
+    ProjectConfig cfg = projectCache.checkedGet(nameKey).getConfig();
+    Util.allow(cfg, Permission.DELETE_CHANGES, PROJECT_OWNERS, "refs/*");
+    saveProjectConfig(nameKey, cfg);
+
+    deleteChangeAsUser(nameKey, admin, user);
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
   }
 
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
   private void deleteChangeAsUser() throws Exception {
     try {
       PushOneCommit.Result changeResult =
@@ -969,8 +998,37 @@ public class ChangeIT extends AbstractDaemonTest {
       String changeId = changeResult.getChangeId();
       int id = changeResult.getChange().getId().id;
       RevCommit commit = changeResult.getCommit();
+=======
+  @Test
+  public void deleteChangeAsUserWithDeleteOwnChangesPermissionForGroup() throws Exception {
+    allow(Permission.DELETE_OWN_CHANGES, REGISTERED_USERS, "refs/*");
+    deleteChangeAsUser(user, user);
+  }
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
 
-      setApiUser(user);
+  @Test
+  public void deleteChangeAsUserWithDeleteOwnChangesPermissionForOwners() throws Exception {
+    allow(Permission.DELETE_OWN_CHANGES, CHANGE_OWNER, "refs/*");
+    deleteChangeAsUser(user, user);
+  }
+
+  private void deleteChangeAsUser(TestAccount owner, TestAccount deleteAs) throws Exception {
+    deleteChangeAsUser(project, owner, deleteAs);
+  }
+
+  private void deleteChangeAsUser(
+      Project.NameKey projectName, TestAccount owner, TestAccount deleteAs) throws Exception {
+    try {
+      setApiUser(owner);
+      ChangeInput in = new ChangeInput();
+      in.project = projectName.get();
+      in.branch = "refs/heads/master";
+      in.subject = "test";
+      String changeId = gApi.changes().create(in).get().changeId;
+
+      assertThat(gApi.changes().id(changeId).info().owner._accountId).isEqualTo(owner.id.get());
+
+      setApiUser(deleteAs);
       gApi.changes().id(changeId).delete();
 
       assertThat(query(changeId)).isEmpty();
@@ -978,22 +1036,18 @@ public class ChangeIT extends AbstractDaemonTest {
       String ref = new Change.Id(id).toRefPrefix() + "1";
       eventRecorder.assertRefUpdatedEvents(project.get(), ref, null, commit, commit, null);
     } finally {
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
       removePermission(project, "refs/*", Permission.DELETE_OWN_CHANGES);
+=======
+      removePermission(Permission.DELETE_OWN_CHANGES, project, "refs/*");
+      removePermission(Permission.DELETE_CHANGES, project, "refs/*");
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
     }
   }
 
   @Test
-  @TestProjectInput(cloneAs = "user")
   public void deleteNewChangeOfAnotherUserAsAdmin() throws Exception {
-    PushOneCommit.Result changeResult =
-        pushFactory.create(db, user.getIdent(), testRepo).to("refs/for/master");
-    changeResult.assertOkStatus();
-    String changeId = changeResult.getChangeId();
-
-    setApiUser(admin);
-    gApi.changes().id(changeId).delete();
-
-    assertThat(query(changeId)).isEmpty();
+    deleteChangeAsUser(user, admin);
   }
 
   @Test

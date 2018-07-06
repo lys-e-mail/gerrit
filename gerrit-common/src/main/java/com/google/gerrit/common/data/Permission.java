@@ -27,6 +27,11 @@ public class Permission implements Comparable<Permission> {
   public static final String DELETE = "delete";
   public static final String CREATE_TAG = "createTag";
   public static final String CREATE_SIGNED_TAG = "createSignedTag";
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
+=======
+  public static final String DELETE_CHANGES = "deleteChanges";
+  public static final String DELETE_DRAFTS = "deleteDrafts";
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
   public static final String DELETE_OWN_CHANGES = "deleteOwnChanges";
   public static final String EDIT_HASHTAGS = "editHashtags";
   public static final String EDIT_ASSIGNEE = "editAssignee";
@@ -76,6 +81,11 @@ public class Permission implements Comparable<Permission> {
     NAMES_LC.add(EDIT_HASHTAGS.toLowerCase());
     NAMES_LC.add(EDIT_ASSIGNEE.toLowerCase());
     NAMES_LC.add(DELETE_OWN_CHANGES.toLowerCase());
+<<<<<<< HEAD   (28ab32 Merge branch 'stable-2.14' into stable-2.15)
+=======
+    NAMES_LC.add(DELETE_CHANGES.toLowerCase());
+    NAMES_LC.add(PUBLISH_DRAFTS.toLowerCase());
+>>>>>>> BRANCH (42488f Add new "Delete Changes" permission)
 
     LABEL_INDEX = NAMES_LC.indexOf(Permission.LABEL);
     LABEL_AS_INDEX = NAMES_LC.indexOf(Permission.LABEL_AS.toLowerCase());
