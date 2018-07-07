@@ -45,7 +45,11 @@ public class ChangeUtil {
       Ordering.from(comparingInt(PatchSet::getPatchSetId));
 
   public static String formatChangeUrl(String canonicalWebUrl, Change change) {
+<<<<<<< HEAD   (1d80d2 ElasticReindexIT: tag broken test as flaky -for CI)
     return canonicalWebUrl + "#/c/" + change.getProject().get() + "/+/" + change.getChangeId();
+=======
+    return canonicalWebUrl + change.getChangeId();
+>>>>>>> BRANCH (38a27c Add documentation for the change report formatter interface)
   }
 
   /** @return a new unique identifier for change message entities. */

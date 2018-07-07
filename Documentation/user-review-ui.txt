@@ -260,7 +260,14 @@ and if the user is the change owner and is granted the
 link:access-control.html#category_delete_own_changes[Delete Own Changes]
 permission, if they are granted the
 link:access-control.html#category_delete_changes[Delete Changes] permission,
+<<<<<<< HEAD   (1d80d2 ElasticReindexIT: tag broken test as flaky -for CI)
 or if they are an administrator.
+=======
+or if they are an administrator. For draft changes,
+the `Delete Change` / `Delete Revision` buttons will be available if the user is
+the change owner or has the
+link:access-control.html#category_delete_drafts[Delete Drafts] access right assigned.
+>>>>>>> BRANCH (38a27c Add documentation for the change report formatter interface)
 
 ** [[plugin-actions]]Further actions may be available if plugins are installed.
 

@@ -27,6 +27,7 @@ public interface ChangeReportFormatter {
     public abstract String subject();
 
     @Nullable
+<<<<<<< HEAD   (1d80d2 ElasticReindexIT: tag broken test as flaky -for CI)
     public abstract Boolean isEdit();
 
     @Nullable
@@ -70,6 +71,42 @@ public interface ChangeReportFormatter {
         setIsPrivate(isPrivate() == null ? change().isPrivate() : isPrivate());
         setIsWorkInProgress(
             isWorkInProgress() == null ? change().isWorkInProgress() : isWorkInProgress());
+=======
+    public abstract Boolean isDraft();
+
+    @Nullable
+    public abstract Boolean isEdit();
+
+    public static Builder builder() {
+      return new AutoValue_ChangeReportFormatter_Input.Builder();
+    }
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+      public abstract Builder setChange(Change val);
+
+      public abstract Builder setSubject(String val);
+
+      public abstract Builder setIsDraft(Boolean val);
+
+      public abstract Builder setIsEdit(Boolean val);
+
+      abstract Change change();
+
+      abstract String subject();
+
+      abstract Boolean isDraft();
+
+      abstract Boolean isEdit();
+
+      abstract Input autoBuild();
+
+      public Input build() {
+        setChange(change());
+        setSubject(subject() == null ? change().getSubject() : subject());
+        setIsDraft(isDraft() == null ? Change.Status.DRAFT == change().getStatus() : isDraft());
+        setIsEdit(isEdit() == null ? false : isEdit());
+>>>>>>> BRANCH (38a27c Add documentation for the change report formatter interface)
         return autoBuild();
       }
     }

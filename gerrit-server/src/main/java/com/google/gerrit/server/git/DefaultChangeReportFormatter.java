@@ -49,6 +49,7 @@ public class DefaultChangeReportFormatter implements ChangeReportFormatter {
             .append(ChangeUtil.formatChangeUrl(url, input.change()))
             .append(" ")
             .append(ChangeUtil.cropSubject(input.subject()));
+<<<<<<< HEAD   (1d80d2 ElasticReindexIT: tag broken test as flaky -for CI)
     if (input.isEdit()) {
       m.append(" [EDIT]");
     }
@@ -57,6 +58,13 @@ public class DefaultChangeReportFormatter implements ChangeReportFormatter {
     }
     if (input.isWorkInProgress()) {
       m.append(" [WIP]");
+=======
+    if (input.isDraft()) {
+      m.append(" [DRAFT]");
+    }
+    if (input.isEdit()) {
+      m.append(" [EDIT]");
+>>>>>>> BRANCH (38a27c Add documentation for the change report formatter interface)
     }
     return m.toString();
   }
