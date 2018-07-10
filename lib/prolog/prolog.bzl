@@ -13,6 +13,7 @@
 # limitations under the License.
 
 def prolog_cafe_library(
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
     name,
     srcs,
     deps = [],
@@ -32,3 +33,24 @@ def prolog_cafe_library(
     deps = ['//lib/prolog:runtime-neverlink'] + deps,
     **kwargs
   )
+=======
+        name,
+        srcs,
+        deps = [],
+        **kwargs):
+    genrule2(
+        name = name + "__pl2j",
+        cmd = "$(location //lib/prolog:compiler-bin) " +
+              "$$(dirname $@) $@ " +
+              "$(SRCS)",
+        srcs = srcs,
+        tools = ["//lib/prolog:compiler-bin"],
+        outs = [name + ".srcjar"],
+    )
+    native.java_library(
+        name = name,
+        srcs = [":" + name + "__pl2j"],
+        deps = ["//lib/prolog:runtime-neverlink"] + deps,
+        **kwargs
+    )
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)

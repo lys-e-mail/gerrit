@@ -1,4 +1,5 @@
 def documentation_attributes():
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
   return [
     "toc2",
     'newline="\\n"',
@@ -16,23 +17,43 @@ def documentation_attributes():
     # Just a placeholder, will be filled in asciidoctor java binary:
     "revnumber=%s",
   ]
+=======
+    return [
+        "toc",
+        'newline="\\n"',
+        'asterisk="&#42;"',
+        'plus="&#43;"',
+        'caret="&#94;"',
+        'startsb="&#91;"',
+        'endsb="&#93;"',
+        'tilde="&#126;"',
+        "last-update-label!",
+        "source-highlighter=prettify",
+        "stylesheet=DEFAULT",
+        "linkcss=true",
+        "prettifydir=.",
+        # Just a placeholder, will be filled in asciidoctor java binary:
+        "revnumber=%s",
+    ]
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)
 
 def release_notes_attributes():
-  return [
-    'toc',
-    'newline="\\n"',
-    'asterisk="&#42;"',
-    'plus="&#43;"',
-    'caret="&#94;"',
-    'startsb="&#91;"',
-    'endsb="&#93;"',
-    'tilde="&#126;"',
-    'last-update-label!',
-    'stylesheet=DEFAULT',
-    'linkcss=true',
-  ]
+    return [
+        "toc",
+        'newline="\\n"',
+        'asterisk="&#42;"',
+        'plus="&#43;"',
+        'caret="&#94;"',
+        'startsb="&#91;"',
+        'endsb="&#93;"',
+        'tilde="&#126;"',
+        "last-update-label!",
+        "stylesheet=DEFAULT",
+        "linkcss=true",
+    ]
 
 def _replace_macros_impl(ctx):
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
   cmd = [
     ctx.file._exe.path,
     '--suffix', ctx.attr.suffix,
@@ -50,6 +71,28 @@ def _replace_macros_impl(ctx):
     use_default_shell_env = True,
     progress_message = "Replacing macros in %s" % ctx.file.src.short_path,
   )
+=======
+    cmd = [
+        ctx.file._exe.path,
+        "--suffix",
+        ctx.attr.suffix,
+        "-s",
+        ctx.file.src.path,
+        "-o",
+        ctx.outputs.out.path,
+    ]
+    if ctx.attr.searchbox:
+        cmd.append("--searchbox")
+    else:
+        cmd.append("--no-searchbox")
+    ctx.action(
+        inputs = [ctx.file._exe, ctx.file.src],
+        outputs = [ctx.outputs.out],
+        command = cmd,
+        use_default_shell_env = True,
+        progress_message = "Replacing macros in %s" % ctx.file.src.short_path,
+    )
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)
 
 _replace_macros = rule(
     attrs = {
@@ -69,39 +112,41 @@ _replace_macros = rule(
 )
 
 def _generate_asciidoc_args(ctx):
-  args = []
-  if ctx.attr.backend:
-    args.extend(["-b", ctx.attr.backend])
-  revnumber = False
-  for attribute in ctx.attr.attributes:
-    if attribute.startswith("revnumber="):
-      revnumber = True
-    else:
-      args.extend(["-a", attribute])
-  if revnumber:
-    args.extend([
-      "--revnumber-file", ctx.file.version.path,
-    ])
-  for src in ctx.files.srcs:
-    args.append(src.path)
-  return args
+    args = []
+    if ctx.attr.backend:
+        args.extend(["-b", ctx.attr.backend])
+    revnumber = False
+    for attribute in ctx.attr.attributes:
+        if attribute.startswith("revnumber="):
+            revnumber = True
+        else:
+            args.extend(["-a", attribute])
+    if revnumber:
+        args.extend([
+            "--revnumber-file",
+            ctx.file.version.path,
+        ])
+    for src in ctx.files.srcs:
+        args.append(src.path)
+    return args
 
 def _invoke_replace_macros(name, src, suffix, searchbox):
-  fn = src
-  if fn.startswith(":"):
-    fn = src[1:]
+    fn = src
+    if fn.startswith(":"):
+        fn = src[1:]
 
-  _replace_macros(
-    name = "macros_%s_%s" % (name, fn),
-    src = src,
-    out = fn + suffix,
-    suffix = suffix,
-    searchbox = searchbox,
-  )
+    _replace_macros(
+        name = "macros_%s_%s" % (name, fn),
+        src = src,
+        out = fn + suffix,
+        suffix = suffix,
+        searchbox = searchbox,
+    )
 
-  return ":" + fn + suffix, fn.replace(".txt", ".html")
+    return ":" + fn + suffix, fn.replace(".txt", ".html")
 
 def _asciidoc_impl(ctx):
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
   args = [
     "--bazel",
     "--in-ext", ".txt" + ctx.attr.suffix,
@@ -115,6 +160,23 @@ def _asciidoc_impl(ctx):
     arguments = args,
     progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,
   )
+=======
+    args = [
+        "--bazel",
+        "--in-ext",
+        ".txt" + ctx.attr.suffix,
+        "--out-ext",
+        ".html",
+    ]
+    args.extend(_generate_asciidoc_args(ctx))
+    ctx.action(
+        inputs = ctx.files.srcs + [ctx.executable._exe, ctx.file.version],
+        outputs = ctx.outputs.outs,
+        executable = ctx.executable._exe,
+        arguments = args,
+        progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,
+    )
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)
 
 _asciidoc_attrs = {
     "_exe": attr.label(
@@ -144,67 +206,68 @@ _asciidoc = rule(
 )
 
 def _genasciidoc_htmlonly(
-    name,
-    srcs = [],
-    attributes = [],
-    backend = None,
-    searchbox = True,
-    **kwargs):
-  SUFFIX = "." + name + "_macros"
-  new_srcs = []
-  outs = ["asciidoctor.css"]
+        name,
+        srcs = [],
+        attributes = [],
+        backend = None,
+        searchbox = True,
+        **kwargs):
+    SUFFIX = "." + name + "_macros"
+    new_srcs = []
+    outs = ["asciidoctor.css"]
 
-  for src in srcs:
-    new_src, html_name = _invoke_replace_macros(name, src, SUFFIX, searchbox)
-    new_srcs.append(new_src)
-    outs.append(html_name)
+    for src in srcs:
+        new_src, html_name = _invoke_replace_macros(name, src, SUFFIX, searchbox)
+        new_srcs.append(new_src)
+        outs.append(html_name)
 
-  _asciidoc(
-    name = name + "_gen",
-    srcs = new_srcs,
-    suffix = SUFFIX,
-    backend = backend,
-    attributes = attributes,
-    outs = outs,
-  )
-
-  native.filegroup(
-    name = name,
-    data = outs,
-    **kwargs
-  )
-
-def genasciidoc(
-    name,
-    srcs = [],
-    attributes = [],
-    backend = None,
-    searchbox = True,
-    resources = True,
-    **kwargs):
-  SUFFIX = "_htmlonly"
-
-  _genasciidoc_htmlonly(
-    name = name + SUFFIX if resources else name,
-    srcs = srcs,
-    attributes = attributes,
-    backend = backend,
-    searchbox = searchbox,
-    **kwargs
-  )
-
-  if resources:
-    htmlonly = ":" + name + SUFFIX
-    native.filegroup(
-      name = name,
-      srcs = [
-        htmlonly,
-        "//Documentation:resources",
-      ],
-      **kwargs
+    _asciidoc(
+        name = name + "_gen",
+        srcs = new_srcs,
+        suffix = SUFFIX,
+        backend = backend,
+        attributes = attributes,
+        outs = outs,
     )
 
+    native.filegroup(
+        name = name,
+        data = outs,
+        **kwargs
+    )
+
+def genasciidoc(
+        name,
+        srcs = [],
+        attributes = [],
+        backend = None,
+        searchbox = True,
+        resources = True,
+        **kwargs):
+    SUFFIX = "_htmlonly"
+
+    _genasciidoc_htmlonly(
+        name = name + SUFFIX if resources else name,
+        srcs = srcs,
+        attributes = attributes,
+        backend = backend,
+        searchbox = searchbox,
+        **kwargs
+    )
+
+    if resources:
+        htmlonly = ":" + name + SUFFIX
+        native.filegroup(
+            name = name,
+            srcs = [
+                htmlonly,
+                "//Documentation:resources",
+            ],
+            **kwargs
+        )
+
 def _asciidoc_html_zip_impl(ctx):
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
   args = [
     "--mktmp",
     "-z", ctx.outputs.out.path,
@@ -219,6 +282,25 @@ def _asciidoc_html_zip_impl(ctx):
     arguments = args,
     progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,
   )
+=======
+    args = [
+        "--mktmp",
+        "-z",
+        ctx.outputs.out.path,
+        "--in-ext",
+        ".txt" + ctx.attr.suffix,
+        "--out-ext",
+        ".html",
+    ]
+    args.extend(_generate_asciidoc_args(ctx))
+    ctx.action(
+        inputs = ctx.files.srcs + [ctx.executable._exe, ctx.file.version],
+        outputs = [ctx.outputs.out],
+        executable = ctx.executable._exe,
+        arguments = args,
+        progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,
+    )
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)
 
 _asciidoc_html_zip = rule(
     attrs = _asciidoc_attrs,
@@ -229,28 +311,29 @@ _asciidoc_html_zip = rule(
 )
 
 def _genasciidoc_htmlonly_zip(
-    name,
-    srcs = [],
-    attributes = [],
-    backend = None,
-    searchbox = True,
-    **kwargs):
-  SUFFIX = "." + name + "_expn"
-  new_srcs = []
+        name,
+        srcs = [],
+        attributes = [],
+        backend = None,
+        searchbox = True,
+        **kwargs):
+    SUFFIX = "." + name + "_expn"
+    new_srcs = []
 
-  for src in srcs:
-    new_src, _ = _invoke_replace_macros(name, src, SUFFIX, searchbox)
-    new_srcs.append(new_src)
+    for src in srcs:
+        new_src, _ = _invoke_replace_macros(name, src, SUFFIX, searchbox)
+        new_srcs.append(new_src)
 
-  _asciidoc_html_zip(
-    name = name,
-    srcs = new_srcs,
-    suffix = SUFFIX,
-    backend = backend,
-    attributes = attributes,
-  )
+    _asciidoc_html_zip(
+        name = name,
+        srcs = new_srcs,
+        suffix = SUFFIX,
+        backend = backend,
+        attributes = attributes,
+    )
 
 def _asciidoc_zip_impl(ctx):
+<<<<<<< HEAD   (256c08 Merge "Expose commons-compress in plugin API" into stable-2.)
   tmpdir = ctx.outputs.out.path + "_tmpdir"
   cmd = [
     "p=$PWD",
@@ -276,6 +359,34 @@ def _asciidoc_zip_impl(ctx):
     progress_message =
         "Generating asciidoctor zip file %s" % ctx.outputs.out.short_path,
   )
+=======
+    tmpdir = ctx.outputs.out.path + "_tmpdir"
+    cmd = [
+        "p=$PWD",
+        "rm -rf %s" % tmpdir,
+        "mkdir -p %s/%s/" % (tmpdir, ctx.attr.directory),
+        "unzip -q %s -d %s/%s/" % (ctx.file.src.path, tmpdir, ctx.attr.directory),
+    ]
+    for r in ctx.files.resources:
+        if r.path == r.short_path:
+            cmd.append("tar -cf- %s | tar -C %s -xf-" % (r.short_path, tmpdir))
+        else:
+            parent = r.path[:-len(r.short_path)]
+            cmd.append(
+                "tar -C %s -cf- %s | tar -C %s -xf-" % (parent, r.short_path, tmpdir),
+            )
+    cmd.extend([
+        "cd %s" % tmpdir,
+        "zip -qr $p/%s *" % ctx.outputs.out.path,
+    ])
+    ctx.action(
+        inputs = [ctx.file.src] + ctx.files.resources,
+        outputs = [ctx.outputs.out],
+        command = " && ".join(cmd),
+        progress_message =
+            "Generating asciidoctor zip file %s" % ctx.outputs.out.short_path,
+    )
+>>>>>>> BRANCH (b6a404 Apply buildifier to .bzl files.)
 
 _asciidoc_zip = rule(
     attrs = {
@@ -296,30 +407,30 @@ _asciidoc_zip = rule(
 )
 
 def genasciidoc_zip(
-    name,
-    srcs = [],
-    attributes = [],
-    directory = None,
-    backend = None,
-    searchbox = True,
-    resources = True,
-    **kwargs):
-  SUFFIX = "_htmlonly"
+        name,
+        srcs = [],
+        attributes = [],
+        directory = None,
+        backend = None,
+        searchbox = True,
+        resources = True,
+        **kwargs):
+    SUFFIX = "_htmlonly"
 
-  _genasciidoc_htmlonly_zip(
-    name = name + SUFFIX if resources else name,
-    srcs = srcs,
-    attributes = attributes,
-    backend = backend,
-    searchbox = searchbox,
-    **kwargs
-  )
-
-  if resources:
-    htmlonly = ":" + name + SUFFIX
-    _asciidoc_zip(
-      name = name,
-      src = htmlonly,
-      resources = ["//Documentation:resources"],
-      directory = directory,
+    _genasciidoc_htmlonly_zip(
+        name = name + SUFFIX if resources else name,
+        srcs = srcs,
+        attributes = attributes,
+        backend = backend,
+        searchbox = searchbox,
+        **kwargs
     )
+
+    if resources:
+        htmlonly = ":" + name + SUFFIX
+        _asciidoc_zip(
+            name = name,
+            src = htmlonly,
+            resources = ["//Documentation:resources"],
+            directory = directory,
+        )
