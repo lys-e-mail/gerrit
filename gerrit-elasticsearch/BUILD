@@ -37,10 +37,12 @@ java_library(
     visibility = ["//visibility:public"],
     deps = [
         ":elasticsearch",
+<<<<<<< HEAD   (5a2501 Add missing elasticsearch dependency in pgm tests)
         "//gerrit-index:index",
         "//gerrit-reviewdb:server",
+=======
+>>>>>>> BRANCH (668795 Elasticsearch: remove unnecessary test build deps)
         "//gerrit-server:server",
-        "//lib:gson",
         "//lib:truth",
         "//lib/guice",
         "//lib/httpcomponents:httpcore",
@@ -61,13 +63,9 @@ junit_tests(
         ":elasticsearch",
         ":elasticsearch_test_utils",
         "//gerrit-server:query_tests_code",
-        "//gerrit-server:server",
         "//gerrit-server:testutil",
         "//lib:truth",
         "//lib/guice",
-        "//lib/httpcomponents:httpcore",
         "//lib/jgit/org.eclipse.jgit:jgit",
-        "//lib/jgit/org.eclipse.jgit.junit:junit",
-        "//lib/testcontainers",
     ],
 )
