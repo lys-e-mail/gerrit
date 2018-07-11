@@ -19,7 +19,11 @@ acceptance_tests(
     labels = [
         "docker",
         "elastic",
+<<<<<<< HEAD   (8b3324 Merge branch 'stable-2.14' into stable-2.15)
         "flaky",
+=======
+        "exclusive",
+>>>>>>> BRANCH (b241d1 Elasticsearch: run no other test at the same time)
         "pgm",
     ],
     deps = [
