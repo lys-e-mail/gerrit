@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (5913f1 Merge changes Ibf537436,I67b144eb into stable-2.15)
   <version>2.15.2</version>
+=======
+  <version>2.14.11-SNAPSHOT</version>
+>>>>>>> BRANCH (c3d8c9 Set version to 2.14.11-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
