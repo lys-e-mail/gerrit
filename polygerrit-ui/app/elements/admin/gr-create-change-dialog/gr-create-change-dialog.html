@@ -116,8 +116,20 @@ limitations under the License.
             <input
                 type="checkbox"
                 id="privateChangeCheckBox"
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
                 checked$="[[_formatBooleanString(privateByDefault)]]">
           </span>
+=======
+                checked$="[[_projectConfig.private_by_default.inherited_value]]">
+          </section>
+          <section>
+            <label for="wipChangeCheckBox">WIP Change</label>
+            <input
+                type="checkbox"
+                id="wipChangeCheckBox"
+                checked$="[[_projectConfig.work_in_progress_by_default.inherited_value]]">
+          </section>
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
         </section>
       </div>
     </div>
