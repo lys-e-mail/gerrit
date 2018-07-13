@@ -235,8 +235,13 @@ DIFF_MATCH_PATCH_TOP = ("META-INF/resources/webjars/google-diff-match-patch/%s" 
 
 def pkg_cm():
     for archive, suffix, top, license in [
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         ("@codemirror-original-gwt//jar", "", TOP, LICENSE),
         ("@codemirror-minified-gwt//jar", "_r", TOP_MINIFIED, LICENSE_MINIFIED),
+=======
+        ("@codemirror-original//jar", "", TOP, LICENSE),
+        ("@codemirror-minified//jar", "_r", TOP_MINIFIED, LICENSE_MINIFIED),
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     ]:
         # Main JavaScript and addons
         genrule2(
