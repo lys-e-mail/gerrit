@@ -223,6 +223,7 @@ def define_bower_components():
         deps = [
             ":iron-flex-layout",
             ":paper-behaviors",
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
             ":paper-styles",
             ":polymer",
         ],
@@ -318,6 +319,74 @@ def define_bower_components():
             ":polymer",
         ],
         seed = True,
+=======
+            ":paper-material",
+            ":paper-ripple",
+            ":polymer",
+        ],
+        seed = True,
+    )
+    bower_component(
+        name = "paper-input",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":iron-a11y-keys-behavior",
+            ":iron-autogrow-textarea",
+            ":iron-behaviors",
+            ":iron-form-element-behavior",
+            ":iron-input",
+            ":paper-styles",
+            ":polymer",
+        ],
+        seed = True,
+    )
+    bower_component(
+        name = "paper-item",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":iron-behaviors",
+            ":iron-flex-layout",
+            ":paper-styles",
+            ":polymer",
+        ],
+        seed = True,
+    )
+    bower_component(
+        name = "paper-listbox",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":iron-behaviors",
+            ":iron-menu-behavior",
+            ":paper-styles",
+            ":polymer",
+        ],
+        seed = True,
+    )
+    bower_component(
+        name = "paper-material",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":paper-styles",
+            ":polymer",
+        ],
+    )
+    bower_component(
+        name = "paper-ripple",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":iron-a11y-keys-behavior",
+            ":polymer",
+        ],
+    )
+    bower_component(
+        name = "paper-styles",
+        license = "//lib:LICENSE-polymer",
+        deps = [
+            ":font-roboto",
+            ":iron-flex-layout",
+            ":polymer",
+        ],
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     )
     bower_component(
         name = "polymer-resin",
