@@ -160,8 +160,12 @@ def _gwt_binary_impl(ctx):
         gwt_user_agent_modules.append(ua.zip)
         module = ua.module
 
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
     cmd = "%s %s -Dgwt.normalizeTimestamps=true -cp %s %s -war %s -deploy %s " % (
         ctx.attr._jdk[java_common.JavaRuntimeInfo].java_executable_exec_path,
+=======
+    cmd = "external/local_jdk/bin/java %s -Dgwt.normalizeTimestamps=true -cp %s %s -war %s -deploy %s " % (
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
         " ".join(ctx.attr.jvm_args),
         ":".join(paths),
         GWT_COMPILER,
@@ -186,9 +190,14 @@ def _gwt_binary_impl(ctx):
     ])
 
     ctx.actions.run_shell(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         inputs = list(deps) + gwt_user_agent_modules,
         outputs = [output_zip],
         tools = ctx.files._jdk + ctx.files._zip,
+=======
+        inputs = list(deps) + ctx.files._jdk + ctx.files._zip + gwt_user_agent_modules,
+        outputs = [output_zip],
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
         mnemonic = "GwtBinary",
         progress_message = "GWT compiling " + output_zip.short_path,
         command = "set -e\n" + cmd,
@@ -290,7 +299,11 @@ def gen_ui_module(name, suffix = ""):
         deps = [
             "//gerrit-gwtui-common:diffy_logo",
             "//gerrit-gwtui-common:client",
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
             "//java/com/google/gwtexpui/css",
+=======
+            "//gerrit-gwtexpui:CSS",
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
             "//lib/codemirror:codemirror" + suffix,
             "//lib/gwt:user",
         ],

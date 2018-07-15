@@ -16,6 +16,24 @@ def documentation_attributes():
         # Just a placeholder, will be filled in asciidoctor java binary:
         "revnumber=%s",
     ]
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
+=======
+
+def release_notes_attributes():
+    return [
+        "toc",
+        'newline="\\n"',
+        'asterisk="&#42;"',
+        'plus="&#43;"',
+        'caret="&#94;"',
+        'startsb="&#91;"',
+        'endsb="&#93;"',
+        'tilde="&#126;"',
+        "last-update-label!",
+        "stylesheet=DEFAULT",
+        "linkcss=true",
+    ]
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
 
 def _replace_macros_impl(ctx):
     cmd = [
@@ -207,9 +225,14 @@ def _asciidoc_html_zip_impl(ctx):
     ]
     args.extend(_generate_asciidoc_args(ctx))
     ctx.actions.run(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         inputs = ctx.files.srcs + [ctx.file.version],
         outputs = [ctx.outputs.out],
         tools = [ctx.executable._exe],
+=======
+        inputs = ctx.files.srcs + [ctx.executable._exe, ctx.file.version],
+        outputs = [ctx.outputs.out],
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
         executable = ctx.executable._exe,
         arguments = args,
         progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,

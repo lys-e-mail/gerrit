@@ -3,7 +3,10 @@ NPMJS = "NPMJS"
 GERRIT = "GERRIT:"
 
 load("//lib/js:npm.bzl", "NPM_SHA1S", "NPM_VERSIONS")
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+=======
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
 
 def _npm_tarball(name):
     return "%s@%s.npm_binary.tgz" % (name, NPM_VERSIONS[name])
@@ -147,9 +150,15 @@ def _bower_component_impl(ctx):
         transitive_versions += d.transitive_versions
 
     return struct(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         transitive_licenses = transitive_licenses,
         transitive_versions = transitive_versions,
         transitive_zipfiles = transitive_zipfiles,
+=======
+        transitive_zipfiles = transitive_zipfiles,
+        transitive_versions = transitive_versions,
+        transitive_licenses = transitive_licenses,
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     )
 
 _common_attrs = {
@@ -188,9 +197,15 @@ def _js_component(ctx):
         licenses += depset([ctx.file.license])
 
     return struct(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         transitive_licenses = licenses,
         transitive_versions = depset(),
         transitive_zipfiles = list([ctx.outputs.zip]),
+=======
+        transitive_zipfiles = list([ctx.outputs.zip]),
+        transitive_versions = depset(),
+        transitive_licenses = licenses,
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     )
 
 js_component = rule(
@@ -272,9 +287,15 @@ def _bower_component_bundle_impl(ctx):
     )
 
     return struct(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         transitive_licenses = licenses,
         transitive_versions = versions,
         transitive_zipfiles = zips,
+=======
+        transitive_zipfiles = zips,
+        transitive_versions = versions,
+        transitive_licenses = licenses,
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     )
 
 bower_component_bundle = rule(
@@ -297,6 +318,7 @@ Outputs:
 """
 
 def _vulcanize_impl(ctx):
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
     # intermediate artifact if split is wanted.
     if ctx.attr.split:
         vulcanized = ctx.new_file(
@@ -306,6 +328,14 @@ def _vulcanize_impl(ctx):
         )
     else:
         vulcanized = ctx.outputs.html
+=======
+    # intermediate artifact.
+    vulcanized = ctx.new_file(
+        ctx.configuration.genfiles_dir,
+        ctx.outputs.html,
+        ".vulcanized.html",
+    )
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     destdir = ctx.outputs.html.path + ".dir"
     zips = [z for d in ctx.attr.deps for z in d.transitive_zipfiles]
 
@@ -342,8 +372,13 @@ def _vulcanize_impl(ctx):
     # from the environment, and it may be under $HOME, so we can't run
     # in the sandbox.
     node_tweaks = dict(
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         execution_requirements = {"local": "1"},
         use_default_shell_env = True,
+=======
+        use_default_shell_env = True,
+        execution_requirements = {"local": "1"},
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
     )
     ctx.actions.run_shell(
         mnemonic = "Vulcanize",
@@ -357,6 +392,7 @@ def _vulcanize_impl(ctx):
         **node_tweaks
     )
 
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
     if ctx.attr.split:
         hermetic_npm_command = "export PATH && " + " ".join([
             "python",
@@ -370,7 +406,22 @@ def _vulcanize_impl(ctx):
             "--js",
             ctx.outputs.js.path,
         ])
+=======
+    hermetic_npm_command = "export PATH && " + " ".join([
+        "python",
+        ctx.file._run_npm.path,
+        ctx.file._crisper_archive.path,
+        "--always-write-script",
+        "--source",
+        vulcanized.path,
+        "--html",
+        ctx.outputs.html.path,
+        "--js",
+        ctx.outputs.js.path,
+    ])
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
 
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
         ctx.actions.run_shell(
             mnemonic = "Crisper",
             inputs = [
@@ -390,6 +441,20 @@ def _vulcanize_output_func(name, split):
     if split:
         out["js"] = "%{name}.js"
     return out
+=======
+    ctx.actions.run_shell(
+        mnemonic = "Crisper",
+        inputs = [
+            ctx.file._run_npm,
+            ctx.file.app,
+            ctx.file._crisper_archive,
+            vulcanized,
+        ],
+        outputs = [ctx.outputs.js, ctx.outputs.html],
+        command = hermetic_npm_command,
+        **node_tweaks
+    )
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
 
 _vulcanize_rule = rule(
     _vulcanize_impl,
@@ -425,6 +490,7 @@ _vulcanize_rule = rule(
 )
 
 def vulcanize(*args, **kwargs):
+<<<<<<< HEAD   (5f374a DefaultPermissionBackend: Remove unused import)
     """Vulcanize runs vulcanize and (optionally) crisper on a set of sources."""
     _vulcanize_rule(*args, pkg = PACKAGE_NAME, **kwargs)
 
@@ -518,3 +584,7 @@ def polygerrit_plugin(name, app, srcs = [], assets = None, **kwargs):
         name = name,
         srcs = static_files,
     )
+=======
+    """Vulcanize runs vulcanize and crisper on a set of sources."""
+    _vulcanize_rule(*args, pkg = PACKAGE_NAME, **kwargs)
+>>>>>>> BRANCH (958a4a Merge branch 'stable-2.14' into stable-2.15)
