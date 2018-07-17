@@ -45,8 +45,12 @@ def _add_file(in_file, output):
 
     if short_path.startswith("gerrit-"):
         n = short_path.split("/")[0] + "-" + n
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
     elif short_path.startswith("java/"):
         n = short_path[5:].replace("/", "_")
+=======
+
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
     output_path += n
     return [
         "test -L %s || ln -s $(pwd)/%s %s" % (output_path, input_path, output_path),
@@ -150,8 +154,13 @@ def pkg_war(name, ui = "ui_optdbg", context = [], doc = False, **kwargs):
         libs = LIBS + doc_lib,
         pgmlibs = PGMLIBS,
         context = doc_ctx + context + ui_deps + [
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
             "//java:gerrit-main-class_deploy.jar",
             "//webapp:assets",
+=======
+            "//gerrit-main:main_bin_deploy.jar",
+            "//gerrit-war:webapp_assets",
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
         ],
         **kwargs
     )

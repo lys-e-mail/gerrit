@@ -72,10 +72,15 @@
 
     handleCreateChange() {
       const isPrivate = this.$.privateChangeCheckBox.checked;
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
       const isWip = true;
       return this.$.restAPI.createChange(this.repoName, this.branch,
           this.subject, this.topic, isPrivate, isWip, this.baseChange,
           this.baseCommit || null)
+=======
+      return this.$.restAPI.createChange(this.projectName, this.branch,
+          this.subject, this.topic, isPrivate, true)
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
           .then(changeCreated => {
             if (!changeCreated) { return; }
             Gerrit.Nav.navigateToChange(changeCreated);
