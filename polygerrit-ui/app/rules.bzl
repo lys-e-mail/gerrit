@@ -3,6 +3,7 @@ load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_
 load(
     "//tools/bzl:js.bzl",
     "bower_component",
+    "bower_component_bundle",
     "js_component",
     "vulcanize",
 )
@@ -16,7 +17,11 @@ def polygerrit_bundle(name, srcs, outs, app):
         # See: https://github.com/google/closure-compiler/issues/2042
         compilation_level = "WHITESPACE_ONLY",
         defs = [
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
             "--polymer_version=1",
+=======
+            "--polymer_pass",
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
             "--jscomp_off=duplicate",
             "--force_inject_library=es6_runtime",
         ],
@@ -62,14 +67,23 @@ def polygerrit_bundle(name, srcs, outs, app):
     )
 
     native.filegroup(
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
         name = name + "_theme_sources",
         srcs = native.glob(
             ["styles/themes/*.html"],
             # app-theme.html already included via an import in gr-app.html.
             exclude = ["styles/themes/app-theme.html"],
         ),
+=======
+        name = name + "_top_sources",
+        srcs = [
+            "favicon.ico",
+            "index.html",
+        ],
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
     )
 
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
     native.filegroup(
         name = name + "_top_sources",
         srcs = [
@@ -98,6 +112,27 @@ def polygerrit_bundle(name, srcs, outs, app):
             "for f in $(locations " + name + "_top_sources); do cp $$f $$TMP/polygerrit_ui/; done",
             "for f in $(locations " + name + "_css_sources); do cp $$f $$TMP/polygerrit_ui/styles; done",
             "for f in $(locations " + name + "_theme_sources); do cp $$f $$TMP/polygerrit_ui/styles/themes; done",
+=======
+    genrule2(
+        name = name,
+        srcs = [
+            name + "_app_sources",
+            name + "_css_sources",
+            name + "_top_sources",
+            "//lib/fonts:robotofonts",
+            "//lib/js:highlightjs_files",
+            # we extract from the zip, but depend on the component for license checking.
+            "@webcomponentsjs//:zipfile",
+            "//lib/js:webcomponentsjs",
+        ],
+        outs = outs,
+        cmd = " && ".join([
+            "mkdir -p $$TMP/polygerrit_ui/{styles,fonts,bower_components/{highlightjs,webcomponentsjs},elements}",
+            "for f in $(locations " + name + "_app_sources); do ext=$${f##*.}; cp -p $$f $$TMP/polygerrit_ui/elements/" + appName + ".$$ext; done",
+            "cp $(locations //lib/fonts:robotofonts) $$TMP/polygerrit_ui/fonts/",
+            "for f in $(locations " + name + "_top_sources); do cp $$f $$TMP/polygerrit_ui/; done",
+            "for f in $(locations " + name + "_css_sources); do cp $$f $$TMP/polygerrit_ui/styles; done",
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
             "for f in $(locations //lib/js:highlightjs_files); do cp $$f $$TMP/polygerrit_ui/bower_components/highlightjs/ ; done",
             "unzip -qd $$TMP/polygerrit_ui/bower_components $(location @webcomponentsjs//:zipfile) webcomponentsjs/webcomponents-lite.js",
             "cd $$TMP",

@@ -56,12 +56,19 @@ limitations under the License.
         },
       });
       element = fixture('basic');
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
       element.repoName = 'test-repo',
       element._repoConfig = {
         private_by_default: {
           configured_value: 'FALSE',
           inherited_value: false,
         },
+=======
+      element.projectName = 'test-project';
+      element._projectConfig = {
+        private_by_default: {},
+        work_in_progress_by_default: {},
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
       };
     });
 
@@ -144,8 +151,41 @@ limitations under the License.
       });
     });
 
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
     test('_getRepoBranchesSuggestions empty', done => {
       element._getRepoBranchesSuggestions('nonexistent').then(branches => {
+=======
+    test('new change created with wip', () => {
+      const configInputObj = {
+        branch: 'test-branch',
+        topic: 'test-topic',
+        subject: 'first change created with polygerrit ui',
+        project: element.projectName,
+      };
+
+      const saveStub = sandbox.stub(element.$.restAPI,
+          'createChange', () => {
+            return Promise.resolve({});
+          });
+
+      element.project = element.projectName;
+      element.branch = 'test-branch';
+      element.topic = 'test-topic';
+      element.subject = 'first change created with polygerrit ui';
+      assert.isFalse(element.$.privateChangeCheckBox.checked);
+
+      element.$.branchInput.bindValue = configInputObj.branch;
+      element.$.tagNameInput.bindValue = configInputObj.topic;
+      element.$.messageInput.bindValue = configInputObj.subject;
+
+      element.handleCreateChange().then(() => {
+        assert.isTrue(saveStub.lastCall.calledWithExactly(configInputObj));
+      });
+    });
+
+    test('_getProjectBranchesSuggestions empty', done => {
+      element._getProjectBranchesSuggestions('nonexistent').then(branches => {
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
         assert.equal(branches.length, 0);
         done();
       });

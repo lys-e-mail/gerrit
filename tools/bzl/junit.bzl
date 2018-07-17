@@ -43,11 +43,15 @@ def _AsClassName(fname):
         if findex != -1:
             break
     if findex == -1:
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
         fail(
             "%s does not contain any of %s",
             fname,
             _PREFIXES,
         )
+=======
+        fail("%s does not contain any of %s" % (fname, _PREFIXES))
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
     return ".".join(toks[findex:]) + ".class"
 
 def _impl(ctx):
@@ -75,6 +79,7 @@ def junit_tests(name, srcs, **kwargs):
         srcs = srcs,
         outname = s_name,
     )
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
     jvm_flags = kwargs.get("jvm_flags", [])
     jvm_flags = jvm_flags + select({
         "//:java9": [
@@ -91,4 +96,11 @@ def junit_tests(name, srcs, **kwargs):
         test_class = s_name,
         srcs = srcs + [":" + s_name],
         **dict(kwargs, jvm_flags = jvm_flags)
+=======
+    native.java_test(
+        name = name,
+        test_class = s_name,
+        srcs = srcs + [":" + s_name],
+        **kwargs
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
     )

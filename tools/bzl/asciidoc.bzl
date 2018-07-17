@@ -16,6 +16,24 @@ def documentation_attributes():
         # Just a placeholder, will be filled in asciidoctor java binary:
         "revnumber=%s",
     ]
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
+=======
+
+def release_notes_attributes():
+    return [
+        "toc",
+        'newline="\\n"',
+        'asterisk="&#42;"',
+        'plus="&#43;"',
+        'caret="&#94;"',
+        'startsb="&#91;"',
+        'endsb="&#93;"',
+        'tilde="&#126;"',
+        "last-update-label!",
+        "stylesheet=DEFAULT",
+        "linkcss=true",
+    ]
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
 
 def _replace_macros_impl(ctx):
     cmd = [
@@ -207,9 +225,14 @@ def _asciidoc_html_zip_impl(ctx):
     ]
     args.extend(_generate_asciidoc_args(ctx))
     ctx.actions.run(
+<<<<<<< HEAD   (2971c4 Documentation: Add commitmsg hook info)
         inputs = ctx.files.srcs + [ctx.file.version],
         outputs = [ctx.outputs.out],
         tools = [ctx.executable._exe],
+=======
+        inputs = ctx.files.srcs + [ctx.executable._exe, ctx.file.version],
+        outputs = [ctx.outputs.out],
+>>>>>>> BRANCH (0f9cd5 Polygerrit: Always create new changes as WIP)
         executable = ctx.executable._exe,
         arguments = args,
         progress_message = "Rendering asciidoctor files for %s" % ctx.label.name,
