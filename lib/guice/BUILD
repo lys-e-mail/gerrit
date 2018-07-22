@@ -4,7 +4,11 @@ java_library(
     visibility = ["//visibility:public"],
     exports = [
         ":guice-library",
+<<<<<<< HEAD   (f09add Merge "ElasticReindexIT: implement this class from stable")
         ":javax_inject",
+=======
+        ":javax-inject",
+>>>>>>> BRANCH (e978e8 Merge branch 'stable-2.14' into stable-2.15)
     ],
 )
 

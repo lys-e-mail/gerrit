@@ -245,7 +245,11 @@ java_library(
         ":protobuf",
         "//lib/guice",
         "//lib/guice:guice-assistedinject",
+<<<<<<< HEAD   (f09add Merge "ElasticReindexIT: implement this class from stable")
         "//lib/guice:javax_inject",
+=======
+        "//lib/guice:javax-inject",
+>>>>>>> BRANCH (e978e8 Merge branch 'stable-2.14' into stable-2.15)
         "//lib/ow2:ow2-asm",
         "//lib/ow2:ow2-asm-analysis",
         "//lib/ow2:ow2-asm-commons",
