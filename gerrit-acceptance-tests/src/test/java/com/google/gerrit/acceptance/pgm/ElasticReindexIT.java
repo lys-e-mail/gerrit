@@ -22,6 +22,10 @@ import com.google.gerrit.testutil.ConfigSuite;
 import com.google.inject.Injector;
 import java.util.UUID;
 import org.eclipse.jgit.lib.Config;
+<<<<<<< HEAD   (5a83c4 ElasticReindexIT: add indices initialization prior)
+=======
+import org.junit.After;
+>>>>>>> BRANCH (108ad6 GerritServer: save gerrit.config before site init)
 import org.junit.Before;
 
 public class ElasticReindexIT extends AbstractReindexTests {
@@ -65,5 +69,16 @@ public class ElasticReindexIT extends AbstractReindexTests {
   public void reindexFirstSinceElastic() throws Exception {
     assertServerStartupFails();
     runGerrit("reindex", "-d", sitePaths.site_path.toString(), "--show-stack-trace");
+<<<<<<< HEAD   (5a83c4 ElasticReindexIT: add indices initialization prior)
+=======
+  }
+
+  @After
+  public void stopElasticServer() {
+    if (container != null) {
+      container.stop();
+      container = null;
+    }
+>>>>>>> BRANCH (108ad6 GerritServer: save gerrit.config before site init)
   }
 }
