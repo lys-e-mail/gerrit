@@ -104,8 +104,12 @@ public class DeleteRef {
     return this;
   }
 
+<<<<<<< HEAD   (cb8c06 Merge "Adjust file mode of Roboto fonts" into stable-2.15)
   public void delete()
       throws OrmException, IOException, ResourceConflictException, PermissionBackendException {
+=======
+  public void delete() throws OrmException, IOException, ResourceConflictException, AuthException {
+>>>>>>> BRANCH (a8aaf6 DeleteRef: add missing permission check)
     if (!refsToDelete.isEmpty()) {
       try (Repository r = repoManager.openRepository(resource.getNameKey())) {
         if (refsToDelete.size() == 1) {
@@ -117,11 +121,17 @@ public class DeleteRef {
     }
   }
 
-  private void deleteSingleRef(Repository r) throws IOException, ResourceConflictException {
+  private void deleteSingleRef(Repository r)
+      throws IOException, ResourceConflictException, AuthException {
     String ref = refsToDelete.get(0);
     if (prefix != null && !ref.startsWith(R_REFS)) {
       ref = prefix + ref;
     }
+
+    if (!resource.getControl().controlForRef(ref).canDelete()) {
+      throw new AuthException("delete not permitted for " + ref);
+    }
+
     RefUpdate.Result result;
     RefUpdate u = r.updateRef(ref);
     u.setExpectedOldObjectId(r.exactRef(ref).getObjectId());
