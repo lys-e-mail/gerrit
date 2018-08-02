@@ -443,6 +443,15 @@ maven_jar(
     name = "auto-value",
     artifact = "com.google.auto.value:auto-value:" + AUTO_VALUE_VERSION,
     sha1 = "e7eae562942315a983eea3e191b72d755c153620",
+<<<<<<< HEAD   (e81ce7 Revert "Simplify [ReceivePack]MessageSender logic")
+=======
+)
+
+maven_jar(
+    name = "auto-value-annotations",
+    artifact = "com.google.auto.value:auto-value-annotations:" + AUTO_VALUE_VERSION,
+    sha1 = "ed193d86e0af90cc2342aedbe73c5d86b03fa09b",
+>>>>>>> BRANCH (665426 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
