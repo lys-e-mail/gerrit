@@ -595,7 +595,23 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     return getRemoteLog(project, "master");
   }
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
   private String getLatestDiff(Repository repo) throws Exception {
+=======
+  protected RefUpdateAttribute getOneRefUpdate(String key) {
+    Collection<RefUpdateAttribute> refUpdates = refUpdatedEvents.get(key);
+    assertThat(refUpdates).hasSize(1);
+    return refUpdates.iterator().next();
+  }
+
+  private RevCommit getHead(Repository repo, String name) throws IOException {
+    try (RevWalk rw = new RevWalk(repo)) {
+      return rw.parseCommit(repo.exactRef(name).getObjectId());
+    }
+  }
+
+  private String getLatestDiff(Repository repo) throws IOException {
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
     ObjectId oldTreeId = repo.resolve("HEAD~1^{tree}");
     ObjectId newTreeId = repo.resolve("HEAD^{tree}");
     return getLatestDiff(repo, oldTreeId, newTreeId);

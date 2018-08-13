@@ -349,6 +349,16 @@ public class SubmittedTogetherIT extends AbstractDaemonTest {
     assertSubmittedTogether(id2, id2, id1);
   }
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
+=======
+  private RevCommit getRemoteHead() throws IOException {
+    try (Repository repo = repoManager.openRepository(project);
+        RevWalk rw = new RevWalk(repo)) {
+      return rw.parseCommit(repo.exactRef("refs/heads/master").getObjectId());
+    }
+  }
+
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
   private String getChangeId(RevCommit c) throws Exception {
     return GitUtil.getChangeId(testRepo, c).get();
   }

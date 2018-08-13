@@ -36,7 +36,11 @@ plugin project.
 ----
 mvn archetype:generate -DarchetypeGroupId=com.google.gerrit \
     -DarchetypeArtifactId=gerrit-plugin-archetype \
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     -DarchetypeVersion=2.13.12-SNAPSHOT \
+=======
+    -DarchetypeVersion=2.12.9-SNAPSHOT \
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
     -DgroupId=com.googlesource.gerrit.plugins.testplugin \
     -DartifactId=testplugin
 ----

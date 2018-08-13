@@ -300,9 +300,14 @@ public class ProjectConfigTest extends LocalDiskRepositoryTestCase {
       md.setMessage("Edit\n");
       cfg.commit(md);
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
       Ref ref = db.exactRef(RefNames.REFS_CONFIG);
       return util.getRevWalk().parseCommit(ref.getObjectId());
     }
+=======
+    Ref ref = db.exactRef(RefNames.REFS_CONFIG);
+    return util.getRevWalk().parseCommit(ref.getObjectId());
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
   }
 
   private void update(RevCommit rev) throws Exception {

@@ -223,11 +223,22 @@ public class ConsistencyCheckerIT extends AbstractDaemonTest {
     String refName = ctl.getChange().currentPatchSetId().toRefName();
     deleteRef(refName);
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     assertProblems(
         ctl, new FixInput(),
         problem("Ref missing: " + refName, FIXED, "Repaired patch set ref"));
     assertThat(testRepo.getRepository().exactRef(refName).getObjectId().name())
         .isEqualTo(rev);
+=======
+    List<ProblemInfo> problems = checker.check(c, new FixInput()).problems();
+    ProblemInfo p = problems.get(0);
+    assertThat(p.message).isEqualTo("Ref missing: " + refName);
+    assertThat(p.status).isEqualTo(ProblemInfo.Status.FIXED);
+    assertThat(p.outcome).isEqualTo("Repaired patch set ref");
+
+    assertThat(testRepo.getRepository().exactRef(refName).getObjectId().name())
+        .isEqualTo(ps.getRevision().get());
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
   }
 
   @Test

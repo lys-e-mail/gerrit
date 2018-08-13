@@ -1101,11 +1101,32 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     Ref initial2 = repo.exactRef(update2.getRefName());
     assertThat(initial2).isNotNull();
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     try (NoteDbUpdateManager updateManager =
         updateManagerFactory.create(project)) {
       updateManager.add(update1);
       updateManager.add(update2);
       updateManager.execute();
+=======
+    BatchRefUpdate bru = repo.getRefDatabase().newBatchUpdate();
+    try {
+      batch1 = update1.openUpdateInBatch(bru);
+      batch1.write(update1, new CommitBuilder());
+      batch1.commit();
+      assertThat(repo.exactRef(update1.getRefName())).isNull();
+
+      batch2 = update2.openUpdateInBatch(bru);
+      batch2.write(update2, new CommitBuilder());
+      batch2.commit();
+      assertThat(repo.exactRef(update2.getRefName())).isNull();
+    } finally {
+      if (batch1 != null) {
+        batch1.close();
+      }
+      if (batch2 != null) {
+        batch2.close();
+      }
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
     }
 
     Ref ref1 = repo.exactRef(update1.getRefName());
@@ -1119,9 +1140,17 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
         .get(c1.currentPatchSetId()).iterator().next();
     assertThat(approval1.getLabel()).isEqualTo("Verified");
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     PatchSetApproval approval2 = newNotes(c2).getApprovals()
         .get(c2.currentPatchSetId()).iterator().next();
     assertThat(approval2.getLabel()).isEqualTo("Code-Review");
+=======
+    assertThat(cmds.get(0).getResult()).isEqualTo(ReceiveCommand.Result.OK);
+    assertThat(cmds.get(1).getResult()).isEqualTo(ReceiveCommand.Result.OK);
+
+    assertThat(repo.exactRef(update1.getRefName())).isNotNull();
+    assertThat(repo.exactRef(update2.getRefName())).isNotNull();
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
   }
 
   @Test

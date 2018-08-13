@@ -369,18 +369,24 @@ public class SubmoduleOp {
       throw new SubmoduleException("Cannot access superproject", e);
     }
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     CodeReviewCommit currentCommit;
     if (branchTips.containsKey(subscriber)) {
       currentCommit = branchTips.get(subscriber);
     } else {
       Ref r = or.repo.exactRef(subscriber.get());
       if (r == null) {
+=======
+    try (Repository pdb = repoManager.openRepository(subscriber.getParentKey())) {
+      if (pdb.exactRef(subscriber.get()) == null) {
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
         throw new SubmoduleException(
             "The branch was probably deleted from the subscriber repository");
       }
       currentCommit = or.rw.parseCommit(r.getObjectId());
     }
 
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
     StringBuilder msgbuf = new StringBuilder("");
     PersonIdent author = null;
     DirCache dc = readTree(or.rw, currentCommit);
@@ -392,8 +398,121 @@ public class SubmoduleOp {
           author = newCommit.getAuthorIdent();
         } else if (!author.equals(newCommit.getAuthorIdent())) {
           author = myIdent;
+=======
+      DirCache dc = readTree(pdb, pdb.exactRef(subscriber.get()));
+      DirCacheEditor ed = dc.editor();
+
+      for (SubmoduleSubscription s : updates) {
+        try (Repository subrepo = repoManager.openRepository(
+            s.getSubmodule().getParentKey());
+            RevWalk rw = CodeReviewCommit.newRevWalk(subrepo)) {
+          Ref ref = subrepo.getRefDatabase().exactRef(s.getSubmodule().get());
+          if (ref == null) {
+            ed.add(new DeletePath(s.getPath()));
+            continue;
+          }
+
+          final ObjectId updateTo = ref.getObjectId();
+          RevCommit newCommit = rw.parseCommit(updateTo);
+
+          if (author == null) {
+            author = newCommit.getAuthorIdent();
+          } else if (!author.equals(newCommit.getAuthorIdent())) {
+            sameAuthorForAll = false;
+          }
+
+          DirCacheEntry dce = dc.getEntry(s.getPath());
+          ObjectId oldId;
+          if (dce != null) {
+            if (!dce.getFileMode().equals(FileMode.GITLINK)) {
+              log.error("Requested to update gitlink " + s.getPath() + " in "
+                  + s.getSubmodule().getParentKey().get() + " but entry "
+                  + "doesn't have gitlink file mode.");
+              continue;
+            }
+            oldId = dce.getObjectId();
+          } else {
+            // This submodule did not exist before. We do not want to add
+            // the full submodule history to the commit message, so omit it.
+            oldId = updateTo;
+          }
+
+          ed.add(new PathEdit(s.getPath()) {
+            @Override
+            public void apply(DirCacheEntry ent) {
+              ent.setFileMode(FileMode.GITLINK);
+              ent.setObjectId(updateTo);
+            }
+          });
+          if (verboseSuperProject) {
+            msgbuf.append("Project: " + s.getSubmodule().getParentKey().get());
+            msgbuf.append(" " + s.getSubmodule().getShortName());
+            msgbuf.append(" " + updateTo.getName());
+            msgbuf.append("\n\n");
+
+            try {
+              rw.markStart(newCommit);
+              rw.markUninteresting(rw.parseCommit(oldId));
+              for (RevCommit c : rw) {
+                msgbuf.append(c.getFullMessage() + "\n\n");
+              }
+            } catch (IOException e) {
+              logAndThrowSubmoduleException("Could not perform a revwalk to "
+                  + "create superproject commit message", e);
+            }
+          }
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
         }
       }
+<<<<<<< HEAD   (fb22f7 Merge branch 'stable-2.12' into stable-2.13)
+=======
+      ed.finish();
+
+      if (!sameAuthorForAll || author == null) {
+        author = myIdent;
+      }
+
+      ObjectInserter oi = pdb.newObjectInserter();
+      ObjectId tree = dc.writeTree(oi);
+
+      ObjectId currentCommitId =
+          pdb.exactRef(subscriber.get()).getObjectId();
+
+      CommitBuilder commit = new CommitBuilder();
+      commit.setTreeId(tree);
+      commit.setParentIds(new ObjectId[] {currentCommitId});
+      commit.setAuthor(author);
+      commit.setCommitter(myIdent);
+      commit.setMessage(msgbuf.toString());
+      oi.insert(commit);
+      oi.flush();
+
+      ObjectId commitId = oi.idFor(Constants.OBJ_COMMIT, commit.build());
+
+      final RefUpdate rfu = pdb.updateRef(subscriber.get());
+      rfu.setForceUpdate(false);
+      rfu.setNewObjectId(commitId);
+      rfu.setExpectedOldObjectId(currentCommitId);
+      rfu.setRefLogMessage("Submit to " + subscriber.getParentKey().get(), true);
+
+      switch (rfu.update()) {
+        case NEW:
+        case FAST_FORWARD:
+          gitRefUpdated.fire(subscriber.getParentKey(), rfu);
+          changeHooks.doRefUpdatedHook(subscriber, rfu, account);
+          // TODO since this is performed "in the background" no mail will be
+          // sent to inform users about the updated branch
+          break;
+
+        default:
+          throw new IOException(rfu.getResult().name());
+      }
+      // Recursive call: update subscribers of the subscriber
+      updateSuperProjects(db, Sets.newHashSet(subscriber));
+    } catch (IOException e) {
+      throw new SubmoduleException("Cannot update gitlinks for "
+          + subscriber.get(), e);
+>>>>>>> BRANCH (66d404 Upgrade JGit to v4.5.4.201711221230-r)
     }
     ed.finish();
     ObjectId newTreeId = dc.writeTree(or.ins);
