@@ -1,0 +1,19 @@
+<<<<<<< HEAD   (7e8811 Merge "Upgrade PostgreSQL JDBC driver" into stable-2.14)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'jgit-servlet',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
+  sha1 = '264fac29b6007146127156113ed3d4e0aa922b39',
+  license = 'jgit',
+  repository = REPO,
+  deps = ['//lib/jgit/org.eclipse.jgit:jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+>>>>>>> BRANCH (777a8c Merge branch 'stable-2.12' into stable-2.13)
