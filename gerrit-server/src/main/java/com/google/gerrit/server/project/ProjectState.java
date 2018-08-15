@@ -116,6 +116,7 @@ public class ProjectState {
 
   @Inject
   public ProjectState(
+<<<<<<< HEAD   (e05d8a ChangeIT: Fix and expand reflog test)
       final SitePaths sitePaths,
       final ProjectCache projectCache,
       final AllProjectsName allProjectsName,
@@ -127,6 +128,19 @@ public class ProjectState {
       final List<CommentLinkInfo> commentLinks,
       final CapabilityCollection.Factory limitsFactory,
       @Assisted final ProjectConfig config) {
+=======
+      SitePaths sitePaths,
+      ProjectCache projectCache,
+      AllProjectsName allProjectsName,
+      AllUsersName allUsersName,
+      ProjectControl.AssistedFactory projectControlFactory,
+      PrologEnvironment.Factory envFactory,
+      GitRepositoryManager gitMgr,
+      RulesCache rulesCache,
+      List<CommentLinkInfo> commentLinks,
+      CapabilityCollection.Factory capabilityFactory,
+      @Assisted ProjectConfig config) {
+>>>>>>> BRANCH (f8875f ProjectState: Remove unnecessary 'final' modifiers from cons)
     this.sitePaths = sitePaths;
     this.projectCache = projectCache;
     this.isAllProjects = config.getProject().getNameKey().equals(allProjectsName);
