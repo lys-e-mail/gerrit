@@ -56,6 +56,7 @@ import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.AllUsersNameProvider;
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.git.ProjectConfig;
+import com.google.gerrit.server.git.TransferConfig;
 import com.google.gerrit.server.index.SingleVersionModule.SingleVersionListener;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.ProjectPermission;
@@ -207,6 +208,12 @@ public class RefControlTest {
   @Inject private SingleVersionListener singleVersionListener;
   @Inject private InMemoryDatabase schemaFactory;
   @Inject private ThreadLocalRequestContext requestContext;
+<<<<<<< HEAD   (7acae7 Merge branch 'stable-2.14' into stable-2.15)
+=======
+  @Inject private Provider<InternalChangeQuery> queryProvider;
+  @Inject private ProjectControl.Metrics metrics;
+  @Inject private TransferConfig transferConfig;
+>>>>>>> BRANCH (6a3fa8 Fix http_archive rule in WORKSPACE)
 
   @Before
   public void setUp() throws Exception {
@@ -867,6 +874,7 @@ public class RefControlTest {
             rulesCache,
             commentLinks,
             capabilityCollectionFactory,
+            transferConfig,
             pc));
     return repo;
   }

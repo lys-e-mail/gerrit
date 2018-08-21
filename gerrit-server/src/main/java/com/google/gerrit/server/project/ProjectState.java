@@ -47,7 +47,11 @@ import com.google.gerrit.server.git.BranchOrderSection;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.ProjectConfig;
 import com.google.gerrit.server.git.ProjectLevelConfig;
+<<<<<<< HEAD   (7acae7 Merge branch 'stable-2.14' into stable-2.15)
 import com.google.gerrit.server.notedb.ChangeNotes;
+=======
+import com.google.gerrit.server.git.TransferConfig;
+>>>>>>> BRANCH (6a3fa8 Fix http_archive rule in WORKSPACE)
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.googlecode.prolog_cafe.exceptions.CompileException;
@@ -95,6 +99,7 @@ public class ProjectState {
   private final ProjectConfig config;
   private final Map<String, ProjectLevelConfig> configs;
   private final Set<AccountGroup.UUID> localOwners;
+  private final long globalMaxObjectSizeLimit;
 
   /** Prolog rule state. */
   private volatile PrologMachineCopy rulesMachine;
@@ -125,7 +130,12 @@ public class ProjectState {
       GitRepositoryManager gitMgr,
       RulesCache rulesCache,
       List<CommentLinkInfo> commentLinks,
+<<<<<<< HEAD   (7acae7 Merge branch 'stable-2.14' into stable-2.15)
       CapabilityCollection.Factory limitsFactory,
+=======
+      CapabilityCollection.Factory capabilityFactory,
+      TransferConfig transferConfig,
+>>>>>>> BRANCH (6a3fa8 Fix http_archive rule in WORKSPACE)
       @Assisted ProjectConfig config) {
     this.sitePaths = sitePaths;
     this.projectCache = projectCache;
@@ -143,6 +153,7 @@ public class ProjectState {
         isAllProjects
             ? limitsFactory.create(config.getAccessSection(AccessSection.GLOBAL_CAPABILITIES))
             : null;
+    this.globalMaxObjectSizeLimit = transferConfig.getMaxObjectSizeLimit();
 
     if (isAllProjects && !Permission.canBeOnAllProjects(AccessSection.ALL, Permission.OWNER)) {
       localOwners = Collections.emptySet();
@@ -256,6 +267,15 @@ public class ProjectState {
 
   public long getMaxObjectSizeLimit() {
     return config.getMaxObjectSizeLimit();
+  }
+
+  public long getEffectiveMaxObjectSizeLimit() {
+    long local = getMaxObjectSizeLimit();
+    if (globalMaxObjectSizeLimit > 0 && local > 0) {
+      return Math.min(globalMaxObjectSizeLimit, local);
+    }
+    // zero means "no limit", in this case the max is more limiting
+    return Math.max(globalMaxObjectSizeLimit, local);
   }
 
   /** Get the sections that pertain only to this project. */
