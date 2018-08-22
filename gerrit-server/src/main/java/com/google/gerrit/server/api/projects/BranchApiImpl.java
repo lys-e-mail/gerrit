@@ -118,6 +118,7 @@ public class BranchApiImpl implements BranchApi {
   public List<ReflogEntryInfo> reflog() throws RestApiException {
     try {
       return getReflog.apply(resource());
+<<<<<<< HEAD   (0d06b0 Merge branch 'stable-2.14' into stable-2.15)
     } catch (IOException | PermissionBackendException e) {
       throw new RestApiException("Cannot retrieve reflog", e);
     }
@@ -125,6 +126,14 @@ public class BranchApiImpl implements BranchApi {
 
   private BranchResource resource()
       throws RestApiException, IOException, PermissionBackendException {
+=======
+    } catch (IOException e) {
+      throw new RestApiException("Cannot retrieve reflog", e);
+    }
+  }
+
+  private BranchResource resource() throws RestApiException, IOException {
+>>>>>>> BRANCH (277579 BranchApi: Add missing throws declaration on NotImplemented#)
     return branches.parse(project, IdString.fromDecoded(ref));
   }
 }

@@ -15,6 +15,7 @@
 package com.google.gerrit.acceptance.server.project;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (0d06b0 Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.common.truth.TruthJUnit.assume;
 import static com.google.gerrit.reviewdb.client.RefNames.changeMetaRef;
 
@@ -73,5 +74,74 @@ public class ReflogIT extends AbstractDaemonTest {
     // Submitting the change causes a new entry in the reflog
     reflog = branchApi.reflog();
     assertThat(reflog).hasSize(refLogLen + 1);
+=======
+
+import com.google.gerrit.acceptance.AbstractDaemonTest;
+import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.UseLocalDisk;
+import com.google.gerrit.common.data.Permission;
+import com.google.gerrit.extensions.api.changes.ReviewInput;
+import com.google.gerrit.extensions.api.groups.GroupApi;
+import com.google.gerrit.extensions.api.projects.BranchApi;
+import com.google.gerrit.extensions.api.projects.ReflogEntryInfo;
+import com.google.gerrit.extensions.restapi.AuthException;
+import com.google.gerrit.reviewdb.client.AccountGroup;
+import com.google.gerrit.server.git.ProjectConfig;
+import com.google.gerrit.server.project.Util;
+import java.util.List;
+import org.junit.Test;
+
+public class ReflogIT extends AbstractDaemonTest {
+  @Test
+  @UseLocalDisk
+  public void reflogUpdatedBySubmittingChange() throws Exception {
+    BranchApi branchApi = gApi.projects().name(project.get()).branch("master");
+    List<ReflogEntryInfo> reflog = branchApi.reflog();
+    assertThat(reflog).isNotEmpty();
+
+    // Current number of entries in the reflog
+    int refLogLen = reflog.size();
+
+    // Create and submit a change
+    PushOneCommit.Result r = createChange();
+    String changeId = r.getChangeId();
+    String revision = r.getCommit().name();
+    ReviewInput in = ReviewInput.approve();
+    gApi.changes().id(changeId).revision(revision).review(in);
+    gApi.changes().id(changeId).revision(revision).submit();
+
+    // Submitting the change causes a new entry in the reflog
+    reflog = branchApi.reflog();
+    assertThat(reflog).hasSize(refLogLen + 1);
+  }
+
+  @Test
+  @UseLocalDisk
+  public void regularUserIsNotAllowedToGetReflog() throws Exception {
+    setApiUser(user);
+    exception.expect(AuthException.class);
+    gApi.projects().name(project.get()).branch("master").reflog();
+  }
+
+  @Test
+  @UseLocalDisk
+  public void ownerUserIsAllowedToGetReflog() throws Exception {
+    GroupApi groupApi = gApi.groups().create(name("get-reflog"));
+    groupApi.addMembers("user");
+
+    ProjectConfig cfg = projectCache.checkedGet(project).getConfig();
+    Util.allow(cfg, Permission.OWNER, new AccountGroup.UUID(groupApi.get().id), "refs/*");
+    saveProjectConfig(project, cfg);
+
+    setApiUser(user);
+    gApi.projects().name(project.get()).branch("master").reflog();
+  }
+
+  @Test
+  @UseLocalDisk
+  public void adminUserIsAllowedToGetReflog() throws Exception {
+    setApiUser(admin);
+    gApi.projects().name(project.get()).branch("master").reflog();
+>>>>>>> BRANCH (277579 BranchApi: Add missing throws declaration on NotImplemented#)
   }
 }
