@@ -90,7 +90,7 @@ One-time setup:
 
 1. [Build Gerrit](https://gerrit-review.googlesource.com/Documentation/dev-bazel.html#_gerrit_development_war_file)
 2. Set up a local test site. Docs
-   [here](https://gerrit-review.googlesource.com/Documentation/install-quick.html) and
+   [here](https://gerrit-review.googlesource.com/Documentation/linux-quickstart.html) and
    [here](https://gerrit-review.googlesource.com/Documentation/dev-readme.html#init).
 
 When your project is set up and works using the classic UI, run a test server
@@ -225,5 +225,9 @@ TEMPLATE_NO_DEFAULT=true ./polygerrit-ui/app/run_template_test.sh //polygerrit-u
 ```
 
 ```sh
+<<<<<<< HEAD   (48e513 Merge changes Ib0caf1cb,I8b5eeec4,I602eef5f,I43fcd0b2,Icb5d6)
 TEMPLATE_NO_DEFAULT=true ./polygerrit-ui/app/run_template_test.sh //polygerrit-ui/app:template_test_change-list --test_arg=gr-change-list-view
+=======
+bazel test //polygerrit-ui/app:template_test_change-list --test_arg=gr-change-list-view  --test_output errors
+>>>>>>> BRANCH (4c6fd9 Merge branch 'stable-2.14' into stable-2.15)
 ```

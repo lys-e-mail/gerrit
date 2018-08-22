@@ -16,9 +16,16 @@ link:install.html[Standalone Daemon Installation Guide].
 
 Be sure you have:
 
+<<<<<<< HEAD   (48e513 Merge changes Ib0caf1cb,I8b5eeec4,I602eef5f,I43fcd0b2,Icb5d6)
 . A Unix-based server, including any Linux flavor, MacOS, or Berkeley Software
     Distribution (BSD).
 . Java SE Runtime Environment 1.8 (or higher).
+=======
+. A Unix-based server such as any of the Linux flavors or BSD.
+. Java SE Runtime Environment version 1.8
++
+Gerrit is not compatible with Java 9 or newer yet.
+>>>>>>> BRANCH (4c6fd9 Merge branch 'stable-2.14' into stable-2.15)
 
 == Download Gerrit
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (48e513 Merge changes Ib0caf1cb,I8b5eeec4,I602eef5f,I43fcd0b2,Icb5d6)
 = Gerrit Code Review - Quick get started guide
 
 ****
@@ -232,3 +233,5 @@ Part of link:index.html[Gerrit Code Review]
 
 SEARCHBOX
 ---------
+=======
+>>>>>>> BRANCH (4c6fd9 Merge branch 'stable-2.14' into stable-2.15)
