@@ -675,6 +675,7 @@ maven_jar(
     sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
 )
 
+<<<<<<< HEAD   (b43cd2 Merge "PolyGerrit: Correctly detect the ACL for SetReadyForR)
 # Only needed when jgit is built from the development tree
 maven_jar(
     name = "hamcrest-library",
@@ -683,6 +684,9 @@ maven_jar(
 )
 
 TRUTH_VERS = "0.35"
+=======
+TRUTH_VERS = "0.32"
+>>>>>>> BRANCH (625965 InitSshd: Use correct flag to set empty passphrase)
 
 maven_jar(
     name = "truth",
