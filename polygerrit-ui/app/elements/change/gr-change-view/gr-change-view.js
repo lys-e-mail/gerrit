@@ -122,7 +122,7 @@
       _changeComments: Object,
       _canStartReview: {
         type: Boolean,
-        computed: '_computeCanStartReview(_loggedIn, _change, _account)',
+        computed: '_computeCanStartReview(_change)',
       },
       _comments: Object,
       /** @type {?} */
@@ -1325,6 +1325,7 @@
       ]);
     },
 
+<<<<<<< HEAD   (d29fe4 SshCommandsIT: Replace ArrayList subclass with stream expres)
     _getMergeability() {
       // If the change is closed, it is not mergeable. Note: already merged
       // changes are obviously not mergeable, but the mergeability API will not
@@ -1344,6 +1345,11 @@
     _computeCanStartReview(loggedIn, change, account) {
       return !!(loggedIn && change.work_in_progress &&
           change.owner._account_id === account._account_id);
+=======
+    _computeCanStartReview(change) {
+      return !!(change.actions && change.actions.ready &&
+          change.actions.ready.enabled);
+>>>>>>> BRANCH (bb46f7 Merge branch 'stable-2.14' into stable-2.15)
     },
 
     _computeReplyDisabled() { return false; },

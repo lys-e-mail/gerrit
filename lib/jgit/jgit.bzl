@@ -29,11 +29,14 @@ def jgit_maven_repos_dev():
         artifact = "org.hamcrest:hamcrest-library:1.3",
         sha1 = "4785a3c21320980282f9f33d0d1264a69040538f",
     )
+<<<<<<< HEAD   (d29fe4 SshCommandsIT: Replace ArrayList subclass with stream expres)
     maven_jar(
         name = "jzlib",
         artifact = "com.jcraft:jzlib:1.1.1",
         sha1 = "a1551373315ffc2f96130a0e5704f74e151777ba",
     )
+=======
+>>>>>>> BRANCH (bb46f7 Merge branch 'stable-2.14' into stable-2.15)
 
 def jgit_maven_repos():
     maven_jar(
