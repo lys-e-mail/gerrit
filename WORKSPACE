@@ -816,7 +816,11 @@ maven_jar(
     sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
 )
 
+<<<<<<< HEAD   (d29fe4 SshCommandsIT: Replace ArrayList subclass with stream expres)
 TRUTH_VERS = "0.42"
+=======
+TRUTH_VERS = "0.35"
+>>>>>>> BRANCH (bb46f7 Merge branch 'stable-2.14' into stable-2.15)
 
 maven_jar(
     name = "truth",
