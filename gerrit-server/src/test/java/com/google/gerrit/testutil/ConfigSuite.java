@@ -148,8 +148,13 @@ public class ConfigSuite extends Suite {
 
     @Override
     public Object createTest() throws Exception {
+<<<<<<< HEAD   (ee91b7 rest-api-accounts: Fix documentation of "Get Active" respons)
       Object test = getTestClass().getJavaClass().newInstance();
       parameterField.set(test, new org.eclipse.jgit.lib.Config(cfg));
+=======
+      Object test = getTestClass().getJavaClass().getDeclaredConstructor().newInstance();
+      parameterField.set(test, callConfigMethod(configMethod));
+>>>>>>> BRANCH (8f4d9b ConfigSuite: Instantiate class via getDeclaredConstructor())
       if (nameField != null) {
         nameField.set(test, name);
       }
