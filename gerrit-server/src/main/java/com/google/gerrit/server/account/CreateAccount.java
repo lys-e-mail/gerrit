@@ -14,7 +14,13 @@
 
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (88c80e Merge branch 'stable-2.14' into stable-2.15)
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_MAILTO;
+=======
+import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN;
+import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN_COMPILED;
+import static com.google.gerrit.server.account.ExternalId.SCHEME_MAILTO;
+>>>>>>> BRANCH (088f2d ElasticQueryAdapter: Move isV6 method to ElasticVersion and )
 
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.GlobalCapability;
@@ -120,9 +126,9 @@ public class CreateAccount implements RestModifyView<TopLevelResource, AccountIn
       throw new BadRequestException("username must match URL");
     }
 
-    if (!username.matches(Account.USER_NAME_PATTERN)) {
+    if (!USER_NAME_PATTERN_COMPILED.matcher(username).matches()) {
       throw new BadRequestException(
-          "Username '" + username + "' must contain only letters, numbers, _, - or .");
+          "Username '" + username + "' must comply with [" + USER_NAME_PATTERN + "] pattern.");
     }
 
     Set<AccountGroup.UUID> groups = parseGroups(input.groups);
