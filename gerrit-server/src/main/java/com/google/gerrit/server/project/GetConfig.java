@@ -22,15 +22,17 @@ import com.google.gerrit.server.EnableSignedPush;
 import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.PluginConfigFactory;
 import com.google.gerrit.server.config.ProjectConfigEntry;
+<<<<<<< HEAD   (5689d6 RestApiServlet: Skip capability check for administrators)
 import com.google.gerrit.server.extensions.webui.UiActions;
 import com.google.gerrit.server.git.TransferConfig;
+=======
+>>>>>>> BRANCH (0839eb Elastic{Index|ReindexIT} Remove tests for 6.2 and 6.3)
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
 public class GetConfig implements RestReadView<ProjectResource> {
   private final boolean serverEnableSignedPush;
-  private final TransferConfig transferConfig;
   private final DynamicMap<ProjectConfigEntry> pluginConfigEntries;
   private final PluginConfigFactory cfgFactory;
   private final AllProjectsName allProjects;
@@ -40,14 +42,12 @@ public class GetConfig implements RestReadView<ProjectResource> {
   @Inject
   public GetConfig(
       @EnableSignedPush boolean serverEnableSignedPush,
-      TransferConfig transferConfig,
       DynamicMap<ProjectConfigEntry> pluginConfigEntries,
       PluginConfigFactory cfgFactory,
       AllProjectsName allProjects,
       UiActions uiActions,
       DynamicMap<RestView<ProjectResource>> views) {
     this.serverEnableSignedPush = serverEnableSignedPush;
-    this.transferConfig = transferConfig;
     this.pluginConfigEntries = pluginConfigEntries;
     this.allProjects = allProjects;
     this.cfgFactory = cfgFactory;
@@ -60,7 +60,6 @@ public class GetConfig implements RestReadView<ProjectResource> {
     return new ConfigInfoImpl(
         serverEnableSignedPush,
         resource.getControl(),
-        transferConfig,
         pluginConfigEntries,
         cfgFactory,
         allProjects,

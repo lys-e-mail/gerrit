@@ -30,7 +30,12 @@ import com.google.gerrit.server.config.PluginConfig;
 import com.google.gerrit.server.config.PluginConfigFactory;
 import com.google.gerrit.server.config.ProjectConfigEntry;
 import com.google.gerrit.server.extensions.webui.UiActions;
+<<<<<<< HEAD   (5689d6 RestApiServlet: Skip capability check for administrators)
 import com.google.gerrit.server.git.TransferConfig;
+=======
+import com.google.gerrit.server.project.ProjectState.EffectiveMaxObjectSizeLimit;
+import com.google.inject.util.Providers;
+>>>>>>> BRANCH (0839eb Elastic{Index|ReindexIT} Remove tests for 6.2 and 6.3)
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,7 +45,6 @@ public class ConfigInfoImpl extends ConfigInfo {
   public ConfigInfoImpl(
       boolean serverEnableSignedPush,
       ProjectControl control,
-      TransferConfig transferConfig,
       DynamicMap<ProjectConfigEntry> pluginConfigEntries,
       PluginConfigFactory cfgFactory,
       AllProjectsName allProjects,
@@ -114,7 +118,7 @@ public class ConfigInfoImpl extends ConfigInfo {
     this.privateByDefault = privateByDefault;
     this.workInProgressByDefault = workInProgressByDefault;
 
-    this.maxObjectSizeLimit = getMaxObjectSizeLimit(projectState, transferConfig, p);
+    this.maxObjectSizeLimit = getMaxObjectSizeLimit(projectState, p);
 
     this.submitType = p.getSubmitType();
     this.state =
@@ -139,13 +143,13 @@ public class ConfigInfoImpl extends ConfigInfo {
     this.extensionPanelNames = projectState.getConfig().getExtensionPanelSections();
   }
 
-  private MaxObjectSizeLimitInfo getMaxObjectSizeLimit(
-      ProjectState projectState, TransferConfig transferConfig, Project p) {
+  private MaxObjectSizeLimitInfo getMaxObjectSizeLimit(ProjectState projectState, Project p) {
     MaxObjectSizeLimitInfo info = new MaxObjectSizeLimitInfo();
-    long value = projectState.getEffectiveMaxObjectSizeLimit();
+    EffectiveMaxObjectSizeLimit limit = projectState.getEffectiveMaxObjectSizeLimit();
+    long value = limit.value;
     info.value = value == 0 ? null : String.valueOf(value);
     info.configuredValue = p.getMaxObjectSizeLimit();
-    info.inheritedValue = transferConfig.getFormattedMaxObjectSizeLimit();
+    info.summary = limit.summary;
     return info;
   }
 

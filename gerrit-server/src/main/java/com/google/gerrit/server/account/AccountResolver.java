@@ -14,7 +14,6 @@
 
 package com.google.gerrit.server.account;
 
-import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN_COMPILED;
 import static java.util.stream.Collectors.toSet;
 
 import com.google.gerrit.reviewdb.client.Account;
@@ -110,7 +109,7 @@ public class AccountResolver {
       return Collections.emptySet();
     }
 
-    if (USER_NAME_PATTERN_COMPILED.matcher(nameOrEmail).matches()) {
+    if (ExternalId.isValidUsername(nameOrEmail)) {
       AccountState who = byId.getByUsername(nameOrEmail);
       if (who != null) {
         return Collections.singleton(who.getAccount().getId());

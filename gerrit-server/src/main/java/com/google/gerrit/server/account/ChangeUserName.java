@@ -14,8 +14,13 @@
 
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (5689d6 RestApiServlet: Skip capability check for administrators)
 import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN_COMPILED;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_USERNAME;
+=======
+import static com.google.gerrit.server.account.ExternalId.SCHEME_USERNAME;
+import static java.util.stream.Collectors.toSet;
+>>>>>>> BRANCH (0839eb Elastic{Index|ReindexIT} Remove tests for 6.2 and 6.3)
 
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.errors.NameAlreadyUsedException;
@@ -82,7 +87,7 @@ public class ChangeUserName implements Callable<VoidResult> {
 
     ExternalIdsUpdate externalIdsUpdate = externalIdsUpdateFactory.create();
     if (newUsername != null && !newUsername.isEmpty()) {
-      if (!USER_NAME_PATTERN_COMPILED.matcher(newUsername).matches()) {
+      if (!ExternalId.isValidUsername(newUsername)) {
         throw new InvalidUserNameException();
       }
 

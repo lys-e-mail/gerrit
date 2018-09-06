@@ -14,9 +14,13 @@
 
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (5689d6 RestApiServlet: Skip capability check for administrators)
 import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN;
 import static com.google.gerrit.reviewdb.client.Account.USER_NAME_PATTERN_COMPILED;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_MAILTO;
+=======
+import static com.google.gerrit.server.account.ExternalId.SCHEME_MAILTO;
+>>>>>>> BRANCH (0839eb Elastic{Index|ReindexIT} Remove tests for 6.2 and 6.3)
 
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.GlobalCapability;
@@ -122,9 +126,8 @@ public class CreateAccount implements RestModifyView<TopLevelResource, AccountIn
       throw new BadRequestException("username must match URL");
     }
 
-    if (!USER_NAME_PATTERN_COMPILED.matcher(username).matches()) {
-      throw new BadRequestException(
-          "Username '" + username + "' must comply with [" + USER_NAME_PATTERN + "] pattern.");
+    if (!ExternalId.isValidUsername(username)) {
+      throw new BadRequestException("Invalid username '" + username + "'");
     }
 
     Set<AccountGroup.UUID> groups = parseGroups(input.groups);

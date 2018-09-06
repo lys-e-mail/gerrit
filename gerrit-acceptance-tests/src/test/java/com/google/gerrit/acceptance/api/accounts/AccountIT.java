@@ -1682,6 +1682,7 @@ public class AccountIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (5689d6 RestApiServlet: Skip capability check for administrators)
   @Sandboxed
   public void checkConsistency() throws Exception {
     allowGlobalCapabilities(REGISTERED_USERS, GlobalCapability.ACCESS_DATABASE);
@@ -1792,6 +1793,37 @@ public class AccountIT extends AbstractDaemonTest {
     List<String> actual =
         gApi.accounts().id(user).getGroups().stream().map(g -> g.name).collect(toList());
     assertThat(actual).containsExactlyElementsIn(expected);
+=======
+  public void createUserWithValidUsername() throws Exception {
+    ImmutableList<String> names =
+        ImmutableList.of(
+            "user@domain",
+            "user-name",
+            "user_name",
+            "1234",
+            "user1234",
+            "1234@domain",
+            "user!+alias{*}#$%&’^=~|@domain");
+    for (String name : names) {
+      gApi.accounts().create(name);
+    }
+  }
+
+  @Test
+  public void createUserWithInvalidUsername() throws Exception {
+    ImmutableList<String> invalidNames =
+        ImmutableList.of(
+            "@", "@foo", "-", "-foo", "_", "_foo", "!", "+", "{", "}", "*", "%", "#", "$", "&", "’",
+            "^", "=", "~");
+    for (String name : invalidNames) {
+      try {
+        gApi.accounts().create(name);
+        fail(String.format("Expected BadRequestException for username [%s]", name));
+      } catch (BadRequestException e) {
+        assertThat(e).hasMessageThat().isEqualTo(String.format("Invalid username '%s'", name));
+      }
+    }
+>>>>>>> BRANCH (0839eb Elastic{Index|ReindexIT} Remove tests for 6.2 and 6.3)
   }
 
   private void assertSequenceNumbers(List<SshKeyInfo> sshKeys) {
