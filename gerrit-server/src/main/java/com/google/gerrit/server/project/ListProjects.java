@@ -588,7 +588,14 @@ public class ListProjects implements RestReadView<TopLevelResource> {
       PermissionBackend.ForProject perm = permissionBackend.user(currentUser).project(projectName);
       for (int i = 0; i < showBranch.size(); i++) {
         Ref ref = git.findRef(showBranch.get(i));
+<<<<<<< HEAD   (8f22eb Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
         if (all && projectControl.isOwner()) {
+=======
+        if ((ref != null
+                && ref.getObjectId() != null
+                && (projectControl.controlForRef(ref.getLeaf().getName()).isVisible()))
+            || (all && projectControl.isOwner())) {
+>>>>>>> BRANCH (3ae510 Set version to 2.14.12)
           result[i] = ref;
         } else if (ref != null && ref.getObjectId() != null) {
           try {

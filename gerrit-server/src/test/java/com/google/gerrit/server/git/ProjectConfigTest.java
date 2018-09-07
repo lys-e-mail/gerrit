@@ -29,8 +29,12 @@ import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.config.PluginConfig;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
+<<<<<<< HEAD   (8f22eb Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 import com.google.gwtorm.client.KeyUtil;
 import com.google.gwtorm.server.StandardKeyEncoder;
+=======
+import com.google.gerrit.server.project.CommentLinkInfoImpl;
+>>>>>>> BRANCH (3ae510 Set version to 2.14.12)
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -482,6 +486,19 @@ public class ProjectConfigTest extends LocalDiskRepositoryTestCase {
                 + "     \t"
                 + staff.getName()
                 + "\n");
+  }
+
+  @Test
+  public void addCommentLink() throws Exception {
+    RevCommit rev = util.commit().create();
+    update(rev);
+
+    ProjectConfig cfg = read(rev);
+    CommentLinkInfoImpl cm = new CommentLinkInfoImpl("Test", "abc.*", null, "<a>link</a>", true);
+    cfg.addCommentLinkSection(cm);
+    rev = commit(cfg);
+    assertThat(text(rev, "project.config"))
+        .isEqualTo("[commentlink \"Test\"]\n\tmatch = abc.*\n\thtml = <a>link</a>\n");
   }
 
   private ProjectConfig read(RevCommit rev) throws IOException, ConfigInvalidException {

@@ -791,7 +791,11 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
               assertThat(args.getRef(master)).hasValue(newMasterId);
               args.getRevWalk().parseBody(args.getRevWalk().parseCommit(newMasterId));
             } catch (IOException e) {
+<<<<<<< HEAD   (8f22eb Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
               throw new AssertionError("failed checking new ref value", e);
+=======
+              throw new ValidationException("Unexpected exception", e);
+>>>>>>> BRANCH (3ae510 Set version to 2.14.12)
             }
             projectsCalled.add(args.getProject().get());
             if (projectsCalled.size() == 2) {
