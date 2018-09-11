@@ -264,6 +264,7 @@ The entries in the map are sorted by project name.
       "can_upload": true,
       "can_add": true,
       "can_add_tags": true,
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
       "config_visible": true,
       "groups": {
          "53a4f647a89ea57992571187d8025f830625192a": {
@@ -299,6 +300,9 @@ The entries in the map are sorted by project name.
            "name": "Anonymous Users"
          }
       }
+=======
+      "config_visible": true
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
     },
     "MyProject": {
       "revision": "61157ed63e14d261b6dca40650472a9b0bd88474",

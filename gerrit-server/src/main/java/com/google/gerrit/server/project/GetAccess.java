@@ -245,6 +245,7 @@ public class GetAccess implements RestReadView<ProjectResource> {
 
     info.isOwner = toBoolean(pc.isOwner());
     info.canUpload =
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
         toBoolean(
             pc.isOwner()
                 || (checkReadConfig && perm.ref(RefNames.REFS_CONFIG).testOrFalse(CREATE_CHANGE)));
@@ -258,6 +259,12 @@ public class GetAccess implements RestReadView<ProjectResource> {
             .stream()
             .filter(e -> e.getValue() != INVISIBLE_SENTINEL)
             .collect(toMap(e -> e.getKey().get(), e -> e.getValue()));
+=======
+        toBoolean(pc.isOwner() || (metaConfigControl.isVisible() && metaConfigControl.canUpload()));
+    info.canAdd = toBoolean(pc.canAddRefs());
+    info.canAddTags = toBoolean(pc.canAddTagRefs());
+    info.configVisible = pc.isOwner() || metaConfigControl.isVisible();
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
 
     return info;
   }

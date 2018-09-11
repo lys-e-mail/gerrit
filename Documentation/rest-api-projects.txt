@@ -1035,6 +1035,7 @@ entity is returned.
     "can_upload": true,
     "can_add": true,
     "can_add_tags": true,
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
     "config_visible": true,
     "groups": {
       "c2ce4749a32ceb82cd6adcce65b8216e12afb41c": {
@@ -1052,6 +1053,9 @@ entity is returned.
         "name": "Anonymous Users"
       }
     }
+=======
+    "config_visible": true
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
   }
 ----
 
@@ -1137,6 +1141,7 @@ entity is returned.
     "can_upload": true,
     "can_add": true,
     "can_add_tags": true,
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
     "config_visible": true,
     "groups": {
       "global:Anonymous-Users": {
@@ -1250,6 +1255,9 @@ project-ref combination).
   {
     "message": "user Kristen Burns \u003cKristen.Burns@gerritcodereview.com\u003e (1000098) cannot see ref refs/heads/secret/bla in project MyProject",
     "status": 403
+=======
+    "config_visible": true
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
   }
 ----
 

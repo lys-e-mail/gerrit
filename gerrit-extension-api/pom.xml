@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
   <version>2.15.4-SNAPSHOT</version>
+=======
+  <version>2.14.13-SNAPSHOT</version>
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

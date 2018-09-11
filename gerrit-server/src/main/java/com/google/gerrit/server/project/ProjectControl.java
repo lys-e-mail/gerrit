@@ -14,11 +14,16 @@
 
 package com.google.gerrit.server.project;
 
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.gerrit.reviewdb.client.RefNames.REFS_TAGS;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+=======
+import static com.google.gerrit.reviewdb.client.RefNames.REFS_TAGS;
+
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
 import com.google.common.collect.Maps;
 import com.google.gerrit.common.data.AccessSection;
 import com.google.gerrit.common.data.Capable;
@@ -256,7 +261,19 @@ public class ProjectControl {
     return (canPerformOnTagRef(Permission.CREATE) || isAdmin());
   }
 
+<<<<<<< HEAD   (c2114a ProjectTagsScreen: Base visibility on the create refs/tags/*)
   private boolean canCreateChanges() {
+=======
+  public boolean canAddRefs() {
+    return (canPerformOnAnyRef(Permission.CREATE) || isOwnerAnyRef());
+  }
+
+  public boolean canAddTagRefs() {
+    return (canPerformOnTagRef(Permission.CREATE) || isOwnerAnyRef());
+  }
+
+  public boolean canUpload() {
+>>>>>>> BRANCH (e46fd3 Upgrade JGit to 4.7.3.201809090215-r)
     for (SectionMatcher matcher : access()) {
       AccessSection section = matcher.section;
       if (section.getName().startsWith("refs/for/")) {
@@ -284,6 +301,26 @@ public class ProjectControl {
       declaredOwner = effectiveGroups.containsAnyOf(state.getAllOwners());
     }
     return declaredOwner;
+  }
+
+  private boolean canPerformOnTagRef(String permissionName) {
+    for (SectionMatcher matcher : access()) {
+      AccessSection section = matcher.section;
+
+      if (section.getName().startsWith(REFS_TAGS)) {
+        Permission permission = section.getPermission(permissionName);
+        if (permission == null) {
+          continue;
+        }
+
+        Boolean can = canPerform(permissionName, section, permission);
+        if (can != null) {
+          return can;
+        }
+      }
+    }
+
+    return false;
   }
 
   private boolean canPerformOnTagRef(String permissionName) {
