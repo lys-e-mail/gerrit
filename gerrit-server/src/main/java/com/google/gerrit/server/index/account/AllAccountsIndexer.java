@@ -28,8 +28,11 @@ import com.google.gerrit.server.account.Accounts;
 import com.google.gerrit.server.index.IndexExecutor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+<<<<<<< HEAD   (093eb7 Merge branch 'stable-2.14' into stable-2.15)
 import java.io.IOException;
 import java.io.PrintWriter;
+=======
+>>>>>>> BRANCH (02e04a Bazel: Make 'DefaultCharset' an ERROR when compiling with Er)
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -59,8 +62,13 @@ public class AllAccountsIndexer extends SiteIndexer<Account.Id, AccountState, Ac
   }
 
   @Override
+<<<<<<< HEAD   (093eb7 Merge branch 'stable-2.14' into stable-2.15)
   public SiteIndexer.Result indexAll(AccountIndex index) {
     ProgressMonitor progress = new TextProgressMonitor(new PrintWriter(progressOut));
+=======
+  public SiteIndexer.Result indexAll(final AccountIndex index) {
+    ProgressMonitor progress = new TextProgressMonitor(newPrintWriter(progressOut));
+>>>>>>> BRANCH (02e04a Bazel: Make 'DefaultCharset' an ERROR when compiling with Er)
     progress.start(2);
     Stopwatch sw = Stopwatch.createStarted();
     List<Account.Id> ids;
