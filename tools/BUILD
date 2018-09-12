@@ -122,7 +122,38 @@ java_package_configuration(
 package_group(
     name = "error_prone_packages",
     packages = [
+<<<<<<< HEAD   (51399c Upgrade JGit to 5.0.3.201809091024-r)
         "//java/...",
         "//javatests/...",
+=======
+        "//gerrit-acceptance-framework/...",
+        "//gerrit-acceptance-tests/...",
+        "//gerrit-cache-h2/...",
+        "//gerrit-cache-mem/...",
+        "//gerrit-common/...",
+        "//gerrit-elasticsearch/...",
+        "//gerrit-extension-api/...",
+        "//gerrit-gpg/...",
+        "//gerrit-httpd/...",
+        "//gerrit-launcher/...",
+        "//gerrit-lucene/...",
+        "//gerrit-main/...",
+        "//gerrit-oauth/...",
+        "//gerrit-openid/...",
+        "//gerrit-patch-commonsnet/...",
+        "//gerrit-patch-jgit/...",
+        "//gerrit-pgm/...",
+        "//gerrit-plugin-api/...",
+        "//gerrit-plugin-gwtui/...",
+        "//gerrit-prettify/...",
+        "//gerrit-reviewdb/...",
+        "//gerrit-server/...",
+        "//gerrit-sshd/...",
+        "//gerrit-test-util/...",
+        "//gerrit-util-cli/...",
+        "//gerrit-util-http/...",
+        "//gerrit-util-ssl/...",
+        "//gerrit-war/...",
+>>>>>>> BRANCH (093eb7 Merge branch 'stable-2.14' into stable-2.15)
     ],
 )
