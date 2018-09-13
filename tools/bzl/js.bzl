@@ -424,6 +424,7 @@ _bundle_rule = rule(
     outputs = _bundle_output_func,
 )
 
+<<<<<<< HEAD   (e171a3 ReceiveCommits: Remove unused provider for AccountsUpdate)
 def bundle_assets(*args, **kwargs):
     """Combine html, js, css files and optionally split into js and html bundles."""
     _bundle_rule(*args, pkg = PACKAGE_NAME, **kwargs)
@@ -518,3 +519,8 @@ def polygerrit_plugin(name, app, srcs = [], assets = None, **kwargs):
         name = name,
         srcs = static_files,
     )
+=======
+def vulcanize(*args, **kwargs):
+    """Vulcanize runs vulcanize and crisper on a set of sources."""
+    _vulcanize_rule(*args, pkg = native.package_name(), **kwargs)
+>>>>>>> BRANCH (3c980f Merge branch 'stable-2.14' into stable-2.15)

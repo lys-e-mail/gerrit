@@ -34,10 +34,17 @@ for xml in args.xmls:
             # already handled in other xml files
             continue
 
+<<<<<<< HEAD   (e171a3 ReceiveCommits: Remove unused provider for AccountsUpdate)
         handled_rules.append(rule_name)
         for c in child.getchildren():
             if c.tag != "rule-input":
                 continue
+=======
+    handled_rules.append(rule_name)
+    for c in list(child):
+      if c.tag != "rule-input":
+        continue
+>>>>>>> BRANCH (3c980f Merge branch 'stable-2.14' into stable-2.15)
 
             license_name = c.attrib["name"]
             if LICENSE_PREFIX in license_name:
