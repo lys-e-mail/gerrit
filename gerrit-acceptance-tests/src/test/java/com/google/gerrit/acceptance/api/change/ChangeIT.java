@@ -908,6 +908,7 @@ public class ChangeIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (d73d01 ChangeData#isReviewedBy: Guard against null current patch se)
   public void rebaseNotAllowedForOwnerWithoutPushPermission() throws Exception {
     // Create two changes both with the same parent
     PushOneCommit.Result r = createChange();
@@ -926,6 +927,17 @@ public class ChangeIT extends AbstractDaemonTest {
     exception.expect(AuthException.class);
     exception.expectMessage("rebase not permitted");
     gApi.changes().id(changeId).rebase();
+=======
+  public void deleteDraftChange() throws Exception {
+    PushOneCommit.Result r = createChange("refs/drafts/master");
+    String changeId = r.getChangeId();
+    assertThat(query(changeId)).hasSize(1);
+    assertThat(info(changeId).status).isEqualTo(ChangeStatus.DRAFT);
+    gApi.changes().id(changeId).delete();
+    assertThat(query(changeId)).isEmpty();
+
+    eventRecorder.assertChangeDeletedEvents(changeId, admin.email);
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
   }
 
   @Test
@@ -1009,8 +1021,12 @@ public class ChangeIT extends AbstractDaemonTest {
 
       assertThat(query(changeId)).isEmpty();
 
+<<<<<<< HEAD   (d73d01 ChangeData#isReviewedBy: Guard against null current patch se)
       String ref = new Change.Id(id).toRefPrefix() + "1";
       eventRecorder.assertRefUpdatedEvents(projectName.get(), ref, null, commit, commit, null);
+=======
+      eventRecorder.assertChangeDeletedEvents(changeId, deleteAs.email);
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
     } finally {
       removePermission(project, "refs/*", Permission.DELETE_OWN_CHANGES);
       removePermission(project, "refs/*", Permission.DELETE_CHANGES);
