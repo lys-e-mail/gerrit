@@ -26,6 +26,11 @@ import com.google.gerrit.reviewdb.server.ReviewDb;
 import com.google.gerrit.reviewdb.server.ReviewDbUtil;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.StarredChangesUtil;
+<<<<<<< HEAD   (d360c3 Merge "Revert "GetCapabilities#CheckOne: Return json content)
+=======
+import com.google.gerrit.server.config.GerritServerConfig;
+import com.google.gerrit.server.extensions.events.ChangeDeleted;
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
 import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.BatchUpdateReviewDb;
@@ -55,6 +60,11 @@ class DeleteChangeOp implements BatchUpdateOp {
   private final PatchSetUtil psUtil;
   private final StarredChangesUtil starredChangesUtil;
   private final DynamicItem<AccountPatchReviewStore> accountPatchReviewStore;
+<<<<<<< HEAD   (d360c3 Merge "Revert "GetCapabilities#CheckOne: Return json content)
+=======
+  private final boolean allowDrafts;
+  private final ChangeDeleted changeDeleted;
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
 
   private Change.Id id;
 
@@ -62,10 +72,21 @@ class DeleteChangeOp implements BatchUpdateOp {
   DeleteChangeOp(
       PatchSetUtil psUtil,
       StarredChangesUtil starredChangesUtil,
+<<<<<<< HEAD   (d360c3 Merge "Revert "GetCapabilities#CheckOne: Return json content)
       DynamicItem<AccountPatchReviewStore> accountPatchReviewStore) {
+=======
+      DynamicItem<AccountPatchReviewStore> accountPatchReviewStore,
+      @GerritServerConfig Config cfg,
+      ChangeDeleted changeDeleted) {
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
     this.psUtil = psUtil;
     this.starredChangesUtil = starredChangesUtil;
     this.accountPatchReviewStore = accountPatchReviewStore;
+<<<<<<< HEAD   (d360c3 Merge "Revert "GetCapabilities#CheckOne: Return json content)
+=======
+    this.allowDrafts = allowDrafts(cfg);
+    this.changeDeleted = changeDeleted;
+>>>>>>> BRANCH (879d7c FormatUtil: Correctly fix the Math#round() error flagged by )
   }
 
   @Override
@@ -85,6 +106,7 @@ class DeleteChangeOp implements BatchUpdateOp {
     deleteChangeElementsFromDb(ctx, id);
 
     ctx.deleteChange();
+    changeDeleted.fire(ctx.getChange(), ctx.getAccount(), ctx.getWhen());
     return true;
   }
 
