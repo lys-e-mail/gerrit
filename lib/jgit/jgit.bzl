@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_CENTRAL", "MAVEN_LOCAL", "maven_jar")
 
+<<<<<<< HEAD   (fb2f47 Upgrade JGit to 4.9.5.201809180939-r)
 _JGIT_VERS = "4.9.5.201809180939-r"
+=======
+_JGIT_VERS = "4.7.4.201809180905-r"
+>>>>>>> BRANCH (08f5fd Upgrade elasticsearch-rest-client to 6.4.1)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -35,28 +39,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fb2f47 Upgrade JGit to 4.9.5.201809180939-r)
         sha1 = "e49fcc98e3c78fea8aeea075e061b6df1b0a9acb",
         src_sha1 = "36cd2ad673e051fa1549bbe3228fc92fb6d29c1f",
+=======
+        sha1 = "969b065546911db86ec41a7726d12292f905b875",
+        src_sha1 = "c19ef80da53442b46005a5cf78396362c2d9e3e5",
+>>>>>>> BRANCH (08f5fd Upgrade elasticsearch-rest-client to 6.4.1)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fb2f47 Upgrade JGit to 4.9.5.201809180939-r)
         sha1 = "f69b3ccd0e9c84bbadf4a1a7f3eee3f62f81b725",
+=======
+        sha1 = "7973c6c6e6f023ab0dce33ff9caf8c57e5216a29",
+>>>>>>> BRANCH (08f5fd Upgrade elasticsearch-rest-client to 6.4.1)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fb2f47 Upgrade JGit to 4.9.5.201809180939-r)
         sha1 = "96090439253b1e39037f0476734613e57eb513cf",
+=======
+        sha1 = "21117e9050f36366a22378db1e569a3f36044c48",
+>>>>>>> BRANCH (08f5fd Upgrade elasticsearch-rest-client to 6.4.1)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fb2f47 Upgrade JGit to 4.9.5.201809180939-r)
         sha1 = "384987918ef03fd1462e22c65a1a27c4ecc2350a",
+=======
+        sha1 = "2af2926424cfd90b3113e675c8e4d0bb3e3d8024",
+>>>>>>> BRANCH (08f5fd Upgrade elasticsearch-rest-client to 6.4.1)
         unsign = True,
     )
 
