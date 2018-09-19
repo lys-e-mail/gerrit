@@ -47,7 +47,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Path;
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
 import java.util.Arrays;
+=======
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -254,6 +257,7 @@ public class GerritServer implements AutoCloseable {
   public static GerritServer initAndStart(Description desc, Config baseConfig) throws Exception {
     Path site = TempFileUtil.createTempDirectory().toPath();
     baseConfig = new Config(baseConfig);
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
     baseConfig.setString("gerrit", null, "basePath", site.resolve("git").toString());
     baseConfig.setString("gerrit", null, "tempSiteDir", site.toString());
     try {
@@ -261,6 +265,14 @@ public class GerritServer implements AutoCloseable {
         init(desc, baseConfig, site);
       }
       return start(desc, baseConfig, site, null);
+=======
+    baseConfig.setString("gerrit", null, "tempSiteDir", site.toString());
+    try {
+      if (!desc.memory()) {
+        init(desc, baseConfig, site);
+      }
+      return start(desc, baseConfig, site);
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
     } catch (Exception e) {
       TempFileUtil.recursivelyDelete(site.toFile());
       throw e;
@@ -308,7 +320,10 @@ public class GerritServer implements AutoCloseable {
     daemon.setEnableSshd(desc.useSsh());
 
     if (desc.memory()) {
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
       checkArgument(additionalArgs.length == 0, "cannot pass args to in-memory server");
+=======
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
       return startInMemory(desc, site, baseConfig, daemon);
     }
     return startOnDisk(desc, site, daemon, serverStarted, additionalArgs);

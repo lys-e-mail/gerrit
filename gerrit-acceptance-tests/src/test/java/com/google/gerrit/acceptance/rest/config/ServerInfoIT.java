@@ -29,12 +29,23 @@ import com.google.gerrit.extensions.common.ServerInfo;
 import com.google.gerrit.server.config.AllProjectsNameProvider;
 import com.google.gerrit.server.config.AllUsersNameProvider;
 import com.google.gerrit.server.config.AnonymousCowardNameProvider;
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
+=======
+import com.google.gerrit.server.config.SitePaths;
+import com.google.inject.Inject;
+import java.nio.file.Files;
+import java.nio.file.Path;
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
 import org.junit.Test;
 
 @NoHttpd
 public class ServerInfoIT extends AbstractDaemonTest {
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
   private static final byte[] JS_PLUGIN_CONTENT =
       "Gerrit.install(function(self){});\n".getBytes(UTF_8);
+=======
+  @Inject private SitePaths sitePaths;
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
 
   @Test
   // accounts
@@ -138,6 +149,15 @@ public class ServerInfoIT extends AbstractDaemonTest {
   @Test
   @GerritConfig(name = "plugins.allowRemoteAdmin", value = "true")
   public void serverConfigWithPlugin() throws Exception {
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
+=======
+    Path plugins = sitePaths.plugins_dir;
+    Files.createDirectory(plugins);
+    Path jsplugin = plugins.resolve("js-plugin-1.js");
+    Files.write(jsplugin, "Gerrit.install(function(self){});\n".getBytes(UTF_8));
+    adminSshSession.exec("gerrit plugin reload");
+
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
     ServerInfo i = gApi.config().server().getInfo();
     assertThat(i.plugin.jsResourcePaths).isEmpty();
 

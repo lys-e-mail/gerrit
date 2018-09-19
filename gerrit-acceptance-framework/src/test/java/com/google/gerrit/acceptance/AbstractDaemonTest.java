@@ -200,6 +200,7 @@ public abstract class AbstractDaemonTest {
         }
       };
 
+<<<<<<< HEAD   (431ae1 Merge "Merge branch 'stable-2.14' into stable-2.15" into sta)
   @Inject @CanonicalWebUrl protected Provider<String> canonicalWebUrl;
   @Inject @GerritPersonIdent protected Provider<PersonIdent> serverIdent;
   @Inject @GerritServerConfig protected Config cfg;
@@ -255,6 +256,8 @@ public abstract class AbstractDaemonTest {
 
   private List<Repository> toClose;
 
+=======
+>>>>>>> BRANCH (c30156 ElasticContainer: Use Elasticsearch 6.4.1 for V6_4 tests)
   @Before
   public void clearSender() {
     sender.clear();
