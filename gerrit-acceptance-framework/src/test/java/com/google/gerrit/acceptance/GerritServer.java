@@ -253,9 +253,12 @@ public class GerritServer implements AutoCloseable {
    */
   public static GerritServer initAndStart(Description desc, Config baseConfig) throws Exception {
     Path site = TempFileUtil.createTempDirectory().toPath();
+<<<<<<< HEAD   (d4782a Merge branch 'stable-2.14' into stable-2.15)
     baseConfig = new Config(baseConfig);
     baseConfig.setString("gerrit", null, "basePath", site.resolve("git").toString());
     baseConfig.setString("gerrit", null, "tempSiteDir", site.toString());
+=======
+>>>>>>> BRANCH (b54aee Add link to security documentation for Elasticsearch 6.4)
     try {
       if (!desc.memory()) {
         init(desc, baseConfig, site);
