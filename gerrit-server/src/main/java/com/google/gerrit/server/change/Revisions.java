@@ -76,8 +76,12 @@ public class Revisions implements ChildCollection<ChangeResource, RevisionResour
 
   @Override
   public RevisionResource parse(ChangeResource change, IdString id)
+<<<<<<< HEAD   (d4782a Merge branch 'stable-2.14' into stable-2.15)
       throws ResourceNotFoundException, AuthException, OrmException, IOException,
           PermissionBackendException {
+=======
+      throws ResourceNotFoundException, AuthException, OrmException, IOException {
+>>>>>>> BRANCH (b54aee Add link to security documentation for Elasticsearch 6.4)
     if (id.get().equals("current")) {
       PatchSet ps = psUtil.current(dbProvider.get(), change.getNotes());
       if (ps != null && visible(change)) {
