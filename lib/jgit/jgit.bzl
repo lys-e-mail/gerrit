@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_CENTRAL", "MAVEN_LOCAL", "maven_jar")
 
+<<<<<<< HEAD   (04c987 Merge changes I651c570b,I0d571918)
 _JGIT_VERS = "5.1.1.201809181055-r"
+=======
+_JGIT_VERS = "4.9.5.201809180939-r"
+>>>>>>> BRANCH (d4782a Merge branch 'stable-2.14' into stable-2.15)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (04c987 Merge changes I651c570b,I0d571918)
         sha1 = "64dfe41b3c152bb9b7158b214e28467cb1217153",
         src_sha1 = "ff6ab018897cf4213b905e156ac5930bad2bdff1",
+=======
+        sha1 = "e49fcc98e3c78fea8aeea075e061b6df1b0a9acb",
+        src_sha1 = "36cd2ad673e051fa1549bbe3228fc92fb6d29c1f",
+>>>>>>> BRANCH (d4782a Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (04c987 Merge changes I651c570b,I0d571918)
         sha1 = "22fd6827fbb6135efd813271185a91f8615538eb",
+=======
+        sha1 = "f69b3ccd0e9c84bbadf4a1a7f3eee3f62f81b725",
+>>>>>>> BRANCH (d4782a Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (04c987 Merge changes I651c570b,I0d571918)
         sha1 = "bfbbdd6aa1893db14f346913aad3f9898b2fe01d",
+=======
+        sha1 = "96090439253b1e39037f0476734613e57eb513cf",
+>>>>>>> BRANCH (d4782a Merge branch 'stable-2.14' into stable-2.15)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (04c987 Merge changes I651c570b,I0d571918)
         sha1 = "6de6de74053d7c28100fe128255d7382a939fe99",
+=======
+        sha1 = "384987918ef03fd1462e22c65a1a27c4ecc2350a",
+>>>>>>> BRANCH (d4782a Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
 
