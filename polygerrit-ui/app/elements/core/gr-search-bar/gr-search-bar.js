@@ -189,6 +189,86 @@
       }
     },
 
+<<<<<<< HEAD   (2d8a85 ProjectQoSFilter: Suppress warnings about deprecated jetty C)
+=======
+    _accountOrAnon(name) {
+      return this.getUserName(this._config, name, false);
+    },
+
+    /**
+     * Fetch from the API the predicted accounts.
+     * @param {string} predicate - The first part of the search term, e.g.
+     *     'owner'
+     * @param {string} expression - The second part of the search term, e.g.
+     *     'kasp'
+     * @return {!Promise} This returns a promise that resolves to an array of
+     *     strings.
+     */
+    _fetchAccounts(predicate, expression) {
+      if (expression.length === 0) { return Promise.resolve([]); }
+      return this.$.restAPI.getSuggestedAccounts(
+          expression,
+          MAX_AUTOCOMPLETE_RESULTS)
+          .then(accounts => {
+            if (!accounts) { return []; }
+            return accounts.map(acct => acct.email ?
+              `${predicate}:${acct.email}` :
+              `${predicate}:"${this._accountOrAnon(acct)}"`);
+          }).then(accounts => {
+            // When the expression supplied is a beginning substring of 'self',
+            // add it as an autocomplete option.
+            if (SELF_EXPRESSION.startsWith(expression)) {
+              return accounts.concat([predicate + ':' + SELF_EXPRESSION]);
+            } else if (ME_EXPRESSION.startsWith(expression)) {
+              return accounts.concat([predicate + ':' + ME_EXPRESSION]);
+            } else {
+              return accounts;
+            }
+          });
+    },
+
+    /**
+     * Fetch from the API the predicted groups.
+     * @param {string} predicate - The first part of the search term, e.g.
+     *     'ownerin'
+     * @param {string} expression - The second part of the search term, e.g.
+     *     'polyger'
+     * @return {!Promise} This returns a promise that resolves to an array of
+     *     strings.
+     */
+    _fetchGroups(predicate, expression) {
+      if (expression.length === 0) { return Promise.resolve([]); }
+      return this.$.restAPI.getSuggestedGroups(
+          expression,
+          MAX_AUTOCOMPLETE_RESULTS)
+          .then(groups => {
+            if (!groups) { return []; }
+            const keys = Object.keys(groups);
+            return keys.map(key => predicate + ':' + key);
+          });
+    },
+
+    /**
+     * Fetch from the API the predicted projects.
+     * @param {string} predicate - The first part of the search term, e.g.
+     *     'project'
+     * @param {string} expression - The second part of the search term, e.g.
+     *     'gerr'
+     * @return {!Promise} This returns a promise that resolves to an array of
+     *     strings.
+     */
+    _fetchProjects(predicate, expression) {
+      return this.$.restAPI.getSuggestedProjects(
+          expression,
+          MAX_AUTOCOMPLETE_RESULTS)
+          .then(projects => {
+            if (!projects) { return []; }
+            const keys = Object.keys(projects);
+            return keys.map(key => predicate + ':' + key);
+          });
+    },
+
+>>>>>>> BRANCH (f323dd Merge branch 'stable-2.14' into stable-2.15)
     /**
      * Determine what array of possible suggestions should be provided
      *     to _getSearchSuggestions.
