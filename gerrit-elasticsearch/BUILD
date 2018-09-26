@@ -3,6 +3,11 @@ java_library(
     srcs = glob(["src/main/java/**/*.java"]),
     visibility = ["//visibility:public"],
     deps = [
+<<<<<<< HEAD   (1c6ff2 CreateProject: Provide signed push option on project creatio)
+=======
+        "//gerrit-antlr:query_exception",
+        "//gerrit-common:annotations",
+>>>>>>> BRANCH (62417b Update jruby to 9.1.17 and asciidoctorj to v1.5.7)
         "//gerrit-extension-api:api",
         "//gerrit-index:index",
         "//gerrit-index:query_exception",

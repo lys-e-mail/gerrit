@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (1c6ff2 CreateProject: Provide signed push option on project creatio)
   <version>2.15.4-SNAPSHOT</version>
+=======
+  <version>2.14.14-SNAPSHOT</version>
+>>>>>>> BRANCH (62417b Update jruby to 9.1.17 and asciidoctorj to v1.5.7)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
