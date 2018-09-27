@@ -3568,8 +3568,17 @@ Whether content merge should be enabled for the project (`TRUE`,
 |`require_change_id`                           |`INHERIT` if not set|
 Whether the usage of Change-Ids is required for the project (`TRUE`,
 `FALSE`, `INHERIT`).
+<<<<<<< HEAD   (378283 Merge "Clear up syntax for command reference files")
 This property is deprecated and will be removed in
 a future release.
+=======
+|`enable_signed_push`                           |`INHERIT` if not set|
+Whether signed push validation is enabled on the project  (`TRUE`,
+`FALSE`, `INHERIT`).
+|`require_signed_push`                          |`INHERIT` if not set|
+Whether signed push validation is required on the project  (`TRUE`,
+`FALSE`, `INHERIT`).
+>>>>>>> BRANCH (8e979a Merge branch 'stable-2.14' into stable-2.15)
 |`max_object_size_limit`     |optional|
 Max allowed Git object size for this project.
 Common unit suffixes of 'k', 'm', or 'g' are supported.
@@ -3706,8 +3715,6 @@ The path to the `GerritSiteHeader.html` file.
 |`footer`        |optional|
 The path to the `GerritSiteFooter.html` file.
 |=============================
-
-----
 
 GERRIT
 ------
