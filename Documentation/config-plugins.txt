@@ -450,6 +450,7 @@ Project].
 This plugin reports Gerrit metrics to JMX.
 
 link:https://gerrit-review.googlesource.com/admin/repos/plugins/metrics-reporter-jmx[
+<<<<<<< HEAD   (c85456 Merge "TransferConfig#getInheritProjectMaxObjectSizeLimit: R)
 Project].
 
 [[metrics-reporter-prometheus]]
@@ -458,6 +459,8 @@ Project].
 This plugin exposes Gerrit metrics for consumption by Prometheus.
 
 link:https://gerrit-review.googlesource.com/admin/repos/plugins/metrics-reporter-prometheus[
+=======
+>>>>>>> BRANCH (67f579 Merge changes Ic6670512,I68106aa4 into stable-2.15)
 Project].
 
 [[motd]]

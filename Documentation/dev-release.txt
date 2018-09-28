@@ -246,7 +246,11 @@ gerrit-releases bucket in the Google cloud storage console]
 [[push-stable]]
 ==== Push the Stable Branch
 
+<<<<<<< HEAD   (c85456 Merge "TransferConfig#getInheritProjectMaxObjectSizeLimit: R)
 * Create the stable branch `stable-$version` in the `gerrit` project via the
+=======
+* Create the stable branch `stable-2.5` in the `gerrit` project via the
+>>>>>>> BRANCH (67f579 Merge changes Ic6670512,I68106aa4 into stable-2.15)
 link:https://gerrit-review.googlesource.com/admin/repos/gerrit,branches[
 Gerrit Web UI] or by push.
 
