@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (5fe24a Merge branch 'stable-2.14' into stable-2.15)
   <version>2.15.5-SNAPSHOT</version>
+=======
+  <version>2.14.15</version>
+>>>>>>> BRANCH (1f56ae Set version to 2.14.15)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>
