@@ -49,6 +49,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -265,6 +266,66 @@ public abstract class BaseCommand implements Command {
    * <p>Typically this should be invoked within {@link Command#start(Environment)}, such as:
    *
    * <pre>
+<<<<<<< HEAD   (3e0570 Fix support for setting owner of group to a single user)
+=======
+   * startThread(new Runnable() {
+   *   public void run() {
+   *     runImp();
+   *   }
+   * });
+   * </pre>
+   *
+   * @param thunk the runnable to execute on the thread, performing the command's logic.
+   */
+  protected void startThread(final Runnable thunk) {
+    startThread(
+        new CommandRunnable() {
+          @Override
+          public void run() throws Exception {
+            thunk.run();
+          }
+        });
+  }
+
+  /**
+   * Spawn a function into its own thread with the provided context.
+   *
+   * <p>Typically this should be invoked within {@link Command#start(Environment)}, such as:
+   *
+   * <pre>
+   * startThreadWithContext(SshScope.Context context, new CommandRunnable() {
+   *   public void run() throws Exception {
+   *     runImp();
+   *   }
+   * });
+   * </pre>
+   *
+   * <p>If the function throws an exception, it is translated to a simple message for the client, a
+   * non-zero exit code, and the stack trace is logged.
+   *
+   * @param thunk the runnable to execute on the thread, performing the command's logic.
+   */
+  protected void startThreadWithContext(SshScope.Context context, final CommandRunnable thunk) {
+    final TaskThunk tt = new TaskThunk(thunk, Optional.ofNullable(context));
+
+    if (isAdminHighPriorityCommand() && user.getCapabilities().canAdministrateServer()) {
+      // Admin commands should not block the main work threads (there
+      // might be an interactive shell there), nor should they wait
+      // for the main work threads.
+      //
+      new Thread(tt, tt.toString()).start();
+    } else {
+      task.set(executor.submit(tt));
+    }
+  }
+
+  /**
+   * Spawn a function into its own thread.
+   *
+   * <p>Typically this should be invoked within {@link Command#start(Environment)}, such as:
+   *
+   * <pre>
+>>>>>>> BRANCH (f6e791 Fix access path propagation on git/ssh protocol)
    * startThread(new CommandRunnable() {
    *   public void run() throws Exception {
    *     runImp();
@@ -277,6 +338,7 @@ public abstract class BaseCommand implements Command {
    *
    * @param thunk the runnable to execute on the thread, performing the command's logic.
    */
+<<<<<<< HEAD   (3e0570 Fix support for setting owner of group to a single user)
   protected void startThread(CommandRunnable thunk) {
     final TaskThunk tt = new TaskThunk(thunk);
 
@@ -289,6 +351,10 @@ public abstract class BaseCommand implements Command {
     } else {
       task.set(executor.submit(tt));
     }
+=======
+  protected void startThread(final CommandRunnable thunk) {
+    startThreadWithContext(null, thunk);
+>>>>>>> BRANCH (f6e791 Fix access path propagation on git/ssh protocol)
   }
 
   private boolean isAdminHighPriorityCommand() {
@@ -413,18 +479,25 @@ public abstract class BaseCommand implements Command {
 
   private final class TaskThunk implements CancelableRunnable, ProjectRunnable {
     private final CommandRunnable thunk;
+    private final Context taskContext;
     private final String taskName;
+
     private Project.NameKey projectName;
 
+<<<<<<< HEAD   (3e0570 Fix support for setting owner of group to a single user)
     private TaskThunk(CommandRunnable thunk) {
+=======
+    private TaskThunk(final CommandRunnable thunk, Optional<Context> oneOffContext) {
+>>>>>>> BRANCH (f6e791 Fix access path propagation on git/ssh protocol)
       this.thunk = thunk;
       this.taskName = getTaskName();
+      this.taskContext = oneOffContext.orElse(context);
     }
 
     @Override
     public void cancel() {
       synchronized (this) {
-        final Context old = sshScope.set(context);
+        final Context old = sshScope.set(taskContext);
         try {
           onExit(STATUS_CANCEL);
         } finally {
@@ -439,7 +512,7 @@ public abstract class BaseCommand implements Command {
         final Thread thisThread = Thread.currentThread();
         final String thisName = thisThread.getName();
         int rc = 0;
-        final Context old = sshScope.set(context);
+        final Context old = sshScope.set(taskContext);
         try {
           context.started = TimeUtil.nowMs();
           thisThread.setName("SSH " + taskName);
