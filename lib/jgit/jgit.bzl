@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_CENTRAL", "MAVEN_LOCAL", "maven_jar")
 
+<<<<<<< HEAD   (6ec956 ChangeIT: Add a test that a reviewer can't remove themself f)
 _JGIT_VERS = "5.1.2.201810061102-r"
+=======
+_JGIT_VERS = "4.9.6.201810051924-r"
+>>>>>>> BRANCH (914a17 Merge branch 'stable-2.14' into stable-2.15)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (6ec956 ChangeIT: Add a test that a reviewer can't remove themself f)
         sha1 = "467c951f20aef345c584e1d578be691ac7ae6fbc",
         src_sha1 = "37a8b0233413af35886be512ebfcd499a439d455",
+=======
+        sha1 = "c322ac4e0bc11e512a30751890e6e2812617c17e",
+        src_sha1 = "7bc25ac3fba5e4937717240d58ad7f99220ba39a",
+>>>>>>> BRANCH (914a17 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (6ec956 ChangeIT: Add a test that a reviewer can't remove themself f)
         sha1 = "f8a7f7934b8038fe01f26a0908b648385dbc5ffe",
+=======
+        sha1 = "317486903d84501c70d7b6384c13e73c9ffa5a49",
+>>>>>>> BRANCH (914a17 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (6ec956 ChangeIT: Add a test that a reviewer can't remove themself f)
         sha1 = "c51089a2e1f225f4b10e78e9bfc9c077a9337977",
+=======
+        sha1 = "333b1b5a347297e03974243ca325511f2ab0b088",
+>>>>>>> BRANCH (914a17 Merge branch 'stable-2.14' into stable-2.15)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (6ec956 ChangeIT: Add a test that a reviewer can't remove themself f)
         sha1 = "afd35253f780ffb64281bcb3abfe24cceef78d2e",
+=======
+        sha1 = "274ef27f61b912c2a7a326ca6f7dceaa14297d94",
+>>>>>>> BRANCH (914a17 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
 
