@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (ddeb76 ChangeRebuilderImpl#execute: Fix string formatting of except)
   <version>2.15.6-SNAPSHOT</version>
+=======
+  <version>2.14.16-SNAPSHOT</version>
+>>>>>>> BRANCH (322c6b Propagate access path for SSH commands)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
