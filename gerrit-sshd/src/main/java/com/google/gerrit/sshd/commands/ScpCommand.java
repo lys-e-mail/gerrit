@@ -24,6 +24,7 @@ package com.google.gerrit.sshd.commands;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.gerrit.server.AccessPath;
 import com.google.gerrit.server.tools.ToolsCatalog;
 import com.google.gerrit.server.tools.ToolsCatalog.Entry;
 import com.google.gerrit.sshd.BaseCommand;
@@ -81,8 +82,20 @@ final class ScpCommand extends BaseCommand {
   }
 
   @Override
+<<<<<<< HEAD   (ddeb76 ChangeRebuilderImpl#execute: Fix string formatting of except)
   public void start(Environment env) {
     startThread(this::runImp);
+=======
+  public void start(final Environment env) {
+    startThread(
+        new Runnable() {
+          @Override
+          public void run() {
+            runImp();
+          }
+        },
+        AccessPath.SSH_COMMAND);
+>>>>>>> BRANCH (322c6b Propagate access path for SSH commands)
   }
 
   private void runImp() {
