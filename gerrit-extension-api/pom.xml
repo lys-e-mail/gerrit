@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (532251 Update git submodules)
   <version>2.15.6-SNAPSHOT</version>
+=======
+  <version>2.14.16-SNAPSHOT</version>
+>>>>>>> BRANCH (17e14e Propagate access path for SSH commands)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
