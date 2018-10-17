@@ -16,7 +16,6 @@ package com.google.gerrit.common.data;
 
 import com.google.gerrit.reviewdb.client.Project;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /** Portion of a {@link Project} describing a single contributor agreement. */
@@ -109,6 +108,7 @@ public class ContributorAgreement implements Comparable<ContributorAgreement> {
   public String toString() {
     return "ContributorAgreement[" + getName() + "]";
   }
+<<<<<<< HEAD   (12fedc Add project scope feature to contributor-agreement enforceme)
 
   public ContributorAgreement forUi() {
     ContributorAgreement ca = new ContributorAgreement(name);
@@ -122,4 +122,6 @@ public class ContributorAgreement implements Comparable<ContributorAgreement> {
     ca.matchProjectsRegexes = Collections.emptyList();
     return ca;
   }
+=======
+>>>>>>> BRANCH (2f7e0e Disallow submitting of changes that depend on non-visible pr)
 }
