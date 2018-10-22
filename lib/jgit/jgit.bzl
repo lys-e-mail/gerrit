@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_CENTRAL", "MAVEN_LOCAL", "maven_jar")
 
+<<<<<<< HEAD   (28d037 Upgrade JGit to 4.9.7.201810191756-r)
 _JGIT_VERS = "4.9.7.201810191756-r"
+=======
+_JGIT_VERS = "4.7.6.201810191618-r"
+>>>>>>> BRANCH (929025 Set version to 2.14.16)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -35,28 +39,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (28d037 Upgrade JGit to 4.9.7.201810191756-r)
         sha1 = "fdb6c03608e701970338c0a659cffc6772642708",
         src_sha1 = "00923a3e9302d659fa7887cc8a019e1fa11b5dd2",
+=======
+        sha1 = "e65c01d8f3a30a413b613f1fa5f770bfa8b62c81",
+        src_sha1 = "c837b9e774573afcb8a80ee318c2fbf1a3f29dd2",
+>>>>>>> BRANCH (929025 Set version to 2.14.16)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (28d037 Upgrade JGit to 4.9.7.201810191756-r)
         sha1 = "8385c02bee53a8e189817bae2ea2529631ccc7a8",
+=======
+        sha1 = "e55ba5476474939aaf74c76f3aa9f377391ee043",
+>>>>>>> BRANCH (929025 Set version to 2.14.16)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (28d037 Upgrade JGit to 4.9.7.201810191756-r)
         sha1 = "b8224b08c5c403ee635b8fa8378c27fbe6329620",
+=======
+        sha1 = "6d873357c44f217f59f52a70cd91fa30bd80e79a",
+>>>>>>> BRANCH (929025 Set version to 2.14.16)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (28d037 Upgrade JGit to 4.9.7.201810191756-r)
         sha1 = "4084467ad58438bc819daf99de7244cfaa5a6fa1",
+=======
+        sha1 = "50932594f877a56f88d2a5ab4b19198a4dfd495a",
+>>>>>>> BRANCH (929025 Set version to 2.14.16)
         unsign = True,
     )
 
