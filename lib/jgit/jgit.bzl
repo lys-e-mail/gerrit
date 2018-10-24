@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_CENTRAL", "MAVEN_LOCAL", "maven_jar")
 
+<<<<<<< HEAD   (31910e Release 2.16-rc1)
 _JGIT_VERS = "5.1.3.201810200350-r"
+=======
+_JGIT_VERS = "4.9.7.201810191756-r"
+>>>>>>> BRANCH (13133f Set version to 2.15.6)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (31910e Release 2.16-rc1)
         sha1 = "f270dbd1d792d5ad06074abe018a18644c90b60e",
         src_sha1 = "00e24ee2b721040edbb8520d705607a7f7bafd64",
+=======
+        sha1 = "fdb6c03608e701970338c0a659cffc6772642708",
+        src_sha1 = "00923a3e9302d659fa7887cc8a019e1fa11b5dd2",
+>>>>>>> BRANCH (13133f Set version to 2.15.6)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (31910e Release 2.16-rc1)
         sha1 = "360405244c28b537f0eafdc0b9d9f3753503d981",
+=======
+        sha1 = "8385c02bee53a8e189817bae2ea2529631ccc7a8",
+>>>>>>> BRANCH (13133f Set version to 2.15.6)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (31910e Release 2.16-rc1)
         sha1 = "08e10921fcc75ead2736dd5bf099ba8e2ed8a3fb",
+=======
+        sha1 = "b8224b08c5c403ee635b8fa8378c27fbe6329620",
+>>>>>>> BRANCH (13133f Set version to 2.15.6)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (31910e Release 2.16-rc1)
         sha1 = "1dc8f86bba3c461cb90c9dc3e91bf343889ca684",
+=======
+        sha1 = "4084467ad58438bc819daf99de7244cfaa5a6fa1",
+>>>>>>> BRANCH (13133f Set version to 2.15.6)
         unsign = True,
     )
 
