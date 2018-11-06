@@ -807,6 +807,12 @@
       this._mapRoute(RoutePattern.QUERY_LEGACY_SUFFIX,
           '_handleQueryLegacySuffixRoute');
 
+<<<<<<< HEAD   (6a01d5 Redirect /Documentation(/)? to /Documentation/index.html)
+=======
+      this._mapRoute(RoutePattern.ADMIN_PLACEHOLDER,
+          '_handleAdminPlaceholderRoute', true);
+
+>>>>>>> BRANCH (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
       this._mapRoute(RoutePattern.QUERY, '_handleQueryRoute');
 
       this._mapRoute(RoutePattern.DIFF_LEGACY_LINENUM, '_handleLegacyLinenum');
