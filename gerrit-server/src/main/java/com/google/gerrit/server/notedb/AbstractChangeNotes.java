@@ -146,7 +146,11 @@ public abstract class AbstractChangeNotes<T> {
     if (!read && primaryStorage == PrimaryStorage.NOTE_DB) {
       throw new OrmException("NoteDb is required to read change " + changeId);
     }
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
     boolean readOrWrite = read || args.migration.rawWriteChangesSetting();
+=======
+    boolean readOrWrite = read || args.migration.writeChanges();
+>>>>>>> BRANCH (c893c0 AbstractChangeNotes: Never open repo when NoteDb is off)
     if (!readOrWrite) {
       // Don't even open the repo if we neither write to nor read from NoteDb. It's possible that
       // there is some garbage in the noteDbState field and/or the repo, but at this point NoteDb is

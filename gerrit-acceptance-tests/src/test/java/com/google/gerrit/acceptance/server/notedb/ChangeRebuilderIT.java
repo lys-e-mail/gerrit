@@ -1355,6 +1355,7 @@ public class ChangeRebuilderIT extends AbstractDaemonTest {
     assertThat(getMetaRef(project, refName)).isNull();
   }
 
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
   @Test
   public void autoRebuildMissingRefWriteOnly() throws Exception {
     setNotesMigration(true, false);
@@ -1446,6 +1447,8 @@ public class ChangeRebuilderIT extends AbstractDaemonTest {
                 joining(", ", "PatchLineComment.Key sets differ: [", "] only in A; [] only in B")));
   }
 
+=======
+>>>>>>> BRANCH (c893c0 AbstractChangeNotes: Never open repo when NoteDb is off)
   private void assertChangesReadOnly(RestApiException e) throws Exception {
     Throwable cause = e.getCause();
     assertThat(cause).isInstanceOf(UpdateException.class);

@@ -747,7 +747,14 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
           // been rebuilt for the first time, e.g. because we just turned on write-only mode. In
           // both cases, we don't want to auto-rebuild, just proceed with an empty ChangeNotes.
           return super.openHandle(repo, id);
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
         } else if (shouldExist && state.getPrimaryStorage() == PrimaryStorage.NOTE_DB) {
+=======
+        } else if (shouldExist) {
+          // TODO(dborowitz): This means we have a state recorded in noteDbState but the ref doesn't
+          // exist for whatever reason. Doesn't this mean we should trigger an auto-rebuild, rather
+          // than throwing?
+>>>>>>> BRANCH (c893c0 AbstractChangeNotes: Never open repo when NoteDb is off)
           throw new NoSuchChangeException(getChangeId());
         }
 
