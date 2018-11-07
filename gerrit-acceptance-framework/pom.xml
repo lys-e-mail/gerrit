@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
   <version>2.15.7-SNAPSHOT</version>
+=======
+  <version>2.14.17-SNAPSHOT</version>
+>>>>>>> BRANCH (3c7f7e dev-contributing: Specify buildifier version 0.17.2)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>

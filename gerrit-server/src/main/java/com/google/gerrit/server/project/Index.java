@@ -32,8 +32,13 @@ import com.google.gerrit.server.index.change.ChangeIndexer;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
 import java.util.concurrent.Future;
 import org.eclipse.jgit.util.io.NullOutputStream;
+=======
+import java.io.PrintWriter;
+import java.util.concurrent.Future;
+>>>>>>> BRANCH (3c7f7e dev-contributing: Specify buildifier version 0.17.2)
 
 @RequiresCapability(GlobalCapability.ADMINISTRATE_SERVER)
 @Singleton
@@ -59,6 +64,7 @@ public class Index implements RestModifyView<ProjectResource, ProjectInput> {
     Task mpt =
         new MultiProgressMonitor(ByteStreams.nullOutputStream(), "Reindexing project")
             .beginSubTask("", MultiProgressMonitor.UNKNOWN);
+<<<<<<< HEAD   (2c62b5 Merge "GroupsBaseInfo: Add toString method" into stable-2.15)
     AllChangesIndexer allChangesIndexer = allChangesIndexerProvider.get();
     allChangesIndexer.setVerboseOut(NullOutputStream.INSTANCE);
     // The REST call is just a trigger for async reindexing, so it is safe to ignore the future's
@@ -66,6 +72,14 @@ public class Index implements RestModifyView<ProjectResource, ProjectInput> {
     @SuppressWarnings("unused")
     Future<Void> ignored =
         executor.submit(allChangesIndexer.reindexProject(indexer, project, mpt, mpt));
+=======
+    PrintWriter pw = new PrintWriter(CharStreams.nullWriter());
+    // The REST call is just a trigger for async reindexing, so it is safe to ignore the future's
+    // return value.
+    @SuppressWarnings("unused")
+    Future<Void> ignored =
+        executor.submit(allChangesIndexer.reindexProject(indexer, project, mpt, mpt, pw));
+>>>>>>> BRANCH (3c7f7e dev-contributing: Specify buildifier version 0.17.2)
     return Response.accepted("Project " + project + " submitted for reindexing");
   }
 }
