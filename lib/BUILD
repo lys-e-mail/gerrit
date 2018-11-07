@@ -87,12 +87,34 @@ java_library(
 )
 
 java_library(
+    name = "j2objc",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@j2objc//jar"],
+)
+
+java_library(
     name = "guava",
     data = ["//lib:LICENSE-Apache2.0"],
     visibility = ["//visibility:public"],
     exports = [
         ":j2objc",
         "@guava//jar",
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
+=======
+    ],
+)
+
+java_library(
+    name = "velocity",
+    data = ["//lib:LICENSE-Apache2.0"],
+    visibility = ["//visibility:public"],
+    exports = ["@velocity//jar"],
+    runtime_deps = [
+        "//lib/commons:collections",
+        "//lib/commons:lang",
+        "//lib/commons:oro",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
     ],
 )
 

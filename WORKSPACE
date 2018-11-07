@@ -30,7 +30,7 @@ http_file(
     urls = ["https://raw.githubusercontent.com/google/closure-compiler/35d2b3340ff23a69441f10fa3bc820691c2942f2/contrib/externs/polymer-1.0.js"],
 )
 
-load("@bazel_skylib//:lib.bzl", "versions")
+load("@bazel_skylib//lib:versions.bzl", "versions")
 
 versions.check(minimum_bazel_version = "0.17.1")
 
@@ -270,6 +270,15 @@ maven_jar(
     name = "j2objc",
     artifact = "com.google.j2objc:j2objc-annotations:1.1",
     sha1 = "ed28ded51a8b1c6b112568def5f4b455e6809019",
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
+=======
+)
+
+maven_jar(
+    name = "velocity",
+    artifact = "org.apache.velocity:velocity:1.7",
+    sha1 = "2ceb567b8f3f21118ecdec129fe1271dbc09aa7a",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
@@ -639,36 +648,60 @@ maven_jar(
     sha1 = "05b6f921f1810bdf90e25471968f741f87168b64",
 )
 
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
 LUCENE_VERS = "6.6.5"
+=======
+LUCENE_VERS = "5.5.5"
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 
 maven_jar(
     name = "lucene-core",
     artifact = "org.apache.lucene:lucene-core:" + LUCENE_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "2983f80b1037e098209657b0ca9176827892d0c0",
+=======
+    sha1 = "c34bcd9274859dc07cfed2a935aaca90c4f4b861",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "lucene-analyzers-common",
     artifact = "org.apache.lucene:lucene-analyzers-common:" + LUCENE_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "6094f91071d90570b7f5f8ce481d5de7d2d2e9d5",
+=======
+    sha1 = "e6b3f5d1b33ed24da7eef0a72f8062bd4652700c",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "backward-codecs",
     artifact = "org.apache.lucene:lucene-backward-codecs:" + LUCENE_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "460a19e8d1aa7d31e9614cf528a6cb508c9e823d",
+=======
+    sha1 = "d1dee5c7676a313758adb30d7b0bd4c69a4cd214",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "lucene-misc",
     artifact = "org.apache.lucene:lucene-misc:" + LUCENE_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "ce3a1b7b6a92b9af30791356a4bd46d1cea6cc1e",
+=======
+    sha1 = "bc0eb46ba0377594cac7b0cdaab35562d7877521",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "lucene-queryparser",
     artifact = "org.apache.lucene:lucene-queryparser:" + LUCENE_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "2db9ca0086a4b8e0b9bc9f08a9b420303168e37c",
+=======
+    sha1 = "6c965eb5838a2ba58b0de0fd860a420dcda11937",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
@@ -759,7 +792,11 @@ maven_jar(
     sha1 = "bb562ee73f740bb6b2bf7955f97be6b870d9e9f0",
 )
 
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
 # When updading Bouncy Castle, also update it in bazlets.
+=======
+# When updating Bouncy Castle, also update it in bazlets.
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 BC_VERS = "1.60"
 
 maven_jar(
@@ -833,10 +870,18 @@ maven_jar(
     sha1 = "f5aa318bda4c6c8d688c9d00b90681dcd82ce636",
 )
 
+# elasticsearch-rest-client explicitly depends on this version
 maven_jar(
-    name = "httpmime",
-    artifact = "org.apache.httpcomponents:httpmime:" + HTTPCOMP_VERS,
-    sha1 = "2f8757f5ac5e38f46c794e5229d1f3c522e9b1df",
+    name = "httpasyncclient",
+    artifact = "org.apache.httpcomponents:httpasyncclient:4.1.2",
+    sha1 = "95aa3e6fb520191a0970a73cf09f62948ee614be",
+)
+
+# elasticsearch-rest-client explicitly depends on this version
+maven_jar(
+    name = "httpcore-nio",
+    artifact = "org.apache.httpcomponents:httpcore-nio:4.4.5",
+    sha1 = "f4be009e7505f6ceddf21e7960c759f413f15056",
 )
 
 # Test-only dependencies below.
@@ -956,65 +1001,105 @@ maven_jar(
 
 maven_jar(
     name = "derby",
-    artifact = "org.apache.derby:derby:10.11.1.1",
+    artifact = "org.apache.derby:derby:10.12.1.1",
     attach_source = False,
-    sha1 = "df4b50061e8e4c348ce243b921f53ee63ba9bbe1",
+    sha1 = "75070c744a8e52a7d17b8b476468580309d5cd09",
 )
 
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
 JETTY_VERS = "9.4.12.v20180830"
+=======
+JETTY_VERS = "9.3.24.v20180605"
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 
 maven_jar(
     name = "jetty-servlet",
     artifact = "org.eclipse.jetty:jetty-servlet:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "4c1149328eda9fa39a274262042420f66d9ffd5f",
+=======
+    sha1 = "db09c8e226c07c46dc3d84626fc97955ec6bf8bf",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-security",
     artifact = "org.eclipse.jetty:jetty-security:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "299e0602a9c0b753ba232cc1c1dda72ddd9addcf",
+=======
+    sha1 = "dfc4e2169f3dd91954804e7fdff9c4f67c63f385",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-servlets",
     artifact = "org.eclipse.jetty:jetty-servlets:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "53745200718fe4ddf57f04ad3ba34778a6aca585",
+=======
+    sha1 = "189db52691aacab9e13546429583765d143faf81",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-server",
     artifact = "org.eclipse.jetty:jetty-server:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "b0f25df0d32a445fd07d5f16fff1411c16b888fa",
+=======
+    sha1 = "0e629740cf0a08b353ec07c35eeab8fd06590041",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-jmx",
     artifact = "org.eclipse.jetty:jetty-jmx:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "7e9e589dd749a8c096008c0c4af863a81e67c55b",
+=======
+    sha1 = "aaeda444192a42389d2ac17a786329a1b6f4cf68",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-continuation",
     artifact = "org.eclipse.jetty:jetty-continuation:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "5f6d6e06f95088a3a7118b9065bc49ce7c014b75",
+=======
+    sha1 = "44d7b4a9aef498abef268f3aade92daa459050f6",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-http",
     artifact = "org.eclipse.jetty:jetty-http:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "1341796dde4e16df69bca83f3e87688ba2e7d703",
+=======
+    sha1 = "f3d614a7c82b5ee028df78bdb3cdadb6c3be89bc",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-io",
     artifact = "org.eclipse.jetty:jetty-io:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "e93f5adaa35a9a6a85ba130f589c5305c6ecc9e3",
+=======
+    sha1 = "f12a02ab2cb79eb9c3fa01daf28a58e8ea7cbea9",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
     name = "jetty-util",
     artifact = "org.eclipse.jetty:jetty-util:" + JETTY_VERS,
+<<<<<<< HEAD   (13b412 Fix broken sentence in description of unchanged file marker)
     sha1 = "cb4ccec9bd1fe4b10a04a0fb25d7053c1050188a",
+=======
+    sha1 = "f74fb3f999e658a2ddea397155e20da5b9126b5d",
+>>>>>>> BRANCH (dd2182 Merge branch 'stable-2.14' into stable-2.15)
 )
 
 maven_jar(
@@ -1038,8 +1123,8 @@ maven_jar(
 
 maven_jar(
     name = "postgresql",
-    artifact = "org.postgresql:postgresql:42.2.4",
-    sha1 = "dff98730c28a4b3a3263f0cf4abb9a3392f815a7",
+    artifact = "org.postgresql:postgresql:42.2.5",
+    sha1 = "951b7eda125f3137538a94e2cbdcf744088ad4c2",
 )
 
 maven_jar(
@@ -1079,10 +1164,12 @@ maven_jar(
     sha1 = "76716d529710fc03d1d429b43e3cedd4419f78d4",
 )
 
+# When upgrading elasticsearch-rest-client, also upgrade http-niocore
+# and httpasyncclient as necessary.
 maven_jar(
     name = "elasticsearch-rest-client",
-    artifact = "org.elasticsearch.client:elasticsearch-rest-client:6.4.2",
-    sha1 = "a2baf2d4fdf03f31fbd39351a32bee25fcdfa1cf",
+    artifact = "org.elasticsearch.client:elasticsearch-rest-client:6.4.3",
+    sha1 = "5c24325430971ba2fa4769eb446f026b7680d5e7",
 )
 
 JACKSON_VERSION = "2.9.7"
@@ -1091,18 +1178,6 @@ maven_jar(
     name = "jackson-core",
     artifact = "com.fasterxml.jackson.core:jackson-core:" + JACKSON_VERSION,
     sha1 = "4b7f0e0dc527fab032e9800ed231080fdc3ac015",
-)
-
-maven_jar(
-    name = "httpasyncclient",
-    artifact = "org.apache.httpcomponents:httpasyncclient:4.1.2",
-    sha1 = "95aa3e6fb520191a0970a73cf09f62948ee614be",
-)
-
-maven_jar(
-    name = "httpcore-nio",
-    artifact = "org.apache.httpcomponents:httpcore-nio:" + HTTPCOMP_VERS,
-    sha1 = "a8c5e3c3bfea5ce23fb647c335897e415eb442e3",
 )
 
 maven_jar(
