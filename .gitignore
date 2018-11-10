@@ -30,4 +30,8 @@
 /plugins/cookbook-plugin/
 /test_site
 /tools/format
+<<<<<<< HEAD   (233c92 Update revisions of replication and singleusergroup plugins)
 /.vscode
+=======
+/.ijwb
+>>>>>>> BRANCH (2d1c67 Ignore intellij bazel plugin's data directory)
