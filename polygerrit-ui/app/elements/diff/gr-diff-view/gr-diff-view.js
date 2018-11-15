@@ -1035,10 +1035,13 @@
       this.$.diffHost.expandAllContext();
     },
 
+<<<<<<< HEAD   (338a62 Merge "AccessSection: return ImmutableList of permissions")
     _computeDiffPrefsDisabled(disableDiffPrefs, loggedIn) {
       return disableDiffPrefs || !loggedIn;
     },
 
+=======
+>>>>>>> BRANCH (dc79e1 Merge "Allow to enable git protocol version 2 for upload pac)
     _handleNextUnreviewedFile(e) {
       if (this.shouldSuppressKeyboardShortcut(e)) { return; }
       this._setReviewed(true);
