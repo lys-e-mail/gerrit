@@ -1035,10 +1035,13 @@
       this.$.diffHost.expandAllContext();
     },
 
+<<<<<<< HEAD   (87d0d1 Permission: return ImmutableList of rules)
     _computeDiffPrefsDisabled(disableDiffPrefs, loggedIn) {
       return disableDiffPrefs || !loggedIn;
     },
 
+=======
+>>>>>>> BRANCH (ee1fde Merge "Fix running Gerrit on Tomcat" into stable-2.16)
     _handleNextUnreviewedFile(e) {
       if (this.shouldSuppressKeyboardShortcut(e)) { return; }
       this._setReviewed(true);
