@@ -138,6 +138,12 @@ public class StaticModule extends ServletModule {
     if (!options.headless()) {
       install(new CoreStaticModule());
       install(new PolyGerritModule());
+<<<<<<< HEAD   (2139c7 Merge branch 'stable-2.16')
+=======
+    }
+    if (options.enableGwtUi()) {
+      install(new GwtUiModule());
+>>>>>>> BRANCH (bccd54 Merge "Encode project name in download commands" into stable)
     }
   }
 
