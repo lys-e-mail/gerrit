@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (554cd2 Get correct remote head in PrivateByDefaultIT.)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-acceptance-framework</artifactId>
-<<<<<<< HEAD   (554cd2 Get correct remote head in PrivateByDefaultIT.)
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.1</version>
->>>>>>> BRANCH (5737db Merge "ConsistencyChecker: Fix reporting of delete old patch)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Acceptance Test Framework</name>
-  <description>Framework for Gerrit's acceptance tests</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -94,3 +92,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (5737db Merge "ConsistencyChecker: Fix reporting of delete old patch)
