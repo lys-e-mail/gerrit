@@ -226,6 +226,13 @@ public class GerritServer implements AutoCloseable {
 
           // Silence non-critical messages from Jetty.
           .put("org.eclipse.jetty", Level.WARN)
+<<<<<<< HEAD   (5d30f9 Merge changes from topic "RemoveReviewDbFromPushOneCommitFac)
+=======
+
+          // Silence non-critical messages from JGit.
+          .put("org.eclipse.jgit.transport.PacketLineIn", Level.WARN)
+          .put("org.eclipse.jgit.transport.PacketLineOut", Level.WARN)
+>>>>>>> BRANCH (c9c85e Merge branch 'stable-2.15' into stable-2.16)
           .build();
 
   private static boolean forceLocalDisk() {
