@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (7099b7 Merge "Merge branch 'stable-2.16'")
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-acceptance-framework</artifactId>
-<<<<<<< HEAD   (7099b7 Merge "Merge branch 'stable-2.16'")
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.2-SNAPSHOT</version>
->>>>>>> BRANCH (7402f7 Mark support for git protocol v2 as experimental)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Acceptance Test Framework</name>
-  <description>Framework for Gerrit's acceptance tests</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -94,3 +92,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (7402f7 Mark support for git protocol v2 as experimental)
