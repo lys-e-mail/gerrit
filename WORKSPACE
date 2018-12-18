@@ -14,9 +14,15 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_closure",
+<<<<<<< HEAD   (1b0c4f Merge branch 'stable-2.16')
     sha256 = "5b4b610ea4892116b6126fa689218535629305590c43fbd68034d831953a9989",
     strip_prefix = "rules_closure-409a86250c457ca15cafde35eb169e4c2601570e",
     urls = ["https://github.com/bazelbuild/rules_closure/archive/409a86250c457ca15cafde35eb169e4c2601570e.zip"],
+=======
+    sha256 = "4f2c173ebf95e94d98a0d5cb799e734536eaf3eca280eb15e124f5e5ef8b6e39",
+    strip_prefix = "rules_closure-6fd76e645b5c622221c9920f41a4d0bc578a3046",
+    urls = ["https://github.com/bazelbuild/rules_closure/archive/6fd76e645b5c622221c9920f41a4d0bc578a3046.tar.gz"],
+>>>>>>> BRANCH (49b8c9 Merge branch 'stable-2.15' into stable-2.16)
 )
 
 # File is specific to Polymer and copied from the Closure Github -- should be
