@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (9e28c9 ApprovalsUtil: Remove declaration of unthrown OrmException)
   <version>3.0-SNAPSHOT</version>
+=======
+  <version>2.16.2</version>
+>>>>>>> BRANCH (5929d3 Merge branch 'stable-2.15' into stable-2.16)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
@@ -42,6 +46,9 @@
     </developer>
     <developer>
       <name>Edwin Kempin</name>
+    </developer>
+    <developer>
+      <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
       <name>Hugo Arès</name>

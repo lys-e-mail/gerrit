@@ -1582,6 +1582,38 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("hashtag:\"# #a tag\"", changes.get(1));
     assertQuery("hashtag:acamelcasetag", changes.get(1));
     assertQuery("hashtag:ACamelCaseTAg", changes.get(1));
+<<<<<<< HEAD   (9e28c9 ApprovalsUtil: Remove declaration of unthrown OrmException)
+=======
+  }
+
+  @Test
+  public void byHashtagWithoutNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+
+    notesMigration.setWriteChanges(true);
+    notesMigration.setReadChanges(true);
+    db.close();
+    db = schemaFactory.open();
+    List<Change> changes;
+    try {
+      changes = setUpHashtagChanges();
+      notesMigration.setWriteChanges(false);
+      notesMigration.setReadChanges(false);
+    } finally {
+      db.close();
+    }
+    db = schemaFactory.open();
+    for (Change c : changes) {
+      indexer.index(db, c); // Reindex without hashtag field.
+    }
+    assertQuery("hashtag:foo");
+    assertQuery("hashtag:bar");
+    assertQuery("hashtag:\" bar \"");
+    assertQuery("hashtag:\"a tag\"");
+    assertQuery("hashtag:\" a tag \"");
+    assertQuery("hashtag:#foo");
+    assertQuery("hashtag:\"# #foo\"");
+>>>>>>> BRANCH (5929d3 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   @Test

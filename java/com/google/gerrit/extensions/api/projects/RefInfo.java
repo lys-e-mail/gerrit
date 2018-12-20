@@ -23,6 +23,14 @@ public class RefInfo {
 
   @Override
   public String toString() {
+<<<<<<< HEAD   (9e28c9 ApprovalsUtil: Remove declaration of unthrown OrmException)
     return MoreObjects.toStringHelper(this).add("ref", ref).add("revision", revision).toString();
+=======
+    return MoreObjects.toStringHelper(this)
+        .add("ref", ref)
+        .add("revision", revision)
+        .add("canDelete", canDelete)
+        .toString();
+>>>>>>> BRANCH (5929d3 Merge branch 'stable-2.15' into stable-2.16)
   }
 }

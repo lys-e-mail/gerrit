@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (9e28c9 ApprovalsUtil: Remove declaration of unthrown OrmException)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-acceptance-framework</artifactId>
-<<<<<<< HEAD   (9e28c9 ApprovalsUtil: Remove declaration of unthrown OrmException)
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.2</version>
->>>>>>> BRANCH (5929d3 Merge branch 'stable-2.15' into stable-2.16)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Acceptance Test Framework</name>
-  <description>Framework for Gerrit's acceptance tests</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -97,3 +95,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (5929d3 Merge branch 'stable-2.15' into stable-2.16)
