@@ -47,9 +47,14 @@ import org.eclipse.jgit.lib.ObjectId;
  * this site, and will execute it with the site's own protection domain. This opens a massive
  * security hole so we package the content into a zip file.
  */
-@SuppressWarnings("serial")
 @Singleton
 public class CatServlet extends HttpServlet {
+<<<<<<< HEAD   (db068c Merge "Make gr-diff-selection work with native Shadow DOM")
+=======
+  private static final long serialVersionUID = 1L;
+
+  private final Provider<ReviewDb> requestDb;
+>>>>>>> BRANCH (4baf3b Merge changes from topic "testonly-cleanup" into stable-2.16)
   private final ChangeEditUtil changeEditUtil;
   private final PatchSetUtil psUtil;
   private final ChangeNotes.Factory changeNotesFactory;

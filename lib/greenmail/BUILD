@@ -11,7 +11,11 @@ java_library(
 
 java_library(
     name = "greenmail",
+<<<<<<< HEAD   (db068c Merge "Make gr-diff-selection work with native Shadow DOM")
     testonly = 1,
+=======
+    testonly = True,
+>>>>>>> BRANCH (4baf3b Merge changes from topic "testonly-cleanup" into stable-2.16)
     data = ["//lib:LICENSE-Apache2.0"],
     exports = ["@greenmail//jar"],
     runtime_deps = select({

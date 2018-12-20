@@ -8,3 +8,19 @@ acceptance_tests(
         "//java/com/google/gerrit/server/logging",
     ],
 )
+<<<<<<< HEAD   (db068c Merge "Make gr-diff-selection work with native Shadow DOM")
+=======
+
+java_library(
+    name = "util",
+    testonly = True,
+    srcs = [
+        "AbstractRestApiBindingsTest.java",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//java/com/google/gerrit/acceptance:lib",
+        "//lib/commons:lang",
+    ],
+)
+>>>>>>> BRANCH (4baf3b Merge changes from topic "testonly-cleanup" into stable-2.16)
