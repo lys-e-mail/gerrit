@@ -111,6 +111,22 @@ class UrlModule extends ServletModule {
         });
   }
 
+<<<<<<< HEAD   (00667c Merge "Consistently define default serialVersionUID")
+=======
+  private Key<HttpServlet> gerritUrl() {
+    return key(
+        new HttpServlet() {
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse rsp) throws IOException {
+            String path = req.getRequestURI().substring(req.getContextPath().length());
+            toGerrit(path, req, rsp, true);
+          }
+        });
+  }
+
+>>>>>>> BRANCH (cb2ba3 CommentJsonMigrator: Improve error handling if comment note )
   private Key<HttpServlet> screen(String target) {
     return key(
         new HttpServlet() {
@@ -211,8 +227,16 @@ class UrlModule extends ServletModule {
 
   static void toGerrit(String target, HttpServletRequest req, HttpServletResponse rsp)
       throws IOException {
+    toGerrit(target, req, rsp, false);
+  }
+
+  static void toGerrit(String target, HttpServletRequest req, HttpServletResponse rsp, boolean gwt)
+      throws IOException {
     final StringBuilder url = new StringBuilder();
     url.append(req.getContextPath());
+    if (gwt) {
+      url.append("/#");
+    }
     url.append(target);
     rsp.sendRedirect(url.toString());
   }
