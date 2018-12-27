@@ -400,7 +400,11 @@ public class MergeUtil {
       return false;
     }
 
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
     ThreeWayMerger m = newThreeWayMerger(repo, createDryRunInserter(repo));
+=======
+    final ThreeWayMerger m = newThreeWayMerger(repo, createDryRunInserter(repo));
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
     try {
       return m.merge(new AnyObjectId[] {mergeTip, toMerge});
     } catch (LargeObjectException e) {
@@ -449,7 +453,12 @@ public class MergeUtil {
       // that on the current merge tip.
       //
       try {
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
         ThreeWayMerger m = newThreeWayMerger(repo, createDryRunInserter(repo));
+=======
+        final ThreeWayMerger m =
+            newThreeWayMerger(repo, createDryRunInserter(repo));
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
         m.setBase(toMerge.getParent(0));
         return m.merge(mergeTip, toMerge);
       } catch (IOException e) {
@@ -483,12 +492,10 @@ public class MergeUtil {
       protected ObjectInserter delegate() {
         return delegate;
       }
-
       @Override
       public PackParser newPackParser(InputStream in) throws IOException {
         throw new UnsupportedOperationException();
       }
-
       @Override
       public void flush() throws IOException {
         // Do nothing.

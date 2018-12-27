@@ -24,7 +24,11 @@ import java.net.URISyntaxException;
 
 public class HttpPushForReviewIT extends AbstractPushForReview {
   @Before
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
   public void selectHttpUrl() throws GitAPIException, IOException, URISyntaxException {
+=======
+  public void selectHttpUrl() throws GitAPIException, IOException {
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
     CredentialsProvider.setDefault(new UsernamePasswordCredentialsProvider(
         admin.username, admin.httpPassword));
     selectProtocol(Protocol.HTTP);

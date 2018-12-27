@@ -219,6 +219,7 @@ public class ChangeNotesTest {
       assertEquals(author.getTimeZone(), committer.getTimeZone());
     } finally {
       walk.close();
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
     }
   }
 
@@ -244,6 +245,8 @@ public class ChangeNotesTest {
           commit.getFullMessage());
     } finally {
       walk.close();
+=======
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
     }
   }
 

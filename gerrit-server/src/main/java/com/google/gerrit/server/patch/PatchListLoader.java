@@ -388,8 +388,12 @@ public class PatchListLoader extends CacheLoader<PatchListKey, PatchList> {
         Map<String, ObjectId> resolved = new HashMap<>();
         for (Map.Entry<String, MergeResult<? extends Sequence>> entry : r.entrySet()) {
           MergeResult<? extends Sequence> p = entry.getValue();
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
           TemporaryBuffer buf =
               new TemporaryBuffer.LocalFile(null, 10 * 1024 * 1024);
+=======
+          TemporaryBuffer buf = new TemporaryBuffer.LocalFile(null, 10 * 1024 * 1024);
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
           try {
             fmt.formatMerge(buf, p, "BASE", oursName, theirsName, "UTF-8");
             buf.close();
@@ -450,6 +454,12 @@ public class PatchListLoader extends CacheLoader<PatchListKey, PatchList> {
         treeId = dc.writeTree(ins);
       }
       ins.flush();
+<<<<<<< HEAD   (4ecf2e Update JGit to latest 4.5.x release)
+=======
+    } finally {
+      ins.close();
+    }
+>>>>>>> BRANCH (4a3c2d Update JGit to latest 4.5.x release)
 
       if (save) {
         RefUpdate update = repo.updateRef(refName);
