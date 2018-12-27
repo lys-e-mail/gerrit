@@ -465,8 +465,13 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r.assertOkStatus();
 
     PushResult pr = GitUtil.pushHead(
+<<<<<<< HEAD   (66d404 Upgrade JGit to v4.5.4.201711221230-r)
         testRepo, "refs/for/foo%base=" + rBase.getCommitId().name(), false, false);
     assertThat(pr.getMessages()).contains("changes: new: 1, refs: 1, done");
+=======
+        git, "refs/for/foo%base=" + rBase.getCommitId().name(), false, false);
+    assertThat(pr.getMessages()).containsMatch("changes: .*new: 1.*done");
+>>>>>>> BRANCH (5babd3 Merge branch 'stable-2.10')
 
     assertTwoChangesWithSameRevision(r);
   }
