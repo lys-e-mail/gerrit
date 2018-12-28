@@ -605,8 +605,13 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r.assertOkStatus();
 
     PushResult pr = GitUtil.pushHead(
+<<<<<<< HEAD   (777a8c Merge branch 'stable-2.12' into stable-2.13)
         testRepo, "refs/for/foo%base=" + rBase.getCommit().name(), false, false);
     assertThat(pr.getMessages()).contains("changes: new: 1, refs: 1, done");
+=======
+        testRepo, "refs/for/foo%base=" + rBase.getCommitId().name(), false, false);
+    assertThat(pr.getMessages()).containsMatch("changes: .*new: 1.*done");
+>>>>>>> BRANCH (591d35 Merge branch stable-2.11)
 
     assertTwoChangesWithSameRevision(r);
   }
