@@ -862,9 +862,15 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     PushOneCommit.Result r = push.to("refs/for/master");
     r.assertOkStatus();
 
+<<<<<<< HEAD   (cbcb78 Upgrade jackson-core to 2.9.8)
     PushResult pr =
         GitUtil.pushHead(testRepo, "refs/for/foo%base=" + rBase.getCommit().name(), false, false);
     assertThat(pr.getMessages()).contains("changes: new: 1, refs: 1, done");
+=======
+    PushResult pr = GitUtil.pushHead(
+        testRepo, "refs/for/foo%base=" + rBase.getCommit().name(), false, false);
+    assertThat(pr.getMessages()).containsMatch("changes: .*new: 1.*done");
+>>>>>>> BRANCH (17abd7 Merge "Merge branch stable-2.12" into stable-2.13)
 
     assertTwoChangesWithSameRevision(r);
   }
