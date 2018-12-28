@@ -1168,6 +1168,10 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
     PushResult pr =
         GitUtil.pushHead(testRepo, "refs/for/foo%base=" + rBase.getCommit().name(), false, false);
+<<<<<<< HEAD   (7817f1 Merge "Upgrade elasticsearch-rest-client to 6.5.4" into stab)
+=======
+    assertThat(pr.getMessages()).containsMatch("changes: .*new: 1.*done");
+>>>>>>> BRANCH (428f1c Merge "Merge branch stable-2.13" into stable-2.14)
 
     // BatchUpdate implementations differ in how they hook into progress monitors. We mostly just
     // care that there is a new change.
