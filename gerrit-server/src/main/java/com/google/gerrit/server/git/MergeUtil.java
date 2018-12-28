@@ -428,11 +428,37 @@ public class MergeUtil {
     }
   }
 
+<<<<<<< HEAD   (e65320 Merge branch stable-2.11)
   public CodeReviewCommit mergeOneCommit(PersonIdent author,
       PersonIdent committer, Repository repo, CodeReviewRevWalk rw,
       ObjectInserter inserter, RevFlag canMergeFlag, Branch.NameKey destBranch,
       CodeReviewCommit mergeTip, CodeReviewCommit n)
       throws IntegrationException {
+=======
+  public static ObjectInserter createDryRunInserter(Repository db) {
+    final ObjectInserter delegate = db.newObjectInserter();
+    return new ObjectInserter.Filter() {
+      @Override
+      protected ObjectInserter delegate() {
+        return delegate;
+      }
+      @Override
+      public PackParser newPackParser(InputStream in) throws IOException {
+        throw new UnsupportedOperationException();
+      }
+      @Override
+      public void flush() throws IOException {
+        // Do nothing.
+      }
+    };
+  }
+
+  public CodeReviewCommit mergeOneCommit(final PersonIdent myIdent,
+      final Repository repo, final RevWalk rw, final ObjectInserter inserter,
+      final RevFlag canMergeFlag, final Branch.NameKey destBranch,
+      final CodeReviewCommit mergeTip, final CodeReviewCommit n)
+      throws MergeException {
+>>>>>>> BRANCH (55cf6e Merge branch stable-2.10)
     final ThreeWayMerger m = newThreeWayMerger(repo, inserter);
     try {
       if (m.merge(new AnyObjectId[] {mergeTip, n})) {
