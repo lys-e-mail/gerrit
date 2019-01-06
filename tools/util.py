@@ -15,6 +15,11 @@
 from os import path
 
 REPO_ROOTS = {
+<<<<<<< HEAD   (55cf6e Merge branch stable-2.10)
+=======
+  'ATLASSIAN': 'https://maven.atlassian.com/content/repositories/atlassian-3rdparty',
+  'ECLIPSE': 'https://repo.eclipse.org/content/groups/releases',
+>>>>>>> BRANCH (c925e8 Merge branch 'stable-2.9' into stable-2.10)
   'GERRIT': 'http://gerrit-maven.storage.googleapis.com',
   'GERRIT_API': 'https://gerrit-api.commondatastorage.googleapis.com/release',
   'MAVEN_CENTRAL': 'http://repo1.maven.org/maven2',
