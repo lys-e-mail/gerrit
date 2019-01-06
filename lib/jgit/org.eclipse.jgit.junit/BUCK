@@ -1,0 +1,15 @@
+<<<<<<< HEAD   (428f1c Merge "Merge branch stable-2.13" into stable-2.14)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'junit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
+  sha1 = '50c36e367e7df961c1acc9308b7d52ea21a73d91',
+  license = 'DO_NOT_DISTRIBUTE',
+  repository = REPO,
+  unsign = True,
+  deps = ['//lib/jgit/org.eclipse.jgit:jgit'],
+)
+>>>>>>> BRANCH (4f8233 Merge branch 'stable-2.12' into stable-2.13)
