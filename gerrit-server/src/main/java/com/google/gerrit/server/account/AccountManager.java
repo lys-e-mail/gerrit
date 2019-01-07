@@ -14,7 +14,11 @@
 
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (eee06f WebAppInitializer: Move plugin modules loading to after the )
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_USERNAME;
+=======
+import static java.util.stream.Collectors.toSet;
+>>>>>>> BRANCH (e5602f Set version to 2.14.18)
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -138,6 +142,7 @@ public class AccountManager {
       try (ReviewDb db = schema.open()) {
         ExternalId id = externalIds.get(who.getExternalIdKey());
         if (id == null) {
+<<<<<<< HEAD   (eee06f WebAppInitializer: Move plugin modules loading to after the )
           if (who.getUserName() != null) {
             ExternalId.Key key = ExternalId.Key.create(SCHEME_USERNAME, who.getUserName());
             ExternalId existingId = externalIds.get(key);
@@ -152,9 +157,10 @@ public class AccountManager {
               return link(existingId.accountId(), who);
             }
           }
+=======
+>>>>>>> BRANCH (e5602f Set version to 2.14.18)
           // New account, automatically create and return.
           //
-          log.debug("External ID not found. Attempting to create new account.");
           return create(db, who);
         }
 
@@ -411,6 +417,7 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult link(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (eee06f WebAppInitializer: Move plugin modules loading to after the )
       throws AccountException, OrmException, IOException, ConfigInvalidException {
     ExternalId extId = externalIds.get(who.getExternalIdKey());
     log.debug("Link another authentication identity to an existing account");
@@ -418,6 +425,31 @@ public class AccountManager {
       if (!extId.accountId().equals(to)) {
         throw new AccountException(
             "Identity '" + extId.key().get() + "' in use by another account");
+=======
+      throws AccountException, OrmException, IOException {
+    try (ReviewDb db = schema.open()) {
+      ExternalId extId = findExternalId(db, who.getExternalIdKey());
+      if (extId != null) {
+        if (!extId.accountId().equals(to)) {
+          throw new AccountException("Identity in use by another account");
+        }
+        update(db, who, extId);
+      } else {
+        externalIdsUpdateFactory
+            .create()
+            .insert(
+                db, ExternalId.createWithEmail(who.getExternalIdKey(), to, who.getEmailAddress()));
+
+        if (who.getEmailAddress() != null) {
+          Account a = db.accounts().get(to);
+          if (a.getPreferredEmail() == null) {
+            a.setPreferredEmail(who.getEmailAddress());
+            db.accounts().update(Collections.singleton(a));
+            byIdCache.evict(to);
+          }
+          byEmailCache.evict(who.getEmailAddress());
+        }
+>>>>>>> BRANCH (e5602f Set version to 2.14.18)
       }
       log.debug("Updating existing external ID data");
       update(who, extId);
