@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (eee06f WebAppInitializer: Move plugin modules loading to after the )
   <version>2.15.8-SNAPSHOT</version>
+=======
+  <version>2.14.18</version>
+>>>>>>> BRANCH (08ed38 Set version to 2.14.18)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
