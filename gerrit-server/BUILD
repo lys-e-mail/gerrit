@@ -1,4 +1,8 @@
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
 load("//lib/prolog:prolog.bzl", "prolog_cafe_library")
+=======
+load("//tools/bzl:javadoc.bzl", "java_doc")
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
 load("//tools/bzl:junit.bzl", "junit_tests")
 
 CONSTANTS_SRC = [
@@ -192,8 +196,9 @@ TESTUTIL_DEPS = [
 
 TESTUTIL = glob([
     "src/test/java/com/google/gerrit/testutil/**/*.java",
+]) + [
     "src/test/java/com/google/gerrit/server/project/Util.java",
-])
+]
 
 java_library(
     name = "testutil",
@@ -333,6 +338,7 @@ junit_tests(
     ],
 )
 
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
 junit_tests(
     name = "testutil_test",
     size = "small",
@@ -347,6 +353,8 @@ junit_tests(
 
 load("//tools/bzl:javadoc.bzl", "java_doc")
 
+=======
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
 java_doc(
     name = "doc",
     libs = [":server"],

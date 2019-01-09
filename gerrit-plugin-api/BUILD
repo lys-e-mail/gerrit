@@ -1,3 +1,8 @@
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
+=======
+load("//tools/bzl:javadoc.bzl", "java_doc")
+
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
 PLUGIN_API = [
     "//gerrit-httpd:httpd",
     "//gerrit-pgm:init-api",
@@ -89,8 +94,6 @@ java_binary(
         "//gerrit-sshd:libsshd-src.jar",
     ],
 )
-
-load("//tools/bzl:javadoc.bzl", "java_doc")
 
 java_doc(
     name = "plugin-api-javadoc",
