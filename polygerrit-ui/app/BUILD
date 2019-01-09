@@ -1,18 +1,27 @@
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
 package(default_visibility = ["//visibility:public"])
 
 load(":rules.bzl", "polygerrit_bundle")
 load("//tools/bzl:genrule2.bzl", "genrule2")
+=======
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load("//tools/bzl:genrule2.bzl", "genrule2")
 load(
     "//tools/bzl:js.bzl",
-    "bower_component",
     "bower_component_bundle",
-    "js_component",
     "vulcanize",
 )
 
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
 polygerrit_bundle(
     name = "polygerrit_ui",
+=======
+package(default_visibility = ["//visibility:public"])
+
+vulcanize(
+    name = "gr-app",
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
     srcs = glob(
         [
             "**/*.html",

@@ -1,5 +1,9 @@
 load("//tools/bzl:java.bzl", "java_library2")
+<<<<<<< HEAD   (8c6e35 ElasticContainer: Use 7.0.0-alpha2)
 load("//tools/bzl:junit.bzl", "junit_tests")
+=======
+load("//tools/bzl:javadoc.bzl", "java_doc")
+>>>>>>> BRANCH (aeaa73 Bazel: Fix more buildifier warnings)
 
 TEST_SRCS = ["src/test/java/com/google/gerrit/acceptance/MergeableFileBasedConfigTest.java"]
 
@@ -73,8 +77,6 @@ java_library2(
         "//lib/mail:mail",
     ],
 )
-
-load("//tools/bzl:javadoc.bzl", "java_doc")
 
 java_doc(
     name = "acceptance-framework-javadoc",
