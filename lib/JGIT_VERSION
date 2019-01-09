@@ -1,0 +1,9 @@
+<<<<<<< HEAD   (aeaa73 Bazel: Fix more buildifier warnings)
+=======
+include_defs('//lib/maven.defs')
+
+REPO = ECLIPSE # Leave here even if set to MAVEN_CENTRAL.
+VERS = '4.5.5.201812240535-r'
+DOC_VERS = VERS # Set to VERS unless using a snapshot
+JGIT_DOC_URL="http://download.eclipse.org/jgit/site/" + DOC_VERS + "/apidocs"
+>>>>>>> BRANCH (4f8233 Merge branch 'stable-2.12' into stable-2.13)
