@@ -1,12 +1,16 @@
-load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
+load("//tools/bzl:maven_jar.bzl", "ECLIPSE", "maven_jar")
 
+<<<<<<< HEAD   (df74d0 Merge branch 'stable-2.15' into stable-2.16)
 _JGIT_VERS = "5.1.3.201810200350-r"
+=======
+_JGIT_VERS = "4.9.8.201812241815-r"
+>>>>>>> BRANCH (112f83 Set version to 2.15.8)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
 JGIT_DOC_URL = "http://download.eclipse.org/jgit/site/" + _DOC_VERS + "/apidocs"
 
-_JGIT_REPO = MAVEN_CENTRAL  # Leave here even if set to MAVEN_CENTRAL.
+_JGIT_REPO = ECLIPSE  # Leave here even if set to MAVEN_CENTRAL.
 
 # set this to use a local version.
 # "/home/<user>/projects/jgit"
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (df74d0 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "f270dbd1d792d5ad06074abe018a18644c90b60e",
         src_sha1 = "00e24ee2b721040edbb8520d705607a7f7bafd64",
+=======
+        sha1 = "dedb5d05a952551dc465611ebde3819d86bb22fc",
+        src_sha1 = "dbbc82bb6b1f7733a3d03a5af67eb5b8cf30e2d4",
+>>>>>>> BRANCH (112f83 Set version to 2.15.8)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (df74d0 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "360405244c28b537f0eafdc0b9d9f3753503d981",
+=======
+        sha1 = "76fc4dab1d3b0c05768d7d5424e003e4dbfa5222",
+>>>>>>> BRANCH (112f83 Set version to 2.15.8)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (df74d0 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "08e10921fcc75ead2736dd5bf099ba8e2ed8a3fb",
+=======
+        sha1 = "dfebb3889afcd4f335e9becf4bb58a06bb84b72f",
+>>>>>>> BRANCH (112f83 Set version to 2.15.8)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (df74d0 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "1dc8f86bba3c461cb90c9dc3e91bf343889ca684",
+=======
+        sha1 = "3e34e327979c8c263765be63abc89dda1b4b4d94",
+>>>>>>> BRANCH (112f83 Set version to 2.15.8)
         unsign = True,
     )
 
