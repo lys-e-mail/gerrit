@@ -1,0 +1,28 @@
+<<<<<<< HEAD   (aeaa73 Bazel: Fix more buildifier warnings)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'jgit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
+  bin_sha1 = '1dac8dd7deb4ec72939fe30cd6fd57c22fd4a403',
+  src_sha1 = '6c5fe5a2bd6b12571d15984916463f2f28223a93',
+  license = 'jgit',
+  repository = REPO,
+  unsign = True,
+  deps = [':ewah'],
+  exclude = [
+    'META-INF/eclipse.inf',
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'ewah',
+  id = 'com.googlecode.javaewah:JavaEWAH:0.7.9',
+  sha1 = 'eceaf316a8faf0e794296ebe158ae110c7d72a5a',
+  license = 'Apache2.0',
+)
+>>>>>>> BRANCH (f8c86b Merge branch 'stable-2.12' into stable-2.13)

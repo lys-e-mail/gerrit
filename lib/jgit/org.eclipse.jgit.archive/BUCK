@@ -1,0 +1,19 @@
+<<<<<<< HEAD   (aeaa73 Bazel: Fix more buildifier warnings)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'jgit-archive',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.archive:' + VERS,
+  sha1 = 'd64327d788ae43d79eb4e42d2432646c7b485789',
+  license = 'jgit',
+  repository = REPO,
+  deps = ['//lib/jgit/org.eclipse.jgit:jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+ )
+>>>>>>> BRANCH (f8c86b Merge branch 'stable-2.12' into stable-2.13)
