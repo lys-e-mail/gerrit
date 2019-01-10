@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (d51236 Merge "Bazel: Automatically fix lint errors with buildifier )
   <version>2.15.8-SNAPSHOT</version>
+=======
+  <version>2.14.18</version>
+>>>>>>> BRANCH (80ef2a Set version to 2.14.18)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
