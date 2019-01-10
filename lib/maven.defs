@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD   (591d35 Merge branch stable-2.11)
+=======
+include_defs('//lib/local.defs')
+
+ECLIPSE = 'ECLIPSE:'
+>>>>>>> BRANCH (043b10 Merge branch 'stable-2.10' into stable-2.11)
 GERRIT = 'GERRIT:'
 GERRIT_API = 'GERRIT_API:'
 MAVEN_CENTRAL = 'MAVEN_CENTRAL:'
