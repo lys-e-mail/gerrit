@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (402e83 ChangeApi: Add method to list change reviewers)
   <version>2.15.8-SNAPSHOT</version>
+=======
+  <version>2.14.18</version>
+>>>>>>> BRANCH (80ef2a Set version to 2.14.18)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>
