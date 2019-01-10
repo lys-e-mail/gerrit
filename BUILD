@@ -1,5 +1,3 @@
-package(default_visibility = ["//visibility:public"])
-
 load("//tools/bzl:genrule2.bzl", "genrule2")
 load("//tools/bzl:pkg_war.bzl", "pkg_war")
 load(
@@ -50,6 +48,8 @@ default_java_toolchain(
     javabuilder = ["@bazel_tools//tools/jdk:VanillaJavaBuilder_deploy.jar"],
     jvm_opts = [],
 )
+
+package(default_visibility = ["//visibility:public"])
 
 genrule(
     name = "gen_version",

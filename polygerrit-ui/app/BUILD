@@ -1,8 +1,15 @@
-package(default_visibility = ["//visibility:public"])
-
-load(":rules.bzl", "polygerrit_bundle")
 load("//tools/bzl:genrule2.bzl", "genrule2")
+<<<<<<< HEAD   (34a8bd Revert "Temp fix for projects list ordering in PolyGerrit")
 load("//tools/bzl:js.bzl", "bower_component_bundle")
+=======
+load(
+    "//tools/bzl:js.bzl",
+    "bower_component_bundle",
+)
+load(":rules.bzl", "polygerrit_bundle")
+
+package(default_visibility = ["//visibility:public"])
+>>>>>>> BRANCH (d51236 Merge "Bazel: Automatically fix lint errors with buildifier )
 
 polygerrit_bundle(
     name = "polygerrit_ui",

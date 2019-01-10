@@ -1,10 +1,14 @@
-load("//tools/bzl:genrule2.bzl", "genrule2")
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_js_binary", "closure_js_library")
+load("//tools/bzl:genrule2.bzl", "genrule2")
 load(
     "//tools/bzl:js.bzl",
+<<<<<<< HEAD   (34a8bd Revert "Temp fix for projects list ordering in PolyGerrit")
     "bower_component",
     "bundle_assets",
     "js_component",
+=======
+    "vulcanize",
+>>>>>>> BRANCH (d51236 Merge "Bazel: Automatically fix lint errors with buildifier )
 )
 
 def polygerrit_bundle(name, srcs, outs, app):
