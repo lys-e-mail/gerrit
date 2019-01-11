@@ -15,6 +15,7 @@
 from os import path
 
 REPO_ROOTS = {
+<<<<<<< HEAD   (08b731 Update git submodules)
     'GERRIT': 'http://gerrit-maven.storage.googleapis.com',
     'GERRIT_API':
         'https://gerrit-api.commondatastorage.googleapis.com/release',
@@ -22,6 +23,14 @@ REPO_ROOTS = {
     'MAVEN_LOCAL': 'file://' + path.expanduser('~/.m2/repository'),
     'MAVEN_SNAPSHOT':
         'https://oss.sonatype.org/content/repositories/snapshots',
+=======
+  'ECLIPSE': 'https://repo.eclipse.org/content/groups/releases',
+  'GERRIT': 'http://gerrit-maven.storage.googleapis.com',
+  'GERRIT_API': 'https://gerrit-api.commondatastorage.googleapis.com/release',
+  'MAVEN_CENTRAL': 'http://repo1.maven.org/maven2',
+  'MAVEN_LOCAL': 'file://' + path.expanduser('~/.m2/repository'),
+  'MAVEN_SNAPSHOT': 'https://oss.sonatype.org/content/repositories/snapshots',
+>>>>>>> BRANCH (d40709 Set version to 2.15.8)
 }
 
 
