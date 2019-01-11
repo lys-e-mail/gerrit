@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (b5290d Set version to 2.10.8)
   <version>2.10.8</version>
+=======
+  <version>2.9.5</version>
+>>>>>>> BRANCH (decc35 Add release notes for Gerrit v2.9.5)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
