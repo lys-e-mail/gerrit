@@ -1,0 +1,92 @@
+<<<<<<< HEAD   (632a30 Set version to 2.13.12)
+=======
+include_defs('//lib/maven.defs')
+
+REPO = MAVEN_CENTRAL # Leave here even if set to MAVEN_CENTRAL.
+VERS = '4.5.5.201812240535-r'
+
+maven_jar(
+  name = 'jgit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
+  bin_sha1 = '1dac8dd7deb4ec72939fe30cd6fd57c22fd4a403',
+  src_sha1 = '6c5fe5a2bd6b12571d15984916463f2f28223a93',
+  license = 'jgit',
+  repository = REPO,
+  unsign = True,
+  deps = [':ewah'],
+  exclude = [
+    'META-INF/eclipse.inf',
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'jgit-servlet',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
+  sha1 = '6498fa4f4bd5db11d3069952540b68a9aef024c2',
+  license = 'jgit',
+  repository = REPO,
+  deps = [':jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'jgit-archive',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.archive:' + VERS,
+  sha1 = 'd64327d788ae43d79eb4e42d2432646c7b485789',
+  license = 'jgit',
+  repository = REPO,
+  deps = [':jgit',
+    '//lib/commons:compress',
+    '//lib:tukaani-xz',
+  ],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'junit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
+  sha1 = '50c36e367e7df961c1acc9308b7d52ea21a73d91',
+  license = 'DO_NOT_DISTRIBUTE',
+  repository = REPO,
+  unsign = True,
+  deps = [':jgit'],
+)
+
+maven_jar(
+  name = 'ewah',
+  id = 'com.googlecode.javaewah:JavaEWAH:0.7.9',
+  sha1 = 'eceaf316a8faf0e794296ebe158ae110c7d72a5a',
+  license = 'Apache2.0',
+)
+
+gwt_module(
+  name = 'Edit',
+  srcs = [':jgit_edit_src'],
+  deps = [':edit_src'],
+  visibility = ['PUBLIC'],
+)
+
+prebuilt_jar(
+  name = 'edit_src',
+  binary_jar = ':jgit_edit_src',
+)
+
+genrule(
+  name = 'jgit_edit_src',
+  cmd = 'unzip -qd $TMP $(location :jgit_src) ' +
+    'org/eclipse/jgit/diff/Edit.java;' +
+    'cd $TMP;' +
+    'zip -Dq $OUT org/eclipse/jgit/diff/Edit.java',
+  out = 'edit.src.zip',
+)
+>>>>>>> BRANCH (84f29f Merge branch 'stable-2.11' into stable-2.12)

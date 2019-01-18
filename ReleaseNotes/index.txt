@@ -29,8 +29,15 @@
 * link:ReleaseNotes-2.11.1.html[2.11.1]
 * link:ReleaseNotes-2.11.html[2.11]
 
+<<<<<<< HEAD   (632a30 Set version to 2.13.12)
 [[s2_10]]
 == Version 2.10.x
+=======
+[[2_10]]
+Version 2.10.x
+--------------
+* link:ReleaseNotes-2.10.8.html[2.10.8]
+>>>>>>> BRANCH (84f29f Merge branch 'stable-2.11' into stable-2.12)
 * link:ReleaseNotes-2.10.7.html[2.10.7]
 * link:ReleaseNotes-2.10.6.html[2.10.6]
 * link:ReleaseNotes-2.10.5.html[2.10.5]
@@ -41,8 +48,15 @@
 * link:ReleaseNotes-2.10.1.html[2.10.1]
 * link:ReleaseNotes-2.10.html[2.10]
 
+<<<<<<< HEAD   (632a30 Set version to 2.13.12)
 [[s2_9]]
 == Version 2.9.x
+=======
+[[2_9]]
+Version 2.9.x
+-------------
+* link:ReleaseNotes-2.9.5.html[2.9.5]
+>>>>>>> BRANCH (84f29f Merge branch 'stable-2.11' into stable-2.12)
 * link:ReleaseNotes-2.9.4.html[2.9.4]
 * link:ReleaseNotes-2.9.3.html[2.9.3]
 * link:ReleaseNotes-2.9.2.html[2.9.2]
