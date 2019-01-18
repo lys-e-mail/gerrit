@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (be55ed Consume JGit artifacts from Maven Central)
   <version>2.14.18</version>
+=======
+  <version>2.13.12</version>
+>>>>>>> BRANCH (0bb8be Merge branch 'stable-2.12' into stable-2.13)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

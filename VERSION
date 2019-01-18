@@ -1,0 +1,8 @@
+<<<<<<< HEAD   (be55ed Consume JGit artifacts from Maven Central)
+=======
+# Maven style API version (e.g. '2.x-SNAPSHOT').
+# Used by :api_install and :api_deploy targets
+# when talking to the destination repository.
+#
+GERRIT_VERSION = '2.13.12'
+>>>>>>> BRANCH (0bb8be Merge branch 'stable-2.12' into stable-2.13)
