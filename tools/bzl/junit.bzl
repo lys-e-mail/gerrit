@@ -50,7 +50,7 @@ def _impl(ctx):
     classes = ",".join(
         [_AsClassName(x) for x in ctx.attr.srcs],
     )
-    ctx.file_action(output = ctx.outputs.out, content = _OUTPUT % (
+    ctx.actions.write(output = ctx.outputs.out, content = _OUTPUT % (
         classes,
         ctx.attr.outname,
     ))
@@ -80,8 +80,13 @@ def junit_tests(name, srcs, **kwargs):
     )
     jvm_flags = kwargs.get("jvm_flags", [])
     jvm_flags = jvm_flags + select({
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
         "//:java9": POST_JDK8_OPTS,
         "//:java_next": POST_JDK8_OPTS,
+=======
+        "//:java10": POST_JDK8_OPTS,
+        "//:java9": POST_JDK8_OPTS,
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
         "//conditions:default": [],
     })
     native.java_test(

@@ -15,6 +15,7 @@
 from os import path
 
 REPO_ROOTS = {
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
     'ECLIPSE': 'https://repo.eclipse.org/content/groups/releases',
     'GERRIT': 'http://gerrit-maven.storage.googleapis.com',
     'GERRIT_API':
@@ -23,6 +24,14 @@ REPO_ROOTS = {
     'MAVEN_LOCAL': 'file://' + path.expanduser('~/.m2/repository'),
     'MAVEN_SNAPSHOT':
         'https://oss.sonatype.org/content/repositories/snapshots',
+=======
+  'ECLIPSE': 'https://repo.eclipse.org/content/groups/releases',
+  'GERRIT': 'http://gerrit-maven.storage.googleapis.com',
+  'GERRIT_API': 'https://gerrit-api.commondatastorage.googleapis.com/release',
+  'MAVEN_CENTRAL': 'http://repo1.maven.org/maven2',
+  'MAVEN_LOCAL': 'file://' + path.expanduser('~/.m2/repository'),
+  'MAVEN_SNAPSHOT': 'https://oss.sonatype.org/content/repositories/snapshots',
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
 }
 
 

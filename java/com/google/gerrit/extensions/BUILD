@@ -1,5 +1,19 @@
-load("//lib:guava.bzl", "GUAVA_DOC_URL")
 load("//lib/jgit:jgit.bzl", "JGIT_DOC_URL")
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
+=======
+load("//lib:guava.bzl", "GUAVA_DOC_URL")
+load("//tools/bzl:gwt.bzl", "gwt_module")
+load("//tools/bzl:javadoc.bzl", "java_doc")
+
+EXT_API_SRCS = glob(["client/*.java"])
+
+gwt_module(
+    name = "client",
+    srcs = EXT_API_SRCS,
+    gwt_xml = "Extensions.gwt.xml",
+    visibility = ["//visibility:public"],
+)
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
 
 java_binary(
     name = "extension-api",
@@ -33,8 +47,6 @@ java_library(
         "//lib/guice:guice-assistedinject",
     ],
 )
-
-load("//tools/bzl:javadoc.bzl", "java_doc")
 
 java_doc(
     name = "extension-api-javadoc",

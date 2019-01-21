@@ -31,7 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 @Singleton
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
 class ListReviewers implements RestReadView<ChangeResource> {
+=======
+public class ListReviewers implements RestReadView<ChangeResource> {
+  private final Provider<ReviewDb> dbProvider;
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
   private final ApprovalsUtil approvalsUtil;
   private final ReviewerJson json;
   private final ReviewerResource.Factory resourceFactory;
