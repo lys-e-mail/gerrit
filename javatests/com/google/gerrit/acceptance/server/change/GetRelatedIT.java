@@ -26,12 +26,18 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.GerritConfig;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
 import com.google.gerrit.acceptance.testsuite.account.AccountOperations;
 import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+=======
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.common.RawInputUtil;
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.common.data.PermissionRule;
+=======
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.extensions.api.changes.RelatedChangeAndCommitInfo;
 import com.google.gerrit.extensions.common.CommitInfo;
 import com.google.gerrit.extensions.common.EditInfo;
@@ -589,6 +595,7 @@ public class GetRelatedIT extends AbstractDaemonTest {
     assertRelated(cd.change().currentPatchSetId());
   }
 
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
   @Test
   public void getRelatedManyChanges() throws Exception {
     List<ObjectId> commitIds = new ArrayList<>();
@@ -596,7 +603,13 @@ public class GetRelatedIT extends AbstractDaemonTest {
       commitIds.add(commitBuilder().add(i + ".txt", "i").message("subject: " + i).create().copy());
     }
     pushHead(testRepo, "refs/for/master", false);
+=======
+  private List<RelatedChangeAndCommitInfo> getRelated(PatchSet.Id ps) throws Exception {
+    return getRelated(ps.getParentKey(), ps.get());
+  }
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
 
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
     List<RelatedChangeAndCommitInfo> expected = new ArrayList<>(commitIds.size());
     for (ObjectId commitId : commitIds) {
       expected.add(changeAndCommit(getPatchSetId(commitId), commitId, 1));
@@ -616,6 +629,10 @@ public class GetRelatedIT extends AbstractDaemonTest {
     requestScopeOperations.setApiUser(accountId);
 
     assertRelated(lastPsId, expected);
+=======
+  private List<RelatedChangeAndCommitInfo> getRelated(Change.Id changeId, int ps) throws Exception {
+    return gApi.changes().id(changeId.get()).revision(ps).related().changes;
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   private RevCommit parseBody(RevCommit c) throws Exception {
@@ -662,6 +679,7 @@ public class GetRelatedIT extends AbstractDaemonTest {
 
   private void assertRelated(PatchSet.Id psId, RelatedChangeAndCommitInfo... expected)
       throws Exception {
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
     assertRelated(psId, Arrays.asList(expected));
   }
 
@@ -670,10 +688,18 @@ public class GetRelatedIT extends AbstractDaemonTest {
     List<RelatedChangeAndCommitInfo> actual =
         gApi.changes().id(psId.getParentKey().get()).revision(psId.get()).related().changes;
     assertThat(actual).named("related to " + psId).hasSize(expected.size());
+=======
+    List<RelatedChangeAndCommitInfo> actual = getRelated(psId);
+    assertThat(actual).named("related to " + psId).hasSize(expected.length);
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
     for (int i = 0; i < actual.size(); i++) {
       String name = "index " + i + " related to " + psId;
       RelatedChangeAndCommitInfo a = actual.get(i);
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
       RelatedChangeAndCommitInfo e = expected.get(i);
+=======
+      RelatedChangeAndCommitInfo e = expected[i];
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
       assertThat(a.project).named("project of " + name).isEqualTo(e.project);
       assertThat(a._changeNumber).named("change ID of " + name).isEqualTo(e._changeNumber);
       // Don't bother checking changeId; assume _changeNumber is sufficient.

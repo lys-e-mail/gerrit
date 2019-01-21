@@ -108,11 +108,9 @@ import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.ServerInitiated;
-import com.google.gerrit.server.account.AccountManager;
 import com.google.gerrit.server.account.AccountProperties;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.account.AccountsUpdate;
-import com.google.gerrit.server.account.AuthRequest;
 import com.google.gerrit.server.account.Emails;
 import com.google.gerrit.server.account.ProjectWatches;
 import com.google.gerrit.server.account.ProjectWatches.NotifyType;
@@ -224,10 +222,13 @@ public class AccountIT extends AbstractDaemonTest {
   @Inject
   private DynamicSet<AccountActivationValidationListener> accountActivationValidationListeners;
 
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
   @Inject private AccountManager accountManager;
 
   @Inject protected GroupOperations groupOperations;
 
+=======
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
   private AccountIndexedCounter accountIndexedCounter;
   private RegistrationHandle accountIndexEventCounterHandle;
   private RefUpdateCounter refUpdateCounter;
@@ -2710,18 +2711,6 @@ public class AccountIT extends AbstractDaemonTest {
     } finally {
       cleanUpDrafts();
     }
-  }
-
-  @Test
-  public void updateDisplayName() throws Exception {
-    String name = name("test");
-    gApi.accounts().create(name);
-    AuthRequest who = AuthRequest.forUser(name);
-    accountManager.authenticate(who);
-    assertThat(gApi.accounts().id(name).get().name).isEqualTo(name);
-    who.setDisplayName("Something Else");
-    accountManager.authenticate(who);
-    assertThat(gApi.accounts().id(name).get().name).isEqualTo("Something Else");
   }
 
   private void createDraft(PushOneCommit.Result r, String path, String message) throws Exception {

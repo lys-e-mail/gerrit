@@ -68,7 +68,13 @@ public class ChangeUtil {
   /**
    * Get the next patch set ID from a previously-read map of refs below the change prefix.
    *
+<<<<<<< HEAD   (5ac0d6 Merge "Remove @VisibleForTesting annotation on ChangeKindCac)
    * @param changeRefNames existing full change ref names with the same change ID as {@code id}.
+=======
+   * @param changeRefs map of ref suffix to SHA-1, where the keys are ref names with the {@code
+   *     refs/changes/CD/ABCD/} prefix stripped. All refs should be under {@code id}'s change ref
+   *     prefix.
+>>>>>>> BRANCH (ec26f0 Merge branch 'stable-2.15' into stable-2.16)
    * @param id previous patch set ID.
    * @return next unused patch set ID for the same change, skipping any IDs whose corresponding ref
    *     names appear in the {@code changeRefs} map.
