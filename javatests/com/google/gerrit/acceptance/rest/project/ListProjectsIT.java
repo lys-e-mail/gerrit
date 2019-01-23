@@ -34,6 +34,7 @@ import com.google.gerrit.extensions.client.ProjectState;
 import com.google.gerrit.extensions.common.ProjectInfo;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.server.project.ProjectCacheImpl;
 import com.google.gerrit.server.project.testing.Util;
 import com.google.inject.Inject;
 import java.util.List;
@@ -92,15 +93,30 @@ public class ListProjectsIT extends AbstractDaemonTest {
 
   @Test
   public void listProjectsWithLimit() throws Exception {
+<<<<<<< HEAD   (5f71c8 CommitsCollection: Remove unused logger)
     String pre = "lpwl-someProject";
     int n = 6;
     for (int i = 0; i < n; i++) {
       projectOperations.newProject().name(pre + i).create();
+=======
+    ProjectCacheImpl projectCacheImpl = (ProjectCacheImpl) projectCache;
+    for (int i = 0; i < 5; i++) {
+      createProject("someProject" + i);
+>>>>>>> BRANCH (8d89cb Merge "PG: Don't get gitweb weblink from ServerInfo" into st)
     }
 
+<<<<<<< HEAD   (5f71c8 CommitsCollection: Remove unused logger)
+=======
+    String p = name("");
+    // 5, plus p which was automatically created.
+    int n = 6;
+    projectCacheImpl.evictAllByName();
+>>>>>>> BRANCH (8d89cb Merge "PG: Don't get gitweb weblink from ServerInfo" into st)
     for (int i = 1; i <= n + 2; i++) {
       assertThatNameList(gApi.projects().list().withPrefix(pre).withLimit(i).get())
           .hasSize(Math.min(i, n));
+      assertThat(projectCacheImpl.sizeAllByName())
+          .isAtMost((long) (i + 2)); // 2 = AllProjects + AllUsers
     }
   }
 
@@ -194,6 +210,27 @@ public class ListProjectsIT extends AbstractDaemonTest {
 
     assertThatNameList(gApi.projects().list().withType(FilterType.ALL).get())
         .containsExactly(allProjects, allUsers, project);
+  }
+
+  @Test
+  public void listParentCandidates() throws Exception {
+    Map<String, ProjectInfo> result =
+        gApi.projects().list().withType(FilterType.PARENT_CANDIDATES).getAsMap();
+    assertThat(result).hasSize(1);
+    assertThat(result).containsKey(allProjects.get());
+
+    // Create a new project with 'project' as parent
+    Project.NameKey testProject = createProject(name("test"), project);
+
+    // Parent candidates are All-Projects and 'project'
+    assertThatNameList(filter(gApi.projects().list().withType(FilterType.PARENT_CANDIDATES).get()))
+        .containsExactly(allProjects, project)
+        .inOrder();
+
+    // All projects are listed
+    assertThatNameList(filter(gApi.projects().list().get()))
+        .containsExactly(allProjects, allUsers, testProject, project)
+        .inOrder();
   }
 
   @Test
