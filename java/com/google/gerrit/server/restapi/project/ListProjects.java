@@ -16,8 +16,6 @@ package com.google.gerrit.server.restapi.project;
 
 import static com.google.gerrit.extensions.client.ProjectState.HIDDEN;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -62,7 +60,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -74,6 +71,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
@@ -335,7 +333,8 @@ public class ListProjects implements RestReadView<TopLevelResource> {
     PermissionBackend.WithUser perm = permissionBackend.user(currentUser);
     final TreeMap<Project.NameKey, ProjectNode> treeMap = new TreeMap<>();
     try {
-      for (Project.NameKey projectName : filter(perm)) {
+      Iterable<Project.NameKey> projectNames = filter(perm)::iterator;
+      for (Project.NameKey projectName : projectNames) {
         final ProjectState e = projectCache.get(projectName);
         if (e == null || (e.getProject().getState() == HIDDEN && !all && state != HIDDEN)) {
           // If we can't get it from the cache, pretend it's not present.
@@ -487,6 +486,7 @@ public class ListProjects implements RestReadView<TopLevelResource> {
     }
   }
 
+<<<<<<< HEAD   (5f71c8 CommitsCollection: Remove unused logger)
   private Collection<Project.NameKey> filter(PermissionBackend.WithUser perm)
       throws BadRequestException, PermissionBackendException {
     Stream<Project.NameKey> matches = scan();
@@ -512,8 +512,35 @@ public class ListProjects implements RestReadView<TopLevelResource> {
     }
 
     return results;
+=======
+  private Stream<Project.NameKey> filter(PermissionBackend.WithUser perm)
+      throws BadRequestException {
+    Stream<Project.NameKey> matches = StreamSupport.stream(scan().spliterator(), false);
+    if (type == FilterType.PARENT_CANDIDATES) {
+      matches =
+          matches.map(projectCache::get).map(this::parentOf).filter(Objects::nonNull).sorted();
+    }
+    return matches.filter(p -> perm.project(p).testOrFalse(ProjectPermission.ACCESS));
+>>>>>>> BRANCH (8d89cb Merge "PG: Don't get gitweb weblink from ServerInfo" into st)
   }
 
+<<<<<<< HEAD   (5f71c8 CommitsCollection: Remove unused logger)
+=======
+  private Project.NameKey parentOf(ProjectState ps) {
+    if (ps == null) {
+      return null;
+    }
+    Project.NameKey parent = ps.getProject().getParent();
+    if (parent != null) {
+      if (projectCache.get(parent) != null) {
+        return parent;
+      }
+      logger.atWarning().log("parent project %s of project %s not found", ps.getName());
+    }
+    return null;
+  }
+
+>>>>>>> BRANCH (8d89cb Merge "PG: Don't get gitweb weblink from ServerInfo" into st)
   private boolean isParentAccessible(
       Map<Project.NameKey, Boolean> checked, PermissionBackend.WithUser perm, ProjectState state)
       throws PermissionBackendException {
