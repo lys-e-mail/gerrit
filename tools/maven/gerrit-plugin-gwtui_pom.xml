@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (1865b1 Merge "Fix inline editor")
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (1865b1 Merge "Fix inline editor")
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.4</version>
->>>>>>> BRANCH (2f864d Fix inline editor)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -97,3 +95,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (2f864d Fix inline editor)
