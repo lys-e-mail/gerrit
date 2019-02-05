@@ -105,15 +105,17 @@ import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.meta.MetaDataUpdate;
 import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.SystemGroupBackend;
-import com.google.gerrit.server.group.db.Groups;
 import com.google.gerrit.server.index.account.AccountIndex;
 import com.google.gerrit.server.index.account.AccountIndexCollection;
 import com.google.gerrit.server.index.account.AccountIndexer;
 import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.ChangeIndexer;
+<<<<<<< HEAD   (ca010d Merge "ListChangesOption: Remove @Deprecated annotation from)
 import com.google.gerrit.server.index.group.GroupIndexer;
 import com.google.gerrit.server.notedb.AbstractChangeNotes;
+=======
+>>>>>>> BRANCH (4adddf Merge "Fix loading topics that have unusual characters" into)
 import com.google.gerrit.server.notedb.ChangeNoteUtil;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.project.ProjectCache;
@@ -280,6 +282,7 @@ public abstract class AbstractDaemonTest {
   @Inject private AbstractChangeNotes.Args changeNotesArgs;
   @Inject private AccountIndexCollection accountIndexes;
   @Inject private AccountIndexer accountIndexer;
+<<<<<<< HEAD   (ca010d Merge "ListChangesOption: Remove @Deprecated annotation from)
   @Inject private ChangeIndexCollection changeIndexes;
   @Inject private EventRecorder.Factory eventRecorderFactory;
   @Inject private GroupIndexer groupIndexer;
@@ -288,6 +291,8 @@ public abstract class AbstractDaemonTest {
   @Inject private ProjectIndexCollection projectIndexes;
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
+=======
+>>>>>>> BRANCH (4adddf Merge "Fix loading topics that have unusual characters" into)
 
   private ProjectResetter resetter;
   private List<Repository> toClose;
@@ -370,13 +375,6 @@ public abstract class AbstractDaemonTest {
     accountIndexer.index(accountId);
   }
 
-  private void reindexAllGroups() throws IOException, ConfigInvalidException {
-    Iterable<GroupReference> allGroups = groups.getAllGroupReferences()::iterator;
-    for (GroupReference group : allGroups) {
-      groupIndexer.index(group.getUUID());
-    }
-  }
-
   protected static Config submitWholeTopicEnabledConfig() {
     Config cfg = new Config();
     cfg.setBoolean("change", null, "submitWholeTopic", true);
@@ -420,6 +418,7 @@ public abstract class AbstractDaemonTest {
     Transport.register(inProcessProtocol);
     toClose = Collections.synchronizedList(new ArrayList<>());
 
+<<<<<<< HEAD   (ca010d Merge "ListChangesOption: Remove @Deprecated annotation from)
     // All groups which were added during the server start (e.g. in SchemaCreatorImpl) aren't
     // contained in the instance of the group index which is available here and in tests. There are
     // two reasons:
@@ -431,6 +430,9 @@ public abstract class AbstractDaemonTest {
     // removes all indexed data.
     // As a workaround, we simply reindex all available groups here.
     reindexAllGroups();
+=======
+    db = reviewDbProvider.open();
+>>>>>>> BRANCH (4adddf Merge "Fix loading topics that have unusual characters" into)
 
     admin = accountCreator.admin();
     user = accountCreator.user();
