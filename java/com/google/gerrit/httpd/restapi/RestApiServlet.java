@@ -105,10 +105,19 @@ import com.google.gerrit.server.AccessPath;
 import com.google.gerrit.server.AnonymousUser;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.OptionUtil;
+<<<<<<< HEAD   (a77f97 Merge "Update cmd-review documentation")
 import com.google.gerrit.server.audit.AuditService;
+=======
+import com.google.gerrit.server.OutputFormat;
+>>>>>>> BRANCH (6a130c Rely on GroupAuditService rather than its implementation)
 import com.google.gerrit.server.audit.ExtendedHttpAuditEvent;
 import com.google.gerrit.server.cache.PerThreadCache;
 import com.google.gerrit.server.config.GerritServerConfig;
+<<<<<<< HEAD   (a77f97 Merge "Update cmd-review documentation")
+=======
+import com.google.gerrit.server.git.LockFailureException;
+import com.google.gerrit.server.group.GroupAuditService;
+>>>>>>> BRANCH (6a130c Rely on GroupAuditService rather than its implementation)
 import com.google.gerrit.server.logging.RequestId;
 import com.google.gerrit.server.logging.TraceContext;
 import com.google.gerrit.server.permissions.GlobalPermission;
@@ -225,7 +234,7 @@ public class RestApiServlet extends HttpServlet {
     final DynamicItem<WebSession> webSession;
     final Provider<ParameterParser> paramParser;
     final PermissionBackend permissionBackend;
-    final AuditService auditService;
+    final GroupAuditService auditService;
     final RestApiMetrics metrics;
     final Pattern allowOrigin;
     final RestApiQuotaEnforcer quotaChecker;
@@ -236,7 +245,7 @@ public class RestApiServlet extends HttpServlet {
         DynamicItem<WebSession> webSession,
         Provider<ParameterParser> paramParser,
         PermissionBackend permissionBackend,
-        AuditService auditService,
+        GroupAuditService auditService,
         RestApiMetrics metrics,
         RestApiQuotaEnforcer quotaChecker,
         @GerritServerConfig Config cfg) {
