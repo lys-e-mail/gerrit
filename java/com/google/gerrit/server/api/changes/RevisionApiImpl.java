@@ -18,7 +18,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.gerrit.server.api.ApiUtil.asRestApiException;
 
 import com.google.common.collect.ImmutableSet;
+<<<<<<< HEAD   (6b585f Merge "Mark #hasLegacyPermissions with @UsedAt google")
 import com.google.gerrit.common.Nullable;
+=======
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder.ListMultimapBuilder;
+>>>>>>> BRANCH (0bca5b Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.extensions.api.changes.ChangeApi;
 import com.google.gerrit.extensions.api.changes.Changes;
 import com.google.gerrit.extensions.api.changes.CherryPickInput;
@@ -36,6 +41,7 @@ import com.google.gerrit.extensions.api.changes.RobotCommentApi;
 import com.google.gerrit.extensions.api.changes.SubmitInput;
 import com.google.gerrit.extensions.client.SubmitType;
 import com.google.gerrit.extensions.common.ActionInfo;
+import com.google.gerrit.extensions.common.ApprovalInfo;
 import com.google.gerrit.extensions.common.CherryPickChangeInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.CommitInfo;
@@ -51,6 +57,12 @@ import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.IdString;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.RestModifyView;
+import com.google.gerrit.reviewdb.client.PatchSetApproval;
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.server.ApprovalsUtil;
+import com.google.gerrit.server.account.AccountDirectory.FillOptions;
+import com.google.gerrit.server.account.AccountLoader;
+import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.FileResource;
 import com.google.gerrit.server.change.RebaseUtil;
 import com.google.gerrit.server.change.RevisionResource;
@@ -85,6 +97,7 @@ import com.google.gerrit.server.restapi.change.TestSubmitType;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +148,9 @@ class RevisionApiImpl implements RevisionApi {
   private final GetRelated getRelated;
   private final PutDescription putDescription;
   private final GetDescription getDescription;
+  private final ApprovalsUtil approvalsUtil;
+  private final Provider<ReviewDb> db;
+  private final AccountLoader.Factory accountLoaderFactory;
 
   @Inject
   RevisionApiImpl(
@@ -176,6 +192,9 @@ class RevisionApiImpl implements RevisionApi {
       GetRelated getRelated,
       PutDescription putDescription,
       GetDescription getDescription,
+      ApprovalsUtil approvalsUtil,
+      Provider<ReviewDb> db,
+      AccountLoader.Factory accountLoaderFactory,
       @Assisted RevisionResource r) {
     this.repoManager = repoManager;
     this.changes = changes;
@@ -215,6 +234,9 @@ class RevisionApiImpl implements RevisionApi {
     this.getRelated = getRelated;
     this.putDescription = putDescription;
     this.getDescription = getDescription;
+    this.approvalsUtil = approvalsUtil;
+    this.db = db;
+    this.accountLoaderFactory = accountLoaderFactory;
     this.revision = r;
   }
 
@@ -565,6 +587,42 @@ class RevisionApiImpl implements RevisionApi {
     } catch (Exception e) {
       throw asRestApiException("Cannot get related changes", e);
     }
+  }
+
+  @Override
+  public ListMultimap<String, ApprovalInfo> votes() throws RestApiException {
+    ListMultimap<String, ApprovalInfo> result =
+        ListMultimapBuilder.treeKeys().arrayListValues().build();
+    try {
+      Iterable<PatchSetApproval> approvals =
+          approvalsUtil.byPatchSet(
+              db.get(),
+              revision.getNotes(),
+              revision.getChangeResource().getUser(),
+              revision.getPatchSet().getId(),
+              null,
+              null);
+      AccountLoader accountLoader =
+          accountLoaderFactory.create(
+              EnumSet.of(
+                  FillOptions.ID, FillOptions.NAME, FillOptions.EMAIL, FillOptions.USERNAME));
+      for (PatchSetApproval approval : approvals) {
+        String label = approval.getLabel();
+        ApprovalInfo info =
+            ChangeJson.getApprovalInfo(
+                approval.getAccountId(),
+                Integer.valueOf(approval.getValue()),
+                null,
+                approval.getTag(),
+                approval.getGranted());
+        accountLoader.put(info);
+        result.get(label).add(info);
+      }
+      accountLoader.fill();
+    } catch (Exception e) {
+      throw asRestApiException("Cannot get votes", e);
+    }
+    return result;
   }
 
   @Override

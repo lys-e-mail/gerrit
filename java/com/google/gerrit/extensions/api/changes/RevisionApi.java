@@ -14,9 +14,14 @@
 
 package com.google.gerrit.extensions.api.changes;
 
+<<<<<<< HEAD   (6b585f Merge "Mark #hasLegacyPermissions with @UsedAt google")
 import com.google.gerrit.common.Nullable;
+=======
+import com.google.common.collect.ListMultimap;
+>>>>>>> BRANCH (0bca5b Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.extensions.client.SubmitType;
 import com.google.gerrit.extensions.common.ActionInfo;
+import com.google.gerrit.extensions.common.ApprovalInfo;
 import com.google.gerrit.extensions.common.CherryPickChangeInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.CommitInfo;
@@ -149,6 +154,9 @@ public interface RevisionApi {
   MergeListRequest getMergeList() throws RestApiException;
 
   RelatedChangesInfo related() throws RestApiException;
+
+  /** Returns votes on the revision. */
+  ListMultimap<String, ApprovalInfo> votes() throws RestApiException;
 
   abstract class MergeListRequest {
     private boolean addLinks;
@@ -357,6 +365,11 @@ public interface RevisionApi {
 
     @Override
     public RelatedChangesInfo related() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public ListMultimap<String, ApprovalInfo> votes() throws RestApiException {
       throw new NotImplementedException();
     }
 
