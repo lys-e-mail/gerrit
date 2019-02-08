@@ -14,9 +14,15 @@
 
 package com.google.gerrit.pgm;
 
+<<<<<<< HEAD   (6949f3 Update git submodules)
+=======
+import static com.google.gerrit.common.Version.getVersion;
+import static com.google.gerrit.server.schema.DataSourceProvider.Context.MULTI_USER;
+>>>>>>> BRANCH (d3b45a Merge "Merge branch 'stable-2.15' into stable-2.16" into sta)
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
@@ -364,7 +370,15 @@ public class Daemon extends SiteProgram {
   }
 
   private String myVersion() {
-    return com.google.gerrit.common.Version.getVersion();
+    List<String> versionParts = new ArrayList<>();
+    if (slave) {
+      versionParts.add("[slave]");
+    }
+    if (headless) {
+      versionParts.add("[headless]");
+    }
+    versionParts.add(getVersion());
+    return Joiner.on(" ").join(versionParts);
   }
 
   private Injector createCfgInjector() {
