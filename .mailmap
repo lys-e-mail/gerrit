@@ -12,7 +12,11 @@ Bruce Zu <bruce.zu.run10@gmail.com>                                             
 Carlos Eduardo Baldacin <carloseduardo.baldacin@sonyericsson.com>                           carloseduardo.baldacin <carloseduardo.baldacin@sonyericsson.com>
 Changcheng Xiao <xchangcheng@google.com>                                                    xchangcheng
 Dariusz Luksza <dluksza@collab.net>                                                         <dariusz@luksza.org>
+<<<<<<< HEAD   (e83dee QueryProjects: introduce apply() without parameters)
 Dave Borowitz <dborowitz@google.com>                                                        <dborowitz@google.com>
+=======
+Darrien Glasser <darrien@arista.com>                                                        darrien <darrien@arista.com>
+>>>>>>> BRANCH (fe2065 Disable "prefer-promise-reject-errors" in eslint)
 David Ostrovsky <david@ostrovsky.org>                                                       <d.ostrovsky@gmx.de>
 David Ostrovsky <david@ostrovsky.org>                                                       <david.ostrovsky@gmail.com>
 David Pursehouse <dpursehouse@collab.net>                                                   <david.pursehouse@sonymobile.com>
