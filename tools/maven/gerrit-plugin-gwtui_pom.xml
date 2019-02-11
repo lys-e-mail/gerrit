@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (208022 Merge branch 'stable-2.16')
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-extension-api</artifactId>
-<<<<<<< HEAD   (208022 Merge branch 'stable-2.16')
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.6-SNAPSHOT</version>
->>>>>>> BRANCH (9c40e8 Set version to 2.16.6-SNAPSHOT)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Extension API</name>
-  <description>API for Gerrit Extensions</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -69,9 +67,6 @@
       <name>Martin Fick</name>
     </developer>
     <developer>
-      <name>Patrick Hiesel</name>
-    </developer>
-    <developer>
       <name>Saša Živkov</name>
     </developer>
     <developer>
@@ -100,3 +95,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (9c40e8 Set version to 2.16.6-SNAPSHOT)
