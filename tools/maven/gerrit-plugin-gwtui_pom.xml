@@ -1,11 +1,13 @@
+<<<<<<< HEAD   (401e0b Merge "Introduce sequential success commit messages")
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-extension-api</artifactId>
-  <version>3.0-SNAPSHOT</version>
+  <artifactId>gerrit-plugin-gwtui</artifactId>
+  <version>2.16.6-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Extension API</name>
-  <description>API for Gerrit Extensions</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -81,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (8a38c8 Merge branch 'stable-2.15' into stable-2.16)
