@@ -54,6 +54,24 @@
       "revId": "a13a90787c3c64f8f92402d4ae1ca89fbb009e11",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30375a40_bb2185ba",
+        "filename": "java/com/google/gerrit/index/FieldDef.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2019-02-13T09:38:21Z",
+      "side": 1,
+      "message": "Ah, you already added the annotation in the current ps.",
+      "parentUuid": "0fc65066_2f75a6af",
+      "revId": "a13a90787c3c64f8f92402d4ae1ca89fbb009e11",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": false
     }
   ]
 }
