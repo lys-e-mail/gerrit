@@ -18,8 +18,14 @@ import com.google.gerrit.extensions.api.changes.DeleteReviewerInput;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
+<<<<<<< HEAD   (3b8171 PatchSetInserter: allow to set "sendEmail" bit)
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.server.change.NotifyResolver;
+=======
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.server.change.DeleteReviewerByEmailOp;
+import com.google.gerrit.server.change.DeleteReviewerOp;
+>>>>>>> BRANCH (9b7288 Move *Op classes from c.g.g.s.restapi.change to c.g.g.s.chan)
 import com.google.gerrit.server.change.ReviewerResource;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;

@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (3b8171 PatchSetInserter: allow to set "sendEmail" bit)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.server.restapi.change;
+package com.google.gerrit.server.change;
 
 import com.google.common.base.Strings;
 import com.google.gerrit.common.Nullable;
@@ -75,7 +74,7 @@ public class SetPrivateOp implements BatchUpdateOp {
   public boolean updateChange(ChangeContext ctx) throws ResourceConflictException, OrmException {
     change = ctx.getChange();
     ChangeNotes notes = ctx.getNotes();
-    ps = psUtil.get(notes, change.currentPatchSetId());
+    ps = psUtil.get(ctx.getDb(), notes, change.currentPatchSetId());
     ChangeUpdate update = ctx.getUpdate(change.currentPatchSetId());
     change.setPrivate(isPrivate);
     change.setLastUpdatedOn(ctx.getWhen());
@@ -89,7 +88,7 @@ public class SetPrivateOp implements BatchUpdateOp {
     privateStateChanged.fire(change, ps, ctx.getAccount(), ctx.getWhen());
   }
 
-  private void addMessage(ChangeContext ctx, ChangeUpdate update) {
+  private void addMessage(ChangeContext ctx, ChangeUpdate update) throws OrmException {
     Change c = ctx.getChange();
     StringBuilder buf = new StringBuilder(c.isPrivate() ? "Set private" : "Unset private");
 
@@ -106,8 +105,6 @@ public class SetPrivateOp implements BatchUpdateOp {
             c.isPrivate()
                 ? ChangeMessagesUtil.TAG_SET_PRIVATE
                 : ChangeMessagesUtil.TAG_UNSET_PRIVATE);
-    cmUtil.addChangeMessage(update, cmsg);
+    cmUtil.addChangeMessage(ctx.getDb(), update, cmsg);
   }
 }
-=======
->>>>>>> BRANCH (9b7288 Move *Op classes from c.g.g.s.restapi.change to c.g.g.s.chan)

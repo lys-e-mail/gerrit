@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (3b8171 PatchSetInserter: allow to set "sendEmail" bit)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.server.restapi.change;
+package com.google.gerrit.server.change;
 
 import com.google.common.collect.Iterables;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.LabelType;
 import com.google.gerrit.common.data.LabelTypes;
-import com.google.gerrit.common.errors.EmailException;
 import com.google.gerrit.extensions.api.changes.DeleteReviewerInput;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.restapi.AuthException;
@@ -29,20 +27,24 @@ import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.ChangeMessage;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.reviewdb.client.PatchSetApproval;
-import com.google.gerrit.reviewdb.client.Project.NameKey;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.reviewdb.server.ReviewDbUtil;
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.account.AccountState;
-import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.extensions.events.ReviewerDeleted;
 import com.google.gerrit.server.mail.send.DeleteReviewerSender;
 import com.google.gerrit.server.notedb.ChangeUpdate;
+import com.google.gerrit.server.notedb.NoteDbChangeState.PrimaryStorage;
+import com.google.gerrit.server.notedb.NotesMigration;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.RemoveReviewerControl;
 import com.google.gerrit.server.update.BatchUpdateOp;
+import com.google.gerrit.server.update.BatchUpdateReviewDb;
 import com.google.gerrit.server.update.ChangeContext;
 import com.google.gerrit.server.update.Context;
 import com.google.gwtorm.server.OrmException;
@@ -70,6 +72,8 @@ public class DeleteReviewerOp implements BatchUpdateOp {
   private final ReviewerDeleted reviewerDeleted;
   private final Provider<IdentifiedUser> user;
   private final DeleteReviewerSender.Factory deleteReviewerSenderFactory;
+  private final NotesMigration migration;
+  private final NotifyUtil notifyUtil;
   private final RemoveReviewerControl removeReviewerControl;
   private final ProjectCache projectCache;
 
@@ -91,6 +95,8 @@ public class DeleteReviewerOp implements BatchUpdateOp {
       ReviewerDeleted reviewerDeleted,
       Provider<IdentifiedUser> user,
       DeleteReviewerSender.Factory deleteReviewerSenderFactory,
+      NotesMigration migration,
+      NotifyUtil notifyUtil,
       RemoveReviewerControl removeReviewerControl,
       ProjectCache projectCache,
       @Assisted AccountState reviewerAccount,
@@ -102,6 +108,8 @@ public class DeleteReviewerOp implements BatchUpdateOp {
     this.reviewerDeleted = reviewerDeleted;
     this.user = user;
     this.deleteReviewerSenderFactory = deleteReviewerSenderFactory;
+    this.migration = migration;
+    this.notifyUtil = notifyUtil;
     this.removeReviewerControl = removeReviewerControl;
     this.projectCache = projectCache;
     this.reviewer = reviewerAccount;
@@ -116,11 +124,11 @@ public class DeleteReviewerOp implements BatchUpdateOp {
     // Check of removing this reviewer (even if there is no vote processed by the loop below) is OK
     removeReviewerControl.checkRemoveReviewer(ctx.getNotes(), ctx.getUser(), reviewerId);
 
-    if (!approvalsUtil.getReviewers(ctx.getNotes()).all().contains(reviewerId)) {
+    if (!approvalsUtil.getReviewers(ctx.getDb(), ctx.getNotes()).all().contains(reviewerId)) {
       throw new ResourceNotFoundException();
     }
     currChange = ctx.getChange();
-    currPs = psUtil.current(ctx.getNotes());
+    currPs = psUtil.current(ctx.getDb(), ctx.getNotes());
 
     LabelTypes labelTypes = projectCache.checkedGet(ctx.getProject()).getLabelTypes(ctx.getNotes());
     // removing a reviewer will remove all her votes
@@ -156,33 +164,28 @@ public class DeleteReviewerOp implements BatchUpdateOp {
     } else {
       msg.append(".");
     }
+    ctx.getDb().patchSetApprovals().delete(del);
     ChangeUpdate update = ctx.getUpdate(currPs.getId());
     update.removeReviewer(reviewerId);
 
     changeMessage =
         ChangeMessagesUtil.newMessage(ctx, msg.toString(), ChangeMessagesUtil.TAG_DELETE_REVIEWER);
-    cmUtil.addChangeMessage(update, changeMessage);
+    cmUtil.addChangeMessage(ctx.getDb(), update, changeMessage);
 
     return true;
   }
 
   @Override
   public void postUpdate(Context ctx) {
-    NotifyResolver.Result notify = ctx.getNotify(currChange.getId());
-    if (input.notify == null
-        && currChange.isWorkInProgress()
-        && !oldApprovals.isEmpty()
-        && notify.handling().compareTo(NotifyHandling.OWNER) < 0) {
-      // Override NotifyHandling from the context to notify owner if votes were removed on a WIP
-      // change.
-      notify = notify.withHandling(NotifyHandling.OWNER);
-    }
-    try {
-      if (notify.shouldNotify()) {
-        emailReviewers(ctx.getProject(), currChange, changeMessage, notify);
+    if (input.notify == null) {
+      if (currChange.isWorkInProgress()) {
+        input.notify = oldApprovals.isEmpty() ? NotifyHandling.NONE : NotifyHandling.OWNER;
+      } else {
+        input.notify = NotifyHandling.ALL;
       }
-    } catch (Exception err) {
-      logger.atSevere().withCause(err).log("Cannot email update for change %s", currChange.getId());
+    }
+    if (NotifyUtil.shouldNotify(input.notify, input.notifyDetails)) {
+      emailReviewers(ctx.getProject(), currChange, changeMessage);
     }
     reviewerDeleted.fire(
         currChange,
@@ -192,14 +195,30 @@ public class DeleteReviewerOp implements BatchUpdateOp {
         changeMessage.getMessage(),
         newApprovals,
         oldApprovals,
-        notify.handling(),
+        input.notify,
         ctx.getWhen());
   }
 
   private Iterable<PatchSetApproval> approvals(ChangeContext ctx, Account.Id accountId)
       throws OrmException {
+    Change.Id changeId = ctx.getNotes().getChangeId();
     Iterable<PatchSetApproval> approvals;
-    approvals = approvalsUtil.byChange(ctx.getNotes()).values();
+    PrimaryStorage r = PrimaryStorage.of(ctx.getChange());
+
+    if (migration.readChanges() && r == PrimaryStorage.REVIEW_DB) {
+      // Because NoteDb and ReviewDb have different semantics for zero-value
+      // approvals, we must fall back to ReviewDb as the source of truth here.
+      ReviewDb db = ctx.getDb();
+
+      if (db instanceof BatchUpdateReviewDb) {
+        db = ((BatchUpdateReviewDb) db).unsafeGetDelegate();
+      }
+      db = ReviewDbUtil.unwrapDb(db);
+      approvals = db.patchSetApprovals().byChange(changeId);
+    } else {
+      approvals = approvalsUtil.byChange(ctx.getDb(), ctx.getNotes()).values();
+    }
+
     return Iterables.filter(approvals, psa -> accountId.equals(psa.getAccountId()));
   }
 
@@ -211,20 +230,22 @@ public class DeleteReviewerOp implements BatchUpdateOp {
   }
 
   private void emailReviewers(
-      NameKey projectName, Change change, ChangeMessage changeMessage, NotifyResolver.Result notify)
-      throws EmailException {
+      Project.NameKey projectName, Change change, ChangeMessage changeMessage) {
     Account.Id userId = user.get().getAccountId();
     if (userId.equals(reviewer.getAccount().getId())) {
       // The user knows they removed themselves, don't bother emailing them.
       return;
     }
-    DeleteReviewerSender cm = deleteReviewerSenderFactory.create(projectName, change.getId());
-    cm.setFrom(userId);
-    cm.addReviewers(Collections.singleton(reviewer.getAccount().getId()));
-    cm.setChangeMessage(changeMessage.getMessage(), changeMessage.getWrittenOn());
-    cm.setNotify(notify);
-    cm.send();
+    try {
+      DeleteReviewerSender cm = deleteReviewerSenderFactory.create(projectName, change.getId());
+      cm.setFrom(userId);
+      cm.addReviewers(Collections.singleton(reviewer.getAccount().getId()));
+      cm.setChangeMessage(changeMessage.getMessage(), changeMessage.getWrittenOn());
+      cm.setNotify(input.notify);
+      cm.setAccountsToNotify(notifyUtil.resolveAccounts(input.notifyDetails));
+      cm.send();
+    } catch (Exception err) {
+      logger.atSevere().withCause(err).log("Cannot email update for change %s", change.getId());
+    }
   }
 }
-=======
->>>>>>> BRANCH (9b7288 Move *Op classes from c.g.g.s.restapi.change to c.g.g.s.chan)

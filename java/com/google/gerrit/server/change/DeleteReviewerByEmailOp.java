@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (3b8171 PatchSetInserter: allow to set "sendEmail" bit)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.server.restapi.change;
+package com.google.gerrit.server.change;
 
 import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.extensions.api.changes.DeleteReviewerInput;
+import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.mail.Address;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.ChangeMessage;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.server.ChangeUtil;
-import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.mail.send.DeleteReviewerSender;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
@@ -35,20 +35,27 @@ public class DeleteReviewerByEmailOp implements BatchUpdateOp {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   public interface Factory {
-    DeleteReviewerByEmailOp create(Address reviewer);
+    DeleteReviewerByEmailOp create(Address reviewer, DeleteReviewerInput input);
   }
 
   private final DeleteReviewerSender.Factory deleteReviewerSenderFactory;
+  private final NotifyUtil notifyUtil;
   private final Address reviewer;
+  private final DeleteReviewerInput input;
 
   private ChangeMessage changeMessage;
   private Change change;
 
   @Inject
   DeleteReviewerByEmailOp(
-      DeleteReviewerSender.Factory deleteReviewerSenderFactory, @Assisted Address reviewer) {
+      DeleteReviewerSender.Factory deleteReviewerSenderFactory,
+      NotifyUtil notifyUtil,
+      @Assisted Address reviewer,
+      @Assisted DeleteReviewerInput input) {
     this.deleteReviewerSenderFactory = deleteReviewerSenderFactory;
+    this.notifyUtil = notifyUtil;
     this.reviewer = reviewer;
+    this.input = input;
   }
 
   @Override
@@ -71,22 +78,27 @@ public class DeleteReviewerByEmailOp implements BatchUpdateOp {
 
   @Override
   public void postUpdate(Context ctx) {
-    try {
-      NotifyResolver.Result notify = ctx.getNotify(change.getId());
-      if (!notify.shouldNotify()) {
-        return;
+    if (input.notify == null) {
+      if (change.isWorkInProgress()) {
+        input.notify = NotifyHandling.NONE;
+      } else {
+        input.notify = NotifyHandling.ALL;
       }
+    }
+    if (!NotifyUtil.shouldNotify(input.notify, input.notifyDetails)) {
+      return;
+    }
+    try {
       DeleteReviewerSender cm =
           deleteReviewerSenderFactory.create(ctx.getProject(), change.getId());
       cm.setFrom(ctx.getAccountId());
       cm.addReviewersByEmail(Collections.singleton(reviewer));
       cm.setChangeMessage(changeMessage.getMessage(), changeMessage.getWrittenOn());
-      cm.setNotify(notify);
+      cm.setNotify(input.notify);
+      cm.setAccountsToNotify(notifyUtil.resolveAccounts(input.notifyDetails));
       cm.send();
     } catch (Exception err) {
       logger.atSevere().withCause(err).log("Cannot email update for change %s", change.getId());
     }
   }
 }
-=======
->>>>>>> BRANCH (9b7288 Move *Op classes from c.g.g.s.restapi.change to c.g.g.s.chan)
