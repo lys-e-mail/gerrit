@@ -333,8 +333,12 @@ public class CommitValidators {
             .append(getCommitMessageHookInstallationHint())
             .append("\n")
             .append("and then amend the commit:\n")
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
             .append("  git commit --amend\n")
             .append("Finally, push your changes again\n");
+=======
+            .append("  git commit --amend --no-edit\n");
+>>>>>>> BRANCH (4b455a Fix missing `</section>` in gr-settings-view)
       }
       return new CommitValidationMessage(sb.toString(), Type.ERROR);
     }
