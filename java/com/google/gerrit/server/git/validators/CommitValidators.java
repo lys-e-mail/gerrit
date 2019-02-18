@@ -333,8 +333,12 @@ public class CommitValidators {
             .append(getCommitMessageHookInstallationHint())
             .append("\n")
             .append("and then amend the commit:\n")
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
             .append("  git commit --amend\n")
             .append("Finally, push your changes again\n");
+=======
+            .append("  git commit --amend --no-edit\n");
+>>>>>>> BRANCH (e207aa Merge "Suggest --no-edit when Change-Id is missing" into sta)
       }
       return new CommitValidationMessage(sb.toString(), Type.ERROR);
     }

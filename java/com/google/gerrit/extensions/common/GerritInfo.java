@@ -22,4 +22,9 @@ public class GerritInfo {
   public Boolean editGpgKeys;
   public String reportBugUrl;
   public String reportBugText;
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
+=======
+  public Set<UiType> webUis;
+  public String primaryWeblinkName;
+>>>>>>> BRANCH (e207aa Merge "Suggest --no-edit when Change-Id is missing" into sta)
 }
