@@ -22,4 +22,9 @@ public class GerritInfo {
   public Boolean editGpgKeys;
   public String reportBugUrl;
   public String reportBugText;
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
+=======
+  public Set<UiType> webUis;
+  public String primaryWeblinkName;
+>>>>>>> BRANCH (1aca2b Merge "PG: Assume weblinks have correct direct or relative u)
 }
