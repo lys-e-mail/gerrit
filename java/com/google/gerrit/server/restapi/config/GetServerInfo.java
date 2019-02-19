@@ -298,6 +298,15 @@ public class GetServerInfo implements RestReadView<ConfigResource> {
     info.docSearch = docSearcher.isAvailable();
     info.editGpgKeys =
         toBoolean(enableSignedPush && config.getBoolean("gerrit", null, "editGpgKeys", true));
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
+=======
+    info.webUis = EnumSet.noneOf(UiType.class);
+    info.webUis.add(UiType.POLYGERRIT);
+    if (gerritOptions.enableGwtUi()) {
+      info.webUis.add(UiType.GWT);
+    }
+    info.primaryWeblinkName = config.getString("gerrit", null, "primaryWeblinkName");
+>>>>>>> BRANCH (a172ef Merge branch 'stable-2.15' into stable-2.16)
     return info;
   }
 

@@ -22,4 +22,9 @@ public class GerritInfo {
   public Boolean editGpgKeys;
   public String reportBugUrl;
   public String reportBugText;
+<<<<<<< HEAD   (707e61 Disallow marking merged/abandoned changes private)
+=======
+  public Set<UiType> webUis;
+  public String primaryWeblinkName;
+>>>>>>> BRANCH (a172ef Merge branch 'stable-2.15' into stable-2.16)
 }
