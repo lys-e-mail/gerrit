@@ -28,6 +28,7 @@ import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.FooterConstants;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.extensions.api.config.ConsistencyCheckInfo.ConsistencyProblemInfo;
+import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
@@ -88,7 +89,7 @@ public class CommitValidators {
   @Singleton
   public static class Factory {
     private final PersonIdent gerritIdent;
-    private final UrlFormatter urlFormatter;
+    private final DynamicItem<UrlFormatter> urlFormatter;
     private final PluginSetContext<CommitValidationListener> pluginValidators;
     private final GitRepositoryManager repoManager;
     private final AllUsersName allUsers;
@@ -102,7 +103,7 @@ public class CommitValidators {
     @Inject
     Factory(
         @GerritPersonIdent PersonIdent gerritIdent,
-        UrlFormatter urlFormatter,
+        DynamicItem<UrlFormatter> urlFormatter,
         @GerritServerConfig Config cfg,
         PluginSetContext<CommitValidationListener> pluginValidators,
         GitRepositoryManager repoManager,
@@ -142,12 +143,22 @@ public class CommitValidators {
               new UploadMergesPermissionValidator(perm),
               new ProjectStateValidationListener(projectState),
               new AmendedGerritMergeCommitValidationListener(perm, gerritIdent),
-              new AuthorUploaderValidator(user, perm, urlFormatter),
-              new CommitterUploaderValidator(user, perm, urlFormatter),
+              new AuthorUploaderValidator(user, perm, urlFormatter.get()),
+              new CommitterUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectState),
               new ChangeIdValidator(
+<<<<<<< HEAD   (5b33f0 ChangeQueryProcessor: Don't rescan plugins when sizing list)
                   projectState, user, urlFormatter, installCommitMsgHookCommand, sshInfo, change),
               new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
+=======
+                  projectState,
+                  user,
+                  urlFormatter.get(),
+                  installCommitMsgHookCommand,
+                  sshInfo,
+                  change),
+              new ConfigValidator(branch, user, rw, allUsers, allProjects),
+>>>>>>> BRANCH (37e00e Merge branch 'stable-2.15' into stable-2.16)
               new BannedCommitsValidator(rejectCommits),
               new PluginCommitValidationListener(pluginValidators),
               new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
@@ -170,11 +181,21 @@ public class CommitValidators {
               new UploadMergesPermissionValidator(perm),
               new ProjectStateValidationListener(projectState),
               new AmendedGerritMergeCommitValidationListener(perm, gerritIdent),
-              new AuthorUploaderValidator(user, perm, urlFormatter),
+              new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectCache.checkedGet(branch.getParentKey())),
               new ChangeIdValidator(
+<<<<<<< HEAD   (5b33f0 ChangeQueryProcessor: Don't rescan plugins when sizing list)
                   projectState, user, urlFormatter, installCommitMsgHookCommand, sshInfo, change),
               new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
+=======
+                  projectState,
+                  user,
+                  urlFormatter.get(),
+                  installCommitMsgHookCommand,
+                  sshInfo,
+                  change),
+              new ConfigValidator(branch, user, rw, allUsers, allProjects),
+>>>>>>> BRANCH (37e00e Merge branch 'stable-2.15' into stable-2.16)
               new PluginCommitValidationListener(pluginValidators),
               new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
               new AccountCommitValidator(repoManager, allUsers, accountValidator),
@@ -202,8 +223,8 @@ public class CommitValidators {
           ImmutableList.of(
               new UploadMergesPermissionValidator(perm),
               new ProjectStateValidationListener(projectCache.checkedGet(branch.getParentKey())),
-              new AuthorUploaderValidator(user, perm, urlFormatter),
-              new CommitterUploaderValidator(user, perm, urlFormatter)));
+              new AuthorUploaderValidator(user, perm, urlFormatter.get()),
+              new CommitterUploaderValidator(user, perm, urlFormatter.get())));
     }
   }
 
