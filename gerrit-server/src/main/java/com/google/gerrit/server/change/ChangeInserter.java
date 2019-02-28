@@ -459,9 +459,14 @@ public class ChangeInserter implements InsertChangeOp {
   }
 
   private Set<Account.Id> filterOnChangeVisibility(
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
       final ReviewDb db, ChangeNotes notes, Set<Account.Id> accounts) {
     return accounts
         .stream()
+=======
+      final ReviewDb db, final ChangeNotes notes, Set<Account.Id> accounts) {
+    return accounts.stream()
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
         .filter(
             accountId -> {
               try {

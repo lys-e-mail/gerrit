@@ -194,9 +194,14 @@ public class DeleteRef {
     List<String> refs =
         prefix == null
             ? refsToDelete
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
             : refsToDelete
                 .stream()
                 .map(ref -> ref.startsWith(R_REFS) ? ref : prefix + ref)
+=======
+            : refsToDelete.stream()
+                .map(ref -> ref.startsWith(prefix) ? ref : prefix + ref)
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
                 .collect(toList());
     for (String ref : refs) {
       batchUpdate.addCommand(createDeleteCommand(resource, r, ref));

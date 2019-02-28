@@ -115,8 +115,18 @@ public class ChangeArgumentParser {
     changes.put(cId, changeResource);
   }
 
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
   private List<ChangeNotes> changeFromNotesFactory(String id) throws OrmException, UnloggedFailure {
     return changeNotesFactory.create(db, parseId(id));
+=======
+  private List<ChangeControl> changeFromNotesFactory(String id, CurrentUser currentUser)
+      throws OrmException, UnloggedFailure {
+    return changeNotesFactory.create(db, parseId(id)).stream()
+        .map(changeNote -> controlForChange(changeNote, currentUser))
+        .filter(changeControl -> changeControl.isPresent())
+        .map(changeControl -> changeControl.get())
+        .collect(toList());
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
   }
 
   private List<Change.Id> parseId(String id) throws UnloggedFailure {

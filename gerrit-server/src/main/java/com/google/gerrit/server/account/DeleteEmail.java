@@ -82,9 +82,14 @@ public class DeleteEmail implements RestModifyView<AccountResource.Email, Input>
     }
 
     Set<ExternalId> extIds =
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
         externalIds
             .byAccount(user.getAccountId())
             .stream()
+=======
+        dbProvider.get().accountExternalIds().byAccount(user.getAccountId()).toList().stream()
+            .map(ExternalId::from)
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
             .filter(e -> email.equals(e.email()))
             .collect(toSet());
     if (extIds.isEmpty()) {

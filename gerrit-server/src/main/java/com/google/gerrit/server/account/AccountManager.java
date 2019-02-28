@@ -437,10 +437,20 @@ public class AccountManager {
    *     this time.
    */
   public AuthResult updateLink(Account.Id to, AuthRequest who)
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
       throws OrmException, AccountException, IOException, ConfigInvalidException {
     Collection<ExternalId> filteredExtIdsByScheme =
         externalIds.byAccount(to, who.getExternalIdKey().scheme());
+=======
+      throws OrmException, AccountException, IOException {
+    try (ReviewDb db = schema.open()) {
+      Collection<ExternalId> filteredExtIdsByScheme =
+          ExternalId.from(db.accountExternalIds().byAccount(to).toList()).stream()
+              .filter(e -> e.isScheme(who.getExternalIdKey().scheme()))
+              .collect(toSet());
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
 
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
     if (!filteredExtIdsByScheme.isEmpty()
         && (filteredExtIdsByScheme.size() > 1
             || !filteredExtIdsByScheme
@@ -449,6 +459,18 @@ public class AccountManager {
                 .findAny()
                 .isPresent())) {
       externalIdsUpdateFactory.create().delete(filteredExtIdsByScheme);
+=======
+      if (!filteredExtIdsByScheme.isEmpty()
+          && (filteredExtIdsByScheme.size() > 1
+              || !filteredExtIdsByScheme.stream()
+                  .filter(e -> e.key().equals(who.getExternalIdKey()))
+                  .findAny()
+                  .isPresent())) {
+        externalIdsUpdateFactory.create().delete(db, filteredExtIdsByScheme);
+      }
+      byIdCache.evict(to);
+      return link(to, who);
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
     }
     return link(to, who);
   }
