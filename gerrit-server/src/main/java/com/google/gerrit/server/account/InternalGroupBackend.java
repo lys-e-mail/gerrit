@@ -71,6 +71,7 @@ public class InternalGroupBackend implements GroupBackend {
   }
 
   @Override
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
   public Collection<GroupReference> suggest(String name, ProjectState project) {
     try (ReviewDb db = schema.open()) {
       return groups
@@ -90,6 +91,17 @@ public class InternalGroupBackend implements GroupBackend {
 
   private boolean isVisible(AccountGroup group) {
     return groupControlFactory.controlFor(group).isVisible();
+=======
+  public Collection<GroupReference> suggest(final String name, final ProjectControl project) {
+    return groupCache.all().stream()
+        .filter(
+            group ->
+                // startsWithIgnoreCase && isVisible
+                group.getName().regionMatches(true, 0, name, 0, name.length())
+                    && groupControlFactory.controlFor(group).isVisible())
+        .map(GroupReference::forGroup)
+        .collect(toList());
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
   }
 
   @Override

@@ -282,6 +282,50 @@ public class StarredChangesUtil {
     }
   }
 
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
+=======
+  public Set<Account.Id> byChange(final Change.Id changeId, final String label)
+      throws OrmException {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getRefNames(repo, RefNames.refsStarredChangesPrefix(changeId)).stream()
+          .map(Account.Id::parse)
+          .filter(accountId -> hasStar(repo, changeId, accountId, label))
+          .collect(toSet());
+    } catch (IOException e) {
+      throw new OrmException(
+          String.format("Get accounts that starred change %d failed", changeId.get()), e);
+    }
+  }
+
+  @Deprecated
+  // To be used only for IsStarredByLegacyPredicate.
+  public Set<Change.Id> byAccount(final Account.Id accountId, final String label)
+      throws OrmException {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getRefNames(repo, RefNames.REFS_STARRED_CHANGES).stream()
+          .filter(refPart -> refPart.endsWith("/" + accountId.get()))
+          .map(Change.Id::fromRefPart)
+          .filter(changeId -> hasStar(repo, changeId, accountId, label))
+          .collect(toSet());
+    } catch (IOException e) {
+      throw new OrmException(
+          String.format("Get changes that were starred by %d failed", accountId.get()), e);
+    }
+  }
+
+  private boolean hasStar(Repository repo, Change.Id changeId, Account.Id accountId, String label) {
+    try {
+      return readLabels(repo, RefNames.refsStarredChanges(changeId, accountId))
+          .labels()
+          .contains(label);
+    } catch (IOException e) {
+      log.error(
+          "Cannot query stars by account {} on change {}", accountId.get(), changeId.get(), e);
+      return false;
+    }
+  }
+
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
   public ImmutableListMultimap<Account.Id, String> byChangeFromIndex(Change.Id changeId)
       throws OrmException {
     Set<String> fields = ImmutableSet.of(ChangeField.ID.getName(), ChangeField.STAR.getName());

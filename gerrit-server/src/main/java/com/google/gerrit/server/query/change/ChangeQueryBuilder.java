@@ -974,6 +974,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
   }
 
   @Operator
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
   public Predicate<ChangeData> reviewer(String who)
       throws QueryParseException, OrmException, IOException, ConfigInvalidException {
     return reviewer(who, false);
@@ -995,6 +996,13 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
       return Predicate.and(Predicate.not(new BooleanPredicate(ChangeField.WIP)), byState);
     }
     return byState;
+=======
+  public Predicate<ChangeData> reviewer(String who) throws QueryParseException, OrmException {
+    return Predicate.or(
+        parseAccount(who).stream()
+            .map(id -> ReviewerPredicate.reviewer(args, id))
+            .collect(toList()));
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
   }
 
   @Operator
@@ -1238,11 +1246,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData> {
   private Set<Account.Id> getMembers(AccountGroup.UUID g) throws OrmException {
     Set<Account.Id> accounts;
     Set<Account.Id> allMembers =
-        args.listMembers
-            .get()
-            .setRecursive(true)
-            .apply(g)
-            .stream()
+        args.listMembers.get().setRecursive(true).apply(g).stream()
             .map(a -> new Account.Id(a._accountId))
             .collect(toSet());
     int maxTerms = args.indexConfig.maxTerms();

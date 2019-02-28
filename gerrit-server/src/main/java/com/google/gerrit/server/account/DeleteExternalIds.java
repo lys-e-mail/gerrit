@@ -72,8 +72,12 @@ public class DeleteExternalIds implements RestModifyView<AccountResource, List<S
     }
 
     Map<ExternalId.Key, ExternalId> externalIdMap =
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
         externalIds
             .byAccount(resource.getUser().getAccountId())
+=======
+        dbProvider.get().accountExternalIds().byAccount(resource.getUser().getAccountId()).toList()
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
             .stream()
             .collect(toMap(i -> i.key(), i -> i));
 

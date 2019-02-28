@@ -71,9 +71,13 @@ public class DeleteWatchedProjects
     Account.Id accountId = rsrc.getUser().getAccountId();
     watchConfig.deleteProjectWatches(
         accountId,
+<<<<<<< HEAD   (14ef9d LocalUsernamesToLowerCase: Bind disabled GitReferenceUpdated)
         input
             .stream()
             .filter(Objects::nonNull)
+=======
+        input.stream()
+>>>>>>> BRANCH (be9fec Upgrade google-java-format to 1.7)
             .map(w -> ProjectWatchKey.create(new Project.NameKey(w.project), w.filter))
             .collect(toList()));
     accountCache.evict(accountId);
