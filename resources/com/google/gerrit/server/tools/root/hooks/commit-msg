@@ -27,6 +27,19 @@ if test ! -f "$1" ; then
   exit 1
 fi
 
+<<<<<<< HEAD   (8560a9 Merge "Consistently use ChangeUtil#status")
+=======
+if test ! -s "$1" ; then
+  echo "file is empty: $1"
+  exit 1
+fi
+
+# Do not create a change id if requested
+if test "false" = "`git config --bool --get gerrit.createChangeId`" ; then
+  exit 0
+fi
+
+>>>>>>> BRANCH (52ace6 Merge branch 'stable-2.15' into stable-2.16)
 # $RANDOM will be undefined if not using bash, so don't use set -u
 random=$( (whoami ; hostname ; date; cat $1 ; echo $RANDOM) | git hash-object --stdin)
 dest="$1.tmp.${random}"

@@ -3962,12 +3962,33 @@ public class ChangeIT extends AbstractDaemonTest {
     gApi.changes().id(r.getChangeId()).ignore(true);
     assertThat(gApi.changes().id(r.getChangeId()).ignored()).isTrue();
 
+    // New patch set notification is not sent to users ignoring the change
     sender.clear();
+<<<<<<< HEAD   (8560a9 Merge "Consistently use ChangeUtil#status")
     requestScopeOperations.setApiUser(admin.getId());
     gApi.changes().id(r.getChangeId()).abandon();
+=======
+    setApiUser(admin);
+    amendChange(r.getChangeId());
+>>>>>>> BRANCH (52ace6 Merge branch 'stable-2.15' into stable-2.16)
     List<Message> messages = sender.getMessages();
     assertThat(messages).hasSize(1);
-    assertThat(messages.get(0).rcpt()).containsExactly(new Address(fullname, email));
+    Address address = new Address(fullname, email);
+    assertThat(messages.get(0).rcpt()).containsExactly(address);
+
+    // Review notification is not sent to users ignoring the change
+    sender.clear();
+    gApi.changes().id(r.getChangeId()).current().review(ReviewInput.approve());
+    messages = sender.getMessages();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0).rcpt()).containsExactly(address);
+
+    // Abandoned notification is not sent to users ignoring the change
+    sender.clear();
+    gApi.changes().id(r.getChangeId()).abandon();
+    messages = sender.getMessages();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0).rcpt()).containsExactly(address);
 
     requestScopeOperations.setApiUser(user.getId());
     gApi.changes().id(r.getChangeId()).ignore(false);
