@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (cbb84d Merge changes If23c598d,I5fd1a074)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (cbb84d Merge changes If23c598d,I5fd1a074)
-  <version>3.0-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.7-SNAPSHOT</version>
->>>>>>> BRANCH (5bc75e Merge branch 'stable-2.15' into stable-2.16)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (5bc75e Merge branch 'stable-2.15' into stable-2.16)
