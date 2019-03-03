@@ -1,14 +1,19 @@
 def _classpath_collector(ctx):
-    all = depset()
+    all = []
     for d in ctx.attr.deps:
         if hasattr(d, "java"):
+<<<<<<< HEAD   (86aa0b Bazel: Replace deprecated ctx.new_file() with ctx.actions.de)
             all += d.java.transitive_runtime_deps
             if hasattr(d.java.compilation_info, "runtime_classpath"):
                 all += d.java.compilation_info.runtime_classpath
+=======
+            all.append(d.java.transitive_runtime_deps)
+            all.append(d.java.compilation_info.runtime_classpath)
+>>>>>>> BRANCH (7c8258 Merge branch 'stable-2.14' into stable-2.15)
         elif hasattr(d, "files"):
-            all += d.files
+            all.append(d.files)
 
-    as_strs = [c.path for c in all.to_list()]
+    as_strs = [c.path for c in depset(transitive = all).to_list()]
     ctx.actions.write(
         output = ctx.outputs.runtime,
         content = "\n".join(sorted(as_strs)),

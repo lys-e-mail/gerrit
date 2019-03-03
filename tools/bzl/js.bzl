@@ -131,20 +131,20 @@ bower_archive = repository_rule(
 )
 
 def _bower_component_impl(ctx):
-    transitive_zipfiles = depset([ctx.file.zipfile])
-    for d in ctx.attr.deps:
-        transitive_zipfiles += d.transitive_zipfiles
+    transitive_zipfiles = depset(
+        direct = [ctx.file.zipfile],
+        transitive = [d.transitive_zipfiles for d in ctx.attr.deps],
+    )
 
-    transitive_licenses = depset()
-    if ctx.file.license:
-        transitive_licenses += depset([ctx.file.license])
+    transitive_licenses = depset(
+        direct = [ctx.file.license],
+        transitive = [d.transitive_licenses for d in ctx.attr.deps],
+    )
 
-    for d in ctx.attr.deps:
-        transitive_licenses += d.transitive_licenses
-
-    transitive_versions = depset(ctx.files.version_json)
-    for d in ctx.attr.deps:
-        transitive_versions += d.transitive_versions
+    transitive_versions = depset(
+        direct = ctx.files.version_json,
+        transitive = [d.transitive_versions for d in ctx.attr.deps],
+    )
 
     return struct(
         transitive_licenses = transitive_licenses,
@@ -183,14 +183,20 @@ def _js_component(ctx):
         mnemonic = "GenBowerZip",
     )
 
-    licenses = depset()
+    licenses = []
     if ctx.file.license:
-        licenses += depset([ctx.file.license])
+        licenses.append(ctx.file.license)
 
     return struct(
+<<<<<<< HEAD   (86aa0b Bazel: Replace deprecated ctx.new_file() with ctx.actions.de)
         transitive_licenses = licenses,
         transitive_versions = depset(),
         transitive_zipfiles = list([ctx.outputs.zip]),
+=======
+        transitive_zipfiles = list([ctx.outputs.zip]),
+        transitive_versions = depset(),
+        transitive_licenses = depset(licenses),
+>>>>>>> BRANCH (7c8258 Merge branch 'stable-2.14' into stable-2.15)
     )
 
 js_component = rule(
@@ -233,15 +239,16 @@ def _bower_component_bundle_impl(ctx):
     """A bunch of bower components zipped up."""
     zips = depset()
     for d in ctx.attr.deps:
-        zips += d.transitive_zipfiles
+        files = d.transitive_zipfiles
 
-    versions = depset()
-    for d in ctx.attr.deps:
-        versions += d.transitive_versions
+        # TODO(davido): Make sure the field always contains a depset
+        if type(files) == "list":
+            files = depset(files)
+        zips = depset(transitive = [zips, files])
 
-    licenses = depset()
-    for d in ctx.attr.deps:
-        licenses += d.transitive_versions
+    versions = depset(transitive = [d.transitive_versions for d in ctx.attr.deps])
+
+    licenses = depset(transitive = [d.transitive_versions for d in ctx.attr.deps])
 
     out_zip = ctx.outputs.zip
     out_versions = ctx.outputs.version_json
