@@ -71,9 +71,13 @@ public class DeleteWatchedProjects
     Account.Id accountId = rsrc.getUser().getAccountId();
     watchConfig.deleteProjectWatches(
         accountId,
+<<<<<<< HEAD   (a4b8fa Fix setting groups visibility)
         input
             .stream()
             .filter(Objects::nonNull)
+=======
+        input.stream()
+>>>>>>> BRANCH (3efa10 Upgrade google-java-format to 1.7)
             .map(w -> ProjectWatchKey.create(new Project.NameKey(w.project), w.filter))
             .collect(toList()));
     accountCache.evict(accountId);

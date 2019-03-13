@@ -82,9 +82,14 @@ public class DeleteEmail implements RestModifyView<AccountResource.Email, Input>
     }
 
     Set<ExternalId> extIds =
+<<<<<<< HEAD   (a4b8fa Fix setting groups visibility)
         externalIds
             .byAccount(user.getAccountId())
             .stream()
+=======
+        dbProvider.get().accountExternalIds().byAccount(user.getAccountId()).toList().stream()
+            .map(ExternalId::from)
+>>>>>>> BRANCH (3efa10 Upgrade google-java-format to 1.7)
             .filter(e -> email.equals(e.email()))
             .collect(toSet());
     if (extIds.isEmpty()) {

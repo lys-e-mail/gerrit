@@ -459,9 +459,14 @@ public class ChangeInserter implements InsertChangeOp {
   }
 
   private Set<Account.Id> filterOnChangeVisibility(
+<<<<<<< HEAD   (a4b8fa Fix setting groups visibility)
       final ReviewDb db, ChangeNotes notes, Set<Account.Id> accounts) {
     return accounts
         .stream()
+=======
+      final ReviewDb db, final ChangeNotes notes, Set<Account.Id> accounts) {
+    return accounts.stream()
+>>>>>>> BRANCH (3efa10 Upgrade google-java-format to 1.7)
         .filter(
             accountId -> {
               try {

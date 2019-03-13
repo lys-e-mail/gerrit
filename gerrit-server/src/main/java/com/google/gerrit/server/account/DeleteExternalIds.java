@@ -72,8 +72,12 @@ public class DeleteExternalIds implements RestModifyView<AccountResource, List<S
     }
 
     Map<ExternalId.Key, ExternalId> externalIdMap =
+<<<<<<< HEAD   (a4b8fa Fix setting groups visibility)
         externalIds
             .byAccount(resource.getUser().getAccountId())
+=======
+        dbProvider.get().accountExternalIds().byAccount(resource.getUser().getAccountId()).toList()
+>>>>>>> BRANCH (3efa10 Upgrade google-java-format to 1.7)
             .stream()
             .collect(toMap(i -> i.key(), i -> i));
 

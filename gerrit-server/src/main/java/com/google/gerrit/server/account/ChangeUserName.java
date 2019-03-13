@@ -71,7 +71,14 @@ public class ChangeUserName implements Callable<VoidResult> {
   public VoidResult call()
       throws OrmException, NameAlreadyUsedException, InvalidUserNameException, IOException,
           ConfigInvalidException {
+<<<<<<< HEAD   (a4b8fa Fix setting groups visibility)
     Collection<ExternalId> old = externalIds.byAccount(user.getAccountId(), SCHEME_USERNAME);
+=======
+    Collection<ExternalId> old =
+        ExternalId.from(db.accountExternalIds().byAccount(user.getAccountId()).toList()).stream()
+            .filter(e -> e.isScheme(SCHEME_USERNAME))
+            .collect(toSet());
+>>>>>>> BRANCH (3efa10 Upgrade google-java-format to 1.7)
     if (!old.isEmpty()) {
       log.error(
           "External id with scheme \"username:\" already exists for the user {}",
