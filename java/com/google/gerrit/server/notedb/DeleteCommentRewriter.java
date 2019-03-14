@@ -141,10 +141,15 @@ public class DeleteCommentRewriter implements NoteDbRewriter {
       throws IOException, ConfigInvalidException {
     return RevisionNoteMap.parse(
             changeNoteJson, legacyChangeNoteRead, changeId, reader, noteMap, PUBLISHED)
+<<<<<<< HEAD   (398a99 Update git submodules)
         .revisionNotes
         .values()
         .stream()
         .flatMap(n -> n.getEntities().stream())
+=======
+        .revisionNotes.values().stream()
+        .flatMap(n -> n.getComments().stream())
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
         .collect(toMap(c -> c.key.uuid, Function.identity()));
   }
 
@@ -189,9 +194,7 @@ public class DeleteCommentRewriter implements NoteDbRewriter {
    */
   private List<Comment> getDeletedComments(
       Map<String, Comment> parMap, Map<String, Comment> curMap) {
-    return parMap
-        .entrySet()
-        .stream()
+    return parMap.entrySet().stream()
         .filter(c -> !curMap.containsKey(c.getKey()))
         .map(Map.Entry::getValue)
         .collect(toList());

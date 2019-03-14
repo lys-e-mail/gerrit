@@ -478,11 +478,16 @@ public class CommentJsonMigratorTest extends AbstractChangeNotesTest {
               reader,
               noteMap,
               status);
+<<<<<<< HEAD   (398a99 Update git submodules)
       return revNoteMap
           .revisionNotes
           .values()
           .stream()
           .flatMap(crn -> crn.getEntities().stream())
+=======
+      return revNoteMap.revisionNotes.values().stream()
+          .flatMap(crn -> crn.getComments().stream())
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
           .collect(toImmutableMap(c -> c.key, c -> c.legacyFormat));
     }
   }

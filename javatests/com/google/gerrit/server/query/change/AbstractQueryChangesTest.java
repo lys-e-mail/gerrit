@@ -528,8 +528,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
     // Convert AccountInfos to strings, either account ID or email.
     List<String> reviewerIds =
-        reviewers
-            .stream()
+        reviewers.stream()
             .map(
                 ai -> {
                   if (ai._accountId != null) {
@@ -2235,10 +2234,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
 
     List<String> members =
-        gApi.groups()
-            .id(group)
-            .members()
-            .stream()
+        gApi.groups().id(group).members().stream()
             .map(a -> a._accountId.toString())
             .collect(toList());
     assertThat(members).contains(user2.toString());
@@ -2501,6 +2497,95 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+<<<<<<< HEAD   (398a99 Update git submodules)
+=======
+  public void refStateFields() throws Exception {
+    // This test method manages primary storage manually.
+    assume().that(notesMigration.changePrimaryStorage()).isEqualTo(PrimaryStorage.REVIEW_DB);
+    Account.Id user = createAccount("user");
+    Project.NameKey project = new Project.NameKey("repo");
+    TestRepository<Repo> repo = createProject(project.get());
+    String path = "file";
+    RevCommit commit = repo.parseBody(repo.commit().message("one").add(path, "contents").create());
+    Change change = insert(repo, newChangeForCommit(repo, commit));
+    Change.Id id = change.getId();
+    int c = id.get();
+    String changeId = change.getKey().get();
+    requestContext.setContext(newRequestContext(user));
+
+    // Ensure one of each type of supported ref is present for the change. If
+    // any more refs are added, update this test to reflect them.
+
+    // Edit
+    gApi.changes().id(changeId).edit().create();
+
+    // Star
+    gApi.accounts().self().starChange(change.getId().toString());
+
+    if (notesMigration.readChanges()) {
+      // Robot comment.
+      ReviewInput rin = new ReviewInput();
+      RobotCommentInput rcin = new RobotCommentInput();
+      rcin.robotId = "happyRobot";
+      rcin.robotRunId = "1";
+      rcin.line = 1;
+      rcin.message = "nit: trailing whitespace";
+      rcin.path = path;
+      rin.robotComments = ImmutableMap.of(path, ImmutableList.of(rcin));
+      gApi.changes().id(c).current().review(rin);
+    }
+
+    // Draft.
+    DraftInput din = new DraftInput();
+    din.path = path;
+    din.line = 1;
+    din.message = "draft";
+    gApi.changes().id(c).current().createDraft(din);
+
+    if (notesMigration.readChanges()) {
+      // Force NoteDb primary.
+      change = ReviewDbUtil.unwrapDb(db).changes().get(id);
+      change.setNoteDbState(NoteDbChangeState.NOTE_DB_PRIMARY_STATE);
+      ReviewDbUtil.unwrapDb(db).changes().update(Collections.singleton(change));
+      indexer.index(db, change);
+    }
+
+    QueryOptions opts =
+        IndexedChangeQuery.createOptions(indexConfig, 0, 1, StalenessChecker.FIELDS);
+    ChangeData cd = indexes.getSearchIndex().get(id, opts).get();
+
+    String cs = RefNames.shard(c);
+    int u = user.get();
+    String us = RefNames.shard(u);
+
+    List<String> expectedStates =
+        Lists.newArrayList(
+            "repo:refs/users/" + us + "/edit-" + c + "/1",
+            "All-Users:refs/starred-changes/" + cs + "/" + u);
+    if (notesMigration.readChanges()) {
+      expectedStates.add("repo:refs/changes/" + cs + "/meta");
+      expectedStates.add("repo:refs/changes/" + cs + "/robot-comments");
+      expectedStates.add("All-Users:refs/draft-comments/" + cs + "/" + u);
+    }
+    assertThat(
+            cd.getRefStates().stream()
+                .map(String::new)
+                // Omit SHA-1, we're just concerned with the project/ref names.
+                .map(s -> s.substring(0, s.lastIndexOf(':')))
+                .collect(toList()))
+        .containsExactlyElementsIn(expectedStates);
+
+    List<String> expectedPatterns = Lists.newArrayList("repo:refs/users/*/edit-" + c + "/*");
+    expectedPatterns.add("All-Users:refs/starred-changes/" + cs + "/*");
+    if (notesMigration.readChanges()) {
+      expectedPatterns.add("All-Users:refs/draft-comments/" + cs + "/*");
+    }
+    assertThat(cd.getRefStatePatterns().stream().map(String::new).collect(toList()))
+        .containsExactlyElementsIn(expectedPatterns);
+  }
+
+  @Test
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
   public void watched() throws Exception {
     TestRepository<Repo> repo = createProject("repo");
     ChangeInserter ins1 = newChangeWithStatus(repo, Change.Status.NEW);

@@ -149,7 +149,13 @@ public class ChangeResource implements RestResource, HasETag {
       accounts.add(getChange().getAssignee());
     }
     try {
+<<<<<<< HEAD   (398a99 Update git submodules)
       patchSetUtil.byChange(notes).stream().map(PatchSet::getUploader).forEach(accounts::add);
+=======
+      patchSetUtil.byChange(db.get(), notes).stream()
+          .map(PatchSet::getUploader)
+          .forEach(accounts::add);
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
 
       // It's intentional to include the states for *all* reviewers into the ETag computation.
       // We need the states of all current reviewers and CCs because they are part of ChangeInfo.

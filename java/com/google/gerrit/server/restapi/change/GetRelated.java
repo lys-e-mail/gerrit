@@ -125,7 +125,13 @@ public class GetRelated implements RestReadView<RevisionResource> {
   @VisibleForTesting
   public static Set<String> getAllGroups(ChangeNotes notes, PatchSetUtil psUtil)
       throws OrmException {
+<<<<<<< HEAD   (398a99 Update git submodules)
     return psUtil.byChange(notes).stream().flatMap(ps -> ps.getGroups().stream()).collect(toSet());
+=======
+    return psUtil.byChange(db, notes).stream()
+        .flatMap(ps -> ps.getGroups().stream())
+        .collect(toSet());
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
   }
 
   private void reloadChangeIfStale(List<ChangeData> cds, PatchSet wantedPs) throws OrmException {

@@ -1248,14 +1248,18 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
 
   private void saveNotifySections(Config rc, Set<AccountGroup.UUID> keepGroups) {
     for (NotifyConfig nc : sort(notifySections.values())) {
+<<<<<<< HEAD   (398a99 Update git submodules)
       nc.getGroups()
           .stream()
           .map(GroupReference::getUUID)
+=======
+      nc.getGroups().stream()
+          .map(gr -> gr.getUUID())
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
           .filter(Objects::nonNull)
           .forEach(keepGroups::add);
       List<String> email =
-          nc.getGroups()
-              .stream()
+          nc.getGroups().stream()
               .map(gr -> new PermissionRule(gr).asString(false))
               .sorted()
               .collect(toList());

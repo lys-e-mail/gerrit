@@ -248,6 +248,7 @@ public class ProjectCacheImpl implements ProjectCache {
 
   @Override
   public Set<AccountGroup.UUID> guessRelevantGroupUUIDs() {
+<<<<<<< HEAD   (398a99 Update git submodules)
     try (Timer0.Context ignored = guessRelevantGroupsLatency.start()) {
       return all()
           .stream()
@@ -259,6 +260,16 @@ public class ProjectCacheImpl implements ProjectCache {
           .filter(id -> id != null && id.get() != null)
           .collect(toSet());
     }
+=======
+    return all().stream()
+        .map(n -> byName.getIfPresent(n.get()))
+        .filter(Objects::nonNull)
+        .flatMap(p -> p.getConfig().getAllGroupUUIDs().stream())
+        // getAllGroupUUIDs shouldn't really return null UUIDs, but harden
+        // against them just in case there is a bug or corner case.
+        .filter(id -> id != null && id.get() != null)
+        .collect(toSet());
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
   }
 
   @Override

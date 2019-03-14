@@ -207,7 +207,13 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
         throws IOException {
       ScanResult sr = scanChangeIds(repo);
 
+<<<<<<< HEAD   (398a99 Update git submodules)
       return sr.all().stream().map(id -> scanOneChange(project, sr, id)).filter(Objects::nonNull);
+=======
+      return sr.all().stream()
+          .map(id -> scanOneNoteDbChange(db, project, sr, defaultStorage, id))
+          .filter(Objects::nonNull);
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
     }
 
     private ChangeNotesResult scanOneChange(Project.NameKey project, ScanResult sr, Change.Id id) {

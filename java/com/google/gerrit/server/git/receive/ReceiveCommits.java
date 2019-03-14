@@ -699,6 +699,7 @@ class ReceiveCommits {
 
   /** Appends messages for successful change creation/updates. */
   private void queueSuccessMessages(List<CreateRequest> newChanges) {
+<<<<<<< HEAD   (398a99 Update git submodules)
     // adjacency list for commit => parent
     Map<String, String> adjList = new HashMap<>();
     for (CreateRequest cr : newChanges) {
@@ -742,6 +743,12 @@ class ReceiveCommits {
         replaceByChange
             .values()
             .stream()
+=======
+    List<CreateRequest> created =
+        newChanges.stream().filter(r -> r.change != null).collect(toList());
+    List<ReplaceRequest> updated =
+        replaceByChange.values().stream()
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
             .filter(r -> r.inputCommand.getResult() == OK)
             .collect(Collectors.toMap(r -> r.newCommitId.name(), r -> r));
 
@@ -861,6 +868,7 @@ class ReceiveCommits {
         throw INSERT_EXCEPTION.apply(e);
       }
 
+<<<<<<< HEAD   (398a99 Update git submodules)
       replaceByChange
           .values()
           .stream()
@@ -868,6 +876,11 @@ class ReceiveCommits {
       newChanges
           .stream()
           .forEach(req -> resultChangeIds.add(ResultChangeIds.Key.CREATED, req.changeId));
+=======
+      replaceByChange.values().stream()
+          .forEach(req -> resultChangeIds.add(Key.REPLACED, req.ontoChange));
+      newChanges.stream().forEach(req -> resultChangeIds.add(Key.CREATED, req.changeId));
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
 
       if (magicBranchCmd != null) {
         magicBranchCmd.setResult(OK);

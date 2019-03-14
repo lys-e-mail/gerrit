@@ -189,10 +189,15 @@ public class ReviewerRecommender {
     }
 
     // Sort results
+<<<<<<< HEAD   (398a99 Update git submodules)
     Stream<Map.Entry<Account.Id, MutableDouble>> sorted =
         reviewerScores
             .entrySet()
             .stream()
+=======
+    Stream<Entry<Account.Id, MutableDouble>> sorted =
+        reviewerScores.entrySet().stream()
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
             .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()));
     List<Account.Id> sortedSuggestions = sorted.map(Map.Entry::getKey).collect(toList());
     logger.atFine().log("Sorted suggestions: %s", sortedSuggestions);

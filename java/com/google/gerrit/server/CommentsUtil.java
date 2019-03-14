@@ -183,10 +183,26 @@ public class CommentsUtil {
     return publishedByChange(notes).stream().filter(c -> key.equals(c.key)).findFirst();
   }
 
+<<<<<<< HEAD   (398a99 Update git submodules)
   public Optional<Comment> getDraft(ChangeNotes notes, IdentifiedUser user, Comment.Key key)
       throws OrmException {
     return draftByChangeAuthor(notes, user.getAccountId())
         .stream()
+=======
+  public Optional<Comment> getDraft(
+      ReviewDb db, ChangeNotes notes, IdentifiedUser user, Comment.Key key) throws OrmException {
+    if (!migration.readChanges()) {
+      Optional<Comment> c = getReviewDb(db, notes, key);
+      if (c.isPresent() && !c.get().author.getId().equals(user.getAccountId())) {
+        throw new OrmException(
+            String.format(
+                "Expected draft %s to belong to account %s, but it belongs to %s",
+                key, user.getAccountId(), c.get().author.getId()));
+      }
+      return c;
+    }
+    return draftByChangeAuthor(db, notes, user.getAccountId()).stream()
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
         .filter(c -> key.equals(c.key))
         .findFirst();
   }

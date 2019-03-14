@@ -580,6 +580,7 @@ public class AccountResolver {
         results = results.filter(visibilitySupplier.get());
       }
 
+<<<<<<< HEAD   (398a99 Update git submodules)
       List<AccountState> list;
       if (searcher.callerShouldFilterOutInactiveCandidates()) {
         // Keep track of all inactive candidates discovered by any searchers. If we end up short-
@@ -587,6 +588,100 @@ public class AccountResolver {
         List<AccountState> active = new ArrayList<>();
         results.forEach(a -> (a.getAccount().isActive() ? active : inactive).add(a));
         list = active;
+=======
+      // more than one match, try to return the best one
+      String name = nameOrEmail.substring(0, lt - 1);
+      Set<Account.Id> nameMatches = new HashSet<>();
+      for (Account.Id id : ids) {
+        Optional<Account> a = byId.get(id).map(AccountState::getAccount);
+        if (a.isPresent() && name.equals(a.get().getFullName())) {
+          nameMatches.add(id);
+        }
+      }
+      return nameMatches.isEmpty() ? ids : nameMatches;
+    }
+
+    if (nameOrEmail.contains("@")) {
+      return emails.getAccountFor(nameOrEmail);
+    }
+
+    Account.Id id = realm.lookup(nameOrEmail);
+    if (id != null) {
+      return Collections.singleton(id);
+    }
+
+    List<AccountState> m = accountQueryProvider.get().byFullName(nameOrEmail);
+    if (m.size() == 1) {
+      return Collections.singleton(m.get(0).getAccount().getId());
+    }
+
+    // At this point we have no clue. Just perform a whole bunch of suggestions
+    // and pray we come up with a reasonable result list.
+    // TODO(dborowitz): This doesn't match the documentation; consider whether it's possible to be
+    // more strict here.
+    return accountQueryProvider.get().byDefault(nameOrEmail).stream()
+        .map(a -> a.getAccount().getId())
+        .collect(toSet());
+  }
+
+  /**
+   * Parses a account ID from a request body and returns the user.
+   *
+   * @param id ID of the account, can be a string of the format "{@code Full Name
+   *     <email@example.com>}", just the email address, a full name if it is unique, an account ID,
+   *     a user name or "{@code self}" for the calling user
+   * @return the user, never null.
+   * @throws UnprocessableEntityException thrown if the account ID cannot be resolved or if the
+   *     account is not visible to the calling user
+   */
+  public IdentifiedUser parse(String id)
+      throws AuthException, UnprocessableEntityException, OrmException, IOException,
+          ConfigInvalidException {
+    return parseOnBehalfOf(null, id);
+  }
+
+  /**
+   * Parses an account ID and returns the user without making any permission check whether the
+   * current user can see the account.
+   *
+   * @param id ID of the account, can be a string of the format "{@code Full Name
+   *     <email@example.com>}", just the email address, a full name if it is unique, an account ID,
+   *     a user name or "{@code self}" for the calling user
+   * @return the user, null if no user is found for the given account ID
+   * @throws AuthException thrown if 'self' is used as account ID and the current user is not
+   *     authenticated
+   * @throws OrmException
+   * @throws ConfigInvalidException
+   * @throws IOException
+   */
+  public IdentifiedUser parseId(String id)
+      throws AuthException, OrmException, IOException, ConfigInvalidException {
+    return parseIdOnBehalfOf(null, id);
+  }
+
+  /**
+   * Like {@link #parse(String)}, but also sets the {@link CurrentUser#getRealUser()} on the result.
+   */
+  public IdentifiedUser parseOnBehalfOf(@Nullable CurrentUser caller, String id)
+      throws AuthException, UnprocessableEntityException, OrmException, IOException,
+          ConfigInvalidException {
+    IdentifiedUser user = parseIdOnBehalfOf(caller, id);
+    if (user == null || !accountControlFactory.get().canSee(user.getAccount())) {
+      throw new UnprocessableEntityException(
+          String.format("Account '%s' is not found or ambiguous", id));
+    }
+    return user;
+  }
+
+  private IdentifiedUser parseIdOnBehalfOf(@Nullable CurrentUser caller, String id)
+      throws AuthException, OrmException, IOException, ConfigInvalidException {
+    if (id.equals("self")) {
+      CurrentUser user = self.get();
+      if (user.isIdentifiedUser()) {
+        return user.asIdentifiedUser();
+      } else if (user instanceof AnonymousUser) {
+        throw new AuthException("Authentication required");
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
       } else {
         list = results.collect(toImmutableList());
       }

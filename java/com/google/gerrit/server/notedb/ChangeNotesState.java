@@ -543,24 +543,32 @@ public abstract class ChangeNotesState {
               .changeId(changeId)
               .columns(toChangeColumns(changeId, proto.getColumns()))
               .pastAssignees(
-                  proto
-                      .getPastAssigneeList()
-                      .stream()
+                  proto.getPastAssigneeList().stream()
                       .map(Account.Id::new)
                       .collect(toImmutableSet()))
               .hashtags(proto.getHashtagList())
               .patchSets(
+<<<<<<< HEAD   (398a99 Update git submodules)
                   proto
                       .getPatchSetList()
                       .stream()
                       .map(bytes -> parseProtoFrom(PatchSetProtoConverter.INSTANCE, bytes))
+=======
+                  proto.getPatchSetList().stream()
+                      .map(PATCH_SET_CODEC::decode)
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
                       .map(ps -> Maps.immutableEntry(ps.getId(), ps))
                       .collect(toImmutableList()))
               .approvals(
+<<<<<<< HEAD   (398a99 Update git submodules)
                   proto
                       .getApprovalList()
                       .stream()
                       .map(bytes -> parseProtoFrom(PatchSetApprovalProtoConverter.INSTANCE, bytes))
+=======
+                  proto.getApprovalList().stream()
+                      .map(APPROVAL_CODEC::decode)
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
                       .map(a -> Maps.immutableEntry(a.getPatchSetId(), a))
                       .collect(toImmutableList()))
               .reviewers(toReviewerSet(proto.getReviewerList()))
@@ -568,28 +576,27 @@ public abstract class ChangeNotesState {
               .pendingReviewers(toReviewerSet(proto.getPendingReviewerList()))
               .pendingReviewersByEmail(toReviewerByEmailSet(proto.getPendingReviewerByEmailList()))
               .allPastReviewers(
-                  proto
-                      .getPastReviewerList()
-                      .stream()
+                  proto.getPastReviewerList().stream()
                       .map(Account.Id::new)
                       .collect(toImmutableList()))
               .reviewerUpdates(toReviewerStatusUpdateList(proto.getReviewerUpdateList()))
               .submitRecords(
-                  proto
-                      .getSubmitRecordList()
-                      .stream()
+                  proto.getSubmitRecordList().stream()
                       .map(r -> GSON.fromJson(r, StoredSubmitRecord.class).toSubmitRecord())
                       .collect(toImmutableList()))
               .changeMessages(
+<<<<<<< HEAD   (398a99 Update git submodules)
                   proto
                       .getChangeMessageList()
                       .stream()
                       .map(bytes -> parseProtoFrom(ChangeMessageProtoConverter.INSTANCE, bytes))
+=======
+                  proto.getChangeMessageList().stream()
+                      .map(MESSAGE_CODEC::decode)
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
                       .collect(toImmutableList()))
               .publishedComments(
-                  proto
-                      .getPublishedCommentList()
-                      .stream()
+                  proto.getPublishedCommentList().stream()
                       .map(r -> GSON.fromJson(r, Comment.class))
                       .collect(toImmutableListMultimap(c -> new RevId(c.revId), c -> c)));
       return b.build();

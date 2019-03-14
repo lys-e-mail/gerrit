@@ -641,6 +641,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
         pushTo("refs/for/master%cc=non.existing.1@example.com,cc=non.existing.2@example.com");
     r.assertOkStatus();
 
+<<<<<<< HEAD   (398a99 Update git submodules)
     ChangeInfo ci = get(r.getChangeId(), DETAILED_LABELS);
     ImmutableList<AccountInfo> ccs =
         firstNonNull(ci.reviewers.get(ReviewerState.CC), ImmutableList.<AccountInfo>of())
@@ -652,6 +653,21 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     assertThat(ccs.get(0)._accountId).isNull();
     assertThat(ccs.get(1).email).isEqualTo("non.existing.2@example.com");
     assertThat(ccs.get(1)._accountId).isNull();
+=======
+      ChangeInfo ci = get(r.getChangeId(), DETAILED_LABELS);
+      ImmutableList<AccountInfo> ccs =
+          firstNonNull(ci.reviewers.get(ReviewerState.CC), ImmutableList.<AccountInfo>of()).stream()
+              .sorted(comparing((AccountInfo a) -> a.email))
+              .collect(toImmutableList());
+      assertThat(ccs).hasSize(2);
+      assertThat(ccs.get(0).email).isEqualTo("non.existing.1@example.com");
+      assertThat(ccs.get(0)._accountId).isNull();
+      assertThat(ccs.get(1).email).isEqualTo("non.existing.2@example.com");
+      assertThat(ccs.get(1)._accountId).isNull();
+    } else {
+      r.assertErrorStatus("non.existing.1@example.com does not identify a registered user");
+    }
+>>>>>>> BRANCH (758021 Merge changes from topic "gjf-stable-2.16" into stable-2.16)
   }
 
   @Test
@@ -2058,9 +2074,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     assertThat(getLastMessage(r.getChangeId())).isEqualTo("Uploaded patch set 3.\n\n(3 comments)");
 
     List<String> messages =
-        sender
-            .getMessages()
-            .stream()
+        sender.getMessages().stream()
             .map(Message::body)
             .sorted(Comparator.comparingInt(m -> m.contains("reexamine") ? 0 : 1))
             .collect(toList());
@@ -2494,11 +2508,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   }
 
   private Collection<CommentInfo> getPublishedComments(String changeId) throws Exception {
-    return gApi.changes()
-        .id(changeId)
-        .comments()
-        .values()
-        .stream()
+    return gApi.changes().id(changeId).comments().values().stream()
         .flatMap(Collection::stream)
         .collect(toList());
   }
