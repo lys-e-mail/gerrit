@@ -892,7 +892,7 @@ maven_jar(
     sha1 = "76716d529710fc03d1d429b43e3cedd4419f78d4",
 )
 
-# When upgrading elasticsearch-rest-client, also upgrade http-niocore
+# When upgrading elasticsearch-rest-client, also upgrade httpcore-nio
 # and httpasyncclient as necessary.
 maven_jar(
     name = "elasticsearch-rest-client",
@@ -912,6 +912,7 @@ TESTCONTAINERS_VERSION = "1.10.6"
 
 maven_jar(
     name = "testcontainers",
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
     artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
     sha1 = "435c94ec099e229e62295cec4feec91c192aa764",
 )
@@ -920,6 +921,10 @@ maven_jar(
     name = "testcontainers-elasticsearch",
     artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
     sha1 = "143a88bd8f5c5a917e5bac5a728bb6a7fc54a50c",
+=======
+    artifact = "org.testcontainers:testcontainers:1.10.6",
+    sha1 = "435c94ec099e229e62295cec4feec91c192aa764",
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
 )
 
 maven_jar(

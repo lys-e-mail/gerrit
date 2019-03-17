@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
 _JGIT_VERS = "4.9.9.201903122025-r"
+=======
+_JGIT_VERS = "4.7.8.201903121755-r"
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -35,28 +39,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
         sha1 = "52193ccd43992cfa262d72db9da1b7512e0858da",
         src_sha1 = "fb5f9b0630d8016061a05666d9adee8b1f1f4b16",
+=======
+        sha1 = "d168acb5ec4a84589d9de9c6e0050d11ea7d070c",
+        src_sha1 = "301ede02c84f679c9b3ad5bbbca4485f7c1f7cb3",
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
         sha1 = "37e45177c96a2a936e783dd3b850edf1676fa1fa",
+=======
+        sha1 = "d6390f85adeb78f238826820a42479e9c82410ed",
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
         sha1 = "57be131434f94b5e3446ba00a11a99cab806eaaa",
+=======
+        sha1 = "713a58d64738d6b289983436f1f6d29904639c14",
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (fc3e6d Set version to 2.15.13-SNAPSHOT)
         sha1 = "80e5eb69c35bafec0e74285ca2058e5212d43266",
+=======
+        sha1 = "cea8dced85441fd3bad429a2417cffad145e87b5",
+>>>>>>> BRANCH (e59fda Set version to 2.14.19)
         unsign = True,
     )
 
