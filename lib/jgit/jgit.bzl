@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (7e0687 Set version to 2.16.8-SNAPSHOT)
 _JGIT_VERS = "5.1.6.201903130242-r"
+=======
+_JGIT_VERS = "4.9.9.201903122025-r"
+>>>>>>> BRANCH (e5fd93 Merge branch 'stable-2.14' into stable-2.15)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (7e0687 Set version to 2.16.8-SNAPSHOT)
         sha1 = "c33db190745a8a40524d3076f033ba2ee4616a64",
         src_sha1 = "f0e33171d3d413c5a94f07794aef7b71a35772f6",
+=======
+        sha1 = "52193ccd43992cfa262d72db9da1b7512e0858da",
+        src_sha1 = "fb5f9b0630d8016061a05666d9adee8b1f1f4b16",
+>>>>>>> BRANCH (e5fd93 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (7e0687 Set version to 2.16.8-SNAPSHOT)
         sha1 = "86564c102e81a76f67630d4fde862d137e24c63a",
+=======
+        sha1 = "37e45177c96a2a936e783dd3b850edf1676fa1fa",
+>>>>>>> BRANCH (e5fd93 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (7e0687 Set version to 2.16.8-SNAPSHOT)
         sha1 = "f4ebfa91f4c988f37648b3087830a83973a975be",
+=======
+        sha1 = "57be131434f94b5e3446ba00a11a99cab806eaaa",
+>>>>>>> BRANCH (e5fd93 Merge branch 'stable-2.14' into stable-2.15)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (7e0687 Set version to 2.16.8-SNAPSHOT)
         sha1 = "b2e512e920afbac405a678efe92e3b4bacb9a1df",
+=======
+        sha1 = "80e5eb69c35bafec0e74285ca2058e5212d43266",
+>>>>>>> BRANCH (e5fd93 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
 
