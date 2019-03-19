@@ -1,0 +1,9 @@
+<<<<<<< HEAD   (4d152b Merge "WORKSPACE: Update testcontainers to version 1.10.7" i)
+=======
+include_defs('//lib/maven.defs')
+
+REPO = MAVEN_CENTRAL # Leave here even if set to MAVEN_CENTRAL.
+VERS = '4.5.6.201903121547-r'
+DOC_VERS = VERS # Set to VERS unless using a snapshot
+JGIT_DOC_URL="http://download.eclipse.org/jgit/site/" + DOC_VERS + "/apidocs"
+>>>>>>> BRANCH (d135e7 Set version to 2.13.13)

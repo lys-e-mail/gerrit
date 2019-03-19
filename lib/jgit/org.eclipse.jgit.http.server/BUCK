@@ -1,0 +1,19 @@
+<<<<<<< HEAD   (4d152b Merge "WORKSPACE: Update testcontainers to version 1.10.7" i)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'jgit-servlet',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + VERS,
+  sha1 = 'a2c6a6494fa622cf21a5f307635907c2da8db409',
+  license = 'jgit',
+  repository = REPO,
+  deps = ['//lib/jgit/org.eclipse.jgit:jgit'],
+  unsign = True,
+  exclude = [
+    'about.html',
+    'plugin.properties',
+  ],
+)
+>>>>>>> BRANCH (d135e7 Set version to 2.13.13)

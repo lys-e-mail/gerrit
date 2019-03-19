@@ -1,0 +1,8 @@
+<<<<<<< HEAD   (4d152b Merge "WORKSPACE: Update testcontainers to version 1.10.7" i)
+=======
+# Maven style API version (e.g. '2.x-SNAPSHOT').
+# Used by :api_install and :api_deploy targets
+# when talking to the destination repository.
+#
+GERRIT_VERSION = '2.13.13'
+>>>>>>> BRANCH (d135e7 Set version to 2.13.13)
