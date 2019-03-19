@@ -912,6 +912,7 @@ TESTCONTAINERS_VERSION = "1.10.7"
 
 maven_jar(
     name = "testcontainers",
+<<<<<<< HEAD   (671bbd Merge changes I95b95a0c,I584af100 into stable-2.15)
     artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
     sha1 = "e7575fedfd010ca1ad80c8c9bf971a8057b1ff8a",
 )
@@ -920,6 +921,10 @@ maven_jar(
     name = "testcontainers-elasticsearch",
     artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
     sha1 = "1ee43ebd81aea1f29bf60a56643bad80c134f998",
+=======
+    artifact = "org.testcontainers:testcontainers:1.10.7",
+    sha1 = "e7575fedfd010ca1ad80c8c9bf971a8057b1ff8a",
+>>>>>>> BRANCH (34029f Merge branch 'stable-2.13' into stable-2.14)
 )
 
 maven_jar(
