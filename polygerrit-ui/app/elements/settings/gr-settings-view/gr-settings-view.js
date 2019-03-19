@@ -38,7 +38,14 @@
   const ABSOLUTE_URL_PATTERN = /^https?:/;
   const TRAILING_SLASH_PATTERN = /\/$/;
 
+<<<<<<< HEAD   (4af870 Merge branch 'stable-2.15' into stable-2.16)
   const RELOAD_MESSAGE = 'Reloading...';
+=======
+  const HTTP_AUTH = [
+    'HTTP',
+    'HTTP_LDAP',
+  ];
+>>>>>>> BRANCH (b7d4a8 Merge "Fix hiding http credentials if using a different auth)
 
   Polymer({
     is: 'gr-settings-view',
@@ -399,6 +406,7 @@
       return base + GERRIT_DOCS_FILTER_PATH;
     },
 
+<<<<<<< HEAD   (4af870 Merge branch 'stable-2.15' into stable-2.16)
     _handleToggleDark() {
       if (this._isDark) {
         window.localStorage.removeItem('dark-theme');
@@ -412,6 +420,16 @@
       this.async(() => {
         window.location.reload();
       }, 1);
+=======
+    _showHttpAuth(config) {
+      if (config && config.auth &&
+          config.auth.git_basic_auth_policy) {
+        return HTTP_AUTH.includes(
+            config.auth.git_basic_auth_policy.toUpperCase());
+      }
+
+      return false;
+>>>>>>> BRANCH (b7d4a8 Merge "Fix hiding http credentials if using a different auth)
     },
   });
 })();
