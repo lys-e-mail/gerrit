@@ -76,7 +76,16 @@ public class AbandonUtil {
       ImmutableListMultimap.Builder<Project.NameKey, ChangeData> builder =
           ImmutableListMultimap.builder();
       for (ChangeData cd : changesToAbandon) {
+<<<<<<< HEAD   (b7d4a8 Merge "Fix hiding http credentials if using a different auth)
         builder.put(cd.project(), cd);
+=======
+        try {
+          ChangeControl control = cd.changeControl(internalUser);
+          builder.put(control.getProject().getNameKey(), control);
+        } catch (OrmException e) {
+          log.warn("Failed to query inactive open change for auto-abandoning.", e);
+        }
+>>>>>>> BRANCH (2d8d01 dev-plugins.txt: Recommend ServletModule instead of HttpPlug)
       }
 
       int count = 0;
