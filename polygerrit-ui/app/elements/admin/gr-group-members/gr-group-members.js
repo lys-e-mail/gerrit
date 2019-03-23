@@ -199,7 +199,11 @@
 
     _handleSavingIncludedGroups() {
       return this.$.restAPI.saveIncludedGroup(this._groupName,
+<<<<<<< HEAD   (17edf1 Merge "Fix the position of the gray vertical line for line l)
           this._includedGroupSearchId.replace(/\+/g, ' '), err => {
+=======
+          this._includedGroupSearchId, err => {
+>>>>>>> BRANCH (dc5e76 Make WebSessionManager.Val#getAccountId public)
             if (err.status === 404) {
               this.dispatchEvent(new CustomEvent('show-alert', {
                 detail: {message: SAVING_ERROR_TEXT},
@@ -223,7 +227,11 @@
     },
 
     _handleDeleteIncludedGroup(e) {
+<<<<<<< HEAD   (17edf1 Merge "Fix the position of the gray vertical line for line l)
       const id = decodeURIComponent(e.model.get('item.id')).replace(/\+/g, ' ');
+=======
+      const id = decodeURIComponent(e.model.get('item.id'));
+>>>>>>> BRANCH (dc5e76 Make WebSessionManager.Val#getAccountId public)
       const name = e.model.get('item.name');
       const item = name || id;
       if (!item) { return ''; }
