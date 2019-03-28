@@ -15,14 +15,11 @@
 package com.google.gerrit.elasticsearch;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.gerrit.elasticsearch.ElasticConfiguration.DEFAULT_MAX_RETRY_TIMEOUT_MS;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.DEFAULT_USERNAME;
-import static com.google.gerrit.elasticsearch.ElasticConfiguration.KEY_MAX_RETRY_TIMEOUT;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.KEY_PASSWORD;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.KEY_PREFIX;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.KEY_SERVER;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.KEY_USERNAME;
-import static com.google.gerrit.elasticsearch.ElasticConfiguration.MAX_RETRY_TIMEOUT_UNIT;
 import static com.google.gerrit.elasticsearch.ElasticConfiguration.SECTION_ELASTICSEARCH;
 import static java.util.stream.Collectors.toList;
 
@@ -30,8 +27,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.gerrit.testing.GerritBaseTests;
 import com.google.inject.ProvisionException;
 import java.util.Arrays;
+<<<<<<< HEAD   (5b8944 Merge changes I4b514a71,I6c530735)
 import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpHost;
+=======
+>>>>>>> BRANCH (2a00d7 Merge branch 'stable-2.15' into stable-2.16)
 import org.eclipse.jgit.lib.Config;
 import org.junit.Test;
 
@@ -44,7 +44,6 @@ public class ElasticConfigurationTest extends GerritBaseTests {
     assertThat(esCfg.username).isNull();
     assertThat(esCfg.password).isNull();
     assertThat(esCfg.prefix).isEmpty();
-    assertThat(esCfg.maxRetryTimeout).isEqualTo(DEFAULT_MAX_RETRY_TIMEOUT_MS);
   }
 
   @Test
@@ -61,23 +60,6 @@ public class ElasticConfigurationTest extends GerritBaseTests {
     cfg.setString(SECTION_ELASTICSEARCH, null, KEY_PREFIX, "myprefix");
     ElasticConfiguration esCfg = new ElasticConfiguration(cfg);
     assertThat(esCfg.prefix).isEqualTo("myprefix");
-  }
-
-  @Test
-  public void maxRetryTimeoutInDefaultUnit() {
-    Config cfg = newConfig();
-    cfg.setString(SECTION_ELASTICSEARCH, null, KEY_MAX_RETRY_TIMEOUT, "45000");
-    ElasticConfiguration esCfg = new ElasticConfiguration(cfg);
-    assertThat(esCfg.maxRetryTimeout).isEqualTo(45000);
-  }
-
-  @Test
-  public void maxRetryTimeoutInOtherUnit() {
-    Config cfg = newConfig();
-    cfg.setString(SECTION_ELASTICSEARCH, null, KEY_MAX_RETRY_TIMEOUT, "45 s");
-    ElasticConfiguration esCfg = new ElasticConfiguration(cfg);
-    assertThat(esCfg.maxRetryTimeout)
-        .isEqualTo(MAX_RETRY_TIMEOUT_UNIT.convert(45, TimeUnit.SECONDS));
   }
 
   @Test
