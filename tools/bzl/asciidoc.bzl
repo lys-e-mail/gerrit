@@ -208,6 +208,10 @@ def _asciidoc_html_zip_impl(ctx):
     args.extend(_generate_asciidoc_args(ctx))
     ctx.actions.run(
         inputs = ctx.files.srcs + [ctx.file.version],
+<<<<<<< HEAD   (49fef7 Upgrade protobuf-java to 3.7.1)
+=======
+        tools = [ctx.executable._exe],
+>>>>>>> BRANCH (dc4a7a Merge branch 'stable-2.14' into stable-2.15)
         outputs = [ctx.outputs.out],
         tools = [ctx.executable._exe],
         executable = ctx.executable._exe,
