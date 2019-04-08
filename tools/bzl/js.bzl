@@ -4,6 +4,21 @@ NPMJS = "NPMJS"
 
 GERRIT = "GERRIT:"
 
+<<<<<<< HEAD   (dc4a7a Merge branch 'stable-2.14' into stable-2.15)
+=======
+NPM_VERSIONS = {
+    "bower": "1.8.8",
+    "crisper": "2.0.2",
+    "vulcanize": "1.14.8",
+}
+
+NPM_SHA1S = {
+    "bower": "82544be34a33aeae7efb8bdf9905247b2cffa985",
+    "crisper": "7183c58cea33632fb036c91cefd1b43e390d22a2",
+    "vulcanize": "679107f251c19ab7539529b1e3fdd40829e6fc63",
+}
+
+>>>>>>> BRANCH (323887 Update bower to 1.8.8)
 def _npm_tarball(name):
     return "%s@%s.npm_binary.tgz" % (name, NPM_VERSIONS[name])
 
