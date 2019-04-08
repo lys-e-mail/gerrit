@@ -4,6 +4,21 @@ NPMJS = "NPMJS"
 
 GERRIT = "GERRIT:"
 
+<<<<<<< HEAD   (dc4a7a Merge branch 'stable-2.14' into stable-2.15)
+=======
+NPM_VERSIONS = {
+    "bower": "1.8.8",
+    "crisper": "2.0.2",
+    "vulcanize": "1.14.8",
+}
+
+NPM_SHA1S = {
+    "bower": "82544be34a33aeae7efb8bdf9905247b2cffa985",
+    "crisper": "7183c58cea33632fb036c91cefd1b43e390d22a2",
+    "vulcanize": "679107f251c19ab7539529b1e3fdd40829e6fc63",
+}
+
+>>>>>>> BRANCH (f21440 Switch links in js.bzl to https)
 def _npm_tarball(name):
     return "%s@%s.npm_binary.tgz" % (name, NPM_VERSIONS[name])
 
@@ -19,9 +34,9 @@ def _npm_binary_impl(ctx):
     dest = ctx.path(base)
     repository = ctx.attr.repository
     if repository == GERRIT:
-        url = "http://gerrit-maven.storage.googleapis.com/npm-packages/%s" % filename
+        url = "https://gerrit-maven.storage.googleapis.com/npm-packages/%s" % filename
     elif repository == NPMJS:
-        url = "http://registry.npmjs.org/%s/-/%s" % (name, filename)
+        url = "https://registry.npmjs.org/%s/-/%s" % (name, filename)
     else:
         fail("repository %s not in {%s,%s}" % (repository, GERRIT, NPMJS))
 
