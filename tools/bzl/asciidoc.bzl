@@ -208,6 +208,10 @@ def _asciidoc_html_zip_impl(ctx):
     args.extend(_generate_asciidoc_args(ctx))
     ctx.actions.run(
         inputs = ctx.files.srcs + [ctx.file.version],
+<<<<<<< HEAD   (ed8917 polygerrit_plugin: Demote compilation level to whitespace on)
+=======
+        tools = [ctx.executable._exe],
+>>>>>>> BRANCH (dc4a7a Merge branch 'stable-2.14' into stable-2.15)
         outputs = [ctx.outputs.out],
         tools = [ctx.executable._exe],
         executable = ctx.executable._exe,
