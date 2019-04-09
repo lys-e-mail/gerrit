@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
   <version>2.14.19</version>
+=======
+  <version>2.13.14-SNAPSHOT</version>
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

@@ -38,6 +38,61 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jcraft.jsch.HostKey;
 import com.jcraft.jsch.JSchException;
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
+=======
+
+import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.sshd.common.BaseBuilder;
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.common.channel.RequestHandler;
+import org.apache.sshd.common.cipher.Cipher;
+import org.apache.sshd.common.compression.BuiltinCompressions;
+import org.apache.sshd.common.compression.Compression;
+import org.apache.sshd.common.file.FileSystemFactory;
+import org.apache.sshd.common.forward.DefaultTcpipForwarderFactory;
+import org.apache.sshd.common.future.CloseFuture;
+import org.apache.sshd.common.future.SshFutureListener;
+import org.apache.sshd.common.io.IoAcceptor;
+import org.apache.sshd.common.io.IoServiceFactoryFactory;
+import org.apache.sshd.common.io.IoSession;
+import org.apache.sshd.common.io.mina.MinaServiceFactoryFactory;
+import org.apache.sshd.common.io.mina.MinaSession;
+import org.apache.sshd.common.io.nio2.Nio2ServiceFactoryFactory;
+import org.apache.sshd.common.kex.KeyExchange;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
+import org.apache.sshd.common.mac.Mac;
+import org.apache.sshd.common.random.JceRandomFactory;
+import org.apache.sshd.common.random.Random;
+import org.apache.sshd.common.random.SingletonRandomFactory;
+import org.apache.sshd.common.session.ConnectionService;
+import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.util.buffer.Buffer;
+import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
+import org.apache.sshd.common.util.net.SshdSocketAddress;
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.server.Command;
+import org.apache.sshd.server.CommandFactory;
+import org.apache.sshd.server.ServerBuilder;
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.UserAuth;
+import org.apache.sshd.server.auth.gss.GSSAuthenticator;
+import org.apache.sshd.server.auth.gss.UserAuthGSSFactory;
+import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
+import org.apache.sshd.server.auth.pubkey.UserAuthPublicKeyFactory;
+import org.apache.sshd.server.forward.ForwardingFilter;
+import org.apache.sshd.server.global.CancelTcpipForwardHandler;
+import org.apache.sshd.server.global.KeepAliveHandler;
+import org.apache.sshd.server.global.NoMoreSessionsHandler;
+import org.apache.sshd.server.global.TcpipForwardHandler;
+import org.apache.sshd.server.session.ServerSessionImpl;
+import org.apache.sshd.server.session.SessionFactory;
+import org.bouncycastle.crypto.prng.RandomGenerator;
+import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
+import org.eclipse.jgit.lib.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -706,17 +761,32 @@ public class SshDaemon extends SshServer implements SshInfo, LifecycleListener {
   }
 
   private void initForwarding() {
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
     setTcpipForwardingFilter(
         new ForwardingFilter() {
           @Override
           public boolean canForwardAgent(Session session, String requestType) {
             return false;
           }
+=======
+    setTcpipForwardingFilter(new ForwardingFilter() {
+      @Override
+      public boolean canForwardAgent(Session session, String requestType) {
+          return false;
+      }
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
           @Override
           public boolean canForwardX11(Session session, String requestType) {
             return false;
           }
+=======
+      @Override
+      public boolean canForwardX11(Session session, String requestType) {
+          return false;
+      }
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 
           @Override
           public boolean canListen(SshdSocketAddress address, Session session) {
@@ -735,10 +805,15 @@ public class SshDaemon extends SshServer implements SshInfo, LifecycleListener {
     setFileSystemFactory(
         new FileSystemFactory() {
           @Override
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
           public FileSystem createFileSystem(Session session) throws IOException {
             return new FileSystem() {
               @Override
               public void close() throws IOException {}
+=======
+          public void close() throws IOException {
+	  }
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 
               @Override
               public Iterable<FileStore> getFileStores() {

@@ -630,15 +630,27 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
     name = "eddsa",
     artifact = "net.i2p.crypto:eddsa:0.1.0",
     sha1 = "8f5a3b165164e222da048d8136b21428ee0b9122",
+=======
+  name = 'sshd',
+  artifact = 'org.apache.sshd:sshd-core:1.4.0',
+  sha1 = 'c8f3d7457fc9979d1b9ec319f0229b89793c8e56',
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 )
 
 maven_jar(
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
     name = "mina-core",
     artifact = "org.apache.mina:mina-core:2.0.16",
     sha1 = "f720f17643eaa7b0fec07c1d7f6272972c02bba4",
+=======
+  name = 'mina_core',
+  artifact = 'org.apache.mina:mina-core:2.0.16',
+  sha1 = 'f720f17643eaa7b0fec07c1d7f6272972c02bba4',
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 )
 
 maven_jar(

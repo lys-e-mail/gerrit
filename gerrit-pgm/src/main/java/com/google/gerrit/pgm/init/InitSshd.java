@@ -25,6 +25,13 @@ import com.google.gerrit.server.util.HostPlatform;
 import com.google.gerrit.server.util.SocketUtil;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
+=======
+
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.InetSocketAddress;

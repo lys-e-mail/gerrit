@@ -1,0 +1,29 @@
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
+=======
+include_defs('//lib/maven.defs')
+
+EXCLUDE = [
+  'META-INF/DEPENDENCIES',
+  'META-INF/LICENSE',
+  'META-INF/NOTICE',
+]
+
+maven_jar(
+  name = 'sshd',
+  id = 'org.apache.sshd:sshd-core:1.4.0',
+  sha1 = 'c8f3d7457fc9979d1b9ec319f0229b89793c8e56',
+  src_sha1 = '7dbe0edbd2362b58778bbed77407f2e0ded08fcd',
+  license = 'Apache2.0',
+  deps = [':core'],
+  exclude = EXCLUDE,
+)
+
+maven_jar(
+  name = 'core',
+  id = 'org.apache.mina:mina-core:2.0.16',
+  sha1 = 'f720f17643eaa7b0fec07c1d7f6272972c02bba4',
+  src_sha1 = '660fb813ca1c8d8a936f894324091400a5ac128a',
+  license = 'Apache2.0',
+  exclude = EXCLUDE,
+)
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)

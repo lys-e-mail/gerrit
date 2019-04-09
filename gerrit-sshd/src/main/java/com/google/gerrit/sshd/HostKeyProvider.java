@@ -18,6 +18,15 @@ import com.google.gerrit.server.config.SitePaths;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
+=======
+
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,6 +89,13 @@ class HostKeyProvider implements Provider<KeyPairProvider> {
     if (stdKeys.isEmpty()) {
       throw new ProvisionException("No SSH keys under " + site.etc_dir);
     }
+<<<<<<< HEAD   (f21440 Switch links in js.bzl to https)
+=======
+    if (!SecurityUtils.isBouncyCastleRegistered()) {
+      throw new ProvisionException("Bouncy Castle Crypto not installed;"
+          + " needed to read server host keys: " + stdKeys + "");
+    }
+>>>>>>> BRANCH (2de45f Bump Mina core to 2.0.16 and sshd to 1.4)
     FileKeyPairProvider kp = new FileKeyPairProvider();
     kp.setFiles(stdKeys);
     return kp;
