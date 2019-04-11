@@ -47,17 +47,25 @@ public abstract class SiteProgram extends AbstractProgram {
       aliases = {"-d"},
       usage = "Local directory containing site data")
   private void setSitePath(String path) {
-    sitePath = Paths.get(path);
+    sitePath = Paths.get(path).normalize();
   }
 
   private Path sitePath = Paths.get(".");
 
   protected SiteProgram() {}
 
-  protected SiteProgram(Path sitePath) {
-    this.sitePath = sitePath;
+  protected SiteProgram(Path sitePath, Provider<DataSource> dsProvider) {
+    this.sitePath = sitePath.normalize();
+    this.dsProvider = dsProvider;
   }
 
+<<<<<<< HEAD   (ded55c Set version to 3.0.0-SNAPSHOT)
+=======
+  protected SiteProgram(Path sitePath) {
+    this(sitePath, null);
+  }
+
+>>>>>>> BRANCH (b09858 SiteProgram: Normalize site path)
   /** @return the site path specified on the command line. */
   protected Path getSitePath() {
     return sitePath;
