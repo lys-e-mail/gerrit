@@ -316,6 +316,7 @@ public class MergeUtil {
     return commit;
   }
 
+  @SuppressWarnings("resource") // TemporaryBuffer requires calling close before reading.
   public static ObjectId mergeWithConflicts(
       RevWalk rw,
       ObjectInserter ins,
@@ -349,6 +350,7 @@ public class MergeUtil {
     Map<String, ObjectId> resolved = new HashMap<>();
     for (Map.Entry<String, MergeResult<? extends Sequence>> entry : mergeResults.entrySet()) {
       MergeResult<? extends Sequence> p = entry.getValue();
+<<<<<<< HEAD   (09e9d4 Merge changes from topic "testaccount-autovalue")
       @SuppressWarnings("resource") // TemporaryBuffer requires calling close before reading.
       TemporaryBuffer buf = null;
       try {
@@ -356,6 +358,14 @@ public class MergeUtil {
         buf = new TemporaryBuffer.LocalFile(null, 10 * 1024 * 1024);
         fmt.formatMerge(buf, p, "BASE", oursNameFormatted, theirsNameFormatted, UTF_8);
         buf.close(); // Flush file and close for writes, but leave available for reading.
+=======
+      TemporaryBuffer buf = null;
+      try {
+        // TODO(dborowitz): Respect inCoreLimit here.
+        buf = new TemporaryBuffer.LocalFile(null, 10 * 1024 * 1024);
+        fmt.formatMerge(buf, p, "BASE", oursNameFormatted, theirsNameFormatted, UTF_8.name());
+        buf.close();
+>>>>>>> BRANCH (b1fa96 MergeUtil: Destroy TemporaryBuffer after use)
 
         try (InputStream in = buf.openInputStream()) {
           resolved.put(entry.getKey(), ins.insert(Constants.OBJ_BLOB, buf.length(), in));
