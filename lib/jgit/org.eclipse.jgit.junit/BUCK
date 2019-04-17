@@ -1,0 +1,15 @@
+<<<<<<< HEAD   (36a005 Set version to 2.14.20-SNAPSHOT)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'junit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit.junit:' + VERS,
+  sha1 = '47e1a1c0d0720611886b9ed675a1e9a2e8fd6a09',
+  license = 'DO_NOT_DISTRIBUTE',
+  repository = REPO,
+  unsign = True,
+  deps = ['//lib/jgit/org.eclipse.jgit:jgit'],
+)
+>>>>>>> BRANCH (8dbb51 Upgrade JGit to 4.5.7.201904151645-r)

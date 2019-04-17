@@ -1,0 +1,28 @@
+<<<<<<< HEAD   (36a005 Set version to 2.14.20-SNAPSHOT)
+=======
+include_defs('//lib/maven.defs')
+include_defs('//lib/JGIT_VERSION')
+
+maven_jar(
+  name = 'jgit',
+  id = 'org.eclipse.jgit:org.eclipse.jgit:' + VERS,
+  bin_sha1 = 'e84008db495a7f48d65fb09afe53279b0df68c80',
+  src_sha1 = 'd7fe981cc76f11ad95872b2658344c47c6a29556',
+  license = 'jgit',
+  repository = REPO,
+  unsign = True,
+  deps = [':ewah'],
+  exclude = [
+    'META-INF/eclipse.inf',
+    'about.html',
+    'plugin.properties',
+  ],
+)
+
+maven_jar(
+  name = 'ewah',
+  id = 'com.googlecode.javaewah:JavaEWAH:0.7.9',
+  sha1 = 'eceaf316a8faf0e794296ebe158ae110c7d72a5a',
+  license = 'Apache2.0',
+)
+>>>>>>> BRANCH (8dbb51 Upgrade JGit to 4.5.7.201904151645-r)

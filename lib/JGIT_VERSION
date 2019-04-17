@@ -1,0 +1,9 @@
+<<<<<<< HEAD   (36a005 Set version to 2.14.20-SNAPSHOT)
+=======
+include_defs('//lib/maven.defs')
+
+REPO = MAVEN_CENTRAL # Leave here even if set to MAVEN_CENTRAL.
+VERS = '4.5.7.201904151645-r'
+DOC_VERS = VERS # Set to VERS unless using a snapshot
+JGIT_DOC_URL="http://download.eclipse.org/jgit/site/" + DOC_VERS + "/apidocs"
+>>>>>>> BRANCH (8dbb51 Upgrade JGit to 4.5.7.201904151645-r)
