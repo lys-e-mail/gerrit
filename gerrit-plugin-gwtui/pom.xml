@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (32470f Elasticsearch: Update elasticsearch-rest-client to 7.0.0)
   <version>2.15.13-SNAPSHOT</version>
+=======
+  <version>2.14.20-SNAPSHOT</version>
+>>>>>>> BRANCH (53eb53 Upgrade JGit to 4.7.9.201904161809-r)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>
