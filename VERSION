@@ -1,0 +1,8 @@
+<<<<<<< HEAD   (713906 WORKSPACE: Extract testcontainers version to a constant)
+=======
+# Maven style API version (e.g. '2.x-SNAPSHOT').
+# Used by :api_install and :api_deploy targets
+# when talking to the destination repository.
+#
+GERRIT_VERSION = '2.13.14'
+>>>>>>> BRANCH (45182f Set version to 2.13.14)
