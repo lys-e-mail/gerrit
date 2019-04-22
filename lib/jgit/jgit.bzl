@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (bcef27 Merge branch 'stable-2.15' into stable-2.16)
 _JGIT_VERS = "5.1.6.201903130242-r"
+=======
+_JGIT_VERS = "4.9.10.201904181027-r"
+>>>>>>> BRANCH (63c705 Upgrade JGit to 4.9.10.201904181027-r)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bcef27 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "c33db190745a8a40524d3076f033ba2ee4616a64",
         src_sha1 = "f0e33171d3d413c5a94f07794aef7b71a35772f6",
+=======
+        sha1 = "ef0efa372dcbeceaad86fe7a9e97303971cfea85",
+        src_sha1 = "d323476bc3551edb07aa6bea623c9aa78e1260ea",
+>>>>>>> BRANCH (63c705 Upgrade JGit to 4.9.10.201904181027-r)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bcef27 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "86564c102e81a76f67630d4fde862d137e24c63a",
+=======
+        sha1 = "a03c6602661eb178ad0b98b8e702cecf231c5716",
+>>>>>>> BRANCH (63c705 Upgrade JGit to 4.9.10.201904181027-r)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bcef27 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "f4ebfa91f4c988f37648b3087830a83973a975be",
+=======
+        sha1 = "5745d6edb236dd6eb598339000559375b1c94067",
+>>>>>>> BRANCH (63c705 Upgrade JGit to 4.9.10.201904181027-r)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (bcef27 Merge branch 'stable-2.15' into stable-2.16)
         sha1 = "b2e512e920afbac405a678efe92e3b4bacb9a1df",
+=======
+        sha1 = "93f8a494e6730034946c5e19ce90bdefd636af83",
+>>>>>>> BRANCH (63c705 Upgrade JGit to 4.9.10.201904181027-r)
         unsign = True,
     )
 
