@@ -23,8 +23,16 @@ import java.util.Objects;
 /** An approval (or negative approval) on a patch set. */
 public final class PatchSetApproval {
   public static Key key(PatchSet.Id patchSetId, Account.Id accountId, LabelId labelId) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_PatchSetApproval_Key(patchSetId, accountId, labelId);
   }
+=======
+    return new Key(patchSetId, accountId, labelId);
+  }
+
+  public static class Key extends CompoundKey<PatchSet.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
@@ -32,7 +40,53 @@ public final class PatchSetApproval {
 
     public abstract Account.Id accountId();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract LabelId labelId();
+=======
+    protected LabelId categoryId;
+
+    protected Key() {
+      patchSetId = new PatchSet.Id();
+      accountId = new Account.Id();
+      categoryId = new LabelId();
+    }
+
+    public Key(PatchSet.Id ps, Account.Id a, LabelId c) {
+      this.patchSetId = ps;
+      this.accountId = a;
+      this.categoryId = c;
+    }
+
+    @Override
+    public PatchSet.Id getParentKey() {
+      return patchSetId;
+    }
+
+    public PatchSet.Id patchSetId() {
+      return getParentKey();
+    }
+
+    public Account.Id getAccountId() {
+      return accountId;
+    }
+
+    public Account.Id accountId() {
+      return getAccountId();
+    }
+
+    public LabelId getLabelId() {
+      return categoryId;
+    }
+
+    public LabelId labelId() {
+      return getLabelId();
+    }
+
+    @Override
+    public com.google.gwtorm.client.Key<?>[] members() {
+      return new com.google.gwtorm.client.Key<?>[] {accountId, categoryId};
+    }
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;

@@ -34,6 +34,13 @@ public final class Project {
   public static NameKey nameKey(String name) {
     return new NameKey(name);
   }
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
+=======
+
+  /** Project name key */
+  public static class NameKey extends StringKey<com.google.gwtorm.client.Key<?>> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
 
   /**
    * Project name key.

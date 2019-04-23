@@ -41,12 +41,60 @@ public final class Patch {
   }
 
   public static Key key(PatchSet.Id patchSetId, String fileName) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_Patch_Key(patchSetId, fileName);
   }
+=======
+    return new Key(patchSetId, fileName);
+  }
 
+  public static class Key extends StringKey<PatchSet.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
+
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
   @AutoValue
   public abstract static class Key {
     /** Parse a Patch.Key out of a string representation. */
+=======
+    protected PatchSet.Id patchSetId;
+
+    protected String fileName;
+
+    protected Key() {
+      patchSetId = new PatchSet.Id();
+    }
+
+    public Key(PatchSet.Id ps, String name) {
+      this.patchSetId = ps;
+      this.fileName = name;
+    }
+
+    @Override
+    public PatchSet.Id getParentKey() {
+      return patchSetId;
+    }
+
+    public PatchSet.Id patchSetId() {
+      return getParentKey();
+    }
+
+    @Override
+    public String get() {
+      return fileName;
+    }
+
+    public String fileName() {
+      return get();
+    }
+
+    @Override
+    protected void set(String newValue) {
+      fileName = newValue;
+    }
+
+    /** Parse a Patch.Id out of a string representation. */
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
     public static Key parse(String str) {
       List<String> parts = Splitter.on(',').limit(3).splitToList(str);
       checkKeyFormat(parts.size() == 3, str);

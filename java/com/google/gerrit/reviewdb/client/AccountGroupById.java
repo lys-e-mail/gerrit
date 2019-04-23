@@ -20,14 +20,62 @@ import java.util.Objects;
 /** Membership of an {@link AccountGroup} in an {@link AccountGroup}. */
 public final class AccountGroupById {
   public static Key key(AccountGroup.Id groupId, AccountGroup.UUID includeUuid) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroupById_Key(groupId, includeUuid);
   }
+=======
+    return new Key(groupId, includeUuid);
+  }
+
+  public static class Key extends CompoundKey<AccountGroup.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
     public abstract AccountGroup.Id groupId();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract AccountGroup.UUID includeUuid();
+=======
+    protected AccountGroup.UUID includeUUID;
+
+    protected Key() {
+      groupId = new AccountGroup.Id();
+      includeUUID = new AccountGroup.UUID();
+    }
+
+    public Key(AccountGroup.Id g, AccountGroup.UUID u) {
+      groupId = g;
+      includeUUID = u;
+    }
+
+    @Override
+    public AccountGroup.Id getParentKey() {
+      return groupId;
+    }
+
+    public AccountGroup.Id getGroupId() {
+      return groupId;
+    }
+
+    public AccountGroup.Id groupId() {
+      return getParentKey();
+    }
+
+    public AccountGroup.UUID getIncludeUUID() {
+      return includeUUID;
+    }
+
+    public AccountGroup.UUID includeUuid() {
+      return getIncludeUUID();
+    }
+
+    @Override
+    public com.google.gwtorm.client.Key<?>[] members() {
+      return new com.google.gwtorm.client.Key<?>[] {includeUUID};
+    }
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;

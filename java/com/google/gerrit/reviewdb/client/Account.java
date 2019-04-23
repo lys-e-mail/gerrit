@@ -47,7 +47,11 @@ import java.util.Optional;
  */
 public final class Account {
   public static Id id(int id) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_Account_Id(id);
+=======
+    return new Id(id);
+>>>>>>> BRANCH (ddbd50 Add delegate factory and instance methods introduced in mast)
   }
 
   /** Key local to Gerrit to identify a user. */
