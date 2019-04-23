@@ -20,14 +20,58 @@ import java.util.Objects;
 /** Membership of an {@link Account} in an {@link AccountGroup}. */
 public final class AccountGroupMember {
   public static Key key(Account.Id accountId, AccountGroup.Id groupId) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroupMember_Key(accountId, groupId);
   }
+=======
+    return new Key(accountId, groupId);
+  }
+
+  public static class Key extends CompoundKey<Account.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
     public abstract Account.Id accountId();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract AccountGroup.Id groupId();
+=======
+    protected AccountGroup.Id groupId;
+
+    protected Key() {
+      accountId = new Account.Id();
+      groupId = new AccountGroup.Id();
+    }
+
+    public Key(Account.Id a, AccountGroup.Id g) {
+      accountId = a;
+      groupId = g;
+    }
+
+    @Override
+    public Account.Id getParentKey() {
+      return accountId;
+    }
+
+    public Account.Id accountId() {
+      return getParentKey();
+    }
+
+    public AccountGroup.Id getAccountGroupId() {
+      return groupId;
+    }
+
+    public AccountGroup.Id groupId() {
+      return getAccountGroupId();
+    }
+
+    @Override
+    public com.google.gwtorm.client.Key<?>[] members() {
+      return new com.google.gwtorm.client.Key<?>[] {groupId};
+    }
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;

@@ -78,12 +78,61 @@ public final class PatchSet {
     return groups;
   }
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
   public static Id id(Change.Id changeId, int id) {
     return new AutoValue_PatchSet_Id(changeId, id);
   }
+=======
 
+  public static Id id(Change.Id changeId, int id) {
+    return new Id(changeId, id);
+  }
+
+  public static class Id extends IntKey<Change.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
+
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
   @AutoValue
   public abstract static class Id {
+=======
+    public Change.Id changeId;
+
+    public int patchSetId;
+
+    public Id() {
+      changeId = new Change.Id();
+    }
+
+    public Id(Change.Id change, int id) {
+      this.changeId = change;
+      this.patchSetId = id;
+    }
+
+    @Override
+    public Change.Id getParentKey() {
+      return changeId;
+    }
+
+    public Change.Id changeId() {
+      return getParentKey();
+    }
+
+    @Override
+    public int get() {
+      return patchSetId;
+    }
+
+    @Override
+    protected void set(int newValue) {
+      patchSetId = newValue;
+    }
+
+    public String toRefName() {
+      return changeId.refPrefixBuilder().append(patchSetId).toString();
+    }
+
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
     /** Parse a PatchSet.Id out of a string representation. */
     public static Id parse(String str) {
       List<String> parts = Splitter.on(',').splitToList(str);

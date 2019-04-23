@@ -19,7 +19,11 @@ import com.google.auto.value.AutoValue;
 /** Line of development within a {@link Project}. */
 public final class Branch {
   public static NameKey nameKey(Project.NameKey projectName, String branchName) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_Branch_NameKey(projectName, RefNames.fullName(branchName));
+=======
+    return new NameKey(projectName, RefNames.fullName(branchName));
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
   }
 
   public static NameKey nameKey(String projectName, String branchName) {
@@ -44,9 +48,31 @@ public final class Branch {
       return branch().compareTo(o.branch());
     }
 
+    public String branch() {
+      return get();
+    }
+
     @Override
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public String toString() {
       return project() + "," + KeyUtil.encode(branch());
+=======
+    protected void set(String newValue) {
+      branchName = RefNames.fullName(newValue);
+    }
+
+    @Override
+    public Project.NameKey getParentKey() {
+      return projectName;
+    }
+
+    public Project.NameKey project() {
+      return getParentKey();
+    }
+
+    public String getShortName() {
+      return RefNames.shortName(get());
+>>>>>>> BRANCH (9d9504 Add delegate factory and instance methods introduced in mast)
     }
   }
 
