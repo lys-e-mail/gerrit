@@ -21,7 +21,11 @@ public abstract class LabelId {
   static final String LEGACY_SUBMIT_NAME = "SUBM";
 
   public static LabelId create(String n) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_LabelId(n);
+=======
+    return new LabelId(n);
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   public static LabelId legacySubmit() {

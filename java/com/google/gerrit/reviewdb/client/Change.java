@@ -95,8 +95,16 @@ import java.util.Arrays;
  */
 public final class Change {
   public static Id id(int id) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_Change_Id(id);
   }
+=======
+    return new Id(id);
+  }
+
+  public static class Id extends IntKey<com.google.gwtorm.client.Key<?>> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Id {
@@ -250,6 +258,10 @@ public final class Change {
 
   public static Key key(String key) {
     return new AutoValue_Change_Key(key);
+  }
+
+  public static Key key(String key) {
+    return new Key(key);
   }
 
   /**

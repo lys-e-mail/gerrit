@@ -22,8 +22,16 @@ import java.util.Objects;
 /** Membership of an {@link Account} in an {@link AccountGroup}. */
 public final class AccountGroupMemberAudit {
   public static Key key(Account.Id accountId, AccountGroup.Id groupId, Timestamp addedOn) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroupMemberAudit_Key(accountId, groupId, addedOn);
   }
+=======
+    return new Key(accountId, groupId, addedOn);
+  }
+
+  public static class Key extends CompoundKey<Account.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
@@ -31,7 +39,64 @@ public final class AccountGroupMemberAudit {
 
     public abstract AccountGroup.Id groupId();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract Timestamp addedOn();
+=======
+    protected Timestamp addedOn;
+
+    protected Key() {
+      accountId = new Account.Id();
+      groupId = new AccountGroup.Id();
+    }
+
+    public Key(Account.Id a, AccountGroup.Id g, Timestamp t) {
+      accountId = a;
+      groupId = g;
+      addedOn = t;
+    }
+
+    @Override
+    public Account.Id getParentKey() {
+      return accountId;
+    }
+
+    public Account.Id accountId() {
+      return getParentKey();
+    }
+
+    public AccountGroup.Id getGroupId() {
+      return groupId;
+    }
+
+    public AccountGroup.Id groupId() {
+      return getGroupId();
+    }
+
+    public Timestamp getAddedOn() {
+      return addedOn;
+    }
+
+    public Timestamp addedOn() {
+      return getAddedOn();
+    }
+
+    @Override
+    public com.google.gwtorm.client.Key<?>[] members() {
+      return new com.google.gwtorm.client.Key<?>[] {groupId};
+    }
+
+    @Override
+    public String toString() {
+      return "Key{"
+          + "groupId="
+          + groupId
+          + ", accountId="
+          + accountId
+          + ", addedOn="
+          + addedOn
+          + '}';
+    }
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;

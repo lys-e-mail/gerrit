@@ -33,7 +33,11 @@ public final class AccountGroup {
   }
 
   public static NameKey nameKey(String n) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroup_NameKey(n);
+=======
+    return new NameKey(n);
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   /** Group name key */
@@ -57,7 +61,11 @@ public final class AccountGroup {
   }
 
   public static UUID uuid(String n) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroup_UUID(n);
+=======
+    return new UUID(n);
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   /** Globally unique identifier. */
@@ -113,7 +121,11 @@ public final class AccountGroup {
   }
 
   public static Id id(int id) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroup_Id(id);
+=======
+    return new Id(id);
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   /** Synthetic key to link to within the database */

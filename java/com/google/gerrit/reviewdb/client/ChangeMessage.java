@@ -22,14 +22,58 @@ import java.util.Objects;
 /** A message attached to a {@link Change}. */
 public final class ChangeMessage {
   public static Key key(Change.Id changeId, String uuid) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_ChangeMessage_Key(changeId, uuid);
   }
+=======
+    return new Key(changeId, uuid);
+  }
+
+  public static class Key extends StringKey<Change.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
     public abstract Change.Id changeId();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract String uuid();
+=======
+    protected String uuid;
+
+    protected Key() {
+      changeId = new Change.Id();
+    }
+
+    public Key(Change.Id change, String uuid) {
+      this.changeId = change;
+      this.uuid = uuid;
+    }
+
+    @Override
+    public Change.Id getParentKey() {
+      return changeId;
+    }
+
+    public Change.Id changeId() {
+      return getParentKey();
+    }
+
+    @Override
+    public String get() {
+      return uuid;
+    }
+
+    public String uuid() {
+      return uuid();
+    }
+
+    @Override
+    public void set(String newValue) {
+      uuid = newValue;
+    }
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;

@@ -22,8 +22,16 @@ import java.util.Objects;
 /** Inclusion of an {@link AccountGroup} in another {@link AccountGroup}. */
 public final class AccountGroupByIdAud {
   public static Key key(AccountGroup.Id groupId, AccountGroup.UUID includeUuid, Timestamp addedOn) {
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     return new AutoValue_AccountGroupByIdAud_Key(groupId, includeUuid, addedOn);
   }
+=======
+    return new Key(groupId, includeUuid, addedOn);
+  }
+
+  public static class Key extends CompoundKey<AccountGroup.Id> {
+    private static final long serialVersionUID = 1L;
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
 
   @AutoValue
   public abstract static class Key {
@@ -31,7 +39,64 @@ public final class AccountGroupByIdAud {
 
     public abstract AccountGroup.UUID includeUuid();
 
+<<<<<<< HEAD   (433c0d Merge changes from topic "autovalue-keys")
     public abstract Timestamp addedOn();
+=======
+    protected Timestamp addedOn;
+
+    protected Key() {
+      groupId = new AccountGroup.Id();
+      includeUUID = new AccountGroup.UUID();
+    }
+
+    public Key(AccountGroup.Id g, AccountGroup.UUID u, Timestamp t) {
+      groupId = g;
+      includeUUID = u;
+      addedOn = t;
+    }
+
+    @Override
+    public AccountGroup.Id getParentKey() {
+      return groupId;
+    }
+
+    public AccountGroup.Id groupId() {
+      return getParentKey();
+    }
+
+    public AccountGroup.UUID getIncludeUUID() {
+      return includeUUID;
+    }
+
+    public AccountGroup.UUID includeUuid() {
+      return getIncludeUUID();
+    }
+
+    public Timestamp getAddedOn() {
+      return addedOn;
+    }
+
+    public Timestamp addedOn() {
+      return getAddedOn();
+    }
+
+    @Override
+    public com.google.gwtorm.client.Key<?>[] members() {
+      return new com.google.gwtorm.client.Key<?>[] {includeUUID};
+    }
+
+    @Override
+    public String toString() {
+      return "Key{"
+          + "groupId="
+          + groupId
+          + ", includeUUID="
+          + includeUUID
+          + ", addedOn="
+          + addedOn
+          + '}';
+    }
+>>>>>>> BRANCH (0d215c Add delegate factory and instance methods introduced in mast)
   }
 
   protected Key key;
