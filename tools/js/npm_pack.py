@@ -52,9 +52,15 @@ def main(args):
         print('Usage: %s <package> <version>' % sys.argv[0], file=sys.stderr)
         return 1
 
+<<<<<<< HEAD   (528ae9 Upgrade JGit to 5.1.7.201904200442-r)
     name, version = args
     filename = '%s-%s.tgz' % (name, version)
     url = 'http://registry.npmjs.org/%s/-/%s' % (name, filename)
+=======
+  name, version = args
+  filename = '%s-%s.tgz' % (name, version)
+  url = 'https://registry.npmjs.org/%s/-/%s' % (name, filename)
+>>>>>>> BRANCH (66d912 Merge branch 'stable-2.14' into stable-2.15)
 
     tmpdir = tempfile.mkdtemp()
     tgz = os.path.join(tmpdir, filename)
