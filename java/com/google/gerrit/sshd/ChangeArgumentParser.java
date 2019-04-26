@@ -14,6 +14,7 @@
 
 package com.google.gerrit.sshd;
 
+import com.google.gerrit.common.Nullable;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.reviewdb.client.Change;
@@ -59,15 +60,20 @@ public class ChangeArgumentParser {
   }
 
   public void addChange(
+<<<<<<< HEAD   (840ed0 Set version to 3.0.0-rc1)
       String id, Map<Change.Id, ChangeResource> changes, ProjectState projectState)
       throws UnloggedFailure, PermissionBackendException, IOException {
+=======
+      String id, Map<Change.Id, ChangeResource> changes, @Nullable ProjectState projectState)
+      throws UnloggedFailure, OrmException, PermissionBackendException, IOException {
+>>>>>>> BRANCH (f25692 ChangeArgumentParser: Avoid NPE when project is not given)
     addChange(id, changes, projectState, true);
   }
 
   public void addChange(
       String id,
       Map<Change.Id, ChangeResource> changes,
-      ProjectState projectState,
+      @Nullable ProjectState projectState,
       boolean useIndex)
       throws UnloggedFailure, PermissionBackendException, IOException {
     List<ChangeNotes> matched = useIndex ? changeFinder.find(id) : changeFromNotesFactory(id);
@@ -87,7 +93,7 @@ public class ChangeArgumentParser {
           continue;
         }
 
-        if (!projectState.statePermitsRead()) {
+        if (projectState != null && !projectState.statePermitsRead()) {
           continue;
         }
 
