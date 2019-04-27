@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (3b7833 Merge "Use Counter1 instead of Histogram1 for action/retry_a)
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.0-rc1</version>
+>>>>>>> BRANCH (21a152 Merge branch 'stable-2.16' into stable-3.0)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
