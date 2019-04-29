@@ -7,7 +7,10 @@ junit_tests(
         "//java/com/google/gerrit/reviewdb:server",
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/util/time",
+<<<<<<< HEAD   (a6a340 Add regression test for event JSON format)
         "//java/com/google/gerrit/sshd",
+=======
+>>>>>>> BRANCH (810850 Add regression test for event JSON format)
         "//java/com/google/gerrit/testing:gerrit-test-util",
         "//lib:gson",
         "//lib:guava",
