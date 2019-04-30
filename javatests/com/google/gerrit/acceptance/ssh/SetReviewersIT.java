@@ -20,8 +20,15 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.SshSession;
 import com.google.gerrit.acceptance.UseSsh;
+<<<<<<< HEAD   (42f41b Change the number of reviewer suggestions from 10 to 6)
 import com.google.gerrit.reviewdb.client.Account;
+=======
+import com.google.gerrit.reviewdb.client.Account.Id;
+import com.google.gerrit.testing.ConfigSuite;
+import org.eclipse.jgit.lib.Config;
+>>>>>>> BRANCH (a9d23e Add regression test for event JSON format)
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +36,20 @@ import org.junit.Test;
 @NoHttpd
 public class SetReviewersIT extends AbstractDaemonTest {
   PushOneCommit.Result change;
+  SshSession session;
+
+  @ConfigSuite.Config
+  public static Config asAdmin() {
+    Config cfg = new Config();
+    cfg.setBoolean("SetReviewersIT", null, "asAdmin", true);
+    return cfg;
+  }
 
   @Before
   public void setUp() throws Exception {
     change = createChange();
+    session =
+        cfg.getBoolean("SetReviewersIT", null, "asAdmin", false) ? adminSshSession : userSshSession;
   }
 
   @Test
@@ -49,10 +66,16 @@ public class SetReviewersIT extends AbstractDaemonTest {
   }
 
   private void setReviewer(boolean add, String id) throws Exception {
+<<<<<<< HEAD   (42f41b Change the number of reviewer suggestions from 10 to 6)
     adminSshSession.exec(
         String.format("gerrit set-reviewers -%s %s %s", add ? "a" : "r", user.email(), id));
     adminSshSession.assertSuccess();
     ImmutableSet<Account.Id> reviewers = change.getChange().getReviewers().all();
+=======
+    session.exec(String.format("gerrit set-reviewers -%s %s %s", add ? "a" : "r", user.email, id));
+    session.assertSuccess();
+    ImmutableSet<Id> reviewers = change.getChange().getReviewers().all();
+>>>>>>> BRANCH (a9d23e Add regression test for event JSON format)
     if (add) {
       assertThat(reviewers).contains(user.id());
     } else {
