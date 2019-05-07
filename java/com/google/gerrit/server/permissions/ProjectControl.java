@@ -431,8 +431,10 @@ class ProjectControl {
         case READ_CONFIG:
           return controlForRef(RefNames.REFS_CONFIG).isVisible();
 
-        case BAN_COMMIT:
         case READ_REFLOG:
+          return isAdmin();
+
+        case BAN_COMMIT:
         case WRITE_CONFIG:
           return isOwner();
       }
