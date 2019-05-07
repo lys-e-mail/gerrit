@@ -88,7 +88,7 @@ public class ReflogIT extends AbstractDaemonTest {
   }
 
   @Test
-  public void ownerUserIsAllowedToGetReflog() throws Exception {
+  public void ownerUserIsNotAllowedToGetReflog() throws Exception {
     GroupApi groupApi = gApi.groups().create(name("get-reflog"));
     groupApi.addMembers("user");
 
@@ -99,6 +99,7 @@ public class ReflogIT extends AbstractDaemonTest {
     }
 
     setApiUser(user);
+    exception.expect(AuthException.class);
     gApi.projects().name(project.get()).branch("master").reflog();
   }
 
