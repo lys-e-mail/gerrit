@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a612689_aad3dc8a",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2019-05-08T20:36:40Z",
+      "side": 1,
+      "message": "We do need a delegation mechanism for this, we cannot just assume that Europe\u0027s legislation is fine for all the world.\n\nAs a matter of fact, the European users of Gerrit are by far less than the others.\nWe should allow European sites to delegate this to admins, whilst other sites to have it delegated to project owners.\n\nBy default, we should be backward compatible.",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeccaea5_2070f22e",
+        "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2019-05-08T20:36:40Z",
+      "side": 1,
+      "message": "We should leave the existing test-case and add another one for GDPR, where the permissions is denied for project owners and allowed for Gerrit admins.",
+      "range": {
+        "startLine": 91,
+        "startChar": 2,
+        "endLine": 91,
+        "endChar": 46
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    }
+  ]
+}
