@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "782af015_1107267b",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2019-05-08T21:57:03Z",
+      "side": 1,
+      "message": "Though this change would also improve user\u0027s privacy (even though this change is aimed at the GDPR).\n\nThough project owners could easily do this read-reflog \u003d group ... i guess to regain access.\n\nIn which case how would an admin prevent that? Only enforcing a admin can view reflog rule?",
+      "parentUuid": "4a612689_aad3dc8a",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eeccaea5_2070f22e",
         "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
         "patchSetId": 13
