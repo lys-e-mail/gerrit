@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "694e9609_3811bcb3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1011123
+      },
+      "writtenOn": "2019-05-08T03:22:32Z",
+      "side": 1,
+      "message": "This is not an official GDPR site as far as I can see. If anyone can find a better link, we can replace this.",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 46
+      },
+      "revId": "3771958fa35201be8d69ade4ec59ea2f63b8b05e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    }
+  ]
+}
