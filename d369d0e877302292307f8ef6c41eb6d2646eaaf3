@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "d9aee2e4_e81365c7",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2019-05-09T19:49:18Z",
+      "side": 1,
+      "message": "\u003e But users know git stores their email (since git requires a email or at least i think it does). Where as users do not know their ip is being stored so that project owners can view it. Having a IP stored is not needed in git nor is it really necessary.\n\nWhich IP? I do not believe there is any GDPR compliance that talks about the reverse-proxy IP. It is the same for all users.\n\nUnless you have your Gerrit server managing the SSL termination, the user\u0027s IP is only traced in the NGINX (or HTTPD) logs. The IP in the reflog is the IP \"seen\" by Gerrit.\n\nP.S. With regards to the user\u0027s e-mail and GDPR, actually there is quite a debate around it. GitHub has the same problem.",
+      "parentUuid": "ebb22a73_2ea3bd2d",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eeccaea5_2070f22e",
         "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
         "patchSetId": 13
