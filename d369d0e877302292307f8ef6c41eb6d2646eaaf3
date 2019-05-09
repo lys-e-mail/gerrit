@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "070db3bb_7f48c2ab",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2019-05-09T07:48:29Z",
+      "side": 1,
+      "message": "\u003e Though this change would also improve user\u0027s privacy (even though this change is aimed at the GDPR).\n\nWe do expose in clear all the accounts’ emails already, still unclear to me how a remote IP (most likely to be a proxy’s IP anyway) could be a security concern comparing to user’s emails.\n\n\u003e \n\u003e Though project owners could easily do this read-reflog \u003d group ... i guess to regain access.\n\u003e \n\u003e In which case how would an admin prevent that? Only enforcing a admin can view reflog rule?\n\nYou can put a block rule that can’t be overridden.",
+      "parentUuid": "782af015_1107267b",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eeccaea5_2070f22e",
         "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
         "patchSetId": 13
