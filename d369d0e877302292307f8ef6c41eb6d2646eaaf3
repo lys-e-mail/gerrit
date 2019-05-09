@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "ebb22a73_2ea3bd2d",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2019-05-09T17:45:10Z",
+      "side": 1,
+      "message": "But users know git stores their email (since git requires a email or at least i think it does). Where as users do not know their ip is being stored so that project owners can view it. Having a IP stored is not needed in git nor is it really necessary.",
+      "parentUuid": "070db3bb_7f48c2ab",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eeccaea5_2070f22e",
         "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
         "patchSetId": 13
