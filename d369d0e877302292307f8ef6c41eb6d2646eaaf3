@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "0bbebd2a_ac27d71e",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectControl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2019-05-09T20:00:29Z",
+      "side": 1,
+      "message": "For example:\n\n{\n  \"old_id\": \"4564d6eab5284a84d15d15ce3869be83d69635d9\",\n  \"new_id\": \"c641538fd9d292b2d5d4cd88dfd40ba90e2c6d64\",\n  \"who\": {\n    \"name\": \"Paladox\",\n    \"email\": \"paladox|account-1665@2a02:c7f:483d:f00:7c7a:e0ec:xxx:xxx\",\n    \"date\": \"2019-05-03 16:41:29.000000000\",\n    \"tz\": 0\n  },\n  \"comment\": \"merged\"\n},\n\n(which is a uk ip and also my ip at the time i did that change)\n\nI crossed out some of it but i can email you if you want the full ip.\n\nAlso we use apache to proxy to gerrit which would be considered ssl termination.",
+      "parentUuid": "d9aee2e4_e81365c7",
+      "range": {
+        "startLine": 435,
+        "startChar": 17,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "d369d0e877302292307f8ef6c41eb6d2646eaaf3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eeccaea5_2070f22e",
         "filename": "javatests/com/google/gerrit/acceptance/server/project/ReflogIT.java",
         "patchSetId": 13
