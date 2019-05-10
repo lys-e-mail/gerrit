@@ -95,12 +95,14 @@ public class PutHttpPassword implements RestModifyView<AccountResource, HttpPass
       permissionBackend.currentUser().check(GlobalPermission.ADMINISTRATE_SERVER);
       newPassword = input.httpPassword;
     }
-    return apply(rsrc.getUser(), newPassword);
-  }
 
+<<<<<<< HEAD   (64a8bf Merge branch 'stable-2.16' into stable-3.0)
   public Response<String> apply(IdentifiedUser user, String newPassword)
       throws ResourceNotFoundException, ResourceConflictException, IOException,
           ConfigInvalidException {
+=======
+    IdentifiedUser user = rsrc.getUser();
+>>>>>>> BRANCH (c8b9ee Merge branch 'stable-2.15' into stable-2.16)
     String userName =
         user.getUserName().orElseThrow(() -> new ResourceConflictException("username must be set"));
     Optional<ExternalId> optionalExtId =
