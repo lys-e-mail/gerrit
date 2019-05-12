@@ -460,8 +460,17 @@ java_library(
     exports = ["@icu4j//jar"],
 )
 
+<<<<<<< HEAD   (7563da Merge branch 'stable-3.0')
 sh_test(
     name = "nongoogle_test",
     srcs = ["nongoogle_test.sh"],
     data = ["//tools:nongoogle.bzl"],
 )
+=======
+
+sh_test(
+    name = "nongoogle_test",
+    srcs = ["nongoogle_test.sh"],
+    data = ["//tools:nongoogle.bzl"],
+)
+>>>>>>> BRANCH (6ec14f Merge branch 'stable-2.16' into stable-3.0)
