@@ -459,3 +459,19 @@ java_library(
     visibility = ["//visibility:public"],
     exports = ["@icu4j//jar"],
 )
+<<<<<<< HEAD   (ce6588 Merge branch 'stable-2.16' into stable-3.0)
+=======
+
+java_library(
+    name = "postgresql",
+    data = ["//lib:LICENSE-postgresql"],
+    visibility = ["//visibility:public"],
+    exports = ["@postgresql//jar"],
+)
+
+sh_test(
+    name = "nongoogle_test",
+    srcs = ["nongoogle_test.sh"],
+    data = ["//tools:nongoogle.bzl"],
+)
+>>>>>>> BRANCH (36f148 Merge changes Ie5fbd18d,I4b96d0cd into stable-2.16)
