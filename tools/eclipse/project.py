@@ -154,7 +154,12 @@ def gen_classpath(ext):
       src.add(m.group(1))
       # Exceptions: both source and lib
       if p.endswith('libquery_parser.jar') or \
+<<<<<<< HEAD   (62aa97 Merge branch 'stable-2.14' into stable-2.15)
          p.endswith('libprolog-common.jar'):
+=======
+         p.endswith('prolog/libcommon.jar') or \
+         p.endswith('lucene-core-and-backward-codecs__merged.jar'):
+>>>>>>> BRANCH (e62c11 Adapt Eclipse project generation for Bazel 0.25)
         lib.add(p)
       # JGit dependency from external repository
       if 'gerrit-' not in p and 'jgit' in p:
