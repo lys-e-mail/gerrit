@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (1f2150 Merge changes Id407c76b,I1dafdc91)
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.1-SNAPSHOT</version>
+>>>>>>> BRANCH (a9d4f7 Merge "Upgrade JGit to 5.3.1.201904271842-r" into stable-3.0)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
