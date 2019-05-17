@@ -184,7 +184,7 @@ public class ProjectConfigTest {
 
     ProjectConfig cfg = read(rev);
     Map<String, LabelType> labels = cfg.getLabelSections();
-    Short dv = labels.entrySet().iterator().next().getValue().getDefaultValue();
+    Short dv = labels.entrySet().iterator().next().getValue().defaultValue();
     assertThat((int) dv).isEqualTo(0);
   }
 
@@ -204,7 +204,7 @@ public class ProjectConfigTest {
 
     ProjectConfig cfg = read(rev);
     Map<String, LabelType> labels = cfg.getLabelSections();
-    Short dv = labels.entrySet().iterator().next().getValue().getDefaultValue();
+    Short dv = labels.entrySet().iterator().next().getValue().defaultValue();
     assertThat((int) dv).isEqualTo(0);
   }
 
@@ -224,7 +224,7 @@ public class ProjectConfigTest {
 
     ProjectConfig cfg = read(rev);
     Map<String, LabelType> labels = cfg.getLabelSections();
-    Short dv = labels.entrySet().iterator().next().getValue().getDefaultValue();
+    Short dv = labels.entrySet().iterator().next().getValue().defaultValue();
     assertThat((int) dv).isEqualTo(-1);
   }
 

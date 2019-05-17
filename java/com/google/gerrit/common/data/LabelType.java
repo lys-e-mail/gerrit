@@ -225,7 +225,7 @@ public class LabelType {
     return values.get(values.size() - 1);
   }
 
-  public short getDefaultValue() {
+  public short defaultValue() {
     return defaultValue;
   }
 

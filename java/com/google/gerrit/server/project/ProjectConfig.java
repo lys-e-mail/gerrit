@@ -1380,7 +1380,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
       LabelType label = e.getValue();
       toUnset.remove(name);
       rc.setString(LABEL, name, KEY_FUNCTION, label.function().getFunctionName());
-      rc.setInt(LABEL, name, KEY_DEFAULT_VALUE, label.getDefaultValue());
+      rc.setInt(LABEL, name, KEY_DEFAULT_VALUE, label.defaultValue());
 
       setBooleanConfigKey(
           rc,

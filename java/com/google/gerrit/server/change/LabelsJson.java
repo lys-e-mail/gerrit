@@ -241,7 +241,7 @@ public class LabelsJson {
   }
 
   private void setLabelValues(LabelType type, LabelWithStatus l) {
-    l.label().defaultValue = type.getDefaultValue();
+    l.label().defaultValue = type.defaultValue();
     l.label().values = new LinkedHashMap<>();
     for (LabelValue v : type.values()) {
       l.label().values.put(v.formatValue(), v.text());
