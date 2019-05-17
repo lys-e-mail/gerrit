@@ -274,7 +274,7 @@ public class LabelType {
     this.copyAllScoresIfNoCodeChange = copyAllScoresIfNoCodeChange;
   }
 
-  public boolean isCopyAllScoresIfNoChange() {
+  public boolean copyAllScoresIfNoChange() {
     return copyAllScoresIfNoChange;
   }
 
