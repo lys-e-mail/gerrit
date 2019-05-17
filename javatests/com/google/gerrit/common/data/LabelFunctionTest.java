@@ -92,7 +92,7 @@ public class LabelFunctionTest {
     values.add(LabelValue.create((short) 0, "No vote."));
     values.add(LabelValue.create((short) 1, "Closest thing perfection."));
     values.add(LabelValue.create((short) 2, "Perfect!"));
-    return new LabelType(LABEL_NAME, values);
+    return LabelType.create(LABEL_NAME, values);
   }
 
   private static PatchSetApproval makeApproval(int value) {

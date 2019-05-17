@@ -57,7 +57,7 @@ public class Util {
   }
 
   public static LabelType category(String name, LabelValue... values) {
-    return new LabelType(name, Arrays.asList(values));
+    return LabelType.create(name, Arrays.asList(values));
   }
 
   public static PermissionRule newRule(ProjectConfig project, AccountGroup.UUID groupUUID) {

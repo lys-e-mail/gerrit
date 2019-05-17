@@ -47,7 +47,7 @@ public abstract class AllProjectsInput {
   @UsedAt(UsedAt.Project.GOOGLE)
   public static LabelType getDefaultCodeReviewLabel() {
     LabelType type =
-        new LabelType(
+        LabelType.create(
             "Code-Review",
             ImmutableList.of(
                 LabelValue.create((short) 2, "Looks good to me, approved"),

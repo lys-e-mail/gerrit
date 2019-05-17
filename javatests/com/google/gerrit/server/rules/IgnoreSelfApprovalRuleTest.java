@@ -77,7 +77,7 @@ public class IgnoreSelfApprovalRuleTest {
     values.add(LabelValue.create((short) 0, "No vote."));
     values.add(LabelValue.create((short) 1, "+1"));
     values.add(LabelValue.create((short) 2, "+2"));
-    return new LabelType(labelName, values);
+    return LabelType.create(labelName, values);
   }
 
   private static PatchSetApproval makeApproval(LabelId labelId, Account.Id accountId, int value) {

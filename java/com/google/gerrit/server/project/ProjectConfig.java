@@ -905,7 +905,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
 
       LabelType label;
       try {
-        label = new LabelType(name, values);
+        label = LabelType.create(name, values);
       } catch (IllegalArgumentException badName) {
         error(new ValidationError(PROJECT_CONFIG, String.format("Invalid label \"%s\"", name)));
         continue;

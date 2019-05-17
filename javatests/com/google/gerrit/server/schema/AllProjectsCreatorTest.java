@@ -44,7 +44,7 @@ import org.junit.Test;
 
 public class AllProjectsCreatorTest {
   private static final LabelType TEST_LABEL =
-      new LabelType(
+      LabelType.create(
           "Test-Label",
           ImmutableList.of(
               LabelValue.create((short) 2, "Two"),

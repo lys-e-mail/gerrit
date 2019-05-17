@@ -40,12 +40,72 @@ public class LabelType {
   public static final boolean DEF_COPY_MIN_SCORE = false;
   public static final boolean DEF_IGNORE_SELF_APPROVAL = false;
 
+  protected String name;
+
+  protected LabelFunction function;
+
+  protected boolean copyMinScore;
+  protected boolean copyMaxScore;
+  protected boolean copyAllScoresOnMergeFirstParentUpdate;
+  protected boolean copyAllScoresOnTrivialRebase;
+  protected boolean copyAllScoresIfNoCodeChange;
+  protected boolean copyAllScoresIfNoChange;
+  protected boolean allowPostSubmit;
+  protected boolean ignoreSelfApproval;
+  protected short defaultValue;
+
+  protected List<LabelValue> values;
+  protected short maxNegative;
+  protected short maxPositive;
+
+  private transient boolean canOverride;
+  private transient List<String> refPatterns;
+  private transient Map<Short, LabelValue> byValue;
+
+  private LabelType(String name, List<LabelValue> valueList) {
+    this.name = checkName(name);
+    canOverride = true;
+    values = sortValues(valueList);
+    defaultValue = 0;
+
+    function = LabelFunction.MAX_WITH_BLOCK;
+
+    maxNegative = Short.MIN_VALUE;
+    maxPositive = Short.MAX_VALUE;
+    if (values.size() > 0) {
+      if (values.get(0).value() < 0) {
+        maxNegative = values.get(0).value();
+      }
+      if (values.get(values.size() - 1).value() > 0) {
+        maxPositive = values.get(values.size() - 1).value();
+      }
+    }
+    setCanOverride(DEF_CAN_OVERRIDE);
+    setCopyAllScoresIfNoChange(DEF_COPY_ALL_SCORES_IF_NO_CHANGE);
+    setCopyAllScoresIfNoCodeChange(DEF_COPY_ALL_SCORES_IF_NO_CODE_CHANGE);
+    setCopyAllScoresOnTrivialRebase(DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
+    setCopyAllScoresOnMergeFirstParentUpdate(DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
+    setCopyMaxScore(DEF_COPY_MAX_SCORE);
+    setCopyMinScore(DEF_COPY_MIN_SCORE);
+    setAllowPostSubmit(DEF_ALLOW_POST_SUBMIT);
+    setIgnoreSelfApproval(DEF_IGNORE_SELF_APPROVAL);
+
+    byValue = new HashMap<>();
+    for (LabelValue v : values) {
+      byValue.put(v.value(), v);
+    }
+  }
+
+  public static LabelType create(String name, List<LabelValue> valueList) {
+    return new LabelType(name, valueList);
+  }
+
   public static LabelType withDefaultValues(String name) {
     checkName(name);
     List<LabelValue> values = new ArrayList<>(2);
     values.add(LabelValue.create((short) 0, "Rejected"));
     values.add(LabelValue.create((short) 1, "Approved"));
-    return new LabelType(name, values);
+    return LabelType.create(name, values);
   }
 
   public static String checkName(String name) {
@@ -92,64 +152,6 @@ public class LabelType {
     }
     result.trimToSize();
     return Collections.unmodifiableList(result);
-  }
-
-  protected String name;
-
-  protected LabelFunction function;
-
-  protected boolean copyMinScore;
-  protected boolean copyMaxScore;
-  protected boolean copyAllScoresOnMergeFirstParentUpdate;
-  protected boolean copyAllScoresOnTrivialRebase;
-  protected boolean copyAllScoresIfNoCodeChange;
-  protected boolean copyAllScoresIfNoChange;
-  protected boolean allowPostSubmit;
-  protected boolean ignoreSelfApproval;
-  protected short defaultValue;
-
-  protected List<LabelValue> values;
-  protected short maxNegative;
-  protected short maxPositive;
-
-  private transient boolean canOverride;
-  private transient List<String> refPatterns;
-  private transient Map<Short, LabelValue> byValue;
-
-  protected LabelType() {}
-
-  public LabelType(String name, List<LabelValue> valueList) {
-    this.name = checkName(name);
-    canOverride = true;
-    values = sortValues(valueList);
-    defaultValue = 0;
-
-    function = LabelFunction.MAX_WITH_BLOCK;
-
-    maxNegative = Short.MIN_VALUE;
-    maxPositive = Short.MAX_VALUE;
-    if (values.size() > 0) {
-      if (values.get(0).value() < 0) {
-        maxNegative = values.get(0).value();
-      }
-      if (values.get(values.size() - 1).value() > 0) {
-        maxPositive = values.get(values.size() - 1).value();
-      }
-    }
-    setCanOverride(DEF_CAN_OVERRIDE);
-    setCopyAllScoresIfNoChange(DEF_COPY_ALL_SCORES_IF_NO_CHANGE);
-    setCopyAllScoresIfNoCodeChange(DEF_COPY_ALL_SCORES_IF_NO_CODE_CHANGE);
-    setCopyAllScoresOnTrivialRebase(DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
-    setCopyAllScoresOnMergeFirstParentUpdate(DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
-    setCopyMaxScore(DEF_COPY_MAX_SCORE);
-    setCopyMinScore(DEF_COPY_MIN_SCORE);
-    setAllowPostSubmit(DEF_ALLOW_POST_SUBMIT);
-    setIgnoreSelfApproval(DEF_IGNORE_SELF_APPROVAL);
-
-    byValue = new HashMap<>();
-    for (LabelValue v : values) {
-      byValue.put(v.value(), v);
-    }
   }
 
   public String getName() {
