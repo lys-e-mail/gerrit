@@ -241,7 +241,7 @@ public class LabelType {
     this.copyMinScore = copyMinScore;
   }
 
-  public boolean isCopyMaxScore() {
+  public boolean copyMaxScore() {
     return copyMaxScore;
   }
 

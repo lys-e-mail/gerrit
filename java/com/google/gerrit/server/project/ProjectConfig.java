@@ -1399,12 +1399,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
       setBooleanConfigKey(
           rc, LABEL, name, KEY_COPY_MIN_SCORE, label.copyMinScore(), LabelType.DEF_COPY_MIN_SCORE);
       setBooleanConfigKey(
-          rc,
-          LABEL,
-          name,
-          KEY_COPY_MAX_SCORE,
-          label.isCopyMaxScore(),
-          LabelType.DEF_COPY_MAX_SCORE);
+          rc, LABEL, name, KEY_COPY_MAX_SCORE, label.copyMaxScore(), LabelType.DEF_COPY_MAX_SCORE);
       setBooleanConfigKey(
           rc,
           LABEL,

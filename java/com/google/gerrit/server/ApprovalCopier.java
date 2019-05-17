@@ -166,7 +166,7 @@ public class ApprovalCopier {
     if (type == null) {
       return false;
     } else if ((type.copyMinScore() && type.isMaxNegative(psa))
-        || (type.isCopyMaxScore() && type.isMaxPositive(psa))) {
+        || (type.copyMaxScore() && type.isMaxPositive(psa))) {
       return true;
     }
     switch (kind) {

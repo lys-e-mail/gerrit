@@ -260,7 +260,7 @@ public class ProjectConfigTest {
     Map<String, LabelType> labels = cfg.getLabelSections();
     LabelType type = labels.entrySet().iterator().next().getValue();
     assertThat(type.copyMinScore()).isNotEqualTo(LabelType.DEF_COPY_MIN_SCORE);
-    assertThat(type.isCopyMaxScore()).isNotEqualTo(LabelType.DEF_COPY_MAX_SCORE);
+    assertThat(type.copyMaxScore()).isNotEqualTo(LabelType.DEF_COPY_MAX_SCORE);
     assertThat(type.isCopyAllScoresOnMergeFirstParentUpdate())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
     assertThat(type.isCopyAllScoresOnTrivialRebase())
