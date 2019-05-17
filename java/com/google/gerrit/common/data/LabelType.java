@@ -158,12 +158,12 @@ public class LabelType {
     return name;
   }
 
-  public LabelFunction function() {
-    return function;
-  }
-
   public boolean matches(PatchSetApproval psa) {
     return psa.labelId().get().equalsIgnoreCase(name);
+  }
+
+  public LabelFunction function() {
+    return function;
   }
 
   public void setFunction(@Nullable LabelFunction function) {
@@ -174,12 +174,21 @@ public class LabelType {
     return canOverride;
   }
 
-  public List<String> getRefPatterns() {
+  public void setCanOverride(boolean canOverride) {
+    this.canOverride = canOverride;
+  }
+
+  public List<String> refPatterns() {
     return refPatterns;
   }
 
-  public void setCanOverride(boolean canOverride) {
-    this.canOverride = canOverride;
+  public void setRefPatterns(List<String> refPatterns) {
+    if (refPatterns != null) {
+      this.refPatterns =
+          refPatterns.stream().collect(collectingAndThen(toList(), Collections::unmodifiableList));
+    } else {
+      this.refPatterns = null;
+    }
   }
 
   public boolean allowPostSubmit() {
@@ -196,15 +205,6 @@ public class LabelType {
 
   public void setIgnoreSelfApproval(boolean ignoreSelfApproval) {
     this.ignoreSelfApproval = ignoreSelfApproval;
-  }
-
-  public void setRefPatterns(List<String> refPatterns) {
-    if (refPatterns != null) {
-      this.refPatterns =
-          refPatterns.stream().collect(collectingAndThen(toList(), Collections::unmodifiableList));
-    } else {
-      this.refPatterns = null;
-    }
   }
 
   public List<LabelValue> getValues() {

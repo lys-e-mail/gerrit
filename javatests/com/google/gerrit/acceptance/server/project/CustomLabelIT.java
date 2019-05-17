@@ -331,7 +331,7 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setRefPatterns(Arrays.asList("master"));
     saveLabelConfig();
     ProjectConfig cfg = projectCache.checkedGet(project).getConfig();
-    assertThat(cfg.getLabelSections().get(label.name()).getRefPatterns()).contains("master");
+    assertThat(cfg.getLabelSections().get(label.name()).refPatterns()).contains("master");
   }
 
   private void assertLabelStatus(String changeId, String testLabel) throws Exception {

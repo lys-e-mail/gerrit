@@ -481,7 +481,7 @@ public class ProjectState {
 
     List<LabelType> r = Lists.newArrayListWithCapacity(all.size());
     for (LabelType l : all) {
-      List<String> refs = l.getRefPatterns();
+      List<String> refs = l.refPatterns();
       if (refs == null) {
         r.add(l);
       } else {

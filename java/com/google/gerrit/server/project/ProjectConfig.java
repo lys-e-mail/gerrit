@@ -1446,7 +1446,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
       }
       rc.setStringList(LABEL, name, KEY_VALUE, values);
 
-      List<String> refPatterns = label.getRefPatterns();
+      List<String> refPatterns = label.refPatterns();
       if (refPatterns != null && !refPatterns.isEmpty()) {
         rc.setStringList(LABEL, name, KEY_BRANCH, refPatterns);
       }
