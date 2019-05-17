@@ -249,7 +249,7 @@ public class LabelType {
     this.copyMaxScore = copyMaxScore;
   }
 
-  public boolean isCopyAllScoresOnMergeFirstParentUpdate() {
+  public boolean copyAllScoresOnMergeFirstParentUpdate() {
     return copyAllScoresOnMergeFirstParentUpdate;
   }
 

@@ -171,7 +171,7 @@ public class ApprovalCopier {
     }
     switch (kind) {
       case MERGE_FIRST_PARENT_UPDATE:
-        return type.isCopyAllScoresOnMergeFirstParentUpdate();
+        return type.copyAllScoresOnMergeFirstParentUpdate();
       case NO_CODE_CHANGE:
         return type.isCopyAllScoresIfNoCodeChange();
       case TRIVIAL_REBASE:
@@ -179,7 +179,7 @@ public class ApprovalCopier {
       case NO_CHANGE:
         return type.isCopyAllScoresIfNoChange()
             || type.isCopyAllScoresOnTrivialRebase()
-            || type.isCopyAllScoresOnMergeFirstParentUpdate()
+            || type.copyAllScoresOnMergeFirstParentUpdate()
             || type.isCopyAllScoresIfNoCodeChange();
       case REWORK:
       default:

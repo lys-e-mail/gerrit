@@ -261,7 +261,7 @@ public class ProjectConfigTest {
     LabelType type = labels.entrySet().iterator().next().getValue();
     assertThat(type.copyMinScore()).isNotEqualTo(LabelType.DEF_COPY_MIN_SCORE);
     assertThat(type.copyMaxScore()).isNotEqualTo(LabelType.DEF_COPY_MAX_SCORE);
-    assertThat(type.isCopyAllScoresOnMergeFirstParentUpdate())
+    assertThat(type.copyAllScoresOnMergeFirstParentUpdate())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
     assertThat(type.isCopyAllScoresOnTrivialRebase())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
