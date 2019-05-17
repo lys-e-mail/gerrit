@@ -165,7 +165,7 @@ public class ApprovalCopier {
     LabelType type = project.getLabelTypes().byLabel(psa.labelId());
     if (type == null) {
       return false;
-    } else if ((type.isCopyMinScore() && type.isMaxNegative(psa))
+    } else if ((type.copyMinScore() && type.isMaxNegative(psa))
         || (type.isCopyMaxScore() && type.isMaxPositive(psa))) {
       return true;
     }

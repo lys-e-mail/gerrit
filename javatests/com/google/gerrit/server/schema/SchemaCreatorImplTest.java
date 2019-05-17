@@ -74,7 +74,7 @@ public class SchemaCreatorImplTest {
     assertThat(codeReview.name()).isEqualTo("Code-Review");
     assertThat(codeReview.defaultValue()).isEqualTo(0);
     assertThat(codeReview.function()).isEqualTo(LabelFunction.MAX_WITH_BLOCK);
-    assertThat(codeReview.isCopyMinScore()).isTrue();
+    assertThat(codeReview.copyMinScore()).isTrue();
     assertValueRange(codeReview, -2, -1, 0, 1, 2);
   }
 

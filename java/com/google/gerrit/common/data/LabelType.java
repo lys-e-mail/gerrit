@@ -233,7 +233,7 @@ public class LabelType {
     this.defaultValue = defaultValue;
   }
 
-  public boolean isCopyMinScore() {
+  public boolean copyMinScore() {
     return copyMinScore;
   }
 

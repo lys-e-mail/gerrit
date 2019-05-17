@@ -1397,12 +1397,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           label.ignoreSelfApproval(),
           LabelType.DEF_IGNORE_SELF_APPROVAL);
       setBooleanConfigKey(
-          rc,
-          LABEL,
-          name,
-          KEY_COPY_MIN_SCORE,
-          label.isCopyMinScore(),
-          LabelType.DEF_COPY_MIN_SCORE);
+          rc, LABEL, name, KEY_COPY_MIN_SCORE, label.copyMinScore(), LabelType.DEF_COPY_MIN_SCORE);
       setBooleanConfigKey(
           rc,
           LABEL,
