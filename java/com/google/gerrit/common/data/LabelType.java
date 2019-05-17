@@ -207,7 +207,7 @@ public class LabelType {
     this.ignoreSelfApproval = ignoreSelfApproval;
   }
 
-  public List<LabelValue> getValues() {
+  public List<LabelValue> values() {
     return values;
   }
 

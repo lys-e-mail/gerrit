@@ -1440,8 +1440,8 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           LabelType.DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
       setBooleanConfigKey(
           rc, LABEL, name, KEY_CAN_OVERRIDE, label.canOverride(), LabelType.DEF_CAN_OVERRIDE);
-      List<String> values = new ArrayList<>(label.getValues().size());
-      for (LabelValue value : label.getValues()) {
+      List<String> values = new ArrayList<>(label.values().size());
+      for (LabelValue value : label.values()) {
         values.add(value.toString().trim());
       }
       rc.setStringList(LABEL, name, KEY_VALUE, values);

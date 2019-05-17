@@ -143,7 +143,7 @@ public class LabelsJson {
           continue;
         }
 
-        for (LabelValue v : type.getValues()) {
+        for (LabelValue v : type.values()) {
           boolean ok = can.contains(new LabelPermission.WithValue(type, v));
           if (isMerged) {
             if (labels == null) {
@@ -243,7 +243,7 @@ public class LabelsJson {
   private void setLabelValues(LabelType type, LabelWithStatus l) {
     l.label().defaultValue = type.getDefaultValue();
     l.label().values = new LinkedHashMap<>();
-    for (LabelValue v : type.getValues()) {
+    for (LabelValue v : type.values()) {
       l.label().values.put(v.formatValue(), v.text());
     }
     if (isOnlyZero(l.label().values.keySet())) {

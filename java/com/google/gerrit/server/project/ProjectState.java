@@ -463,7 +463,7 @@ public class ProjectState {
     }
     List<LabelType> all = Lists.newArrayListWithCapacity(types.size());
     for (LabelType type : types.values()) {
-      if (!type.getValues().isEmpty()) {
+      if (!type.values().isEmpty()) {
         all.add(type);
       }
     }

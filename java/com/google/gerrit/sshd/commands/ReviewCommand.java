@@ -332,7 +332,7 @@ public class ReviewCommand extends SshCommand {
     for (LabelType type : allProjectsState.getLabelTypes().getLabelTypes()) {
       StringBuilder usage = new StringBuilder("score for ").append(type.name()).append("\n");
 
-      for (LabelValue v : type.getValues()) {
+      for (LabelValue v : type.values()) {
         usage.append(v.toString()).append("\n");
       }
 
