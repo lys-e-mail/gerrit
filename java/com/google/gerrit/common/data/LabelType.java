@@ -266,7 +266,7 @@ public class LabelType {
     this.copyAllScoresOnTrivialRebase = copyAllScoresOnTrivialRebase;
   }
 
-  public boolean isCopyAllScoresIfNoCodeChange() {
+  public boolean copyAllScoresIfNoCodeChange() {
     return copyAllScoresIfNoCodeChange;
   }
 

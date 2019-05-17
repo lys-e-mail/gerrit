@@ -1412,7 +1412,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           LABEL,
           name,
           KEY_COPY_ALL_SCORES_IF_NO_CODE_CHANGE,
-          label.isCopyAllScoresIfNoCodeChange(),
+          label.copyAllScoresIfNoCodeChange(),
           LabelType.DEF_COPY_ALL_SCORES_IF_NO_CODE_CHANGE);
       setBooleanConfigKey(
           rc,

@@ -173,14 +173,14 @@ public class ApprovalCopier {
       case MERGE_FIRST_PARENT_UPDATE:
         return type.copyAllScoresOnMergeFirstParentUpdate();
       case NO_CODE_CHANGE:
-        return type.isCopyAllScoresIfNoCodeChange();
+        return type.copyAllScoresIfNoCodeChange();
       case TRIVIAL_REBASE:
         return type.copyAllScoresOnTrivialRebase();
       case NO_CHANGE:
         return type.isCopyAllScoresIfNoChange()
             || type.copyAllScoresOnTrivialRebase()
             || type.copyAllScoresOnMergeFirstParentUpdate()
-            || type.isCopyAllScoresIfNoCodeChange();
+            || type.copyAllScoresIfNoCodeChange();
       case REWORK:
       default:
         return false;

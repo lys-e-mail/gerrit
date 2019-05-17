@@ -265,7 +265,7 @@ public class ProjectConfigTest {
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
     assertThat(type.copyAllScoresOnTrivialRebase())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
-    assertThat(type.isCopyAllScoresIfNoCodeChange())
+    assertThat(type.copyAllScoresIfNoCodeChange())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_IF_NO_CODE_CHANGE);
     assertThat(type.isCopyAllScoresIfNoChange())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_IF_NO_CHANGE);
