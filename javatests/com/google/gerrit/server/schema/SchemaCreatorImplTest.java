@@ -62,7 +62,7 @@ public class SchemaCreatorImplTest {
   public void createSchema_LabelTypes() throws Exception {
     List<String> labels = new ArrayList<>();
     for (LabelType label : getLabelTypes().getLabelTypes()) {
-      labels.add(label.getName());
+      labels.add(label.name());
     }
     assertThat(labels).containsExactly("Code-Review");
   }
@@ -71,7 +71,7 @@ public class SchemaCreatorImplTest {
   public void createSchema_Label_CodeReview() throws Exception {
     LabelType codeReview = getLabelTypes().byLabel("Code-Review");
     assertThat(codeReview).isNotNull();
-    assertThat(codeReview.getName()).isEqualTo("Code-Review");
+    assertThat(codeReview.name()).isEqualTo("Code-Review");
     assertThat(codeReview.getDefaultValue()).isEqualTo(0);
     assertThat(codeReview.getFunction()).isEqualTo(LabelFunction.MAX_WITH_BLOCK);
     assertThat(codeReview.isCopyMinScore()).isTrue();

@@ -456,7 +456,7 @@ public class ReplaceOp implements BatchUpdateOp {
 
         LabelType lt = projectState.getLabelTypes().byLabel(a.labelId());
         if (lt != null) {
-          current.put(lt.getName(), a);
+          current.put(lt.name(), a);
         }
       }
     }
@@ -587,8 +587,8 @@ public class ReplaceOp implements BatchUpdateOp {
     Map<String, Short> allApprovals = new HashMap<>();
     Map<String, Short> oldApprovals = new HashMap<>();
     for (LabelType lt : labels) {
-      allApprovals.put(lt.getName(), (short) 0);
-      oldApprovals.put(lt.getName(), null);
+      allApprovals.put(lt.name(), (short) 0);
+      oldApprovals.put(lt.name(), null);
     }
     for (Map.Entry<String, Short> entry : approvals.entrySet()) {
       if (entry.getValue() != 0) {

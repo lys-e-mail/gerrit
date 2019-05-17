@@ -77,25 +77,25 @@ public class StickyApprovalsIT extends AbstractDaemonTest {
               value(-1, "I would prefer that you didn't submit this"),
               value(-2, "Do not submit"));
       codeReview.setCopyAllScoresIfNoChange(false);
-      u.getConfig().getLabelSections().put(codeReview.getName(), codeReview);
+      u.getConfig().getLabelSections().put(codeReview.name(), codeReview);
 
       LabelType verified =
           category("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
       verified.setCopyAllScoresIfNoChange(false);
-      u.getConfig().getLabelSections().put(verified.getName(), verified);
+      u.getConfig().getLabelSections().put(verified.name(), verified);
 
       AccountGroup.UUID registeredUsers = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
       String heads = RefNames.REFS_HEADS + "*";
       Util.allow(
           u.getConfig(),
-          Permission.forLabel(Util.codeReview().getName()),
+          Permission.forLabel(Util.codeReview().name()),
           -2,
           2,
           registeredUsers,
           heads);
       Util.allow(
           u.getConfig(),
-          Permission.forLabel(Util.verified().getName()),
+          Permission.forLabel(Util.verified().name()),
           -1,
           1,
           registeredUsers,

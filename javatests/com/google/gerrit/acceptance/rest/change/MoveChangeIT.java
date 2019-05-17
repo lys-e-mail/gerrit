@@ -238,11 +238,11 @@ public class MoveChangeIT extends AbstractDaemonTest {
 
     try (ProjectConfigUpdate u = updateProject(project)) {
       LabelType patchSetLock = Util.patchSetLock();
-      u.getConfig().getLabelSections().put(patchSetLock.getName(), patchSetLock);
+      u.getConfig().getLabelSections().put(patchSetLock.name(), patchSetLock);
       AccountGroup.UUID registeredUsers = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
       Util.allow(
           u.getConfig(),
-          Permission.forLabel(patchSetLock.getName()),
+          Permission.forLabel(patchSetLock.name()),
           0,
           1,
           registeredUsers,

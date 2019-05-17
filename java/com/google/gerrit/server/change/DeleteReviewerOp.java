@@ -121,7 +121,7 @@ public class DeleteReviewerOp implements BatchUpdateOp {
     LabelTypes labelTypes = projectCache.checkedGet(ctx.getProject()).getLabelTypes(ctx.getNotes());
     // removing a reviewer will remove all her votes
     for (LabelType lt : labelTypes.getLabelTypes()) {
-      newApprovals.put(lt.getName(), (short) 0);
+      newApprovals.put(lt.name(), (short) 0);
     }
 
     StringBuilder msg = new StringBuilder();

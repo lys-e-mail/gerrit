@@ -95,9 +95,9 @@ public final class DefaultSubmitRule implements SubmitRule {
       LabelFunction labelFunction = t.getFunction();
       if (labelFunction == null) {
         logger.atSevere().log(
-            "Unable to find the LabelFunction for label %s, change %s", t.getName(), cd.getId());
+            "Unable to find the LabelFunction for label %s, change %s", t.name(), cd.getId());
 
-        submitRecord.errorMessage = "Unable to find the LabelFunction for label " + t.getName();
+        submitRecord.errorMessage = "Unable to find the LabelFunction for label " + t.name();
         submitRecord.status = SubmitRecord.Status.RULE_ERROR;
         return Collections.singletonList(submitRecord);
       }

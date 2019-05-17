@@ -330,7 +330,7 @@ public class ReviewCommand extends SshCommand {
     }
 
     for (LabelType type : allProjectsState.getLabelTypes().getLabelTypes()) {
-      StringBuilder usage = new StringBuilder("score for ").append(type.getName()).append("\n");
+      StringBuilder usage = new StringBuilder("score for ").append(type.name()).append("\n");
 
       for (LabelValue v : type.getValues()) {
         usage.append(v.toString()).append("\n");
@@ -343,7 +343,7 @@ public class ReviewCommand extends SshCommand {
   }
 
   private static String asOptionName(LabelType type) {
-    return "--" + type.getName().toLowerCase();
+    return "--" + type.name().toLowerCase();
   }
 
   private static Option newApproveOption(LabelType type, String usage) {
@@ -378,7 +378,7 @@ public class ReviewCommand extends SshCommand {
     }
 
     String getLabelName() {
-      return type.getName();
+      return type.name();
     }
 
     @Override

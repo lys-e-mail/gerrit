@@ -45,7 +45,7 @@ public class ProjectJson {
     info.labels = new HashMap<>();
     for (LabelType t : projectState.getLabelTypes().getLabelTypes()) {
       LabelTypeInfo labelInfo = t.toLabelTypeInfo();
-      info.labels.put(t.getName(), labelInfo);
+      info.labels.put(t.name(), labelInfo);
     }
 
     return info;

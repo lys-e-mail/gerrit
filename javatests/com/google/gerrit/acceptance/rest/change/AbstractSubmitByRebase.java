@@ -59,7 +59,7 @@ public abstract class AbstractSubmitByRebase extends AbstractSubmit {
       Util.allow(u.getConfig(), Permission.SUBMIT, REGISTERED_USERS, "refs/heads/*");
       Util.allow(
           u.getConfig(),
-          Permission.forLabel(Util.codeReview().getName()),
+          Permission.forLabel(Util.codeReview().name()),
           -2,
           2,
           REGISTERED_USERS,

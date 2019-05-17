@@ -200,7 +200,7 @@ public class StreamEventsApiListener
     }
     LabelType lt = labelTypes.byLabel(approval.getKey());
     if (lt != null) {
-      a.description = lt.getName();
+      a.description = lt.name();
     }
     if (approval.getValue() != null) {
       a.value = Short.toString(approval.getValue());

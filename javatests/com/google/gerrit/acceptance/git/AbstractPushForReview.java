@@ -155,11 +155,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   public void setUpPatchSetLock() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
       patchSetLock = Util.patchSetLock();
-      u.getConfig().getLabelSections().put(patchSetLock.getName(), patchSetLock);
+      u.getConfig().getLabelSections().put(patchSetLock.name(), patchSetLock);
       AccountGroup.UUID anonymousUsers = systemGroupBackend.getGroup(ANONYMOUS_USERS).getUUID();
       Util.allow(
           u.getConfig(),
-          Permission.forLabel(patchSetLock.getName()),
+          Permission.forLabel(patchSetLock.name()),
           0,
           1,
           anonymousUsers,
@@ -1186,7 +1186,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     String heads = "refs/heads/*";
     try (ProjectConfigUpdate u = updateProject(project)) {
       Util.allow(u.getConfig(), Permission.forLabel("Custom-Label"), -1, 1, anon, heads);
-      u.getConfig().getLabelSections().put(Q.getName(), Q);
+      u.getConfig().getLabelSections().put(Q.name(), Q);
       u.save();
     }
 
@@ -1908,7 +1908,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     try (ProjectConfigUpdate u = updateProject(project)) {
       LabelType codeReview = Util.codeReview();
       codeReview.setCopyMaxScore(true);
-      u.getConfig().getLabelSections().put(codeReview.getName(), codeReview);
+      u.getConfig().getLabelSections().put(codeReview.name(), codeReview);
       u.save();
     }
 

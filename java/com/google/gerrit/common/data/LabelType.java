@@ -154,7 +154,7 @@ public class LabelType {
     return Collections.unmodifiableList(result);
   }
 
-  public String getName() {
+  public String name() {
     return name;
   }
 

@@ -103,7 +103,7 @@ public class LabelNormalizerTest {
     }
     LabelType lt =
         category("Verified", value(1, "Verified"), value(0, "No score"), value(-1, "Fails"));
-    pc.getLabelSections().put(lt.getName(), lt);
+    pc.getLabelSections().put(lt.name(), lt);
     save(pc);
   }
 

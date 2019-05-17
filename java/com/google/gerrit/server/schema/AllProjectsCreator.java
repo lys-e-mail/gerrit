@@ -128,7 +128,7 @@ public class AllProjectsCreator {
           .codeReviewLabel()
           .ifPresent(
               codeReviewLabel ->
-                  config.getLabelSections().put(codeReviewLabel.getName(), codeReviewLabel));
+                  config.getLabelSections().put(codeReviewLabel.name(), codeReviewLabel));
 
       if (input.initDefaultAcls()) {
         // init access sections.

@@ -85,7 +85,7 @@ public class AllUsersCreator {
   @UsedAt(UsedAt.Project.GOOGLE)
   public AllUsersCreator setCodeReviewLabel(LabelType labelType) {
     checkArgument(
-        labelType.getName().equals("Code-Review"), "label should have 'Code-Review' as its name");
+        labelType.name().equals("Code-Review"), "label should have 'Code-Review' as its name");
     this.codeReviewLabel = labelType;
     return this;
   }
@@ -120,7 +120,7 @@ public class AllUsersCreator {
               RefNames.REFS_USERS + "${" + RefPattern.USERID_SHARDED + "}", true);
 
       // Initialize "Code-Review" label.
-      config.getLabelSections().put(codeReviewLabel.getName(), codeReviewLabel);
+      config.getLabelSections().put(codeReviewLabel.name(), codeReviewLabel);
 
       grant(config, users, Permission.READ, false, true, registered);
       grant(config, users, Permission.PUSH, false, true, registered);

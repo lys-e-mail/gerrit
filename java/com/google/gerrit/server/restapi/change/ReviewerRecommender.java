@@ -245,7 +245,7 @@ public class ReviewerRecommender {
         List<LabelType> labelTypes = projectState.getLabelTypes().getLabelTypes();
         List<Predicate<ChangeData>> labelPredicates = new ArrayList<>(labelTypes.size());
         for (LabelType type : labelTypes) {
-          labelPredicates.add(changeQueryBuilder.label(type.getName() + ",user=" + id));
+          labelPredicates.add(changeQueryBuilder.label(type.name() + ",user=" + id));
         }
         Predicate<ChangeData> reviewerQuery =
             Predicate.and(projectQuery, Predicate.or(labelPredicates));

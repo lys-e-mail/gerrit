@@ -167,7 +167,7 @@ public class ImpersonationIT extends AbstractDaemonTest {
   public void voteOnBehalfOfLabelNotPermitted() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
       LabelType verified = Util.verified();
-      u.getConfig().getLabelSections().put(verified.getName(), verified);
+      u.getConfig().getLabelSections().put(verified.name(), verified);
       u.save();
     }
 
@@ -569,7 +569,7 @@ public class ImpersonationIT extends AbstractDaemonTest {
   private void allowCodeReviewOnBehalfOf() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
       LabelType codeReviewType = Util.codeReview();
-      String forCodeReviewAs = Permission.forLabelAs(codeReviewType.getName());
+      String forCodeReviewAs = Permission.forLabelAs(codeReviewType.name());
       String heads = "refs/heads/*";
       AccountGroup.UUID uuid = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
       Util.allow(u.getConfig(), forCodeReviewAs, -1, 1, uuid, heads);
@@ -584,7 +584,7 @@ public class ImpersonationIT extends AbstractDaemonTest {
       Util.allow(u.getConfig(), Permission.SUBMIT_AS, uuid, heads);
       Util.allow(u.getConfig(), Permission.SUBMIT, uuid, heads);
       LabelType codeReviewType = Util.codeReview();
-      Util.allow(u.getConfig(), Permission.forLabel(codeReviewType.getName()), -2, 2, uuid, heads);
+      Util.allow(u.getConfig(), Permission.forLabel(codeReviewType.name()), -2, 2, uuid, heads);
       u.save();
     }
   }

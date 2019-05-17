@@ -570,7 +570,7 @@ public class MergeUtil {
         if (lt == null) {
           continue;
         }
-        tag = lt.getName();
+        tag = lt.name();
       }
 
       if (!contains(footers, new FooterKey(tag), identbuf.toString())) {

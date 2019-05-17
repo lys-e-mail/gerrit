@@ -52,7 +52,7 @@ public class LabelTypes {
           Map<String, LabelType> l = new HashMap<>();
           if (labelTypes != null) {
             for (LabelType t : labelTypes) {
-              l.put(t.getName().toLowerCase(), t);
+              l.put(t.name().toLowerCase(), t);
             }
           }
           byLabel = l;
@@ -96,7 +96,7 @@ public class LabelTypes {
           if (labelTypes != null) {
             int i = 0;
             for (LabelType t : labelTypes) {
-              p.put(t.getName(), i++);
+              p.put(t.name(), i++);
             }
           }
           positions = p;

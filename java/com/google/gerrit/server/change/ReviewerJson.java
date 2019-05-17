@@ -113,7 +113,7 @@ public class ReviewerJson {
     for (PatchSetApproval ca : approvals) {
       LabelType at = labelTypes.byLabel(ca.labelId());
       if (at != null) {
-        out.approvals.put(at.getName(), formatValue(ca.value()));
+        out.approvals.put(at.name(), formatValue(ca.value()));
       }
     }
 

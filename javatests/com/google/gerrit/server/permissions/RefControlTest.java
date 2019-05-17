@@ -273,7 +273,7 @@ public class RefControlTest {
           projectConfigFactory.create(Project.nameKey(allProjectsName.get()));
       allProjects.load(repo);
       LabelType cr = Util.codeReview();
-      allProjects.getLabelSections().put(cr.getName(), cr);
+      allProjects.getLabelSections().put(cr.name(), cr);
       add(allProjects);
     } catch (IOException | ConfigInvalidException e) {
       throw new RuntimeException(e);

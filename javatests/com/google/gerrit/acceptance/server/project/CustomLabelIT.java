@@ -70,14 +70,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     try (ProjectConfigUpdate u = updateProject(project)) {
       AccountGroup.UUID anonymousUsers = systemGroupBackend.getGroup(ANONYMOUS_USERS).getUUID();
       Util.allow(
-          u.getConfig(),
-          Permission.forLabel(label.getName()),
-          -1,
-          1,
-          anonymousUsers,
-          "refs/heads/*");
+          u.getConfig(), Permission.forLabel(label.name()), -1, 1, anonymousUsers, "refs/heads/*");
       Util.allow(
-          u.getConfig(), Permission.forLabel(P.getName()), 0, 1, anonymousUsers, "refs/heads/*");
+          u.getConfig(), Permission.forLabel(P.name()), 0, 1, anonymousUsers, "refs/heads/*");
       u.save();
     }
 
@@ -94,9 +89,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(NO_OP);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -110,9 +105,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(NO_BLOCK);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -126,9 +121,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(MAX_NO_BLOCK);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -144,11 +139,11 @@ public class CustomLabelIT extends AbstractDaemonTest {
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
     assertThat(info(r.getChangeId()).submittable).isNull();
-    revision(r).review(ReviewInput.approve().label(label.getName(), 1));
+    revision(r).review(ReviewInput.approve().label(label.name(), 1));
 
     ChangeInfo c = getWithLabels(r);
     assertThat(c.submittable).isTrue();
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNotNull();
     assertThat(q.recommended).isNull();
@@ -162,9 +157,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(ANY_WITH_BLOCK);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -182,12 +177,12 @@ public class CustomLabelIT extends AbstractDaemonTest {
     in.reviewer = user.email();
     gApi.changes().id(r.getChangeId()).addReviewer(in);
 
-    ReviewInput input = new ReviewInput().label(P.getName(), 0);
+    ReviewInput input = new ReviewInput().label(P.name(), 0);
     input.message = "foo";
 
     revision(r).review(input);
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(P.getName());
+    LabelInfo q = c.labels.get(P.name());
     assertThat(q.all).hasSize(2);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -202,9 +197,9 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(MAX_WITH_BLOCK);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -220,11 +215,11 @@ public class CustomLabelIT extends AbstractDaemonTest {
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
     assertThat(info(r.getChangeId()).submittable).isNull();
-    revision(r).review(ReviewInput.approve().label(label.getName(), 1));
+    revision(r).review(ReviewInput.approve().label(label.name(), 1));
 
     ChangeInfo c = getWithLabels(r);
     assertThat(c.submittable).isTrue();
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNotNull();
     assertThat(q.recommended).isNull();
@@ -238,10 +233,10 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setFunction(MAX_WITH_BLOCK);
     saveLabelConfig();
     PushOneCommit.Result r = createChange();
-    revision(r).review(new ReviewInput().label(label.getName(), 1));
-    revision(r).review(new ReviewInput().label(label.getName(), -1));
+    revision(r).review(new ReviewInput().label(label.name(), 1));
+    revision(r).review(new ReviewInput().label(label.name(), -1));
     ChangeInfo c = getWithLabels(r);
-    LabelInfo q = c.labels.get(label.getName());
+    LabelInfo q = c.labels.get(label.name());
     assertThat(q.all).hasSize(1);
     assertThat(q.approved).isNull();
     assertThat(q.recommended).isNull();
@@ -263,20 +258,20 @@ public class CustomLabelIT extends AbstractDaemonTest {
 
     ChangeInfo info = getWithLabels(r);
     assertPermitted(info, "Code-Review", 2);
-    assertPermitted(info, P.getName(), 0, 1);
-    assertPermitted(info, label.getName());
+    assertPermitted(info, P.name(), 0, 1);
+    assertPermitted(info, label.name());
 
     ReviewInput postSubmitReview1 = new ReviewInput();
-    postSubmitReview1.label(P.getName(), P.getMax().value());
+    postSubmitReview1.label(P.name(), P.getMax().value());
     revision(r).review(postSubmitReview1);
 
     ReviewInput postSubmitReview2 = new ReviewInput();
-    postSubmitReview2.label(label.getName(), label.getMax().value());
+    postSubmitReview2.label(label.name(), label.getMax().value());
     ResourceConflictException thrown =
         assertThrows(ResourceConflictException.class, () -> revision(r).review(postSubmitReview2));
     assertThat(thrown)
         .hasMessageThat()
-        .contains("Voting on labels disallowed after submit: " + label.getName());
+        .contains("Voting on labels disallowed after submit: " + label.name());
   }
 
   @Test
@@ -336,7 +331,7 @@ public class CustomLabelIT extends AbstractDaemonTest {
     label.setRefPatterns(Arrays.asList("master"));
     saveLabelConfig();
     ProjectConfig cfg = projectCache.checkedGet(project).getConfig();
-    assertThat(cfg.getLabelSections().get(label.getName()).getRefPatterns()).contains("master");
+    assertThat(cfg.getLabelSections().get(label.name()).getRefPatterns()).contains("master");
   }
 
   private void assertLabelStatus(String changeId, String testLabel) throws Exception {
@@ -352,8 +347,8 @@ public class CustomLabelIT extends AbstractDaemonTest {
 
   private void saveLabelConfig() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
-      u.getConfig().getLabelSections().put(label.getName(), label);
-      u.getConfig().getLabelSections().put(P.getName(), P);
+      u.getConfig().getLabelSections().put(label.name(), label);
+      u.getConfig().getLabelSections().put(P.name(), P);
       u.save();
     }
   }

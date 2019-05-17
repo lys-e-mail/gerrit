@@ -454,7 +454,7 @@ public class ProjectState {
     Map<String, LabelType> types = new LinkedHashMap<>();
     for (ProjectState s : treeInOrder()) {
       for (LabelType type : s.getConfig().getLabelSections().values()) {
-        String lower = type.getName().toLowerCase();
+        String lower = type.name().toLowerCase();
         LabelType old = types.get(lower);
         if (old == null || old.canOverride()) {
           types.put(lower, type);

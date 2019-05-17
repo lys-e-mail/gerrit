@@ -1508,7 +1508,7 @@ public abstract class AbstractDaemonTest {
       LabelType labelType = category(label, value);
       labelType.setFunction(func);
       labelType.setRefPatterns(refPatterns);
-      u.getConfig().getLabelSections().put(labelType.getName(), labelType);
+      u.getConfig().getLabelSections().put(labelType.name(), labelType);
       u.save();
     }
   }

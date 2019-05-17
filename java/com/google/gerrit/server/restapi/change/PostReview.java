@@ -469,7 +469,7 @@ public class PostReview
           throw new AuthException(
               String.format(
                   "not permitted to modify label \"%s\" on behalf of \"%s\"",
-                  type.getName(), in.onBehalfOf));
+                  type.name(), in.onBehalfOf));
         }
       }
     }
@@ -526,7 +526,7 @@ public class PostReview
         perm.check(new LabelPermission.WithValue(lt, val));
       } catch (AuthException e) {
         throw new AuthException(
-            String.format("Applying label \"%s\": %d is restricted", lt.getName(), val));
+            String.format("Applying label \"%s\": %d is restricted", lt.name(), val));
       }
     }
   }
@@ -1071,7 +1071,7 @@ public class PostReview
         LabelTypes labelTypes, Map<String, Short> current, Map<String, Short> input) {
       Map<String, Short> allApprovals = new HashMap<>();
       for (LabelType lt : labelTypes.getLabelTypes()) {
-        allApprovals.put(lt.getName(), (short) 0);
+        allApprovals.put(lt.name(), (short) 0);
       }
       // set approvals to existing votes
       if (current != null) {
@@ -1135,8 +1135,8 @@ public class PostReview
         String name = ent.getKey();
         LabelType lt = requireNonNull(labelTypes.byLabel(name), name);
 
-        PatchSetApproval c = current.remove(lt.getName());
-        String normName = lt.getName();
+        PatchSetApproval c = current.remove(lt.name());
+        String normName = lt.name();
         approvals.put(normName, (short) 0);
         if (ent.getValue() == null || ent.getValue() == 0) {
           // User requested delete of this label.
@@ -1218,7 +1218,7 @@ public class PostReview
 
       for (PatchSetApproval psa : del) {
         LabelType lt = requireNonNull(labelTypes.byLabel(psa.label()));
-        String normName = lt.getName();
+        String normName = lt.name();
         if (!lt.allowPostSubmit()) {
           disallowed.add(normName);
         }
@@ -1230,7 +1230,7 @@ public class PostReview
 
       for (PatchSetApproval psa : ups) {
         LabelType lt = requireNonNull(labelTypes.byLabel(psa.label()));
-        String normName = lt.getName();
+        String normName = lt.name();
         if (!lt.allowPostSubmit()) {
           disallowed.add(normName);
         }
@@ -1315,7 +1315,7 @@ public class PostReview
 
         LabelType lt = labelTypes.byLabel(a.labelId());
         if (lt != null) {
-          current.put(lt.getName(), a);
+          current.put(lt.name(), a);
         } else {
           del.add(a);
         }

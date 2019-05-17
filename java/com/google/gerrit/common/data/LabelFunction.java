@@ -90,7 +90,7 @@ public enum LabelFunction {
 
   public SubmitRecord.Label check(LabelType labelType, Iterable<PatchSetApproval> approvals) {
     SubmitRecord.Label submitRecordLabel = new SubmitRecord.Label();
-    submitRecordLabel.label = labelType.getName();
+    submitRecordLabel.label = labelType.name();
 
     submitRecordLabel.status = SubmitRecord.Label.Status.MAY;
     if (isRequired) {

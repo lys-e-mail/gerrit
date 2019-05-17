@@ -607,7 +607,7 @@ public class EventFactory {
 
     LabelType lt = labelTypes.byLabel(approval.labelId());
     if (lt != null) {
-      a.description = lt.getName();
+      a.description = lt.name();
     }
     return a;
   }

@@ -123,7 +123,7 @@ public class LabelsJson {
         for (SubmitRecord.Label r : rec.labels) {
           LabelType type = labelTypes.byLabel(r.label);
           if (type != null && (!isMerged || type.allowPostSubmit())) {
-            toCheck.put(type.getName(), type);
+            toCheck.put(type.name(), type);
           }
         }
       }
@@ -149,7 +149,7 @@ public class LabelsJson {
             if (labels == null) {
               labels = currentLabels(filterApprovalsBy, cd);
             }
-            short prev = labels.getOrDefault(type.getName(), (short) 0);
+            short prev = labels.getOrDefault(type.name(), (short) 0);
             ok &= v.value() >= prev;
           }
           if (ok) {
@@ -290,7 +290,7 @@ public class LabelsJson {
       allUsers.add(a.accountId());
       LabelType type = labelTypes.byLabel(a.labelId());
       if (type != null) {
-        labelNames.add(type.getName());
+        labelNames.add(type.name());
         // Not worth the effort to distinguish between votable/non-votable for 0
         // values on closed changes, since they can't vote anyway.
         current.put(a.accountId(), a);
@@ -341,10 +341,10 @@ public class LabelsJson {
         }
 
         short val = psa.value();
-        ApprovalInfo info = byLabel.get(type.getName());
+        ApprovalInfo info = byLabel.get(type.name());
         if (info != null) {
           info.value = Integer.valueOf(val);
-          info.permittedVotingRange = pvr.getOrDefault(type.getName(), null);
+          info.permittedVotingRange = pvr.getOrDefault(type.name(), null);
           info.date = psa.granted();
           info.tag = psa.tag().orElse(null);
           if (psa.postSubmit()) {
@@ -355,7 +355,7 @@ public class LabelsJson {
           continue;
         }
 
-        setLabelScores(accountLoader, type, labels.get(type.getName()), val, accountId);
+        setLabelScores(accountLoader, type, labels.get(type.name()), val, accountId);
       }
     }
     return labels;
@@ -462,10 +462,10 @@ public class LabelsJson {
           continue;
         }
         Integer value;
-        VotingRangeInfo permittedVotingRange = pvr.getOrDefault(lt.getName(), null);
+        VotingRangeInfo permittedVotingRange = pvr.getOrDefault(lt.name(), null);
         String tag = null;
         Timestamp date = null;
-        PatchSetApproval psa = current.get(accountId, lt.getName());
+        PatchSetApproval psa = current.get(accountId, lt.name());
         if (psa != null) {
           value = Integer.valueOf(psa.value());
           if (value == 0) {

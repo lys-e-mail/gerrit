@@ -1053,10 +1053,10 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
     LabelType verified =
         category("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
-    cfg.getLabelSections().put(verified.getName(), verified);
+    cfg.getLabelSections().put(verified.name(), verified);
 
     String heads = RefNames.REFS_HEADS + "*";
-    allow(cfg, Permission.forLabel(verified().getName()), -1, 1, REGISTERED_USERS, heads);
+    allow(cfg, Permission.forLabel(verified().name()), -1, 1, REGISTERED_USERS, heads);
 
     try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
       cfg.commit(md);
