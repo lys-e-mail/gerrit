@@ -92,7 +92,7 @@ public final class DefaultSubmitRule implements SubmitRule {
     submitRecord.labels = new ArrayList<>(labelTypes.size());
 
     for (LabelType t : labelTypes) {
-      LabelFunction labelFunction = t.getFunction();
+      LabelFunction labelFunction = t.function();
       if (labelFunction == null) {
         logger.atSevere().log(
             "Unable to find the LabelFunction for label %s, change %s", t.name(), cd.getId());

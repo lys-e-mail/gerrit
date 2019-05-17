@@ -153,7 +153,7 @@ public class PatchSetUtil {
     for (PatchSetApproval ap :
         approvalsUtil.byPatchSet(notes, change.currentPatchSetId(), null, null)) {
       LabelType type = projectState.getLabelTypes(notes).byLabel(ap.label());
-      if (type != null && ap.value() == 1 && type.getFunction() == LabelFunction.PATCH_SET_LOCK) {
+      if (type != null && ap.value() == 1 && type.function() == LabelFunction.PATCH_SET_LOCK) {
         return true;
       }
     }

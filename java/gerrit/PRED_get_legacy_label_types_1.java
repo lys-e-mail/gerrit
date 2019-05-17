@@ -71,7 +71,7 @@ class PRED_get_legacy_label_types_1 extends Predicate.P1 {
     return new StructureTerm(
         symLabelType,
         SymbolTerm.intern(type.name()),
-        SymbolTerm.intern(type.getFunction().getFunctionName()),
+        SymbolTerm.intern(type.function().getFunctionName()),
         min != null ? new IntegerTerm(min.value()) : NONE,
         max != null ? new IntegerTerm(max.value()) : NONE);
   }

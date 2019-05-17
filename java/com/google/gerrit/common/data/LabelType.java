@@ -158,12 +158,12 @@ public class LabelType {
     return name;
   }
 
-  public boolean matches(PatchSetApproval psa) {
-    return psa.labelId().get().equalsIgnoreCase(name);
+  public LabelFunction function() {
+    return function;
   }
 
-  public LabelFunction getFunction() {
-    return function;
+  public boolean matches(PatchSetApproval psa) {
+    return psa.labelId().get().equalsIgnoreCase(name);
   }
 
   public void setFunction(@Nullable LabelFunction function) {

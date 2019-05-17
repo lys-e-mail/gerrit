@@ -96,7 +96,7 @@ public class IgnoreSelfApprovalRule implements SubmitRule {
         continue;
       }
 
-      LabelFunction labelFunction = t.getFunction();
+      LabelFunction labelFunction = t.function();
       if (labelFunction == null) {
         continue;
       }
