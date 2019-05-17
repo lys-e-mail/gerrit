@@ -22,6 +22,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -116,7 +117,16 @@ public class BatchUpdate implements AutoCloseable {
     BatchUpdate create(Project.NameKey project, CurrentUser user, Timestamp when);
   }
 
-  public static void execute(  // XXX
+  // XXX
+  @AutoValue
+  abstract static class CommentValidationResult {
+    static CommentValidationResult create(String message) {
+      return new AutoValue_BatchUpdate_CommentValidationResult(message);
+    }
+    abstract String message();
+  }
+
+  public static void execute(
       Collection<BatchUpdate> updates, BatchUpdateListener listener, boolean dryrun)
       throws UpdateException, RestApiException {
     requireNonNull(listener);
@@ -126,18 +136,24 @@ public class BatchUpdate implements AutoCloseable {
 
     checkDifferentProject(updates);
 
+    List<CommentValidationResult> commentValidationResults = new ArrayList<>();
     try {
       List<ListenableFuture<?>> indexFutures = new ArrayList<>();
       List<ChangesHandle> handles = new ArrayList<>(updates.size());
       try {
         for (BatchUpdate u : updates) {
-          u.executeUpdateRepo();  // XXX What about dry run?
+          u.executeUpdateRepo();
         }
         listener.afterUpdateRepos();
         for (BatchUpdate u : updates) {
-          handles.add(u.executeChangeOps(dryrun));
+          try {
+            handles.add(u.executeChangeOps(dryrun));
+          } catch (CommentRejectedException e) {
+            // XXX (Integration) test.
+            commentValidationResults.add(CommentValidationResult.create(e.getMessage()));
+          }
         }
-        // XXX I take it at this point updates are only staged but not executed yet?
+        // XXX At this point updates are only staged but not executed yet.
         for (ChangesHandle h : handles) {
           h.execute();
           indexFutures.addAll(h.startIndexFutures());
@@ -167,6 +183,10 @@ public class BatchUpdate implements AutoCloseable {
       }
     } catch (Exception e) {
       wrapAndThrowException(e);
+    }
+
+    if (!commentValidationResults.isEmpty()) {
+      wrapAndThrowException(new UpdateException(commentValidationResults.get(0).message()));
     }
   }
 
@@ -561,6 +581,8 @@ public class BatchUpdate implements AutoCloseable {
           id,
           lazy(() -> e.getValue().stream().map(op -> op.getClass().getName()).collect(toSet())));
       for (BatchUpdateOp op : e.getValue()) {
+        // XXX Doesn't throwing at this point skip the remaining ops? Do we need to collect errors
+        // and rethrow at the end?
         dirty |= op.updateChange(ctx);
       }
       if (!dirty) {
@@ -568,9 +590,7 @@ public class BatchUpdate implements AutoCloseable {
         handle.setResult(id, ChangeResult.SKIPPED);
         continue;
       }
-      for (ChangeUpdate u : ctx.updates.values()) {
-        handle.manager.add(u);
-      }
+      ctx.updates.values().forEach(handle.manager::add);
       if (ctx.deleted) {
         logDebug("Change %s was deleted", id);
         handle.manager.deleteChange(id);

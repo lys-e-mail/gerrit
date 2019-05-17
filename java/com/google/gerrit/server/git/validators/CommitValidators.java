@@ -668,8 +668,6 @@ public class CommitValidators {
     @Override
     public List<CommitValidationMessage> onCommitReceived(CommitReceivedEvent receiveEvent)
         throws CommitValidationException {
-      System.out.println("##### b");
-      logger.atWarning().log("##### bw");
       try {
         if (rejectCommits.contains(receiveEvent.commit)) {
           throw new CommitValidationException(
