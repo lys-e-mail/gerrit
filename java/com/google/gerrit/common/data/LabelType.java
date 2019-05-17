@@ -258,7 +258,7 @@ public class LabelType {
     this.copyAllScoresOnMergeFirstParentUpdate = copyAllScoresOnMergeFirstParentUpdate;
   }
 
-  public boolean isCopyAllScoresOnTrivialRebase() {
+  public boolean copyAllScoresOnTrivialRebase() {
     return copyAllScoresOnTrivialRebase;
   }
 

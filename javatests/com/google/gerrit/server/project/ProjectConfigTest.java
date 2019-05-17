@@ -263,7 +263,7 @@ public class ProjectConfigTest {
     assertThat(type.copyMaxScore()).isNotEqualTo(LabelType.DEF_COPY_MAX_SCORE);
     assertThat(type.copyAllScoresOnMergeFirstParentUpdate())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE);
-    assertThat(type.isCopyAllScoresOnTrivialRebase())
+    assertThat(type.copyAllScoresOnTrivialRebase())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
     assertThat(type.isCopyAllScoresIfNoCodeChange())
         .isNotEqualTo(LabelType.DEF_COPY_ALL_SCORES_IF_NO_CODE_CHANGE);

@@ -1405,7 +1405,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           LABEL,
           name,
           KEY_COPY_ALL_SCORES_ON_TRIVIAL_REBASE,
-          label.isCopyAllScoresOnTrivialRebase(),
+          label.copyAllScoresOnTrivialRebase(),
           LabelType.DEF_COPY_ALL_SCORES_ON_TRIVIAL_REBASE);
       setBooleanConfigKey(
           rc,

@@ -175,10 +175,10 @@ public class ApprovalCopier {
       case NO_CODE_CHANGE:
         return type.isCopyAllScoresIfNoCodeChange();
       case TRIVIAL_REBASE:
-        return type.isCopyAllScoresOnTrivialRebase();
+        return type.copyAllScoresOnTrivialRebase();
       case NO_CHANGE:
         return type.isCopyAllScoresIfNoChange()
-            || type.isCopyAllScoresOnTrivialRebase()
+            || type.copyAllScoresOnTrivialRebase()
             || type.copyAllScoresOnMergeFirstParentUpdate()
             || type.isCopyAllScoresIfNoCodeChange();
       case REWORK:
