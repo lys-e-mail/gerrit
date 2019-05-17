@@ -70,8 +70,13 @@ When your project is set up and works using the classic UI, run a test server
 that serves PolyGerrit:
 
 ```sh
+<<<<<<< HEAD   (ea9801 WORKSPACE: Remove non-reused JACKSON_VERSION constant)
 bazel build polygerrit &&
   $(bazel info output_base)/external/local_jdk/bin/java \
+=======
+bazel build polygerrit && \
+  java -DsourceRoot=/path/to/my/checkout \
+>>>>>>> BRANCH (3ca3a2 Split up the git acceptance tests)
   -jar bazel-bin/polygerrit.war daemon --polygerrit-dev \
   -d ../gerrit_testsite --console-log --show-stack-trace
 ```
