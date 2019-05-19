@@ -3,6 +3,7 @@
 java_library(
     name = "launcher",
     srcs = ["GerritLauncher.java"],
+<<<<<<< HEAD   (cf40b3 Fix DbInjector creation in WebAppinitializer)
     resources = [":workspace-root.txt"],
     visibility = ["//visibility:public"],
 )
@@ -15,5 +16,7 @@ genrule(
     cmd = ("cat bazel-out/stable-status.txt | " +
            "grep STABLE_WORKSPACE_ROOT | cut -d ' ' -f 2 > $@"),
     stamp = 1,
+=======
+>>>>>>> BRANCH (17cea2 Merge branch 'stable-2.15' into stable-2.16)
     visibility = ["//visibility:public"],
 )

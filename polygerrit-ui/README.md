@@ -71,9 +71,15 @@ When your project is set up and works using the classic UI, run a test server
 that serves PolyGerrit:
 
 ```sh
+<<<<<<< HEAD   (cf40b3 Fix DbInjector creation in WebAppinitializer)
 bazel build gerrit &&
   $(bazel info output_base)/external/local_jdk/bin/java \
   -jar bazel-bin/gerrit.war daemon --polygerrit-dev \
+=======
+bazel build polygerrit &&
+  $(bazel info output_base)/external/local_jdk/bin/java -DsourceRoot=/path/to/my/checkout \
+  -jar bazel-bin/polygerrit.war daemon --polygerrit-dev \
+>>>>>>> BRANCH (17cea2 Merge branch 'stable-2.15' into stable-2.16)
   -d ../gerrit_testsite --console-log --show-stack-trace
 ```
 
