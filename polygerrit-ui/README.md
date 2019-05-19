@@ -88,11 +88,34 @@ and add the `--polygerrit-dev` option, if you want to serve the Polymer frontend
 directly from the sources in `polygerrit_ui/app/` instead of from the war:
 
 ```sh
+<<<<<<< HEAD   (f70fb5 Merge changes Ia216e773,I6f2d7226,I99f78abd,Ife646b78,Iac17f)
 $(bazel info output_base)/external/local_jdk/bin/java \
     -jar bazel-bin/gerrit.war daemon \
     -d $GERRIT_SITE \
     --console-log \
     --polygerrit-dev
+=======
+bazel build gerrit &&
+  $(bazel info output_base)/external/local_jdk/bin/java -DsourceRoot=/path/to/my/checkout \
+  -jar bazel-bin/gerrit.war daemon --polygerrit-dev \
+  -d ../gerrit_testsite --console-log --show-stack-trace
+```
+
+Serving plugins
+
+> Local dev plugins must be put inside of gerrit/plugins
+
+Loading a single plugin file:
+
+```sh
+./run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js
+```
+
+Loading multiple plugin files:
+
+```sh
+./run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js,plugins/my_plugin/static/my_plugin.html
+>>>>>>> BRANCH (c3ca80 Merge branch 'stable-2.16' into stable-3.0)
 ```
 
 ## Running Tests
