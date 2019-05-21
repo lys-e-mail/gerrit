@@ -1969,9 +1969,12 @@ public class AccountIT extends AbstractDaemonTest {
     addGpgKey(key.getPublicKeyArmored());
     assertKeys(key);
 
+    sender.clear();
     gApi.accounts().self().gpgKey(id).delete();
     accountIndexedCounter.assertReindexOf(admin);
     assertKeys();
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("GPG keys have been deleted");
 
     exception.expect(ResourceNotFoundException.class);
     exception.expectMessage(id);
@@ -2072,12 +2075,16 @@ public class AccountIT extends AbstractDaemonTest {
     assertThat(sender.getMessages().get(0).body()).contains("new SSH keys have been added");
 
     // Delete second key
+    sender.clear();
     gApi.accounts().self().deleteSshKey(2);
     info = gApi.accounts().self().listSshKeys();
     assertThat(info).hasSize(2);
     assertThat(info.get(0).seq).isEqualTo(1);
     assertThat(info.get(1).seq).isEqualTo(3);
     accountIndexedCounter.assertReindexOf(admin);
+
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("SSH keys have been deleted");
 
     // Mark first key as invalid
     assertThat(info.get(0).valid).isTrue();
@@ -2741,15 +2748,26 @@ public class AccountIT extends AbstractDaemonTest {
 
   @Test
   public void userCanGenerateNewHttpPassword() throws Exception {
+    sender.clear();
     String newPassword = gApi.accounts().self().generateHttpPassword();
     assertThat(newPassword).isNotNull();
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("HTTP password was added or updated");
   }
 
   @Test
   public void adminCanGenerateNewHttpPasswordForUser() throws Exception {
+<<<<<<< HEAD   (b1fa85 StaticModule: Remove unused GERRIT_UI_COOKIE)
     requestScopeOperations.setApiUser(admin.id());
     String newPassword = gApi.accounts().id(user.username()).generateHttpPassword();
+=======
+    setApiUser(admin);
+    sender.clear();
+    String newPassword = gApi.accounts().id(user.username).generateHttpPassword();
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
     assertThat(newPassword).isNotNull();
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("HTTP password was added or updated");
   }
 
   @Test
@@ -2775,8 +2793,15 @@ public class AccountIT extends AbstractDaemonTest {
 
   @Test
   public void userCanRemoveHttpPassword() throws Exception {
+<<<<<<< HEAD   (b1fa85 StaticModule: Remove unused GERRIT_UI_COOKIE)
     requestScopeOperations.setApiUser(user.id());
+=======
+    setApiUser(user);
+    sender.clear();
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
     assertThat(gApi.accounts().self().setHttpPassword(null)).isNull();
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("HTTP password was deleted");
   }
 
   @Test
@@ -2790,14 +2815,29 @@ public class AccountIT extends AbstractDaemonTest {
   public void adminCanExplicitlySetHttpPasswordForUser() throws Exception {
     requestScopeOperations.setApiUser(admin.id());
     String httpPassword = "new-password-for-user";
+<<<<<<< HEAD   (b1fa85 StaticModule: Remove unused GERRIT_UI_COOKIE)
     assertThat(gApi.accounts().id(user.username()).setHttpPassword(httpPassword))
+=======
+    sender.clear();
+    assertThat(gApi.accounts().id(user.username).setHttpPassword(httpPassword))
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
         .isEqualTo(httpPassword);
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("HTTP password was added or updated");
   }
 
   @Test
   public void adminCanRemoveHttpPasswordForUser() throws Exception {
+<<<<<<< HEAD   (b1fa85 StaticModule: Remove unused GERRIT_UI_COOKIE)
     requestScopeOperations.setApiUser(admin.id());
     assertThat(gApi.accounts().id(user.username()).setHttpPassword(null)).isNull();
+=======
+    setApiUser(admin);
+    sender.clear();
+    assertThat(gApi.accounts().id(user.username).setHttpPassword(null)).isNull();
+    assertThat(sender.getMessages()).hasSize(1);
+    assertThat(sender.getMessages().get(0).body()).contains("HTTP password was deleted");
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
   }
 
   @Test
