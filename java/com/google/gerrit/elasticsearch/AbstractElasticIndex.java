@@ -224,10 +224,15 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
   }
 
   protected String getMappingsFor(String type, MappingProperties properties) {
-    JsonObject mappingType = new JsonObject();
-    mappingType.add(type, gson.toJsonTree(properties));
     JsonObject mappings = new JsonObject();
-    mappings.add(MAPPINGS, gson.toJsonTree(mappingType));
+
+    if (client.adapter().omitType()) {
+      mappings.add(MAPPINGS, gson.toJsonTree(properties));
+    } else {
+      JsonObject mappingType = new JsonObject();
+      mappingType.add(type, gson.toJsonTree(properties));
+      mappings.add(MAPPINGS, gson.toJsonTree(mappingType));
+    }
     return gson.toJson(mappings);
   }
 
@@ -307,6 +312,7 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
     return sortArray;
   }
 
+<<<<<<< HEAD   (ff1d93 Open TestRepository in try-with-resource)
   protected String getURI(String type, String request) {
     try {
       String encodedIndexName = URLEncoder.encode(indexName, UTF_8.toString());
@@ -317,7 +323,19 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
       return encodedIndexName + "/" + encodedType + "/" + request;
     } catch (UnsupportedEncodingException e) {
       throw new StorageException(e);
+=======
+  protected String getURI(String type, String request) throws UnsupportedEncodingException {
+    String encodedIndexName = URLEncoder.encode(indexName, UTF_8.toString());
+    if (SEARCH.equals(request) && client.adapter().omitType()) {
+      return encodedIndexName + "/" + request;
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
     }
+<<<<<<< HEAD   (ff1d93 Open TestRepository in try-with-resource)
+=======
+    String encodedTypeIfAny =
+        client.adapter().omitType() ? "" : "/" + URLEncoder.encode(type, UTF_8.toString());
+    return encodedIndexName + encodedTypeIfAny + "/" + request;
+>>>>>>> BRANCH (d60b3b Merge branch 'stable-2.15' into stable-2.16)
   }
 
   protected Response postRequest(String uri, Object payload) {
