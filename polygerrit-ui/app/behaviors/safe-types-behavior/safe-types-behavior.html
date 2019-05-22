@@ -23,7 +23,11 @@ limitations under the License.
   /** @polymerBehavior Gerrit.SafeTypes */
   Gerrit.SafeTypes = {};
 
+<<<<<<< HEAD   (9ab34f Merge changes Ie932c13c,I6bc8c176 into stable-2.16)
   const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|\/|#)/i;
+=======
+  const SAFE_URL_PATTERN = /^(https?:\/\/|mailto:|[^:/?#]*(?:[/?#]|$))/i;
+>>>>>>> BRANCH (381924 Merge changes from topic "polymer-resin-2" into stable-2.15)
 
   /**
    * Wraps a string to be used as a URL. An error is thrown if the string cannot
