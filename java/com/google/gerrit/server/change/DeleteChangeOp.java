@@ -70,7 +70,11 @@ public class DeleteChangeOp implements BatchUpdateOp {
     ensureDeletable(ctx, id, patchSets);
     // Cleaning up is only possible as long as the change and its elements are
     // still part of the database.
+<<<<<<< HEAD   (39ff7c AccessIT: Migrate from try-catch-fail to assertThrows)
     cleanUpReferences(id, patchSets);
+=======
+    cleanUpReferences(ctx, id);
+>>>>>>> BRANCH (a82fe4 Merge branch 'stable-2.16' into stable-3.0)
 
     ctx.deleteChange();
     changeDeleted.fire(ctx.getChange(), ctx.getAccount(), ctx.getWhen());
@@ -102,10 +106,15 @@ public class DeleteChangeOp implements BatchUpdateOp {
         revWalk.parseCommit(patchSet.commitId()), revWalk.parseCommit(destId.get()));
   }
 
+<<<<<<< HEAD   (39ff7c AccessIT: Migrate from try-catch-fail to assertThrows)
   private void cleanUpReferences(Change.Id id, Collection<PatchSet> patchSets) throws IOException {
     for (PatchSet ps : patchSets) {
       accountPatchReviewStore.run(s -> s.clearReviewed(ps.id()));
     }
+=======
+  private void cleanUpReferences(ChangeContext ctx, Change.Id id) throws NoSuchChangeException {
+    accountPatchReviewStore.run(s -> s.clearReviewed(id));
+>>>>>>> BRANCH (a82fe4 Merge branch 'stable-2.16' into stable-3.0)
 
     // Non-atomic operation on All-Users refs; not much we can do to make it atomic.
     starredChangesUtil.unstarAllForChangeDeletion(id);
