@@ -6,10 +6,19 @@
 In order to contribute to Gerrit a link:dev-cla.html[Contributor
 License Agreement] must be completed before contributions are accepted.
 
+<<<<<<< HEAD   (f16140 GitUtil: Only instantiate file system object if really neede)
 [[contribution-processes]]
 == Contribution Processes
+=======
+For reference, the actual agreements are linked below:
+>>>>>>> BRANCH (3a4858 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (f16140 GitUtil: Only instantiate file system object if really neede)
 The Gerrit project offers two contribution processes:
+=======
+* link:https://cla.developers.google.com/about/google-individual[Individual Agreement]
+* link:https://cla.developers.google.com/about/google-corporate[Corporate Agreement]
+>>>>>>> BRANCH (3a4858 Merge branch 'stable-2.16' into stable-3.0)
 
 * link:#lightweight-contribution-process[Lightweight Contribution
   Process]

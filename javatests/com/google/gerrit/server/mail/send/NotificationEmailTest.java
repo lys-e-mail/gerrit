@@ -15,27 +15,35 @@
 package com.google.gerrit.server.mail.send;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.server.mail.send.NotificationEmail.getInstanceAndProjectName;
+import static com.google.gerrit.server.mail.send.NotificationEmail.getShortProjectName;
 
 import org.junit.Test;
 
 public class NotificationEmailTest {
+<<<<<<< HEAD   (f16140 GitUtil: Only instantiate file system object if really neede)
 
+=======
+>>>>>>> BRANCH (3a4858 Merge branch 'stable-2.16' into stable-3.0)
   @Test
-  public void getInstanceAndProjectName_returnsTheRightValue() {
-    String instanceAndProjectName = NotificationEmail.getInstanceAndProjectName("test", "/my/api");
-    assertThat(instanceAndProjectName).isEqualTo("test/api");
+  public void instanceAndProjectName() throws Exception {
+    assertThat(getInstanceAndProjectName("test", "/my/api")).isEqualTo("test/api");
+    assertThat(getInstanceAndProjectName("test", "/api")).isEqualTo("test/api");
+    assertThat(getInstanceAndProjectName("test", "api")).isEqualTo("test/api");
   }
 
   @Test
-  public void getInstanceAndProjectName_handlesNull() {
-    String instanceAndProjectName = NotificationEmail.getInstanceAndProjectName(null, "/my/api");
-    assertThat(instanceAndProjectName).isEqualTo("...api");
+  public void instanceAndProjectNameNull() throws Exception {
+    assertThat(getInstanceAndProjectName(null, "/my/api")).isEqualTo("...api");
+    assertThat(getInstanceAndProjectName(null, "/api")).isEqualTo("api");
+    assertThat(getInstanceAndProjectName(null, "api")).isEqualTo("api");
   }
 
   @Test
-  public void getShortProjectName() {
-    assertThat(NotificationEmail.getShortProjectName("/api")).isEqualTo("api");
-    assertThat(NotificationEmail.getShortProjectName("/my/api")).isEqualTo("...api");
-    assertThat(NotificationEmail.getShortProjectName("/my/sub/project")).isEqualTo("...project");
+  public void shortProjectName() throws Exception {
+    assertThat(getShortProjectName("api")).isEqualTo("api");
+    assertThat(getShortProjectName("/api")).isEqualTo("api");
+    assertThat(getShortProjectName("/my/api")).isEqualTo("...api");
+    assertThat(getShortProjectName("/my/sub/project")).isEqualTo("...project");
   }
 }
