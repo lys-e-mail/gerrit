@@ -80,7 +80,7 @@ import java.util.Set;
 
 /** A service that can attach the comments from a {@link MailMessage} to a change. */
 @Singleton
-public class MailProcessor {
+public class MailProcessor {  // XXX Handle this entry point.
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private final Emails emails;

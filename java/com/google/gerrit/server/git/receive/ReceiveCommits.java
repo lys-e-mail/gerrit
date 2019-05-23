@@ -47,7 +47,9 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
@@ -60,7 +62,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.Streams;
 import com.google.common.flogger.FluentLogger;
-import com.google.gerrit.common.FooterConstants;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.LabelType;
 import com.google.gerrit.common.data.LabelTypes;
@@ -83,12 +84,15 @@ import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.BranchNameKey;
 import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.Change.Id;
+import com.google.gerrit.reviewdb.client.Comment;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.reviewdb.client.PatchSetInfo;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.ChangeUtil;
+import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.CreateGroupPermissionSyncer;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
@@ -219,7 +223,7 @@ import org.kohsuke.args4j.Option;
  * (refs/changes/CHANGE). It is hard to split this class up further, because normal pushes can also
  * result in updates to reviews, through the autoclose mechanism.
  */
-class ReceiveCommits {
+class ReceiveCommits { // XXX Handle this entry point.
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private static final String CODE_REVIEW_ERROR =
@@ -297,6 +301,7 @@ class ReceiveCommits {
   private final ChangeNotes.Factory notesFactory;
   private final ChangeReportFormatter changeFormatter;
   private final CmdLineParser.Factory optionParserFactory;
+  private final CommentsUtil commentsUtil;
   private final BranchCommitValidator.Factory commitValidatorFactory;
   private final CreateGroupPermissionSyncer createGroupPermissionSyncer;
   private final CreateRefControl createRefControl;
@@ -373,6 +378,7 @@ class ReceiveCommits {
       ChangeNotes.Factory notesFactory,
       DynamicItem<ChangeReportFormatter> changeFormatterProvider,
       CmdLineParser.Factory optionParserFactory,
+      CommentsUtil commentsUtil,
       BranchCommitValidator.Factory commitValidatorFactory,
       CreateGroupPermissionSyncer createGroupPermissionSyncer,
       CreateRefControl createRefControl,
@@ -409,6 +415,7 @@ class ReceiveCommits {
     this.batchUpdateFactory = batchUpdateFactory;
     this.changeFormatter = changeFormatterProvider.get();
     this.changeInserterFactory = changeInserterFactory;
+    this.commentsUtil = commentsUtil;
     this.commitValidatorFactory = commitValidatorFactory;
     this.createRefControl = createRefControl;
     this.createGroupPermissionSyncer = createGroupPermissionSyncer;
@@ -1289,7 +1296,6 @@ class ReceiveCommits {
     Optional<AuthException> err = checkRefPermission(cmd, RefPermission.DELETE);
     if (!err.isPresent()) {
       validRefOperation(cmd);
-
     } else {
       rejectProhibited(cmd, err.get());
     }
@@ -1365,6 +1371,9 @@ class ReceiveCommits {
     final ReceiveCommand cmd;
     final LabelTypes labelTypes;
     private final boolean defaultPublishComments;
+    /** Result of comment validation. XXX improve comment */
+    private boolean commentsValid = true;
+
     BranchNameKey dest;
     PermissionBackend.ForRef perm;
     Set<String> reviewer = Sets.newLinkedHashSet();
@@ -1563,7 +1572,14 @@ class ReceiveCommits {
           .collect(toImmutableSet());
     }
 
+    void setCommentsValid(boolean commentsValid) {
+      this.commentsValid = commentsValid;
+    }
+
     boolean shouldPublishComments() {
+      if (!commentsValid) {
+        return false;
+      }
       if (publishComments) {
         return true;
       } else if (noPublishComments) {
@@ -1912,7 +1928,7 @@ class ReceiveCommits {
   }
 
   // Handle an upload to refs/changes/XX/CHANGED-NUMBER.
-  private void parseReplaceCommand(ReceiveCommand cmd, Change.Id changeId) {
+  private void parseReplaceCommand(ReceiveCommand cmd, Change.Id changeId) { // XXX
     logger.atFine().log("Parsing replace command");
     if (cmd.getType() != ReceiveCommand.Type.CREATE) {
       reject(cmd, "invalid usage");
@@ -1969,7 +1985,7 @@ class ReceiveCommits {
    * Add an update for an existing change. Returns true if it succeeded; rejects the command if it
    * failed.
    */
-  private boolean requestReplace(
+  private boolean requestReplace( // XXX Validate comments; Also change method name?
       ReceiveCommand cmd, boolean checkMergedInto, Change change, RevCommit newCommit) {
     if (change.isClosed()) {
       reject(
@@ -1984,6 +2000,19 @@ class ReceiveCommits {
       reject(cmd, "duplicate request");
       return false;
     }
+
+    if (magicBranch.shouldPublishComments()) {
+      List<Comment> drafts =
+          commentsUtil.draftByChangeAuthor(notesFactory.createChecked(change), user.getAccountId());
+      for (Comment draft : drafts) {
+        if (draft.message.contains("piep")) {
+          addMessage(
+              "Comment '" + draft.message + "' was not liked", ValidationMessage.Type.WARNING);
+          magicBranch.setCommentsValid(false);
+        }
+      }
+    }
+
     replaceByChange.put(req.ontoChange, req);
     return true;
   }
@@ -1995,7 +2024,7 @@ class ReceiveCommits {
       } catch (IOException e) {
         continue;
       }
-      List<String> idList = create.commit.getFooterLines(FooterConstants.CHANGE_ID);
+      List<String> idList = create.commit.getFooterLines(CHANGE_ID);
 
       if (idList.isEmpty()) {
         messages.add(
