@@ -3,15 +3,21 @@ load(
     "//tools/bzl:gwt.bzl",
     "GWT_COMPILER_ARGS",
     "GWT_JVM_ARGS",
-    "GWT_PLUGIN_DEPS",
     "GWT_PLUGIN_DEPS_NEVERLINK",
     "GWT_TRANSITIVE_DEPS",
     "gwt_binary",
+    _gwt_plugin_deps = "GWT_PLUGIN_DEPS",
 )
 
+<<<<<<< HEAD   (66b571 Merge branch 'stable-2.15' into stable-2.16)
 PLUGIN_DEPS = ["//plugins:plugin-lib"]
 
 PLUGIN_DEPS_NEVERLINK = ["//plugins:plugin-lib-neverlink"]
+=======
+GWT_PLUGIN_DEPS = _gwt_plugin_deps
+PLUGIN_DEPS = ["//gerrit-plugin-api:lib"]
+PLUGIN_DEPS_NEVERLINK = ["//gerrit-plugin-api:lib-neverlink"]
+>>>>>>> BRANCH (beb365 Fix transitive load of GWT_PLUGIN_DEPS for in-tree plugin bu)
 
 PLUGIN_TEST_DEPS = [
     "//java/com/google/gerrit/acceptance:lib",
