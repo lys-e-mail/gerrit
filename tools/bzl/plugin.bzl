@@ -1,4 +1,18 @@
 load("//tools/bzl:genrule2.bzl", "genrule2")
+<<<<<<< HEAD   (a82fe4 Merge branch 'stable-2.16' into stable-3.0)
+=======
+load(
+    "//tools/bzl:gwt.bzl",
+    "GWT_COMPILER_ARGS",
+    "GWT_JVM_ARGS",
+    "GWT_PLUGIN_DEPS_NEVERLINK",
+    "GWT_TRANSITIVE_DEPS",
+    "gwt_binary",
+    _gwt_plugin_deps = "GWT_PLUGIN_DEPS",
+)
+>>>>>>> BRANCH (65c6c5 Merge branch 'stable-2.15' into stable-2.16)
+
+GWT_PLUGIN_DEPS = _gwt_plugin_deps
 
 PLUGIN_DEPS = ["//plugins:plugin-lib"]
 
