@@ -741,7 +741,12 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   @Operator
   public Predicate<ChangeData> extension(String ext) throws QueryParseException {
     if (args.getSchema().hasField(ChangeField.EXTENSION)) {
+<<<<<<< HEAD   (b96404 Error Prone: Enable and fix ReferenceEquality)
       if (ext.isEmpty() && IndexModule.getIndexType(cfg).isElasticsearch()) {
+=======
+      if (ext.isEmpty()
+          && IndexModule.getIndexType(cfg).equalsIgnoreCase(IndexType.ELASTICSEARCH.name())) {
+>>>>>>> BRANCH (40641a Merge branch 'stable-2.16' into stable-3.0)
         return new FileWithNoExtensionInElasticPredicate();
       }
       return new FileExtensionPredicate(ext);
@@ -783,7 +788,11 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         return new RegexDirectoryPredicate(directory);
       }
 
+<<<<<<< HEAD   (b96404 Error Prone: Enable and fix ReferenceEquality)
       if (IndexModule.getIndexType(cfg).isElasticsearch()
+=======
+      if (IndexModule.getIndexType(cfg).equalsIgnoreCase(IndexType.ELASTICSEARCH.name())
+>>>>>>> BRANCH (40641a Merge branch 'stable-2.16' into stable-3.0)
           && (directory.isEmpty() || directory.equals("/"))) {
         return Predicate.any();
       }

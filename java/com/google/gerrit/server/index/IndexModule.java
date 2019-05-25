@@ -114,13 +114,26 @@ public class IndexModule extends LifecycleModule {
 
   /** Type of secondary index. */
   public static IndexType getIndexType(Injector injector) {
-    return getIndexType(injector.getInstance(Key.get(Config.class, GerritServerConfig.class)));
+    Config cfg = injector.getInstance(Key.get(Config.class, GerritServerConfig.class));
+    if (cfg != null) {
+      return cfg.getEnum("index", null, "type", IndexType.LUCENE);
+    }
+    return IndexType.LUCENE;
   }
 
   /** Type of secondary index. */
+<<<<<<< HEAD   (b96404 Error Prone: Enable and fix ReferenceEquality)
   public static IndexType getIndexType(@Nullable Config cfg) {
     String configValue = cfg != null ? cfg.getString("index", null, "type") : null;
     return new IndexType(configValue);
+=======
+  // TODO: stop relying on this method fostering error-prone string comparisons.
+  public static String getIndexType(@Nullable Config cfg) {
+    if (cfg != null) {
+      return cfg.getString("index", null, "type");
+    }
+    return IndexType.LUCENE.name();
+>>>>>>> BRANCH (40641a Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private final int threads;
