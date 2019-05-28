@@ -23,8 +23,10 @@ default_java_toolchain(
     visibility = ["//visibility:public"],
 )
 
-# This EP warnings list is based on:
+# Error Prone errors enabled by default; see ../.bazelrc for how this is
+# enabled. This warnings list is originally based on:
 # https://github.com/bazelbuild/BUILD_file_generator/blob/master/tools/bazel_defs/java.bzl
+# However, feel free to add any additional errors. Thus far they have all been pretty useful.
 java_package_configuration(
     name = "error_prone",
     javacopts = [
@@ -94,7 +96,44 @@ java_package_configuration(
 package_group(
     name = "error_prone_packages",
     packages = [
+<<<<<<< HEAD   (229ee2 Error Prone: Fix DefaultCharset in ListProjectsIT)
         "//java/...",
         "//javatests/...",
+=======
+        "//gerrit-acceptance-framework/...",
+        "//gerrit-acceptance-tests/...",
+        "//gerrit-cache-h2/...",
+        "//gerrit-cache-mem/...",
+        "//gerrit-common/...",
+        "//gerrit-elasticsearch/...",
+        "//gerrit-extension-api/...",
+        "//gerrit-gpg/...",
+        "//gerrit-httpd/...",
+        "//gerrit-launcher/...",
+        "//gerrit-lucene/...",
+        "//gerrit-main/...",
+        "//gerrit-oauth/...",
+        "//gerrit-openid/...",
+        "//gerrit-patch-commonsnet/...",
+        "//gerrit-patch-jgit/...",
+        "//gerrit-pgm/...",
+        "//gerrit-plugin-api/...",
+        "//gerrit-plugin-gwtui/...",
+        "//gerrit-prettify/...",
+        "//gerrit-reviewdb/...",
+        "//gerrit-server/...",
+        "//gerrit-sshd/...",
+        "//gerrit-test-util/...",
+        "//gerrit-util-cli/...",
+        "//gerrit-util-http/...",
+        "//gerrit-util-ssl/...",
+        "//gerrit-war/...",
+        "//plugins/commit-message-length-validator/...",
+        "//plugins/download-commands/...",
+        "//plugins/hooks/...",
+        "//plugins/replication/...",
+        "//plugins/reviewnotes/...",
+        "//plugins/singleusergroup/...",
+>>>>>>> BRANCH (446c1f Merge branch 'stable-2.14' into stable-2.15)
     ],
 )
