@@ -135,6 +135,7 @@ java_library(
     deps = [
         ":server",
         "//java/com/google/gerrit/extensions:api",
+        "//java/com/google/gerrit/extensions/validators",
         "//java/com/google/gerrit/server/git/receive",
         "//java/com/google/gerrit/server/restapi",
         "//lib:blame-cache",

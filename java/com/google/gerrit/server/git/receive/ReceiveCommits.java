@@ -47,9 +47,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
@@ -80,11 +78,15 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
+import com.google.gerrit.extensions.validators.CommentValidationListener;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
+import com.google.gerrit.extensions.validators.CommentValidationResult;
+import com.google.gerrit.extensions.validators.CommentValidationResult.Status;
 import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.BranchNameKey;
 import com.google.gerrit.reviewdb.client.Change;
-import com.google.gerrit.reviewdb.client.Change.Id;
 import com.google.gerrit.reviewdb.client.Comment;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.reviewdb.client.PatchSetInfo;
@@ -116,6 +118,7 @@ import com.google.gerrit.server.git.MultiProgressMonitor.Task;
 import com.google.gerrit.server.git.ReceivePackInitializer;
 import com.google.gerrit.server.git.TagCache;
 import com.google.gerrit.server.git.ValidationError;
+import com.google.gerrit.server.git.validators.CommitValidationListener;
 import com.google.gerrit.server.git.validators.CommitValidationMessage;
 import com.google.gerrit.server.git.validators.RefOperationValidationException;
 import com.google.gerrit.server.git.validators.RefOperationValidators;
@@ -302,6 +305,7 @@ class ReceiveCommits { // XXX Handle this entry point.
   private final ChangeReportFormatter changeFormatter;
   private final CmdLineParser.Factory optionParserFactory;
   private final CommentsUtil commentsUtil;
+  private final PluginSetContext<CommentValidationListener> commentValidationListeners;
   private final BranchCommitValidator.Factory commitValidatorFactory;
   private final CreateGroupPermissionSyncer createGroupPermissionSyncer;
   private final CreateRefControl createRefControl;
@@ -384,6 +388,7 @@ class ReceiveCommits { // XXX Handle this entry point.
       CreateRefControl createRefControl,
       DynamicMap<ProjectConfigEntry> pluginConfigEntries,
       PluginSetContext<ReceivePackInitializer> initializers,
+      PluginSetContext<CommentValidationListener> commentValidationListeners,
       MergedByPushOp.Factory mergedByPushOpFactory,
       PatchSetInfoFactory patchSetInfoFactory,
       PatchSetUtil psUtil,
@@ -416,6 +421,12 @@ class ReceiveCommits { // XXX Handle this entry point.
     this.changeFormatter = changeFormatterProvider.get();
     this.changeInserterFactory = changeInserterFactory;
     this.commentsUtil = commentsUtil;
+    this.commentValidationListeners = commentValidationListeners;
+    // XXX
+    logger.atWarning().log("###### listeners: " + commentValidationListeners.isEmpty());
+    logger.atWarning().log("######"
+                               + " listeners.plugins:"
+                               + " " + commentValidationListeners.plugins().isEmpty());
     this.commitValidatorFactory = commitValidatorFactory;
     this.createRefControl = createRefControl;
     this.createGroupPermissionSyncer = createGroupPermissionSyncer;
@@ -1928,7 +1939,7 @@ class ReceiveCommits { // XXX Handle this entry point.
   }
 
   // Handle an upload to refs/changes/XX/CHANGED-NUMBER.
-  private void parseReplaceCommand(ReceiveCommand cmd, Change.Id changeId) { // XXX
+  private void parseReplaceCommand(ReceiveCommand cmd, Change.Id changeId) {
     logger.atFine().log("Parsing replace command");
     if (cmd.getType() != ReceiveCommand.Type.CREATE) {
       reject(cmd, "invalid usage");
@@ -1974,7 +1985,7 @@ class ReceiveCommits { // XXX Handle this entry point.
           rejectCommits,
           changeEnt)) {
         logger.atFine().log("Replacing change %s", changeEnt.getId());
-        requestReplace(cmd, true, changeEnt, newCommit);
+        requestReplaceAndValidateComments(cmd, true, changeEnt, newCommit);
       }
     } catch (IOException e) {
       reject(cmd, "I/O exception validating commit");
@@ -1982,10 +1993,12 @@ class ReceiveCommits { // XXX Handle this entry point.
   }
 
   /**
-   * Add an update for an existing change. Returns true if it succeeded; rejects the command if it
-   * failed.
+   * Update an existing change. If draft comments are to be published, these are validated and may
+   * be withheld.
+   *
+   * @return True if the command succeeded, false if it was rejected.
    */
-  private boolean requestReplace( // XXX Validate comments; Also change method name?
+  private boolean requestReplaceAndValidateComments(
       ReceiveCommand cmd, boolean checkMergedInto, Change change, RevCommit newCommit) {
     if (change.isClosed()) {
       reject(
@@ -2002,15 +2015,32 @@ class ReceiveCommits { // XXX Handle this entry point.
     }
 
     if (magicBranch.shouldPublishComments()) {
+      // XXX Consider extracting the code that runs the validation.
       List<Comment> drafts =
           commentsUtil.draftByChangeAuthor(notesFactory.createChecked(change), user.getAccountId());
-      for (Comment draft : drafts) {
-        if (draft.message.contains("piep")) {
-          addMessage(
-              "Comment '" + draft.message + "' was not liked", ValidationMessage.Type.WARNING);
-          magicBranch.setCommentsValid(false);
-        }
-      }
+      ImmutableList<CommentForValidation> commentsForValidation =
+          ImmutableList.copyOf(
+              drafts.stream()
+                  .map(
+                      draft ->
+                          CommentForValidation.create(CommentType.REVIEW_COMMENT, draft.message))
+                  .collect(Collectors.toList()));
+      List<CommentValidationResult> commentValidationResult = new ArrayList<>();
+      commentValidationListeners.runEach(
+          listener ->
+              commentValidationResult.add(listener.validateComments(commentsForValidation)));
+      commentValidationResult.forEach(
+          result -> {
+            result
+                .getMessages()
+                .forEach(
+                    message ->
+                        addMessage(
+                            "Comment validation: " + message, ValidationMessage.Type.WARNING));
+            if (result.getStatus() != Status.VALID) {
+              magicBranch.setCommentsValid(false);
+            }
+          });
     }
 
     replaceByChange.put(req.ontoChange, req);
@@ -2227,7 +2257,7 @@ class ReceiveCommits { // XXX Handle this entry point.
               continue;
             }
           }
-          if (requestReplace(magicBranch.cmd, false, changes.get(0).change(), p.commit)) {
+          if (requestReplaceAndValidateComments(magicBranch.cmd, false, changes.get(0).change(), p.commit)) {
             continue;
           }
           return Collections.emptyList();

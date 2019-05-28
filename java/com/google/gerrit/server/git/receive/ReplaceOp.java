@@ -60,21 +60,17 @@ import com.google.gerrit.server.config.SendEmailExecutor;
 import com.google.gerrit.server.extensions.events.CommentAdded;
 import com.google.gerrit.server.extensions.events.RevisionCreated;
 import com.google.gerrit.server.git.MergedByPushOp;
-import com.google.gerrit.server.git.ReceivePackInitializer;
 import com.google.gerrit.server.git.receive.ReceiveCommits.MagicBranchInput;
-import com.google.gerrit.server.git.validators.CommitValidationListener;
 import com.google.gerrit.server.mail.MailUtil.MailRecipients;
 import com.google.gerrit.server.mail.send.ReplacePatchSetSender;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.permissions.PermissionBackendException;
-import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
-import com.google.gerrit.server.update.CommentRejectedException;
 import com.google.gerrit.server.update.Context;
 import com.google.gerrit.server.update.RepoContext;
 import com.google.gerrit.server.util.RequestScopePropagator;
@@ -155,7 +151,6 @@ public class ReplaceOp implements BatchUpdateOp {
   private ChangeMessage msg;
   private List<Comment> comments = ImmutableList.of();
   private String rejectMessage;
-  private boolean commentsRejected = false;
   private MergedByPushOp mergedByPushOp;
   private RequestScopePropagator requestScopePropagator;
   private ReviewerAdditionList reviewerAdditions;
@@ -179,7 +174,6 @@ public class ReplaceOp implements BatchUpdateOp {
       ProjectCache projectCache,
       @SendEmailExecutor ExecutorService sendEmailExecutor,
       ReviewerAdder reviewerAdder,
-      PluginSetContext<CommitValidationListener> testXXX,
       @Assisted ProjectState projectState,
       @Assisted BranchNameKey dest,
       @Assisted boolean checkMergedInto,
@@ -191,7 +185,6 @@ public class ReplaceOp implements BatchUpdateOp {
       @Assisted List<String> groups,
       @Assisted @Nullable MagicBranchInput magicBranch,
       @Assisted @Nullable PushCertificate pushCertificate) {
-    logger.atInfo().log("##### plugin count: " + testXXX.isEmpty());  // XXX
     this.accountResolver = accountResolver;
     this.approvalsUtil = approvalsUtil;
     this.changeDataFactory = changeDataFactory;
@@ -300,13 +293,7 @@ public class ReplaceOp implements BatchUpdateOp {
         if (magicBranch != null && magicBranch.workInProgress) {
           workInProgress = true;
         }
-        // XXX Report error back to client.
-        List<Comment> commentsTmp = publishComments(ctx, workInProgress);
-        if (commentsTmp != null) {
-          comments = commentsTmp;
-        } else {
-          commentsRejected = true;
-        }
+        comments = publishComments(ctx, workInProgress);
       }
     }
 
@@ -499,15 +486,6 @@ public class ReplaceOp implements BatchUpdateOp {
   private List<Comment> publishComments(ChangeContext ctx, boolean workInProgress) {
     List<Comment> comments =
         commentsUtil.draftByChangeAuthor(ctx.getNotes(), ctx.getUser().getAccountId());
-
-    // XXX check contents here -> no, in a commit validator
-    // for (Comment comment : comments) {
-    //   if (comment.message.contains("piep")) {
-    //     logger.atWarning().log("##### triggered: ReplaceOp");
-    //     return null;
-    //   }
-    // }
-
     publishCommentUtil.publish(
         ctx, patchSetId, comments, ChangeMessagesUtil.uploadedPatchSetTag(workInProgress));
     return comments;
@@ -637,19 +615,8 @@ public class ReplaceOp implements BatchUpdateOp {
     return notes.getChange();
   }
 
-  /**
-   * Returns {@code null} when the operation was successful, or else a message explaining why it was
-   * rejected.
-   *
-   * XXX Fix the nullable part.
-   */
   public String getRejectMessage() {
     return rejectMessage;
-  }
-
-  /** XXX */
-  public boolean getCommentsRejected() {
-    return commentsRejected;
   }
 
   public ReceiveCommand getCommand() {

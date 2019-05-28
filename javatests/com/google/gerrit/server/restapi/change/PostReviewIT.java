@@ -1,9 +1,7 @@
 package com.google.gerrit.server.restapi.change;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth8.assertThat;
 import static com.google.gerrit.acceptance.PushOneCommit.FILE_NAME;
-import static com.google.gerrit.acceptance.PushOneCommit.SUBJECT;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -16,40 +14,34 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
-import com.google.gerrit.extensions.api.changes.DeleteCommentInput;
+import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.DraftInput;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
 import com.google.gerrit.extensions.api.changes.ReviewInput.CommentInput;
-import com.google.gerrit.extensions.api.changes.ReviewInput.DraftHandling;
 import com.google.gerrit.extensions.client.Comment;
 import com.google.gerrit.extensions.client.Side;
-import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
-import com.google.gerrit.extensions.restapi.AuthException;
-import com.google.gerrit.extensions.restapi.BadRequestException;
+import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.restapi.IdString;
-import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.TopLevelResource;
+import com.google.gerrit.extensions.validators.CommentValidationListener;
+import com.google.gerrit.extensions.validators.CommentValidationResult;
+import com.google.gerrit.extensions.validators.CommentValidationResult.Status;
 import com.google.gerrit.reviewdb.client.Change;
-import com.google.gerrit.reviewdb.client.Patch;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.notedb.ChangeNoteUtil;
 import com.google.gerrit.server.notedb.DeleteCommentRewriter;
-import com.google.gerrit.server.restapi.change.ChangesCollection;
-import com.google.gerrit.server.restapi.change.PostReview;
 import com.google.gerrit.testing.FakeEmailSender;
-import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.inject.Inject;
+import com.google.inject.Module;
 import com.google.inject.Provider;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,7 +50,10 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.notes.NoteMap;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+
+// XXX Also validate the reply msg
 
 @NoHttpd
 public class PostReviewIT extends AbstractDaemonTest {
@@ -70,14 +65,42 @@ public class PostReviewIT extends AbstractDaemonTest {
 
   private final Integer[] lines = {0, 1};
 
+
+  @Override
+  public Module createModule() {
+    return new FactoryModule() {
+      @Override
+      public void configure() {
+        bind(CommentValidationListener.class)
+            .annotatedWith(Exports.named("TestCommentValidationListener"))
+            .to(TestCommentValidationListener.class);
+      }
+    };
+  }
+
+  private static class TestCommentValidationListener implements CommentValidationListener {
+    @Override
+    public CommentValidationResult validateComments(ImmutableList<CommentForValidation> comments) {
+      // XXX More fancy?
+      for (CommentForValidation c : comments) {
+        if (c.getText().contains("reject")) {
+          return CommentValidationResult.create(Status.INVALID, ImmutableList.of(
+              "invalid comment: " + c.getText()));
+        }
+      }
+      return CommentValidationResult.create(Status.VALID, ImmutableList.of());
+    }
+  }
+
   @Before
   public void setUp() {
-    requestScopeOperations.setApiUser(user.id());
+    requestScopeOperations.setApiUser(admin.id());
   }
 
   @Test
   // XXX Also test validation of drafts.
   public void validateCommentsViaInput() throws Exception {
+    // XXX Can this setup be simplified?
     Timestamp timestamp = new Timestamp(0);
     String file = "file";
     String contents = "contents";
@@ -107,7 +130,34 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(actual.updated).isEqualTo(gApi.changes().id(r.getChangeId()).info().created);
   }
 
-  // XXX Delete/extract helpers.
+  @Test
+  public void validateCommentsInReceiveCommits_commentOK() throws Exception {
+    // XXX Extract common code to setup?
+    PushOneCommit.Result result = createChange();
+    String changeId = result.getChangeId();
+    String revId = result.getCommit().getName();
+    String path = "file";
+    DraftInput comment = newDraft(path, Side.REVISION, 0, "this comment is ok");
+    addDraft(changeId, revId, comment);
+    assertThat(getPublishedComments(result.getChangeId())).isEmpty();
+    amendChange(changeId, "refs/for/master%publish-comments", admin, testRepo);
+    assertThat(getPublishedComments(result.getChangeId())).hasSize(1);
+  }
+
+  @Test
+  public void validateCommentsInReceiveCommits_commentRejected() throws Exception {
+    PushOneCommit.Result result = createChange();
+    String changeId = result.getChangeId();
+    String revId = result.getCommit().getName();
+    String path = "file";
+    DraftInput comment = newDraft(path, Side.REVISION, 0, "this comment will be rejected");
+    addDraft(changeId, revId, comment);
+    assertThat(getPublishedComments(result.getChangeId())).isEmpty();
+    amendChange(changeId, "refs/for/master%publish-comments", admin, testRepo);
+    assertThat(getPublishedComments(result.getChangeId())).isEmpty();
+  }
+
+  // XXX Delete/extract helpers, or extract/pull up?
 
   private List<CommentInfo> getRevisionComments(String changeId, String revId) throws Exception {
     return getPublishedComments(changeId, revId).values().stream()
@@ -235,6 +285,12 @@ public class PostReviewIT extends AbstractDaemonTest {
   private Map<String, List<CommentInfo>> getPublishedComments(String changeId, String revId)
       throws Exception {
     return gApi.changes().id(changeId).revision(revId).comments();
+  }
+
+  private Collection<CommentInfo> getPublishedComments(String changeId) throws Exception {
+    return gApi.changes().id(changeId).comments().values().stream()
+        .flatMap(Collection::stream)
+        .collect(toList());
   }
 
   private Map<String, List<CommentInfo>> getDraftComments(String changeId, String revId)

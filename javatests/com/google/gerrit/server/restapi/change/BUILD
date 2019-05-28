@@ -4,5 +4,9 @@ acceptance_tests(
     srcs = glob(["*IT.java"]),
     group = "server_restapi_change",
     labels = ["server"],
-    deps = ["//java/com/google/gerrit/server/util/time"],
+    deps = [
+        "//java/com/google/gerrit/extensions/validators",
+        "//java/com/google/gerrit/server/git/receive",
+        "//java/com/google/gerrit/server/util/time",
+    ],
 )

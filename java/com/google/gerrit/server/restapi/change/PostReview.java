@@ -26,7 +26,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Strings;
@@ -62,6 +61,7 @@ import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.restapi.Url;
+import com.google.gerrit.extensions.validators.CommentValidationListener;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.mail.Address;
 import com.google.gerrit.reviewdb.client.Account;
@@ -107,6 +107,7 @@ import com.google.gerrit.server.permissions.ChangePermission;
 import com.google.gerrit.server.permissions.LabelPermission;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
+import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.gerrit.server.query.change.ChangeData;
@@ -132,7 +133,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -144,7 +144,6 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 
-// XXX Other entry points?
 @Singleton
 public class PostReview
     extends RetryingRestModifyView<RevisionResource, ReviewInput, Response<ReviewResult>> {
@@ -177,6 +176,7 @@ public class PostReview
   private final WorkInProgressOp.Factory workInProgressOpFactory;
   private final ProjectCache projectCache;
   private final PermissionBackend permissionBackend;
+  private final PluginSetContext<CommentValidationListener> commentValidationListeners;
   private final boolean strictLabels;
 
   @Inject
@@ -199,7 +199,8 @@ public class PostReview
       @GerritServerConfig Config gerritConfig,
       WorkInProgressOp.Factory workInProgressOpFactory,
       ProjectCache projectCache,
-      PermissionBackend permissionBackend) {
+      PermissionBackend permissionBackend,
+      PluginSetContext<CommentValidationListener> commentValidationListeners) {
     super(retryHelper);
     this.changeResourceFactory = changeResourceFactory;
     this.changeDataFactory = changeDataFactory;
@@ -219,6 +220,7 @@ public class PostReview
     this.workInProgressOpFactory = workInProgressOpFactory;
     this.projectCache = projectCache;
     this.permissionBackend = permissionBackend;
+    this.commentValidationListeners = commentValidationListeners;
     this.strictLabels = gerritConfig.getBoolean("change", "strictLabels", false);
   }
 
@@ -248,7 +250,6 @@ public class PostReview
     if (input.labels != null) {
       checkLabels(revision, labelTypes, input.labels);
     }
-    // XXX Is this the only path by which new comments (or existing drafts) can be published?
     if (input.comments != null) {
       cleanUpComments(input.comments);
       checkComments(revision, input.comments);
@@ -287,7 +288,6 @@ public class PostReview
     output.reviewers = reviewerJsonResults;
     if (hasError || confirm) {
       output.error = ERROR_ADDING_REVIEWER;
-      // XXX What should we use? SC_BAD_REQUEST means a syntax error.
       return Response.withStatusCode(SC_BAD_REQUEST, output);
     }
     output.labels = input.labels;
@@ -950,6 +950,7 @@ public class PostReview
         }
       }
 
+      logger.atWarning().log("##### s " + commentValidationListeners.isEmpty());
       switch (in.drafts) {
         case PUBLISH:
         case PUBLISH_ALL_REVISIONS:
