@@ -18,7 +18,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.rest.project.ProjectAssert.assertThatNameList;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
+<<<<<<< HEAD   (039fae Merge "Fetch top-menus using client-side cache")
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+=======
+>>>>>>> BRANCH (72afc0 Merge branch 'stable-2.16' into stable-3.0)
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 

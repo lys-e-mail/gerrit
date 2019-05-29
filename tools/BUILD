@@ -102,6 +102,7 @@ package_group(
         "//javatests/...",
         "//plugins/codemirror-editor/...",
         "//plugins/commit-message-length-validator/...",
+<<<<<<< HEAD   (039fae Merge "Fetch top-menus using client-side cache")
         "//plugins/delete-project/...",
         "//plugins/download-commands/...",
         "//plugins/gitiles/...",
@@ -111,5 +112,12 @@ package_group(
         "//plugins/reviewnotes/...",
         "//plugins/singleusergroup/...",
         "//plugins/webhooks/...",
+=======
+        "//plugins/download-commands/...",
+        "//plugins/hooks/...",
+        "//plugins/replication/...",
+        "//plugins/reviewnotes/...",
+        "//plugins/singleusergroup/...",
+>>>>>>> BRANCH (72afc0 Merge branch 'stable-2.16' into stable-3.0)
     ],
 )
