@@ -22,7 +22,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -117,15 +116,6 @@ public class BatchUpdate implements AutoCloseable {
     BatchUpdate create(Project.NameKey project, CurrentUser user, Timestamp when);
   }
 
-  // XXX
-  @AutoValue
-  abstract static class CommentValidationResult {
-    static CommentValidationResult create(String message) {
-      return new AutoValue_BatchUpdate_CommentValidationResult(message);
-    }
-    abstract String message();
-  }
-
   public static void execute(
       Collection<BatchUpdate> updates, BatchUpdateListener listener, boolean dryrun)
       throws UpdateException, RestApiException {
@@ -136,7 +126,6 @@ public class BatchUpdate implements AutoCloseable {
 
     checkDifferentProject(updates);
 
-    List<CommentValidationResult> commentValidationResults = new ArrayList<>();
     try {
       List<ListenableFuture<?>> indexFutures = new ArrayList<>();
       List<ChangesHandle> handles = new ArrayList<>(updates.size());
@@ -146,12 +135,7 @@ public class BatchUpdate implements AutoCloseable {
         }
         listener.afterUpdateRepos();
         for (BatchUpdate u : updates) {
-          try {
-            handles.add(u.executeChangeOps(dryrun));
-          } catch (CommentRejectedException e) {
-            // XXX (Integration) test.
-            commentValidationResults.add(CommentValidationResult.create(e.getMessage()));
-          }
+          handles.add(u.executeChangeOps(dryrun));
         }
         // XXX At this point updates are only staged but not executed yet.
         for (ChangesHandle h : handles) {
@@ -182,11 +166,8 @@ public class BatchUpdate implements AutoCloseable {
         }
       }
     } catch (Exception e) {
+      // XXX Integration test for this.
       wrapAndThrowException(e);
-    }
-
-    if (!commentValidationResults.isEmpty()) {
-      wrapAndThrowException(new UpdateException(commentValidationResults.get(0).message()));
     }
   }
 

@@ -13,14 +13,13 @@ import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
 import com.google.gerrit.extensions.api.changes.ReviewInput.CommentInput;
 import com.google.gerrit.extensions.client.Side;
-import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.restapi.IdString;
 import com.google.gerrit.extensions.restapi.TopLevelResource;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationResult;
-import com.google.gerrit.extensions.validators.CommentValidationResult.Status;
+import com.google.gerrit.extensions.validators.CommentValidationFailure;
+import com.google.gerrit.extensions.validators.CommentValidationFailure.Status;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.notedb.ChangeNoteUtil;
@@ -60,8 +59,8 @@ public class ReceiveCommitsCommentValidationIT extends AbstractDaemonTest {
 
   private static class TestCommentValidationListener implements CommentValidationListener {
     @Override
-    public CommentValidationResult validateComments(ImmutableList<CommentForValidation> comments) {
-      return CommentValidationResult.create(Status.INVALID, ImmutableList.of("not OK"));
+    public CommentValidationFailure validateComments(ImmutableList<CommentForValidation> comments) {
+      return CommentValidationFailure.create(Status.INVALID, ImmutableList.of("not OK"));
     }
   }
 

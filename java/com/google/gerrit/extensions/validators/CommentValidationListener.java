@@ -3,6 +3,7 @@ package com.google.gerrit.extensions.validators;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.extensions.annotations.ExtensionPoint;
+import java.util.List;
 
 /**
  * XXX
@@ -26,8 +27,12 @@ public interface CommentValidationListener {
 
     public abstract CommentType getType();
     public abstract String getText();
+
+    public CommentValidationFailure failValidation(String message) {
+      return CommentValidationFailure.create(this, message);
+    }
   }
 
   /** XXX */
-  CommentValidationResult validateComments(ImmutableList<CommentForValidation> comments);
+  ImmutableList<CommentValidationFailure> validateComments(ImmutableList<CommentForValidation> comments);
 }

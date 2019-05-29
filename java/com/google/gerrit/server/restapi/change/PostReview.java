@@ -62,6 +62,8 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.restapi.Url;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
+import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.mail.Address;
 import com.google.gerrit.reviewdb.client.Account;
@@ -114,7 +116,7 @@ import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
-import com.google.gerrit.server.update.CommentRejectedException;
+import com.google.gerrit.server.update.CommentsRejectedException;
 import com.google.gerrit.server.update.Context;
 import com.google.gerrit.server.update.RetryHelper;
 import com.google.gerrit.server.update.RetryingRestModifyView;
@@ -861,7 +863,7 @@ public class PostReview
     @Override
     public boolean updateChange(ChangeContext ctx)
         throws ResourceConflictException, UnprocessableEntityException, IOException,
-        PatchListNotAvailableException, BadRequestException, CommentRejectedException {
+        PatchListNotAvailableException, CommentsRejectedException {
       user = ctx.getIdentifiedUser();
       notes = ctx.getNotes();
       ps = psUtil.get(ctx.getNotes(), psId);
@@ -895,7 +897,7 @@ public class PostReview
     }
 
     private boolean insertComments(ChangeContext ctx)
-        throws UnprocessableEntityException, PatchListNotAvailableException, CommentRejectedException {
+        throws UnprocessableEntityException, PatchListNotAvailableException, CommentsRejectedException {
       // XXX Maybe this should be split into extracting comments, then validate them, then insert
       // them. Is deduplication (readExistingComments() is presumably expensive) necessary? Will
       // that read be cached after reading changeDrafts() or patchSetDrafts()? Is it even worth
@@ -950,16 +952,16 @@ public class PostReview
         }
       }
 
-      logger.atWarning().log("##### s " + commentValidationListeners.isEmpty());
       switch (in.drafts) {
         case PUBLISH:
         case PUBLISH_ALL_REVISIONS:
-          for (Comment comment : drafts.values()) {  // XXX
-            if (comment.message.contains("beep")) {
-              logger.atWarning().log("##### triggered: drafts");
-              throw new CommentRejectedException("Please do not censor entertaining words!");
-            }
+          List<CommentValidationFailure> draftValidationFailures =
+              PublishCommentUtil.findInvalidComments(
+                  commentValidationListeners, CommentType.REVIEW_COMMENT, drafts.values());
+          if (!draftValidationFailures.isEmpty()) {
+            throw new CommentsRejectedException(draftValidationFailures);
           }
+
           publishCommentUtil.publish(ctx, psId, drafts.values(), in.tag);
           comments.addAll(drafts.values());
           break;
@@ -969,12 +971,11 @@ public class PostReview
       }
       ChangeUpdate changeUpdate = ctx.getUpdate(psId);
 
-      // XXX Also need to check drafts above (write test first).
-      for (Comment comment : toPublish) {
-        if (comment.message.contains("beep")) {
-          logger.atWarning().log("##### triggered: toPublish");
-          throw new CommentRejectedException("Please do not censor entertaining words!");
-        }
+      List<CommentValidationFailure> toPublishValidationFailures =
+          PublishCommentUtil.findInvalidComments(
+              commentValidationListeners, CommentType.REVIEW_COMMENT, toPublish);
+      if (!toPublishValidationFailures.isEmpty()) {
+        throw new CommentsRejectedException(toPublishValidationFailures);
       }
 
       commentsUtil.putComments(changeUpdate, Status.PUBLISHED, toPublish);

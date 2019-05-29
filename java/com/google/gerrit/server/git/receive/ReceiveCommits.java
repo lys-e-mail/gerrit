@@ -78,11 +78,9 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
+import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
-import com.google.gerrit.extensions.validators.CommentValidationResult;
-import com.google.gerrit.extensions.validators.CommentValidationResult.Status;
 import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.BranchNameKey;
@@ -98,6 +96,7 @@ import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.CreateGroupPermissionSyncer;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
+import com.google.gerrit.server.PublishCommentUtil;
 import com.google.gerrit.server.account.AccountResolver;
 import com.google.gerrit.server.change.ChangeInserter;
 import com.google.gerrit.server.change.NotifyResolver;
@@ -118,7 +117,6 @@ import com.google.gerrit.server.git.MultiProgressMonitor.Task;
 import com.google.gerrit.server.git.ReceivePackInitializer;
 import com.google.gerrit.server.git.TagCache;
 import com.google.gerrit.server.git.ValidationError;
-import com.google.gerrit.server.git.validators.CommitValidationListener;
 import com.google.gerrit.server.git.validators.CommitValidationMessage;
 import com.google.gerrit.server.git.validators.RefOperationValidationException;
 import com.google.gerrit.server.git.validators.RefOperationValidators;
@@ -422,11 +420,6 @@ class ReceiveCommits { // XXX Handle this entry point.
     this.changeInserterFactory = changeInserterFactory;
     this.commentsUtil = commentsUtil;
     this.commentValidationListeners = commentValidationListeners;
-    // XXX
-    logger.atWarning().log("###### listeners: " + commentValidationListeners.isEmpty());
-    logger.atWarning().log("######"
-                               + " listeners.plugins:"
-                               + " " + commentValidationListeners.plugins().isEmpty());
     this.commitValidatorFactory = commitValidatorFactory;
     this.createRefControl = createRefControl;
     this.createGroupPermissionSyncer = createGroupPermissionSyncer;
@@ -2015,32 +2008,17 @@ class ReceiveCommits { // XXX Handle this entry point.
     }
 
     if (magicBranch.shouldPublishComments()) {
-      // XXX Consider extracting the code that runs the validation.
       List<Comment> drafts =
           commentsUtil.draftByChangeAuthor(notesFactory.createChecked(change), user.getAccountId());
-      ImmutableList<CommentForValidation> commentsForValidation =
-          ImmutableList.copyOf(
-              drafts.stream()
-                  .map(
-                      draft ->
-                          CommentForValidation.create(CommentType.REVIEW_COMMENT, draft.message))
-                  .collect(Collectors.toList()));
-      List<CommentValidationResult> commentValidationResult = new ArrayList<>();
-      commentValidationListeners.runEach(
-          listener ->
-              commentValidationResult.add(listener.validateComments(commentsForValidation)));
-      commentValidationResult.forEach(
-          result -> {
-            result
-                .getMessages()
-                .forEach(
-                    message ->
-                        addMessage(
-                            "Comment validation: " + message, ValidationMessage.Type.WARNING));
-            if (result.getStatus() != Status.VALID) {
-              magicBranch.setCommentsValid(false);
-            }
-          });
+      List<CommentValidationFailure> commentValidationFailures =
+          PublishCommentUtil.findInvalidComments(
+              commentValidationListeners, CommentType.REVIEW_COMMENT, drafts);
+      magicBranch.setCommentsValid(commentValidationFailures.isEmpty());
+      commentValidationFailures.forEach(
+          failure ->
+              addMessage(
+                  "Comment validation failure: " + failure.getMessage(),
+                  ValidationMessage.Type.WARNING));
     }
 
     replaceByChange.put(req.ontoChange, req);

@@ -2,6 +2,7 @@ package com.google.gerrit.server.restapi.change;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.PushOneCommit.FILE_NAME;
+import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -24,14 +25,17 @@ import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.restapi.IdString;
 import com.google.gerrit.extensions.restapi.TopLevelResource;
+import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationResult;
-import com.google.gerrit.extensions.validators.CommentValidationResult.Status;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.notedb.ChangeNoteUtil;
 import com.google.gerrit.server.notedb.DeleteCommentRewriter;
+import com.google.gerrit.server.update.CommentsRejectedException;
+import com.google.gerrit.server.update.UpdateException;
 import com.google.gerrit.testing.FakeEmailSender;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -50,7 +54,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.notes.NoteMap;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 // XXX Also validate the reply msg
@@ -80,15 +83,15 @@ public class PostReviewIT extends AbstractDaemonTest {
 
   private static class TestCommentValidationListener implements CommentValidationListener {
     @Override
-    public CommentValidationResult validateComments(ImmutableList<CommentForValidation> comments) {
+    public ImmutableList<CommentValidationFailure> validateComments(
+        ImmutableList<CommentForValidation> comments) {
       // XXX More fancy?
       for (CommentForValidation c : comments) {
         if (c.getText().contains("reject")) {
-          return CommentValidationResult.create(Status.INVALID, ImmutableList.of(
-              "invalid comment: " + c.getText()));
+          return ImmutableList.of(c.failValidation("invalid comment: contains 'reject'"));
         }
       }
-      return CommentValidationResult.create(Status.VALID, ImmutableList.of());
+      return ImmutableList.of();
     }
   }
 
@@ -97,9 +100,9 @@ public class PostReviewIT extends AbstractDaemonTest {
     requestScopeOperations.setApiUser(admin.id());
   }
 
+  // XXX Make sure to test validation of both drafts and toPublish.
   @Test
-  // XXX Also test validation of drafts.
-  public void validateCommentsViaInput() throws Exception {
+  public void validateCommentsViaInput_commentOK() throws Exception {
     // XXX Can this setup be simplified?
     Timestamp timestamp = new Timestamp(0);
     String file = "file";
@@ -111,23 +114,51 @@ public class PostReviewIT extends AbstractDaemonTest {
     String revId = r.getCommit().getName();
 
     ReviewInput input = new ReviewInput();
-    CommentInput comment = newComment(file, Side.REVISION, 0, "XXX beep XXX", false);
+    CommentInput comment = newComment(file, Side.REVISION, 0, "this comment is OK", false);
     comment.updated = timestamp;
     input.comments = ImmutableMap.of(comment.path, Lists.newArrayList(comment));
     ChangeResource changeResource =
         changes.get().parse(TopLevelResource.INSTANCE, IdString.fromDecoded(changeId));
     RevisionResource revisionResource = revisions.parse(changeResource, IdString.fromDecoded(revId));
-
-    // XXX Use an exception?
+    assertThat(getPublishedComments(changeId)).isEmpty();
     postReview.get().apply(batchUpdateFactory, revisionResource, input, timestamp);
+    assertThat(getPublishedComments(changeId)).hasSize(1);
+  }
 
-    Map<String, List<CommentInfo>> result = getPublishedComments(changeId, revId);
-    assertThat(result).isNotEmpty();
-    CommentInfo actual = Iterables.getOnlyElement(result.get(comment.path));
-    CommentInput ci = infoToInput(file).apply(actual);
-    ci.updated = comment.updated;
-    assertThat(comment).isEqualTo(ci);
-    assertThat(actual.updated).isEqualTo(gApi.changes().id(r.getChangeId()).info().created);
+  @Test
+  public void validateCommentsViaInput_commentRejected() throws Exception {
+    Timestamp timestamp = new Timestamp(0);
+    String file = "file";
+    String contents = "contents";
+    PushOneCommit push =
+        pushFactory.create(admin.newIdent(), testRepo, "first subject", file, contents);
+    PushOneCommit.Result r = push.to("refs/for/master");
+    String changeId = r.getChangeId();
+    String revId = r.getCommit().getName();
+
+    String COMMENT_TEXT = "this comment will be rejected";
+    ReviewInput input = new ReviewInput();
+    CommentInput comment = newComment(file, Side.REVISION, 0, COMMENT_TEXT, false);
+    comment.updated = timestamp;
+    input.comments = ImmutableMap.of(comment.path, Lists.newArrayList(comment));
+    ChangeResource changeResource =
+        changes.get().parse(TopLevelResource.INSTANCE, IdString.fromDecoded(changeId));
+    RevisionResource revisionResource =
+        revisions.parse(changeResource, IdString.fromDecoded(revId));
+    assertThat(getPublishedComments(changeId)).isEmpty();
+    UpdateException updateException =
+        assertThrows(
+            UpdateException.class,
+            () -> postReview.get().apply(batchUpdateFactory, revisionResource, input, timestamp));
+    assertThat(updateException.getCause()).isInstanceOf(CommentsRejectedException.class);
+    assertThat(
+            Iterables.getOnlyElement(
+                    ((CommentsRejectedException) updateException.getCause())
+                        .getCommentValidationFailures())
+                .getComment()
+                .getText())
+        .isEqualTo(COMMENT_TEXT);
+    assertThat(getPublishedComments(changeId)).isEmpty();
   }
 
   @Test
