@@ -151,8 +151,23 @@
               sectionIndex: 0,
             };
 
+<<<<<<< HEAD   (dd17fa Update reviewnotes plugin revision)
             content = this._splitLargeChunks(content);
             content = this._splitUnchangedChunksWithComments(content);
+=======
+        let currentBatch = 0;
+        const nextStep = () => {
+          if (this._isScrolling) {
+            this._nextStepHandle = this.async(nextStep, 100);
+            return;
+          }
+          // If we are done, resolve the promise.
+          if (state.sectionIndex >= content.length) {
+            resolve(this.groups);
+            this._nextStepHandle = undefined;
+            return;
+          }
+>>>>>>> BRANCH (6d4cf6 Merge branch 'stable-2.15' into stable-2.16)
 
             let currentBatch = 0;
             const nextStep = () => {
