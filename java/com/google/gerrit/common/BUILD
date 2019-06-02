@@ -22,7 +22,11 @@ java_library(
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/prettify:server",
         "//java/com/google/gerrit/reviewdb:server",
+<<<<<<< HEAD   (178960 Remove unnecessary easymock dependency from util/http test t)
         "//java/org/eclipse/jgit:server",
+=======
+        "//java/com/google/gwtorm",
+>>>>>>> BRANCH (c9ea87 Bazel: Stop unsign jgit libraries)
         "//lib:guava",
         "//lib:servlet-api-3_1",
         "//lib/auto:auto-value",

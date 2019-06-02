@@ -20,10 +20,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+<<<<<<< HEAD   (178960 Remove unnecessary easymock dependency from util/http test t)
+=======
+import com.google.gerrit.jgit.diff.ReplaceEdit;
+import com.google.gerrit.testing.GerritBaseTests;
+>>>>>>> BRANCH (c9ea87 Bazel: Stop unsign jgit libraries)
 import java.util.List;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.diff.ReplaceEdit;
 import org.junit.Test;
 
 public class IntraLineLoaderTest {
