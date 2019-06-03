@@ -61,6 +61,7 @@ import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.Streams;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
+import com.google.gerrit.common.UsedAt;
 import com.google.gerrit.common.data.LabelType;
 import com.google.gerrit.common.data.LabelTypes;
 import com.google.gerrit.exceptions.StorageException;
@@ -1531,6 +1532,10 @@ class ReceiveCommits { // XXX Handle this entry point.
       // TODO(dpursehouse): validate hashtags
     }
 
+    @UsedAt(UsedAt.Project.GOOGLE)
+    @Option(name = "--create-cod-token", usage = "create a token for consistency-on-demand")
+    private boolean createCodToken;
+
     MagicBranchInput(IdentifiedUser user, ReceiveCommand cmd, LabelTypes labelTypes) {
       this.deprecatedTopicSeen = false;
       this.cmd = cmd;
@@ -1970,14 +1975,16 @@ class ReceiveCommits { // XXX Handle this entry point.
     BranchCommitValidator validator =
         commitValidatorFactory.create(projectState, changeEnt.getDest(), user);
     try {
-      if (validator.validCommit(
-          receivePack.getRevWalk().getObjectReader(),
-          cmd,
-          newCommit,
-          false,
-          messages,
-          rejectCommits,
-          changeEnt)) {
+      BranchCommitValidator.Result validationResult =
+          validator.validateCommit(
+              receivePack.getRevWalk().getObjectReader(),
+              cmd,
+              newCommit,
+              false,
+              rejectCommits,
+              changeEnt);
+      messages.addAll(validationResult.messages());
+      if (validationResult.isValid()) {
         logger.atFine().log("Replacing change %s", changeEnt.getId());
         requestReplaceAndValidateComments(cmd, true, changeEnt, newCommit);
       }
@@ -2157,14 +2164,16 @@ class ReceiveCommits { // XXX Handle this entry point.
           logger.atFine().log("Creating new change for %s even though it is already tracked", name);
         }
 
-        if (!validator.validCommit(
-            receivePack.getRevWalk().getObjectReader(),
-            magicBranch.cmd,
-            c,
-            magicBranch.merged,
-            messages,
-            rejectCommits,
-            null)) {
+        BranchCommitValidator.Result validationResult =
+            validator.validateCommit(
+                receivePack.getRevWalk().getObjectReader(),
+                magicBranch.cmd,
+                c,
+                magicBranch.merged,
+                rejectCommits,
+                null);
+        messages.addAll(validationResult.messages());
+        if (!validationResult.isValid()) {
           // Not a change the user can propose? Abort as early as possible.
           logger.atFine().log("Aborting early due to invalid commit");
           return Collections.emptyList();
@@ -3156,8 +3165,10 @@ class ReceiveCommits { // XXX Handle this entry point.
           continue;
         }
 
-        if (!validator.validCommit(
-            walk.getObjectReader(), cmd, c, false, messages, rejectCommits, null)) {
+        BranchCommitValidator.Result validationResult =
+            validator.validateCommit(walk.getObjectReader(), cmd, c, false, rejectCommits, null);
+        messages.addAll(validationResult.messages());
+        if (!validationResult.isValid()) {
           break;
         }
       }

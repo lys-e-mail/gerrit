@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="../../../behaviors/gr-patch-set-behavior/gr-patch-set-behavior.html">
 <link rel="import" href="../../../styles/shared-styles.html">
 <link rel="import" href="../../shared/gr-button/gr-button.html">
@@ -155,14 +155,14 @@ limitations under the License.
         content: '\A';
       }
       .contextControl {
-        background-color: var(--diff-context-control-color);
+        background-color: var(--diff-context-control-background-color);
         border: 1px solid var(--diff-context-control-border-color);
       }
       .contextControl gr-button {
         display: inline-block;
         text-decoration: none;
         --gr-button: {
-          color: var(--deemphasized-text-color);
+          color: var(--diff-context-control-color);
           padding: .2em;
         }
       }
