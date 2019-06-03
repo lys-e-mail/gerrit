@@ -35,7 +35,6 @@ java_library(
         "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/exceptions",
         "//java/com/google/gerrit/extensions:api",
-        "//java/com/google/gerrit/extensions/validators",
         "//java/com/google/gerrit/git",
         "//java/com/google/gerrit/index",
         "//java/com/google/gerrit/index:query_exception",
@@ -136,7 +135,6 @@ java_library(
     deps = [
         ":server",
         "//java/com/google/gerrit/extensions:api",
-        "//java/com/google/gerrit/extensions/validators",
         "//java/com/google/gerrit/server/git/receive",
         "//java/com/google/gerrit/server/restapi",
         "//lib:blame-cache",

@@ -32,7 +32,6 @@ import com.google.gerrit.extensions.validators.CommentValidationListener.Comment
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.plugincontext.PluginSetContext;
-import com.google.gerrit.server.plugincontext.PluginSetEntryContext;
 import com.google.gerrit.server.update.CommentsRejectedException;
 import com.google.gerrit.server.update.UpdateException;
 import com.google.inject.Inject;
@@ -198,6 +197,7 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(getPublishedComments(changeId)).isEmpty();
 
     ReviewInput reviewInput = new ReviewInput();
+    reviewInput.drafts = DraftHandling.PUBLISH;
     ChangeResource changeResource =
         changes.get().parse(TopLevelResource.INSTANCE, IdString.fromDecoded(changeId));
     RevisionResource revisionResource =
