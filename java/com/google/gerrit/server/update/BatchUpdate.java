@@ -166,7 +166,6 @@ public class BatchUpdate implements AutoCloseable {
         }
       }
     } catch (Exception e) {
-      // XXX Integration test for this.
       wrapAndThrowException(e);
     }
   }
@@ -292,7 +291,7 @@ public class BatchUpdate implements AutoCloseable {
   private enum ChangeResult {
     SKIPPED,
     UPSERTED,
-    DELETED;
+    DELETED
   }
 
   private final GitRepositoryManager repoManager;

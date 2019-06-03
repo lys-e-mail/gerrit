@@ -91,13 +91,7 @@ public class PublishCommentUtil {
   /** Runs the specified set of {@link CommentValidationListener}-s. XXX */
   public static List<CommentValidationFailure> findInvalidComments(
       PluginSetContext<CommentValidationListener> commentValidationListeners,
-      CommentType commentType,
-      Collection<Comment> comments) {
-    ImmutableList<CommentForValidation> commentsForValidation =
-        ImmutableList.copyOf(
-            comments.stream()
-                .map(comment -> CommentForValidation.create(commentType, comment.message))
-                .collect(Collectors.toList()));
+      ImmutableList<CommentForValidation> commentsForValidation) {
     List<CommentValidationFailure> commentValidationFailures = new ArrayList<>();
     commentValidationListeners.runEach(
         listener ->

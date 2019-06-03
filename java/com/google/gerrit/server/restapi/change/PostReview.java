@@ -29,6 +29,7 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
@@ -61,9 +62,10 @@ import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.restapi.Url;
-import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
+import com.google.gerrit.extensions.validators.CommentValidationListener;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.mail.Address;
 import com.google.gerrit.reviewdb.client.Account;
@@ -299,7 +301,7 @@ public class PostReview
       Account.Id id = revision.getUser().getAccountId();
       boolean ccOrReviewer = false;
       if (input.labels != null && !input.labels.isEmpty()) {
-        ccOrReviewer = input.labels.values().stream().filter(v -> v != 0).findFirst().isPresent();
+        ccOrReviewer = input.labels.values().stream().anyMatch(v -> v != 0);
       }
 
       if (!ccOrReviewer) {
@@ -801,7 +803,10 @@ public class PostReview
     }
   }
 
-  /** Used to compare Comments with CommentInput comments. */  // XXX What?
+  /**
+   * Used to compare existing Comments with CommentInput comments by copying only the fields to
+   * compare.
+   */
   @AutoValue
   abstract static class CommentSetEntry {
     private static CommentSetEntry create(
@@ -867,11 +872,10 @@ public class PostReview
       user = ctx.getIdentifiedUser();
       notes = ctx.getNotes();
       ps = psUtil.get(ctx.getNotes(), psId);
-      boolean dirty = false;
-      dirty |= insertComments(ctx);  // XXX hook
+      boolean dirty = insertComments(ctx);
       dirty |= insertRobotComments(ctx);
       dirty |= updateLabels(projectState, ctx);
-      dirty |= insertMessage(ctx);  // XXX hook
+      dirty |= insertMessage(ctx);
       return dirty;
     }
 
@@ -899,15 +903,15 @@ public class PostReview
     private boolean insertComments(ChangeContext ctx)
         throws UnprocessableEntityException, PatchListNotAvailableException, CommentsRejectedException {
       // XXX Maybe this should be split into extracting comments, then validate them, then insert
-      // them. Is deduplication (readExistingComments() is presumably expensive) necessary? Will
-      // that read be cached after reading changeDrafts() or patchSetDrafts()? Is it even worth
-      // optimizing this case? It would just have the same performance as the sunshine case.
+      // them.
       Map<String, List<CommentInput>> inputComments = in.comments;
       if (inputComments == null) {
         inputComments = Collections.emptyMap();
       }
 
-      Map<String, Comment> drafts = Collections.emptyMap();
+      // HashMap instead of Collections.emptyMap() avoids warning about remove() on immutable
+      // object.
+      Map<String, Comment> drafts = new HashMap<>();
       // XXX Why does the presence of inputComments cause drafts to be published?
       if (!inputComments.isEmpty() || in.drafts != DraftHandling.KEEP) {
         if (in.drafts == DraftHandling.PUBLISH_ALL_REVISIONS) {
@@ -917,6 +921,7 @@ public class PostReview
         }
       }
 
+      // This will be populated with Comment-s created from inputComments.
       List<Comment> toPublish = new ArrayList<>();
 
       Set<CommentSetEntry> existingComments =
@@ -925,23 +930,21 @@ public class PostReview
       // XXX Why can the input comments overlap with the existing drafts? Which flow sets them?
       for (Map.Entry<String, List<CommentInput>> entry : inputComments.entrySet()) {
         String path = entry.getKey();
-        for (CommentInput commentInput : entry.getValue()) {
-          // XXX Is Comment.id unique per comment or per thread?
-          Comment comment = drafts.remove(Url.decode(commentInput.id));
+        for (CommentInput inputComment : entry.getValue()) {
+          Comment comment = drafts.remove(Url.decode(inputComment.id));
           if (comment == null) {
-            String parent = Url.decode(commentInput.inReplyTo);
+            String parent = Url.decode(inputComment.inReplyTo);
             comment = commentsUtil
-                .newComment(ctx, path, psId, commentInput.side(), commentInput.message,
-                    commentInput.unresolved, parent);
+                .newComment(ctx, path, psId, inputComment.side(), inputComment.message,
+                    inputComment.unresolved, parent);
           } else {
-            // XXX Is this overwriting the draft? If so, why?
             comment.writtenOn = ctx.getWhen();
-            comment.side = commentInput.side();
-            comment.message = commentInput.message;
+            comment.side = inputComment.side();
+            comment.message = inputComment.message;
           }
 
           setCommentCommitId(comment, patchListCache, ctx.getChange(), ps);
-          comment.setLineNbrAndRange(commentInput.line, commentInput.range);
+          comment.setLineNbrAndRange(inputComment.line, inputComment.range);
           comment.tag = in.tag;
 
           // XXX Why would existing comments already contain the draft/new comment?
@@ -955,9 +958,15 @@ public class PostReview
       switch (in.drafts) {
         case PUBLISH:
         case PUBLISH_ALL_REVISIONS:
+          ImmutableList<CommentForValidation> draftsForValidation =
+              drafts.values().stream()
+                  .map(
+                      comment ->
+                          CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+                  .collect(ImmutableList.toImmutableList());
           List<CommentValidationFailure> draftValidationFailures =
               PublishCommentUtil.findInvalidComments(
-                  commentValidationListeners, CommentType.REVIEW_COMMENT, drafts.values());
+                  commentValidationListeners, draftsForValidation);
           if (!draftValidationFailures.isEmpty()) {
             throw new CommentsRejectedException(draftValidationFailures);
           }
@@ -971,9 +980,15 @@ public class PostReview
       }
       ChangeUpdate changeUpdate = ctx.getUpdate(psId);
 
+      ImmutableList<CommentForValidation> toPublishForValidation =
+          toPublish.stream()
+              .map(
+                  comment ->
+                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+              .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> toPublishValidationFailures =
           PublishCommentUtil.findInvalidComments(
-              commentValidationListeners, CommentType.REVIEW_COMMENT, toPublish);
+              commentValidationListeners, toPublishForValidation);
       if (!toPublishValidationFailures.isEmpty()) {
         throw new CommentsRejectedException(toPublishValidationFailures);
       }
@@ -1138,10 +1153,7 @@ public class PostReview
       }
       ChangeData cd = changeDataFactory.create(ctx.getNotes());
       ReviewerSet reviewers = cd.reviewers();
-      if (reviewers.byState(REVIEWER).contains(ctx.getAccountId())) {
-        return true;
-      }
-      return false;
+      return reviewers.byState(REVIEWER).contains(ctx.getAccountId());
     }
 
     private boolean updateLabels(ProjectState projectState, ChangeContext ctx)
@@ -1357,7 +1369,7 @@ public class PostReview
       return current;
     }
 
-    private boolean insertMessage(ChangeContext ctx) {
+    private boolean insertMessage(ChangeContext ctx) throws CommentsRejectedException {
       String msg = Strings.nullToEmpty(in.message).trim();
 
       StringBuilder buf = new StringBuilder();
@@ -1370,6 +1382,13 @@ public class PostReview
         buf.append(String.format("\n\n(%d comments)", comments.size()));
       }
       if (!msg.isEmpty()) {
+        List<CommentValidationFailure> messageValidationFailure =
+            PublishCommentUtil.findInvalidComments(
+                commentValidationListeners,
+                ImmutableList.of(CommentForValidation.create(CommentType.REVIEW_MESSAGE, msg)));
+        if (!messageValidationFailure.isEmpty()) {
+          throw new CommentsRejectedException(messageValidationFailure);
+        }
         buf.append("\n\n").append(msg);
       } else if (in.ready) {
         buf.append("\n\n" + START_REVIEW_MESSAGE);

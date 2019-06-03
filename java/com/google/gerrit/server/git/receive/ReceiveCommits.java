@@ -80,6 +80,7 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
+import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
@@ -2010,9 +2011,14 @@ class ReceiveCommits { // XXX Handle this entry point.
     if (magicBranch.shouldPublishComments()) {
       List<Comment> drafts =
           commentsUtil.draftByChangeAuthor(notesFactory.createChecked(change), user.getAccountId());
+      ImmutableList<CommentForValidation> draftsForValidation =
+          drafts.stream()
+              .map(
+                  comment ->
+                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+              .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> commentValidationFailures =
-          PublishCommentUtil.findInvalidComments(
-              commentValidationListeners, CommentType.REVIEW_COMMENT, drafts);
+          PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);
       magicBranch.setCommentsValid(commentValidationFailures.isEmpty());
       commentValidationFailures.forEach(
           failure ->
