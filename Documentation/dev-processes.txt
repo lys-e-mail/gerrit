@@ -2,9 +2,10 @@
 
 [[project-governance]]
 [[steering-committee]]
-== Project Governance / Steering Committee
+== Project Governance / Engineering Steering Committee
 
-The Gerrit project has a steering committee that is in charge of:
+The Gerrit project has an engineering steering committee (ESC) that is
+in charge of:
 
 * Gerrit core (the `gerrit` project) and the core plugins
 * defining the project vision and the project scope
@@ -26,6 +27,9 @@ The steering committee has 5 members:
 * 3 Googlers that are appointed by Google
 * 2 non-Google maintainers, elected by non-Google maintainers for the
   period of 1 year (see link:#steering-committee-election[below])
+
+Refer to the project homepage for the link:https://www.gerritcodereview.com/esc.html[
+list of current committee members].
 
 The steering committee should act in the interest of the Gerrit project
 and the whole Gerrit community.

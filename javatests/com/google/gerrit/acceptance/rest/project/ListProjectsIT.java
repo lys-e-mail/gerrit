@@ -16,8 +16,10 @@ package com.google.gerrit.acceptance.rest.project;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.rest.project.ProjectAssert.assertThatNameList;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Splitter;
@@ -41,7 +43,6 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.server.project.ProjectCacheImpl;
-import com.google.gerrit.server.project.testing.Util;
 import com.google.gerrit.server.restapi.project.ListProjects;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -65,7 +66,7 @@ public class ListProjectsIT extends AbstractDaemonTest {
     Project.NameKey someProject = projectOperations.newProject().create();
     assertThatNameList(gApi.projects().list().get())
         .containsExactly(allProjects, allUsers, project, someProject);
-    assertThatNameList(gApi.projects().list().get()).isOrdered();
+    assertThatNameList(gApi.projects().list().get()).isInOrder();
   }
 
   @Test
@@ -73,10 +74,11 @@ public class ListProjectsIT extends AbstractDaemonTest {
     requestScopeOperations.setApiUser(user.id());
     assertThatNameList(gApi.projects().list().get()).contains(project);
 
-    try (ProjectConfigUpdate u = updateProject(project)) {
-      Util.block(u.getConfig(), Permission.READ, REGISTERED_USERS, "refs/*");
-      u.save();
-    }
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(block(Permission.READ).ref("refs/*").group(REGISTERED_USERS))
+        .update();
 
     assertThatNameList(gApi.projects().list().get()).doesNotContain(project);
   }
@@ -148,7 +150,9 @@ public class ListProjectsIT extends AbstractDaemonTest {
       listProjects.displayToStream(displayOut);
 
       List<String> lines =
-          Splitter.on("\n").omitEmptyStrings().splitToList(new String(displayOut.toByteArray()));
+          Splitter.on("\n")
+              .omitEmptyStrings()
+              .splitToList(new String(displayOut.toByteArray(), UTF_8));
       assertThat(lines).isEqualTo(testProjects);
     }
   }
@@ -177,7 +181,7 @@ public class ListProjectsIT extends AbstractDaemonTest {
       listProjects.setFormat(jsonFormat);
       listProjects.displayToStream(displayOut);
 
-      String projectsJsonOutput = new String(displayOut.toByteArray());
+      String projectsJsonOutput = new String(displayOut.toByteArray(), UTF_8);
 
       Gson gson = jsonFormat.newGson();
       Set<String> projectsJsonNames = gson.fromJson(projectsJsonOutput, JsonObject.class).keySet();

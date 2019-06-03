@@ -18,13 +18,12 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allowLabel;
 import static com.google.gerrit.extensions.client.ListChangesOption.DETAILED_LABELS;
 import static com.google.gerrit.extensions.client.ListChangesOption.REVIEWED;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
-import static com.google.gerrit.server.project.testing.Util.allow;
-import static com.google.gerrit.server.project.testing.Util.category;
-import static com.google.gerrit.server.project.testing.Util.value;
-import static com.google.gerrit.server.project.testing.Util.verified;
+import static com.google.gerrit.server.project.testing.TestLabels.label;
+import static com.google.gerrit.server.project.testing.TestLabels.value;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -42,9 +41,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.common.truth.ThrowableSubject;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.LabelType;
-import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.api.changes.AddReviewerInput;
 import com.google.gerrit.extensions.api.changes.AssigneeInput;
@@ -175,6 +174,9 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Inject protected ProjectCache projectCache;
   @Inject protected MetaDataUpdate.Server metaDataUpdateFactory;
   @Inject protected IdentifiedUser.GenericFactory identifiedUserFactory;
+
+  @Inject private ProjectConfig.Factory projectConfigFactory;
+  @Inject private ProjectOperations projectOperations;
 
   protected Injector injector;
   protected LifecycleManager lifecycle;
@@ -1049,19 +1051,23 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     TestRepository<Repo> repo = createProject("repo");
     Project.NameKey project =
         Project.nameKey(repo.getRepository().getDescription().getRepositoryName());
-    ProjectConfig cfg = projectCache.checkedGet(project).getConfig();
 
     LabelType verified =
-        category("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
-    cfg.getLabelSections().put(verified.getName(), verified);
-
-    String heads = RefNames.REFS_HEADS + "*";
-    allow(cfg, Permission.forLabel(verified().getName()), -1, 1, REGISTERED_USERS, heads);
-
+        label("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
     try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      ProjectConfig cfg = projectConfigFactory.create(project);
+      cfg.load(md);
+      cfg.getLabelSections().put(verified.getName(), verified);
       cfg.commit(md);
     }
-    projectCache.evict(cfg.getProject());
+    projectCache.evict(project);
+
+    String heads = RefNames.REFS_HEADS + "*";
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allowLabel(verified.getName()).ref(heads).group(REGISTERED_USERS).range(-1, 1))
+        .update();
 
     ReviewInput reviewVerified = new ReviewInput().label("Verified", 1);
     ChangeInserter ins = newChange(repo, null, null, null, null, false);
@@ -1952,22 +1958,23 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("draftby:" + userId, change);
     assertQuery("commentby:" + userId);
 
-    TestRepository<Repo> allUsers = new TestRepository<>(repoManager.openRepository(allUsersName));
+    try (TestRepository<Repo> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
 
-    Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
-    assertThat(draftsRef).isNotNull();
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
 
-    ReviewInput rin = ReviewInput.dislike();
-    rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
-    gApi.changes().id(id.get()).current().review(rin);
+      assertQuery("draftby:" + userId);
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
 
-    assertQuery("draftby:" + userId);
-    assertQuery("commentby:" + userId, change);
-    assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
-
-    // Re-add drafts ref and ensure it gets filtered out during indexing.
-    allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
-    assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
 
     indexer.index(project, id);
     assertQuery("draftby:" + userId);
@@ -3022,16 +3029,18 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     String destination4 = "refs/heads/master\trepo3";
     String destination5 = "refs/heads/other\trepo1";
 
-    TestRepository<Repo> allUsers = new TestRepository<>(repoManager.openRepository(allUsersName));
-    String refsUsers = RefNames.refsUsers(userId);
-    allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
-    allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
-    allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
-    allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
-    allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+    try (TestRepository<Repo> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
 
-    Ref userRef = allUsers.getRepository().exactRef(refsUsers);
-    assertThat(userRef).isNotNull();
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      assertThat(userRef).isNotNull();
+    }
 
     assertQuery("destination:destination1", change1);
     assertQuery("destination:destination2", change2);
@@ -3052,12 +3061,14 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
             + "query3\tproject:repo branch:stable\n"
             + "query4\tproject:repo branch:other";
 
-    TestRepository<Repo> allUsers = new TestRepository<>(repoManager.openRepository(allUsersName));
-    String refsUsers = RefNames.refsUsers(userId);
-    allUsers.branch(refsUsers).commit().add("queries", queries).create();
+    try (TestRepository<Repo> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("queries", queries).create();
 
-    Ref userRef = allUsers.getRepository().exactRef(refsUsers);
-    assertThat(userRef).isNotNull();
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      assertThat(userRef).isNotNull();
+    }
 
     assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
 

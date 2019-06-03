@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.data.SubmitRecord;
 import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.project.SubmitRuleEvaluator;
@@ -26,7 +27,6 @@ import com.google.gerrit.server.project.SubmitRuleOptions;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.inject.Inject;
 import java.util.Collection;
-import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
@@ -41,6 +41,7 @@ public class RulesIT extends AbstractDaemonTest {
   private static final String RULE_TEMPLATE =
       "submit_rule(submit(W)) :- \n" + "%s,\n" + "W = label('OK', ok(user(1000000))).";
 
+  @Inject private ProjectOperations projectOperations;
   @Inject private SubmitRuleEvaluator.Factory evaluatorFactory;
 
   @Before
@@ -85,7 +86,7 @@ public class RulesIT extends AbstractDaemonTest {
   }
 
   private SubmitRecord.Status statusForRule() throws Exception {
-    String oldHead = getRemoteHead().name();
+    String oldHead = projectOperations.project(project).getHead("master").name();
     PushOneCommit.Result result1 =
         pushFactory.create(user.newIdent(), testRepo).to("refs/for/master");
     testRepo.reset(oldHead);
@@ -107,8 +108,8 @@ public class RulesIT extends AbstractDaemonTest {
   private void modifySubmitRules(String ruleTested) throws Exception {
     String newContent = String.format(RULE_TEMPLATE, ruleTested);
 
-    try (Repository repo = repoManager.openRepository(project)) {
-      TestRepository<?> testRepo = new TestRepository<>((InMemoryRepository) repo);
+    try (Repository repo = repoManager.openRepository(project);
+        TestRepository<Repository> testRepo = new TestRepository<>(repo)) {
       testRepo
           .branch(RefNames.REFS_CONFIG)
           .commit()

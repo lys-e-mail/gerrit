@@ -186,6 +186,12 @@ maven_jar(
     sha1 = "94ad16d728b374d65bd897625f3fbb3da223a2b6",
 )
 
+maven_jar(
+    name = "error-prone-annotations",
+    artifact = "com.google.errorprone:error_prone_annotations:2.3.3",
+    sha1 = "42aa5155a54a87d70af32d4b0d06bf43779de0e2",
+)
+
 FLOGGER_VERS = "0.4"
 
 maven_jar(
@@ -879,30 +885,30 @@ maven_jar(
     sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
 )
 
-TRUTH_VERS = "0.44"
+TRUTH_VERS = "0.45"
 
 maven_jar(
     name = "truth",
     artifact = "com.google.truth:truth:" + TRUTH_VERS,
-    sha1 = "11eff954c0c14da7d43276d7b3bcf71463105368",
+    sha1 = "e16683346f6a6887b1f140a2984e60c73c66c40a",
 )
 
 maven_jar(
     name = "truth-java8-extension",
     artifact = "com.google.truth.extensions:truth-java8-extension:" + TRUTH_VERS,
-    sha1 = "2081a0721d3101e1cf559f013e59c6129b4b10b0",
+    sha1 = "f43262ad81c8df9a7f148659ff34de28b952754f",
 )
 
 maven_jar(
     name = "truth-liteproto-extension",
     artifact = "com.google.truth.extensions:truth-liteproto-extension:" + TRUTH_VERS,
-    sha1 = "64f47e4e3f79b0a582573098b9c3c6b73599f7c6",
+    sha1 = "67017d3aaec607c4a181ac95e9be0dc14e6c3fb2",
 )
 
 maven_jar(
     name = "truth-proto-extension",
     artifact = "com.google.truth.extensions:truth-proto-extension:" + TRUTH_VERS,
-    sha1 = "c03fbc16087d8cb3bf0f3265a04566d4beb88a6d",
+    sha1 = "f69edef92d9aceb82c6353e425328712ce1a25e7",
 )
 
 maven_jar(
@@ -1075,18 +1081,18 @@ maven_jar(
     sha1 = "0f5a654e4675769c716e5b387830d19b501ca191",
 )
 
-TESTCONTAINERS_VERSION = "1.11.2"
+TESTCONTAINERS_VERSION = "1.11.3"
 
 maven_jar(
     name = "testcontainers",
     artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-    sha1 = "eae47ed24bb07270d4b60b5e2c3444c5bf3c8ea9",
+    sha1 = "154b69dd976416734b2fc809fb86e173ad9aa25b",
 )
 
 maven_jar(
     name = "testcontainers-elasticsearch",
     artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-    sha1 = "a327bd8cb68eb7146b36d754aee98a8018132d8f",
+    sha1 = "90713b61f5748d8894c31a20f955bd7f81ac2ece",
 )
 
 maven_jar(

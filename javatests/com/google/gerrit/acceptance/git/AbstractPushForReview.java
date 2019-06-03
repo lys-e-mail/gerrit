@@ -24,6 +24,10 @@ import static com.google.gerrit.acceptance.GitUtil.assertPushRejected;
 import static com.google.gerrit.acceptance.GitUtil.pushHead;
 import static com.google.gerrit.acceptance.GitUtil.pushOne;
 import static com.google.gerrit.acceptance.PushOneCommit.FILE_NAME;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allowCapability;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allowLabel;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.common.FooterConstants.CHANGE_ID;
 import static com.google.gerrit.extensions.client.ListChangesOption.ALL_REVISIONS;
 import static com.google.gerrit.extensions.client.ListChangesOption.CURRENT_REVISION;
@@ -34,8 +38,8 @@ import static com.google.gerrit.extensions.common.testing.EditInfoSubject.assert
 import static com.google.gerrit.server.git.receive.ReceiveConstants.PUSH_OPTION_SKIP_VALIDATION;
 import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
-import static com.google.gerrit.server.project.testing.Util.category;
-import static com.google.gerrit.server.project.testing.Util.value;
+import static com.google.gerrit.server.project.testing.TestLabels.label;
+import static com.google.gerrit.server.project.testing.TestLabels.value;
 import static java.util.Comparator.comparing;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.joining;
@@ -54,6 +58,7 @@ import com.google.gerrit.acceptance.Sandboxed;
 import com.google.gerrit.acceptance.SkipProjectClone;
 import com.google.gerrit.acceptance.TestAccount;
 import com.google.gerrit.acceptance.TestProjectInput;
+import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.common.data.LabelType;
@@ -93,7 +98,7 @@ import com.google.gerrit.server.git.receive.NoteDbPushOption;
 import com.google.gerrit.server.git.receive.ReceiveConstants;
 import com.google.gerrit.server.git.validators.CommitValidators.ChangeIdValidator;
 import com.google.gerrit.server.group.SystemGroupBackend;
-import com.google.gerrit.server.project.testing.Util;
+import com.google.gerrit.server.project.testing.TestLabels;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.gerrit.testing.TestTimeUtil;
@@ -131,11 +136,17 @@ import org.junit.Test;
 @SkipProjectClone
 public abstract class AbstractPushForReview extends AbstractDaemonTest {
   protected enum Protocol {
-    // TODO(dborowitz): TEST.
+    // Only test protocols which are actually served by the Gerrit server, since each separate test
+    // class is large and slow.
+    //
+    // This list excludes the test InProcessProtocol, which is used by large numbers of other
+    // acceptance tests. Small tests of InProcessProtocol are still possible, without incurring a
+    // new large slow test.
     SSH,
     HTTP
   }
 
+  @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
 
   private static String NEW_CHANGE_INDICATOR = " [NEW]";
@@ -154,19 +165,24 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   @Before
   public void setUpPatchSetLock() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
-      patchSetLock = Util.patchSetLock();
+      patchSetLock = TestLabels.patchSetLock();
       u.getConfig().getLabelSections().put(patchSetLock.getName(), patchSetLock);
-      AccountGroup.UUID anonymousUsers = systemGroupBackend.getGroup(ANONYMOUS_USERS).getUUID();
-      Util.allow(
-          u.getConfig(),
-          Permission.forLabel(patchSetLock.getName()),
-          0,
-          1,
-          anonymousUsers,
-          "refs/heads/*");
       u.save();
     }
-    grant(project, "refs/heads/*", Permission.LABEL + "Patch-Set-Lock");
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(
+            allowLabel(patchSetLock.getName())
+                .ref("refs/heads/*")
+                .group(ANONYMOUS_USERS)
+                .range(0, 1))
+        .add(
+            allowLabel(patchSetLock.getName())
+                .ref("refs/heads/*")
+                .group(adminGroupUuid())
+                .range(0, 1))
+        .update();
   }
 
   @After
@@ -871,8 +887,14 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
     // Non owner, non admin and non project owner cannot flip wip bit:
     TestAccount user2 = accountCreator.user2();
-    grant(
-        project, "refs/*", Permission.FORGE_COMMITTER, false, SystemGroupBackend.REGISTERED_USERS);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(
+            allow(Permission.FORGE_COMMITTER)
+                .ref("refs/*")
+                .group(SystemGroupBackend.REGISTERED_USERS))
+        .update();
     TestRepository<?> user2Repo = cloneProject(project, user2);
     GitUtil.fetch(user2Repo, r.getPatchSet().refName() + ":ps");
     user2Repo.reset("ps");
@@ -880,7 +902,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r.assertErrorStatus(ReceiveConstants.ONLY_CHANGE_OWNER_OR_PROJECT_OWNER_CAN_MODIFY_WIP);
 
     // Project owner trying to move from WIP to ready should succeed.
-    allow("refs/*", Permission.OWNER, SystemGroupBackend.REGISTERED_USERS);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.OWNER).ref("refs/*").group(SystemGroupBackend.REGISTERED_USERS))
+        .update();
     r = amendChange(r.getChangeId(), "refs/for/master%ready", user2, user2Repo);
     r.assertOkStatus();
   }
@@ -1181,14 +1207,17 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   @Test
   public void pushWithMultipleApprovals() throws Exception {
     LabelType Q =
-        category("Custom-Label", value(1, "Positive"), value(0, "No score"), value(-1, "Negative"));
-    AccountGroup.UUID anon = systemGroupBackend.getGroup(ANONYMOUS_USERS).getUUID();
+        label("Custom-Label", value(1, "Positive"), value(0, "No score"), value(-1, "Negative"));
     String heads = "refs/heads/*";
     try (ProjectConfigUpdate u = updateProject(project)) {
-      Util.allow(u.getConfig(), Permission.forLabel("Custom-Label"), -1, 1, anon, heads);
       u.getConfig().getLabelSections().put(Q.getName(), Q);
       u.save();
     }
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allowLabel("Custom-Label").ref(heads).group(ANONYMOUS_USERS).range(-1, 1))
+        .update();
 
     RevCommit c =
         commitBuilder()
@@ -1349,7 +1378,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r.assertOkStatus();
 
     setUseSignedOffBy(InheritableBoolean.TRUE);
-    block(project, "refs/heads/master", Permission.FORGE_COMMITTER, REGISTERED_USERS);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(block(Permission.FORGE_COMMITTER).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
 
     push =
         pushFactory.create(
@@ -1419,7 +1452,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
   @Test
   public void pushSameCommitTwiceUsingMagicBranchBaseOption() throws Exception {
-    grant(project, "refs/heads/master", Permission.PUSH);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
+        .update();
     PushOneCommit.Result rBase = pushTo("refs/heads/master");
     rBase.assertOkStatus();
 
@@ -1779,8 +1816,8 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     Change.Id id2 = r2.getChange().getId();
 
     // Merge change 1 behind Gerrit's back.
-    try (Repository repo = repoManager.openRepository(project)) {
-      TestRepository<?> tr = new TestRepository<>(repo);
+    try (Repository repo = repoManager.openRepository(project);
+        TestRepository<?> tr = new TestRepository<>(repo)) {
       tr.branch("refs/heads/master").update(r1.getCommit());
     }
 
@@ -1833,7 +1870,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
   @Test
   public void forcePushAbandonedChange() throws Exception {
-    grant(project, "refs/*", Permission.PUSH, true);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH).ref("refs/*").group(adminGroupUuid()).force(true))
+        .update();
     PushOneCommit push1 =
         pushFactory.create(admin.newIdent(), testRepo, "change1", "a.txt", "content");
     PushOneCommit.Result r = push1.to("refs/for/master");
@@ -1859,12 +1900,12 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     Change c = r.getChange().change();
 
     RevCommit ps2Commit;
-    try (Repository repo = repoManager.openRepository(project)) {
+    try (Repository repo = repoManager.openRepository(project);
+        TestRepository<?> tr = new TestRepository<>(repo)) {
       // Create a new patch set of the change directly in Gerrit's repository,
       // without pushing it. In reality it's more likely that the client would
       // create and push this behind Gerrit's back (e.g. an admin accidentally
       // using direct ssh access to the repo), but that's harder to do in tests.
-      TestRepository<?> tr = new TestRepository<>(repo);
       ps2Commit =
           tr.branch("refs/heads/master")
               .commit()
@@ -1906,7 +1947,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   @Test
   public void pushNewPatchsetOverridingStickyLabel() throws Exception {
     try (ProjectConfigUpdate u = updateProject(project)) {
-      LabelType codeReview = Util.codeReview();
+      LabelType codeReview = TestLabels.codeReview();
       codeReview.setCopyMaxScore(true);
       u.getConfig().getLabelSections().put(codeReview.getName(), codeReview);
       u.save();
@@ -1929,7 +1970,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   @Test
   public void createChangeForMergedCommit() throws Exception {
     String master = "refs/heads/master";
-    grant(project, master, Permission.PUSH, true);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH).ref(master).group(adminGroupUuid()).force(true))
+        .update();
 
     // Update master with a direct push.
     RevCommit c1 = testRepo.commit().message("Non-change 1").create();
@@ -1980,8 +2025,8 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     gApi.changes().id(r.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(r.getChangeId()).current().submit();
 
-    try (Repository repo = repoManager.openRepository(project)) {
-      TestRepository<?> tr = new TestRepository<>(repo);
+    try (Repository repo = repoManager.openRepository(project);
+        TestRepository<Repository> tr = new TestRepository<>(repo)) {
       tr.branch("refs/heads/branch").commit().message("Initial commit on branch").create();
     }
 
@@ -2028,7 +2073,11 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   @Test
   public void mergedOptionWithExistingChangeInsertsPatchSet() throws Exception {
     String master = "refs/heads/master";
-    grant(project, master, Permission.PUSH, true);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.PUSH).ref(master).group(adminGroupUuid()).force(true))
+        .update();
 
     PushOneCommit.Result r = pushTo("refs/for/master");
     r.assertOkStatus();
@@ -2039,8 +2088,8 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     // expecting the change to be auto-closed, but the change metadata update
     // fails.
     ObjectId c2;
-    try (Repository repo = repoManager.openRepository(project)) {
-      TestRepository<?> tr = new TestRepository<>(repo);
+    try (Repository repo = repoManager.openRepository(project);
+        TestRepository<Repository> tr = new TestRepository<>(repo)) {
       RevCommit commit2 =
           tr.amend(c1).message("New subject").insertChangeId(r.getChangeId().substring(1)).create();
       c2 = commit2.copy();
@@ -2297,12 +2346,19 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     pr = pushOne(testRepo, c.name(), ref, false, false, opts);
     assertPushRejected(pr, ref, "NoteDb update requires access database permission");
 
-    allowGlobalCapabilities(REGISTERED_USERS, GlobalCapability.ACCESS_DATABASE);
+    projectOperations
+        .allProjectsForUpdate()
+        .add(allowCapability(GlobalCapability.ACCESS_DATABASE).group(REGISTERED_USERS))
+        .update();
     pr = pushOne(testRepo, c.name(), ref, false, false, opts);
     assertPushRejected(pr, ref, "prohibited by Gerrit: not permitted: create");
 
-    grant(project, "refs/changes/*", Permission.CREATE);
-    grant(project, "refs/changes/*", Permission.PUSH);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.CREATE).ref("refs/changes/*").group(adminGroupUuid()))
+        .add(allow(Permission.PUSH).ref("refs/changes/*").group(adminGroupUuid()))
+        .update();
     grantSkipValidation(project, "refs/changes/*", REGISTERED_USERS);
     pr = pushOne(testRepo, c.name(), ref, false, false, opts);
     assertPushOk(pr, ref);
@@ -2668,13 +2724,14 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
   private void grantSkipValidation(Project.NameKey project, String ref, AccountGroup.UUID groupUuid)
       throws Exception {
     // See SKIP_VALIDATION implementation in default permission backend.
-    try (ProjectConfigUpdate u = updateProject(project)) {
-      Util.allow(u.getConfig(), Permission.FORGE_AUTHOR, groupUuid, ref);
-      Util.allow(u.getConfig(), Permission.FORGE_COMMITTER, groupUuid, ref);
-      Util.allow(u.getConfig(), Permission.FORGE_SERVER, groupUuid, ref);
-      Util.allow(u.getConfig(), Permission.PUSH_MERGE, groupUuid, "refs/for/" + ref);
-      u.save();
-    }
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.FORGE_AUTHOR).ref(ref).group(groupUuid))
+        .add(allow(Permission.FORGE_COMMITTER).ref(ref).group(groupUuid))
+        .add(allow(Permission.FORGE_SERVER).ref(ref).group(groupUuid))
+        .add(allow(Permission.PUSH_MERGE).ref("refs/for/" + ref).group(groupUuid))
+        .update();
   }
 
   private PushOneCommit.Result amendChange(String changeId, String ref) throws Exception {
