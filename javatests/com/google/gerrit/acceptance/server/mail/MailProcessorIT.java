@@ -276,7 +276,7 @@ public class MailProcessorIT extends AbstractMailIT {
     Message message = sender.nextMessage();
     assertThat(message.body()).contains("rejected one or more comments");
     assertThat(getValidationCalls())
-        .contains(CommentForValidation.create(CommentType.EMAIL_MESSAGE, changeMessageText));
+        .contains(CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, changeMessageText));
   }
 
   @Test
@@ -301,7 +301,7 @@ public class MailProcessorIT extends AbstractMailIT {
     Message message = sender.nextMessage();
     assertThat(message.body()).contains("rejected one or more comments");
     assertThat(getValidationCalls())
-        .contains(CommentForValidation.create(CommentType.EMAIL_MESSAGE, commentText));
+        .contains(CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, commentText));
   }
 
   @Test
@@ -328,7 +328,7 @@ public class MailProcessorIT extends AbstractMailIT {
     Message message = sender.nextMessage();
     assertThat(message.body()).contains("rejected one or more comments");
     assertThat(getValidationCalls())
-        .contains(CommentForValidation.create(CommentType.EMAIL_MESSAGE, fileCommentText));
+        .contains(CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, fileCommentText));
   }
 
   private String getChangeUrl(ChangeInfo changeInfo) {

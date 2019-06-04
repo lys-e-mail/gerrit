@@ -272,7 +272,7 @@ public class MailProcessor {
           parsedComments.stream()
               .map(
                   comment ->
-                      CommentForValidation.create(CommentType.EMAIL_MESSAGE, comment.getMessage()))
+                      CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, comment.getMessage()))
               .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> commentValidationFailures =
           PublishCommentUtil.findInvalidComments(
