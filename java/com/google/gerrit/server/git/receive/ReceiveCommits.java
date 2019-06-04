@@ -2015,7 +2015,7 @@ class ReceiveCommits {
       return false;
     }
 
-    if (magicBranch.shouldPublishComments()) {
+    if (magicBranch != null && magicBranch.shouldPublishComments()) {
       List<Comment> drafts =
           commentsUtil.draftByChangeAuthor(notesFactory.createChecked(change), user.getAccountId());
       ImmutableList<CommentForValidation> draftsForValidation =
