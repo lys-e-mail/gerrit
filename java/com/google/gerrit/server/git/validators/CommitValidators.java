@@ -32,9 +32,7 @@ import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.BranchNameKey;
 import com.google.gerrit.reviewdb.client.Change;
-import com.google.gerrit.reviewdb.client.Comment;
 import com.google.gerrit.reviewdb.client.RefNames;
-import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.GerritPersonIdent;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.account.externalids.ExternalIdsConsistencyChecker;
@@ -46,7 +44,6 @@ import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.ValidationError;
 import com.google.gerrit.server.git.validators.ValidationMessage.Type;
-import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.permissions.RefPermission;
@@ -100,8 +97,6 @@ public class CommitValidators {
     private final String installCommitMsgHookCommand;
     private final ProjectCache projectCache;
     private final ProjectConfig.Factory projectConfigFactory;
-    private final CommentsUtil commentsUtil;
-    private final ChangeNotes.Factory changeNotesFactory;
 
     @Inject
     Factory(
@@ -115,9 +110,7 @@ public class CommitValidators {
         ExternalIdsConsistencyChecker externalIdsConsistencyChecker,
         AccountValidator accountValidator,
         ProjectCache projectCache,
-        ProjectConfig.Factory projectConfigFactory,
-        CommentsUtil commentsUtil,
-        ChangeNotes.Factory changeNotesFactory) {
+        ProjectConfig.Factory projectConfigFactory) {
       this.gerritIdent = gerritIdent;
       this.urlFormatter = urlFormatter;
       this.pluginValidators = pluginValidators;
@@ -130,8 +123,6 @@ public class CommitValidators {
           cfg != null ? cfg.getString("gerrit", null, "installCommitMsgHookCommand") : null;
       this.projectCache = projectCache;
       this.projectConfigFactory = projectConfigFactory;
-      this.commentsUtil = commentsUtil;
-      this.changeNotesFactory = changeNotesFactory;
     }
 
     public CommitValidators forReceiveCommits(
@@ -165,8 +156,7 @@ public class CommitValidators {
               new PluginCommitValidationListener(pluginValidators),
               new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
               new AccountCommitValidator(repoManager, allUsers, accountValidator),
-              new GroupCommitValidator(allUsers)/*,
-              new CommentCommitValidator(drafts) XXX */));
+              new GroupCommitValidator(allUsers)));
     }
 
     public CommitValidators forGerritCommits(
@@ -817,28 +807,6 @@ public class CommitValidators {
         throw new CommitValidationException("group update not allowed");
       }
       return Collections.emptyList();
-    }
-  }
-
-  /** XXX */
-  public static class CommentCommitValidator implements CommitValidationListener {
-    private final List<Comment> drafts;
-
-    CommentCommitValidator(List<Comment> drafts) {
-      this.drafts = drafts;
-    }
-
-    @Override
-    public List<CommitValidationMessage> onCommitReceived(CommitReceivedEvent receiveEvent) {
-      ImmutableList.Builder<CommitValidationMessage> messages = new ImmutableList.Builder<>();
-      for (Comment draft : drafts) {
-        if (draft.message.contains("piep")) {
-          logger.atWarning().log("##### comment rejected: " + draft.message);
-          messages.add(
-              new CommitValidationMessage("Invalid comment: " + draft.message, Type.WARNING));
-        }
-      }
-      return messages.build();
     }
   }
 
