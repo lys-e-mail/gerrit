@@ -3510,6 +3510,7 @@ if `jsonLogging` is enabled.
 +
 Defaults to true.
 
+<<<<<<< HEAD   (9351ff Merge "Use Provider<PersonIdent> in CreateProject @Singleton)
 [[log.compress]]log.compress::
 +
 If set to true, log files are compressed at server startup and then daily at 11pm
@@ -3520,6 +3521,18 @@ Defaults to true.
 [[log.rotate]]log.rotate::
 +
 If set to true, log files are rotated daily at midnight (GMT).
+=======
+[[log.rotate]]log.rotate::
++
+If set to true, log files are rotated daily at midnight (GMT).
++
+Defaults to true.
+
+[[log.compress]]log.compress::
++
+If set to true, log files are compressed at server startup and then daily at 11pm
+(in the server's local time zone).
+>>>>>>> BRANCH (509cbb mvn.py: Explicitly specify version in mvn deploy command)
 +
 Defaults to true.
 

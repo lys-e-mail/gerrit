@@ -43,12 +43,22 @@ if 'install' == args.a:
         '-Dversion=%s' % args.v,
     ]
 elif 'deploy' == args.a:
+<<<<<<< HEAD   (9351ff Merge "Use Provider<PersonIdent> in CreateProject @Singleton)
     cmd = [
         'mvn',
         'gpg:sign-and-deploy-file',
         '-DrepositoryId=%s' % args.repository,
         '-Durl=%s' % args.url,
     ]
+=======
+  cmd = [
+    'mvn',
+    'gpg:sign-and-deploy-file',
+    '-Dversion=%s' % args.v,
+    '-DrepositoryId=%s' % args.repository,
+    '-Durl=%s' % args.url,
+  ]
+>>>>>>> BRANCH (509cbb mvn.py: Explicitly specify version in mvn deploy command)
 else:
     print("unknown action -a %s" % args.a, file=stderr)
     exit(1)
