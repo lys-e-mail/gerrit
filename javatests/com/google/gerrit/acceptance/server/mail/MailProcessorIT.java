@@ -260,12 +260,7 @@ public class MailProcessorIT extends AbstractMailIT {
     MailMessage.Builder b = messageBuilderWithDefaultFields();
     String changeMessageText = "This change message will be rejected";
     String txt =
-        newPlaintextBody(
-            getChangeUrl(changeInfo) + "/1",
-            changeMessageText,
-            null,
-            null,
-            null);
+        newPlaintextBody(getChangeUrl(changeInfo) + "/1", changeMessageText, null, null, null);
     b.textContent(txt + textFooterForChange(changeInfo._number, ts));
 
     Collection<CommentInfo> commentsBefore = getPublishedComments(changeId);
@@ -276,7 +271,8 @@ public class MailProcessorIT extends AbstractMailIT {
     Message message = sender.nextMessage();
     assertThat(message.body()).contains("rejected one or more comments");
     assertThat(getValidationCalls())
-        .contains(CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, changeMessageText));
+        .contains(
+            CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, changeMessageText));
   }
 
   @Test
@@ -316,8 +312,7 @@ public class MailProcessorIT extends AbstractMailIT {
     MailMessage.Builder b = messageBuilderWithDefaultFields();
     String fileCommentText = "rejected comment on file 1";
     String txt =
-        newPlaintextBody(
-            getChangeUrl(changeInfo) + "/1", null, null, fileCommentText, null);
+        newPlaintextBody(getChangeUrl(changeInfo) + "/1", null, null, fileCommentText, null);
     b.textContent(txt + textFooterForChange(changeInfo._number, ts));
 
     Collection<CommentInfo> commentsBefore = getPublishedComments(changeId);
@@ -328,7 +323,8 @@ public class MailProcessorIT extends AbstractMailIT {
     Message message = sender.nextMessage();
     assertThat(message.body()).contains("rejected one or more comments");
     assertThat(getValidationCalls())
-        .contains(CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, fileCommentText));
+        .contains(
+            CommentForValidation.create(CommentType.EMAIL_COMMENT_OR_MESSAGE, fileCommentText));
   }
 
   private String getChangeUrl(ChangeInfo changeInfo) {

@@ -2027,7 +2027,8 @@ class ReceiveCommits {
           drafts.stream()
               .map(
                   comment ->
-                      CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, comment.message))
+                      CommentForValidation.create(
+                          CommentType.INLINE_OR_FILE_COMMENT, comment.message))
               .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> commentValidationFailures =
           PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);
@@ -2255,7 +2256,8 @@ class ReceiveCommits {
               continue;
             }
           }
-          if (requestReplaceAndValidateComments(magicBranch.cmd, false, changes.get(0).change(), p.commit)) {
+          if (requestReplaceAndValidateComments(
+              magicBranch.cmd, false, changes.get(0).change(), p.commit)) {
             continue;
           }
           return Collections.emptyList();

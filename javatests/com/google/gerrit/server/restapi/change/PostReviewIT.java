@@ -83,7 +83,8 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(getPublishedComments(changeId)).hasSize(1);
     assertThat(getValidationCalls())
         .isEqualTo(
-            ImmutableList.of(CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
+            ImmutableList.of(
+                CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
   }
 
   @Test
@@ -123,7 +124,8 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(getPublishedComments(changeId)).isEmpty();
     assertThat(getValidationCalls())
         .isEqualTo(
-            ImmutableList.of(CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
+            ImmutableList.of(
+                CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
   }
 
   @Test

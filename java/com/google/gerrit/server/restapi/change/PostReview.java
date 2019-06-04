@@ -869,7 +869,7 @@ public class PostReview
     @Override
     public boolean updateChange(ChangeContext ctx)
         throws ResourceConflictException, UnprocessableEntityException, IOException,
-        PatchListNotAvailableException, CommentsRejectedException {
+            PatchListNotAvailableException, CommentsRejectedException {
       user = ctx.getIdentifiedUser();
       notes = ctx.getNotes();
       ps = psUtil.get(ctx.getNotes(), psId);
@@ -902,7 +902,8 @@ public class PostReview
     }
 
     private boolean insertComments(ChangeContext ctx)
-        throws UnprocessableEntityException, PatchListNotAvailableException, CommentsRejectedException {
+        throws UnprocessableEntityException, PatchListNotAvailableException,
+            CommentsRejectedException {
       Map<String, List<CommentInput>> inputComments = in.comments;
       if (inputComments == null) {
         inputComments = Collections.emptyMap();
@@ -931,9 +932,15 @@ public class PostReview
           Comment comment = drafts.remove(Url.decode(inputComment.id));
           if (comment == null) {
             String parent = Url.decode(inputComment.inReplyTo);
-            comment = commentsUtil
-                .newComment(ctx, path, psId, inputComment.side(), inputComment.message,
-                    inputComment.unresolved, parent);
+            comment =
+                commentsUtil.newComment(
+                    ctx,
+                    path,
+                    psId,
+                    inputComment.side(),
+                    inputComment.message,
+                    inputComment.unresolved,
+                    parent);
           } else {
             comment.writtenOn = ctx.getWhen();
             comment.side = inputComment.side();
@@ -975,7 +982,8 @@ public class PostReview
           comments
               .map(
                   comment ->
-                      CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, comment.message))
+                      CommentForValidation.create(
+                          CommentType.INLINE_OR_FILE_COMMENT, comment.message))
               .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> draftValidationFailures =
           PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);
@@ -1078,20 +1086,19 @@ public class PostReview
     }
 
     private Map<String, Comment> changeDrafts(ChangeContext ctx) {
-      return
-          commentsUtil.draftByChangeAuthor(ctx.getNotes(), user.getAccountId())
-              .stream()
-              .collect(Collectors.toMap(c -> c.key.uuid, c -> {
-                c.tag = in.tag;
-                return c;
-              }));
+      return commentsUtil.draftByChangeAuthor(ctx.getNotes(), user.getAccountId()).stream()
+          .collect(
+              Collectors.toMap(
+                  c -> c.key.uuid,
+                  c -> {
+                    c.tag = in.tag;
+                    return c;
+                  }));
     }
 
     private Map<String, Comment> patchSetDrafts(ChangeContext ctx) {
-      return
-          commentsUtil.draftByPatchSetAuthor(psId, user.getAccountId(), ctx.getNotes())
-              .stream()
-              .collect(Collectors.toMap(c -> c.key.uuid, c -> c));
+      return commentsUtil.draftByPatchSetAuthor(psId, user.getAccountId(), ctx.getNotes()).stream()
+          .collect(Collectors.toMap(c -> c.key.uuid, c -> c));
     }
 
     private Map<String, Short> approvalsByKey(Collection<PatchSetApproval> patchsetApprovals) {
