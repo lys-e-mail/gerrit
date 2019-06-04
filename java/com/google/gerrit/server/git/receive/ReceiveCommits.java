@@ -2027,7 +2027,7 @@ class ReceiveCommits {
           drafts.stream()
               .map(
                   comment ->
-                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+                      CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, comment.message))
               .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> commentValidationFailures =
           PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);

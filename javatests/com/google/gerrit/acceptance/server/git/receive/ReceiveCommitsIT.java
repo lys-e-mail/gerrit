@@ -10,14 +10,10 @@ import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.DraftInput;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.validators.CommentForValidation;
-import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
-import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.inject.Inject;
 import com.google.inject.Module;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +22,6 @@ import org.junit.Test;
  */
 public class ReceiveCommitsIT extends AbstractDaemonTest {
   @Inject private RequestScopeOperations requestScopeOperations;
-  @Inject private PluginSetContext<CommentValidationListener> commentValidationListeners;
 
   @Override
   public Module createModule() {
@@ -39,22 +34,6 @@ public class ReceiveCommitsIT extends AbstractDaemonTest {
             .asEagerSingleton();
       }
     };
-  }
-
-  private static class TestCommentValidationListener implements CommentValidationListener {
-    @Override
-    public ImmutableList<CommentValidationFailure> validateComments(
-        ImmutableList<CommentForValidation> comments) {
-      arguments.addAll(comments);
-      for (CommentForValidation c : comments) {
-        if (c.getText().contains("reject")) {
-          return ImmutableList.of(c.failValidation("invalid comment: contains 'reject'"));
-        }
-      }
-      return ImmutableList.of();
-    }
-
-    List<CommentForValidation> arguments = new ArrayList<>();
   }
 
   @Before
@@ -77,7 +56,7 @@ public class ReceiveCommitsIT extends AbstractDaemonTest {
     assertThat(getValidationCalls())
         .isEqualTo(
             ImmutableList.of(
-                CommentForValidation.create(CommentType.REVIEW_COMMENT, commentText)));
+                CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
   }
 
   @Test
@@ -94,11 +73,6 @@ public class ReceiveCommitsIT extends AbstractDaemonTest {
     assertThat(getValidationCalls())
         .isEqualTo(
             ImmutableList.of(
-                CommentForValidation.create(CommentType.REVIEW_COMMENT, commentText)));
-  }
-
-  private List<CommentForValidation> getValidationCalls() {
-    return ((TestCommentValidationListener) commentValidationListeners.iterator().next().get())
-        .arguments;
+                CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, commentText)));
   }
 }

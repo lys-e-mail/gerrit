@@ -74,6 +74,9 @@ import com.google.gerrit.extensions.common.EditInfo;
 import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.IdString;
 import com.google.gerrit.extensions.restapi.RestApiException;
+import com.google.gerrit.extensions.validators.CommentForValidation;
+import com.google.gerrit.extensions.validators.CommentValidationFailure;
+import com.google.gerrit.extensions.validators.CommentValidationListener;
 import com.google.gerrit.index.project.ProjectIndex;
 import com.google.gerrit.index.project.ProjectIndexCollection;
 import com.google.gerrit.json.OutputFormat;
@@ -120,6 +123,7 @@ import com.google.gerrit.server.index.change.ChangeIndexer;
 import com.google.gerrit.server.notedb.AbstractChangeNotes;
 import com.google.gerrit.server.notedb.ChangeNoteUtil;
 import com.google.gerrit.server.notedb.ChangeNotes;
+import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.plugins.PluginGuiceEnvironment;
 import com.google.gerrit.server.plugins.TestServerPlugin;
 import com.google.gerrit.server.project.ProjectCache;
@@ -223,6 +227,22 @@ public abstract class AbstractDaemonTest {
         }
       };
 
+  protected static class TestCommentValidationListener implements CommentValidationListener {
+    @Override
+    public ImmutableList<CommentValidationFailure> validateComments(
+        ImmutableList<CommentForValidation> comments) {
+      arguments.addAll(comments);
+      for (CommentForValidation c : comments) {
+        if (c.getText().contains("reject")) {
+          return ImmutableList.of(c.failValidation("invalid comment: contains 'reject'"));
+        }
+      }
+      return ImmutableList.of();
+    }
+
+    List<CommentForValidation> arguments = new ArrayList<>();
+  }
+
   @Inject @CanonicalWebUrl protected Provider<String> canonicalWebUrl;
   @Inject @GerritPersonIdent protected Provider<PersonIdent> serverIdent;
   @Inject @GerritServerConfig protected Config cfg;
@@ -285,6 +305,7 @@ public abstract class AbstractDaemonTest {
   @Inject private ProjectIndexCollection projectIndexes;
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private SitePaths sitePaths;
+  @Inject private PluginSetContext<CommentValidationListener> commentValidationListeners;
 
   private ProjectResetter resetter;
   private List<Repository> toClose;
@@ -1484,5 +1505,10 @@ public abstract class AbstractDaemonTest {
     range.endLine = 0;
     range.endCharacter = 5;
     return range;
+  }
+
+  protected List<CommentForValidation> getValidationCalls() {
+    return ((TestCommentValidationListener) commentValidationListeners.iterator().next().get())
+        .arguments;
   }
 }

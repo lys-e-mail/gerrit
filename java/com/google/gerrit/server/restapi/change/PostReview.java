@@ -975,7 +975,7 @@ public class PostReview
           comments
               .map(
                   comment ->
-                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+                      CommentForValidation.create(CommentType.INLINE_OR_FILE_COMMENT, comment.message))
               .collect(ImmutableList.toImmutableList());
       List<CommentValidationFailure> draftValidationFailures =
           PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);
@@ -1371,7 +1371,7 @@ public class PostReview
         List<CommentValidationFailure> messageValidationFailure =
             PublishCommentUtil.findInvalidComments(
                 commentValidationListeners,
-                ImmutableList.of(CommentForValidation.create(CommentType.REVIEW_MESSAGE, msg)));
+                ImmutableList.of(CommentForValidation.create(CommentType.CHANGE_MESSAGE, msg)));
         if (!messageValidationFailure.isEmpty()) {
           throw new CommentsRejectedException(messageValidationFailure);
         }

@@ -12,11 +12,11 @@ public interface CommentValidationListener {
 
   /** The type of comment. */
   enum CommentType {
-    /** A regular review comment. */
-    REVIEW_COMMENT,
-    /** The optional review message. */
-    REVIEW_MESSAGE,
-    /** A message received via email. XXX "message" vs. "comment" */
+    /** A regular (inline or file) comment. */  // XXX Are file comments really covered?
+    INLINE_OR_FILE_COMMENT,
+    /** A change message. */
+    CHANGE_MESSAGE,
+    /** Any comment or message received via email. */
     EMAIL_MESSAGE
   }
 
