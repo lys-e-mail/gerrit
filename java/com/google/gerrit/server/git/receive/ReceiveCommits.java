@@ -226,7 +226,7 @@ import org.kohsuke.args4j.Option;
  * (refs/changes/CHANGE). It is hard to split this class up further, because normal pushes can also
  * result in updates to reviews, through the autoclose mechanism.
  */
-class ReceiveCommits { // XXX Handle this entry point.
+class ReceiveCommits {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private static final String CODE_REVIEW_ERROR =
