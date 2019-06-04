@@ -79,9 +79,9 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
+import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
@@ -1377,7 +1377,11 @@ class ReceiveCommits {
     final ReceiveCommand cmd;
     final LabelTypes labelTypes;
     private final boolean defaultPublishComments;
-    /** Result of comment validation. XXX improve comment */
+    /**
+     * Result of running {@link CommentValidationListener}-s on drafts that are published with the
+     * commit (which happens iff {@code --publish-comments} is set). Remains {@code true} if none
+     * are installed.
+     */
     private boolean commentsValid = true;
 
     BranchNameKey dest;
@@ -1588,6 +1592,7 @@ class ReceiveCommits {
 
     boolean shouldPublishComments() {
       if (!commentsValid) {
+        // Validation messages of type WARNING have already been added, now withhold the comments.
         return false;
       }
       if (publishComments) {

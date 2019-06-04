@@ -21,10 +21,9 @@ import static java.util.stream.Collectors.toSet;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.exceptions.StorageException;
+import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.reviewdb.client.Comment;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.server.notedb.ChangeNotes;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Singleton
 public class PublishCommentUtil {
@@ -87,8 +85,12 @@ public class PublishCommentUtil {
     return PatchSet.id(notes.getChangeId(), c.key.patchSetId);
   }
 
-  // XXX location?
-  /** Runs the specified set of {@link CommentValidationListener}-s. XXX */
+  /**
+   * Helper to run the specified set of {@link CommentValidationListener}-s on the specified
+   * comments.
+   *
+   * @return See {@link CommentValidationListener#validateComments(ImmutableList)}.
+   */
   public static List<CommentValidationFailure> findInvalidComments(
       PluginSetContext<CommentValidationListener> commentValidationListeners,
       ImmutableList<CommentForValidation> commentsForValidation) {

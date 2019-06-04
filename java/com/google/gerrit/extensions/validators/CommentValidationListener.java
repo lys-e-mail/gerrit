@@ -1,38 +1,30 @@
 package com.google.gerrit.extensions.validators;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.extensions.annotations.ExtensionPoint;
-import java.util.List;
 
 /**
- * XXX
+ * Validates review comments and messages. Rejecting any comment/message will prevent all comments
+ * from being published.
  */
 @ExtensionPoint
 public interface CommentValidationListener {
 
-  // XXX Clash with MailComment.CommentType?
+  /** The type of comment. */
   enum CommentType {
+    /** A regular review comment. */
     REVIEW_COMMENT,
+    /** The optional review message. */
     REVIEW_MESSAGE,
+    /** A message received via email. XXX "message" vs. "comment" */
     EMAIL_MESSAGE
   }
 
-  // XXX Location?
-  @AutoValue
-  abstract class CommentForValidation {
-    public static CommentForValidation create(CommentType type,  String text) {
-      return new AutoValue_CommentValidationListener_CommentForValidation(type, text);
-    }
-
-    public abstract CommentType getType();
-    public abstract String getText();
-
-    public CommentValidationFailure failValidation(String message) {
-      return CommentValidationFailure.create(this, message);
-    }
-  }
-
-  /** XXX */
-  ImmutableList<CommentValidationFailure> validateComments(ImmutableList<CommentForValidation> comments);
+  /**
+   * Validate the specified commits.
+   *
+   * @return An empty list if all commits are valid, or else a list of validation failures.
+   */
+  ImmutableList<CommentValidationFailure> validateComments(
+      ImmutableList<CommentForValidation> comments);
 }

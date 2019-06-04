@@ -20,9 +20,9 @@ import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.restapi.IdString;
 import com.google.gerrit.extensions.restapi.TopLevelResource;
+import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
@@ -38,6 +38,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests for comment validation in {@link PostReview}. */
 @NoHttpd
 public class PostReviewIT extends AbstractDaemonTest {
   @Inject private Provider<ChangesCollection> changes;

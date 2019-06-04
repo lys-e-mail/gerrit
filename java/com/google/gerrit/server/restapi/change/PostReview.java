@@ -62,9 +62,9 @@ import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.restapi.Url;
+import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.mail.Address;
@@ -144,6 +144,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -902,8 +903,6 @@ public class PostReview
 
     private boolean insertComments(ChangeContext ctx)
         throws UnprocessableEntityException, PatchListNotAvailableException, CommentsRejectedException {
-      // XXX Maybe this should be split into extracting comments, then validate them, then insert
-      // them.
       Map<String, List<CommentInput>> inputComments = in.comments;
       if (inputComments == null) {
         inputComments = Collections.emptyMap();
@@ -912,7 +911,6 @@ public class PostReview
       // HashMap instead of Collections.emptyMap() avoids warning about remove() on immutable
       // object.
       Map<String, Comment> drafts = new HashMap<>();
-      // XXX Why does the presence of inputComments cause drafts to be published?
       if (!inputComments.isEmpty() || in.drafts != DraftHandling.KEEP) {
         if (in.drafts == DraftHandling.PUBLISH_ALL_REVISIONS) {
           drafts = changeDrafts(ctx);
@@ -927,7 +925,6 @@ public class PostReview
       Set<CommentSetEntry> existingComments =
           in.omitDuplicateComments ? readExistingComments(ctx) : Collections.emptySet();
 
-      // XXX Why can the input comments overlap with the existing drafts? Which flow sets them?
       for (Map.Entry<String, List<CommentInput>> entry : inputComments.entrySet()) {
         String path = entry.getKey();
         for (CommentInput inputComment : entry.getValue()) {
@@ -947,7 +944,6 @@ public class PostReview
           comment.setLineNbrAndRange(inputComment.line, inputComment.range);
           comment.tag = in.tag;
 
-          // XXX Why would existing comments already contain the draft/new comment?
           if (existingComments.contains(CommentSetEntry.create(comment))) {
             continue;
           }
@@ -958,19 +954,7 @@ public class PostReview
       switch (in.drafts) {
         case PUBLISH:
         case PUBLISH_ALL_REVISIONS:
-          ImmutableList<CommentForValidation> draftsForValidation =
-              drafts.values().stream()
-                  .map(
-                      comment ->
-                          CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
-                  .collect(ImmutableList.toImmutableList());
-          List<CommentValidationFailure> draftValidationFailures =
-              PublishCommentUtil.findInvalidComments(
-                  commentValidationListeners, draftsForValidation);
-          if (!draftValidationFailures.isEmpty()) {
-            throw new CommentsRejectedException(draftValidationFailures);
-          }
-
+          validateComments(drafts.values().stream());
           publishCommentUtil.publish(ctx, psId, drafts.values(), in.tag);
           comments.addAll(drafts.values());
           break;
@@ -978,24 +962,26 @@ public class PostReview
         default:
           break;
       }
+      validateComments(toPublish.stream());
       ChangeUpdate changeUpdate = ctx.getUpdate(psId);
-
-      ImmutableList<CommentForValidation> toPublishForValidation =
-          toPublish.stream()
-              .map(
-                  comment ->
-                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
-              .collect(ImmutableList.toImmutableList());
-      List<CommentValidationFailure> toPublishValidationFailures =
-          PublishCommentUtil.findInvalidComments(
-              commentValidationListeners, toPublishForValidation);
-      if (!toPublishValidationFailures.isEmpty()) {
-        throw new CommentsRejectedException(toPublishValidationFailures);
-      }
 
       commentsUtil.putComments(changeUpdate, Status.PUBLISHED, toPublish);
       comments.addAll(toPublish);
       return !toPublish.isEmpty();
+    }
+
+    private void validateComments(Stream<Comment> comments) throws CommentsRejectedException {
+      ImmutableList<CommentForValidation> draftsForValidation =
+          comments
+              .map(
+                  comment ->
+                      CommentForValidation.create(CommentType.REVIEW_COMMENT, comment.message))
+              .collect(ImmutableList.toImmutableList());
+      List<CommentValidationFailure> draftValidationFailures =
+          PublishCommentUtil.findInvalidComments(commentValidationListeners, draftsForValidation);
+      if (!draftValidationFailures.isEmpty()) {
+        throw new CommentsRejectedException(draftValidationFailures);
+      }
     }
 
     private boolean insertRobotComments(ChangeContext ctx) throws PatchListNotAvailableException {

@@ -137,7 +137,6 @@ public class BatchUpdate implements AutoCloseable {
         for (BatchUpdate u : updates) {
           handles.add(u.executeChangeOps(dryrun));
         }
-        // XXX At this point updates are only staged but not executed yet.
         for (ChangesHandle h : handles) {
           h.execute();
           indexFutures.addAll(h.startIndexFutures());
@@ -561,8 +560,6 @@ public class BatchUpdate implements AutoCloseable {
           id,
           lazy(() -> e.getValue().stream().map(op -> op.getClass().getName()).collect(toSet())));
       for (BatchUpdateOp op : e.getValue()) {
-        // XXX Doesn't throwing at this point skip the remaining ops? Do we need to collect errors
-        // and rethrow at the end?
         dirty |= op.updateChange(ctx);
       }
       if (!dirty) {

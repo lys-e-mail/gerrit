@@ -6,8 +6,7 @@ import java.util.Collection;
 
 /** Thrown when comment validation rejected a comment, preventing it from being published. */
 public class CommentsRejectedException extends Exception {
-  // XXX Serialization ID?
-  // XXX Set message via super(...)?
+  private static final long serialVersionUID = 1L;
 
   private final ImmutableList<CommentValidationFailure> commentValidationFailures;
 
@@ -15,7 +14,10 @@ public class CommentsRejectedException extends Exception {
     this.commentValidationFailures = ImmutableList.copyOf(commentValidationFailures);
   }
 
-  /** XXX Unused? */
+  /**
+   * Returns the validation failures that caused this exception. By contract this list is never
+   * empty.
+   */
   public ImmutableList<CommentValidationFailure> getCommentValidationFailures() {
     return commentValidationFailures;
   }

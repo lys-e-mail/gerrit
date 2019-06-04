@@ -9,9 +9,9 @@ import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.DraftInput;
 import com.google.gerrit.extensions.config.FactoryModule;
+import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationFailure;
 import com.google.gerrit.extensions.validators.CommentValidationListener;
-import com.google.gerrit.extensions.validators.CommentValidationListener.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationListener.CommentType;
 import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.inject.Inject;
@@ -21,8 +21,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Tests comment validation when publishing drafts via the {@code --publish-comments} option. */
-public class ReceiveCommitsCommentValidationIT extends AbstractDaemonTest {
+/**
+ * Tests for comment validation when publishing drafts via the {@code --publish-comments} option.
+ */
+public class ReceiveCommitsIT extends AbstractDaemonTest {
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private PluginSetContext<CommentValidationListener> commentValidationListeners;
 

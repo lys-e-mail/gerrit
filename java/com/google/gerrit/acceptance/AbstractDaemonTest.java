@@ -1461,7 +1461,7 @@ public abstract class AbstractDaemonTest {
     return populate(new DraftInput(), "file", message);
   }
 
-  protected static <C extends Comment> C populate(C c, String path, Range range, String message) {
+  private static <C extends Comment> C populate(C c, String path, Range range, String message) {
     int line = range.startLine;
     c.path = path;
     c.side = Side.REVISION;
@@ -1477,7 +1477,7 @@ public abstract class AbstractDaemonTest {
     return populate(c, path, createLineRange(), message);
   }
 
-  protected static Range createLineRange() {
+  private static Range createLineRange() {
     Range range = new Range();
     range.startLine = 0;
     range.startCharacter = 1;
