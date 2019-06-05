@@ -73,6 +73,14 @@ public class CreateProject
       projectCreationValidationListeners;
   private final ProjectJson json;
   private final ProjectOwnerGroupsProvider.Factory projectOwnerGroups;
+<<<<<<< HEAD   (51e589 AbstractQueryChangesTest: Open TestRepository in try-with-re)
+=======
+  private final MetaDataUpdate.User metaDataUpdateFactory;
+  private final GitReferenceUpdated referenceUpdated;
+  private final RepositoryConfig repositoryCfg;
+  private final Provider<PersonIdent> serverIdent;
+  private final Provider<IdentifiedUser> identifiedUser;
+>>>>>>> BRANCH (7b4b4e Update git submodules)
   private final Provider<PutConfig> putConfig;
   private final AllProjectsName allProjects;
   private final AllUsersName allUsers;
@@ -87,6 +95,14 @@ public class CreateProject
       ProjectJson json,
       PluginSetContext<ProjectCreationValidationListener> projectCreationValidationListeners,
       ProjectOwnerGroupsProvider.Factory projectOwnerGroups,
+<<<<<<< HEAD   (51e589 AbstractQueryChangesTest: Open TestRepository in try-with-re)
+=======
+      MetaDataUpdate.User metaDataUpdateFactory,
+      GitReferenceUpdated referenceUpdated,
+      RepositoryConfig repositoryCfg,
+      @GerritPersonIdent Provider<PersonIdent> serverIdent,
+      Provider<IdentifiedUser> identifiedUser,
+>>>>>>> BRANCH (7b4b4e Update git submodules)
       Provider<PutConfig> putConfig,
       AllProjectsName allProjects,
       AllUsersName allUsers,
@@ -207,4 +223,81 @@ public class CreateProject
     }
     return normalizedBranches;
   }
+<<<<<<< HEAD   (51e589 AbstractQueryChangesTest: Open TestRepository in try-with-re)
+=======
+
+  private void createEmptyCommits(Repository repo, Project.NameKey project, List<String> refs)
+      throws IOException {
+    try (ObjectInserter oi = repo.newObjectInserter()) {
+      CommitBuilder cb = new CommitBuilder();
+      cb.setTreeId(oi.insert(Constants.OBJ_TREE, new byte[] {}));
+      cb.setAuthor(metaDataUpdateFactory.getUserPersonIdent());
+      cb.setCommitter(serverIdent.get());
+      cb.setMessage("Initial empty repository\n");
+
+      ObjectId id = oi.insert(cb);
+      oi.flush();
+
+      for (String ref : refs) {
+        RefUpdate ru = repo.updateRef(ref);
+        ru.setNewObjectId(id);
+        Result result = ru.update();
+        switch (result) {
+          case NEW:
+            referenceUpdated.fire(
+                project, ru, ReceiveCommand.Type.CREATE, identifiedUser.get().state());
+            break;
+          case FAST_FORWARD:
+          case FORCED:
+          case IO_FAILURE:
+          case LOCK_FAILURE:
+          case NOT_ATTEMPTED:
+          case NO_CHANGE:
+          case REJECTED:
+          case REJECTED_CURRENT_BRANCH:
+          case RENAMED:
+          case REJECTED_MISSING_OBJECT:
+          case REJECTED_OTHER_REASON:
+          default:
+            {
+              throw new IOException(
+                  String.format("Failed to create ref \"%s\": %s", ref, result.name()));
+            }
+        }
+      }
+    } catch (IOException e) {
+      logger.atSevere().withCause(e).log("Cannot create empty commit for %s", project.get());
+      throw e;
+    }
+  }
+
+  private void fire(Project.NameKey name, String head) {
+    if (createdListeners.isEmpty()) {
+      return;
+    }
+
+    Event event = new Event(name, head);
+    createdListeners.runEach(l -> l.onNewProjectCreated(event));
+  }
+
+  static class Event extends AbstractNoNotifyEvent implements NewProjectCreatedListener.Event {
+    private final Project.NameKey name;
+    private final String head;
+
+    Event(Project.NameKey name, String head) {
+      this.name = name;
+      this.head = head;
+    }
+
+    @Override
+    public String getProjectName() {
+      return name.get();
+    }
+
+    @Override
+    public String getHeadName() {
+      return head;
+    }
+  }
+>>>>>>> BRANCH (7b4b4e Update git submodules)
 }
