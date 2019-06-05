@@ -496,7 +496,11 @@ public class CreateProjectIT extends AbstractDaemonTest {
   }
 
   private Optional<String> readProjectConfig(String projectName) throws Exception {
+<<<<<<< HEAD   (1e0156 Merge "If file is unchanged, start scrolled to top")
     try (Repository repo = repoManager.openRepository(Project.nameKey(projectName));
+=======
+    try (Repository repo = repoManager.openRepository(new Project.NameKey(projectName));
+>>>>>>> BRANCH (e4ee65 ReviewersUtil: Increase multiplier for candidate list to 3)
         TestRepository<Repository> tr = new TestRepository<>(repo)) {
       RevWalk rw = tr.getRevWalk();
       Ref ref = repo.exactRef(RefNames.REFS_CONFIG);

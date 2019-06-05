@@ -441,10 +441,17 @@ public class GroupNameNotesTest {
     GroupReference g1 = newGroup("a");
     GroupReference g2 = newGroup("b");
 
+<<<<<<< HEAD   (1e0156 Merge "If file is unchanged, start scrolled to top")
     try (TestRepository<Repository> tr = new TestRepository<>(repo)) {
       ObjectId k1 = getNoteKey(g1);
       ObjectId k2 = getNoteKey(g2);
       ObjectId k3 = GroupNameNotes.getNoteKey(AccountGroup.nameKey("c"));
+=======
+    try (TestRepository<?> tr = new TestRepository<>(repo)) {
+      ObjectId k1 = getNoteKey(g1);
+      ObjectId k2 = getNoteKey(g2);
+      ObjectId k3 = GroupNameNotes.getNoteKey(new AccountGroup.NameKey("c"));
+>>>>>>> BRANCH (e4ee65 ReviewersUtil: Increase multiplier for candidate list to 3)
       PersonIdent ident = newPersonIdent();
       ObjectId origCommitId =
           tr.branch(REFS_GROUPNAMES)
