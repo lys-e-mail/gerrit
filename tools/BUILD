@@ -35,9 +35,16 @@ java_package_configuration(
         "-Xep:BadAnnotationImplementation:ERROR",
         "-Xep:BadComparable:ERROR",
         "-Xep:BoxedPrimitiveConstructor:ERROR",
+<<<<<<< HEAD   (377ab8 Merge "Replace this.importHref with Polymer 2 compatible swi)
         "-Xep:CannotMockFinalClass:ERROR",
         "-Xep:ClassCanBeStatic:ERROR",
         "-Xep:ClassNewInstance:ERROR",
+=======
+        "-Xep:CannotMockFinalClass:WARN",
+        "-Xep:ClassCanBeStatic:WARN",
+        "-Xep:ClassNewInstance:WARN",
+        "-Xep:DateFormatConstant:ERROR",
+>>>>>>> BRANCH (bc230a Merge branch 'stable-2.16' into stable-3.0)
         "-Xep:DefaultCharset:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
         "-Xep:ElementsCountedInLoop:ERROR",

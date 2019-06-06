@@ -22,7 +22,11 @@ java_library(
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/prettify:server",
         "//java/com/google/gerrit/reviewdb:server",
+<<<<<<< HEAD   (377ab8 Merge "Replace this.importHref with Polymer 2 compatible swi)
         "//java/org/eclipse/jgit:server",
+=======
+        "//java/com/google/gwtorm",
+>>>>>>> BRANCH (bc230a Merge branch 'stable-2.16' into stable-3.0)
         "//lib:guava",
         "//lib:servlet-api-3_1",
         "//lib/auto:auto-value",

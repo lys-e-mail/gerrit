@@ -20,10 +20,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+<<<<<<< HEAD   (377ab8 Merge "Replace this.importHref with Polymer 2 compatible swi)
+=======
+import com.google.gerrit.jgit.diff.ReplaceEdit;
+import com.google.gerrit.testing.GerritBaseTests;
+>>>>>>> BRANCH (bc230a Merge branch 'stable-2.16' into stable-3.0)
 import java.util.List;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.diff.ReplaceEdit;
 import org.junit.Test;
 
 public class IntraLineLoaderTest {
