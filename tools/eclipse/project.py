@@ -154,7 +154,12 @@ def gen_classpath(ext):
       src.add(m.group(1))
       # Exceptions: both source and lib
       if p.endswith('libquery_parser.jar') or \
+<<<<<<< HEAD   (7cb82e Always send an email when adding or deleting an SSH key)
          p.endswith('libprolog-common.jar') or \
+=======
+         p.endswith('prolog/libcommon.jar') or \
+         p.endswith('com_google_protobuf/libprotobuf_java.jar') or \
+>>>>>>> BRANCH (2ca54d Fix eclipse project generation)
          p.endswith('lucene-core-and-backward-codecs__merged.jar'):
         lib.add(p)
       # JGit dependency from external repository
