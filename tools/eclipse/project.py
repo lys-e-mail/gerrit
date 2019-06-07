@@ -180,6 +180,7 @@ def gen_classpath(ext):
     gwt_lib = set()
     plugins = set()
 
+<<<<<<< HEAD   (b5c442 Merge branch 'stable-2.15' into stable-2.16)
     # Classpath entries are absolute for cross-cell support
     java_library = re.compile('bazel-out/.*?-fastbuild/bin/(.*)/[^/]+[.]jar$')
     srcs = re.compile('(.*/external/[^/]+)/jar/(.*)[.]jar')
@@ -189,6 +190,94 @@ def gen_classpath(ext):
             if p.startswith("external"):
                 p = path.join(ext, p)
             gwt_lib.add(p)
+=======
+  # Classpath entries are absolute for cross-cell support
+  java_library = re.compile('bazel-out/.*?-fastbuild/bin/(.*)/[^/]+[.]jar$')
+  srcs = re.compile('(.*/external/[^/]+)/jar/(.*)[.]jar')
+  for p in _query_classpath(MAIN):
+    if p.endswith('-src.jar'):
+      # gwt_module() depends on -src.jar for Java to JavaScript compiles.
+      if p.startswith("external"):
+        p = path.join(ext, p)
+      gwt_lib.add(p)
+      continue
+
+    m = java_library.match(p)
+    if m:
+      src.add(m.group(1))
+      # Exceptions: both source and lib
+      if p.endswith('libquery_parser.jar') or \
+         p.endswith('libprolog-common.jar') or \
+         p.endswith('com_google_protobuf/libprotobuf_java.jar') or \
+         p.endswith('lucene-core-and-backward-codecs__merged.jar'):
+        lib.add(p)
+      # JGit dependency from external repository
+      if 'gerrit-' not in p and 'jgit' in p:
+        lib.add(p)
+    else:
+      # Don't mess up with Bazel internal test runner dependencies.
+      # When we use Eclipse we rely on it for running the tests
+      if p.endswith("external/bazel_tools/tools/jdk/TestRunner_deploy.jar"):
+        continue
+      if p.startswith("external"):
+        p = path.join(ext, p)
+      lib.add(p)
+
+  for p in _query_classpath(GWT):
+    m = java_library.match(p)
+    if m:
+      gwt_src.add(m.group(1))
+
+  for s in sorted(src):
+    out = None
+
+    if s.startswith('lib/'):
+      out = 'eclipse-out/lib'
+    elif s.startswith('plugins/'):
+      if args.plugins:
+        plugins.add(s)
+        continue
+      out = 'eclipse-out/' + s
+
+    p = path.join(s, 'java')
+    if path.exists(p):
+      classpathentry('src', p, out=out)
+      continue
+
+    for env in ['main', 'test']:
+      o = None
+      if out:
+        o = out + '/' + env
+      elif env == 'test':
+        o = 'eclipse-out/test'
+
+      for srctype in ['java', 'resources']:
+        p = path.join(s, 'src', env, srctype)
+        if path.exists(p):
+          classpathentry('src', p, out=o)
+
+  for libs in [lib, gwt_lib]:
+    for j in sorted(libs):
+      s = None
+      m = srcs.match(j)
+      if m:
+        prefix = m.group(1)
+        suffix = m.group(2)
+        p = path.join(prefix, "jar", "%s-src.jar" % suffix)
+        if path.exists(p):
+          s = p
+      if args.plugins:
+        classpathentry('lib', j, s, exported=True)
+      else:
+        # Filter out the source JARs that we pull through transitive closure of
+        # GWT plugin API (we add source directories themself).  Exception is
+        # libEdit-src.jar, that is needed for GWT SDM to work.
+        m = java_library.match(j)
+        if m:
+          if m.group(1).startswith("gerrit-") and \
+              j.endswith("-src.jar") and \
+              not j.endswith("libEdit-src.jar"):
+>>>>>>> BRANCH (d97871 Merge branch 'stable-2.14' into stable-2.15)
             continue
 
         m = java_library.match(p)

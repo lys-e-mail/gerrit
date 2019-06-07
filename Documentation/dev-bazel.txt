@@ -14,6 +14,7 @@ To build Gerrit from source, you need:
 * zip, unzip
 * gcc
 
+<<<<<<< HEAD   (b5c442 Merge branch 'stable-2.15' into stable-2.16)
 [[java]]
 === Java
 
@@ -66,6 +67,10 @@ in `$gerrit_site/etc/gerrit.config` to run Gerrit with Java 9:
   javaOptions = --add-modules java.activation \
       --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED
 ```
+=======
+Alternatively use Bazelisk to use the latest supported Bazel version on
+different stable branches: https://github.com/bazelbuild/bazelisk.
+>>>>>>> BRANCH (d97871 Merge branch 'stable-2.14' into stable-2.15)
 
 [[build]]
 == Building on the Command Line
