@@ -1074,6 +1074,7 @@ public class AccountIT extends AbstractDaemonTest {
 
   @Test
   public void deletePreferredEmail() throws Exception {
+    String previous = gApi.accounts().self().get().email;
     String email = "foo.bar.baz@example.com";
     EmailInput input = new EmailInput();
     input.email = email;
@@ -1085,14 +1086,21 @@ public class AccountIT extends AbstractDaemonTest {
     // and then again on setting the email preferred.
     accountIndexedCounter.assertReindexOf(admin, 2);
 
+    // The new preferred email is set
     assertThat(gApi.accounts().self().get().email).isEqualTo(email);
 
     accountIndexedCounter.clear();
     gApi.accounts().self().deleteEmail(input.email);
     accountIndexedCounter.assertReindexOf(admin);
 
+<<<<<<< HEAD   (72597a Update git submodules)
     requestScopeOperations.resetCurrentApiUser();
     assertThat(getEmails()).doesNotContain(email);
+=======
+    resetCurrentApiUser();
+    assertThat(getEmails()).containsExactly(previous);
+    assertThat(gApi.accounts().self().get().email).isNull();
+>>>>>>> BRANCH (17b608 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   @Test
