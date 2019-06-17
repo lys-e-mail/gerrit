@@ -165,10 +165,13 @@
         this.$.accountInfo.loadData(),
         this.$.watchedProjectsEditor.loadData(),
         this.$.groupList.loadData(),
+<<<<<<< HEAD   (1f8093 Merge branch 'stable-2.15' into stable-2.16)
         this.$.httpPass.loadData(),
         this.$.identities.loadData(),
         this.$.editPrefs.loadData(),
         this.$.diffPrefs.loadData(),
+=======
+>>>>>>> BRANCH (2c750e Merge branch 'stable-2.14' into stable-2.15)
       ];
 
       promises.push(this.$.restAPI.getPreferences().then(prefs => {
