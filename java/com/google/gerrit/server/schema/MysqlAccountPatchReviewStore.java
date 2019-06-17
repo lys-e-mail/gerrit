@@ -37,8 +37,13 @@ public class MysqlAccountPatchReviewStore extends JdbcAccountPatchReviewStore {
   }
 
   @Override
+<<<<<<< HEAD   (9967e1 Merge branch 'stable-2.16' into stable-3.0)
   public StorageException convertError(String op, SQLException err) {
     switch (getSQLStateInt(err)) {
+=======
+  public OrmException convertError(String op, SQLException err) {
+    switch (err.getErrorCode()) {
+>>>>>>> BRANCH (a3b260 Merge branch 'stable-2.15' into stable-2.16)
       case 1022: // ER_DUP_KEY
       case 1062: // ER_DUP_ENTRY
       case 1169: // ER_DUP_UNIQUE;
