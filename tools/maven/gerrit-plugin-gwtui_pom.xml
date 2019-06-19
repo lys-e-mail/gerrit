@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (da9c0c Merge branch 'stable-2.16' into stable-3.0)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-plugin-api</artifactId>
-<<<<<<< HEAD   (da9c0c Merge branch 'stable-2.16' into stable-3.0)
-  <version>3.0.1-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.10-SNAPSHOT</version>
->>>>>>> BRANCH (5f4e92 Merge branch 'stable-2.15' into stable-2.16)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Plugin API</name>
-  <description>API for Gerrit Plugins</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (5f4e92 Merge branch 'stable-2.15' into stable-2.16)
