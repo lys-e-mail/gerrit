@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (8b0339 Allow CommitValidationListener to ignore 'skip validation' p)
 _JGIT_VERS = "5.1.7.201904200442-r"
+=======
+_JGIT_VERS = "4.11.8.201904181247-r"
+>>>>>>> BRANCH (97d4b4 Merge branch 'stable-2.14' into stable-2.15)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,28 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8b0339 Allow CommitValidationListener to ignore 'skip validation' p)
         sha1 = "ef1f744a1117e3d8916f3770486502a56d241b16",
         src_sha1 = "7bf5b5298f8936e959a92f62b5151d58feb9c00a",
+=======
+        sha1 = "d7bc31008c827e63d33b14c68eb149dd2087e41b",
+        src_sha1 = "111ac9eb58c42673f560fa242ea31aec3d0eb7d3",
+>>>>>>> BRANCH (97d4b4 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8b0339 Allow CommitValidationListener to ignore 'skip validation' p)
         sha1 = "8306e221fb50985247138adb8ffb0f4cd74c5e9a",
+=======
+        sha1 = "ceefadfc63548bce8d3eedf8656759cc1c41b1ee",
+>>>>>>> BRANCH (97d4b4 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8b0339 Allow CommitValidationListener to ignore 'skip validation' p)
         sha1 = "fefb13ab8331cc8b13a15b653b1e057de7d3e514",
+=======
+        sha1 = "10565873a029aad92b18908786a0e097df975175",
+>>>>>>> BRANCH (97d4b4 Merge branch 'stable-2.14' into stable-2.15)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (8b0339 Allow CommitValidationListener to ignore 'skip validation' p)
         sha1 = "f73f1eacc38f8329d9453f1d0353e82404379a89",
+=======
+        sha1 = "b8c33396d6083f357cc5ac820814a55aac17f862",
+>>>>>>> BRANCH (97d4b4 Merge branch 'stable-2.14' into stable-2.15)
         unsign = True,
     )
 
