@@ -187,6 +187,97 @@ public class CreateProject
     }
   }
 
+<<<<<<< HEAD   (779735 Upgrade gitiles to 0.2-10)
+=======
+  // TODO(dpursehouse): Add @UsedAt annotation
+  public ProjectState createProject(CreateProjectArgs args)
+      throws BadRequestException, ResourceConflictException, IOException, ConfigInvalidException {
+    final Project.NameKey nameKey = args.getProject();
+    try {
+      final String head = args.permissionsOnly ? RefNames.REFS_CONFIG : args.branch.get(0);
+      try (Repository repo = repoManager.openRepository(nameKey)) {
+        if (repo.getObjectDatabase().exists()) {
+          throw new ResourceConflictException("project \"" + nameKey + "\" exists");
+        }
+      } catch (RepositoryNotFoundException e) {
+        // It does not exist, safe to ignore.
+      }
+      try (Repository repo = repoManager.createRepository(nameKey)) {
+        RefUpdate u = repo.updateRef(Constants.HEAD);
+        u.disableRefLog();
+        u.link(head);
+
+        createProjectConfig(args);
+
+        if (!args.permissionsOnly && args.createEmptyCommit) {
+          createEmptyCommits(repo, nameKey, args.branch);
+        }
+
+        fire(nameKey, head);
+
+        return projectCache.get(nameKey);
+      }
+    } catch (RepositoryCaseMismatchException e) {
+      throw new ResourceConflictException(
+          "Cannot create "
+              + nameKey.get()
+              + " because the name is already occupied by another project."
+              + " The other project has the same name, only spelled in a"
+              + " different case.");
+    } catch (RepositoryNotFoundException badName) {
+      throw new BadRequestException("invalid project name: " + nameKey);
+    } catch (ConfigInvalidException e) {
+      String msg = "Cannot create " + nameKey;
+      logger.atSevere().withCause(e).log(msg);
+      throw e;
+    }
+  }
+
+  private void createProjectConfig(CreateProjectArgs args)
+      throws IOException, ConfigInvalidException {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(args.getProject())) {
+      ProjectConfig config = ProjectConfig.read(md);
+
+      Project newProject = config.getProject();
+      newProject.setDescription(args.projectDescription);
+      newProject.setSubmitType(
+          MoreObjects.firstNonNull(
+              args.submitType, repositoryCfg.getDefaultSubmitType(args.getProject())));
+      newProject.setBooleanConfig(
+          BooleanProjectConfig.USE_CONTRIBUTOR_AGREEMENTS, args.contributorAgreements);
+      newProject.setBooleanConfig(BooleanProjectConfig.USE_SIGNED_OFF_BY, args.signedOffBy);
+      newProject.setBooleanConfig(BooleanProjectConfig.USE_CONTENT_MERGE, args.contentMerge);
+      newProject.setBooleanConfig(
+          BooleanProjectConfig.CREATE_NEW_CHANGE_FOR_ALL_NOT_IN_TARGET,
+          args.newChangeForAllNotInTarget);
+      newProject.setBooleanConfig(BooleanProjectConfig.REQUIRE_CHANGE_ID, args.changeIdRequired);
+      newProject.setBooleanConfig(BooleanProjectConfig.REJECT_EMPTY_COMMIT, args.rejectEmptyCommit);
+      newProject.setMaxObjectSizeLimit(args.maxObjectSizeLimit);
+      newProject.setBooleanConfig(BooleanProjectConfig.ENABLE_SIGNED_PUSH, args.enableSignedPush);
+      newProject.setBooleanConfig(BooleanProjectConfig.REQUIRE_SIGNED_PUSH, args.requireSignedPush);
+      if (args.newParent != null) {
+        newProject.setParentName(args.newParent);
+      }
+
+      if (!args.ownerIds.isEmpty()) {
+        AccessSection all = config.getAccessSection(AccessSection.ALL, true);
+        for (AccountGroup.UUID ownerId : args.ownerIds) {
+          GroupDescription.Basic g = groupBackend.get(ownerId);
+          if (g != null) {
+            GroupReference group = config.resolve(GroupReference.forGroup(g));
+            all.getPermission(Permission.OWNER, true).add(new PermissionRule(group));
+          }
+        }
+      }
+
+      md.setMessage("Created project\n");
+      config.commit(md);
+      md.getRepository().setGitwebDescription(args.projectDescription);
+    }
+    projectCache.onCreateProject(args.getProject());
+  }
+
+>>>>>>> BRANCH (e7b44a Merge branch 'stable-2.15' into stable-2.16)
   private List<String> normalizeBranchNames(List<String> branches) throws BadRequestException {
     if (branches == null || branches.isEmpty()) {
       return Collections.singletonList(Constants.R_HEADS + Constants.MASTER);

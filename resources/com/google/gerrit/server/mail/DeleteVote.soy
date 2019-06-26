@@ -19,12 +19,23 @@
 /**
  * The .DeleteVote template will determine the contents of the email related
  * to removing votes on changes.
+<<<<<<< HEAD   (779735 Upgrade gitiles to 0.2-10)
+=======
+ * @param change
+ * @param coverLetter
+ * @param email
+ * @param fromName
+>>>>>>> BRANCH (e7b44a Merge branch 'stable-2.15' into stable-2.16)
  */
 {template .DeleteVote kind="text"}
+<<<<<<< HEAD   (779735 Upgrade gitiles to 0.2-10)
   {@param change: ?}
   {@param coverLetter: ?}
   {@param fromName: ?}
   {$fromName} has removed a vote on this change.{\n}
+=======
+  {$fromName} has removed a vote from this change.{if $email.changeUrl} ( {$email.changeUrl} ){/if}{\n}{\n}
+>>>>>>> BRANCH (e7b44a Merge branch 'stable-2.15' into stable-2.16)
   {\n}
   Change subject: {$change.subject}{\n}
   ......................................................................{\n}

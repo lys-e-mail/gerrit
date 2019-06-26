@@ -2257,8 +2257,13 @@ public class ChangeIT extends AbstractDaemonTest {
     List<Message> messages = sender.getMessages();
     assertThat(messages).hasSize(1);
     Message msg = messages.get(0);
+<<<<<<< HEAD   (779735 Upgrade gitiles to 0.2-10)
     assertThat(msg.rcpt()).containsExactly(user.getEmailAddress());
     assertThat(msg.body()).contains(admin.fullName() + " has removed a vote on this change.\n");
+=======
+    assertThat(msg.rcpt()).containsExactly(user.emailAddress);
+    assertThat(msg.body()).contains(admin.fullName + " has removed a vote from this change.");
+>>>>>>> BRANCH (e7b44a Merge branch 'stable-2.15' into stable-2.16)
     assertThat(msg.body())
         .contains("Removed Code-Review+1 by " + user.fullName() + " <" + user.email() + ">\n");
 
