@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.api.accounts.Accounts;
@@ -29,28 +30,72 @@ import com.google.gerrit.extensions.common.ServerInfo;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.util.http.testutil.FakeHttpServletRequest;
 import com.google.gerrit.util.http.testutil.FakeHttpServletResponse;
+=======
+import com.google.gerrit.testing.GerritBaseTests;
+import java.net.URISyntaxException;
+import java.util.Map;
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 import org.junit.Test;
 
 public class IndexServletTest {
 
   @Test
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
   public void renderTemplate() throws Exception {
     Accounts accountsApi = createMock(Accounts.class);
     expect(accountsApi.self()).andThrow(new AuthException("user needs to be authenticated"));
+=======
+  public void noPathAndNoCDN() throws URISyntaxException {
+    Map<String, Object> data = IndexServlet.getTemplateData("http://example.com/", null, null);
+    assertThat(data.get("canonicalPath")).isEqualTo("");
+    assertThat(data.get("staticResourcePath").toString()).isEqualTo("");
+  }
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
     Server serverApi = createMock(Server.class);
     expect(serverApi.getVersion()).andReturn("123");
     expect(serverApi.topMenus()).andReturn(ImmutableList.of());
     ServerInfo serverInfo = new ServerInfo();
     serverInfo.defaultTheme = "my-default-theme";
     expect(serverApi.getInfo()).andReturn(serverInfo);
+=======
+  @Test
+  public void pathAndNoCDN() throws URISyntaxException {
+    Map<String, Object> data =
+        IndexServlet.getTemplateData("http://example.com/gerrit/", null, null);
+    assertThat(data.get("canonicalPath")).isEqualTo("/gerrit");
+    assertThat(data.get("staticResourcePath").toString()).isEqualTo("/gerrit");
+  }
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
     Config configApi = createMock(Config.class);
     expect(configApi.server()).andReturn(serverApi);
+=======
+  @Test
+  public void noPathAndCDN() throws URISyntaxException {
+    Map<String, Object> data =
+        IndexServlet.getTemplateData("http://example.com/", "http://my-cdn.com/foo/bar/", null);
+    assertThat(data.get("canonicalPath")).isEqualTo("");
+    assertThat(data.get("staticResourcePath").toString()).isEqualTo("http://my-cdn.com/foo/bar/");
+  }
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
     GerritApi gerritApi = createMock(GerritApi.class);
     expect(gerritApi.accounts()).andReturn(accountsApi);
     expect(gerritApi.config()).andReturn(configApi);
+=======
+  @Test
+  public void pathAndCDN() throws URISyntaxException {
+    Map<String, Object> data =
+        IndexServlet.getTemplateData(
+            "http://example.com/gerrit", "http://my-cdn.com/foo/bar/", null);
+    assertThat(data.get("canonicalPath")).isEqualTo("/gerrit");
+    assertThat(data.get("staticResourcePath").toString()).isEqualTo("http://my-cdn.com/foo/bar/");
+  }
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 
     String testCanonicalUrl = "foo-url";
     String testCdnPath = "bar-cdn";

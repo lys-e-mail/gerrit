@@ -17,6 +17,10 @@ package com.google.gerrit.httpd.raw;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
+=======
+import com.google.common.base.Strings;
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import com.google.gerrit.common.Nullable;
@@ -30,7 +34,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.Map;
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
 import java.util.function.Function;
+=======
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,4 +97,48 @@ public class IndexServlet extends HttpServlet {
       w.write(renderer.render().get().getBytes(UTF_8));
     }
   }
+<<<<<<< HEAD   (c2d09d Upgrade gitiles to 0.3-2)
+=======
+
+  static String computeCanonicalPath(@Nullable String canonicalURL) throws URISyntaxException {
+    if (Strings.isNullOrEmpty(canonicalURL)) {
+      return "";
+    }
+
+    // If we serving from a sub-directory rather than root, determine the path
+    // from the cannonical web URL.
+    URI uri = new URI(canonicalURL);
+    return uri.getPath().replaceAll("/$", "");
+  }
+
+  static Map<String, Object> getTemplateData(
+      String canonicalURL, String cdnPath, String faviconPath) throws URISyntaxException {
+    String canonicalPath = computeCanonicalPath(canonicalURL);
+
+    String staticPath = "";
+    if (cdnPath != null) {
+      staticPath = cdnPath;
+    } else if (canonicalPath != null) {
+      staticPath = canonicalPath;
+    }
+
+    // The resource path must be typed as safe for use in a script src.
+    // TODO(wyatta): Upgrade this to use an appropriate safe URL type.
+    SanitizedContent sanitizedStaticPath =
+        UnsafeSanitizedContentOrdainer.ordainAsSafe(
+            staticPath, SanitizedContent.ContentKind.TRUSTED_RESOURCE_URI);
+
+    ImmutableMap.Builder<String, Object> data = ImmutableMap.builder();
+    if (canonicalPath != null) {
+      data.put("canonicalPath", canonicalPath);
+    }
+    if (sanitizedStaticPath != null) {
+      data.put("staticResourcePath", sanitizedStaticPath);
+    }
+    if (faviconPath != null) {
+      data.put("faviconPath", faviconPath);
+    }
+    return data.build();
+  }
+>>>>>>> BRANCH (ff50a2 Merge branch 'stable-2.16' into stable-3.0)
 }
