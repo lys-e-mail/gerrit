@@ -616,6 +616,7 @@ public class RefControlTest {
   }
 
   @Test
+<<<<<<< HEAD   (eb61fb Upgrade gitiles to 0.3-2)
   public void blockLabelRange_ParentBlocksChild() throws Exception {
     projectOperations
         .project(localKey)
@@ -627,6 +628,21 @@ public class RefControlTest {
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+  public void blockPartialRangeLocally() {
+    block(local, LABEL + "Code-Review", +1, +2, DEVS, "refs/heads/master");
+
+    ProjectControl u = user(local, DEVS);
+
+    PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
+    assertCannotVote(2, range);
+  }
+
+  @Test
+  public void blockLabelRange_ParentBlocksChild() {
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+    block(parent, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (999dd7 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
 

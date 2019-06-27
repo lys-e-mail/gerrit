@@ -1354,6 +1354,7 @@ class ReceiveCommits {
   }
 
   private void parseRewind(ReceiveCommand cmd) throws PermissionBackendException {
+<<<<<<< HEAD   (eb61fb Upgrade gitiles to 0.3-2)
     try (TraceTimer traceTimer = newTimer("parseRewind")) {
       RevCommit newObject;
       try {
@@ -1367,6 +1368,25 @@ class ReceiveCommits {
         return;
       }
       logger.atFine().log("Rewinding %s", cmd);
+=======
+    try {
+      receivePack.getRevWalk().parseCommit(cmd.getNewId());
+    } catch (IOException err) {
+      logger.atSevere().withCause(err).log(
+          "Invalid object %s for %s forced update", cmd.getNewId().name(), cmd.getRefName());
+      reject(cmd, "invalid object");
+      return;
+    }
+    logger.atFine().log("Rewinding %s", cmd);
+
+    if (!validRefOperation(cmd)) {
+      return;
+    }
+    validateRegularPushCommits(new Branch.NameKey(project.getNameKey(), cmd.getRefName()), cmd);
+    if (cmd.getResult() != NOT_ATTEMPTED) {
+      return;
+    }
+>>>>>>> BRANCH (999dd7 Merge branch 'stable-2.16' into stable-3.0)
 
       if (newObject != null) {
         validateRegularPushCommits(
@@ -3216,6 +3236,7 @@ class ReceiveCommits {
    */
   private void validateRegularPushCommits(BranchNameKey branch, ReceiveCommand cmd)
       throws PermissionBackendException {
+<<<<<<< HEAD   (eb61fb Upgrade gitiles to 0.3-2)
     try (TraceTimer traceTimer =
         newTimer("validateRegularPushCommits", "branch", branch.branch())) {
       if (!RefNames.REFS_CONFIG.equals(cmd.getRefName())
@@ -3224,14 +3245,65 @@ class ReceiveCommits {
           && pushOptions.containsKey(PUSH_OPTION_SKIP_VALIDATION)) {
         if (projectState.is(BooleanProjectConfig.USE_SIGNED_OFF_BY)) {
           reject(cmd, "requireSignedOffBy prevents option " + PUSH_OPTION_SKIP_VALIDATION);
+=======
+    boolean skipValidation =
+        !RefNames.REFS_CONFIG.equals(cmd.getRefName())
+            && !(MagicBranch.isMagicBranch(cmd.getRefName())
+                || NEW_PATCHSET_PATTERN.matcher(cmd.getRefName()).matches())
+            && pushOptions.containsKey(PUSH_OPTION_SKIP_VALIDATION);
+    if (skipValidation) {
+      if (projectState.is(BooleanProjectConfig.USE_SIGNED_OFF_BY)) {
+        reject(cmd, "requireSignedOffBy prevents option " + PUSH_OPTION_SKIP_VALIDATION);
+        return;
+      }
+
+      Optional<AuthException> err =
+          checkRefPermission(permissions.ref(branch.get()), RefPermission.SKIP_VALIDATION);
+      if (err.isPresent()) {
+        rejectProhibited(cmd, err.get());
+        return;
+      }
+      if (!Iterables.isEmpty(rejectCommits)) {
+        reject(cmd, "reject-commits prevents " + PUSH_OPTION_SKIP_VALIDATION);
+      }
+    }
+
+    BranchCommitValidator validator = commitValidatorFactory.create(projectState, branch, user);
+    RevWalk walk = receivePack.getRevWalk();
+    walk.reset();
+    walk.sort(RevSort.NONE);
+    try {
+      RevObject parsedObject = walk.parseAny(cmd.getNewId());
+      if (!(parsedObject instanceof RevCommit)) {
+        return;
+      }
+      ListMultimap<ObjectId, Ref> existing = changeRefsById();
+      walk.markStart((RevCommit) parsedObject);
+      markHeadsAsUninteresting(walk, cmd.getRefName());
+      int limit = receiveConfig.maxBatchCommits;
+      int n = 0;
+      for (RevCommit c; (c = walk.next()) != null; ) {
+        if (++n > limit && !skipValidation) {
+          logger.atFine().log("Number of new commits exceeds limit of %d", limit);
+          reject(
+              cmd,
+              String.format(
+                  "more than %d commits, and %s not set", limit, PUSH_OPTION_SKIP_VALIDATION));
+>>>>>>> BRANCH (999dd7 Merge branch 'stable-2.16' into stable-3.0)
           return;
         }
 
+<<<<<<< HEAD   (eb61fb Upgrade gitiles to 0.3-2)
         Optional<AuthException> err =
             checkRefPermission(permissions.ref(branch.branch()), RefPermission.SKIP_VALIDATION);
         if (err.isPresent()) {
           rejectProhibited(cmd, err.get());
           return;
+=======
+        if (!validator.validCommit(
+            walk.getObjectReader(), cmd, c, false, messages, rejectCommits, null, skipValidation)) {
+          break;
+>>>>>>> BRANCH (999dd7 Merge branch 'stable-2.16' into stable-3.0)
         }
         if (!Iterables.isEmpty(rejectCommits)) {
           reject(cmd, "reject-commits prevents " + PUSH_OPTION_SKIP_VALIDATION);
