@@ -119,8 +119,13 @@ tool as well.
 *Disadvantages*
 
 * May require substantial downtime; takes about twice as long as an
+<<<<<<< HEAD   (166723 Don't make the App reload when users go to the dashboard)
   link:pgm-reindex.html[offline reindex]. (In fact, one of the migration steps is a
   full reindex, so it can't possibly take less time.)
+=======
+  link:pgm-reindex.html[offline reindex]. (In fact, one of the migration steps
+  is a full reindex, so it can't possibly take less time.)
+>>>>>>> BRANCH (b9a988 Documentation: Fix pgm-reindex link in note-db page)
 
 [[trial-migration]]
 ==== Trial mode
