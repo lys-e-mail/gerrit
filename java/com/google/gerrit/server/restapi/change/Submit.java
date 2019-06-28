@@ -246,11 +246,6 @@ public class Submit
         return BLOCKED_HIDDEN_SUBMIT_TOOLTIP;
       }
       for (ChangeData c : cs.changes()) {
-        if (cd.getId().equals(c.getId())) {
-          // We ignore the change about to be submitted, as these checks are already done in the
-          // #apply and #getDescription methods.
-          continue;
-        }
         Set<ChangePermission> can =
             permissionBackend
                 .user(user)
@@ -298,10 +293,14 @@ public class Submit
   @Override
   public UiAction.Description getDescription(RevisionResource resource) {
     Change change = resource.getChange();
+<<<<<<< HEAD   (e78c5a Merge branch 'stable-2.16' into stable-3.0)
     if (!change.isNew()
         || change.isWorkInProgress()
         || !resource.isCurrent()
         || !resource.permissions().testOrFalse(ChangePermission.SUBMIT)) {
+=======
+    if (!change.getStatus().isOpen() || !resource.isCurrent()) {
+>>>>>>> BRANCH (fbaedd Merge changes Ibdcfa4f1,Ibf4540ac into stable-2.16)
       return null; // submit not visible
     }
 
