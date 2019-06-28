@@ -88,6 +88,18 @@ limitations under the License.
         {url: 'https://awesometown.com/#hashyhash'},
         {url: 'url', target: '_blank'},
       ].map(element._fixCustomMenuItem), [
+<<<<<<< HEAD   (3fec83 Merge "Convert class for metric field to AutoValue")
+=======
+        {url: 'https://awesometown.com/#hashyhash'},
+        {url: 'url'},
+      ]);
+    });
+
+    test('filter unsupported urls', () => {
+      assert.deepEqual([
+        {url: '/c/331788/'},
+        {url: '/groups/self'},
+>>>>>>> BRANCH (419f1e Merge branch 'stable-2.16' into stable-3.0)
         {url: 'https://awesometown.com/#hashyhash'},
         {url: 'url'},
       ]);

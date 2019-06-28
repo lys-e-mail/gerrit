@@ -3300,11 +3300,20 @@ class ReceiveCommits {
                 RevCommit newTip = rw.parseCommit(cmd.getNewId());
                 BranchNameKey branch = BranchNameKey.create(project.getNameKey(), refName);
 
+<<<<<<< HEAD   (3fec83 Merge "Convert class for metric field to AutoValue")
                 rw.reset();
                 rw.markStart(newTip);
                 if (!ObjectId.zeroId().equals(cmd.getOldId())) {
                   rw.markUninteresting(rw.parseCommit(cmd.getOldId()));
                 }
+=======
+              rw.reset();
+              rw.sort(RevSort.REVERSE);
+              rw.markStart(newTip);
+              if (!ObjectId.zeroId().equals(cmd.getOldId())) {
+                rw.markUninteresting(rw.parseCommit(cmd.getOldId()));
+              }
+>>>>>>> BRANCH (419f1e Merge branch 'stable-2.16' into stable-3.0)
 
                 ListMultimap<ObjectId, Ref> byCommit = changeRefsById();
                 Map<Change.Key, ChangeNotes> byKey = null;

@@ -680,8 +680,12 @@ limitations under the License.
       });
 
       test('_handleDefaultRoute on first load', () => {
+<<<<<<< HEAD   (3fec83 Merge "Convert class for metric field to AutoValue")
         const appElementStub = {dispatchEvent: sinon.stub()};
         element._appElement = () => appElementStub;
+=======
+        element._app = {dispatchEvent: sinon.stub()};
+>>>>>>> BRANCH (419f1e Merge branch 'stable-2.16' into stable-3.0)
         element._handleDefaultRoute();
         assert.isTrue(appElementStub.dispatchEvent.calledOnce);
         assert.equal(
@@ -701,8 +705,12 @@ limitations under the License.
         sandbox.stub(window, 'page');
         element._startRouter();
 
+<<<<<<< HEAD   (3fec83 Merge "Convert class for metric field to AutoValue")
         const appElementStub = {dispatchEvent: sinon.stub()};
         element._appElement = () => appElementStub;
+=======
+        element._app = {dispatchEvent: sinon.stub()};
+>>>>>>> BRANCH (419f1e Merge branch 'stable-2.16' into stable-3.0)
         element._handleDefaultRoute();
 
         onExit('', () => {}); // we left page;
