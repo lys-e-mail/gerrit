@@ -39,9 +39,12 @@ Note that we do not accept Pull Requests via the Github mirror.
 
 ## Getting in contact
 
+<<<<<<< HEAD   (fbaedd Merge changes Ibdcfa4f1,Ibf4540ac into stable-2.16)
 The IRC channel on freenode is #gerrit. An archive is available at:
 [echelog.com](https://echelog.com/logs/browse/gerrit).
 
+=======
+>>>>>>> BRANCH (144ea2 README: Remove IRC from the 'Getting in contact" section)
 The Developer Mailing list is [repo-discuss on Google Groups](https://groups.google.com/forum/#!forum/repo-discuss).
 
 ## License
