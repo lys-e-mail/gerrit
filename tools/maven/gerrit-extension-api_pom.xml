@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (f01ed7 Merge "Fix copying SHA to clipboard")
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.2-SNAPSHOT</version>
+>>>>>>> BRANCH (a1a860 Merge branch 'stable-2.16' into stable-3.0)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
