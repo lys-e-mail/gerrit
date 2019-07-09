@@ -4,7 +4,11 @@ POST_JDK8_DEPS = [":javax-activation"]
 
 java_library(
     name = "javax-activation",
+<<<<<<< HEAD   (c5faad Merge branch 'stable-2.16' into stable-3.0)
     testonly = True,
+=======
+    testonly = 1,
+>>>>>>> BRANCH (755e5b Merge branch 'stable-2.15' into stable-2.16)
     data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
     exports = ["@javax-activation//jar"],
 )

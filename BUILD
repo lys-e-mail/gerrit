@@ -1,3 +1,8 @@
+<<<<<<< HEAD   (c5faad Merge branch 'stable-2.16' into stable-3.0)
+=======
+package(default_visibility = ["//visibility:public"])
+
+>>>>>>> BRANCH (755e5b Merge branch 'stable-2.15' into stable-2.16)
 load("//tools/bzl:genrule2.bzl", "genrule2")
 load("//tools/bzl:pkg_war.bzl", "pkg_war")
 

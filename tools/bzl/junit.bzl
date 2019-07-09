@@ -80,6 +80,10 @@ def junit_tests(name, srcs, **kwargs):
     )
     jvm_flags = kwargs.get("jvm_flags", [])
     jvm_flags = jvm_flags + select({
+<<<<<<< HEAD   (c5faad Merge branch 'stable-2.16' into stable-3.0)
+=======
+        "//:java_next": POST_JDK8_OPTS,
+>>>>>>> BRANCH (755e5b Merge branch 'stable-2.15' into stable-2.16)
         "//:java9": POST_JDK8_OPTS,
         "//:java_next": POST_JDK8_OPTS,
         "//conditions:default": [],

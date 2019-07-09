@@ -1063,18 +1063,18 @@ maven_jar(
     sha1 = "0f5a654e4675769c716e5b387830d19b501ca191",
 )
 
-TESTCONTAINERS_VERSION = "1.11.3"
+TESTCONTAINERS_VERSION = "1.11.4"
 
 maven_jar(
     name = "testcontainers",
     artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-    sha1 = "154b69dd976416734b2fc809fb86e173ad9aa25b",
+    sha1 = "b0c70b1a3608f43deafba7649b344a422a442585",
 )
 
 maven_jar(
     name = "testcontainers-elasticsearch",
     artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-    sha1 = "90713b61f5748d8894c31a20f955bd7f81ac2ece",
+    sha1 = "faab09a8876b8dbb326cbc10bbaa5ea86f5f5299",
 )
 
 maven_jar(
@@ -1101,6 +1101,7 @@ maven_jar(
     sha1 = "485de3a253e23f645037828c07f1d7f1af40763a",
 )
 
+<<<<<<< HEAD   (c5faad Merge branch 'stable-2.16' into stable-3.0)
 maven_jar(
     name = "mockito",
     artifact = "org.mockito:mockito-core:2.24.0",
@@ -1127,6 +1128,8 @@ maven_jar(
     sha1 = "639033469776fd37c08358c6b92a4761feb2af4b",
 )
 
+=======
+>>>>>>> BRANCH (755e5b Merge branch 'stable-2.15' into stable-2.16)
 load("//tools/bzl:js.bzl", "bower_archive", "npm_binary")
 
 # NPM binaries bundled along with their dependencies.
