@@ -22,10 +22,14 @@
  * a change successfully merged to the head.
  */
 {template .Merged kind="text"}
+<<<<<<< HEAD   (04c93d Update git submodules)
   {@param change: ?}
   {@param email: ?}
   {@param fromName: ?}
   {$fromName} has submitted this change and it was merged.
+=======
+  {$fromName} has submitted this change.
+>>>>>>> BRANCH (565f7f Merge branch 'stable-2.15' into stable-2.16)
   {if $email.changeUrl} ( {$email.changeUrl} ){/if}{\n}
   {\n}
   Change subject: {$change.subject}{\n}

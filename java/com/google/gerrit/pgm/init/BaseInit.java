@@ -34,7 +34,11 @@ import com.google.gerrit.pgm.init.index.IndexManagerOnInit;
 import com.google.gerrit.pgm.init.index.elasticsearch.ElasticIndexModuleOnInit;
 import com.google.gerrit.pgm.init.index.lucene.LuceneIndexModuleOnInit;
 import com.google.gerrit.pgm.util.SiteProgram;
+<<<<<<< HEAD   (04c93d Update git submodules)
 import com.google.gerrit.server.config.GerritServerConfig;
+=======
+import com.google.gerrit.reviewdb.server.ReviewDb;
+>>>>>>> BRANCH (565f7f Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.server.config.GerritServerConfigModule;
 import com.google.gerrit.server.config.SitePath;
 import com.google.gerrit.server.config.SitePaths;
@@ -51,7 +55,6 @@ import com.google.inject.CreationException;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.Message;
@@ -68,7 +71,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+<<<<<<< HEAD   (04c93d Update git submodules)
 import org.eclipse.jgit.lib.Config;
+=======
+import javax.sql.DataSource;
+>>>>>>> BRANCH (565f7f Merge branch 'stable-2.15' into stable-2.16)
 
 /** Initialize a new Gerrit installation. */
 public class BaseInit extends SiteProgram {
@@ -79,7 +86,6 @@ public class BaseInit extends SiteProgram {
   private final List<String> pluginsToInstall;
 
   private Injector sysInjector;
-  private Config config;
 
   protected BaseInit(PluginsDistribution pluginsDistribution, List<String> pluginsToInstall) {
     this.standalone = true;
@@ -123,10 +129,14 @@ public class BaseInit extends SiteProgram {
         run = createSiteRun(init);
         try {
           run.upgradeSchema();
+<<<<<<< HEAD   (04c93d Update git submodules)
         } catch (StorageException e) {
           if (config.getBoolean("container", "slave", false)) {
             throw e;
           }
+=======
+        } catch (OrmException e) {
+>>>>>>> BRANCH (565f7f Merge branch 'stable-2.15' into stable-2.16)
           String msg = "Couldn't upgrade schema. Expected if slave and read-only database";
           System.err.println(msg);
           logger.atWarning().withCause(e).log(msg);
@@ -417,8 +427,12 @@ public class BaseInit extends SiteProgram {
               bind(InitFlags.class).toInstance(init.flags);
             }
           });
+<<<<<<< HEAD   (04c93d Update git submodules)
       Injector dbInjector = createDbInjector();
       config = dbInjector.getInstance(Key.get(Config.class, GerritServerConfig.class));
+=======
+      Injector dbInjector = createDbInjector(SINGLE_USER);
+>>>>>>> BRANCH (565f7f Merge branch 'stable-2.15' into stable-2.16)
 
       switch (IndexModule.getIndexType(dbInjector)) {
         case LUCENE:
