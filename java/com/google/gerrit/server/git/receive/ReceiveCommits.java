@@ -2945,6 +2945,7 @@ class ReceiveCommits {
         RevCommit newCommit = rw.parseCommit(newCommitId);
         rw.parseBody(newCommit);
 
+<<<<<<< HEAD   (2a5dfa ChangeInserter: document link with requireChangeId)
         RevCommit priorCommit = revisions.inverse().get(priorPatchSet);
         replaceOp =
             replaceOpFactory
@@ -2965,6 +2966,28 @@ class ReceiveCommits {
         if (progress != null) {
           bu.addOp(notes.getChangeId(), new ChangeProgressOp(progress));
         }
+=======
+      RevCommit priorCommit = revisions.inverse().get(priorPatchSet);
+      replaceOp =
+          replaceOpFactory
+              .create(
+                  projectState,
+                  notes.getChange().getDest(),
+                  checkMergedInto,
+                  checkMergedInto ? inputCommand.getNewId().name() : null,
+                  priorPatchSet,
+                  priorCommit,
+                  psId,
+                  newCommit,
+                  info,
+                  groups,
+                  magicBranch,
+                  receivePack.getPushCertificate())
+              .setRequestScopePropagator(requestScopePropagator);
+      bu.addOp(notes.getChangeId(), replaceOp);
+      if (progress != null) {
+        bu.addOp(notes.getChangeId(), new ChangeProgressOp(progress));
+>>>>>>> BRANCH (9c7df6 Merge branch 'stable-2.16' into stable-3.0)
       }
     }
 
@@ -3148,6 +3171,7 @@ class ReceiveCommits {
    */
   private void validateRegularPushCommits(BranchNameKey branch, ReceiveCommand cmd)
       throws PermissionBackendException {
+<<<<<<< HEAD   (2a5dfa ChangeInserter: document link with requireChangeId)
     try (TraceTimer traceTimer =
         newTimer("validateRegularPushCommits", Metadata.builder().branchName(branch.branch()))) {
       boolean skipValidation =
@@ -3158,6 +3182,54 @@ class ReceiveCommits {
       if (skipValidation) {
         if (projectState.is(BooleanProjectConfig.USE_SIGNED_OFF_BY)) {
           reject(cmd, "requireSignedOffBy prevents option " + PUSH_OPTION_SKIP_VALIDATION);
+=======
+    boolean skipValidation =
+        !RefNames.REFS_CONFIG.equals(cmd.getRefName())
+            && !(MagicBranch.isMagicBranch(cmd.getRefName())
+                || NEW_PATCHSET_PATTERN.matcher(cmd.getRefName()).matches())
+            && pushOptions.containsKey(PUSH_OPTION_SKIP_VALIDATION);
+    if (skipValidation) {
+      if (projectState.is(BooleanProjectConfig.USE_SIGNED_OFF_BY)) {
+        reject(cmd, "requireSignedOffBy prevents option " + PUSH_OPTION_SKIP_VALIDATION);
+        return;
+      }
+
+      Optional<AuthException> err =
+          checkRefPermission(permissions.ref(branch.get()), RefPermission.SKIP_VALIDATION);
+      if (err.isPresent()) {
+        rejectProhibited(cmd, err.get());
+        return;
+      }
+      if (!Iterables.isEmpty(rejectCommits)) {
+        reject(cmd, "reject-commits prevents " + PUSH_OPTION_SKIP_VALIDATION);
+      }
+    }
+
+    BranchCommitValidator validator = commitValidatorFactory.create(projectState, branch, user);
+    RevWalk walk = receivePack.getRevWalk();
+    walk.reset();
+    walk.sort(RevSort.NONE);
+    try {
+      RevObject parsedObject = walk.parseAny(cmd.getNewId());
+      if (!(parsedObject instanceof RevCommit)) {
+        return;
+      }
+      ListMultimap<ObjectId, Ref> existing = changeRefsById();
+      walk.markStart((RevCommit) parsedObject);
+      markHeadsAsUninteresting(walk, cmd.getRefName());
+      int limit = receiveConfig.maxBatchCommits;
+      int n = 0;
+      for (RevCommit c; (c = walk.next()) != null; ) {
+        // Even if skipValidation is set, we still get here when at least one plugin
+        // commit validator requires to validate all commits. In this case, however,
+        // we don't need to check the commit limit.
+        if (++n > limit && !skipValidation) {
+          logger.atFine().log("Number of new commits exceeds limit of %d", limit);
+          reject(
+              cmd,
+              String.format(
+                  "more than %d commits, and %s not set", limit, PUSH_OPTION_SKIP_VALIDATION));
+>>>>>>> BRANCH (9c7df6 Merge branch 'stable-2.16' into stable-3.0)
           return;
         }
 
@@ -3255,6 +3327,7 @@ class ReceiveCommits {
                 for (RevCommit c; (c = rw.next()) != null; ) {
                   rw.parseBody(c);
 
+<<<<<<< HEAD   (2a5dfa ChangeInserter: document link with requireChangeId)
                   for (Ref ref : byCommit.get(c.copy())) {
                     PatchSet.Id psId = PatchSet.Id.fromRef(ref.getName());
                     Optional<ChangeNotes> notes = getChangeNotes(psId.changeId());
@@ -3283,6 +3356,19 @@ class ReceiveCommits {
                       replaceAndClose.add(req);
                       continue COMMIT;
                     }
+=======
+                for (Ref ref : byCommit.get(c.copy())) {
+                  PatchSet.Id psId = PatchSet.Id.fromRef(ref.getName());
+                  Optional<ChangeNotes> notes = getChangeNotes(psId.getParentKey());
+                  if (notes.isPresent() && notes.get().getChange().getDest().equals(branch)) {
+                    existingPatchSets++;
+                    bu.addOp(notes.get().getChangeId(), setPrivateOpFactory.create(false, null));
+                    bu.addOp(
+                        psId.getParentKey(),
+                        mergedByPushOpFactory.create(
+                            requestScopePropagator, psId, refName, newTip.getId().getName()));
+                    continue COMMIT;
+>>>>>>> BRANCH (9c7df6 Merge branch 'stable-2.16' into stable-3.0)
                   }
                 }
 
@@ -3312,10 +3398,29 @@ class ReceiveCommits {
                 return null;
               }
 
+<<<<<<< HEAD   (2a5dfa ChangeInserter: document link with requireChangeId)
               // If we are here, we didn't throw UpdateException. Record the result.
               // The ordering is indeterminate due to the HashSet; unfortunately, Change.Id doesn't
               // fit into TreeSet.
               ids.stream().forEach(id -> resultChangeIds.add(ResultChangeIds.Key.AUTOCLOSED, id));
+=======
+              for (ReplaceRequest req : replaceAndClose) {
+                Change.Id id = req.notes.getChangeId();
+                if (!req.validateNewPatchSetForAutoClose()) {
+                  logger.atFine().log("Not closing %s because validation failed", id);
+                  continue;
+                }
+                req.addOps(bu, null);
+                bu.addOp(id, setPrivateOpFactory.create(false, null));
+                bu.addOp(
+                    id,
+                    mergedByPushOpFactory
+                        .create(requestScopePropagator, req.psId, refName, newTip.getId().getName())
+                        .setPatchSetProvider(req.replaceOp::getPatchSet));
+                bu.addOp(id, new ChangeProgressOp(progress));
+                ids.add(id);
+              }
+>>>>>>> BRANCH (9c7df6 Merge branch 'stable-2.16' into stable-3.0)
 
               return null;
             },
