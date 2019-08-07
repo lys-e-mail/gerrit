@@ -32,15 +32,11 @@ import com.google.gerrit.extensions.api.changes.ChangeApi;
 import com.google.gerrit.extensions.api.changes.CherryPickInput;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
-import com.google.gerrit.extensions.api.projects.BranchInput;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.GeneralPreferencesInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.ChangeInput;
-import com.google.gerrit.extensions.common.ChangeMessageInfo;
-import com.google.gerrit.extensions.common.CommitInfo;
 import com.google.gerrit.extensions.common.MergeInput;
-import com.google.gerrit.extensions.common.RevisionInfo;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
@@ -52,8 +48,11 @@ import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.submit.ChangeAlreadyMergedException;
 import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.gerrit.testing.TestTimeUtil;
+<<<<<<< HEAD   (eb2caa Merge branch 'stable-2.16' into stable-3.0)
 import com.google.inject.Inject;
 import java.util.Iterator;
+=======
+>>>>>>> BRANCH (6a9e86 Merge branch 'stable-2.15' into stable-2.16)
 import java.util.List;
 import java.util.Map;
 import org.eclipse.jgit.lib.ObjectId;
@@ -393,6 +392,7 @@ public class CreateChangeIT extends AbstractDaemonTest {
     assertCreateSucceeds(in);
   }
 
+<<<<<<< HEAD   (eb2caa Merge branch 'stable-2.16' into stable-3.0)
   @Test
   public void cherryPickCommitWithoutChangeId() throws Exception {
     // This test is a little superfluous, since the current cherry-pick code ignores
@@ -471,6 +471,8 @@ public class CreateChangeIT extends AbstractDaemonTest {
     assertCreateFails(input, ResourceNotFoundException.class, "ref refs/heads/foo not found");
   }
 
+=======
+>>>>>>> BRANCH (6a9e86 Merge branch 'stable-2.15' into stable-2.16)
   private ChangeInput newChangeInput(ChangeStatus status) {
     ChangeInput in = new ChangeInput();
     in.project = project.get();
