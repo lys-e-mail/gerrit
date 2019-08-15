@@ -22,6 +22,11 @@ import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.query.change.ChangeData;
+<<<<<<< HEAD   (dfeca3 Update git submodules)
+=======
+import com.google.gerrit.server.restapi.change.CommentJson.CommentFormatter;
+import com.google.gwtorm.server.OrmException;
+>>>>>>> BRANCH (067d06 Merge "Upgrade Go Bazel rules to the latest version" into st)
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -30,9 +35,16 @@ import java.util.Map;
 
 @Singleton
 public class ListChangeDrafts implements RestReadView<ChangeResource> {
+<<<<<<< HEAD   (dfeca3 Update git submodules)
   private final ChangeData.Factory changeDataFactory;
   private final Provider<CommentJson> commentJson;
   private final CommentsUtil commentsUtil;
+=======
+  protected final Provider<ReviewDb> db;
+  protected final ChangeData.Factory changeDataFactory;
+  protected final Provider<CommentJson> commentJson;
+  protected final CommentsUtil commentsUtil;
+>>>>>>> BRANCH (067d06 Merge "Upgrade Go Bazel rules to the latest version" into st)
 
   @Inject
   ListChangeDrafts(
@@ -44,20 +56,52 @@ public class ListChangeDrafts implements RestReadView<ChangeResource> {
     this.commentsUtil = commentsUtil;
   }
 
+  protected Iterable<Comment> listComments(ChangeResource rsrc) throws OrmException {
+    ChangeData cd = changeDataFactory.create(db.get(), rsrc.getNotes());
+    return commentsUtil.draftByChangeAuthor(db.get(), cd.notes(), rsrc.getUser().getAccountId());
+  }
+
+  protected boolean includeAuthorInfo() {
+    return false;
+  }
+
+  public boolean requireAuthentication() {
+    return true;
+  }
+
   @Override
   public Map<String, List<CommentInfo>> apply(ChangeResource rsrc)
+<<<<<<< HEAD   (dfeca3 Update git submodules)
       throws AuthException, PermissionBackendException {
     if (!rsrc.getUser().isIdentifiedUser()) {
+=======
+      throws AuthException, OrmException, PermissionBackendException {
+    if (requireAuthentication() && !rsrc.getUser().isIdentifiedUser()) {
+>>>>>>> BRANCH (067d06 Merge "Upgrade Go Bazel rules to the latest version" into st)
       throw new AuthException("Authentication required");
     }
+<<<<<<< HEAD   (dfeca3 Update git submodules)
     ChangeData cd = changeDataFactory.create(rsrc.getNotes());
     List<Comment> drafts =
         commentsUtil.draftByChangeAuthor(cd.notes(), rsrc.getUser().getAccountId());
+=======
+    return getCommentFormatter().format(listComments(rsrc));
+  }
+
+  public List<CommentInfo> getComments(ChangeResource rsrc)
+      throws AuthException, OrmException, PermissionBackendException {
+    if (requireAuthentication() && !rsrc.getUser().isIdentifiedUser()) {
+      throw new AuthException("Authentication required");
+    }
+    return getCommentFormatter().formatAsList(listComments(rsrc));
+  }
+
+  private CommentFormatter getCommentFormatter() {
+>>>>>>> BRANCH (067d06 Merge "Upgrade Go Bazel rules to the latest version" into st)
     return commentJson
         .get()
-        .setFillAccounts(false)
+        .setFillAccounts(includeAuthorInfo())
         .setFillPatchSet(true)
-        .newCommentFormatter()
-        .format(drafts);
+        .newCommentFormatter();
   }
 }
