@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (1167d6 Remove vestigal GWT plugin loading hooks)
   <version>3.0.2-SNAPSHOT</version>
+=======
+  <version>2.16.11-SNAPSHOT</version>
+>>>>>>> BRANCH (16a6ee DeleteDraftComments: Don't update change modified timestamp)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
