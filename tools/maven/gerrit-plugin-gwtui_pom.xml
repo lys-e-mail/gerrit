@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (1167d6 Remove vestigal GWT plugin loading hooks)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (1167d6 Remove vestigal GWT plugin loading hooks)
-  <version>3.0.2-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.11-SNAPSHOT</version>
->>>>>>> BRANCH (16a6ee DeleteDraftComments: Don't update change modified timestamp)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (16a6ee DeleteDraftComments: Don't update change modified timestamp)
