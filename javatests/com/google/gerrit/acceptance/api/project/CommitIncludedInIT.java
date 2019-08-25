@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (283ac2 Update getting started with bazel)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,3 +74,5 @@ public class CommitIncludedInIT extends AbstractDaemonTest {
     return gApi.projects().name(project.get()).commit(id.name()).includedIn();
   }
 }
+=======
+>>>>>>> BRANCH (1167d6 Remove vestigal GWT plugin loading hooks)
