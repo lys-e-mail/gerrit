@@ -67,7 +67,10 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
-/** Cached information on a project. */
+/**
+ * Cached information on a project. Must not contain any data derived from parents other than it's
+ * immediate parent's {@link Project.NameKey}.
+ */
 public class ProjectState {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
@@ -99,9 +102,6 @@ public class ProjectState {
 
   /** If this is all projects, the capabilities used by the server. */
   private final CapabilityCollection capabilities;
-
-  /** All label types applicable to changes in this project. */
-  private LabelTypes labelTypes;
 
   @Inject
   public ProjectState(
@@ -451,10 +451,23 @@ public class ProjectState {
 
   /** All available label types. */
   public LabelTypes getLabelTypes() {
-    if (labelTypes == null) {
-      labelTypes = loadLabelTypes();
+    Map<String, LabelType> types = new LinkedHashMap<>();
+    for (ProjectState s : treeInOrder()) {
+      for (LabelType type : s.getConfig().getLabelSections().values()) {
+        String lower = type.getName().toLowerCase();
+        LabelType old = types.get(lower);
+        if (old == null || old.canOverride()) {
+          types.put(lower, type);
+        }
+      }
     }
-    return labelTypes;
+    List<LabelType> all = Lists.newArrayListWithCapacity(types.size());
+    for (LabelType type : types.values()) {
+      if (!type.getValues().isEmpty()) {
+        all.add(type);
+      }
+    }
+    return new LabelTypes(Collections.unmodifiableList(all));
   }
 
   /** All available label types for this change. */
@@ -571,6 +584,7 @@ public class ProjectState {
     return project;
   }
 
+<<<<<<< HEAD   (beb687 Documentation: refresh IntelliJ IDEA developer documentation)
   private LabelTypes loadLabelTypes() {
     Map<String, LabelType> types = new LinkedHashMap<>();
     for (ProjectState s : treeInOrder()) {
@@ -589,6 +603,10 @@ public class ProjectState {
       }
     }
     return new LabelTypes(Collections.unmodifiableList(all));
+=======
+  private String readFile(Path p) throws IOException {
+    return Files.exists(p) ? new String(Files.readAllBytes(p), UTF_8) : null;
+>>>>>>> BRANCH (2d6e43 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   private boolean match(Branch.NameKey destination, String refPattern) {
