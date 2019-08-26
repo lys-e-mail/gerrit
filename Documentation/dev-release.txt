@@ -250,7 +250,14 @@ gerrit-releases bucket in the Google cloud storage console]
 link:https://gerrit-review.googlesource.com/admin/repos/gerrit,branches[
 Gerrit Web UI] or by push.
 
+<<<<<<< HEAD   (16a6ee DeleteDraftComments: Don't update change modified timestamp)
 * Push the commits done on `stable-$version` to `refs/for/stable-$version` and
+=======
+* Create a change updating the `defaultbranch` field in the `.gitreview`
+to match the branch name created.
+
+* Push the commits done on `stable-2.5` to `refs/for/stable-2.5` and
+>>>>>>> BRANCH (8e8bd2 Upgrade elasticsearch-rest-client to 7.3.1)
 get them merged
 
 
