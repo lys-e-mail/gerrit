@@ -76,6 +76,7 @@
     const fragment = document.createDocumentFragment();
     let cursor = text.length;
 
+<<<<<<< HEAD   (a25a84 Remove deleted rules for the new added section)
     // Start inserting linkified URLs from the end of the String. That way, the
     // string positions of the items don't change as we iterate through.
     outputArray.forEach(item => {
@@ -86,6 +87,110 @@
             document.createTextNode(
                 text.slice(item.position + item.length, cursor)),
             fragment.firstChild);
+=======
+GrLinkTextParser.prototype.addItem =
+    function(text, href, html, position, length, outputArray) {
+  var htmlOutput = '';
+
+  if (href) {
+    var a = document.createElement('a');
+    a.href = href;
+    a.textContent = text;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    htmlOutput = a;
+  } else if (html) {
+    var fragment = document.createDocumentFragment();
+    // Create temporary div to hold the nodes in.
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    while (div.firstChild) {
+      fragment.appendChild(div.firstChild);
+    }
+    htmlOutput = fragment;
+  }
+
+  outputArray.push({
+    html: htmlOutput,
+    position: position,
+    length: length,
+  });
+};
+
+GrLinkTextParser.prototype.addLink =
+    function(text, href, position, length, outputArray) {
+  if (!text) {
+    return;
+  }
+  if (!this.hasOverlap(position, length, outputArray)) {
+    const baseUrl = Gerrit.BaseUrlBehavior.getBaseUrl();
+    if (!!baseUrl && href.startsWith('/') && !href.startsWith(baseUrl)) {
+      href = baseUrl + href;
+    }
+    this.addItem(text, href, null, position, length, outputArray);
+  }
+};
+
+GrLinkTextParser.prototype.addHTML =
+    function(html, position, length, outputArray) {
+  if (!this.hasOverlap(position, length, outputArray)) {
+    this.addItem(null, null, html, position, length, outputArray);
+  }
+};
+
+GrLinkTextParser.prototype.hasOverlap =
+    function(position, length, outputArray) {
+  var endPosition = position + length;
+  for (var i = 0; i < outputArray.length; i++) {
+    var arrayItemStart = outputArray[i].position;
+    var arrayItemEnd = outputArray[i].position + outputArray[i].length;
+    if ((position >= arrayItemStart && position < arrayItemEnd) ||
+      (endPosition > arrayItemStart && endPosition <= arrayItemEnd) ||
+      (position === arrayItemStart && position === arrayItemEnd)) {
+          return true;
+    }
+  }
+  return false;
+};
+
+GrLinkTextParser.prototype.parse = function(text) {
+  linkify(text, {
+    callback: this.parseChunk.bind(this),
+  });
+};
+
+GrLinkTextParser.prototype.parseChunk = function(text, href) {
+  // TODO(wyatta) switch linkify sequence, see issue 5526.
+  if (this.removeZeroWidthSpace) {
+    // Remove the zero-width space added in gr-change-view.
+    text = text.replace(/^(CC|R)=\u200B/gm, '$1=');
+  }
+
+  if (href) {
+    this.addText(text, href);
+  } else {
+    this.parseLinks(text, this.linkConfig);
+  }
+};
+
+GrLinkTextParser.prototype.parseLinks = function(text, patterns) {
+  // The outputArray is used to store all of the matches found for all patterns.
+  var outputArray = [];
+  for (var p in patterns) {
+    if (patterns[p].enabled != null && patterns[p].enabled == false) {
+      continue;
+    }
+    // PolyGerrit doesn't use hash-based navigation like GWT.
+    // Account for this.
+    // TODO(andybons): Support Gerrit being served from a base other than /,
+    // e.g. https://git.eclipse.org/r/
+    if (patterns[p].html) {
+      patterns[p].html =
+          patterns[p].html.replace(/<a href=\"#\//g, '<a href="/');
+    } else if (patterns[p].link) {
+      if (patterns[p].link[0] == '#') {
+        patterns[p].link = patterns[p].link.substr(1);
+>>>>>>> BRANCH (e91504 Merge "Use base url for commentlink" into stable-2.15)
       }
       fragment.insertBefore(item.html, fragment.firstChild);
       cursor = item.position;
