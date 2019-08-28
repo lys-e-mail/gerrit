@@ -215,7 +215,15 @@ public class StaticModule extends ServletModule {
     @Override
     public void configureServlets() {
       for (String p : POLYGERRIT_INDEX_PATHS) {
+<<<<<<< HEAD   (7d79c7 Update git submodules)
         filter(p).through(XsrfCookieFilter.class);
+=======
+        // Skip XsrfCookieFilter for /, since that is already done in the GWT UI
+        // path (UrlModule) if it is enabled.
+        if (!(p.equals("/") && options.enableGwtUi())) {
+          filter(p).through(XsrfCookieFilter.class);
+        }
+>>>>>>> BRANCH (ff43d4 Merge branch 'stable-2.15' into stable-2.16)
       }
       filter("/*").through(PolyGerritFilter.class);
     }

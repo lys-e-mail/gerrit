@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (7d79c7 Update git submodules)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-extension-api</artifactId>
-<<<<<<< HEAD   (7d79c7 Update git submodules)
-  <version>3.0.2-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.12-SNAPSHOT</version>
->>>>>>> BRANCH (ff43d4 Merge branch 'stable-2.15' into stable-2.16)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Extension API</name>
-  <description>API for Gerrit Extensions</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (ff43d4 Merge branch 'stable-2.15' into stable-2.16)
