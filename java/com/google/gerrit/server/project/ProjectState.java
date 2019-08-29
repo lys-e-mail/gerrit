@@ -586,7 +586,12 @@ public class ProjectState {
     return project;
   }
 
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
   private boolean match(BranchNameKey destination, String refPattern) {
     return RefPatternMatcher.getMatcher(refPattern).match(destination.branch(), null);
+=======
+  private boolean match(Branch.NameKey destination, String refPattern) {
+    return RefPatternMatcher.getMatcher(refPattern).match(destination.get(), null);
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
   }
 }
