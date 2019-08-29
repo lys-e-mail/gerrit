@@ -168,8 +168,13 @@ public class Rebase extends RetryingRestModifyView<RevisionResource, RebaseInput
           String.format("Base change not found: %s", input.base), e);
     }
 
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
     PatchSet.Id baseId = base.patchSet().id();
     if (change.getId().equals(baseId.changeId())) {
+=======
+    PatchSet.Id baseId = base.patchSet().getId();
+    if (change.getId().equals(baseId.getParentKey())) {
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
       throw new ResourceConflictException("cannot rebase change onto itself");
     }
 

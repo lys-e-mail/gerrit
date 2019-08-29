@@ -14,40 +14,40 @@
 
 package com.google.gerrit.server.restapi.change;
 
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestReadView;
+=======
+import com.google.gerrit.reviewdb.client.Comment;
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.change.ChangeResource;
-import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import java.util.List;
-import java.util.Map;
 
 @Singleton
-public class ListChangeComments implements RestReadView<ChangeResource> {
-  private final ChangeData.Factory changeDataFactory;
-  private final Provider<CommentJson> commentJson;
-  private final CommentsUtil commentsUtil;
-
+public class ListChangeComments extends ListChangeDrafts {
   @Inject
   ListChangeComments(
       ChangeData.Factory changeDataFactory,
       Provider<CommentJson> commentJson,
       CommentsUtil commentsUtil) {
-    this.changeDataFactory = changeDataFactory;
-    this.commentJson = commentJson;
-    this.commentsUtil = commentsUtil;
+    super(changeDataFactory, commentJson, commentsUtil);
   }
 
   @Override
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
   public Response<Map<String, List<CommentInfo>>> apply(ChangeResource rsrc)
       throws AuthException, PermissionBackendException {
+=======
+  protected Iterable<Comment> listComments(ChangeResource rsrc) {
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
     ChangeData cd = changeDataFactory.create(rsrc.getNotes());
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
     return Response.ok(
         commentJson
             .get()
@@ -55,5 +55,18 @@ public class ListChangeComments implements RestReadView<ChangeResource> {
             .setFillPatchSet(true)
             .newCommentFormatter()
             .format(commentsUtil.publishedByChange(cd.notes())));
+=======
+    return commentsUtil.publishedByChange(cd.notes());
+  }
+
+  @Override
+  protected boolean includeAuthorInfo() {
+    return true;
+  }
+
+  @Override
+  public boolean requireAuthentication() {
+    return false;
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
   }
 }

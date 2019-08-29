@@ -173,10 +173,17 @@
   GrLinkTextParser.prototype.addLink =
       function(text, href, position, length, outputArray) {
         if (!text || this.hasOverlap(position, length, outputArray)) { return; }
+<<<<<<< HEAD   (18928f Merge "Upgrade guava to 28.1-jre")
         if (!!this.baseUrl && href.startsWith('/') &&
               !href.startsWith(this.baseUrl)) {
           href = this.baseUrl + href;
         }
+=======
+    const baseUrl = Gerrit.BaseUrlBehavior.getBaseUrl();
+    if (!!baseUrl && href.startsWith('/') && !href.startsWith(baseUrl)) {
+      href = baseUrl + href;
+    }
+>>>>>>> BRANCH (84114c Merge branch 'stable-2.16' into stable-3.0)
         this.addItem(text, href, null, position, length, outputArray);
       };
 
