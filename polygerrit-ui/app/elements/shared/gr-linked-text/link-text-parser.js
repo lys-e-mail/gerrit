@@ -19,6 +19,7 @@
 
   const Defs = {};
 
+<<<<<<< HEAD   (cf7109 Add license to dark-theme)
   /**
    * @typedef {{
    *    html: Node,
@@ -27,6 +28,15 @@
    * }}
    */
   Defs.CommentLinkItem;
+=======
+function GrLinkTextParser(linkConfig, callback, opt_removeZeroWidthSpace) {
+  this.linkConfig = linkConfig;
+  this.callback = callback;
+  this.removeZeroWidthSpace = opt_removeZeroWidthSpace;
+  this.baseUrl = Gerrit.BaseUrlBehavior.getBaseUrl();
+  Object.preventExtensions(this);
+}
+>>>>>>> BRANCH (8f80c8 Fix base url in addHTML to correctly match)
 
   /**
    * Pattern describing URLs with supported protocols.
@@ -157,6 +167,7 @@
         });
       };
 
+<<<<<<< HEAD   (cf7109 Add license to dark-theme)
   /**
    * Create a CommentLinkItem for a link and append it to the given output
    * array.
@@ -175,10 +186,29 @@
     const baseUrl = Gerrit.BaseUrlBehavior.getBaseUrl();
     if (!!baseUrl && href.startsWith('/') && !href.startsWith(baseUrl)) {
       href = baseUrl + href;
+=======
+  outputArray.push({
+    html: htmlOutput,
+    position: position,
+    length: length,
+  });
+};
+
+GrLinkTextParser.prototype.addLink =
+    function(text, href, position, length, outputArray) {
+  if (!text) {
+    return;
+  }
+  if (!this.hasOverlap(position, length, outputArray)) {
+    if (!!this.baseUrl && href.startsWith('/') &&
+          !href.startsWith(this.baseUrl)) {
+      href = this.baseUrl + href;
+>>>>>>> BRANCH (8f80c8 Fix base url in addHTML to correctly match)
     }
         this.addItem(text, href, null, position, length, outputArray);
       };
 
+<<<<<<< HEAD   (cf7109 Add license to dark-theme)
   /**
    * Create a CommentLinkItem specified by an HTMl string and append it to the
    * given output array.
@@ -195,6 +225,18 @@
         if (this.hasOverlap(position, length, outputArray)) { return; }
         this.addItem(null, null, html, position, length, outputArray);
       };
+=======
+GrLinkTextParser.prototype.addHTML =
+    function(html, position, length, outputArray) {
+  if (!this.hasOverlap(position, length, outputArray)) {
+    if (!!this.baseUrl && html.match(/<a href=\"\//g) &&
+         !new RegExp(`^<a href="${this.baseUrl}`, 'g').test(html)) {
+      html = html.replace(/<a href=\"\//g, `<a href=\"${this.baseUrl}\/`);
+    }
+    this.addItem(null, null, html, position, length, outputArray);
+  }
+};
+>>>>>>> BRANCH (8f80c8 Fix base url in addHTML to correctly match)
 
   /**
    * Does the given range overlap with anything already in the item list.
