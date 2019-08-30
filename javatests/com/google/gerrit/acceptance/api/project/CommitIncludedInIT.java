@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (afdc13 PrologRuleEvaluatorIT: Remove unused import)
 // Copyright (C) 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,3 +74,5 @@ public class CommitIncludedInIT extends AbstractDaemonTest {
     return gApi.projects().name(project.get()).commit(id.name()).includedIn();
   }
 }
+=======
+>>>>>>> BRANCH (b18ee0 Merge branch 'stable-2.16' into stable-3.0)
