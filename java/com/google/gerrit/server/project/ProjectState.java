@@ -586,7 +586,12 @@ public class ProjectState {
     return project;
   }
 
+<<<<<<< HEAD   (760777 Merge "Use --header-text-color css variable for some classes)
   private boolean match(BranchNameKey destination, String refPattern) {
     return RefPatternMatcher.getMatcher(refPattern).match(destination.branch(), null);
+=======
+  private boolean match(Branch.NameKey destination, String refPattern) {
+    return RefPatternMatcher.getMatcher(refPattern).match(destination.get(), null);
+>>>>>>> BRANCH (b18ee0 Merge branch 'stable-2.16' into stable-3.0)
   }
 }

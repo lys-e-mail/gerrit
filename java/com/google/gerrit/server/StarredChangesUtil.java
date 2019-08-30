@@ -254,9 +254,13 @@ public class StarredChangesUtil {
       for (Account.Id accountId : byChangeFromIndex(changeId).keySet()) {
         String refName = RefNames.refsStarredChanges(changeId, accountId);
         Ref ref = repo.getRefDatabase().exactRef(refName);
+<<<<<<< HEAD   (760777 Merge "Use --header-text-color css variable for some classes)
         if (ref != null) {
           batchUpdate.addCommand(new ReceiveCommand(ref.getObjectId(), ObjectId.zeroId(), refName));
         }
+=======
+        batchUpdate.addCommand(new ReceiveCommand(ref.getObjectId(), ObjectId.zeroId(), refName));
+>>>>>>> BRANCH (b18ee0 Merge branch 'stable-2.16' into stable-3.0)
       }
       batchUpdate.execute(rw, NullProgressMonitor.INSTANCE);
       for (ReceiveCommand command : batchUpdate.getCommands()) {

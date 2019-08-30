@@ -168,8 +168,13 @@ public class Rebase extends RetryingRestModifyView<RevisionResource, RebaseInput
           String.format("Base change not found: %s", input.base), e);
     }
 
+<<<<<<< HEAD   (760777 Merge "Use --header-text-color css variable for some classes)
     PatchSet.Id baseId = base.patchSet().id();
     if (change.getId().equals(baseId.changeId())) {
+=======
+    PatchSet.Id baseId = base.patchSet().getId();
+    if (change.getId().equals(baseId.getParentKey())) {
+>>>>>>> BRANCH (b18ee0 Merge branch 'stable-2.16' into stable-3.0)
       throw new ResourceConflictException("cannot rebase change onto itself");
     }
 

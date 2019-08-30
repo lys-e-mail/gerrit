@@ -173,10 +173,17 @@
   GrLinkTextParser.prototype.addLink =
       function(text, href, position, length, outputArray) {
         if (!text || this.hasOverlap(position, length, outputArray)) { return; }
+<<<<<<< HEAD   (760777 Merge "Use --header-text-color css variable for some classes)
         if (!!this.baseUrl && href.startsWith('/') &&
               !href.startsWith(this.baseUrl)) {
           href = this.baseUrl + href;
         }
+=======
+    const baseUrl = Gerrit.BaseUrlBehavior.getBaseUrl();
+    if (!!baseUrl && href.startsWith('/') && !href.startsWith(baseUrl)) {
+      href = baseUrl + href;
+    }
+>>>>>>> BRANCH (b18ee0 Merge branch 'stable-2.16' into stable-3.0)
         this.addItem(text, href, null, position, length, outputArray);
       };
 
