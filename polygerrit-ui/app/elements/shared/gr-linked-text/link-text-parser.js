@@ -142,7 +142,7 @@
           htmlOutput = a;
         } else if (html) {
           const fragment = document.createDocumentFragment();
-      // Create temporary div to hold the nodes in.
+          // Create temporary div to hold the nodes in.
           const div = document.createElement('div');
           div.innerHTML = html;
           while (div.firstChild) {
@@ -174,7 +174,11 @@
       function(text, href, position, length, outputArray) {
         if (!text || this.hasOverlap(position, length, outputArray)) { return; }
         if (!!this.baseUrl && href.startsWith('/') &&
+<<<<<<< HEAD   (259bd8 Merge "Revert "Use --header-text-color css variable for some)
               !href.startsWith(this.baseUrl)) {
+=======
+             !href.startsWith(this.baseUrl)) {
+>>>>>>> BRANCH (de614a Set version to 3.0.2)
           href = this.baseUrl + href;
         }
         this.addItem(text, href, null, position, length, outputArray);
@@ -195,7 +199,11 @@
       function(html, position, length, outputArray) {
         if (this.hasOverlap(position, length, outputArray)) { return; }
         if (!!this.baseUrl && html.match(/<a href=\"\//g) &&
+<<<<<<< HEAD   (259bd8 Merge "Revert "Use --header-text-color css variable for some)
              !html.match(`/<a href=\"${this.baseUrl}/g`)) {
+=======
+             !new RegExp(`^<a href="${this.baseUrl}`, 'g').test(html)) {
+>>>>>>> BRANCH (de614a Set version to 3.0.2)
           html = html.replace(/<a href=\"\//g, `<a href=\"${this.baseUrl}\/`);
         }
         this.addItem(null, null, html, position, length, outputArray);

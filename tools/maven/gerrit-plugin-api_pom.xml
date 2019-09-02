@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (259bd8 Merge "Revert "Use --header-text-color css variable for some)
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.2</version>
+>>>>>>> BRANCH (de614a Set version to 3.0.2)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
