@@ -1,0 +1,34 @@
+<<<<<<< HEAD   (4847de Use --header-text-color css variable for some classes in gr-)
+=======
+load("@rules_java//java:defs.bzl", "java_library")
+load("//tools/bzl:junit.bzl", "junit_tests")
+
+java_library(
+    name = "cache-h2",
+    srcs = glob(["src/main/java/**/*.java"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//gerrit-common:server",
+        "//gerrit-extension-api:api",
+        "//gerrit-server:server",
+        "//lib:guava",
+        "//lib:h2",
+        "//lib/guice",
+        "//lib/jgit/org.eclipse.jgit:jgit",
+        "//lib/log:api",
+    ],
+)
+
+junit_tests(
+    name = "tests",
+    srcs = glob(["src/test/java/**/*.java"]),
+    deps = [
+        ":cache-h2",
+        "//gerrit-server:server",
+        "//lib:guava",
+        "//lib:h2",
+        "//lib:junit",
+        "//lib/guice",
+    ],
+)
+>>>>>>> BRANCH (3ab6d2 Merge branch 'stable-2.14' into stable-2.15)

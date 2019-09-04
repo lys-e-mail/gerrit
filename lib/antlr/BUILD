@@ -1,4 +1,10 @@
+<<<<<<< HEAD   (4847de Use --header-text-color css variable for some classes in gr-)
 package(default_visibility = ["//java/com/google/gerrit/index:__pkg__"])
+=======
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+package(default_visibility = ["//gerrit-index:__pkg__"])
+>>>>>>> BRANCH (3ab6d2 Merge branch 'stable-2.14' into stable-2.15)
 
 [java_library(
     name = n,
