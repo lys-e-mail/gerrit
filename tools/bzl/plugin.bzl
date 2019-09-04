@@ -1,3 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("//tools/bzl:genrule2.bzl", "genrule2")
 
 PLUGIN_DEPS = ["//plugins:plugin-lib"]
@@ -21,7 +22,7 @@ def gerrit_plugin(
         dir_name = None,
         target_suffix = "",
         **kwargs):
-    native.java_library(
+    java_library(
         name = name + "__plugin",
         srcs = srcs,
         resources = resources,
@@ -35,7 +36,7 @@ def gerrit_plugin(
     if not dir_name:
         dir_name = name
 
-    native.java_binary(
+    java_binary(
         name = "%s__non_stamped" % name,
         deploy_manifest_lines = manifest_entries + ["Gerrit-ApiType: plugin"],
         main_class = "Dummy",
@@ -46,6 +47,37 @@ def gerrit_plugin(
         **kwargs
     )
 
+<<<<<<< HEAD   (acddb5 Merge branch 'stable-2.16' into stable-3.0)
+=======
+    if gwt_module:
+        java_library(
+            name = name + "__gwt_module",
+            resources = depset(srcs + resources).to_list(),
+            runtime_deps = deps + GWT_PLUGIN_DEPS,
+            visibility = ["//visibility:public"],
+            **kwargs
+        )
+        genrule2(
+            name = "%s-static" % name,
+            cmd = " && ".join([
+                "mkdir -p $$TMP/static",
+                "unzip -qd $$TMP/static $(location %s__gwt_application)" % name,
+                "cd $$TMP",
+                "zip -qr $$ROOT/$@ .",
+            ]),
+            tools = [":%s__gwt_application" % name],
+            outs = ["%s-static.jar" % name],
+        )
+        gwt_binary(
+            name = name + "__gwt_application",
+            module = [gwt_module],
+            deps = GWT_PLUGIN_DEPS + GWT_TRANSITIVE_DEPS + ["//lib/gwt:dev"],
+            module_deps = [":%s__gwt_module" % name],
+            compiler_args = GWT_COMPILER_ARGS,
+            jvm_args = GWT_JVM_ARGS,
+        )
+
+>>>>>>> BRANCH (68b414 Merge "Load proto_library from @rules_proto//proto:defs.bzl")
     # TODO(davido): Remove manual merge of manifest file when this feature
     # request is implemented: https://github.com/bazelbuild/bazel/issues/2009
     genrule2(
