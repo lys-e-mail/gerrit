@@ -18,6 +18,8 @@
 
 # See https://github.com/bazelbuild/bazel/issues/1017 for background.
 
+load("@rules_java//java:defs.bzl", "java_test")
+
 _OUTPUT = """import org.junit.runners.Suite;
 import org.junit.runner.RunWith;
 
@@ -78,6 +80,7 @@ def junit_tests(name, srcs, **kwargs):
         srcs = srcs,
         outname = s_name,
     )
+<<<<<<< HEAD   (91666f Update git submodules)
     jvm_flags = kwargs.get("jvm_flags", [])
     jvm_flags = jvm_flags + select({
         "//:java_next": POST_JDK8_OPTS,
@@ -85,6 +88,9 @@ def junit_tests(name, srcs, **kwargs):
         "//conditions:default": [],
     })
     native.java_test(
+=======
+    java_test(
+>>>>>>> BRANCH (3ab6d2 Merge branch 'stable-2.14' into stable-2.15)
         name = name,
         test_class = s_name,
         srcs = srcs + [":" + s_name],
