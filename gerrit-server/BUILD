@@ -1,4 +1,8 @@
+<<<<<<< HEAD   (29f62d Merge branch 'stable-2.14' into stable-2.15)
 load("//lib/prolog:prolog.bzl", "prolog_cafe_library")
+=======
+load("@rules_java//java:defs.bzl", "java_library")
+>>>>>>> BRANCH (5c07cb Merge branch 'stable-2.13' into stable-2.14)
 load("//tools/bzl:javadoc.bzl", "java_doc")
 load("//tools/bzl:junit.bzl", "junit_tests")
 

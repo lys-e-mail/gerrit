@@ -1,4 +1,8 @@
+<<<<<<< HEAD   (29f62d Merge branch 'stable-2.14' into stable-2.15)
 package(default_visibility = ["//gerrit-index:__pkg__"])
+=======
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+>>>>>>> BRANCH (5c07cb Merge branch 'stable-2.13' into stable-2.14)
 
 [java_library(
     name = n,
