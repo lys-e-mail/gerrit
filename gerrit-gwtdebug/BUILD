@@ -1,0 +1,21 @@
+<<<<<<< HEAD   (63770b Upgrade JGit to 5.3.5.201909031855-r)
+=======
+load("@rules_java//java:defs.bzl", "java_library")
+
+java_library(
+    name = "gwtdebug",
+    srcs = glob(["src/main/java/**/*.java"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//java/com/google/gerrit/pgm",
+        "//java/com/google/gerrit/pgm/util",
+        "//java/com/google/gerrit/util/cli",
+        "//lib/flogger:api",
+        "//lib/gwt:dev",
+        "//lib/jetty:server",
+        "//lib/jetty:servlet",
+        "//lib/jetty:servlets",
+        "//lib/log:log4j",
+    ],
+)
+>>>>>>> BRANCH (69d4ad Revert "Revert "GerritServer: Silence non-critical logs from)
