@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (6fbe4b Reporting top 3 lines of stack for js errors)
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.3-SNAPSHOT</version>
+>>>>>>> BRANCH (7a6bb4 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
