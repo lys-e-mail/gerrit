@@ -1,10 +1,16 @@
 def _classpath_collector(ctx):
     all = []
     for d in ctx.attr.deps:
+<<<<<<< HEAD   (380e39 Add utility script to remove refs used by NoteDB)
         if hasattr(d, "java"):
             all.append(d.java.transitive_runtime_deps)
             if hasattr(d.java.compilation_info, "runtime_classpath"):
                 all.append(d.java.compilation_info.runtime_classpath)
+=======
+        if JavaInfo in d:
+            all.append(d[JavaInfo].transitive_runtime_deps)
+            all.append(d[JavaInfo].compilation_info.runtime_classpath)
+>>>>>>> BRANCH (828291 Upgrade testcontainers to 1.12.1)
         elif hasattr(d, "files"):
             all.append(d.files)
 
