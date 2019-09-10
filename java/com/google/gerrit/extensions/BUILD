@@ -1,6 +1,10 @@
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
-load("//lib/jgit:jgit.bzl", "JGIT_DOC_URL")
 load("//lib:guava.bzl", "GUAVA_DOC_URL")
+<<<<<<< HEAD   (7880b0 Add capability check when adding plugin entries to admin nav)
+=======
+load("//lib/jgit:jgit.bzl", "JGIT_DOC_URL")
+load("//tools/bzl:gwt.bzl", "gwt_module")
+>>>>>>> BRANCH (444d33 Merge branch 'stable-2.15' into stable-2.16)
 load("//tools/bzl:javadoc.bzl", "java_doc")
 
 java_binary(
