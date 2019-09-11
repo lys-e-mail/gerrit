@@ -53,9 +53,118 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_closure/archive/78f1192664acf66ca1de24116cbcc98e1698f26b.tar.gz"],
 )
 
+<<<<<<< HEAD   (86b631 Bazel: Bump bazel version to 1.0.0rc2)
 # File is specific to Polymer and copied from the Closure Github -- should be
 # synced any time there are major changes to Polymer.
 # https://github.com/google/closure-compiler/blob/master/contrib/externs/polymer-1.0.js
+=======
+GUICE_VERS = '4.0'
+
+maven_jar(
+  name = 'guice_library',
+  artifact = 'com.google.inject:guice:' + GUICE_VERS,
+  sha1 = '0f990a43d3725781b6db7cd0acf0a8b62dfd1649',
+)
+
+maven_jar(
+  name = 'guice_assistedinject',
+  artifact = 'com.google.inject.extensions:guice-assistedinject:' + GUICE_VERS,
+  sha1 = '8fa6431da1a2187817e3e52e967535899e2e46ca',
+)
+
+maven_jar(
+  name = 'guice_servlet',
+  artifact = 'com.google.inject.extensions:guice-servlet:' + GUICE_VERS,
+  sha1 = '4503da866f4c402b5090579b40c1c4aaefabb164',
+)
+
+maven_jar(
+  name = 'aopalliance',
+  artifact = 'aopalliance:aopalliance:1.0',
+  sha1 = '0235ba8b489512805ac13a8f9ea77a1ca5ebe3e8',
+)
+
+maven_jar(
+  name = 'javax_inject',
+  artifact = 'javax.inject:javax.inject:1',
+  sha1 = '6975da39a7040257bd51d21a231b76c915872d38',
+)
+
+maven_jar(
+  name = 'servlet_api_3_1',
+  artifact = 'org.apache.tomcat:tomcat-servlet-api:8.0.24',
+  sha1 = '5d9e2e895e3111622720157d0aa540066d5fce3a',
+)
+
+GWT_VERS = '2.8.0'
+
+maven_jar(
+  name = 'user',
+  artifact = 'com.google.gwt:gwt-user:' + GWT_VERS,
+  sha1 = '518579870499e15531f454f35dca0772d7fa31f7',
+)
+
+maven_jar(
+  name = 'dev',
+  artifact = 'com.google.gwt:gwt-dev:' + GWT_VERS,
+  sha1 = 'f160a61272c5ebe805cd2d3d3256ed3ecf14893f',
+)
+
+maven_jar(
+  name = 'javax_validation',
+  artifact = 'javax.validation:validation-api:1.0.0.GA',
+  sha1 = 'b6bd7f9d78f6fdaa3c37dae18a4bd298915f328e',
+)
+
+maven_jar(
+  name = 'jsinterop_annotations',
+  artifact = 'com.google.jsinterop:jsinterop-annotations:1.0.0',
+  sha1 = '23c3a3c060ffe4817e67673cc8294e154b0a4a95',
+)
+
+maven_jar(
+  name = 'ant',
+  artifact = 'ant:ant:1.6.5',
+  sha1 = '7d18faf23df1a5c3a43613952e0e8a182664564b',
+)
+
+maven_jar(
+  name = 'colt',
+  artifact = 'colt:colt:1.2.0',
+  sha1 = '0abc984f3adc760684d49e0f11ddf167ba516d4f',
+)
+
+maven_jar(
+  name = 'tapestry',
+  artifact = 'tapestry:tapestry:4.0.2',
+  sha1 = 'e855a807425d522e958cbce8697f21e9d679b1f7',
+)
+
+maven_jar(
+  name = 'w3c_css_sac',
+  artifact = 'org.w3c.css:sac:1.3',
+  sha1 = 'cdb2dcb4e22b83d6b32b93095f644c3462739e82',
+)
+
+JGIT_VERS = '4.4.1.201607150455-r.105-g81ba2be'
+
+maven_jar(
+  name = 'jgit',
+  repository = 'http://gerrit-maven.storage.googleapis.com/',
+  artifact = 'org.eclipse.jgit:org.eclipse.jgit:' + JGIT_VERS,
+  sha1 = 'c07c9c66da7983095a40945c0bfab211a473c4c5',
+)
+
+maven_jar(
+  name = 'jgit_servlet',
+  repository = 'http://gerrit-maven.storage.googleapis.com/',
+  artifact = 'org.eclipse.jgit:org.eclipse.jgit.http.server:' + JGIT_VERS,
+  sha1 = 'bb01841b74a48abe506c2e44f238e107188e6c8f',
+)
+
+# TODO(davido): Remove this hack when maven_jar supports pulling sources
+# https://github.com/bazelbuild/bazel/issues/308
+>>>>>>> BRANCH (ef7a61 Fix screens inherited from PaginatedProjectScreen)
 http_file(
     name = "polymer_closure",
     downloaded_file_path = "polymer_closure.js",
@@ -115,18 +224,31 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (86b631 Bazel: Bump bazel version to 1.0.0rc2)
     name = "antlr27",
     artifact = "antlr:antlr:2.7.7",
     attach_source = False,
     sha1 = "83cd2cd674a217ade95a4bb83a8a14f351f48bd0",
+=======
+  name = 'gwtjsonrpc',
+  artifact = 'com.google.gerrit:gwtjsonrpc:1.10',
+  sha1 = '25adea6ef102b761993688e80dfc7203e0f5edf0',
+>>>>>>> BRANCH (ef7a61 Fix screens inherited from PaginatedProjectScreen)
 )
 
+<<<<<<< HEAD   (86b631 Bazel: Bump bazel version to 1.0.0rc2)
 GUICE_VERS = "4.2.0"
 
 maven_jar(
     name = "guice-library",
     artifact = "com.google.inject:guice:" + GUICE_VERS,
     sha1 = "25e1f4c1d528a1cffabcca0d432f634f3132f6c8",
+=======
+http_jar(
+  name = 'gwtjsonrpc_src',
+  sha256 = '009c4c7574eaddf49d2c72dd015cfbd5b495fbeea4c3958c2ec548af2c186733',
+  url = 'http://repo.maven.apache.org/maven2/com/google/gerrit/gwtjsonrpc/1.10/gwtjsonrpc-1.10-sources.jar',
+>>>>>>> BRANCH (ef7a61 Fix screens inherited from PaginatedProjectScreen)
 )
 
 maven_jar(
