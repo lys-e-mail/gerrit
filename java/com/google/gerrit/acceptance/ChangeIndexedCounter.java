@@ -37,6 +37,13 @@ public class ChangeIndexedCounter implements ChangeIndexedListener {
     countsByChange.clear();
   }
 
+<<<<<<< HEAD   (dfe7d7 Bazel: Disable ImmutableAnnotationChecker error prone check)
+=======
+  public long getCount(ChangeInfo info) {
+    return countsByChange.get(info._number);
+  }
+
+>>>>>>> BRANCH (560fb6 Merge branch 'stable-2.16' into stable-3.0)
   public void assertReindexOf(ChangeInfo info) {
     assertReindexOf(info, 1);
   }
