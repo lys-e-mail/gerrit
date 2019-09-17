@@ -974,6 +974,16 @@ public class ChangeIT extends AbstractDaemonTest {
         .contains(String.format("Parent not found: %s", revertInput.parent));
   }
 
+  @Test
+  public void revertsWithSetTopic() throws Exception {
+    PushOneCommit.Result result = createChangeWithTopicAndApproval(testRepo);
+    gApi.changes().id(result.getChangeId()).revision(result.getCommit().name()).submit();
+    RevertInput revertInput = new RevertInput();
+    revertInput.topic = "reverted-not-default";
+    assertThat(gApi.changes().id(result.getChangeId()).revert(revertInput).topic())
+        .isEqualTo(revertInput.topic);
+  }
+
   @FunctionalInterface
   private interface Rebase {
     void call(String id) throws RestApiException;
