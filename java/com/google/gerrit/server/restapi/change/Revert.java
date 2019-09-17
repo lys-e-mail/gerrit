@@ -20,19 +20,24 @@ import static com.google.gerrit.server.permissions.RefPermission.CREATE_CHANGE;
 
 import com.google.common.base.Strings;
 import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.extensions.api.changes.CherryPickInput;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.api.changes.RevertInput;
 import com.google.gerrit.extensions.common.ChangeInfo;
+import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
+import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.webui.UiAction;
 import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.BranchNameKey;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.ChangeMessage;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.ChangeUtil;
@@ -54,9 +59,12 @@ import com.google.gerrit.server.notedb.Sequences;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.project.ContributorAgreementsChecker;
+import com.google.gerrit.server.project.InvalidChangeOperationException;
 import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.project.NoSuchProjectException;
 import com.google.gerrit.server.project.ProjectCache;
+import com.google.gerrit.server.restapi.change.CherryPickChange.Result;
+import com.google.gerrit.server.submit.IntegrationException;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
@@ -74,6 +82,8 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.errors.InvalidObjectIdException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.ObjectId;
@@ -104,6 +114,10 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
   private final ContributorAgreementsChecker contributorAgreements;
   private final ProjectCache projectCache;
   private final NotifyResolver notifyResolver;
+  private final CherryPickChange cherryPickChange;
+  private final ChangeNotes.Factory changeNotesFactory;
+  private final ChangeResource.Factory changeResourceFactory;
+  private final Provider<CurrentUser> user;
 
   @Inject
   Revert(
@@ -121,7 +135,11 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
       ChangeReverted changeReverted,
       ContributorAgreementsChecker contributorAgreements,
       ProjectCache projectCache,
-      NotifyResolver notifyResolver) {
+      NotifyResolver notifyResolver,
+      CherryPickChange cherryPickChange,
+      ChangeNotes.Factory changeNotesFactory,
+      ChangeResource.Factory changeResourceFactory,
+      Provider<CurrentUser> user) {
     super(retryHelper);
     this.permissionBackend = permissionBackend;
     this.repoManager = repoManager;
@@ -137,13 +155,18 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
     this.contributorAgreements = contributorAgreements;
     this.projectCache = projectCache;
     this.notifyResolver = notifyResolver;
+    this.cherryPickChange = cherryPickChange;
+    this.changeNotesFactory = changeNotesFactory;
+    this.changeResourceFactory = changeResourceFactory;
+    this.user = user;
   }
 
   @Override
   public Response<ChangeInfo> applyImpl(
       BatchUpdate.Factory updateFactory, ChangeResource rsrc, RevertInput input)
       throws IOException, RestApiException, UpdateException, NoSuchChangeException,
-          PermissionBackendException, NoSuchProjectException, ConfigInvalidException {
+          PermissionBackendException, NoSuchProjectException, ConfigInvalidException,
+          InvalidChangeOperationException, IntegrationException {
     Change change = rsrc.getChange();
     if (!change.isMerged()) {
       throw new ResourceConflictException("change is " + ChangeUtil.status(change));
@@ -159,7 +182,8 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
 
   private Change.Id revert(
       BatchUpdate.Factory updateFactory, ChangeNotes notes, CurrentUser user, RevertInput input)
-      throws IOException, RestApiException, UpdateException, ConfigInvalidException {
+      throws IOException, RestApiException, UpdateException, ConfigInvalidException,
+          InvalidChangeOperationException, NoSuchProjectException, IntegrationException {
     String message = Strings.emptyToNull(input.message);
     Change.Id changeIdToRevert = notes.getChangeId();
     PatchSet.Id patchSetId = notes.getChange().currentPatchSetId();
@@ -185,6 +209,18 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
 
       RevCommit parentToCommitToRevert = commitToRevert.getParent(0);
       revWalk.parseHeaders(parentToCommitToRevert);
+      RevCommit actualParent = commitToRevert;
+      if (input.parent != null) {
+        try {
+          ObjectId parentCommit = ObjectId.fromString(input.parent);
+          actualParent = parentCommit == null ? actualParent : revWalk.parseCommit(parentCommit);
+        } catch (MissingObjectException ex) {
+          throw new UnprocessableEntityException(
+              String.format("Parent not found: %s", input.parent));
+        } catch (InvalidObjectIdException ex) {
+          throw new BadRequestException(String.format("Parent is invalid: %s", input.parent));
+        }
+      }
 
       CommitBuilder revertCommitBuilder = new CommitBuilder();
       revertCommitBuilder.addParentId(commitToRevert);
@@ -241,8 +277,39 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
         bu.insertChange(ins);
         bu.addOp(changeId, new NotifyOp(changeToRevert, ins));
         bu.addOp(changeToRevert.getId(), new PostRevertedMessageOp(computedChangeId));
+        // if(input.parent != null) {
+        //   CherryPickInput cherryPickInput = new CherryPickInput();
+        //   cherryPickInput.message = message;
+        //   cherryPickInput.destination = notes.getChange().getDest().branch();
+        //   cherryPickInput.base = input.parent;
+        //   cherryPickInput.notifyDetails = input.notifyDetails;
+        //   cherryPickInput.notify = input.notify;
+        //   cherryPickInput.keepReviewers = true;
+        //   bu.addOp(changeId, new CherryPickOp(updateFactory, cherryPickInput));
+        // }
         bu.execute();
       }
+      if (input.parent != null) {
+        CherryPickInput cherryPickInput = new CherryPickInput();
+        cherryPickInput.message = message;
+        cherryPickInput.destination = notes.getChange().getDest().branch();
+        cherryPickInput.base = input.parent;
+        cherryPickInput.notifyDetails = input.notifyDetails;
+        cherryPickInput.notify = input.notify;
+        cherryPickInput.keepReviewers = true;
+        cherryPickInput.parent = 1;
+        ChangeResource changeResource = getChangeResource(changeId);
+        Result result =
+            cherryPickChange.cherryPick(
+                updateFactory,
+                changeResource.getChange(),
+                changeResource.getNotes().getCurrentPatchSet(),
+                cherryPickInput,
+                BranchNameKey.create(
+                    changeResource.getProject(), RefNames.fullName(cherryPickInput.destination)));
+        return result.changeId();
+      }
+
       return changeId;
     } catch (RepositoryNotFoundException e) {
       throw new ResourceNotFoundException(changeIdToRevert.toString(), e);
@@ -314,5 +381,37 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
       cmUtil.addChangeMessage(ctx.getUpdate(patchSetId), changeMessage);
       return true;
     }
+  }
+
+  private class CherryPickOp implements BatchUpdateOp {
+    private final BatchUpdate.Factory factory;
+    private final CherryPickInput input;
+
+    CherryPickOp(BatchUpdate.Factory factory, CherryPickInput input) {
+      this.factory = factory;
+      this.input = input;
+    }
+
+    @Override
+    public boolean updateChange(ChangeContext ctx) {
+      try {
+        cherryPickChange.cherryPick(
+            factory,
+            ctx.getChange(),
+            ctx.getNotes().getCurrentPatchSet(),
+            input,
+            BranchNameKey.create(
+                ctx.getChange().getProject(), RefNames.fullName(input.destination)));
+        ctx.deleteChange();
+      } catch (Exception ex) {
+
+      }
+      return true;
+    }
+  }
+
+  private ChangeResource getChangeResource(Change.Id changeId) throws RestApiException {
+    ChangeNotes notes = changeNotesFactory.createChecked(changeId);
+    return changeResourceFactory.create(notes, user.get());
   }
 }

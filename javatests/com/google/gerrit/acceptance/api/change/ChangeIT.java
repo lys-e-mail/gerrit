@@ -896,6 +896,127 @@ public class ChangeIT extends AbstractDaemonTest {
         .contains("project state " + ProjectState.READ_ONLY + " does not permit write");
   }
 
+  @Test
+  public void revertWithDifferentParent() throws Exception {
+    PushOneCommit.Result resultToRevert = createChange("first change", "kk.txt", "message");
+    approve(resultToRevert.getChangeId());
+    gApi.changes().id(resultToRevert.getChangeId()).current().submit();
+
+    PushOneCommit.Result resultParent = createChange("second change", "b.txt", "unrelated commit");
+    RevertInput revertInput = new RevertInput();
+    revertInput.parent = resultParent.getChange().currentPatchSet().commitId().getName();
+
+    ChangeInfo changeInfo =
+        gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput).get();
+    assertThat(changeInfo.revertOf).isEqualTo(resultToRevert.getChange().getId().get());
+
+    // assert that the reverted change has the correct parent
+    assertThat(gApi.changes().id(resultParent.getChangeId()).current().commit(false).commit)
+        .isEqualTo(
+            gApi.changes().id(changeInfo._number).current().commit(false).parents.get(0).commit);
+  }
+
+  @Test
+  public void cantRevertWithParentInDifferentRepo() throws Exception {
+    projectOperations.newProject().name("secondProject").create();
+    TestRepository<InMemoryRepository> secondRepo =
+        cloneProject(Project.nameKey("secondProject"), admin);
+
+    PushOneCommit.Result resultToRevert = createChange();
+    approve(resultToRevert.getChangeId());
+
+    gApi.changes().id(resultToRevert.getChangeId()).current().submit();
+    PushOneCommit.Result resultParent = createChange(secondRepo);
+
+    RevertInput revertInput = new RevertInput();
+    revertInput.parent = resultParent.getChange().currentPatchSet().commitId().getName();
+    UnprocessableEntityException thrown =
+        assertThrows(
+            UnprocessableEntityException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput).get());
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains(String.format("Parent not found: %s", revertInput.parent));
+  }
+
+  @Test
+  public void cantRevertWithInvalidParent() throws Exception {
+    PushOneCommit.Result resultToRevert = createChange();
+    approve(resultToRevert.getChangeId());
+    gApi.changes().id(resultToRevert.getChangeId()).current().submit();
+    RevertInput revertInput = new RevertInput();
+    revertInput.parent = "Random40letterStringLikeSha1ButBad123456";
+    BadRequestException thrown =
+        assertThrows(
+            BadRequestException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput));
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains(String.format("Parent is invalid: %s", revertInput.parent));
+
+    revertInput.parent = "bad_Sha1";
+    thrown =
+        assertThrows(
+            BadRequestException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput));
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains(String.format("Parent is invalid: %s", revertInput.parent));
+
+    revertInput.parent =
+        resultToRevert.getChange().currentPatchSet().commitId().getName().substring(3) + "AAA";
+    UnprocessableEntityException thrownException =
+        assertThrows(
+            UnprocessableEntityException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput));
+    assertThat(thrownException)
+        .hasMessageThat()
+        .contains(String.format("Parent not found: %s", revertInput.parent));
+  }
+
+  @Test
+  public void cantRevertWithDifferentParentWithDifferentBranchConflicts() throws Exception {
+    RevCommit initialHead = projectOperations.project(project).getHead("master");
+    PushOneCommit.Result resultToRevert = createChange("first change", "kk.txt", "message 1");
+    approve(resultToRevert.getChangeId());
+    gApi.changes().id(resultToRevert.getChangeId()).current().submit();
+
+    testRepo.reset(initialHead);
+    PushOneCommit.Result resultParent = createChange("second change", "b.txt", "message 2");
+
+    RevertInput revertInput = new RevertInput();
+    revertInput.parent = resultParent.getChange().currentPatchSet().commitId().getName();
+    ChangeInfo c = gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput).get();
+
+    ResourceNotFoundException thrown =
+        assertThrows(
+            ResourceNotFoundException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput));
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains(String.format("Parent not found: %s", revertInput.parent));
+  }
+
+  @Test
+  public void cantRevertWithDifferentParentWithConflicts() throws Exception {
+    PushOneCommit.Result resultToRevert = createChange("first change", "a.txt", "message 1111");
+    approve(resultToRevert.getChangeId());
+    gApi.changes().id(resultToRevert.getChangeId()).current().submit();
+
+    PushOneCommit.Result resultParent = createChange("second change", "a.txt", "message 72");
+
+    RevertInput revertInput = new RevertInput();
+    revertInput.parent = resultParent.getChange().currentPatchSet().commitId().getName();
+
+    ResourceNotFoundException thrown =
+        assertThrows(
+            ResourceNotFoundException.class,
+            () -> gApi.changes().id(resultToRevert.getChangeId()).revert(revertInput));
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains(String.format("Parent not found: %s", revertInput.parent));
+  }
+
   @FunctionalInterface
   private interface Rebase {
     void call(String id) throws RestApiException;
