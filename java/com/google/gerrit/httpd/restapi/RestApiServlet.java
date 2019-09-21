@@ -387,6 +387,7 @@ public class RestApiServlet extends HttpServlet {
               }
               globals.quotaChecker.enforce(req);
 
+<<<<<<< HEAD   (6b99fd dev-roles: Mention the ESC mailing list)
               if (isPost(req) || isPut(req)) {
                 RestView<RestResource> createView = rc.views().get(PluginName.GERRIT, "CREATE./");
                 if (createView != null) {
@@ -404,9 +405,32 @@ public class RestApiServlet extends HttpServlet {
                 } else {
                   throw e;
                 }
+=======
+            if (isPost(req) || isPut(req)) {
+              RestView<RestResource> createView = c.views().get(PluginName.GERRIT, "CREATE./");
+              if (createView != null) {
+                viewData = new ViewData(viewData.pluginName, createView);
+                status = SC_CREATED;
+                path.add(id);
+>>>>>>> BRANCH (df741c Merge branch 'stable-2.16' into stable-3.0)
               } else {
                 throw e;
               }
+<<<<<<< HEAD   (6b99fd dev-roles: Mention the ESC mailing list)
+=======
+            } else if (isDelete(req)) {
+              RestView<RestResource> deleteView =
+                  c.views().get(PluginName.GERRIT, "DELETE_MISSING./");
+              if (deleteView != null) {
+                viewData = new ViewData(viewData.pluginName, deleteView);
+                status = SC_NO_CONTENT;
+                path.add(id);
+              } else {
+                throw e;
+              }
+            } else {
+              throw e;
+>>>>>>> BRANCH (df741c Merge branch 'stable-2.16' into stable-3.0)
             }
             if (viewData.view == null) {
               viewData = view(rc, req.getMethod(), path);
