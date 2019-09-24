@@ -2035,8 +2035,12 @@ should set this to the URL of their issue tracker, if necessary.
 Enable reverse DNS lookup during computing ref log entry for identified user,
 to record the actual hostname of the user's host in the ref log.
 +
+<<<<<<< HEAD   (7b3539 Merge "Remove reportBugText config" into stable-3.0)
 Enabling reverse DNS lookup can cause performance issues on git push when
 the reverse DNS lookup is slow.
+=======
+Only used when `gerrit.reportBugUrl` is set and only supported in GWT (Old UI).
+>>>>>>> BRANCH (2ebe4e Merge branch 'stable-2.15' into stable-2.16)
 +
 Defaults to false, reverse DNS lookup is disabled. The user's IP address
 will be recorded in the ref log rather than their hostname.
