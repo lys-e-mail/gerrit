@@ -452,7 +452,9 @@
       }
       const renderTime = new Date(window.performance.timing.loadEventStart);
       console.log(`Document loaded at: ${renderTime}`);
-      console.log(`Please file bugs and feedback at: ${this._feedbackUrl}`);
+      if (this._feedbackUrl) {
+        console.log(`Please file bugs and feedback at: ${this._feedbackUrl}`);
+      }
       console.groupEnd();
     },
 
@@ -465,6 +467,7 @@
       this.$.reporting.reportRpcTiming(e.detail.anonymizedUrl,
           e.detail.elapsed);
     },
+<<<<<<< HEAD   (c66914 Merge branch 'stable-2.16' into stable-3.0)
 
     _mobileSearchToggle(e) {
       this.mobileSearch = !this.mobileSearch;
@@ -477,5 +480,7 @@
 
       return false;
     },
+=======
+>>>>>>> BRANCH (44729c Merge "Fix and refactor "Send feedback" conditional display")
   });
 })();
