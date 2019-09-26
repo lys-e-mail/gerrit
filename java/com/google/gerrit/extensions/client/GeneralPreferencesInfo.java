@@ -15,7 +15,6 @@
 package com.google.gerrit.extensions.client;
 
 import java.util.List;
-import java.util.Map;
 
 /** Preferences about a single user. */
 public class GeneralPreferencesInfo {
@@ -138,6 +137,11 @@ public class GeneralPreferencesInfo {
   public Boolean legacycidInChangeTable;
   public Boolean muteCommonPathPrefixes;
   public Boolean signedOffBy;
+<<<<<<< HEAD   (5b4f3a Merge "RestApiServlet: Introduce constant for HTTP 429 code")
+=======
+  public List<MenuItem> my;
+  public List<String> changeTable;
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
   public EmailStrategy emailStrategy;
   public EmailFormat emailFormat;
   public DefaultBase defaultBaseForMerges;
