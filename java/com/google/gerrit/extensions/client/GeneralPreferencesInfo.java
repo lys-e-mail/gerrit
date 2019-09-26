@@ -137,6 +137,11 @@ public class GeneralPreferencesInfo {
   public Boolean legacycidInChangeTable;
   public Boolean muteCommonPathPrefixes;
   public Boolean signedOffBy;
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
+=======
+  public List<MenuItem> my;
+  public List<String> changeTable;
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
   public EmailStrategy emailStrategy;
   public EmailFormat emailFormat;
   public DefaultBase defaultBaseForMerges;

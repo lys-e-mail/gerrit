@@ -13,8 +13,25 @@
 // limitations under the License.
 package com.google.gerrit.server.account;
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+=======
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.gerrit.server.config.ConfigUtil.loadSection;
+import static com.google.gerrit.server.config.ConfigUtil.skipField;
+import static com.google.gerrit.server.config.ConfigUtil.storeSection;
+import static com.google.gerrit.server.git.UserConfigSections.CHANGE_TABLE;
+import static com.google.gerrit.server.git.UserConfigSections.CHANGE_TABLE_COLUMN;
+import static com.google.gerrit.server.git.UserConfigSections.KEY_ID;
+import static com.google.gerrit.server.git.UserConfigSections.KEY_TARGET;
+import static com.google.gerrit.server.git.UserConfigSections.KEY_URL;
+import static java.util.Objects.requireNonNull;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.flogger.FluentLogger;
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.extensions.client.DiffPreferencesInfo;
 import com.google.gerrit.extensions.client.DiffPreferencesInfo.Whitespace;
@@ -29,7 +46,22 @@ import com.google.gerrit.extensions.client.GeneralPreferencesInfo.EmailStrategy;
 import com.google.gerrit.extensions.client.GeneralPreferencesInfo.TimeFormat;
 import com.google.gerrit.extensions.client.KeyMapType;
 import com.google.gerrit.extensions.client.MenuItem;
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
 import com.google.gerrit.extensions.client.Theme;
+=======
+import com.google.gerrit.extensions.restapi.BadRequestException;
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.RefNames;
+import com.google.gerrit.server.config.AllUsersName;
+import com.google.gerrit.server.git.UserConfigSections;
+import com.google.gerrit.server.git.ValidationError;
+import com.google.gerrit.server.git.meta.MetaDataUpdate;
+import com.google.gerrit.server.git.meta.VersionedMetaData;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 import java.util.Optional;
 
 @AutoValue
@@ -56,7 +88,18 @@ public abstract class Preferences {
 
     public abstract Optional<Boolean> sizeBarInChangeTable();
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
     public abstract Optional<Boolean> legacycidInChangeTable();
+=======
+      storeSection(
+          cfg,
+          UserConfigSections.GENERAL,
+          null,
+          mergedGeneralPreferencesInput,
+          parseDefaultGeneralPreferences(defaultCfg, null));
+      setChangeTable(cfg, mergedGeneralPreferencesInput.changeTable);
+      setMy(cfg, mergedGeneralPreferencesInput.my);
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 
     public abstract Optional<Boolean> muteCommonPathPrefixes();
 
@@ -290,7 +333,32 @@ public abstract class Preferences {
   public abstract static class Diff {
     public abstract Optional<Integer> context();
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
     public abstract Optional<Integer> tabSize();
+=======
+  private static GeneralPreferencesInfo parseGeneralPreferences(
+      Config cfg, @Nullable Config defaultCfg, @Nullable GeneralPreferencesInfo input)
+      throws ConfigInvalidException {
+    GeneralPreferencesInfo r =
+        loadSection(
+            cfg,
+            UserConfigSections.GENERAL,
+            null,
+            new GeneralPreferencesInfo(),
+            defaultCfg != null
+                ? parseDefaultGeneralPreferences(defaultCfg, input)
+                : GeneralPreferencesInfo.defaults(),
+            input);
+    if (input != null) {
+      r.changeTable = input.changeTable;
+      r.my = input.my;
+    } else {
+      r.changeTable = parseChangeTableColumns(cfg, defaultCfg);
+      r.my = parseMyMenus(cfg, defaultCfg);
+    }
+    return r;
+  }
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 
     public abstract Optional<Integer> fontSize();
 
@@ -312,9 +380,17 @@ public abstract class Preferences {
 
     public abstract Optional<Boolean> syntaxHighlighting();
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
     public abstract Optional<Boolean> hideTopMenu();
 
     public abstract Optional<Boolean> autoHideDiffTableHeader();
+=======
+  public static GeneralPreferencesInfo readDefaultGeneralPreferences(
+      AllUsersName allUsersName, Repository allUsersRepo)
+      throws IOException, ConfigInvalidException {
+    return parseGeneralPreferences(readDefaultConfig(allUsersName, allUsersRepo), null, null);
+  }
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 
     public abstract Optional<Boolean> hideLineNumbers();
 
@@ -322,7 +398,23 @@ public abstract class Preferences {
 
     public abstract Optional<Boolean> hideEmptyPane();
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
     public abstract Optional<Boolean> matchBrackets();
+=======
+  public static GeneralPreferencesInfo updateDefaultGeneralPreferences(
+      MetaDataUpdate md, GeneralPreferencesInfo input) throws IOException, ConfigInvalidException {
+    VersionedDefaultPreferences defaultPrefs = new VersionedDefaultPreferences();
+    defaultPrefs.load(md);
+    storeSection(
+        defaultPrefs.getConfig(),
+        UserConfigSections.GENERAL,
+        null,
+        input,
+        GeneralPreferencesInfo.defaults());
+    setMy(defaultPrefs.getConfig(), input.my);
+    setChangeTable(defaultPrefs.getConfig(), input.changeTable);
+    defaultPrefs.commit(md);
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 
     public abstract Optional<Boolean> lineWrapping();
 
@@ -356,6 +448,7 @@ public abstract class Preferences {
 
       abstract Builder manualReview(@Nullable Boolean val);
 
+<<<<<<< HEAD   (92eead Remove leftovers of unsupported urlAlias configuration setti)
       abstract Builder showLineEndings(@Nullable Boolean val);
 
       abstract Builder showTabs(@Nullable Boolean val);
@@ -363,6 +456,14 @@ public abstract class Preferences {
       abstract Builder showWhitespaceErrors(@Nullable Boolean val);
 
       abstract Builder syntaxHighlighting(@Nullable Boolean val);
+=======
+  private static void unsetSection(Config cfg, String section) {
+    cfg.unsetSection(section, null);
+    for (String subsection : cfg.getSubsections(section)) {
+      cfg.unsetSection(section, subsection);
+    }
+  }
+>>>>>>> BRANCH (048705 Merge branch 'stable-2.16' into stable-3.0)
 
       abstract Builder hideTopMenu(@Nullable Boolean val);
 
