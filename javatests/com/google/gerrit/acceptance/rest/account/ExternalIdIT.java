@@ -466,6 +466,7 @@ public class ExternalIdIT extends AbstractDaemonTest {
             admin.id(),
             "admin.other@example.com",
             "secret-password"));
+    insertExtId(ExternalId.createEmail(admin.id, "admin.other@example.com"));
     insertExtId(createExternalIdWithOtherCaseEmail(nextId(scheme, i)));
   }
 
@@ -696,7 +697,11 @@ public class ExternalIdIT extends AbstractDaemonTest {
   }
 
   private ExternalId createExternalIdWithDuplicateEmail(String externalId) {
+<<<<<<< HEAD   (2d5b34 gr-router: Remove leftover URL normalization for change edit)
     return ExternalId.createWithEmail(ExternalId.Key.parse(externalId), admin.id(), admin.email());
+=======
+    return ExternalId.createWithEmail(ExternalId.Key.parse(externalId), user.id, admin.email);
+>>>>>>> BRANCH (2edcdf Merge "Replace ${project} in a foreach query (for project da)
   }
 
   private ExternalId createExternalIdWithBadPassword(String username) {
