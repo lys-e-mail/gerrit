@@ -912,9 +912,16 @@ public class MergeOp implements AutoCloseable {
                           change.currentPatchSetId(),
                           internalUserFactory.create(),
                           change.getLastUpdatedOn(),
+<<<<<<< HEAD   (7d97f3 Remove documentation of UI selection)
                           ChangeMessagesUtil.TAG_MERGED,
                           "Project was deleted.");
                   cmUtil.addChangeMessage(ctx.getUpdate(change.currentPatchSetId()), msg);
+=======
+                          "Project was deleted.",
+                          ChangeMessagesUtil.TAG_MERGED);
+                  cmUtil.addChangeMessage(
+                      ctx.getDb(), ctx.getUpdate(change.currentPatchSetId()), msg);
+>>>>>>> BRANCH (84df88 Merge branch 'stable-2.15' into stable-2.16)
 
                   return true;
                 }
