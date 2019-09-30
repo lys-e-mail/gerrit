@@ -195,7 +195,11 @@
       function(html, position, length, outputArray) {
         if (this.hasOverlap(position, length, outputArray)) { return; }
         if (!!this.baseUrl && html.match(/<a href=\"\//g) &&
+<<<<<<< HEAD   (4ed411 Bazel: Split up the lucene query tests)
              !html.match(`/<a href=\"${this.baseUrl}/g`)) {
+=======
+             !new RegExp(`<a href="${this.baseUrl}`, 'g').test(html)) {
+>>>>>>> BRANCH (47ed6c Merge branch 'stable-2.16' into stable-3.0)
           html = html.replace(/<a href=\"\//g, `<a href=\"${this.baseUrl}\/`);
         }
         this.addItem(null, null, html, position, length, outputArray);
