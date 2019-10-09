@@ -409,8 +409,13 @@ public class CreateChangeIT extends AbstractDaemonTest {
     // Create 2 branches.
     String branchA = "branchA";
     String branchB = "branchB";
+<<<<<<< HEAD   (e8ef51 Update git submodules)
     createBranch(BranchNameKey.create(project, branchA));
     createBranch(BranchNameKey.create(project, branchB));
+=======
+    createBranch(new Branch.NameKey(project, branchA));
+    createBranch(new Branch.NameKey(project, branchB));
+>>>>>>> BRANCH (41c99c CreateChange: Do not fail with ISE if base commit doesn't ex)
 
     // Push an octopus merge to both of the branches.
     Result octopusA =
@@ -570,6 +575,7 @@ public class CreateChangeIT extends AbstractDaemonTest {
         input, BadRequestException.class, "Cannot create merge: destination branch does not exist");
   }
 
+<<<<<<< HEAD   (e8ef51 Update git submodules)
   @Test
   @UseSystemTime
   public void sha1sOfTwoNewChangesDiffer() throws Exception {
@@ -606,6 +612,8 @@ public class CreateChangeIT extends AbstractDaemonTest {
     }
   }
 
+=======
+>>>>>>> BRANCH (41c99c CreateChange: Do not fail with ISE if base commit doesn't ex)
   private ChangeInput newChangeInput(ChangeStatus status) {
     ChangeInput in = new ChangeInput();
     in.project = project.get();

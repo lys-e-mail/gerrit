@@ -1221,6 +1221,7 @@ in change tables and user dashboards.
 +
 By default 500.
 
+<<<<<<< HEAD   (e8ef51 Update git submodules)
 [[change.maxUpdates]]change.maxUpdates::
 +
 Maximum number of updates to a change. Counts only updates to the main NoteDb
@@ -1240,6 +1241,8 @@ The following operations are allowed even when a change is at the limit:
 +
 By default 1000.
 
+=======
+>>>>>>> BRANCH (41c99c CreateChange: Do not fail with ISE if base commit doesn't ex)
 [[change.move]]change.move::
 +
 Whether the link:rest-api-changes.html#move-change[Move Change] REST
