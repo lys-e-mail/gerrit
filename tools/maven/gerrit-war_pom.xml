@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (897a9c Merge "Add link to code of conduct to community index page")
   <version>3.1.0-SNAPSHOT</version>
+=======
+  <version>3.0.4-SNAPSHOT</version>
+>>>>>>> BRANCH (0ac9b0 Merge branch 'stable-2.16' into stable-3.0)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
