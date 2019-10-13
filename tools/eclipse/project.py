@@ -174,6 +174,7 @@ def gen_classpath(ext):
         impl = xml.dom.minidom.getDOMImplementation()
         return impl.createDocument(None, 'classpath', None)
 
+<<<<<<< HEAD   (906d74 Add handlebars to allowed syntax highlight list)
     def classpathentry(kind, path, src=None, out=None, exported=None):
         e = doc.createElement('classpathentry')
         e.setAttribute('kind', kind)
@@ -197,6 +198,23 @@ def gen_classpath(ext):
             atts.appendChild(testAtt)
             e.appendChild(atts)
         doc.documentElement.appendChild(e)
+=======
+  def classpathentry(kind, path, src=None, out=None, exported=None):
+    e = doc.createElement('classpathentry')
+    e.setAttribute('kind', kind)
+    # Excluding the BUILD file, to avoid the Eclipse warnings:
+    # "The resource is a duplicate of ..."
+    if kind == 'src':
+      e.setAttribute('excluding', '**/BUILD')
+    e.setAttribute('path', path)
+    if src:
+      e.setAttribute('sourcepath', src)
+    if out:
+      e.setAttribute('output', out)
+    if exported:
+      e.setAttribute('exported', 'true')
+    doc.documentElement.appendChild(e)
+>>>>>>> BRANCH (5044de Merge branch 'stable-2.14' into stable-2.15)
 
     doc = make_classpath()
     src = set()
