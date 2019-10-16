@@ -51,6 +51,7 @@ import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.Branch;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
+import com.google.gerrit.server.UsedAt;
 import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.account.ProjectWatches.NotifyType;
 import com.google.gerrit.server.config.AllProjectsName;
@@ -240,6 +241,31 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
   private Map<String, List<String>> extensionPanelSections;
   private Map<String, GroupReference> groupsByName;
 
+<<<<<<< HEAD   (b958c9 Merge "Update plugin revisions" into stable-3.0)
+=======
+  public static ProjectConfig read(MetaDataUpdate update)
+      throws IOException, ConfigInvalidException {
+    ProjectConfig r = new ProjectConfig(update.getProjectName());
+    r.load(update);
+    return r;
+  }
+
+  public static ProjectConfig read(MetaDataUpdate update, ObjectId id)
+      throws IOException, ConfigInvalidException {
+    ProjectConfig r = new ProjectConfig(update.getProjectName());
+    r.load(update, id);
+    return r;
+  }
+
+  @UsedAt(UsedAt.Project.COLLABNET)
+  public static ProjectConfig read(Repository repo, Project.NameKey name)
+      throws IOException, ConfigInvalidException {
+    ProjectConfig r = new ProjectConfig(name);
+    r.load(repo);
+    return r;
+  }
+
+>>>>>>> BRANCH (27ca7c CreateProject: Add @UsedAt annotation)
   public static CommentLinkInfoImpl buildCommentLink(Config cfg, String name, boolean allowRaw)
       throws IllegalArgumentException {
     String match = cfg.getString(COMMENTLINK, name, KEY_MATCH);

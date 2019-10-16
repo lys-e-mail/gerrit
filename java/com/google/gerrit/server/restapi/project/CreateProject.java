@@ -34,7 +34,14 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.RestCollectionCreateView;
 import com.google.gerrit.extensions.restapi.TopLevelResource;
 import com.google.gerrit.reviewdb.client.RefNames;
+<<<<<<< HEAD   (b958c9 Merge "Update plugin revisions" into stable-3.0)
 import com.google.gerrit.server.ProjectUtil;
+=======
+import com.google.gerrit.server.GerritPersonIdent;
+import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.UsedAt;
+import com.google.gerrit.server.account.GroupBackend;
+>>>>>>> BRANCH (27ca7c CreateProject: Add @UsedAt annotation)
 import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.ProjectOwnerGroupsProvider;
@@ -188,6 +195,97 @@ public class CreateProject
     }
   }
 
+<<<<<<< HEAD   (b958c9 Merge "Update plugin revisions" into stable-3.0)
+=======
+  @UsedAt(UsedAt.Project.COLLABNET)
+  public ProjectState createProject(CreateProjectArgs args)
+      throws BadRequestException, ResourceConflictException, IOException, ConfigInvalidException {
+    final Project.NameKey nameKey = args.getProject();
+    try {
+      final String head = args.permissionsOnly ? RefNames.REFS_CONFIG : args.branch.get(0);
+      try (Repository repo = repoManager.openRepository(nameKey)) {
+        if (repo.getObjectDatabase().exists()) {
+          throw new ResourceConflictException("project \"" + nameKey + "\" exists");
+        }
+      } catch (RepositoryNotFoundException e) {
+        // It does not exist, safe to ignore.
+      }
+      try (Repository repo = repoManager.createRepository(nameKey)) {
+        RefUpdate u = repo.updateRef(Constants.HEAD);
+        u.disableRefLog();
+        u.link(head);
+
+        createProjectConfig(args);
+
+        if (!args.permissionsOnly && args.createEmptyCommit) {
+          createEmptyCommits(repo, nameKey, args.branch);
+        }
+
+        fire(nameKey, head);
+
+        return projectCache.get(nameKey);
+      }
+    } catch (RepositoryCaseMismatchException e) {
+      throw new ResourceConflictException(
+          "Cannot create "
+              + nameKey.get()
+              + " because the name is already occupied by another project."
+              + " The other project has the same name, only spelled in a"
+              + " different case.");
+    } catch (RepositoryNotFoundException badName) {
+      throw new BadRequestException("invalid project name: " + nameKey);
+    } catch (ConfigInvalidException e) {
+      String msg = "Cannot create " + nameKey;
+      logger.atSevere().withCause(e).log(msg);
+      throw e;
+    }
+  }
+
+  private void createProjectConfig(CreateProjectArgs args)
+      throws IOException, ConfigInvalidException {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(args.getProject())) {
+      ProjectConfig config = ProjectConfig.read(md);
+
+      Project newProject = config.getProject();
+      newProject.setDescription(args.projectDescription);
+      newProject.setSubmitType(
+          MoreObjects.firstNonNull(
+              args.submitType, repositoryCfg.getDefaultSubmitType(args.getProject())));
+      newProject.setBooleanConfig(
+          BooleanProjectConfig.USE_CONTRIBUTOR_AGREEMENTS, args.contributorAgreements);
+      newProject.setBooleanConfig(BooleanProjectConfig.USE_SIGNED_OFF_BY, args.signedOffBy);
+      newProject.setBooleanConfig(BooleanProjectConfig.USE_CONTENT_MERGE, args.contentMerge);
+      newProject.setBooleanConfig(
+          BooleanProjectConfig.CREATE_NEW_CHANGE_FOR_ALL_NOT_IN_TARGET,
+          args.newChangeForAllNotInTarget);
+      newProject.setBooleanConfig(BooleanProjectConfig.REQUIRE_CHANGE_ID, args.changeIdRequired);
+      newProject.setBooleanConfig(BooleanProjectConfig.REJECT_EMPTY_COMMIT, args.rejectEmptyCommit);
+      newProject.setMaxObjectSizeLimit(args.maxObjectSizeLimit);
+      newProject.setBooleanConfig(BooleanProjectConfig.ENABLE_SIGNED_PUSH, args.enableSignedPush);
+      newProject.setBooleanConfig(BooleanProjectConfig.REQUIRE_SIGNED_PUSH, args.requireSignedPush);
+      if (args.newParent != null) {
+        newProject.setParentName(args.newParent);
+      }
+
+      if (!args.ownerIds.isEmpty()) {
+        AccessSection all = config.getAccessSection(AccessSection.ALL, true);
+        for (AccountGroup.UUID ownerId : args.ownerIds) {
+          GroupDescription.Basic g = groupBackend.get(ownerId);
+          if (g != null) {
+            GroupReference group = config.resolve(GroupReference.forGroup(g));
+            all.getPermission(Permission.OWNER, true).add(new PermissionRule(group));
+          }
+        }
+      }
+
+      md.setMessage("Created project\n");
+      config.commit(md);
+      md.getRepository().setGitwebDescription(args.projectDescription);
+    }
+    projectCache.onCreateProject(args.getProject());
+  }
+
+>>>>>>> BRANCH (27ca7c CreateProject: Add @UsedAt annotation)
   private List<String> normalizeBranchNames(List<String> branches) throws BadRequestException {
     if (branches == null || branches.isEmpty()) {
       return Collections.singletonList(Constants.R_HEADS + Constants.MASTER);
