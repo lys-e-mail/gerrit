@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (810f26 Merge "Show Revert Submission button in the UI")
   <version>3.2.0-SNAPSHOT</version>
+=======
+  <version>3.1.0-rc1</version>
+>>>>>>> BRANCH (f51800 Merge branch 'stable-3.0' into stable-3.1)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
