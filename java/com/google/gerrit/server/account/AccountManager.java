@@ -236,8 +236,12 @@ public class AccountManager {
     }
 
     if (!Strings.isNullOrEmpty(who.getDisplayName())
+<<<<<<< HEAD   (8f862b Set version to 3.1.0-rc1)
         && !Objects.equals(user.getAccount().fullName(), who.getDisplayName())) {
       accountUpdates.add(u -> u.setFullName(who.getDisplayName()));
+=======
+        && !Objects.equals(user.getAccount().getFullName(), who.getDisplayName())) {
+>>>>>>> BRANCH (b36ecb Merge branch 'stable-2.16' into stable-3.0)
       if (realm.allowsEdit(AccountFieldName.FULL_NAME)) {
         accountUpdates.add(a -> a.setFullName(who.getDisplayName()));
       } else {
