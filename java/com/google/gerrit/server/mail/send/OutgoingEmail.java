@@ -18,6 +18,12 @@ import static com.google.gerrit.extensions.client.GeneralPreferencesInfo.EmailSt
 import static com.google.gerrit.extensions.client.GeneralPreferencesInfo.EmailStrategy.DISABLED;
 import static java.util.Objects.requireNonNull;
 
+<<<<<<< HEAD   (33495a Merge branch 'stable-2.16' into stable-3.0)
+=======
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
+>>>>>>> BRANCH (b7e284 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.exceptions.EmailException;
 import com.google.gerrit.extensions.api.changes.RecipientType;
@@ -90,13 +96,23 @@ public abstract class OutgoingEmail {
    * @throws EmailException
    */
   public void send() throws EmailException {
+<<<<<<< HEAD   (33495a Merge branch 'stable-2.16' into stable-3.0)
     if (!notify.shouldNotify()) {
       return;
     }
 
+=======
+>>>>>>> BRANCH (b7e284 Merge branch 'stable-2.15' into stable-2.16)
     if (!args.emailSender.isEnabled()) {
       // Server has explicitly disabled email sending.
       //
+      logger.atFine().log(
+          "Not sending '%s': Email sending is disabled by server config", messageClass);
+      return;
+    }
+
+    if (NotifyHandling.NONE.equals(notify) && accountsToNotify.isEmpty()) {
+      logger.atFine().log("Not sending '%s': Notify handling is NONE", messageClass);
       return;
     }
 
@@ -147,6 +163,7 @@ public abstract class OutgoingEmail {
           }
         }
         if (smtpRcptTo.isEmpty() && smtpRcptToPlaintextOnly.isEmpty()) {
+          logger.atFine().log("Not sending '%s': No SMTP recipients", messageClass);
           return;
         }
       }
@@ -185,16 +202,26 @@ public abstract class OutgoingEmail {
         try {
           validator.validateOutgoingEmail(va);
         } catch (ValidationException e) {
+          logger.atFine().log(
+              "Not sending '%s': Rejected by outgoing email validator: %s",
+              messageClass, e.getMessage());
           return;
         }
       }
 
+      Set<Address> intersection = Sets.intersection(smtpRcptTo, smtpRcptToPlaintextOnly);
+      if (!intersection.isEmpty()) {
+        logger.atSevere().log("Email '%s' will be sent twice to %s", messageClass, intersection);
+      }
+
       if (!smtpRcptTo.isEmpty()) {
         // Send multipart message
+        logger.atFine().log("Sending multipart '%s'", messageClass);
         args.emailSender.send(va.smtpFromAddress, va.smtpRcptTo, va.headers, va.body, va.htmlBody);
       }
 
       if (!smtpRcptToPlaintextOnly.isEmpty()) {
+        logger.atFine().log("Sending plaintext '%s'", messageClass);
         // Send plaintext message
         Map<String, EmailHeader> shallowCopy = new HashMap<>();
         shallowCopy.putAll(headers);
@@ -389,6 +416,7 @@ public abstract class OutgoingEmail {
   protected boolean shouldSendMessage() {
     if (textBody.length() == 0) {
       // If we have no message body, don't send.
+      logger.atFine().log("Not sending '%s': No message body", messageClass);
       return false;
     }
 
@@ -396,6 +424,7 @@ public abstract class OutgoingEmail {
       // If we have nobody to send this message to, then all of our
       // selection filters previously for this type of message were
       // unable to match a destination. Don't bother sending it.
+      logger.atFine().log("Not sending '%s': No recipients", messageClass);
       return false;
     }
 
@@ -405,6 +434,7 @@ public abstract class OutgoingEmail {
         && rcptTo.contains(fromId)) {
       // If the only recipient is also the sender, don't bother.
       //
+      logger.atFine().log("Not sending '%s': Sender is only recipient", messageClass);
       return false;
     }
 
