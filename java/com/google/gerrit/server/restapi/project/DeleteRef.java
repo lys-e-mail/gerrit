@@ -25,8 +25,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Project;
+=======
+import com.google.gerrit.exceptions.StorageException;
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.server.IdentifiedUser;
@@ -156,7 +160,7 @@ public class DeleteRef {
           break;
 
         case REJECTED_CURRENT_BRANCH:
-          logger.atSevere().log("Cannot delete %s: %s", ref, result.name());
+          logger.atFine().log("Cannot delete current branch %s: %s", ref, result.name());
           throw new ResourceConflictException("cannot delete current branch");
 
         case IO_FAILURE:
@@ -167,8 +171,7 @@ public class DeleteRef {
         case REJECTED_MISSING_OBJECT:
         case REJECTED_OTHER_REASON:
         default:
-          logger.atSevere().log("Cannot delete %s: %s", ref, result.name());
-          throw new ResourceConflictException("cannot delete: " + result.name());
+          throw new StorageException(String.format("Cannot delete %s: %s", ref, result.name()));
       }
     }
   }

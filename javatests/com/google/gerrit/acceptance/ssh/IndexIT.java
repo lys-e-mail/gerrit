@@ -14,7 +14,10 @@
 
 package com.google.gerrit.acceptance.ssh;
 
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
 import com.google.gerrit.index.IndexType;
 
 /** Tests for the default {@link IndexType#isLucene()} index configuration. */
+=======
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
 public class IndexIT extends AbstractIndexTests {}

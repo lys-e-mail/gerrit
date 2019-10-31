@@ -40,6 +40,22 @@ public abstract class AbstractIndexTests extends AbstractDaemonTest {
 
   /** @param injector injector */
   public void configureIndex(Injector injector) {}
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
+=======
+
+  @Before
+  public void addChangeIndexedCounter() {
+    changeIndexedCounter = new ChangeIndexedCounter();
+    changeIndexedCounterHandle = changeIndexedListeners.add("gerrit", changeIndexedCounter);
+  }
+
+  @After
+  public void removeChangeIndexedCounter() {
+    if (changeIndexedCounterHandle != null) {
+      changeIndexedCounterHandle.remove();
+    }
+  }
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
 
   @Test
   @GerritConfig(name = "index.autoReindexIfStale", value = "false")
@@ -57,8 +73,13 @@ public abstract class AbstractIndexTests extends AbstractDaemonTest {
       disableChangeIndexWrites();
       amendChange(changeId, "second test", "test2.txt", "test2");
 
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
       assertChangeQuery("message:second", change.getChange(), false);
       enableChangeIndexWrites();
+=======
+    assertChangeQuery(change.getChange(), false);
+    enableChangeIndexWrites();
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
 
       changeIndexedCounter.clear();
       String cmd = Joiner.on(" ").join("gerrit", "index", "changes", changeLegacyId);
@@ -67,8 +88,12 @@ public abstract class AbstractIndexTests extends AbstractDaemonTest {
 
       changeIndexedCounter.assertReindexOf(changeInfo, 1);
 
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
       assertChangeQuery("message:second", change.getChange(), true);
     }
+=======
+    assertChangeQuery(change.getChange(), true);
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
   }
 
   @Test
@@ -86,8 +111,13 @@ public abstract class AbstractIndexTests extends AbstractDaemonTest {
       disableChangeIndexWrites();
       amendChange(changeId, "second test", "test2.txt", "test2");
 
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
       assertChangeQuery("message:second", change.getChange(), false);
       enableChangeIndexWrites();
+=======
+    assertChangeQuery(change.getChange(), false);
+    enableChangeIndexWrites();
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
 
       changeIndexedCounter.clear();
       String cmd = Joiner.on(" ").join("gerrit", "index", "changes-in-project", project.get());
@@ -105,11 +135,17 @@ public abstract class AbstractIndexTests extends AbstractDaemonTest {
 
       assertChangeQuery("message:second", change.getChange(), true);
     }
+<<<<<<< HEAD   (b7b147 Do not allow RobotoMono-Regular to stand in for Roboto)
+=======
+
+    changeIndexedCounter.assertReindexOf(changeInfo, 1);
+
+    assertChangeQuery(change.getChange(), true);
+>>>>>>> BRANCH (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
   }
 
-  protected void assertChangeQuery(String q, ChangeData change, boolean assertTrue)
-      throws Exception {
-    List<Integer> ids = query(q).stream().map(c -> c._number).collect(toList());
+  private void assertChangeQuery(ChangeData change, boolean assertTrue) throws Exception {
+    List<Integer> ids = query("message:second").stream().map(c -> c._number).collect(toList());
     if (assertTrue) {
       assertThat(ids).contains(change.getId().get());
     } else {
