@@ -32,6 +32,7 @@ import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectConfig;
 import com.google.gerrit.server.project.ProjectResource;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import org.eclipse.jgit.errors.ConfigInvalidException;
@@ -40,16 +41,21 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 @Singleton
 public class PutDescription implements RestModifyView<ProjectResource, DescriptionInput> {
   private final ProjectCache cache;
-  private final MetaDataUpdate.Server updateFactory;
+  private final Provider<MetaDataUpdate.Server> updateFactory;
   private final PermissionBackend permissionBackend;
   private final ProjectConfig.Factory projectConfigFactory;
 
   @Inject
   PutDescription(
       ProjectCache cache,
+<<<<<<< HEAD   (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
       MetaDataUpdate.Server updateFactory,
       PermissionBackend permissionBackend,
       ProjectConfig.Factory projectConfigFactory) {
+=======
+      Provider<MetaDataUpdate.Server> updateFactory,
+      PermissionBackend permissionBackend) {
+>>>>>>> BRANCH (0b7e99 Documentation: Fix word typo in Eclipse Setup page)
     this.cache = cache;
     this.updateFactory = updateFactory;
     this.permissionBackend = permissionBackend;
@@ -70,8 +76,13 @@ public class PutDescription implements RestModifyView<ProjectResource, Descripti
         .project(resource.getNameKey())
         .check(ProjectPermission.WRITE_CONFIG);
 
+<<<<<<< HEAD   (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
     try (MetaDataUpdate md = updateFactory.create(resource.getNameKey())) {
       ProjectConfig config = projectConfigFactory.read(md);
+=======
+    try (MetaDataUpdate md = updateFactory.get().create(resource.getNameKey())) {
+      ProjectConfig config = ProjectConfig.read(md);
+>>>>>>> BRANCH (0b7e99 Documentation: Fix word typo in Eclipse Setup page)
       Project project = config.getProject();
       project.setDescription(Strings.emptyToNull(input.description));
 

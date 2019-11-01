@@ -89,7 +89,7 @@ public class GetAccess implements RestReadView<ProjectResource> {
   private final AllProjectsName allProjectsName;
   private final ProjectJson projectJson;
   private final ProjectCache projectCache;
-  private final MetaDataUpdate.Server metaDataUpdateFactory;
+  private final Provider<MetaDataUpdate.Server> metaDataUpdateFactory;
   private final GroupBackend groupBackend;
   private final WebLinks webLinks;
   private final ProjectConfig.Factory projectConfigFactory;
@@ -100,7 +100,7 @@ public class GetAccess implements RestReadView<ProjectResource> {
       PermissionBackend permissionBackend,
       AllProjectsName allProjectsName,
       ProjectCache projectCache,
-      MetaDataUpdate.Server metaDataUpdateFactory,
+      Provider<MetaDataUpdate.Server> metaDataUpdateFactory,
       ProjectJson projectJson,
       GroupBackend groupBackend,
       WebLinks webLinks,
@@ -140,8 +140,13 @@ public class GetAccess implements RestReadView<ProjectResource> {
     PermissionBackend.ForProject perm = permissionBackend.currentUser().project(projectName);
 
     ProjectConfig config;
+<<<<<<< HEAD   (979027 Post/Delete GPG keys: Do not return 409 Conflict if an error)
     try (MetaDataUpdate md = metaDataUpdateFactory.create(projectName)) {
       config = projectConfigFactory.read(md);
+=======
+    try (MetaDataUpdate md = metaDataUpdateFactory.get().create(projectName)) {
+      config = ProjectConfig.read(md);
+>>>>>>> BRANCH (0b7e99 Documentation: Fix word typo in Eclipse Setup page)
       info.configWebLinks = new ArrayList<>();
 
       // config may have a null revision if the repo doesn't have its own refs/meta/config.
