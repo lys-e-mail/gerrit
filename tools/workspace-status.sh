@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (e21291 Update elasticsearch-rest-client to 7.4.2)
 #!/usr/bin/env bash
 
 # This script will be run by bazel when the build process starts to
@@ -19,3 +20,5 @@ for p in plugins/* ; do
   test -d "$p" || continue
   echo STABLE_BUILD_$(echo $(basename $p)_LABEL|tr '[a-z]' '[A-Z]' ) $(rev $p || echo unknown)
 done
+=======
+>>>>>>> BRANCH (262a4d Bazel: Portable way to guess whether root directory is reach)
