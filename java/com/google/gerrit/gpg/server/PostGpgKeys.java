@@ -205,6 +205,7 @@ public class PostGpgKeys implements RestModifyView<AccountResource, GpgKeysInput
 
   private void storeKeys(
       AccountResource rsrc, List<PGPPublicKeyRing> keyRings, Collection<Fingerprint> toRemove)
+<<<<<<< HEAD   (4bee6b Fix vertical-align and line height in search bar)
       throws RestApiException, PGPException, IOException {
     try {
       retryHelper.execute(
@@ -223,6 +224,9 @@ public class PostGpgKeys implements RestModifyView<AccountResource, GpgKeysInput
   private Void tryStoreKeys(
       AccountResource rsrc, List<PGPPublicKeyRing> keyRings, Collection<Fingerprint> toRemove)
       throws RestApiException, PGPException, IOException {
+=======
+      throws BadRequestException, PGPException, IOException {
+>>>>>>> BRANCH (4afb31 PostGpgKeys: Remove declaration of unthrown ResourceConflict)
     try (PublicKeyStore store = storeProvider.get()) {
       List<String> addedKeys = new ArrayList<>();
       IdentifiedUser user = rsrc.getUser();
