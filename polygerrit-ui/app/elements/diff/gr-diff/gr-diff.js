@@ -177,7 +177,11 @@
         observer: '_viewModeObserver',
       },
 
+<<<<<<< HEAD   (e0f7e1 Merge "Remove robot comments without human reply from "Comme)
       /** @type ?Gerrit.LineOfInterest */
+=======
+       /** @type ?Gerrit.LineOfInterest */
+>>>>>>> BRANCH (d0f0d7 Set version to 3.1.0-rc3)
       lineOfInterest: Object,
 
       loading: {

@@ -396,6 +396,7 @@
           account._account_id).then(response => {
         if (!response.ok) { return response; }
 
+<<<<<<< HEAD   (e0f7e1 Merge "Remove robot comments without human reply from "Comme)
         const reviewers = this.change.reviewers[type] || [];
         for (let i = 0; i < reviewers.length; i++) {
           if (reviewers[i]._account_id == account._account_id) {
@@ -404,6 +405,16 @@
           }
         }
       });
+=======
+            const reviewers = this.change.reviewers[type] || [];
+            for (let i = 0; i < reviewers.length; i++) {
+              if (reviewers[i]._account_id == account._account_id) {
+                this.splice(`change.reviewers.${type}`, i, 1);
+                break;
+              }
+            }
+          });
+>>>>>>> BRANCH (d0f0d7 Set version to 3.1.0-rc3)
     },
 
     _mapReviewer(reviewer) {
