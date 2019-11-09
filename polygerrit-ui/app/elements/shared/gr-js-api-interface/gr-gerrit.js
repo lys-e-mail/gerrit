@@ -25,8 +25,13 @@
 
   // Import utils methods
   const {
+<<<<<<< HEAD   (4617c3 Merge "Replace `.src` with `.setAttribute` for gr-lib-loader)
     send,
     getRestAPI,
+=======
+      send,
+      getRestAPI,
+>>>>>>> BRANCH (310db8 Merge branch 'stable-3.0' into stable-3.1)
   } = window._apiUtils;
 
   /**
@@ -54,7 +59,11 @@
       testOnly_resetInternalState,
     } = window._apiUtils;
     Gerrit._testOnly_installPreloadedPlugins = (...args) => Gerrit._pluginLoader
+<<<<<<< HEAD   (4617c3 Merge "Replace `.src` with `.setAttribute` for gr-lib-loader)
         .installPreloadedPlugins(...args);
+=======
+      .installPreloadedPlugins(...args);
+>>>>>>> BRANCH (310db8 Merge branch 'stable-3.0' into stable-3.1)
     Gerrit._testOnly_flushPreinstalls = flushPreinstalls;
     Gerrit._testOnly_resetPlugins = () => {
       testOnly_resetInternalState();
