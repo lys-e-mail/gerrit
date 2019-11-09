@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (4afb31 PostGpgKeys: Remove declaration of unthrown ResourceConflict)
   <version>3.0.4-SNAPSHOT</version>
+=======
+  <version>2.16.14-SNAPSHOT</version>
+>>>>>>> BRANCH (41591f Set version to 2.16.14-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>

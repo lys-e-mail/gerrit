@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (4afb31 PostGpgKeys: Remove declaration of unthrown ResourceConflict)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (4afb31 PostGpgKeys: Remove declaration of unthrown ResourceConflict)
-  <version>3.0.4-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.14-SNAPSHOT</version>
->>>>>>> BRANCH (41591f Set version to 2.16.14-SNAPSHOT)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (41591f Set version to 2.16.14-SNAPSHOT)
