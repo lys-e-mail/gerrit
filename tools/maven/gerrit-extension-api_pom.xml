@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (17b60d Revert "Bazel: Fix toolchain vanilla to not hard code java 8)
   <version>3.1.0-rc3</version>
+=======
+  <version>3.0.5-SNAPSHOT</version>
+>>>>>>> BRANCH (3ac051 Set version to 3.0.5-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
