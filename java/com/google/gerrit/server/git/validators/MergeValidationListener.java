@@ -17,6 +17,12 @@ package com.google.gerrit.server.git.validators;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.annotations.ExtensionPoint;
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
+=======
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.PatchSet;
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.git.CodeReviewCommit;
 import com.google.gerrit.server.project.ProjectState;
@@ -44,7 +50,12 @@ public interface MergeValidationListener {
       Repository repo,
       CodeReviewCommit commit,
       ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
       BranchNameKey destBranch,
+=======
+      Branch.NameKey destBranch,
+      Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
       PatchSet.Id patchSetId,
       IdentifiedUser caller)
       throws MergeValidationException;

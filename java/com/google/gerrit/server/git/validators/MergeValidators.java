@@ -27,6 +27,15 @@ import com.google.gerrit.extensions.api.projects.ProjectConfigEntryType;
 import com.google.gerrit.extensions.registration.DynamicMap;
 import com.google.gerrit.extensions.registration.Extension;
 import com.google.gerrit.extensions.restapi.AuthException;
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
+=======
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.PatchSet;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.client.RefNames;
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.account.AccountProperties;
 import com.google.gerrit.server.config.AllProjectsName;
@@ -80,7 +89,12 @@ public class MergeValidators {
       Repository repo,
       CodeReviewCommit commit,
       ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
       BranchNameKey destBranch,
+=======
+      Branch.NameKey destBranch,
+      Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
       PatchSet.Id patchSetId,
       IdentifiedUser caller)
       throws MergeValidationException {
@@ -92,7 +106,7 @@ public class MergeValidators {
             groupValidatorFactory.create());
 
     for (MergeValidationListener validator : validators) {
-      validator.onPreMerge(repo, commit, destProject, destBranch, patchSetId, caller);
+      validator.onPreMerge(repo, commit, destProject, destBranch, changeId, patchSetId, caller);
     }
   }
 
@@ -156,7 +170,12 @@ public class MergeValidators {
         final Repository repo,
         final CodeReviewCommit commit,
         final ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
         final BranchNameKey destBranch,
+=======
+        final Branch.NameKey destBranch,
+        final Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
         final PatchSet.Id patchSetId,
         IdentifiedUser caller)
         throws MergeValidationException {
@@ -251,12 +270,17 @@ public class MergeValidators {
         Repository repo,
         CodeReviewCommit commit,
         ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
         BranchNameKey destBranch,
+=======
+        Branch.NameKey destBranch,
+        Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
         PatchSet.Id patchSetId,
         IdentifiedUser caller)
         throws MergeValidationException {
       mergeValidationListeners.runEach(
-          l -> l.onPreMerge(repo, commit, destProject, destBranch, patchSetId, caller),
+          l -> l.onPreMerge(repo, commit, destProject, destBranch, changeId, patchSetId, caller),
           MergeValidationException.class);
     }
   }
@@ -285,7 +309,12 @@ public class MergeValidators {
         Repository repo,
         CodeReviewCommit commit,
         ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
         BranchNameKey destBranch,
+=======
+        Branch.NameKey destBranch,
+        Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
         PatchSet.Id patchSetId,
         IdentifiedUser caller)
         throws MergeValidationException {
@@ -335,7 +364,12 @@ public class MergeValidators {
         Repository repo,
         CodeReviewCommit commit,
         ProjectState destProject,
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
         BranchNameKey destBranch,
+=======
+        Branch.NameKey destBranch,
+        Change.Id changeId,
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
         PatchSet.Id patchSetId,
         IdentifiedUser caller)
         throws MergeValidationException {

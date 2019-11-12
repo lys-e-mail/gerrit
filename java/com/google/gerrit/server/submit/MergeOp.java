@@ -856,7 +856,12 @@ public class MergeOp implements AutoCloseable {
 
       MergeValidators mergeValidators = mergeValidatorsFactory.create();
       try {
+<<<<<<< HEAD   (b5dde8 Fix JSDoc comments for behaviors)
         mergeValidators.validatePreMerge(or.repo, commit, or.project, destBranch, ps.id(), caller);
+=======
+        mergeValidators.validatePreMerge(
+            or.repo, commit, or.project, destBranch, changeId, ps.getId(), caller);
+>>>>>>> BRANCH (4504f5 Merge branch 'stable-2.16' into stable-3.0)
       } catch (MergeValidationException mve) {
         commitStatus.problem(changeId, mve.getMessage());
         continue;
