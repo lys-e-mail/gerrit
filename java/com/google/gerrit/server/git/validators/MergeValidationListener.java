@@ -18,6 +18,11 @@ import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.annotations.ExtensionPoint;
+<<<<<<< HEAD   (c90222 Merge branch 'stable-3.0' into stable-3.1)
+=======
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.PatchSet;
+>>>>>>> BRANCH (1dd5f3 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.git.CodeReviewCommit;
 import com.google.gerrit.server.project.ProjectState;
@@ -37,7 +42,6 @@ public interface MergeValidationListener {
    * @param commit commit details
    * @param destProject the destination project
    * @param destBranch the destination branch
-   * @param changeId the change ID
    * @param patchSetId the patch set ID
    * @param caller the user who initiated the merge request
    * @throws MergeValidationException if the commit fails to validate
@@ -46,8 +50,12 @@ public interface MergeValidationListener {
       Repository repo,
       CodeReviewCommit commit,
       ProjectState destProject,
+<<<<<<< HEAD   (c90222 Merge branch 'stable-3.0' into stable-3.1)
       BranchNameKey destBranch,
       Change.Id changeId,
+=======
+      Branch.NameKey destBranch,
+>>>>>>> BRANCH (1dd5f3 Merge branch 'stable-2.16' into stable-3.0)
       PatchSet.Id patchSetId,
       IdentifiedUser caller)
       throws MergeValidationException;
