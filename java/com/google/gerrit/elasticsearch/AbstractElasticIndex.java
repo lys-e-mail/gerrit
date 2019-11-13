@@ -87,12 +87,17 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
   protected static final String SEARCH = "_search";
   protected static final String SETTINGS = "settings";
 
+  protected static byte[] decodeBase64(String base64String) {
+    return Base64.decodeBase64(base64String);
+  }
+
   protected static <T> List<T> decodeProtos(
       JsonObject doc, String fieldName, ProtoConverter<?, T> converter) {
     JsonArray field = doc.getAsJsonArray(fieldName);
     if (field == null) {
       return null;
     }
+<<<<<<< HEAD   (bf4f0f Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
     return Streams.stream(field)
         .map(JsonElement::toString)
         .map(Base64::decodeBase64)
@@ -104,6 +109,11 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
       byte[] bytes, ProtoConverter<P, T> converter) {
     P message = Protos.parseUnchecked(converter.getParser(), bytes);
     return converter.fromProto(message);
+=======
+    return FluentIterable.from(field)
+        .transform(i -> codec.decode(decodeBase64(i.getAsString())))
+        .toList();
+>>>>>>> BRANCH (6bd070 AbstractElasticIndex: Add helper method to invoke base64 dec)
   }
 
   static String getContent(Response response) throws IOException {
