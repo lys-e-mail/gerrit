@@ -242,12 +242,6 @@ maven_jar(
 )
 
 maven_jar(
-    name = "j2objc",
-    artifact = "com.google.j2objc:j2objc-annotations:1.1",
-    sha1 = "ed28ded51a8b1c6b112568def5f4b455e6809019",
-)
-
-maven_jar(
     name = "jsch",
     artifact = "com.jcraft:jsch:0.1.54",
     sha1 = "da3584329a263616e277e15462b387addd1b208d",
@@ -774,12 +768,15 @@ maven_jar(
     sha1 = "198ea005f41219f038f4291f0b0e9f3259730e92",
 )
 
+<<<<<<< HEAD   (3b863c LazyPostReceiveHookChain: Simplify check for pack size)
 maven_jar(
     name = "dropwizard-core",
     artifact = "io.dropwizard.metrics:metrics-core:4.0.7",
     sha1 = "673899f605f52ca35836673ccfee97154a496a61",
 )
 
+=======
+>>>>>>> BRANCH (b42e47 Merge branch 'stable-2.16' into stable-3.0)
 # When updating Bouncy Castle, also update it in bazlets.
 BC_VERS = "1.61"
 
@@ -804,6 +801,7 @@ maven_jar(
 SSHD_VERS = "2.3.0"
 
 maven_jar(
+<<<<<<< HEAD   (3b863c LazyPostReceiveHookChain: Simplify check for pack size)
     name = "sshd",
     artifact = "org.apache.sshd:sshd-core:" + SSHD_VERS,
     sha1 = "21aeea9deba96c9b81ea0935fa4fac61aa3cf646",
@@ -834,6 +832,8 @@ maven_jar(
 )
 
 maven_jar(
+=======
+>>>>>>> BRANCH (b42e47 Merge branch 'stable-2.16' into stable-3.0)
     name = "h2",
     artifact = "com.h2database:h2:1.3.176",
     sha1 = "fd369423346b2f1525c413e33f8cf95b09c92cbd",
@@ -859,20 +859,6 @@ maven_jar(
     name = "httpcore",
     artifact = "org.apache.httpcomponents:httpcore:" + HTTPCOMP_VERS,
     sha1 = "f5aa318bda4c6c8d688c9d00b90681dcd82ce636",
-)
-
-# elasticsearch-rest-client explicitly depends on this version
-maven_jar(
-    name = "httpasyncclient",
-    artifact = "org.apache.httpcomponents:httpasyncclient:4.1.4",
-    sha1 = "f3a3240681faae3fa46b573a4c7e50cec9db0d86",
-)
-
-# elasticsearch-rest-client explicitly depends on this version
-maven_jar(
-    name = "httpcore-nio",
-    artifact = "org.apache.httpcomponents:httpcore-nio:4.4.11",
-    sha1 = "7d0a97d01d39cff9aa3e6db81f21fddb2435f4e6",
 )
 
 # Test-only dependencies below.
@@ -927,7 +913,19 @@ maven_jar(
     sha1 = "7e060dd5b19431e6d198e91ff670644372f60fbd",
 )
 
+<<<<<<< HEAD   (3b863c LazyPostReceiveHookChain: Simplify check for pack size)
 JETTY_VERS = "9.4.18.v20190429"
+=======
+# When bumping the easymock version number, make sure to also move powermock to a compatible version
+maven_jar(
+    name = "easymock",
+    artifact = "org.easymock:easymock:3.1",
+    sha1 = "3e127311a86fc2e8f550ef8ee4abe094bbcf7e7e",
+)
+
+maven_jar(
+JETTY_VERS = "9.4.14.v20181114"
+>>>>>>> BRANCH (b42e47 Merge branch 'stable-2.16' into stable-3.0)
 
 maven_jar(
     name = "jetty-servlet",
@@ -978,25 +976,6 @@ maven_jar(
 )
 
 maven_jar(
-    name = "openid-consumer",
-    artifact = "org.openid4java:openid4java:1.0.0",
-    sha1 = "541091bb49f2c0d583544c5bb1e6df7612d31e3e",
-)
-
-maven_jar(
-    name = "nekohtml",
-    artifact = "net.sourceforge.nekohtml:nekohtml:1.9.10",
-    sha1 = "14052461031a7054aa094f5573792feb6686d3de",
-)
-
-maven_jar(
-    name = "xerces",
-    artifact = "xerces:xercesImpl:2.8.1",
-    attach_source = False,
-    sha1 = "25101e37ec0c907db6f0612cbf106ee519c1aef1",
-)
-
-maven_jar(
     name = "commons-io",
     artifact = "commons-io:commons-io:2.2",
     sha1 = "83b5b8a7ba1c08f9e8c8ff2373724e33d3c1e22a",
@@ -1006,58 +985,6 @@ maven_jar(
     name = "asciidoctor",
     artifact = "org.asciidoctor:asciidoctorj:1.5.7",
     sha1 = "8e8c1d8fc6144405700dd8df3b177f2801ac5987",
-)
-
-maven_jar(
-    name = "jruby",
-    artifact = "org.jruby:jruby-complete:9.1.17.0",
-    sha1 = "76716d529710fc03d1d429b43e3cedd4419f78d4",
-)
-
-# When upgrading elasticsearch-rest-client, also upgrade httpcore-nio
-# and httpasyncclient as necessary.
-maven_jar(
-    name = "elasticsearch-rest-client",
-    artifact = "org.elasticsearch.client:elasticsearch-rest-client:7.4.2",
-    sha1 = "f48725523c0b3402f869214433602f8d3f4c737c",
-)
-
-maven_jar(
-    name = "jackson-core",
-    artifact = "com.fasterxml.jackson.core:jackson-core:2.10.1",
-    sha1 = "2c8b5e26ba40e5f91eb37a24075a2028b402c5f9",
-)
-
-TESTCONTAINERS_VERSION = "1.12.3"
-
-maven_jar(
-    name = "testcontainers",
-    artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-    sha1 = "e424a4549640e120acceac641ac909fcda58bf62",
-)
-
-maven_jar(
-    name = "testcontainers-elasticsearch",
-    artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-    sha1 = "c0796de5032070b8768ce78c78949b48f13c30db",
-)
-
-maven_jar(
-    name = "duct-tape",
-    artifact = "org.rnorth.duct-tape:duct-tape:1.0.7",
-    sha1 = "a26b5d90d88c91321dc7a3734ea72d2fc019ebb6",
-)
-
-maven_jar(
-    name = "visible-assertions",
-    artifact = "org.rnorth.visible-assertions:visible-assertions:2.1.2",
-    sha1 = "20d31a578030ec8e941888537267d3123c2ad1c1",
-)
-
-maven_jar(
-    name = "jna",
-    artifact = "net.java.dev.jna:jna:5.2.0",
-    sha1 = "ed8b772eb077a9cb50e44e90899c66a9a6c00e67",
 )
 
 maven_jar(
