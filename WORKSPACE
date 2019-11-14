@@ -723,7 +723,11 @@ maven_jar(
     sha1 = "f7be08ec23c21485b9b5a1cf1654c2ec8c58168d",
 )
 
+<<<<<<< HEAD   (214541 Upgrade gitiles-servlet and blame-cache to 0.3-6)
 GITILES_VERS = "0.3-6"
+=======
+GITILES_VERS = "0.2-11"
+>>>>>>> BRANCH (59e3f0 Upgrade gitiles-servlet and blame-cache to 0.2-11)
 
 GITILES_REPO = GERRIT
 
@@ -732,14 +736,22 @@ maven_jar(
     artifact = "com.google.gitiles:blame-cache:" + GITILES_VERS,
     attach_source = False,
     repository = GITILES_REPO,
+<<<<<<< HEAD   (214541 Upgrade gitiles-servlet and blame-cache to 0.3-6)
     sha1 = "bd1ec86570b8a6e4b68c5af6311c8cd10aa3f295",
+=======
+    sha1 = "254c1e81184301feccbcd857013c88f4d4ee32d9",
+>>>>>>> BRANCH (59e3f0 Upgrade gitiles-servlet and blame-cache to 0.2-11)
 )
 
 maven_jar(
     name = "gitiles-servlet",
     artifact = "com.google.gitiles:gitiles-servlet:" + GITILES_VERS,
     repository = GITILES_REPO,
+<<<<<<< HEAD   (214541 Upgrade gitiles-servlet and blame-cache to 0.3-6)
     sha1 = "98bf06ca9abc871beb3d6c01e6f053243d4e911a",
+=======
+    sha1 = "0a3e6cbdb99d42459b4b6080ee9b47821444e99b",
+>>>>>>> BRANCH (59e3f0 Upgrade gitiles-servlet and blame-cache to 0.2-11)
 )
 
 # prettify must match the version used in Gitiles
