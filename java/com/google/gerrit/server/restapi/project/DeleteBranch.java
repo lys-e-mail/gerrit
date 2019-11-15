@@ -23,6 +23,7 @@ import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.RestModifyView;
+import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.project.BranchResource;
 import com.google.gerrit.server.query.change.InternalChangeQuery;
@@ -46,7 +47,13 @@ public class DeleteBranch implements RestModifyView<BranchResource, Input> {
   @Override
   public Response<?> apply(BranchResource rsrc, Input input)
       throws RestApiException, IOException, PermissionBackendException {
+<<<<<<< HEAD   (6c96ed Merge "Fine tune the change metadata rows to all have the sa)
     if (isConfigRef(rsrc.getBranchKey().branch())) {
+=======
+    if (RefNames.HEAD.equals(rsrc.getBranchKey().get())) {
+      throw new MethodNotAllowedException("not allowed to delete HEAD");
+    } else if (isConfigRef(rsrc.getBranchKey().get())) {
+>>>>>>> BRANCH (16102f Merge branch 'stable-2.16' into stable-3.0)
       // Never allow to delete the meta config branch.
       throw new MethodNotAllowedException(
           "not allowed to delete branch " + rsrc.getBranchKey().branch());
