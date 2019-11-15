@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (deb244 Merge "Reveal Submission Id in ChangeInfo")
   <version>3.2.0-SNAPSHOT</version>
+=======
+  <version>3.1.1-SNAPSHOT</version>
+>>>>>>> BRANCH (49db9b Set version to 3.1.1-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
