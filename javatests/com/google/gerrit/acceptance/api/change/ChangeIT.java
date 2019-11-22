@@ -1856,7 +1856,11 @@ public class ChangeIT extends AbstractDaemonTest {
     // In this case, the child ReviewerInput has a notify=OWNER_REVIEWERS
     // that should be ignored.
     r = createWorkInProgressChange();
+<<<<<<< HEAD   (6af0c4 entities.Comment: remove legacyFormat member)
     gApi.changes().id(r.getChangeId()).current().review(batchIn);
+=======
+    gApi.changes().id(r.getChangeId()).revision("current").review(batchIn);
+>>>>>>> BRANCH (69c2f3 Merge branch 'stable-2.16' into stable-3.0)
     assertThat(sender.getMessages()).isEmpty();
 
     // Top-level notify property can force notifications when adding reviewer
