@@ -136,6 +136,7 @@ def load_bower_archives():
     bower_archive(
         name = "paper-styles",
         package = "PolymerElements/paper-styles",
+<<<<<<< HEAD   (837010 Update paper-styles to a6c207e6eee3402fd7a6550e6f9c387ca22ec)
         # Basically 2.1.0 but with
         # https://github.com/PolymerElements/paper-styles/pull/165 applied
         version = "a6c207e6eee3402fd7a6550e6f9c387ca22ec4c4",
@@ -146,6 +147,12 @@ def load_bower_archives():
         package = "webcomponents/shadycss",
         version = "1.9.1",
         sha1 = "3ef3bd54280ea2d7ce90434620354a2022c8e13d",
+=======
+        # Basically 1.3.1 but with
+        # https://github.com/PolymerElements/paper-styles/pull/164 applied
+        version = "dd0b13e186b9690d5e74a93f6e51e0835ea60495",
+        sha1 = "f859a8dee403fbb724e8d0cf009db79c6dd61b47",
+>>>>>>> BRANCH (975aa7 Merge branch 'stable-2.16' into stable-3.0)
     )
     bower_archive(
         name = "sinon-chai",
