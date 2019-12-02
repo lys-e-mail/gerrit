@@ -117,7 +117,8 @@
       return agreements ? 'show' : '';
     }
 
-    _disableAggreements(item, groups, signedAgreements) {
+    _disableAgreements(item, groups, signedAgreements) {
+      if (!groups) return false;
       for (const group of groups) {
         if ((item && item.auto_verify_group &&
             item.auto_verify_group.id === group.id) ||
@@ -128,10 +129,17 @@
       return false;
     }
 
+<<<<<<< HEAD   (760558 Update git submodules)
     _hideAggreements(item, groups, signedAgreements) {
       return this._disableAggreements(item, groups, signedAgreements) ?
         '' : 'hide';
     }
+=======
+    _hideAgreements(item, groups, signedAgreements) {
+      return this._disableAgreements(item, groups, signedAgreements) ?
+          '' : 'hide';
+    },
+>>>>>>> BRANCH (cee02d Merge branch 'stable-3.0' into stable-3.1)
 
     _disableAgreementsText(text) {
       return text.toLowerCase() === 'i agree' ? false : true;
@@ -141,6 +149,7 @@
     // if specified it returns 'hideAgreementsTextBox' which
     // then hides the text box and submit button.
     _computeHideAgreementClass(name, config) {
+      if (!config) return '';
       for (const key in config) {
         if (!config.hasOwnProperty(key)) {
           continue;
