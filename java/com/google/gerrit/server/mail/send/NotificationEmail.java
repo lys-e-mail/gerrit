@@ -121,8 +121,13 @@ public abstract class NotificationEmail extends OutgoingEmail {
     branchData.put("shortName", branch.shortName());
     soyContext.put("branch", branchData);
 
+<<<<<<< HEAD   (f4fe80 Merge "ExternalIdCacheLoader: suppress warning if cache is n)
     footers.add(MailHeader.PROJECT.withDelimiter() + branch.project().get());
     footers.add("Gerrit-Branch: " + branch.shortName());
+=======
+    footers.add(MailHeader.PROJECT.withDelimiter() + branch.getParentKey().get());
+    footers.add(MailHeader.BRANCH.withDelimiter() + branch.getShortName());
+>>>>>>> BRANCH (07bf7a Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @VisibleForTesting
