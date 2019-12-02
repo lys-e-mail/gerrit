@@ -77,11 +77,16 @@ limitations under the License.
               type="radio"
               data-name$="[[item.name]]"
               data-url$="[[item.url]]"
+<<<<<<< HEAD   (e7d69c Update git submodules)
               on-click="_handleShowAgreement"
               disabled$="[[_disableAggreements(item, _groups, _signedAgreements)]]">
+=======
+              on-tap="_handleShowAgreement"
+              disabled$="[[_disableAgreements(item, _groups, _signedAgreements)]]">
+>>>>>>> BRANCH (1a6bfc Merge branch 'stable-2.16' into stable-3.0)
           <label id="claNewAgreementsLabel">[[item.name]]</label>
         </span>
-        <div class$="alreadySubmittedText [[_hideAggreements(item, _groups, _signedAgreements)]]">
+        <div class$="alreadySubmittedText [[_hideAgreements(item, _groups, _signedAgreements)]]">
           Agreement already submitted.
         </div>
         <div class="agreementsUrl">
