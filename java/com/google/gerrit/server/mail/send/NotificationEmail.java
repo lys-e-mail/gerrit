@@ -121,8 +121,13 @@ public abstract class NotificationEmail extends OutgoingEmail {
     branchData.put("shortName", branch.shortName());
     soyContext.put("branch", branchData);
 
+<<<<<<< HEAD   (89166c Merge branch 'stable-3.0' into stable-3.1)
     footers.add(MailHeader.PROJECT.withDelimiter() + branch.project().get());
     footers.add("Gerrit-Branch: " + branch.shortName());
+=======
+    footers.add(MailHeader.PROJECT.withDelimiter() + branch.getParentKey().get());
+    footers.add(MailHeader.BRANCH.withDelimiter() + branch.getShortName());
+>>>>>>> BRANCH (75610f Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @VisibleForTesting
