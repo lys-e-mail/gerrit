@@ -319,8 +319,11 @@ public class CommentsIT extends AbstractDaemonTest {
 
   @Test
   public void postCommentsUnreachableData() throws Exception {
+<<<<<<< HEAD   (56358d Merge "In AbstractChangeUpdate, restrict access levels and a)
     requestScopeOperations.setApiUser(admin.id());
 
+=======
+>>>>>>> BRANCH (6a4302 Merge branch 'stable-3.0' into stable-3.1)
     String file = "file";
     PushOneCommit push =
         pushFactory.create(admin.newIdent(), testRepo, "first subject", file, "l1\nl2\n");
