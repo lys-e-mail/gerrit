@@ -205,10 +205,16 @@ public class ChangeDraftUpdate extends AbstractChangeUpdate {
 
     Map<ObjectId, RevisionNoteBuilder> builders = cache.getBuilders();
     boolean touchedAnyRevs = false;
+<<<<<<< HEAD   (c06499 Merge branch 'stable-3.0' into stable-3.1)
     boolean hasComments = false;
     for (Map.Entry<ObjectId, RevisionNoteBuilder> e : builders.entrySet()) {
       updatedCommits.add(e.getKey());
       ObjectId id = e.getKey();
+=======
+    for (Map.Entry<RevId, RevisionNoteBuilder> e : builders.entrySet()) {
+      updatedRevs.add(e.getKey());
+      ObjectId id = ObjectId.fromString(e.getKey().get());
+>>>>>>> BRANCH (5909e5 Merge branch 'stable-2.16' into stable-3.0)
       byte[] data = e.getValue().build(noteUtil.getChangeNoteJson());
       if (!Arrays.equals(data, e.getValue().baseRaw)) {
         touchedAnyRevs = true;
@@ -216,7 +222,6 @@ public class ChangeDraftUpdate extends AbstractChangeUpdate {
       if (data.length == 0) {
         rnm.noteMap.remove(id);
       } else {
-        hasComments = true;
         ObjectId dataBlob = ins.insert(OBJ_BLOB, data);
         rnm.noteMap.set(id, dataBlob);
       }
@@ -229,10 +234,14 @@ public class ChangeDraftUpdate extends AbstractChangeUpdate {
       return NO_OP_UPDATE;
     }
 
-    // If we touched every revision and there are no comments left, tell the
+    // If there are no comments left, tell the
     // caller to delete the entire ref.
+<<<<<<< HEAD   (c06499 Merge branch 'stable-3.0' into stable-3.1)
     boolean touchedAllRevs = updatedCommits.equals(rnm.revisionNotes.keySet());
     if (touchedAllRevs && !hasComments) {
+=======
+    if (!rnm.noteMap.iterator().hasNext()) {
+>>>>>>> BRANCH (5909e5 Merge branch 'stable-2.16' into stable-3.0)
       return null;
     }
 
