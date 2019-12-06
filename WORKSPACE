@@ -733,8 +733,13 @@ GITILES_REPO = GERRIT
 
 maven_jar(
     name = "blame-cache",
+<<<<<<< HEAD   (50016d Remove obsolete GWT information from intro-user documentatio)
     artifact = "com.google.gitiles:blame-cache:" + GITILES_VERS,
+=======
+    artifact = "com/google/gitiles:blame-cache:0.2-7.1",
+>>>>>>> BRANCH (bb1aaa CreateTag: Trim revision that is provided in input)
     attach_source = False,
+<<<<<<< HEAD   (50016d Remove obsolete GWT information from intro-user documentatio)
     repository = GITILES_REPO,
     sha1 = "254c1e81184301feccbcd857013c88f4d4ee32d9",
 )
@@ -751,6 +756,10 @@ maven_jar(
     name = "prettify",
     artifact = "com.github.twalcari:java-prettify:1.2.2",
     sha1 = "b8ba1c1eb8b2e45cfd465d01218c6060e887572e",
+=======
+    repository = GERRIT,
+    sha1 = "73915991bb7472a730102ab01ca68776a52466fd",
+>>>>>>> BRANCH (bb1aaa CreateTag: Trim revision that is provided in input)
 )
 
 # Keep this version of Soy synchronized with the version used in Gitiles.
