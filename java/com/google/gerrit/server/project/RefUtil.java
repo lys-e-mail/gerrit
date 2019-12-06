@@ -19,8 +19,12 @@ import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 import com.google.common.collect.Iterables;
 import com.google.common.flogger.FluentLogger;
+<<<<<<< HEAD   (180bca GitProtocolV2IT: Fail if git client is too old to support v2)
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
+=======
+import com.google.gerrit.common.Nullable;
+>>>>>>> BRANCH (4bde8f Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import java.io.IOException;
 import java.util.Collections;
@@ -46,16 +50,15 @@ public class RefUtil {
     try {
       ObjectId revid = repo.resolve(baseRevision);
       if (revid == null) {
-        throw new InvalidRevisionException();
+        throw new InvalidRevisionException(baseRevision);
       }
       return revid;
     } catch (IOException err) {
       logger.atSevere().withCause(err).log(
           "Cannot resolve \"%s\" in project \"%s\"", baseRevision, projectName.get());
-      throw new InvalidRevisionException();
+      throw new InvalidRevisionException(baseRevision);
     } catch (RevisionSyntaxException err) {
-      logger.atSevere().withCause(err).log("Invalid revision syntax \"%s\"", baseRevision);
-      throw new InvalidRevisionException();
+      throw new InvalidRevisionException(baseRevision);
     }
   }
 
@@ -66,7 +69,7 @@ public class RefUtil {
       try {
         rw.markStart(rw.parseCommit(revid));
       } catch (IncorrectObjectTypeException err) {
-        throw new InvalidRevisionException();
+        throw new InvalidRevisionException(revid.name());
       }
       RefDatabase refDb = repo.getRefDatabase();
       Iterable<Ref> refs =
@@ -86,11 +89,11 @@ public class RefUtil {
       rw.checkConnectivity();
       return rw;
     } catch (IncorrectObjectTypeException | MissingObjectException err) {
-      throw new InvalidRevisionException();
+      throw new InvalidRevisionException(revid.name());
     } catch (IOException err) {
       logger.atSevere().withCause(err).log(
           "Repository \"%s\" may be corrupt; suggest running git fsck", repo.getDirectory());
-      throw new InvalidRevisionException();
+      throw new InvalidRevisionException(revid.name());
     }
   }
 
@@ -125,8 +128,8 @@ public class RefUtil {
 
     public static final String MESSAGE = "Invalid Revision";
 
-    InvalidRevisionException() {
-      super(MESSAGE);
+    InvalidRevisionException(@Nullable String invalidRevision) {
+      super(MESSAGE + ": " + invalidRevision);
     }
   }
 }
