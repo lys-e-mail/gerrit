@@ -31,7 +31,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD   (b8cf41 Merge "Update replication plugin to get fixes for CI flakine)
 import java.util.Set;
+=======
+import java.util.function.Function;
+import java.util.stream.Collectors;
+>>>>>>> BRANCH (cec817 Merge "Update replication plugin to get fixes for CI flakine)
 import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.lib.ObjectId;
@@ -105,11 +110,43 @@ public class PermissionAwareReadOnlyRefDatabase extends DelegateRefDatabase {
 
     Collection<Ref> result;
     try {
+<<<<<<< HEAD   (b8cf41 Merge "Update replication plugin to get fixes for CI flakine)
       result = forProject.filter(refs.values(), getDelegate(), RefFilterOptions.defaults());
+=======
+      // The security filtering assumes to receive the same refMap, independently from the ref
+      // prefix offset
+      result =
+          forProject.filter(
+              prefixIndependentRefMap(prefix, refs), getDelegate(), RefFilterOptions.defaults());
+>>>>>>> BRANCH (cec817 Merge "Update replication plugin to get fixes for CI flakine)
     } catch (PermissionBackendException e) {
       throw new IOException("");
     }
+<<<<<<< HEAD   (b8cf41 Merge "Update replication plugin to get fixes for CI flakine)
     return result.stream().collect(toMap(Ref::getName, r -> r));
+=======
+    return applyPrefixRefMap(prefix, result);
+  }
+
+  private Map<String, Ref> prefixIndependentRefMap(String prefix, Map<String, Ref> refs) {
+    if (prefix.length() > 0) {
+      return refs.values().stream().collect(Collectors.toMap(Ref::getName, Function.identity()));
+    }
+
+    return refs;
+  }
+
+  private Map<String, Ref> applyPrefixRefMap(String prefix, Map<String, Ref> refs) {
+    int prefixSlashPos = prefix.lastIndexOf('/') + 1;
+    if (prefixSlashPos > 0) {
+      return refs.values().stream()
+          .collect(
+              Collectors.toMap(
+                  (Ref ref) -> ref.getName().substring(prefixSlashPos), Function.identity()));
+    }
+
+    return refs;
+>>>>>>> BRANCH (cec817 Merge "Update replication plugin to get fixes for CI flakine)
   }
 
   @Override
