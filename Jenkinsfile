@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (e0d1d6 Merge branch 'stable-2.14' into stable-2.15)
 #!/usr/bin/env groovy
 
 // Copyright (C) 2019 The Android Open Source Project
@@ -315,3 +316,5 @@ node ('master') {
         setResult(resVerify, resCodeStyle)
     }
 }
+=======
+>>>>>>> BRANCH (5db483 Do build on stable-2.14 branch)
