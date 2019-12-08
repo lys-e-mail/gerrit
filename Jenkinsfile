@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (0051dc Merge "Update rules_closure to latest version" into stable-2)
 #!/usr/bin/env groovy
 
 // Copyright (C) 2019 The Android Open Source Project
@@ -327,3 +328,5 @@ node ('master') {
         }
     }
 }
+=======
+>>>>>>> BRANCH (e2c5f0 Merge branch 'stable-2.14' into stable-2.15)
