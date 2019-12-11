@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (278c84 Merge "Make all external links in the documentation open in )
   <version>3.2.0-SNAPSHOT</version>
+=======
+  <version>3.1.2-SNAPSHOT</version>
+>>>>>>> BRANCH (f2c5c3 Set version to 3.1.2-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

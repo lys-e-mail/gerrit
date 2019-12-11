@@ -139,12 +139,20 @@ Use a file system supporting snapshots to keep the period where the gerrit
 server is read-only or down as short as possible.
 
 [#cons-backup-read-only]
-=== Turn master read-only for backup
+=== Turn primary server read-only for backup
 
+<<<<<<< HEAD   (278c84 Merge "Make all external links in the documentation open in )
 Make the server read-only before taking the backup. This means read-access
 is still available during backup, because only write operations have to be
 stopped to ensure consistency. This can be implemented using the
 link:https://gerrit.googlesource.com/plugins/readonly/[_readonly_,role=external,window=_blank] plugin.
+=======
+Make the primary server handling write operations read-only before taking the
+backup. This means read-access is still available from replica servers during
+backup, because only write operations have to be stopped to ensure consistency.
+This can be implemented using the
+link:https://gerrit.googlesource.com/plugins/readonly/[_readonly_] plugin.
+>>>>>>> BRANCH (f2c5c3 Set version to 3.1.2-SNAPSHOT)
 
 [#cons-backup-replicate]
 === Replicate data for backup
@@ -180,11 +188,12 @@ If you are using Gerrit replica to offload read traffic you can use one of these
 replica for creating backups.
 
 [#cons-backup-offline]
-=== Take master offline for backup
+=== Take primary server offline for backup
 
-Shutdown the server before taking a backup. This is simple but means downtime
-for the users. Also crons and currently running cron jobs (e.g. repacking
-repositories) which affect the repositories may need to be shut down.
+Shut down the primary server handling write operations before taking a backup.
+This is simple but means downtime for the users. Also crons and currently
+running cron jobs (e.g. repacking repositories) which affect the repositories
+may need to be shut down.
 
 [#backup-methods]
 == Backup methods
