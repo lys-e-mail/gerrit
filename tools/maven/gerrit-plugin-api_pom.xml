@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (af6bf5 Only add the gr-app.js script at the end of the dom)
   <version>3.0.6-SNAPSHOT</version>
+=======
+  <version>2.16.16-SNAPSHOT</version>
+>>>>>>> BRANCH (e29d4c Merge "Add example command for how to display note of an ext)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
