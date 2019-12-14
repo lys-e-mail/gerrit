@@ -2,18 +2,34 @@
 
 set -ex
 
-node_bin=$(which node)
+node_bin=$(which node) && true
 if [ -z "$node_bin" ]; then
     echo "node must be on the path."
     exit 1
 fi
 
-npm_bin=$(which npm)
+npm_bin=$(which npm) && true
 if [[ -z "$npm_bin" ]]; then
     echo "NPM must be on the path. (https://www.npmjs.com/)"
     exit 1
 fi
 
+<<<<<<< HEAD   (84ef60 Merge branch 'stable-3.0' into stable-3.1)
+=======
+fried_twinkie_config=$(npm list -g | grep -c fried-twinkie) && true
+if [ -z "$npm_bin" ] || [ "$fried_twinkie_config" -eq "0" ]; then
+    echo "You must install fried twinkie and its dependencies from NPM."
+    echo "> npm install -g fried-twinkie"
+    exit 1
+fi
+
+twinkie_version=$(npm list -g fried-twinkie@\>0.1 | grep fried-twinkie || :) && true
+if [ -z "$twinkie_version" ]; then
+    echo "Outdated version of fried-twinkie found. Bypassing template check."
+    exit 0
+fi
+
+>>>>>>> BRANCH (bbf417 Set version to 3.0.7-SNAPSHOT)
 # Have to find where node_modules are installed and set the NODE_PATH
 
 get_node_path() {
