@@ -80,7 +80,7 @@
 
   GrChangeActionsInterface.prototype.setActionPriority = function(type, key,
       priority) {
-    ensureEl(this);
+      ensureEl(this);
     return this._el.setActionPriority(type, key, priority);
   };
 
