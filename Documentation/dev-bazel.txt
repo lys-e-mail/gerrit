@@ -342,8 +342,19 @@ The following values are currently supported for the group name:
 === Elasticsearch
 
 Successfully running the Elasticsearch tests requires Docker, and
+<<<<<<< HEAD   (8b457a Merge "Cut down to below 73 characters when reverting change)
 may require setting the local
 link:https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html[virtual memory,role=external,window=_blank].
+=======
+may require setting the local virtual memory on
+link:https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html[linux] and
+link:https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_set_vm_max_map_count_to_at_least_262144[macOS].
+
+On macOS, if using link:https://docs.docker.com/docker-for-mac/[Docker Desktop],
+the effective memory value can be set in the Preferences, under the Advanced tab.
+The default value usually does not suffice and is causing premature container exits.
+That default is currently 2 GB and should be set to at least 5 (GB).
+>>>>>>> BRANCH (1d7ce2 Merge branch 'stable-3.0' into stable-3.1)
 
 If Docker is not available, the Elasticsearch tests will be skipped.
 Note that Bazel currently does not show
