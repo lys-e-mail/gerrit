@@ -45,6 +45,7 @@ filegroup(
     ),
 )
 
+<<<<<<< HEAD   (cda97d Merge "Document IntBlob class")
 filegroup(
     name = "pg_code_without_test",
     srcs = glob(
@@ -72,6 +73,8 @@ filegroup(
     ),
 )
 
+=======
+>>>>>>> BRANCH (9b871b Merge branch 'stable-3.0' into stable-3.1)
 genrule2(
     name = "pg_code_zip",
     srcs = [":pg_code"],
