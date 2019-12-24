@@ -76,9 +76,15 @@
     }
 
     /**
+<<<<<<< HEAD   (cda97d Merge "Document IntBlob class")
      * @param {?boolean} value - fallback to false if undefined
      */
     _computeChecked(value = false) {
+=======
+     * @param {string} value - fallback to 'false' if undefined
+     */
+    _computeChecked(value = 'false') {
+>>>>>>> BRANCH (2a4627 Merge branch 'stable-3.0' into stable-3.1)
       return JSON.parse(value);
     }
 
