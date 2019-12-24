@@ -45,6 +45,7 @@ filegroup(
     ),
 )
 
+<<<<<<< HEAD   (46f506 Merge branch 'stable-2.16' into stable-3.0)
 filegroup(
     name = "bower_components",
     srcs = glob(
@@ -56,6 +57,8 @@ filegroup(
     ),
 )
 
+=======
+>>>>>>> BRANCH (235ecc Bazel: Remove unused polygerrit-ui/app:bower_components rule)
 genrule2(
     name = "pg_code_zip",
     srcs = [":pg_code"],
