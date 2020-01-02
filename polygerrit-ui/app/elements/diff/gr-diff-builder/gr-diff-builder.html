@@ -213,8 +213,8 @@ limitations under the License.
         getLineNumberByChild(node) {
           const lineEl = this.getLineElByChild(node);
           return lineEl ?
-              parseInt(lineEl.getAttribute('data-value'), 10) :
-              null;
+            parseInt(lineEl.getAttribute('data-value'), 10) :
+            null;
         },
 
         getContentByLine(lineNumber, opt_side, opt_root) {
@@ -243,7 +243,7 @@ limitations under the License.
 
         getSideByLineEl(lineEl) {
           return lineEl.classList.contains(GrDiffBuilder.Side.RIGHT) ?
-          GrDiffBuilder.Side.RIGHT : GrDiffBuilder.Side.LEFT;
+            GrDiffBuilder.Side.RIGHT : GrDiffBuilder.Side.LEFT;
         },
 
         emitGroup(group, sectionEl) {
@@ -298,8 +298,13 @@ limitations under the License.
 
           let builder = null;
           if (this.isImageDiff) {
+<<<<<<< HEAD   (ce751c Update git submodules)
             builder = new GrDiffBuilderImage(diff, prefs, this.diffElement,
               this.baseImage, this.revisionImage);
+=======
+            builder = new GrDiffBuilderImage(diff, comments, createFn, prefs,
+                this.diffElement, this.baseImage, this.revisionImage);
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
           } else if (diff.binary) {
             // If the diff is binary, but not an image.
             return new GrDiffBuilderBinary(diff, prefs, this.diffElement);
@@ -347,8 +352,8 @@ limitations under the License.
 
                 // If endIndex isn't present, continue to the end of the line.
                 const endIndex = highlight.endIndex === undefined ?
-                    line.text.length :
-                    highlight.endIndex;
+                  line.text.length :
+                  highlight.endIndex;
 
                 GrAnnotation.annotateElement(
                     contentEl,
@@ -408,6 +413,29 @@ limitations under the License.
         },
 
         /**
+<<<<<<< HEAD   (ce751c Update git submodules)
+=======
+         * In pages with large diffs, creating the first comment thread can be
+         * slow because nested Polymer elements (particularly
+         * iron-autogrow-textarea) add style elements to the document head,
+         * which, in turn, triggers a reflow on the page. Create a hidden
+         * thread, attach it to the page, and remove it so the stylesheet will
+         * already exist and the user's comment will be quick to load.
+         *
+         * @see https://gerrit-review.googlesource.com/c/82213/
+         */
+        _preRenderThread() {
+          const thread = document.createElement('gr-diff-comment-thread');
+          thread.setAttribute('hidden', true);
+          thread.addDraft();
+          const parent = Polymer.dom(this.root);
+          parent.appendChild(thread);
+          Polymer.dom.flush();
+          parent.removeChild(thread);
+        },
+
+        /**
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
          * @return {boolean} whether any of the lines in _groups are longer
          * than SYNTAX_MAX_LINE_LENGTH.
          */
@@ -432,6 +460,7 @@ limitations under the License.
         /**
          * Get the approximate length of the diff as the sum of the maximum
          * length of the chunks.
+         *
          * @return {number}
          */
         getDiffLength() {

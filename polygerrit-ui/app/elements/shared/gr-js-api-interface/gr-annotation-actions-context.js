@@ -19,10 +19,16 @@
 
   /**
    * Used to create a context for GrAnnotationActionsInterface.
+<<<<<<< HEAD   (ce751c Update git submodules)
    * @param {HTMLElement} contentEl The DIV.contentText element of the line
    *     content to apply the annotation to using annotateRange.
    * @param {HTMLElement} lineNumberEl The TD element of the line number to
    *     apply the annotation to using annotateLineNumber.
+=======
+   *
+   * @param {HTMLElement} el The DIV.contentText element to apply the
+   *     annotation to using annotateRange.
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
    * @param {GrDiffLine} line The line object.
    * @param {string} path The file path (eg: /COMMIT_MSG').
    * @param {string} changeNum The Gerrit change number.
@@ -40,11 +46,20 @@
   }
 
   /**
+<<<<<<< HEAD   (ce751c Update git submodules)
    * Method to add annotations to a content line.
    * @param {number} offset The char offset where the update starts.
    * @param {number} length The number of chars that the update covers.
    * @param {string} cssClass The name of a CSS class created using Gerrit.css.
    * @param {string} side The side of the update. ('left' or 'right')
+=======
+   * Method to add annotations to a line.
+   *
+   * @param {Number} start The line number where the update starts.
+   * @param {Number} end The line number where the update ends.
+   * @param {String} cssClass The name of a CSS class created using Gerrit.css.
+   * @param {String} side The side of the update. ('left' or 'right')
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
    */
   GrAnnotationActionsContext.prototype.annotateRange = function(
       offset, length, cssClass, side) {

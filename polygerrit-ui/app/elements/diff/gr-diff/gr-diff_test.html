@@ -239,7 +239,18 @@ limitations under the License.
         // The new thread group can be fetched.
         assert.isOk(element._getThreadGroupForLine(contentEl));
 
+<<<<<<< HEAD   (ce751c Update git submodules)
         assert.equal(contentEl.querySelectorAll('.thread-group').length, 1);
+=======
+        assert.equal(contentEl.querySelectorAll(
+            'gr-diff-comment-thread-group').length, 1);
+
+        const threadGroup = contentEl.querySelector(
+            'gr-diff-comment-thread-group');
+        const threadLength = Polymer.dom(threadGroup.root).
+            querySelectorAll('gr-diff-comment-thread').length;
+        assert.equal(threadLength, 2);
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
       });
 
       suite('image diffs', () => {

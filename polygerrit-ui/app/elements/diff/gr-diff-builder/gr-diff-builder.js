@@ -92,6 +92,7 @@
 
   /**
    * Abstract method
+   *
    * @param {string} outputEl
    * @param {number} fontSize
    */
@@ -101,6 +102,7 @@
 
   /**
    * Abstract method
+   *
    * @param {Object} group
    */
   GrDiffBuilder.prototype.buildSectionElement = function() {
@@ -183,7 +185,7 @@
           continue;
         }
         const lineNumber = opt_side === 'left' ?
-            line.beforeNumber : line.afterNumber;
+          line.beforeNumber : line.afterNumber;
         if (lineNumber < start || lineNumber > end) { continue; }
 
         if (out_lines) { out_lines.push(line); }
@@ -318,6 +320,155 @@
     return button;
   };
 
+<<<<<<< HEAD   (ce751c Update git submodules)
+=======
+  GrDiffBuilder.prototype._getCommentsForLine = function(comments, line,
+      opt_side) {
+    function byLineNum(lineNum) {
+      return function(c) {
+        return (c.line === lineNum) ||
+               (c.line === undefined && lineNum === GrDiffLine.FILE);
+      };
+    }
+    const leftComments =
+        comments[GrDiffBuilder.Side.LEFT].filter(byLineNum(line.beforeNumber));
+    const rightComments =
+        comments[GrDiffBuilder.Side.RIGHT].filter(byLineNum(line.afterNumber));
+
+    leftComments.forEach(c => { c.__commentSide = 'left'; });
+    rightComments.forEach(c => { c.__commentSide = 'right'; });
+
+    let result;
+
+    switch (opt_side) {
+      case GrDiffBuilder.Side.LEFT:
+        result = leftComments;
+        break;
+      case GrDiffBuilder.Side.RIGHT:
+        result = rightComments;
+        break;
+      default:
+        result = leftComments.concat(rightComments);
+        break;
+    }
+
+    return result;
+  };
+
+  /**
+   * @param {Array<Object>} comments
+   * @param {string} patchForNewThreads
+   */
+  GrDiffBuilder.prototype._getThreads = function(comments, patchForNewThreads) {
+    const sortedComments = comments.slice(0).sort((a, b) => {
+      if (b.__draft && !a.__draft ) { return 0; }
+      if (a.__draft && !b.__draft ) { return 1; }
+      return util.parseDate(a.updated) - util.parseDate(b.updated);
+    });
+
+    const threads = [];
+    for (const comment of sortedComments) {
+      // If the comment is in reply to another comment, find that comment's
+      // thread and append to it.
+      if (comment.in_reply_to) {
+        const thread = threads.find(thread =>
+          thread.comments.some(c => c.id === comment.in_reply_to));
+        if (thread) {
+          thread.comments.push(comment);
+          continue;
+        }
+      }
+
+      // Otherwise, this comment starts its own thread.
+      const newThread = {
+        start_datetime: comment.updated,
+        comments: [comment],
+        commentSide: comment.__commentSide,
+        /**
+         * Determines what the patchNum of a thread should be. Use patchNum from
+         * comment if it exists, otherwise the property of the thread group.
+         * This is needed for switching between side-by-side and unified views
+         * when there are unsaved drafts.
+         */
+        patchNum: comment.patch_set || patchForNewThreads,
+        rootId: comment.id || comment.__draftID,
+      };
+      if (comment.range) {
+        newThread.range = Object.assign({}, comment.range);
+      }
+      threads.push(newThread);
+    }
+    return threads;
+  };
+
+  /**
+   * Returns the patch number that new comment threads should be attached to.
+   *
+   * @param {GrDiffLine} line The line new thread will be attached to.
+   * @param {string=} opt_side Set to LEFT to force adding it to the LEFT side -
+   *     will be ignored if the left is a parent or a merge parent
+   * @return {number} Patch set to attach the new thread to
+   */
+  GrDiffBuilder.prototype._determinePatchNumForNewThreads = function(
+      patchRange, line, opt_side) {
+    if ((line.type === GrDiffLine.Type.REMOVE ||
+         opt_side === GrDiffBuilder.Side.LEFT) &&
+        patchRange.basePatchNum !== 'PARENT' &&
+        !Gerrit.PatchSetBehavior.isMergeParent(patchRange.basePatchNum)) {
+      return patchRange.basePatchNum;
+    } else {
+      return patchRange.patchNum;
+    }
+  };
+
+  /**
+   * Returns whether the comments on the given line are on a (merge) parent.
+   *
+   * @param {string} firstCommentSide
+   * @param {{basePatchNum: number, patchNum: number}} patchRange
+   * @param {GrDiffLine} line The line the comments are on.
+   * @param {string=} opt_side
+   * @return {boolean} True iff the comments on the given line are on a (merge)
+   *    parent.
+   */
+  GrDiffBuilder.prototype._determineIsOnParent = function(
+      firstCommentSide, patchRange, line, opt_side) {
+    return ((line.type === GrDiffLine.Type.REMOVE ||
+             opt_side === GrDiffBuilder.Side.LEFT) &&
+            (patchRange.basePatchNum === 'PARENT' ||
+             Gerrit.PatchSetBehavior.isMergeParent(
+                 patchRange.basePatchNum))) ||
+          firstCommentSide === 'PARENT';
+  };
+
+  /**
+   * @param {GrDiffLine} line
+   * @param {string=} opt_side
+   * @return {!Object}
+   */
+  GrDiffBuilder.prototype._commentThreadGroupForLine = function(
+      line, opt_side) {
+    const comments =
+    this._getCommentsForLine(this._comments, line, opt_side);
+    if (!comments || comments.length === 0) {
+      return null;
+    }
+
+    const patchNum = this._determinePatchNumForNewThreads(
+        this._comments.meta.patchRange, line, opt_side);
+    const isOnParent = this._determineIsOnParent(
+        comments[0].side, this._comments.meta.patchRange, line, opt_side);
+
+    const threadGroupEl = this._createThreadGroupFn(patchNum, isOnParent,
+        opt_side);
+    threadGroupEl.threads = this._getThreads(comments, patchNum);
+    if (opt_side) {
+      threadGroupEl.setAttribute('data-side', opt_side);
+    }
+    return threadGroupEl;
+  };
+
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
   GrDiffBuilder.prototype._createLineEl = function(
       line, number, type, opt_class) {
     const td = this._createElement('td');
@@ -477,6 +628,7 @@
   /**
    * Finds the next DIV.contentText element following the given element, and on
    * the same side. Will only search within a group.
+   *
    * @param {HTMLElement} content
    * @param {string} side Either 'left' or 'right'
    * @return {HTMLElement}
@@ -488,6 +640,7 @@
   /**
    * Determines whether the given group is either totally an addition or totally
    * a removal.
+   *
    * @param {!Object} group (GrDiffGroup)
    * @return {boolean}
    */
@@ -500,6 +653,7 @@
   /**
    * Set the blame information for the diff. For any already-rendered line,
    * re-render its blame cell content.
+   *
    * @param {Object} blame
    */
   GrDiffBuilder.prototype.setBlame = function(blame) {
@@ -527,6 +681,7 @@
 
   /**
    * Find the blame cell for a given line number.
+   *
    * @param {number} lineNum
    * @return {HTMLTableDataCellElement}
    */
@@ -539,6 +694,7 @@
    * Given a base line number, return the commit containing that line in the
    * current set of blame information. If no blame information has been
    * provided, null is returned.
+   *
    * @param {number} lineNum
    * @return {Object} The commit information.
    */
@@ -558,6 +714,7 @@
   /**
    * Given the number of a base line, get the content for the blame cell of that
    * line. If there is no blame information for that line, returns null.
+   *
    * @param {number} lineNum
    * @param {Object=} opt_commit Optionally provide the commit object, so that
    *     it does not need to be searched.
@@ -582,6 +739,7 @@
   /**
    * Create a blame cell for the given base line. Blame information will be
    * included in the cell if available.
+   *
    * @param {GrDiffLine} line
    * @return {HTMLTableDataCellElement}
    */

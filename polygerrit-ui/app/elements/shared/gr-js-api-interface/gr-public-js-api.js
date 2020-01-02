@@ -210,7 +210,7 @@
   Plugin.prototype._registerCustomComponent = function(
       endpointName, opt_moduleName, opt_options, dynamicEndpoint) {
     const type = opt_options && opt_options.replace ?
-          EndpointType.REPLACE : EndpointType.DECORATE;
+      EndpointType.REPLACE : EndpointType.DECORATE;
     const hook = this._domHooks.getDomHook(endpointName, opt_moduleName);
     const moduleName = opt_moduleName || hook.getModuleName();
     Gerrit._endpoints.registerModule(
@@ -281,14 +281,14 @@
 
   Plugin.prototype.changeActions = function() {
     return new GrChangeActionsInterface(this,
-      Plugin._sharedAPIElement.getElement(
-          Plugin._sharedAPIElement.Element.CHANGE_ACTIONS));
+        Plugin._sharedAPIElement.getElement(
+            Plugin._sharedAPIElement.Element.CHANGE_ACTIONS));
   };
 
   Plugin.prototype.changeReply = function() {
     return new GrChangeReplyInterface(this,
-      Plugin._sharedAPIElement.getElement(
-          Plugin._sharedAPIElement.Element.REPLY_DIALOG));
+        Plugin._sharedAPIElement.getElement(
+            Plugin._sharedAPIElement.Element.REPLY_DIALOG));
   };
 
   Plugin.prototype.changeView = function() {
@@ -317,6 +317,7 @@
 
   /**
    * To make REST requests for plugin-provided endpoints, use
+   *
    * @example
    * const pluginRestApi = plugin.restApi(plugin.url());
    *
@@ -588,6 +589,27 @@
     });
   };
 
+<<<<<<< HEAD   (ce751c Update git submodules)
+=======
+  /**
+   * Install "stepping stones" API for GWT-compiled plugins by default.
+   *
+   * @deprecated best effort support, will be removed with GWT UI.
+   */
+  Gerrit.installGwt = function(url) {
+    const name = getPluginNameFromUrl(url);
+    let plugin;
+    try {
+      plugin = _plugins[name] || new Plugin(url);
+      plugin.deprecated.install();
+      Gerrit._pluginInstalled(url);
+    } catch (e) {
+      Gerrit._pluginInstallError(`${e.name}: ${e.message}`);
+    }
+    return plugin;
+  };
+
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
   Gerrit.awaitPluginsLoaded = function() {
     if (!_allPluginsPromise) {
       if (Gerrit._arePluginsLoaded()) {

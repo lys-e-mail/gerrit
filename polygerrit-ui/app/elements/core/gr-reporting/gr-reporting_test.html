@@ -65,12 +65,18 @@ limitations under the License.
       element.appStarted(true);
       assert.isTrue(
           element.reporter.calledWithExactly(
+<<<<<<< HEAD   (ce751c Update git submodules)
               'timing-report', 'UI Latency', 'App Started', 42
       ));
+=======
+              'timing-report', 'UI Latency', 'App Started',
+              NOW_TIME - fakePerformance.navigationStart
+          ));
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
       assert.isTrue(
           element.reporter.calledWithExactly(
               'lifecycle', 'Page Visibility', 'hidden'
-      ));
+          ));
     });
 
     test('WebComponentsReady', () => {

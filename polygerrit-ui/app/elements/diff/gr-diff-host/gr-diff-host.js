@@ -70,6 +70,7 @@
 
     /**
      * Fired when the user selects a line.
+     *
      * @event line-selected
      */
 
@@ -136,6 +137,7 @@
 
       /**
        * Special line number which should not be collapsed into a shared region.
+       *
        * @type {{
        *  number: number,
        *  leftSide: {boolean}
@@ -321,6 +323,7 @@
 
     /**
      * Load and display blame information for the base of the diff.
+     *
      * @return {Promise} A promise that resolves when blame finishes rendering.
      */
     loadBlame() {
@@ -436,7 +439,7 @@
       // digits. Diffs with no delta are considered 0%.
       const totalDelta = rebaseDelta + nonRebaseDelta;
       const percentRebaseDelta = !totalDelta ? 0 :
-          Math.round(100 * rebaseDelta / totalDelta);
+        Math.round(100 * rebaseDelta / totalDelta);
 
       // Report the due_to_rebase percentage in the "diff" category when
       // applicable.
@@ -712,6 +715,7 @@
      * Take a diff that was loaded with a ignore-whitespace other than
      * IGNORE_NONE, and convert delta chunks labeled as common into shared
      * chunks.
+     *
      * @param {!Object} diff
      * @returns {!Object}
      */

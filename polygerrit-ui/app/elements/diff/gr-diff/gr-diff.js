@@ -110,6 +110,7 @@
 
     /**
      * Fired when the user selects a line.
+     *
      * @event line-selected
      */
 
@@ -126,10 +127,16 @@
      */
 
     /**
+<<<<<<< HEAD   (ce751c Update git submodules)
      * Fired when rendering, including syntax highlighting, is done. Also fired
      * when no rendering can be done because required preferences are not set.
      *
      * @event render
+=======
+     * Fired when a draft is added or edited.
+     *
+     * @event draft-interaction
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
      */
 
     properties: {
@@ -178,7 +185,18 @@
         observer: '_viewModeObserver',
       },
 
+<<<<<<< HEAD   (ce751c Update git submodules)
        /** @type ?Defs.LineOfInterest */
+=======
+      /**
+       * Special line number which should not be collapsed into a shared region.
+       *
+       * @type {{
+       *  number: number,
+       *  leftSide: {boolean}
+       * }|null}
+       */
+>>>>>>> BRANCH (25673a Downport "Replace deprecated `require-jsdoc`, `valid-jsdoc` )
       lineOfInterest: Object,
 
       loading: {
@@ -215,7 +233,7 @@
        * bypassed. If the value is a number, then that number represents the
        * context preference to use when rendering the bypassed diff.
        *
-       * @type (number|null)
+       * @type {number|null}
        */
       _safetyBypass: {
         type: Number,
@@ -512,8 +530,8 @@
         return false;
       }
       const patchNum = el.classList.contains(DiffSide.LEFT) ?
-          this.patchRange.basePatchNum :
-          this.patchRange.patchNum;
+        this.patchRange.basePatchNum :
+        this.patchRange.patchNum;
 
       const isEdit = this.patchNumEquals(patchNum, this.EDIT_NAME);
       const isEditBase = this.patchNumEquals(patchNum, this.PARENT_NAME) &&
@@ -847,6 +865,7 @@
 
     /**
      * Find the last chunk for the given side.
+     *
      * @param {!Object} diff
      * @param {boolean} leftSide true if checking the base of the diff,
      *     false if testing the revision.
@@ -864,8 +883,8 @@
         chunkIndex--;
         chunk = diff.content[chunkIndex];
       } while (
-          // We haven't reached the beginning.
-          chunkIndex >= 0 &&
+      // We haven't reached the beginning.
+        chunkIndex >= 0 &&
 
           // The chunk doesn't have both sides.
           !chunk.ab &&
@@ -882,6 +901,7 @@
 
     /**
      * Check whether the specified side of the diff has a trailing newline.
+     *
      * @param {!Object} diff
      * @param {boolean} leftSide true if checking the base of the diff,
      *     false if testing the revision.
