@@ -414,8 +414,13 @@ limitations under the License.
       }).then(() => {
         assert.isFalse(isVisible(element.$.reviewerConfirmationOverlay));
         const additions = cc ?
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
             element.$.ccs.additions() :
             element.$.reviewers.additions();
+=======
+          element.$$('#ccs').additions() :
+          element.$.reviewers.additions();
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
         assert.deepEqual(
             additions,
             [
@@ -843,7 +848,7 @@ limitations under the License.
       // Send and purge and verify moves, delete cc3.
       element.send()
           .then(keepReviewers =>
-              element._purgeReviewersPendingRemove(false, keepReviewers))
+            element._purgeReviewersPendingRemove(false, keepReviewers))
           .then(() => {
             assert.deepEqual(
                 mutations, [

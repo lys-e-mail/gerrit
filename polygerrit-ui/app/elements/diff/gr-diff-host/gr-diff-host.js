@@ -79,6 +79,7 @@
 
     /**
      * Fired when the user selects a line.
+     *
      * @event line-selected
      */
 
@@ -147,6 +148,7 @@
 
       /**
        * Special line number which should not be collapsed into a shared region.
+       *
        * @type {{
        *  number: number,
        *  leftSide: {boolean}
@@ -395,6 +397,7 @@
 
     /**
      * Load and display blame information for the base of the diff.
+     *
      * @return {Promise} A promise that resolves when blame finishes rendering.
      */
     loadBlame() {
@@ -417,6 +420,7 @@
 
     /**
      * The thread elements in this diff, in no particular order.
+     *
      * @return {!Array<!HTMLElement>}
      */
     getThreadEls() {
@@ -511,7 +515,7 @@
       // digits. Diffs with no delta are considered 0%.
       const totalDelta = rebaseDelta + nonRebaseDelta;
       const percentRebaseDelta = !totalDelta ? 0 :
-          Math.round(100 * rebaseDelta / totalDelta);
+        Math.round(100 * rebaseDelta / totalDelta);
 
       // Report the due_to_rebase percentage in the "diff" category when
       // applicable.
@@ -588,7 +592,7 @@
         // thread and append to it.
         if (comment.in_reply_to) {
           const thread = threads.find(thread =>
-              thread.comments.some(c => c.id === comment.in_reply_to));
+            thread.comments.some(c => c.id === comment.in_reply_to));
           if (thread) {
             thread.comments.push(comment);
             continue;
@@ -729,7 +733,7 @@
       }
       function matchesRange(threadEl) {
         const threadRange = /** @type {!Gerrit.Range} */(
-            JSON.parse(threadEl.getAttribute('range')));
+          JSON.parse(threadEl.getAttribute('range')));
         return Gerrit.rangesEqual(threadRange, range);
       }
 
@@ -780,9 +784,56 @@
         matchers.push(matchesFileComment);
       }
       return threadEls.filter(threadEl =>
-          matchers.some(matcher => matcher(threadEl)));
+        matchers.some(matcher => matcher(threadEl)));
     },
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
+=======
+    /**
+     * Take a diff that was loaded with a ignore-whitespace other than
+     * IGNORE_NONE, and convert delta chunks labeled as common into shared
+     * chunks.
+     *
+     * @param {!Object} diff
+     * @returns {!Object}
+     */
+    _translateChunksToIgnore(diff) {
+      const newDiff = Object.assign({}, diff);
+      const mergedContent = [];
+
+      // Was the last chunk visited a shared chunk?
+      let lastWasShared = false;
+
+      for (const chunk of diff.content) {
+        if (lastWasShared && chunk.common && chunk.b) {
+          // The last chunk was shared and this chunk should be ignored, so
+          // add its revision content to the previous chunk.
+          mergedContent[mergedContent.length - 1].ab.push(...chunk.b);
+        } else if (chunk.common && !chunk.b) {
+          // If the chunk should be ignored, but it doesn't have revision
+          // content, then drop it and continue without updating lastWasShared.
+          continue;
+        } else if (lastWasShared && chunk.ab) {
+          // Both the last chunk and the current chunk are shared. Merge this
+          // chunk's shared content into the previous shared content.
+          mergedContent[mergedContent.length - 1].ab.push(...chunk.ab);
+        } else if (!lastWasShared && chunk.common && chunk.b) {
+          // If the previous chunk was not shared, but this one should be
+          // ignored, then add it as a shared chunk.
+          mergedContent.push({ab: chunk.b});
+        } else {
+          // Otherwise add the chunk as is.
+          mergedContent.push(chunk);
+        }
+
+        lastWasShared = !!mergedContent[mergedContent.length - 1].ab;
+      }
+
+      newDiff.content = mergedContent;
+      return newDiff;
+    },
+
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
     _getIgnoreWhitespace() {
       if (!this.prefs || !this.prefs.ignore_whitespace) {
         return WHITESPACE_IGNORE_NONE;
@@ -832,7 +883,7 @@
      */
     _computeParentIndex(patchRangeRecord) {
       return this.isMergeParent(patchRangeRecord.base.basePatchNum) ?
-          this.getParentIndex(patchRangeRecord.base.basePatchNum) : null;
+        this.getParentIndex(patchRangeRecord.base.basePatchNum) : null;
     },
 
     _handleCommentSave(e) {

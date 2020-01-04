@@ -114,6 +114,7 @@ limitations under the License.
            * The promise last returned from `render()` while the asynchronous
            * rendering is running - `null` otherwise. Provides a `cancel()`
            * method that rejects it with `{isCancelled: true}`.
+           *
            * @type {?Object}
            */
           _cancelableRenderPromise: Object,
@@ -219,8 +220,8 @@ limitations under the License.
         getLineNumberByChild(node) {
           const lineEl = this.getLineElByChild(node);
           return lineEl ?
-              parseInt(lineEl.getAttribute('data-value'), 10) :
-              null;
+            parseInt(lineEl.getAttribute('data-value'), 10) :
+            null;
         },
 
         getContentByLine(lineNumber, opt_side, opt_root) {
@@ -249,7 +250,7 @@ limitations under the License.
 
         getSideByLineEl(lineEl) {
           return lineEl.classList.contains(GrDiffBuilder.Side.RIGHT) ?
-          GrDiffBuilder.Side.RIGHT : GrDiffBuilder.Side.LEFT;
+            GrDiffBuilder.Side.RIGHT : GrDiffBuilder.Side.LEFT;
         },
 
         emitGroup(group, sectionEl) {
@@ -304,7 +305,7 @@ limitations under the License.
           let builder = null;
           if (this.isImageDiff) {
             builder = new GrDiffBuilderImage(diff, prefs, this.diffElement,
-              this.baseImage, this.revisionImage);
+                this.baseImage, this.revisionImage);
           } else if (diff.binary) {
             // If the diff is binary, but not an image.
             return new GrDiffBuilderBinary(diff, prefs, this.diffElement);
@@ -352,8 +353,8 @@ limitations under the License.
 
                 // If endIndex isn't present, continue to the end of the line.
                 const endIndex = highlight.endIndex === undefined ?
-                    line.text.length :
-                    highlight.endIndex;
+                  line.text.length :
+                  highlight.endIndex;
 
                 GrAnnotation.annotateElement(
                     contentEl,
@@ -416,6 +417,27 @@ limitations under the License.
           if (!this._builder || !blame) { return; }
           this._builder.setBlame(blame);
         },
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
+=======
+
+        /**
+         * Get the approximate length of the diff as the sum of the maximum
+         * length of the chunks.
+         *
+         * @return {number}
+         */
+        getDiffLength() {
+          return this.diff.content.reduce((sum, sec) => {
+            if (sec.hasOwnProperty('ab')) {
+              return sum + sec.ab.length;
+            } else {
+              return sum + Math.max(
+                  sec.hasOwnProperty('a') ? sec.a.length : 0,
+                  sec.hasOwnProperty('b') ? sec.b.length : 0);
+            }
+          }, 0);
+        },
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
       });
     })();
   </script>

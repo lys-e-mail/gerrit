@@ -87,11 +87,11 @@
      * @event comment-refresh
      */
 
-     /**
-      * Fires when the state of the send button (enabled/disabled) changes.
-      *
-      * @event send-disabled-changed
-      */
+    /**
+     * Fires when the state of the send button (enabled/disabled) changes.
+     *
+     * @event send-disabled-changed
+     */
 
     properties: {
       /**
@@ -249,7 +249,7 @@
       this.fetchChangeUpdates(this.change, this.$.restAPI)
           .then(result => {
             this.knownLatestState = result.isLatest ?
-                LatestPatchState.LATEST : LatestPatchState.NOT_LATEST;
+              LatestPatchState.LATEST : LatestPatchState.NOT_LATEST;
           });
 
       this._focusOn(opt_focusTarget);
@@ -394,8 +394,9 @@
 
       return this.$.restAPI.removeChangeReviewer(this.change._number,
           account._account_id).then(response => {
-            if (!response.ok) { return response; }
+        if (!response.ok) { return response; }
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
             const reviewers = this.change.reviewers[type] || [];
             for (let i = 0; i < reviewers.length; i++) {
               if (reviewers[i]._account_id == account._account_id) {
@@ -404,6 +405,16 @@
               }
             }
           });
+=======
+        const reviewers = this.change.reviewers[type] || [];
+        for (let i = 0; i < reviewers.length; i++) {
+          if (reviewers[i]._account_id == account._account_id) {
+            this.splice(['change', 'reviewers', type], i, 1);
+            break;
+          }
+        }
+      });
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
     },
 
     _mapReviewer(reviewer) {
@@ -624,6 +635,7 @@
      * Generates a function to filter out reviewer/CC entries. When isCCs is
      * truthy, the function filters out entries that already exist in this._ccs.
      * When falsy, the function filters entries that exist in this._reviewers.
+     *
      * @param {boolean} isCCs
      * @return {!Function}
      */

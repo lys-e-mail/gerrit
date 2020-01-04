@@ -105,6 +105,7 @@
        * The promise last returned from `process()` while the asynchronous
        * processing is running - `null` otherwise. Provides a `cancel()`
        * method that rejects it with `{isCancelled: true}`.
+       *
        * @type {?Object}
        */
       _processPromise: {
@@ -133,10 +134,16 @@
     /**
      * Asynchronously process the diff chunks into groups. As it processes, it
      * will splice groups into the `groups` property of the component.
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * @param {!Array<!Gerrit.DiffChunk>} chunks
      * @param {boolean} isBinary
      * @return {!Promise<!Array<!Object>>} A promise that resolves with an
      *     array of GrDiffGroups when the diff is completely processed.
+=======
+     *
+     * @return {Promise} A promise that resolves when the diff is completely
+     *     processed.
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
      */
     process(chunks, isBinary) {
       // Cancel any still running process() calls, because they append to the
@@ -261,6 +268,7 @@
     },
 
     /**
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * Process a stretch of collapsible chunks.
      *
      * Outputs up to three groups:
@@ -274,6 +282,19 @@
      * @param {!Array<Object>} chunks
      * @param {number} firstUncollapsibleChunkIndex
      * @return {{lineDelta: {left: number, right: number}, groups: !Array<!Object>, newChunkIndex: number}}
+=======
+     * Take rows of a shared diff section and produce an array of corresponding
+     * (potentially collapsed) groups.
+     *
+     * @param {!Array<string>} rows
+     * @param {number} context
+     * @param {number} startLineNumLeft
+     * @param {number} startLineNumRight
+     * @param {?string=} opt_sectionEnd String representing whether this is the
+     *     first section or the last section or neither. Use the values 'first',
+     *     'last' and null respectively.
+     * @return {!Array<!Object>} Array of GrDiffGroup
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
      */
     _processCollapsibleChunks(
         state, chunks, firstUncollapsibleChunkIndex) {
@@ -315,10 +336,21 @@
     },
 
     /**
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * @param {!Array<!Object>} chunks
      * @param {number} offsetLeft
      * @param {number} offsetRight
      * @return {!Array<!Object>} (GrDiffGroup)
+=======
+     * Take the rows of a delta diff section and produce the corresponding
+     * group.
+     *
+     * @param {!Array<string>} rowsAdded
+     * @param {!Array<string>} rowsRemoved
+     * @param {number} startLineNumLeft
+     * @param {number} startLineNumRight
+     * @return {!Object} (Gr-Diff-Group)
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
      */
     _chunksToGroups(chunks, offsetLeft, offsetRight) {
       return chunks.map(chunk => {
@@ -457,9 +489,16 @@
     },
 
     /**
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * In order to show key locations, such as comments, out of the bounds of
      * the selected context, treat them as separate chunks within the model so
      * that the content (and context surrounding it) renders correctly.
+=======
+     * In order to show comments out of the bounds of the selected context,
+     * treat them as separate chunks within the model so that the content (and
+     * context surrounding it) renders correctly.
+     *
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
      * @param {!Array<!Object>} chunks DiffContents as returned from server.
      * @return {!Array<!Object>} Finer grained DiffContents.
      */
@@ -603,7 +642,12 @@
      * If a group is an addition or a removal, break it down into smaller groups
      * of that type using the MAX_GROUP_SIZE. If the group is a shared chunk
      * or a delta it is returned as the single element of the result array.
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * @param {!Gerrit.DiffChunk} chunk A raw chunk from a diff response.
+=======
+     *
+     * @param {!Object} group A raw chunk from a diff response.
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
      * @return {!Array<!Array<!Object>>}
      */
     _breakdownChunk(chunk) {
@@ -632,6 +676,7 @@
     /**
      * Given an array and a size, return an array of arrays where no inner array
      * is larger than that size, preserving the original order.
+     *
      * @param {!Array<T>} array
      * @param {number} size
      * @return {!Array<!Array<T>>}

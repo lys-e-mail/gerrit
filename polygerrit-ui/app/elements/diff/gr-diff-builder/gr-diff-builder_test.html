@@ -604,11 +604,18 @@ limitations under the License.
         initialLayersCount = element._layers.length;
       });
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
       test('no layers', () => {
+=======
+      test('no plugin layers', () => {
+        const getDiffLayersStub = sinon.stub(element.$.jsAPI, 'getDiffLayers')
+            .returns([]);
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
         element._setupAnnotationLayers();
         assert.equal(element._layers.length, initialLayersCount);
       });
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
       suite('with layers', () => {
         const layers = [{}, {}];
         setup(() => {
@@ -624,6 +631,14 @@ limitations under the License.
           assert.equal(initialLayersCount + layers.length,
               withLayerCount);
         });
+=======
+      test('with plugin layers', () => {
+        const getDiffLayersStub = sinon.stub(element.$.jsAPI, 'getDiffLayers')
+            .returns([{}, {}]);
+        element._setupAnnotationLayers();
+        assert.isTrue(getDiffLayersStub.called);
+        assert.equal(element._layers.length, initialLayersCount + 2);
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
       });
     });
 

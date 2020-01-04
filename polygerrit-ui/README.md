@@ -60,6 +60,7 @@ the command line:
 ```sh
 ./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js,plugins/my_plugin/static/my_plugin.html
 ```
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
 
 The biggest draw back of this method is that you cannot log in, so cannot test
 scenarios that require it.
@@ -76,6 +77,8 @@ unmaintained though.
 ## Running locally against a Gerrit test site
 
 Set up a local test site once:
+=======
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
 
 1. [Build Gerrit](https://gerrit-review.googlesource.com/Documentation/dev-bazel.html#_gerrit_development_war_file)
 2. [Set up a local test site](https://gerrit-review.googlesource.com/Documentation/dev-readme.html#init).

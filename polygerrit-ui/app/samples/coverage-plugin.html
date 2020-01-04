@@ -39,16 +39,24 @@
 
       annotationApi.addLayer(context => {
         if (Object.keys(coverageData).length === 0) {
-           // Coverage data is not ready yet.
+          // Coverage data is not ready yet.
           return;
         }
         const path = context.path;
         const line = context.line;
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
           // Highlight lines missing coverage with this background color if
           // coverage should be displayed, else do nothing.
         const annotationStyle = displayCoverage
                          ? coverageStyle
                          : emptyStyle;
+=======
+        // Highlight lines missing coverage with this background color if
+        // coverage should be displayed, else do nothing.
+        const cssClass = displayCoverage
+          ? Gerrit.css('background-color: #EF9B9B')
+          : Gerrit.css('');
+>>>>>>> BRANCH (4bcbb1 Merge branch 'stable-2.16' into stable-3.0)
         if (coverageData[path] &&
               coverageData[path].changeNum === context.changeNum &&
               coverageData[path].patchNum === context.patchNum) {
