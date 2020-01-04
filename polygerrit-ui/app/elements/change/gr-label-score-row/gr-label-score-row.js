@@ -158,7 +158,11 @@
     _computeHiddenClass(permittedLabels, label) {
       return !this._computeAnyPermittedLabelValues(permittedLabels, label) ?
         'hidden' : '';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computePermittedLabelValues(permittedLabels, label) {
       // Polymer 2: check for undefined

@@ -88,7 +88,11 @@
     _getChangeSuggestions(input) {
       return this._getRecentChanges().then(changes =>
         this._filterChanges(input, changes));
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _filterChanges(input, changes) {
       return changes.filter(change => change.name.includes(input) &&

@@ -155,6 +155,7 @@
           value: DiffViewMode.SIDE_BY_SIDE,
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * Special line number which should not be collapsed into a shared region.
          *
@@ -164,6 +165,17 @@
          * }|null}
          */
         lineOfInterest: Object,
+=======
+      /**
+       * Special line number which should not be collapsed into a shared region.
+       *
+       * @type {{
+       *  number: number,
+       *  leftSide: {boolean}
+       * }|null}
+       */
+      lineOfInterest: Object,
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * If the diff fails to load, show the failure message in the diff rather
@@ -844,7 +856,11 @@
       }
       return threadEls.filter(threadEl =>
         matchers.some(matcher => matcher(threadEl)));
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _getIgnoreWhitespace() {
       if (!this.prefs || !this.prefs.ignore_whitespace) {
@@ -896,7 +912,11 @@
     _computeParentIndex(patchRangeRecord) {
       return this.isMergeParent(patchRangeRecord.base.basePatchNum) ?
         this.getParentIndex(patchRangeRecord.base.basePatchNum) : null;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleCommentSave(e) {
       const comment = e.detail.comment;

@@ -87,8 +87,13 @@
         }
         return branches;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
   }
 
   customElements.define(GrConfirmMoveDialog.is, GrConfirmMoveDialog);
+=======
+    },
+  });
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 })();

@@ -135,19 +135,31 @@
       return this._hasNameChange && this.nameMutable ?
         this.$.restAPI.setAccountName(this._account.name) :
         Promise.resolve();
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _maybeSetUsername() {
       return this._hasUsernameChange && this.usernameMutable ?
         this.$.restAPI.setAccountUsername(this._username) :
         Promise.resolve();
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _maybeSetStatus() {
       return this._hasStatusChange ?
         this.$.restAPI.setAccountStatus(this._account.status) :
         Promise.resolve();
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeHasUnsavedChanges(nameChanged, usernameChanged, statusChanged) {
       return nameChanged || usernameChanged || statusChanged;

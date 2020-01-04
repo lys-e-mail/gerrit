@@ -94,8 +94,13 @@
     _computeDashboardLinkClass(showDashboardLink, loggedIn) {
       return showDashboardLink && loggedIn ?
         'dashboardLink' : 'dashboardLink hide';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
   }
 
   customElements.define(GrUserHeader.is, GrUserHeader);
+=======
+    },
+  });
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 })();

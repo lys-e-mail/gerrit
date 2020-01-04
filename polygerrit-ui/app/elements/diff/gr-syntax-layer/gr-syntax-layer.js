@@ -136,6 +136,7 @@
           Polymer.Element)) {
     static get is() { return 'gr-syntax-layer'; }
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     static get properties() {
       return {
         diff: {
@@ -176,6 +177,46 @@
         _hljs: Object,
       };
     }
+=======
+    properties: {
+      diff: {
+        type: Object,
+        observer: '_diffChanged',
+      },
+      enabled: {
+        type: Boolean,
+        value: true,
+      },
+      _baseRanges: {
+        type: Array,
+        value() { return []; },
+      },
+      _revisionRanges: {
+        type: Array,
+        value() { return []; },
+      },
+      _baseLanguage: String,
+      _revisionLanguage: String,
+      _listeners: {
+        type: Array,
+        value() { return []; },
+      },
+      /** @type {?number} */
+      _processHandle: Number,
+      /**
+       * The promise last returned from `process()` while the asynchronous
+       * processing is running - `null` otherwise. Provides a `cancel()`
+       * method that rejects it with `{isCancelled: true}`.
+       *
+       * @type {?Object}
+       */
+      _processPromise: {
+        type: Object,
+        value: null,
+      },
+      _hljs: Object,
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     addListener(fn) {
       this.push('_listeners', fn);

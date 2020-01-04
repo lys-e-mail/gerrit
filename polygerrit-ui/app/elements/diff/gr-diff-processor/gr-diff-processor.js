@@ -102,6 +102,7 @@
           value: 64,
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /** @type {?number} */
         _nextStepHandle: Number,
         /**
@@ -118,6 +119,23 @@
         _isScrolling: Boolean,
       };
     }
+=======
+      /** @type {?number} */
+      _nextStepHandle: Number,
+      /**
+       * The promise last returned from `process()` while the asynchronous
+       * processing is running - `null` otherwise. Provides a `cancel()`
+       * method that rejects it with `{isCancelled: true}`.
+       *
+       * @type {?Object}
+       */
+      _processPromise: {
+        type: Object,
+        value: null,
+      },
+      _isScrolling: Boolean,
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     attached() {
       super.attached();
@@ -143,6 +161,7 @@
      *
      * @param {!Array<!Gerrit.DiffChunk>} chunks
      * @param {boolean} isBinary
+     *
      * @return {!Promise<!Array<!Object>>} A promise that resolves with an
      *     array of GrDiffGroups when the diff is completely processed.
      */

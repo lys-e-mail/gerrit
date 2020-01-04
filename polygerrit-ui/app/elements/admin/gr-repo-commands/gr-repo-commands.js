@@ -110,16 +110,25 @@
         const message = change ?
           CREATE_CHANGE_SUCCEEDED_MESSAGE :
           CREATE_CHANGE_FAILED_MESSAGE;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         this.dispatchEvent(new CustomEvent(
             'show-alert',
+=======
+        this.dispatchEvent(new CustomEvent('show-alert',
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             {detail: {message}, bubbles: true, composed: true}));
         if (!change) { return; }
 
         Gerrit.Nav.navigateToRelativeUrl(Gerrit.Nav.getEditUrlForDiff(
             change, CONFIG_PATH, INITIAL_PATCHSET));
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
   }
 
   customElements.define(GrRepoCommands.is, GrRepoCommands);
+=======
+    },
+  });
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 })();

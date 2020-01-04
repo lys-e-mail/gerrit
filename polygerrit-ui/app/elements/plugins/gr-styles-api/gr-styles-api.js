@@ -38,8 +38,13 @@
    * @return {string} Appropriate class name for the element is returned
    */
   GrStyleObject.prototype.getClassName = function(element) {
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     let rootNode = Polymer.Settings.useShadow ?
       element.getRootNode() : document.body;
+=======
+    let rootNode = Polymer.Settings.useShadow
+      ? element.getRootNode() : document.body;
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
     if (rootNode === document) {
       rootNode = document.head;
     }

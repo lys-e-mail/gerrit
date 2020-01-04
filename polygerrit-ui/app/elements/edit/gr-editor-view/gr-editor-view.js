@@ -158,7 +158,11 @@
         this._successfulSave = true;
         this._viewEditInChangeView();
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _viewEditInChangeView() {
       const patch = this._successfulSave ? this.EDIT_NAME : this._patchNum;
@@ -210,7 +214,11 @@
         this._content = this._newContent;
         this._successfulSave = true;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _showAlert(message) {
       this.dispatchEvent(new CustomEvent('show-alert', {

@@ -293,7 +293,11 @@
           this._formatRepoConfigForSave(this._repoConfig)).then(() => {
         this._configChanged = false;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleConfigChanged() {
       if (this._isLoading()) { return; }

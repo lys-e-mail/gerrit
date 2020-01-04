@@ -24,7 +24,10 @@
 
   // Import utils methods
   const {
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     PRELOADED_PROTOCOL,
+=======
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
     getPluginNameFromUrl,
     send,
   } = window._apiUtils;

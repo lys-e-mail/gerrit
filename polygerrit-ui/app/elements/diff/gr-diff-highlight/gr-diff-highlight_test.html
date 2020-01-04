@@ -283,6 +283,17 @@ limitations under the License.
         element._handleSelection(selection);
       };
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
+=======
+      const getActionRange = () =>
+        Polymer.dom(element.root).querySelector(
+            'gr-selection-action-box').range;
+
+      const getActionSide = () =>
+        Polymer.dom(element.root).querySelector(
+            'gr-selection-action-box').side;
+
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
       const getLineElByChild = node => {
         const stubs = contentStubs.find(stub => stub.contentTd.contains(node));
         return stubs && stubs.lineEl;

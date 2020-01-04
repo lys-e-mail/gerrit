@@ -225,14 +225,22 @@
         this._closeDialog(dialog, true);
         Gerrit.Nav.navigateToChange(this.change);
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _queryFiles(input) {
       return this.$.restAPI.queryChangeFiles(this.change._number,
           this.patchNum, input).then(res => res.map(file => {
         return {name: file};
       }));
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeIsInvisible(id, hiddenActions) {
       return hiddenActions.includes(id) ? 'invisible' : '';

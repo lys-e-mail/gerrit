@@ -99,7 +99,11 @@
       return this.$.restAPI.getRepoAccess(repo)
           .then(access =>
             this._isOwner = access && !!access[repo].is_owner);
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _paramsChanged(params) {
       if (!params || !params.repo) { return; }
@@ -182,7 +186,11 @@
     _computeCanEditClass(ref, detailType, isOwner) {
       return isOwner && this._stripRefs(ref, detailType) === 'HEAD' ?
         'canEdit' : '';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleEditRevision(e) {
       this._revisedRef = e.model.get('item.revision');

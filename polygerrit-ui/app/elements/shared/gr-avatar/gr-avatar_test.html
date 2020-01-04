@@ -53,24 +53,48 @@ limitations under the License.
           element._buildAvatarURL({
             _account_id: 123,
           }),
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           '/accounts/123/avatar?s=16');
       assert.equal(
           element._buildAvatarURL({
+=======
+      '/accounts/123/avatar?s=16');
+      assert.equal(element._buildAvatarURL(
+          {
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             email: 'test@example.com',
           }),
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           '/accounts/test%40example.com/avatar?s=16');
       assert.equal(
           element._buildAvatarURL({
+=======
+      '/accounts/test%40example.com/avatar?s=16');
+      assert.equal(element._buildAvatarURL(
+          {
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             name: 'John Doe',
           }),
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           '/accounts/John%20Doe/avatar?s=16');
       assert.equal(
           element._buildAvatarURL({
+=======
+      '/accounts/John%20Doe/avatar?s=16');
+      assert.equal(element._buildAvatarURL(
+          {
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             username: 'John_Doe',
           }),
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           '/accounts/John_Doe/avatar?s=16');
       assert.equal(
           element._buildAvatarURL({
+=======
+      '/accounts/John_Doe/avatar?s=16');
+      assert.equal(element._buildAvatarURL(
+          {
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             _account_id: 123,
             avatars: [
               {
@@ -87,9 +111,15 @@ limitations under the License.
               },
             ],
           }),
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           'https://cdn.example.com/s16-p/photo.jpg');
       assert.equal(
           element._buildAvatarURL({
+=======
+      'https://cdn.example.com/s16-p/photo.jpg');
+      assert.equal(element._buildAvatarURL(
+          {
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
             _account_id: 123,
             avatars: [
               {
@@ -98,7 +128,7 @@ limitations under the License.
               },
             ],
           }),
-          '/accounts/123/avatar?s=16');
+      '/accounts/123/avatar?s=16');
       assert.equal(element._buildAvatarURL(undefined), '');
     });
 

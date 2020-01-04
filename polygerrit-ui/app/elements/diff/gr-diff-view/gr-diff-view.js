@@ -289,7 +289,11 @@
           changeNum, patchRange).then(files => {
         this._fileList = files;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _getDiffPreferences() {
       return this.$.restAPI.getDiffPreferences().then(prefs => {

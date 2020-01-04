@@ -35,8 +35,13 @@
       switch (usersType) {
         case Gerrit.SUGGESTIONS_PROVIDERS_USERS_TYPES.REVIEWER:
           return new GrReviewerSuggestionsProvider(restApi, changeNumber,
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
               input =>
                 restApi.getChangeSuggestedReviewers(changeNumber, input));
+=======
+              input => restApi.getChangeSuggestedReviewers(changeNumber,
+                  input));
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
         case Gerrit.SUGGESTIONS_PROVIDERS_USERS_TYPES.CC:
           return new GrReviewerSuggestionsProvider(restApi, changeNumber,
               input => restApi.getChangeSuggestedCCs(changeNumber, input));

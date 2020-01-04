@@ -35,12 +35,77 @@
      * @event show-alert
      */
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     static get properties() {
       return {
         accounts: {
           type: Array,
           value() { return []; },
           notify: true,
+=======
+    properties: {
+      accounts: {
+        type: Array,
+        value() { return []; },
+        notify: true,
+      },
+      change: Object,
+      filter: Function,
+      placeholder: String,
+      disabled: {
+        type: Function,
+        value: false,
+      },
+
+      /**
+       * Returns suggestions and convert them to list item
+       *
+       * @type {Gerrit.GrSuggestionsProvider}
+       */
+      suggestionsProvider: {
+        type: Object,
+      },
+
+      /**
+       * Needed for template checking since value is initially set to null.
+       *
+       * @type {?Object} */
+      pendingConfirmation: {
+        type: Object,
+        value: null,
+        notify: true,
+      },
+      readonly: {
+        type: Boolean,
+        value: false,
+      },
+      /**
+       * When true, allows for non-suggested inputs to be added.
+       */
+      allowAnyInput: {
+        type: Boolean,
+        value: false,
+      },
+
+      /**
+       * Array of values (groups/accounts) that are removable. When this prop is
+       * undefined, all values are removable.
+       */
+      removableValues: Array,
+      maxCount: {
+        type: Number,
+        value: 0,
+      },
+
+      /** Returns suggestion items
+       *
+       * @type {!function(string): Promise<Array<Gerrit.GrSuggestionItem>>}
+       */
+      _querySuggestions: {
+        type: Function,
+        value() {
+          return this._getSuggestions.bind(this);
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
         },
         change: Object,
         filter: Function,

@@ -45,9 +45,15 @@
         const line = context.line;
         // Highlight lines missing coverage with this background color if
         // coverage should be displayed, else do nothing.
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         const annotationStyle = displayCoverage ?
           coverageStyle :
           emptyStyle;
+=======
+        const annotationStyle = displayCoverage
+          ? coverageStyle
+          : emptyStyle;
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
         if (coverageData[path] &&
               coverageData[path].changeNum === context.changeNum &&
               coverageData[path].patchNum === context.patchNum) {

@@ -101,6 +101,7 @@
       /**
        * URL params passed from the router.
        */
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         params: {
           type: Object,
           observer: '_paramsChanged',
@@ -240,6 +241,147 @@
         _changeStatuses: {
           type: String,
           computed:
+=======
+      params: {
+        type: Object,
+        observer: '_paramsChanged',
+      },
+      /** @type {?} */
+      viewState: {
+        type: Object,
+        notify: true,
+        value() { return {}; },
+        observer: '_viewStateChanged',
+      },
+      backPage: String,
+      hasParent: Boolean,
+      keyEventTarget: {
+        type: Object,
+        value() { return document.body; },
+      },
+      disableEdit: {
+        type: Boolean,
+        value: false,
+      },
+      disableDiffPrefs: {
+        type: Boolean,
+        value: false,
+      },
+      _diffPrefsDisabled: {
+        type: Boolean,
+        computed: '_computeDiffPrefsDisabled(disableDiffPrefs, _loggedIn)',
+      },
+      _commentThreads: Array,
+      /** @type {?} */
+      _serverConfig: {
+        type: Object,
+        observer: '_startUpdateCheckTimer',
+      },
+      _diffPrefs: Object,
+      _numFilesShown: {
+        type: Number,
+        value: DEFAULT_NUM_FILES_SHOWN,
+        observer: '_numFilesShownChanged',
+      },
+      _account: {
+        type: Object,
+        value: {},
+      },
+      _prefs: Object,
+      /** @type {?} */
+      _changeComments: Object,
+      _canStartReview: {
+        type: Boolean,
+        computed: '_computeCanStartReview(_change)',
+      },
+      _comments: Object,
+      /** @type {?} */
+      _change: {
+        type: Object,
+        observer: '_changeChanged',
+      },
+      _revisionInfo: {
+        type: Object,
+        computed: '_getRevisionInfo(_change)',
+      },
+      /** @type {?} */
+      _commitInfo: Object,
+      _currentRevision: {
+        type: Object,
+        computed: '_computeCurrentRevision(_change.current_revision, ' +
+            '_change.revisions)',
+      },
+      _files: Object,
+      _changeNum: String,
+      _diffDrafts: {
+        type: Object,
+        value() { return {}; },
+      },
+      _editingCommitMessage: {
+        type: Boolean,
+        value: false,
+      },
+      _hideEditCommitMessage: {
+        type: Boolean,
+        computed: '_computeHideEditCommitMessage(_loggedIn, ' +
+            '_editingCommitMessage, _change, _editMode)',
+      },
+      _diffAgainst: String,
+      /** @type {?string} */
+      _latestCommitMessage: {
+        type: String,
+        value: '',
+      },
+      _lineHeight: Number,
+      _changeIdCommitMessageError: {
+        type: String,
+        computed:
+          '_computeChangeIdCommitMessageError(_latestCommitMessage, _change)',
+      },
+      /** @type {?} */
+      _patchRange: {
+        type: Object,
+      },
+      _filesExpanded: String,
+      _basePatchNum: String,
+      _selectedRevision: Object,
+      _currentRevisionActions: Object,
+      _allPatchSets: {
+        type: Array,
+        computed: 'computeAllPatchSets(_change, _change.revisions.*)',
+      },
+      _loggedIn: {
+        type: Boolean,
+        value: false,
+      },
+      _loading: Boolean,
+      /** @type {?} */
+      _projectConfig: Object,
+      _rebaseOnCurrent: Boolean,
+      _replyButtonLabel: {
+        type: String,
+        value: 'Reply',
+        computed: '_computeReplyButtonLabel(_diffDrafts.*, _canStartReview)',
+      },
+      _selectedPatchSet: String,
+      _shownFileCount: Number,
+      _initialLoadComplete: {
+        type: Boolean,
+        value: false,
+      },
+      _replyDisabled: {
+        type: Boolean,
+        value: true,
+        computed: '_computeReplyDisabled(_serverConfig)',
+      },
+      _changeStatus: {
+        type: String,
+        computed: 'changeStatusString(_change)',
+      },
+      _changeStatuses: {
+        type: String,
+        computed:
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
           '_computeChangeStatusChips(_change, _mergeable, _submitEnabled)',
         },
         _commitCollapsed: {
@@ -500,7 +642,11 @@
       }).catch(err => {
         this.$.commitMessageEditor.disabled = false;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _reloadWindow() {
       window.location.reload();
@@ -854,7 +1000,11 @@
     _viewStateChanged(viewState) {
       this._numFilesShown = viewState.numFilesShown ?
         viewState.numFilesShown : DEFAULT_NUM_FILES_SHOWN;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _numFilesShownChanged(numFilesShown) {
       this.viewState.numFilesShown = numFilesShown;
@@ -1365,7 +1515,11 @@
         this._latestCommitMessage =
                     this._prepareCommitMsgForLinkify(commitInfo.message);
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _getLatestRevisionSHA(change) {
       if (change.current_revision) {

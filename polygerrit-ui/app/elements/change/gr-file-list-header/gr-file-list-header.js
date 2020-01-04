@@ -156,7 +156,11 @@
       const rev = this.getRevisionByPatchNum(change.revisions, patchNum);
       this._patchsetDescription = (rev && rev.description) ?
         rev.description.substring(0, PATCH_DESC_MAX_LENGTH) : '';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleDescriptionRemoved(e) {
       return this._updateDescription('', e);

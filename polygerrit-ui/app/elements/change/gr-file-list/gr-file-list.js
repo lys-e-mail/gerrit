@@ -853,7 +853,11 @@
     _computeShowHideIcon(path, expandedFilesRecord) {
       return this._isFileExpanded(path, expandedFilesRecord) ?
         'gr-icons:expand-less' : 'gr-icons:expand-more';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeFiles(filesByPath, changeComments, patchRange, reviewed, loading) {
       // Polymer 2: check for undefined
@@ -968,7 +972,11 @@
       const rev = this.getRevisionByPatchNum(revisions, patchNum);
       return (rev && rev.description) ?
         rev.description.substring(0, PATCH_DESC_MAX_LENGTH) : '';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     /**
      * Get a descriptive label for use in the status indicator's tooltip and
@@ -981,7 +989,11 @@
       const statusCode = this._computeFileStatus(status);
       return FileStatus.hasOwnProperty(statusCode) ?
         FileStatus[statusCode] : 'Status Unknown';
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _isFileExpanded(path, expandedFilesRecord) {
       return expandedFilesRecord.base.includes(path);
@@ -1197,6 +1209,7 @@
      * Compute size bar layout values from the file list.
      *
      * @return {Gerrit.LayoutStats|undefined}
+     *
      */
     _computeSizeBarLayout(shownFilesRecord) {
       if (!shownFilesRecord || !shownFilesRecord.base) { return undefined; }
@@ -1280,6 +1293,7 @@
      * Get the x-offset of the deletion bar for a file.
      *
      * @param {Gerrit.LayoutStats} stats
+     *
      * @return {number}
      */
     _computeBarDeletionX(stats) {

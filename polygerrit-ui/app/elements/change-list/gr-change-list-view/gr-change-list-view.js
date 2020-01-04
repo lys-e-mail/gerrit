@@ -71,6 +71,7 @@
           value: null,
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * State persisted across restamps of the element.
          *
@@ -85,6 +86,22 @@
           notify: true,
           value() { return {}; },
         },
+=======
+      /**
+       * State persisted across restamps of the element.
+       *
+       * Need sub-property declaration since it is used in template before
+       * assignment.
+       *
+       * @type {{ selectedChangeIndex: (number|undefined) }}
+       *
+       */
+      viewState: {
+        type: Object,
+        notify: true,
+        value() { return {}; },
+      },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         preferences: Object,
 

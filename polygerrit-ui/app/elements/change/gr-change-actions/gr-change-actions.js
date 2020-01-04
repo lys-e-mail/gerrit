@@ -1504,7 +1504,11 @@
         action.__primary);
       this._topLevelSecondaryActions = _topLevelActions.filter(action =>
         !action.__primary);
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeMenuActions(actionRecord, hiddenActionsRecord) {
       const hiddenActions = hiddenActionsRecord.base || [];

@@ -64,6 +64,7 @@
           value() { return []; },
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * If set, the cursor will attempt to move to the line number (instead of
          * the first chunk) the next time the diff renders. It is set back to null
@@ -78,6 +79,22 @@
           type: Number,
           value: null,
         },
+=======
+      /**
+       * If set, the cursor will attempt to move to the line number (instead of
+       * the first chunk) the next time the diff renders. It is set back to null
+       * when used. It should be only used if you want the line to be focused
+       * after initialization of the component and page should scroll
+       * to that position. This parameter should be set at most for one gr-diff
+       * element in the page.
+       *
+       * @type {?number}
+       */
+      initialLineNumber: {
+        type: Number,
+        value: null,
+      },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * The scroll behavior for the cursor. Values are 'never' and

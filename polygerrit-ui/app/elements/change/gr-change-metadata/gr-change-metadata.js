@@ -236,11 +236,20 @@
           this.change._number, {add: [newHashtag]}).then(newHashtag => {
         this.set(['change', 'hashtags'], newHashtag);
         if (newHashtag !== lastHashtag) {
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
           this.dispatchEvent(new CustomEvent(
               'hashtag-changed', {bubbles: true, composed: true}));
         }
       });
     }
+=======
+          this.dispatchEvent(
+              new CustomEvent('hashtag-changed', {
+                bubbles: true, composed: true}));
+        }
+      });
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeTopicReadOnly(mutable, change) {
       return !mutable ||
@@ -351,7 +360,11 @@
       return Gerrit.Nav.getUrlForBranch(branch, project,
           this.change.status == this.ChangeStatus.NEW ? 'open' :
             this.change.status.toLowerCase());
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeTopicURL(topic) {
       return Gerrit.Nav.getUrlForTopic(topic);

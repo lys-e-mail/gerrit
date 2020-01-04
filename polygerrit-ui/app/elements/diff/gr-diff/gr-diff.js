@@ -135,6 +135,7 @@
      * @event diff-context-expanded
      */
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     static get properties() {
       return {
         changeNum: String,
@@ -186,6 +187,10 @@
           value: DiffViewMode.SIDE_BY_SIDE,
           observer: '_viewModeObserver',
         },
+=======
+      /** @type {?Gerrit.LineOfInterest} */
+      lineOfInterest: Object,
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /** @type {?Gerrit.LineOfInterest} */
         lineOfInterest: Object,
@@ -196,6 +201,7 @@
           observer: '_loadingChanged',
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         loggedIn: {
           type: Boolean,
           value: false,
@@ -217,6 +223,20 @@
         baseImage: Object,
         /** @type {?Object} */
         revisionImage: Object,
+=======
+      /**
+       * Whether the safety check for large diffs when whole-file is set has
+       * been bypassed. If the value is null, then the safety has not been
+       * bypassed. If the value is a number, then that number represents the
+       * context preference to use when rendering the bypassed diff.
+       *
+       * @type {number|null}
+       */
+      _safetyBypass: {
+        type: Number,
+        value: null,
+      },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * Whether the safety check for large diffs when whole-file is set has
@@ -253,8 +273,20 @@
           computed: '_computeNewlineWarning(diff)',
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         _diffLength: Number,
+=======
+      /**
+       * Observes comment nodes added or removed after the initial render.
+       * Can be used to unregister when the entire diff is (re-)rendered or upon
+       * detachment.
+       *
+       * @type {?PolymerDomApi.ObserveHandle}
+       */
+      _incrementalNodeObserver: Object,
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * Observes comment nodes added or removed after the initial render.
          * Can be used to unregister when the entire diff is (re-)rendered or upon
@@ -263,6 +295,15 @@
          * @type {?PolymerDomApi.ObserveHandle}
          */
         _incrementalNodeObserver: Object,
+=======
+      /**
+       * Observes comment nodes added or removed at any point.
+       * Can be used to unregister upon detachment.
+       *
+       * @type {?PolymerDomApi.ObserveHandle}
+       */
+      _nodeObserver: Object,
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * Observes comment nodes added or removed at any point.
@@ -349,7 +390,11 @@
       return this.root.getSelection ?
         this.root.getSelection() :
         document.getSelection();
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _observeNodes() {
       this._nodeObserver = Polymer.dom(this).observeNodes(info => {

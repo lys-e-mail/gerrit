@@ -37,7 +37,11 @@
     /** @type {boolean} */
     this.hasIntralineInfo = false;
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     /** @type {!Array<GrDiffLine.Highlights>} */
+=======
+    /** @type {Array<GrDiffLine.Highlights>} */
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
     this.highlights = [];
 
     /** @type {?Array<Object>} ?Array<!GrDiffGroup> */

@@ -37,4 +37,8 @@ cd ${UI_PATH}
 # eslint installation.
 npm link eslint eslint-config-google eslint-plugin-html eslint-plugin-jsdoc
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
 ${eslint_bin} -c ${UI_PATH}/.eslintrc.json --ignore-pattern 'node_modules/' --ignore-pattern 'bower_components/' --ignore-pattern 'scripts/vendor' --ext .html,.js ${UI_PATH}
+=======
+${eslint_bin} -c ${UI_PATH}/.eslintrc.json --ext .html,.js ${UI_PATH}
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)

@@ -235,7 +235,11 @@
       return Polymer.dom(this.root).querySelector(Polymer.Element ?
         'iron-input.editRefInput' :
         'input[is=iron-input].editRefInput');
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     editReference() {
       this._editingRef = true;

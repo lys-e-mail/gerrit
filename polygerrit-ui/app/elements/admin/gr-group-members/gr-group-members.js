@@ -158,7 +158,11 @@
         this._groupMemberSearchName = '';
         this._groupMemberSearchId = '';
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleDeleteConfirm() {
       this.$.overlay.close();
@@ -265,7 +269,11 @@
         }
         return accountSuggestions;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _getGroupSuggestions(input) {
       return this.$.restAPI.getSuggestedGroups(input)

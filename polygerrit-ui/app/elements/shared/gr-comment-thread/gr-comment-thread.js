@@ -68,6 +68,7 @@
      *     (start_line, start_character) is inclusive, and the end position
      *     (end_line, end_character) is exclusive.
      */
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     static get properties() {
       return {
         changeNum: String,
@@ -144,6 +145,77 @@
         },
       };
     }
+=======
+    properties: {
+      changeNum: String,
+      comments: {
+        type: Array,
+        value() { return []; },
+      },
+      /**
+       * @type {?{start_line: number, start_character: number, end_line: number,
+       *          end_character: number}}
+       */
+      range: {
+        type: Object,
+        reflectToAttribute: true,
+      },
+      keyEventTarget: {
+        type: Object,
+        value() { return document.body; },
+      },
+      commentSide: {
+        type: String,
+        reflectToAttribute: true,
+      },
+      patchNum: String,
+      path: String,
+      projectName: {
+        type: String,
+        observer: '_projectNameChanged',
+      },
+      hasDraft: {
+        type: Boolean,
+        notify: true,
+        reflectToAttribute: true,
+      },
+      isOnParent: {
+        type: Boolean,
+        value: false,
+      },
+      parentIndex: {
+        type: Number,
+        value: null,
+      },
+      rootId: {
+        type: String,
+        notify: true,
+        computed: '_computeRootId(comments.*)',
+      },
+      /**
+       * If this is true, the comment thread also needs to have the change and
+       * line properties property set
+       */
+      showFilePath: {
+        type: Boolean,
+        value: false,
+      },
+      /** Necessary only if showFilePath is true or when used with gr-diff */
+      lineNum: {
+        type: Number,
+        reflectToAttribute: true,
+      },
+      unresolved: {
+        type: Boolean,
+        notify: true,
+        reflectToAttribute: true,
+      },
+      _showActions: Boolean,
+      _lastComment: Object,
+      _orderedComments: Array,
+      _projectConfig: Object,
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     static get observers() {
       return [

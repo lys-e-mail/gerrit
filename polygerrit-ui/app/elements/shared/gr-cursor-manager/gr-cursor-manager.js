@@ -36,6 +36,7 @@
           },
           observer: '_updateIndex',
         },
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * @type {?Object}
          */
@@ -50,6 +51,24 @@
          * @type {?number}
          */
         _targetHeight: Number,
+=======
+        observer: '_updateIndex',
+      },
+      /**
+       * @type {?Object}
+       */
+      target: {
+        type: Object,
+        notify: true,
+        observer: '_scrollToTarget',
+      },
+      /**
+       * The height of content intended to be included with the target.
+       *
+       * @type {?number}
+       */
+      _targetHeight: Number,
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * The index of the current target (if any). -1 otherwise.
@@ -68,6 +87,7 @@
           value: null,
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * The scroll behavior for the cursor. Values are 'never' and
          * 'keep-visible'. 'keep-visible' will only scroll if the cursor is beyond
@@ -80,6 +100,20 @@
           type: String,
           value: ScrollBehavior.NEVER,
         },
+=======
+      /**
+       * The scroll behavior for the cursor. Values are 'never' and
+       * 'keep-visible'. 'keep-visible' will only scroll if the cursor is beyond
+       * the viewport.
+       * TODO (beckysiegel) figure out why it can be undefined
+       *
+       * @type {string|undefined}
+       */
+      scrollBehavior: {
+        type: String,
+        value: ScrollBehavior.NEVER,
+      },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * When true, will call element.focus() during scrolling.

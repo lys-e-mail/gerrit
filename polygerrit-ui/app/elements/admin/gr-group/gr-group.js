@@ -181,14 +181,22 @@
           owner).then(config => {
         this._owner = false;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleSaveDescription() {
       return this.$.restAPI.saveGroupDescription(this.groupId,
           this._groupConfig.description).then(config => {
         this._description = false;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleSaveOptions() {
       const visible = this._groupConfig.options.visible_to_all;
@@ -199,7 +207,11 @@
           options).then(config => {
         this._options = false;
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _handleConfigName() {
       if (this._isLoading()) { return; }

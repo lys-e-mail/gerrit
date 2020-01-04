@@ -175,7 +175,11 @@
       return timeFormat === TimeFormats.TIME_12 ?
         TimeFormats.TIME_12_WITH_SEC :
         TimeFormats.TIME_24_WITH_SEC;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeFullDateStr(dateStr, timeFormat) {
       // Polymer 2: check for undefined

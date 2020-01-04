@@ -239,7 +239,11 @@
     _computeGroupName(groups, groupId) {
       return groups && groups[groupId] && groups[groupId].name ?
         groups[groupId].name : groupId;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _getGroupSuggestions() {
       return this.$.restAPI.getSuggestedGroups(

@@ -50,6 +50,7 @@
           observer: '_accountChanged',
         },
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
         /**
          * The last time the g key was pressed in milliseconds (or a keydown event
          * was handled if the key is held down).
@@ -60,6 +61,18 @@
           type: Number,
           value: null,
         },
+=======
+      /**
+       * The last time the g key was pressed in milliseconds (or a keydown event
+       * was handled if the key is held down).
+       *
+       * @type {number|null}
+       */
+      _lastGKeyPressTimestamp: {
+        type: Number,
+        value: null,
+      },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
         /**
          * @type {{ plugin: Object }}

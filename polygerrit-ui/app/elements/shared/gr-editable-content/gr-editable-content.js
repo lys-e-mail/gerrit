@@ -118,7 +118,11 @@
       this._newContent = this.removeZeroWidthSpace ?
         content.replace(/^R=\u200B/gm, 'R=') :
         content;
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeSaveDisabled(disabled, content, newContent) {
       // Polymer 2: check for undefined

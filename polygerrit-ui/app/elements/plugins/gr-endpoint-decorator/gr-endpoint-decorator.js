@@ -24,6 +24,7 @@
           Polymer.Element)) {
     static get is() { return 'gr-endpoint-decorator'; }
 
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     static get properties() {
       return {
         name: String,
@@ -45,6 +46,27 @@
         },
       };
     }
+=======
+    properties: {
+      name: String,
+      /** @type {!Map} */
+      _domHooks: {
+        type: Map,
+        value() { return new Map(); },
+      },
+      /**
+       * This map prevents importing the same endpoint twice.
+       * Without caching, if a plugin is loaded after the loaded plugins
+       * callback fires, it will be imported twice and appear twice on the page.
+       *
+       * @type {!Map}
+       */
+      _initializedPlugins: {
+        type: Map,
+        value() { return new Map(); },
+      },
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     detached() {
       super.detached();

@@ -258,11 +258,28 @@
      *
      * @return {!Promise<?GrAnnotationActionsInterface>}
      */
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     getCoverageAnnotationApi() {
       return Gerrit.awaitPluginsLoaded()
           .then(() => this._getEventCallbacks(EventType.ANNOTATE_DIFF)
               .find(api => api.getCoverageProvider()));
     }
+=======
+    getCoverageRanges(changeNum, path, basePatchNum, patchNum) {
+      return Gerrit.awaitPluginsLoaded().then(() => {
+        for (const annotationApi of
+          this._getEventCallbacks(EventType.ANNOTATE_DIFF)) {
+          const provider = annotationApi.getCoverageProvider();
+          // Only one coverage provider makes sense. If there are more, then we
+          // simply ignore them.
+          if (provider) {
+            return provider(changeNum, path, basePatchNum, patchNum);
+          }
+        }
+        return [];
+      });
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     getAdminMenuLinks() {
       const links = [];

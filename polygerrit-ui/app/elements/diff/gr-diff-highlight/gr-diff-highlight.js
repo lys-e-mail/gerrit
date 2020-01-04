@@ -155,7 +155,11 @@
 
       return this.commentRanges.findIndex(commentRange =>
         commentRange.side === side && rangesEqual(commentRange.range, range));
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     /**
      * Get current normalized selection.

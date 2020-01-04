@@ -70,6 +70,13 @@ limitations under the License.
           element.reporter.calledWithExactly(
               'timing-report', 'UI Latency', 'App Started', 42
           ));
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
+=======
+      assert.isTrue(
+          element.reporter.calledWithExactly(
+              'lifecycle', 'Page Visibility', 'hidden'
+          ));
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
     });
 
     test('WebComponentsReady', () => {

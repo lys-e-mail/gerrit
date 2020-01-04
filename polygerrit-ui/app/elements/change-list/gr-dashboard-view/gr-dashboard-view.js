@@ -132,7 +132,11 @@
           }),
         };
       });
+<<<<<<< HEAD   (d28a3e Merge "Adjust dark-theme coverage colors to contrast less")
     }
+=======
+    },
+>>>>>>> BRANCH (7dd43b Fix formatting issues flagged by eslint)
 
     _computeTitle(user) {
       if (!user || user === 'self') {
