@@ -1,6 +1,10 @@
 {
   "name": "gerrit",
+<<<<<<< HEAD   (31384e Set version in package.json to 3.0.7-SNAPSHOT)
   "version": "3.0.7-SNAPSHOT",
+=======
+  "version": "2.16.16-SNAPSHOT",
+>>>>>>> BRANCH (c89867 Merge "Bump Bazel version to 2.0.0" into stable-2.16)
   "description": "Gerrit Code Review",
   "dependencies": {},
   "devDependencies": {
