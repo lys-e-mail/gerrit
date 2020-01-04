@@ -123,7 +123,7 @@
       if (!labels[label.name]) { return null; }
       const labelValue = this._getLabelValue(labels, permittedLabels, label);
       const len = permittedLabels[label.name] != null ?
-          permittedLabels[label.name].length : 0;
+        permittedLabels[label.name].length : 0;
       for (let i = 0; i < len; i++) {
         const val = permittedLabels[label.name][i];
         if (val === labelValue) {
@@ -143,8 +143,12 @@
       const name = e.target.selectedItem.name;
       const value = e.target.selectedItem.getAttribute('value');
       this.dispatchEvent(new CustomEvent(
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
           'labels-changed',
           {detail: {name, value}, bubbles: true, composed: true}));
+=======
+          'labels-changed', {detail: {name, value}, bubbles: true}));
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
     },
 
     _computeAnyPermittedLabelValues(permittedLabels, label) {
@@ -154,7 +158,7 @@
 
     _computeHiddenClass(permittedLabels, label) {
       return !this._computeAnyPermittedLabelValues(permittedLabels, label) ?
-          'hidden' : '';
+        'hidden' : '';
     },
 
     _computePermittedLabelValues(permittedLabels, label) {

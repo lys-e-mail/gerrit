@@ -96,6 +96,7 @@
 
     /**
      * Fired when the user selects a line.
+     *
      * @event line-selected
      */
 
@@ -169,7 +170,11 @@
         observer: '_viewModeObserver',
       },
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
        /** @type ?Gerrit.LineOfInterest */
+=======
+      /** @type {?Defs.LineOfInterest} */
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
       lineOfInterest: Object,
 
       loading: {
@@ -206,7 +211,7 @@
        * bypassed. If the value is a number, then that number represents the
        * context preference to use when rendering the bypassed diff.
        *
-       * @type (number|null)
+       * @type {number|null}
        */
       _safetyBypass: {
         type: Number,
@@ -241,6 +246,7 @@
        * Observes comment nodes added or removed after the initial render.
        * Can be used to unregister when the entire diff is (re-)rendered or upon
        * detachment.
+       *
        * @type {?PolymerDomApi.ObserveHandle}
        */
       _incrementalNodeObserver: Object,
@@ -248,6 +254,7 @@
       /**
        * Observes comment nodes added or removed at any point.
        * Can be used to unregister upon detachment.
+       *
        * @type {?PolymerDomApi.ObserveHandle}
        */
       _nodeObserver: Object,
@@ -324,8 +331,8 @@
       // up the diff, because they are in the shadow DOM of the gr-diff element.
       // This takes the shadow DOM selection if one exists.
       return this.root.getSelection ?
-          this.root.getSelection() :
-          document.getSelection();
+        this.root.getSelection() :
+        document.getSelection();
     },
 
     _observeNodes() {
@@ -524,8 +531,8 @@
         return false;
       }
       const patchNum = el.classList.contains(DiffSide.LEFT) ?
-          this.patchRange.basePatchNum :
-          this.patchRange.patchNum;
+        this.patchRange.basePatchNum :
+        this.patchRange.patchNum;
 
       const isEdit = this.patchNumEquals(patchNum, this.EDIT_NAME);
       const isEditBase = this.patchNumEquals(patchNum, this.PARENT_NAME) &&
@@ -576,6 +583,7 @@
     /**
      * Gets or creates a comment thread group for a specific line and side on a
      * diff.
+     *
      * @param {!Object} contentEl
      * @param {!Gerrit.DiffSide} commentSide
      * @return {!Node}
@@ -875,6 +883,7 @@
 
     /**
      * Find the last chunk for the given side.
+     *
      * @param {!Object} diff
      * @param {boolean} leftSide true if checking the base of the diff,
      *     false if testing the revision.
@@ -892,8 +901,8 @@
         chunkIndex--;
         chunk = diff.content[chunkIndex];
       } while (
-          // We haven't reached the beginning.
-          chunkIndex >= 0 &&
+      // We haven't reached the beginning.
+        chunkIndex >= 0 &&
 
           // The chunk doesn't have both sides.
           !chunk.ab &&
@@ -911,6 +920,7 @@
 
     /**
      * Check whether the specified side of the diff has a trailing newline.
+     *
      * @param {!Object} diff
      * @param {boolean} leftSide true if checking the base of the diff,
      *     false if testing the revision.
