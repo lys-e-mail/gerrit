@@ -19,6 +19,7 @@
 
   /**
    * Used to create a context for GrAnnotationActionsInterface.
+   *
    * @param {HTMLElement} contentEl The DIV.contentText element of the line
    *     content to apply the annotation to using annotateRange.
    * @param {HTMLElement} lineNumberEl The TD element of the line number to
@@ -41,6 +42,7 @@
 
   /**
    * Method to add annotations to a content line.
+   *
    * @param {number} offset The char offset where the update starts.
    * @param {number} length The number of chars that the update covers.
    * @param {GrStyleObject} styleObject The style object for the range.
@@ -56,7 +58,12 @@
 
   /**
    * Method to add a CSS class to the line number TD element.
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
    * @param {GrStyleObject} styleObject The style object for the range.
+=======
+   *
+   * @param {string} cssClass The name of a CSS class created using Gerrit.css.
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
    * @param {string} side The side of the update. ('left' or 'right')
    */
   GrAnnotationActionsContext.prototype.annotateLineNumber = function(

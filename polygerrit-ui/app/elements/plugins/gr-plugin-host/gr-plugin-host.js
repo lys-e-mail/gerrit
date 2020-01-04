@@ -31,8 +31,14 @@
       const plugins = config.plugin;
       const htmlPlugins = (plugins.html_resource_paths || []);
       const jsPlugins =
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
           this._handleMigrations(plugins.js_resource_paths || [], htmlPlugins);
 
+=======
+          this._handleMigrations(plugins.js_resource_paths || [], htmlPlugins)
+              .map(p => this._urlFor(p))
+              .filter(p => !Gerrit._isPluginPreloaded(p));
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
       const shouldLoadTheme = config.default_theme &&
             !Gerrit._isPluginPreloaded('preloaded:gerrit-theme');
       const themeToLoad =

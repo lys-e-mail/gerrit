@@ -17,6 +17,107 @@
 (function() {
   'use strict';
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
+=======
+  const Defs = {};
+
+  /**
+   * @typedef {{
+   *    basePatchNum: (string|number),
+   *    patchNum: (number),
+   * }}
+   */
+  Defs.patchRange;
+
+  /**
+   * @typedef {{
+   *    url: string,
+   *    fetchOptions: (Object|null|undefined),
+   *    anonymizedUrl: (string|undefined),
+   * }}
+   */
+  Defs.FetchRequest;
+
+  /**
+   * Object to describe a request for passing into _fetchJSON or _fetchRawJSON.
+   * - url is the URL for the request (excluding get params)
+   * - errFn is a function to invoke when the request fails.
+   * - cancelCondition is a function that, if provided and returns true, will
+   *     cancel the response after it resolves.
+   * - params is a key-value hash to specify get params for the request URL.
+   *
+   * @typedef {{
+   *    url: string,
+   *    errFn: (function(?Response, string=)|null|undefined),
+   *    cancelCondition: (function()|null|undefined),
+   *    params: (Object|null|undefined),
+   *    fetchOptions: (Object|null|undefined),
+   *    anonymizedUrl: (string|undefined),
+   *    reportUrlAsIs: (boolean|undefined),
+   * }}
+   */
+  Defs.FetchJSONRequest;
+
+  /**
+   * @typedef {{
+   *   changeNum: (string|number),
+   *   endpoint: string,
+   *   patchNum: (string|number|null|undefined),
+   *   errFn: (function(?Response, string=)|null|undefined),
+   *   params: (Object|null|undefined),
+   *   fetchOptions: (Object|null|undefined),
+   *   anonymizedEndpoint: (string|undefined),
+   *   reportEndpointAsIs: (boolean|undefined),
+   * }}
+   */
+  Defs.ChangeFetchRequest;
+
+  /**
+   * Object to describe a request for passing into _send.
+   * - method is the HTTP method to use in the request.
+   * - url is the URL for the request
+   * - body is a request payload.
+   *     TODO (beckysiegel) remove need for number at least.
+   * - errFn is a function to invoke when the request fails.
+   * - cancelCondition is a function that, if provided and returns true, will
+   *   cancel the response after it resolves.
+   * - contentType is the content type of the body.
+   * - headers is a key-value hash to describe HTTP headers for the request.
+   * - parseResponse states whether the result should be parsed as a JSON
+   *     object using getResponseObject.
+   *
+   * @typedef {{
+   *   method: string,
+   *   url: string,
+   *   body: (string|number|Object|null|undefined),
+   *   errFn: (function(?Response, string=)|null|undefined),
+   *   contentType: (string|null|undefined),
+   *   headers: (Object|undefined),
+   *   parseResponse: (boolean|undefined),
+   *   anonymizedUrl: (string|undefined),
+   *   reportUrlAsIs: (boolean|undefined),
+   * }}
+   */
+  Defs.SendRequest;
+
+  /**
+   * @typedef {{
+   *   changeNum: (string|number),
+   *   method: string,
+   *   patchNum: (string|number|undefined),
+   *   endpoint: string,
+   *   body: (string|number|Object|null|undefined),
+   *   errFn: (function(?Response, string=)|null|undefined),
+   *   contentType: (string|null|undefined),
+   *   headers: (Object|undefined),
+   *   parseResponse: (boolean|undefined),
+   *   anonymizedEndpoint: (string|undefined),
+   *   reportEndpointAsIs: (boolean|undefined),
+   * }}
+   */
+  Defs.ChangeSendRequest;
+
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
   const DiffViewMode = {
     SIDE_BY_SIDE: 'SIDE_BY_SIDE',
     UNIFIED: 'UNIFIED_DIFF',
@@ -109,6 +210,7 @@
 
     JSON_PREFIX,
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
     created() {
       /* Polymer 1 and Polymer 2 have slightly different lifecycle.
       * Differences are not very well documented (see
@@ -128,10 +230,22 @@
       * in both methods.
       */
       //
+=======
+    /**
+     * Wraps calls to the underlying authenticated fetch function (_auth.fetch)
+     * with timing and logging.
+     *
+     * @param {Defs.FetchRequest} req
+     */
+    _fetch(req) {
+      const start = Date.now();
+      const xhr = this._auth.fetch(req.url, req.fetchOptions);
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
 
       this._initRestApiHelper();
     },
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
     ready() {
       // See comments in created()
       this._initRestApiHelper();
@@ -145,12 +259,122 @@
           && this._credentialCheck) {
         this._restApiHelper = new GrRestApiHelper(this._cache, this._auth,
             this._sharedFetchPromises, this._credentialCheck, this);
+=======
+    /**
+     * Log information about a REST call. Because the elapsed time is determined
+     * by this method, it should be called immediately after the request
+     * finishes.
+     *
+     * @param {Defs.FetchRequest} req
+     * @param {number} startTime the time that the request was started.
+     * @param {number} status the HTTP status of the response. The status value
+     *     is used here rather than the response object so there is no way this
+     *     method can read the body stream.
+     */
+    _logCall(req, startTime, status) {
+      const method = (req.fetchOptions && req.fetchOptions.method) ?
+        req.fetchOptions.method : 'GET';
+      const elapsed = (Date.now() - startTime);
+      console.log([
+        'HTTP',
+        status,
+        method,
+        elapsed + 'ms',
+        req.anonymizedUrl || req.url,
+      ].join(' '));
+      if (req.anonymizedUrl) {
+        this.fire('rpc-log',
+            {status, method, elapsed, anonymizedUrl: req.anonymizedUrl});
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
       }
     },
 
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
     _fetchSharedCacheURL(req) {
       // Cache is shared across instances
       return this._restApiHelper.fetchCacheURL(req);
+=======
+    /**
+     * Fetch JSON from url provided.
+     * Returns a Promise that resolves to a native Response.
+     * Doesn't do error checking. Supports cancel condition. Performs auth.
+     * Validates auth expiry errors.
+     *
+     * @param {Defs.FetchJSONRequest} req
+     */
+    _fetchRawJSON(req) {
+      const urlWithParams = this._urlWithParams(req.url, req.params);
+      const fetchReq = {
+        url: urlWithParams,
+        fetchOptions: req.fetchOptions,
+        anonymizedUrl: req.reportUrlAsIs ? urlWithParams : req.anonymizedUrl,
+      };
+      return this._fetch(fetchReq).then(res => {
+        if (req.cancelCondition && req.cancelCondition()) {
+          res.body.cancel();
+          return;
+        }
+        return res;
+      }).catch(err => {
+        const isLoggedIn = !!this._cache.get('/accounts/self/detail');
+        if (isLoggedIn && err && err.message === FAILED_TO_FETCH_ERROR) {
+          this.checkCredentials();
+          return;
+        }
+        if (req.errFn) {
+          req.errFn.call(undefined, null, err);
+        } else {
+          this.fire('network-error', {error: err});
+        }
+        throw err;
+      });
+    },
+
+    /**
+     * Fetch JSON from url provided.
+     * Returns a Promise that resolves to a parsed response.
+     * Same as {@link _fetchRawJSON}, plus error handling.
+     *
+     * @param {Defs.FetchJSONRequest} req
+     */
+    _fetchJSON(req) {
+      return this._fetchRawJSON(req).then(response => {
+        if (!response) {
+          return;
+        }
+        if (!response.ok) {
+          if (req.errFn) {
+            req.errFn.call(null, response);
+            return;
+          }
+          this.fire('server-error', {request: req, response});
+          return;
+        }
+        return response && this.getResponseObject(response);
+      });
+    },
+
+    /**
+     * @param {string} url
+     * @param {?Object|string=} opt_params URL params, key-value hash.
+     * @return {string}
+     */
+    _urlWithParams(url, opt_params) {
+      if (!opt_params) { return this.getBaseUrl() + url; }
+
+      const params = [];
+      for (const p in opt_params) {
+        if (!opt_params.hasOwnProperty(p)) { continue; }
+        if (opt_params[p] == null) {
+          params.push(encodeURIComponent(p));
+          continue;
+        }
+        for (const value of [].concat(opt_params[p])) {
+          params.push(`${encodeURIComponent(p)}=${encodeURIComponent(value)}`);
+        }
+      }
+      return this.getBaseUrl() + url + '?' + params.join('&');
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
     },
 
     /**
@@ -887,7 +1111,7 @@
         return Promise.resolve({
           changes_per_page: 25,
           default_diff_view: this._isNarrowScreen() ?
-              DiffViewMode.UNIFIED : DiffViewMode.SIDE_BY_SIDE,
+            DiffViewMode.UNIFIED : DiffViewMode.SIDE_BY_SIDE,
           diff_view: 'SIDE_BY_SIDE',
           size_bar_in_change_table: true,
         });
@@ -992,6 +1216,7 @@
 
     /**
      * Inserts a change into _projectLookup iff it has a valid structure.
+     *
      * @param {?{ _number: (number|string) }} change
      */
     _maybeInsertInLookup(change) {
@@ -1097,8 +1322,13 @@
           }
 
           const payloadPromise = response ?
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
               this._restApiHelper.readResponsePayload(response) :
               Promise.resolve(null);
+=======
+            this._readResponsePayload(response) :
+            Promise.resolve(null);
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
 
           return payloadPromise.then(payload => {
             if (!payload) { return null; }
@@ -1186,7 +1416,7 @@
     getChangeOrEditFiles(changeNum, patchRange) {
       if (this.patchNumEquals(patchRange.patchNum, this.EDIT_NAME)) {
         return this.getChangeEditFiles(changeNum, patchRange).then(res =>
-            res.files);
+          res.files);
       }
       return this.getChangeFiles(changeNum, patchRange);
     },
@@ -1194,6 +1424,7 @@
     /**
      * The closure compiler doesn't realize this.specialFilePathCompare is
      * valid.
+     *
      * @suppress {checkTypes}
      */
     getChangeFilePathsAsSpeciallySortedArray(changeNum, patchRange) {
@@ -1737,8 +1968,8 @@
         return res;
       };
       const promise = this.patchNumEquals(patchNum, this.EDIT_NAME) ?
-          this._getFileInChangeEdit(changeNum, path) :
-          this._getFileInRevision(changeNum, path, patchNum, suppress404s);
+        this._getFileInChangeEdit(changeNum, path) :
+        this._getFileInRevision(changeNum, path, patchNum, suppress404s);
 
       return promise.then(res => {
         if (!res.ok) { return res; }
@@ -1754,6 +1985,7 @@
 
     /**
      * Gets a file in a specific change and revision.
+     *
      * @param {number|string} changeNum
      * @param {string} path
      * @param {number|string} patchNum
@@ -1773,6 +2005,7 @@
 
     /**
      * Gets a file in a change edit.
+     *
      * @param {number|string} changeNum
      * @param {string} path
      */
@@ -1898,7 +2131,65 @@
     },
 
     /**
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * Public version of the _restApiHelper.send method preserved for plugins.
+=======
+     * Send an XHR.
+     *
+     * @param {Defs.SendRequest} req
+     * @return {Promise}
+     */
+    _send(req) {
+      const options = {method: req.method};
+      if (req.body) {
+        options.headers = new Headers();
+        options.headers.set(
+            'Content-Type', req.contentType || 'application/json');
+        options.body = typeof req.body === 'string' ?
+          req.body : JSON.stringify(req.body);
+      }
+      if (req.headers) {
+        if (!options.headers) { options.headers = new Headers(); }
+        for (const header in req.headers) {
+          if (!req.headers.hasOwnProperty(header)) { continue; }
+          options.headers.set(header, req.headers[header]);
+        }
+      }
+      const url = req.url.startsWith('http') ?
+        req.url : this.getBaseUrl() + req.url;
+      const fetchReq = {
+        url,
+        fetchOptions: options,
+        anonymizedUrl: req.reportUrlAsIs ? url : req.anonymizedUrl,
+      };
+      const xhr = this._fetch(fetchReq).then(response => {
+        if (!response.ok) {
+          if (req.errFn) {
+            return req.errFn.call(undefined, response);
+          }
+          this.fire('server-error', {request: fetchReq, response});
+        }
+        return response;
+      }).catch(err => {
+        this.fire('network-error', {error: err});
+        if (req.errFn) {
+          return req.errFn.call(undefined, null, err);
+        } else {
+          throw err;
+        }
+      });
+
+      if (req.parseResponse) {
+        return xhr.then(res => this.getResponseObject(res));
+      }
+
+      return xhr;
+    },
+
+    /**
+     * Public version of the _send method preserved for plugins.
+     *
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
      * @param {string} method
      * @param {string} url
      * @param {?string|number|Object=} opt_body passed as null sometimes
@@ -2205,7 +2496,7 @@
      */
     getB64FileContents(changeId, patchNum, path, opt_parentIndex) {
       const parent = typeof opt_parentIndex === 'number' ?
-          '?parent=' + opt_parentIndex : '';
+        '?parent=' + opt_parentIndex : '';
       return this._changeBaseURL(changeId, patchNum).then(url => {
         url = `${url}/files/${encodeURIComponent(path)}/content${parent}`;
         return this._fetchB64File(url);
@@ -2264,8 +2555,8 @@
       // TODO(kaspern): For full slicer migration, app should warn with a call
       // stack every time _changeBaseURL is called without a project.
       const projectPromise = opt_project ?
-          Promise.resolve(opt_project) :
-          this.getFromProjectLookup(changeNum);
+        Promise.resolve(opt_project) :
+        this.getFromProjectLookup(changeNum);
       return projectPromise.then(project => {
         let url = `/changes/${encodeURIComponent(project)}~${changeNum}`;
         if (opt_patchNum) {
@@ -2591,15 +2882,16 @@
 
     /**
      * Alias for _changeBaseURL.then(send).
+     *
      * @todo(beckysiegel) clean up comments
      * @param {Gerrit.ChangeSendRequest} req
      * @return {!Promise<!Object>}
      */
     _getChangeURLAndSend(req) {
       const anonymizedBaseUrl = req.patchNum ?
-          ANONYMIZED_REVISION_BASE_URL : ANONYMIZED_CHANGE_BASE_URL;
+        ANONYMIZED_REVISION_BASE_URL : ANONYMIZED_CHANGE_BASE_URL;
       const anonymizedEndpoint = req.reportEndpointAsIs ?
-          req.endpoint : req.anonymizedEndpoint;
+        req.endpoint : req.anonymizedEndpoint;
 
       return this._changeBaseURL(req.changeNum, req.patchNum).then(url => {
         return this._restApiHelper.send({
@@ -2611,21 +2903,26 @@
           headers: req.headers,
           parseResponse: req.parseResponse,
           anonymizedUrl: anonymizedEndpoint ?
-              (anonymizedBaseUrl + anonymizedEndpoint) : undefined,
+            (anonymizedBaseUrl + anonymizedEndpoint) : undefined,
         });
       });
     },
 
     /**
      * Alias for _changeBaseURL.then(_fetchJSON).
+<<<<<<< HEAD   (6d5759 Bazel: Remove suppression of JSC_UNUSED_LOCAL_ASSIGNMENT)
      * @param {Gerrit.ChangeFetchRequest} req
+=======
+     *
+     * @param {Defs.ChangeFetchRequest} req
+>>>>>>> BRANCH (e7d937 Merge branch 'stable-2.16' into stable-3.0)
      * @return {!Promise<!Object>}
      */
     _getChangeURLAndFetch(req) {
       const anonymizedEndpoint = req.reportEndpointAsIs ?
-          req.endpoint : req.anonymizedEndpoint;
+        req.endpoint : req.anonymizedEndpoint;
       const anonymizedBaseUrl = req.patchNum ?
-          ANONYMIZED_REVISION_BASE_URL : ANONYMIZED_CHANGE_BASE_URL;
+        ANONYMIZED_REVISION_BASE_URL : ANONYMIZED_CHANGE_BASE_URL;
       return this._changeBaseURL(req.changeNum, req.patchNum).then(url => {
         return this._restApiHelper.fetchJSON({
           url: url + req.endpoint,
@@ -2633,13 +2930,14 @@
           params: req.params,
           fetchOptions: req.fetchOptions,
           anonymizedUrl: anonymizedEndpoint ?
-              (anonymizedBaseUrl + anonymizedEndpoint) : undefined,
+            (anonymizedBaseUrl + anonymizedEndpoint) : undefined,
         });
       });
     },
 
     /**
      * Execute a change action or revision action on a change.
+     *
      * @param {number} changeNum
      * @param {string} method
      * @param {string} endpoint
@@ -2662,6 +2960,7 @@
 
     /**
      * Get blame information for the given diff.
+     *
      * @param {string|number} changeNum
      * @param {string|number} patchNum
      * @param {string} path
@@ -2683,6 +2982,7 @@
     /**
      * Modify the given create draft request promise so that it fails and throws
      * an error if the response bears HTTP status 200 instead of HTTP 201.
+     *
      * @see Issue 7763
      * @param {Promise} promise The original promise.
      * @return {Promise} The modified promise.
@@ -2712,6 +3012,7 @@
     /**
      * Fetch a project dashboard definition.
      * https://gerrit-review.googlesource.com/Documentation/rest-api-projects.html#get-dashboard
+     *
      * @param {string} project
      * @param {string} dashboard
      * @param {function(?Response, string=)=} opt_errFn
