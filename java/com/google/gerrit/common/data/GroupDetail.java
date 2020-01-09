@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (af8580 Update webhooks plugin to latest master revision)
 // Copyright (C) 2008 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,3 +36,5 @@ public class GroupDetail {
     return includes;
   }
 }
+=======
+>>>>>>> BRANCH (244966 Delete unused download command general preference)

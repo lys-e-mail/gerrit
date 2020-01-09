@@ -60,7 +60,6 @@ public class DiffPreferencesInfo {
   public Boolean hideEmptyPane;
   public Boolean matchBrackets;
   public Boolean lineWrapping;
-  public Theme theme;
   public Whitespace ignoreWhitespace;
   public Boolean retainHeader;
   public Boolean skipDeleted;
@@ -74,6 +73,10 @@ public class DiffPreferencesInfo {
     i.fontSize = DEFAULT_FONT_SIZE;
     i.lineLength = DEFAULT_LINE_LENGTH;
     i.cursorBlinkRate = 0;
+<<<<<<< HEAD   (af8580 Update webhooks plugin to latest master revision)
+=======
+    i.ignoreWhitespace = Whitespace.IGNORE_NONE;
+>>>>>>> BRANCH (244966 Delete unused download command general preference)
     i.expandAllComments = false;
     i.intralineDifference = true;
     i.manualReview = false;
