@@ -52,6 +52,7 @@ Then visit http://localhost:8081
 
 ## Local UI, Test Data
 
+<<<<<<< HEAD   (6b8318 Merge branch 'stable-3.0' into stable-3.1)
 ```sh
 ./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js,plugins/my_plugin/static/my_plugin.html
 ```
@@ -83,6 +84,8 @@ unmaintained though.
 
 Set up a local test site once:
 
+=======
+>>>>>>> BRANCH (389ad3 Merge branch 'stable-2.16')
 1. [Build Gerrit](https://gerrit-review.googlesource.com/Documentation/dev-bazel.html#_gerrit_development_war_file)
 2. [Set up a local test site](https://gerrit-review.googlesource.com/Documentation/dev-readme.html#init).
 3. Optionally [populate](https://gerrit.googlesource.com/gerrit/+/master/contrib/populate-fixture-data.py) your test site with some test data.
@@ -93,12 +96,35 @@ and add the `--polygerrit-dev` option, if you want to serve the Polymer frontend
 directly from the sources in `polygerrit_ui/app/` instead of from the war:
 
 ```sh
+<<<<<<< HEAD   (6b8318 Merge branch 'stable-3.0' into stable-3.1)
 $(bazel info output_base)/external/local_jdk/bin/java \
     -DsourceRoot=$(bazel info workspace) \
     -jar bazel-bin/gerrit.war daemon \
     -d $GERRIT_SITE \
     --console-log \
     --polygerrit-dev
+=======
+bazel build gerrit &&
+  $(bazel info output_base)/external/local_jdk/bin/java -DsourceRoot=/path/to/my/checkout \
+  -jar bazel-bin/gerrit.war daemon --polygerrit-dev \
+  -d ../gerrit_testsite --console-log --show-stack-trace
+```
+
+Serving plugins
+
+> Local dev plugins must be put inside of gerrit/plugins
+
+Loading a single plugin file:
+
+```sh
+./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js
+```
+
+Loading multiple plugin files:
+
+```sh
+./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js,plugins/my_plugin/static/my_plugin.html
+>>>>>>> BRANCH (389ad3 Merge branch 'stable-2.16')
 ```
 
 ## Running Tests
