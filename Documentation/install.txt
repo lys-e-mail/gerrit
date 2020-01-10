@@ -6,9 +6,13 @@
 
 To run the Gerrit service, the following requirement must be met on the host:
 
+<<<<<<< HEAD   (43ceff Merge "Documentation: add a TL;DR summary")
 * JRE, version 1.8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[Download,role=external,window=_blank]
+=======
+* JRE, versions 1.8 or 11 http://www.oracle.com/technetwork/java/javase/downloads/index.html[Download]
+>>>>>>> BRANCH (6b8318 Merge branch 'stable-3.0' into stable-3.1)
 +
-Gerrit is not yet compatible with Java 9 or newer at this time.
+Gerrit is not yet compatible with Java 13 or newer at this time.
 
 [[cryptography]]
 == Configure Java for Strong Cryptography
