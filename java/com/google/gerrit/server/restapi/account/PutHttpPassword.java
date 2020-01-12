@@ -48,6 +48,7 @@ import java.security.SecureRandom;
 import java.util.Optional;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 
+<<<<<<< HEAD   (07148a Merge changes Id33fa552,I0f125305)
 /**
  * REST endpoint to set/delete the password for HTTP access of an account.
  *
@@ -57,6 +58,8 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
  * <p>Gerrit only stores the hash of the HTTP password, hence if an HTTP password was set it's not
  * possible to get it back from Gerrit.
  */
+=======
+>>>>>>> BRANCH (bc3702 Merge branch 'stable-3.0' into stable-3.1)
 @Singleton
 public class PutHttpPassword implements RestModifyView<AccountResource, HttpPasswordInput> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
