@@ -435,7 +435,11 @@ public class ChangeJson {
           info = format(cd, Optional.empty(), false, ChangeInfo::new);
           changeInfos.add(info);
           if (isCacheable) {
+<<<<<<< HEAD   (4d4a94 Merge branch 'stable-3.0' into stable-3.1)
             cache.put(Change.id(info._number), info);
+=======
+            cache.put(new Change.Id(info._number), info);
+>>>>>>> BRANCH (36dcc2 ChangeEditModifier: Reject invalid file paths as '400 Bad Re)
           }
         } catch (RuntimeException e) {
           logger.atWarning().withCause(e).log(

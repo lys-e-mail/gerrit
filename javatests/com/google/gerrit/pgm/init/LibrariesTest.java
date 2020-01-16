@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (4d4a94 Merge branch 'stable-3.0' into stable-3.1)
 // Copyright (C) 2009 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,3 +45,5 @@ public class LibrariesTest {
     verifyZeroInteractions(remover);
   }
 }
+=======
+>>>>>>> BRANCH (36dcc2 ChangeEditModifier: Reject invalid file paths as '400 Bad Re)
