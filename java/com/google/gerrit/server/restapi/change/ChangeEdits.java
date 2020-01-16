@@ -118,10 +118,17 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
     }
 
     @Override
+<<<<<<< HEAD   (562ce9 Merge "ChangeEditModifier: Reject invalid file paths as '400)
     public Response<?> apply(ChangeResource resource, IdString id, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
             PermissionBackendException {
       putEdit.apply(resource, id.get(), input);
+=======
+    public Response<?> apply(ChangeResource resource, IdString id, Put.Input input)
+        throws AuthException, ResourceConflictException, BadRequestException, IOException,
+            PermissionBackendException {
+      putEdit.apply(resource, id.get(), input.content);
+>>>>>>> BRANCH (6f7cca Merge branch 'stable-3.0' into stable-3.1)
       return Response.none();
     }
   }
@@ -282,14 +289,26 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
     }
 
     @Override
+<<<<<<< HEAD   (562ce9 Merge "ChangeEditModifier: Reject invalid file paths as '400)
     public Response<?> apply(ChangeEditResource rsrc, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
             PermissionBackendException {
       return apply(rsrc.getChangeResource(), rsrc.getPath(), input);
+=======
+    public Response<?> apply(ChangeEditResource rsrc, Input input)
+        throws AuthException, ResourceConflictException, BadRequestException, IOException,
+            PermissionBackendException {
+      return apply(rsrc.getChangeResource(), rsrc.getPath(), input.content);
+>>>>>>> BRANCH (6f7cca Merge branch 'stable-3.0' into stable-3.1)
     }
 
+<<<<<<< HEAD   (562ce9 Merge "ChangeEditModifier: Reject invalid file paths as '400)
     public Response<?> apply(ChangeResource rsrc, String path, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
+=======
+    public Response<?> apply(ChangeResource rsrc, String path, RawInput newContent)
+        throws ResourceConflictException, AuthException, BadRequestException, IOException,
+>>>>>>> BRANCH (6f7cca Merge branch 'stable-3.0' into stable-3.1)
             PermissionBackendException {
       if (Strings.isNullOrEmpty(path) || path.charAt(0) == '/') {
         throw new ResourceConflictException("Invalid path: " + path);
