@@ -163,7 +163,21 @@ class PatchScriptBuilder {
     ImmutableList<Edit> contentEdits = content.getEdits();
     ImmutableSet<Edit> editsDueToRebase = content.getEditsDueToRebase();
 
+<<<<<<< HEAD   (d0977d Merge "Upgrade Truth to 1.0.1")
     IntraLineDiffCalculatorResult intralineResult = IntraLineDiffCalculatorResult.NO_RESULT;
+=======
+    if (isModify(content) && diffPrefs.intralineDifference && isIntralineModeAllowed(b)) {
+      IntraLineDiff d =
+          patchListCache.getIntraLineDiff(
+              IntraLineDiffKey.create(a.id, b.id, diffPrefs.ignoreWhitespace),
+              IntraLineDiffArgs.create(
+                  a.src, b.src, edits, editsDueToRebase, projectKey, bId, b.path));
+      if (d != null) {
+        switch (d.getStatus()) {
+          case EDIT_LIST:
+            edits = new ArrayList<>(d.getEdits());
+            break;
+>>>>>>> BRANCH (eeb4e0 Merge branch 'stable-3.0' into stable-3.1)
 
     if (isModify(content) && intralineDiffCalculator != null && isIntralineModeAllowed(b)) {
       intralineResult =
@@ -245,7 +259,14 @@ class PatchScriptBuilder {
     }
   }
 
+<<<<<<< HEAD   (d0977d Merge "Upgrade Truth to 1.0.1")
   private static boolean isIntralineModeAllowed(PatchSide side) {
+    // The intraline diff cache keys are the same for these cases. It's better to not show
+    // intraline results than showing completely wrong diffs or to run into a server error.
+    return !Patch.isMagic(side.path) && !isSubmoduleCommit(side.mode);
+  }
+=======
+  private static boolean isIntralineModeAllowed(Side side) {
     // The intraline diff cache keys are the same for these cases. It's better to not show
     // intraline results than showing completely wrong diffs or to run into a server error.
     return !Patch.isMagic(side.path) && !isSubmoduleCommit(side.mode);
@@ -255,6 +276,17 @@ class PatchScriptBuilder {
     return mode.getObjectType() == Constants.OBJ_COMMIT;
   }
 
+  private void correctForDifferencesInNewlineAtEnd() {
+    // a.src.size() is the size ignoring a newline at the end whereas a.size() considers it.
+    int aSize = a.src.size();
+    int bSize = b.src.size();
+>>>>>>> BRANCH (eeb4e0 Merge branch 'stable-3.0' into stable-3.1)
+
+  private static boolean isSubmoduleCommit(FileMode mode) {
+    return mode.getObjectType() == Constants.OBJ_COMMIT;
+  }
+
+<<<<<<< HEAD   (d0977d Merge "Upgrade Truth to 1.0.1")
   private static class PatchSide {
     final ObjectId treeId;
     final String path;
@@ -285,6 +317,31 @@ class PatchScriptBuilder {
       this.mimeType = mimeType;
       this.displayMethod = displayMethod;
       this.fileMode = fileMode;
+=======
+    if (edits.isEmpty() && (aSize != bSize)) {
+      // Only edits due to rebase were present. If we now added the edits for the newlines, the
+      // code which later assembles the file contents would fail.
+      return;
+    }
+
+    Optional<Edit> lastEdit = getLast(edits);
+    if (isNewlineAtEndDeleted()) {
+      Optional<Edit> lastLineEdit = lastEdit.filter(edit -> edit.getEndA() == aSize);
+      if (lastLineEdit.isPresent()) {
+        lastLineEdit.get().extendA();
+      } else {
+        Edit newlineEdit = new Edit(aSize, aSize + 1, bSize, bSize);
+        edits.add(newlineEdit);
+      }
+    } else if (isNewlineAtEndAdded()) {
+      Optional<Edit> lastLineEdit = lastEdit.filter(edit -> edit.getEndB() == bSize);
+      if (lastLineEdit.isPresent()) {
+        lastLineEdit.get().extendB();
+      } else {
+        Edit newlineEdit = new Edit(aSize, aSize, bSize, bSize + 1);
+        edits.add(newlineEdit);
+      }
+>>>>>>> BRANCH (eeb4e0 Merge branch 'stable-3.0' into stable-3.1)
     }
   }
 
