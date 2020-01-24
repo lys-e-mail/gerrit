@@ -34,6 +34,15 @@ public class ResourceNotFoundException extends RestApiException {
     super("Not found: " + id.get());
   }
 
+<<<<<<< HEAD   (311af0 Update git submodules)
+=======
+  public ResourceNotFoundException(IdString id, Throwable cause) {
+    super("Not found: " + id.get(), cause);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+>>>>>>> BRANCH (2dc0c1 Merge branch 'stable-2.16' into stable-3.0)
   public ResourceNotFoundException caching(CacheControl c) {
     setCaching(c);
     return this;

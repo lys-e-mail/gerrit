@@ -207,12 +207,22 @@ public class Submit
     try (MergeOp op = mergeOpProvider.get()) {
       Change updatedChange;
 
+<<<<<<< HEAD   (311af0 Update git submodules)
       try {
         updatedChange = op.merge(change, submitter, true, input, false);
       } catch (Exception e) {
         Throwables.throwIfInstanceOf(e, RestApiException.class);
         return Response.<Output>internalServerError(e).traceId(op.getTraceId().orElse(null));
       }
+=======
+    // Read the ChangeNotes only after MergeOp is fully done (including MergeOp#close) to be sure
+    // to have the correct state of the repo.
+    try {
+      change = changeNotesFactory.createChecked(change.getProject(), change.getId()).getChange();
+    } catch (NoSuchChangeException e) {
+      throw new ResourceConflictException("change is deleted", e);
+    }
+>>>>>>> BRANCH (2dc0c1 Merge branch 'stable-2.16' into stable-3.0)
 
       if (updatedChange.isMerged()) {
         return Response.ok(new Output(change));
@@ -446,7 +456,7 @@ public class Submit
       permissionBackend.user(submitter).change(rsrc.getNotes()).check(ChangePermission.READ);
     } catch (AuthException e) {
       throw new UnprocessableEntityException(
-          String.format("on_behalf_of account %s cannot see change", submitter.getAccountId()));
+          String.format("on_behalf_of account %s cannot see change", submitter.getAccountId()), e);
     }
     return submitter;
   }

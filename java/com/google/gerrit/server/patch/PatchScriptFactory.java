@@ -192,6 +192,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
     validatePatchSetId(psa);
     validatePatchSetId(psb);
 
+<<<<<<< HEAD   (311af0 Update git submodules)
     if (psa != null) {
       checkState(parentNum < 0, "expected no parentNum when psa is present");
       checkArgument(psa.get() != 0, "edit not supported for left side");
@@ -211,6 +212,16 @@ public class PatchScriptFactory implements Callable<PatchScript> {
       permissionBackend.currentUser().change(notes).check(ChangePermission.READ);
     } catch (AuthException e) {
       throw new NoSuchChangeException(changeId);
+=======
+    PatchSet psEntityA = psa != null ? psUtil.get(notes, psa) : null;
+    PatchSet psEntityB = psb.get() == 0 ? new PatchSet(psb) : psUtil.get(notes, psb);
+    if (psEntityA != null || psEntityB != null) {
+      try {
+        permissionBackend.currentUser().change(notes).check(ChangePermission.READ);
+      } catch (AuthException e) {
+        throw new NoSuchChangeException(changeId, e);
+      }
+>>>>>>> BRANCH (2dc0c1 Merge branch 'stable-2.16' into stable-3.0)
     }
 
     if (!projectCache.checkedGet(notes.getProjectName()).statePermitsRead()) {
