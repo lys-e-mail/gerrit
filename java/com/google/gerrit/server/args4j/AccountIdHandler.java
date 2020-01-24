@@ -16,7 +16,11 @@ package com.google.gerrit.server.args4j;
 
 import static com.google.gerrit.util.cli.Localizable.localizable;
 
+<<<<<<< HEAD   (ab4959 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.entities.Account;
+=======
+import com.google.common.flogger.FluentLogger;
+>>>>>>> BRANCH (2dc0c1 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.client.AuthType;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
@@ -38,6 +42,8 @@ import org.kohsuke.args4j.spi.Parameters;
 import org.kohsuke.args4j.spi.Setter;
 
 public class AccountIdHandler extends OptionHandler<Account.Id> {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   private final AccountResolver accountResolver;
   private final AccountManager accountManager;
   private final AuthType authType;
@@ -78,11 +84,15 @@ public class AccountIdHandler extends OptionHandler<Account.Id> {
           case OPENID:
           case OPENID_SSO:
           default:
-            throw new CmdLineException(owner, localizable("user \"%s\" not found"), token);
+            String msg = "user \"%s\" not found";
+            logger.atSevere().withCause(e).log(msg, token);
+            throw new CmdLineException(owner, localizable(msg), token);
         }
       }
     } catch (StorageException e) {
-      throw new CmdLineException(owner, localizable("database is down"));
+      String msg = "database is down";
+      logger.atSevere().withCause(e).log(msg);
+      throw new CmdLineException(owner, localizable(msg));
     } catch (IOException e) {
       throw new CmdLineException(owner, "Failed to load account", e);
     } catch (ConfigInvalidException e) {
@@ -102,7 +112,9 @@ public class AccountIdHandler extends OptionHandler<Account.Id> {
       req.setSkipAuthentication(true);
       return accountManager.authenticate(req).getAccountId();
     } catch (AccountException e) {
-      throw new CmdLineException(owner, localizable("user \"%s\" not found"), user);
+      String msg = "user \"%s\" not found";
+      logger.atSevere().withCause(e).log(msg, user);
+      throw new CmdLineException(owner, localizable(msg), user);
     }
   }
 
