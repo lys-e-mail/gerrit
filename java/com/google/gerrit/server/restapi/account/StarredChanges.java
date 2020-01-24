@@ -123,10 +123,15 @@ public class StarredChanges
       try {
         change = changes.parse(TopLevelResource.INSTANCE, id);
       } catch (ResourceNotFoundException e) {
+<<<<<<< HEAD   (6b4abb Update git submodules)
         throw new UnprocessableEntityException(String.format("change %s not found", id.get()));
       } catch (StorageException | PermissionBackendException | IOException e) {
+=======
+        throw new UnprocessableEntityException(String.format("change %s not found", id.get()), e);
+      } catch (OrmException | PermissionBackendException | IOException e) {
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
         logger.atSevere().withCause(e).log("cannot resolve change");
-        throw new UnprocessableEntityException("internal server error");
+        throw new UnprocessableEntityException("internal server error", e);
       }
 
       try {

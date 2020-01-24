@@ -66,8 +66,13 @@ public class ChangeIdHandler extends OptionHandler<Change.Id> {
         return 1;
       }
     } catch (IllegalArgumentException e) {
+<<<<<<< HEAD   (6b4abb Update git submodules)
       throw new CmdLineException(owner, localizable("Change-Id is not valid"));
     } catch (StorageException e) {
+=======
+      throw new CmdLineException(owner, localizable("Change-Id is not valid: %s"), e.getMessage());
+    } catch (OrmException e) {
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
       throw new CmdLineException(owner, localizable("Database error: %s"), e.getMessage());
     }
 

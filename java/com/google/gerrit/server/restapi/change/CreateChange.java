@@ -278,9 +278,54 @@ public class CreateChange
       PatchSet basePatchSet = null;
       List<String> groups = Collections.emptyList();
       if (input.baseChange != null) {
+<<<<<<< HEAD   (6b4abb Update git submodules)
         ChangeNotes baseChange = getBaseChange(input.baseChange);
         basePatchSet = psUtil.current(baseChange);
         groups = basePatchSet.getGroups();
+=======
+        List<ChangeNotes> notes = changeFinder.find(input.baseChange);
+        if (notes.size() != 1) {
+          throw new UnprocessableEntityException("Base change not found: " + input.baseChange);
+        }
+        ChangeNotes change = Iterables.getOnlyElement(notes);
+        try {
+          permissionBackend.currentUser().change(change).database(db).check(ChangePermission.READ);
+        } catch (AuthException e) {
+          throw new UnprocessableEntityException("Read not permitted for " + input.baseChange, e);
+        }
+        PatchSet ps = psUtil.current(db.get(), change);
+        parentCommit = ObjectId.fromString(ps.getRevision().get());
+        groups = ps.getGroups();
+      } else if (input.baseCommit != null) {
+        try {
+          parentCommit = ObjectId.fromString(input.baseCommit);
+        } catch (InvalidObjectIdException e) {
+          throw new UnprocessableEntityException(
+              String.format("Base %s doesn't represent a valid SHA-1", input.baseCommit), e);
+        }
+        RevCommit parentRevCommit = rw.parseCommit(parentCommit);
+        RevCommit destRefRevCommit = rw.parseCommit(destRef.getObjectId());
+        if (!rw.isMergedInto(parentRevCommit, destRefRevCommit)) {
+          throw new BadRequestException(
+              String.format("Commit %s doesn't exist on ref %s", input.baseCommit, refName));
+        }
+        groups = Collections.emptyList();
+      } else {
+        if (destRef != null) {
+          if (Boolean.TRUE.equals(input.newBranch)) {
+            throw new ResourceConflictException(
+                String.format("Branch %s already exists.", refName));
+          }
+          parentCommit = destRef.getObjectId();
+        } else {
+          if (Boolean.TRUE.equals(input.newBranch)) {
+            parentCommit = null;
+          } else {
+            throw new BadRequestException("Must provide a destination branch");
+          }
+        }
+        groups = Collections.emptyList();
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
       }
       ObjectId parentCommit =
           getParentCommit(

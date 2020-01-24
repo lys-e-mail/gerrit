@@ -294,9 +294,17 @@ public abstract class ChangeEmail extends NotificationEmail {
       ps = patchSet;
     } else {
       try {
+<<<<<<< HEAD   (6b4abb Update git submodules)
         ps = args.patchSetUtil.get(changeData.notes(), new PatchSet.Id(change.getId(), patchSetId));
       } catch (StorageException e) {
         throw new PatchListNotAvailableException("Failed to get patchSet");
+=======
+        ps =
+            args.patchSetUtil.get(
+                changeData.db(), changeData.notes(), new PatchSet.Id(change.getId(), patchSetId));
+      } catch (OrmException e) {
+        throw new PatchListNotAvailableException("Failed to get patchSet", e);
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
       }
     }
     return args.patchListCache.get(change, ps);

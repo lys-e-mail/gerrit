@@ -57,8 +57,14 @@ public final class StoredValues {
     ChangeData cd = CHANGE_DATA.get(engine);
     try {
       return cd.change();
+<<<<<<< HEAD   (6b4abb Update git submodules)
     } catch (StorageException e) {
       throw new SystemException("Cannot load change " + cd.getId());
+=======
+    } catch (OrmException e) {
+      throw new SystemException(
+          String.format("Cannot load change %s: %s", cd.getId(), e.getMessage()));
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
     }
   }
 
@@ -103,7 +109,7 @@ public final class StoredValues {
           try {
             patchList = plCache.get(plKey, project);
           } catch (PatchListNotAvailableException e) {
-            throw new SystemException("Cannot create " + plKey);
+            throw new SystemException(String.format("Cannot create %s: %s", plKey, e.getMessage()));
           }
           return patchList;
         }

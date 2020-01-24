@@ -50,6 +50,37 @@ public class WorkInProgressOp implements BatchUpdateOp {
     WorkInProgressOp create(boolean workInProgress, Input in);
   }
 
+<<<<<<< HEAD   (6b4abb Update git submodules)
+=======
+  public static void checkPermissions(
+      PermissionBackend permissionBackend, CurrentUser user, Change change)
+      throws PermissionBackendException, AuthException {
+    if (!user.isIdentifiedUser()) {
+      throw new AuthException("Authentication required");
+    }
+
+    if (change.getOwner().equals(user.asIdentifiedUser().getAccountId())) {
+      return;
+    }
+
+    try {
+      permissionBackend.currentUser().check(GlobalPermission.ADMINISTRATE_SERVER);
+      return;
+    } catch (AuthException e) {
+      // Skip.
+    }
+
+    try {
+      permissionBackend
+          .user(user)
+          .project(change.getProject())
+          .check(ProjectPermission.WRITE_CONFIG);
+    } catch (AuthException exp) {
+      throw new AuthException("not allowed to toggle work in progress", exp);
+    }
+  }
+
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
   private final ChangeMessagesUtil cmUtil;
   private final EmailReviewComments.Factory email;
   private final PatchSetUtil psUtil;

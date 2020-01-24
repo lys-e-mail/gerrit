@@ -1,4 +1,6 @@
-// Copyright (C) 2013 The Android Open Source Project
+<<<<<<< HEAD   (6b4abb Update git submodules)
+=======
+// Copyright (C) 2009 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.server.git.validators;
+package com.google.gerrit.common.errors;
 
-import com.google.gerrit.server.validators.ValidationException;
-
-/**
- * Exception that occurs during a validation step before merging changes.
- *
- * <p>Used by {@link MergeValidationListener}s provided by plugins. Messages should be considered
- * human-readable.
- */
-public class MergeValidationException extends ValidationException {
+/** Error indicating the SSH key string is invalid as supplied. */
+public class InvalidSshKeyException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  public MergeValidationException(String msg) {
-    super(msg);
+  public static final String MESSAGE = "Invalid SSH Key";
+
+  public InvalidSshKeyException() {
+    super(MESSAGE);
   }
 
-  public MergeValidationException(String msg, Throwable why) {
-    super(msg, why);
+  public InvalidSshKeyException(Throwable cause) {
+    super(MESSAGE, cause);
   }
 }
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)

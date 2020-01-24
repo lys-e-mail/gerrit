@@ -78,9 +78,15 @@ public class PutName implements RestModifyView<GroupResource, NameInput> {
     try {
       groupsUpdateProvider.get().updateGroup(groupUuid, groupUpdate);
     } catch (NoSuchGroupException e) {
+<<<<<<< HEAD   (6b4abb Update git submodules)
       throw new ResourceNotFoundException(String.format("Group %s not found", groupUuid));
     } catch (DuplicateKeyException e) {
       throw new ResourceConflictException("group with name " + newName + " already exists");
+=======
+      throw new ResourceNotFoundException(String.format("Group %s not found", groupUuid), e);
+    } catch (OrmDuplicateKeyException e) {
+      throw new ResourceConflictException("group with name " + newName + " already exists", e);
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
     }
   }
 }

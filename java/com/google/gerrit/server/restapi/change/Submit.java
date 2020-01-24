@@ -206,7 +206,18 @@ public class Submit
     }
 
     try (MergeOp op = mergeOpProvider.get()) {
+<<<<<<< HEAD   (6b4abb Update git submodules)
       op.merge(change, submitter, true, input, false);
+=======
+      ReviewDb db = dbProvider.get();
+      op.merge(db, change, submitter, true, input, false);
+      try {
+        change =
+            changeNotesFactory.createChecked(db, change.getProject(), change.getId()).getChange();
+      } catch (NoSuchChangeException e) {
+        throw new ResourceConflictException("change is deleted", e);
+      }
+>>>>>>> BRANCH (79d0c3 ErrorProne: Enable and fix UnusedException check)
     }
 
     // Read the ChangeNotes only after MergeOp is fully done (including MergeOp#close) to be sure
@@ -448,7 +459,7 @@ public class Submit
       permissionBackend.user(submitter).change(rsrc.getNotes()).check(ChangePermission.READ);
     } catch (AuthException e) {
       throw new UnprocessableEntityException(
-          String.format("on_behalf_of account %s cannot see change", submitter.getAccountId()));
+          String.format("on_behalf_of account %s cannot see change", submitter.getAccountId()), e);
     }
     return submitter;
   }
