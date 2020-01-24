@@ -18,8 +18,15 @@ import static com.google.gerrit.util.cli.Localizable.localizable;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
+<<<<<<< HEAD   (23c87e Update git submodules)
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
+=======
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.flogger.FluentLogger;
+>>>>>>> BRANCH (d15622 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.common.data.PatchScript;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
@@ -64,6 +71,20 @@ import org.kohsuke.args4j.spi.Setter;
 
 public class GetDiff implements RestReadView<FileResource> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+<<<<<<< HEAD   (23c87e Update git submodules)
+=======
+
+  private static final ImmutableMap<Patch.ChangeType, ChangeType> CHANGE_TYPE =
+      Maps.immutableEnumMap(
+          new ImmutableMap.Builder<Patch.ChangeType, ChangeType>()
+              .put(Patch.ChangeType.ADDED, ChangeType.ADDED)
+              .put(Patch.ChangeType.MODIFIED, ChangeType.MODIFIED)
+              .put(Patch.ChangeType.DELETED, ChangeType.DELETED)
+              .put(Patch.ChangeType.RENAMED, ChangeType.RENAMED)
+              .put(Patch.ChangeType.COPIED, ChangeType.COPIED)
+              .put(Patch.ChangeType.REWRITE, ChangeType.REWRITE)
+              .build());
+>>>>>>> BRANCH (d15622 Merge branch 'stable-3.0' into stable-3.1)
 
   private final ProjectCache projectCache;
   private final PatchScriptFactory.Factory patchScriptFactoryFactory;
@@ -293,6 +314,7 @@ public class GetDiff implements RestReadView<FileResource> {
             throw new NumberFormatException();
           }
         } catch (NumberFormatException e) {
+          logger.atFine().withCause(e).log("invalid numeric value");
           throw new CmdLineException(
               owner,
               localizable("\"%s\" is not a valid value for \"%s\""),
