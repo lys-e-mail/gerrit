@@ -5,7 +5,13 @@ junit_tests(
     name = "pgm_tests",
     srcs = glob(["**/*.java"]),
     deps = [
+<<<<<<< HEAD   (b80c7e Merge "Fix the background color of unresolved comments")
         "//java/com/google/gerrit/pgm/http",
+=======
+        "//java/com/google/gerrit/pgm",
+        "//java/com/google/gerrit/pgm/http/jetty",
+        "//java/com/google/gerrit/pgm/init",
+>>>>>>> BRANCH (bcf5d1 Merge branch 'stable-3.0' into stable-3.1)
         "//java/com/google/gerrit/pgm/init/api",
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/securestore/testing",
