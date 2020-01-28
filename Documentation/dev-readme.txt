@@ -1,8 +1,13 @@
 :linkattrs:
 = Gerrit Code Review: Developer Setup
 
+<<<<<<< HEAD   (1a7726 Merge "Remove unused logger")
 To build a developer instance, you'll need link:https://bazel.build/[Bazel,role=external,window=_blank] to
 compile the code.
+=======
+To build a developer instance, you'll need link:https://bazel.build/[Bazel] to
+compile the code, preferably launched with link:https://github.com/bazelbuild/bazelisk[Bazelisk].
+>>>>>>> BRANCH (c5d726 DeleteZombieCommentsRefsTest: Open RevWalk in try-with-resou)
 
 == Git Setup
 
