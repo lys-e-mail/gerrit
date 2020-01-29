@@ -2106,6 +2106,16 @@ NoteDb, Gerrit will not be able to use that instance of NoteDb. The serverId
 used to create the NoteDb will show in the resulting exception message in case
 the value differs.
 
+<<<<<<< HEAD   (3947bc Merge branch 'stable-2.16' into stable-3.0)
+=======
+[[gerrit.enableGwtUi]]gerrit.enableGwtUi::
++
+Allow to switch to the GWT UI. When this option is enabled, the user can switch
+the UI from PolyGerrit (the default) to GWT.
++
+Defaults to true.
+
+>>>>>>> BRANCH (88fc59 Replace documentation of gerrit.ui with gerrit.enableGwtUi)
 [[gitweb]]
 === Section gitweb
 
