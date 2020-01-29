@@ -1,8 +1,13 @@
 :linkattrs:
 = Gerrit Code Review: Developer Setup
 
+<<<<<<< HEAD   (785384 Merge "Redesign Change Log")
 To build a developer instance, you'll need link:https://bazel.build/[Bazel,role=external,window=_blank] to
 compile the code.
+=======
+To build a developer instance, you'll need link:https://bazel.build/[Bazel] to
+compile the code, preferably launched with link:https://github.com/bazelbuild/bazelisk[Bazelisk].
+>>>>>>> BRANCH (686681 Merge branch 'stable-3.0' into stable-3.1)
 
 == Git Setup
 
