@@ -428,8 +428,18 @@ public abstract class VersionedMetaData {
           case REJECTED_MISSING_OBJECT:
           case REJECTED_OTHER_REASON:
           default:
+<<<<<<< HEAD   (c00b01 Documentation: Fix e2e tests Input section's nits)
             throw new GitUpdateFailureException(errorMsg(ru, db.getDirectory()), ru);
+=======
+            throw new IOException(errorMsg(ru, db.getDirectory()));
+>>>>>>> BRANCH (5bf069 Merge branch 'stable-2.16' into stable-3.0)
         }
+      }
+
+      private String errorMsg(RefUpdate ru, File location) {
+        return String.format(
+            "Cannot update %s in %s: %s (%s)",
+            ru.getName(), location, ru.getResult(), ru.getRefLogMessage());
       }
     };
   }
