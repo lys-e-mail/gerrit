@@ -22,6 +22,7 @@ import com.google.gerrit.extensions.restapi.MethodNotAllowedException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestModifyView;
+import com.google.gerrit.reviewdb.client.Account;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.ServerInitiated;
@@ -29,6 +30,7 @@ import com.google.gerrit.server.account.AccountResource;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.account.AccountsUpdate;
 import com.google.gerrit.server.account.Realm;
+import com.google.gerrit.server.account.externalids.ExternalIds;
 import com.google.gerrit.server.permissions.GlobalPermission;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
@@ -43,6 +45,7 @@ public class PutName implements RestModifyView<AccountResource, NameInput> {
   private final Provider<CurrentUser> self;
   private final Realm realm;
   private final PermissionBackend permissionBackend;
+  private final ExternalIds externalIds;
   private final Provider<AccountsUpdate> accountsUpdateProvider;
 
   @Inject
@@ -50,10 +53,12 @@ public class PutName implements RestModifyView<AccountResource, NameInput> {
       Provider<CurrentUser> self,
       Realm realm,
       PermissionBackend permissionBackend,
+      ExternalIds externalIds,
       @ServerInitiated Provider<AccountsUpdate> accountsUpdateProvider) {
     this.self = self;
     this.realm = realm;
     this.permissionBackend = permissionBackend;
+    this.externalIds = externalIds;
     this.accountsUpdateProvider = accountsUpdateProvider;
   }
 
@@ -69,12 +74,19 @@ public class PutName implements RestModifyView<AccountResource, NameInput> {
 
   public Response<String> apply(IdentifiedUser user, NameInput input)
       throws MethodNotAllowedException, ResourceNotFoundException, IOException,
+<<<<<<< HEAD   (da1fff DeleteZombieCommentsRefsTest: Open RevWalk in try-with-resou)
           ConfigInvalidException {
+=======
+          ConfigInvalidException, OrmException {
+
+>>>>>>> BRANCH (ebb7a1 Merge "Fix support for python3 in download_bower.py" into st)
     if (input == null) {
       input = new NameInput();
     }
 
-    if (!realm.allowsEdit(AccountFieldName.FULL_NAME)) {
+    Account.Id accountId = user.getAccountId();
+    if (realm.accountBelongsToRealm(externalIds.byAccount(accountId))
+        && !realm.allowsEdit(AccountFieldName.FULL_NAME)) {
       throw new MethodNotAllowedException("realm does not allow editing name");
     }
 
@@ -82,7 +94,7 @@ public class PutName implements RestModifyView<AccountResource, NameInput> {
     AccountState accountState =
         accountsUpdateProvider
             .get()
-            .update("Set Full Name via API", user.getAccountId(), u -> u.setFullName(newName))
+            .update("Set Full Name via API", accountId, u -> u.setFullName(newName))
             .orElseThrow(() -> new ResourceNotFoundException("account not found"));
     return Strings.isNullOrEmpty(accountState.getAccount().getFullName())
         ? Response.none()
