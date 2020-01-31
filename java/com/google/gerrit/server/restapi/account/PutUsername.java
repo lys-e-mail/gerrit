@@ -78,8 +78,13 @@ public class PutUsername implements RestModifyView<AccountResource, UsernameInpu
       permissionBackend.currentUser().check(GlobalPermission.ADMINISTRATE_SERVER);
     }
 
+<<<<<<< HEAD   (51820c e2e-tests: Add support for log level configuration)
     if (!realm.allowsEdit(AccountFieldName.USER_NAME)) {
       throw new MethodNotAllowedException("realm does not allow editing username");
+=======
+    if (input == null) {
+      input = new UsernameInput();
+>>>>>>> BRANCH (f3ad62 Merge branch 'stable-2.16' into stable-3.0)
     }
 
     Account.Id accountId = rsrc.getUser().getAccountId();
@@ -87,8 +92,18 @@ public class PutUsername implements RestModifyView<AccountResource, UsernameInpu
       throw new MethodNotAllowedException("Username cannot be changed.");
     }
 
+<<<<<<< HEAD   (51820c e2e-tests: Add support for log level configuration)
     if (input == null || Strings.isNullOrEmpty(input.username)) {
       throw new BadRequestException("input required");
+=======
+    if (realm.accountBelongsToRealm(externalIds.byAccount(accountId))
+        && !realm.allowsEdit(AccountFieldName.USER_NAME)) {
+      throw new MethodNotAllowedException("realm does not allow editing username");
+    }
+
+    if (Strings.isNullOrEmpty(input.username)) {
+      return input.username;
+>>>>>>> BRANCH (f3ad62 Merge branch 'stable-2.16' into stable-3.0)
     }
 
     if (!ExternalId.isValidUsername(input.username)) {
