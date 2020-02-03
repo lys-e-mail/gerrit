@@ -521,6 +521,42 @@ public class CreateChangeIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void sha1sOfTwoNewChangesDiffer() throws Exception {
+    ChangeInput changeInput = newChangeInput(ChangeStatus.NEW);
+    ChangeInfo info1 = assertCreateSucceeds(changeInput);
+    ChangeInfo info2 = assertCreateSucceeds(changeInput);
+    assertThat(info1.currentRevision).isNotEqualTo(info2.currentRevision);
+    assertThat(info1.changeId).isNotEqualTo(info2.changeId);
+  }
+
+  @Test
+  public void sha1sOfTwoNewChangesDifferIfCreatedConcurrently() throws Exception {
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    try {
+      for (int i = 0; i < 10; i++) {
+        ChangeInput changeInput = newChangeInput(ChangeStatus.NEW);
+
+        CyclicBarrier sync = new CyclicBarrier(2);
+        Callable<ChangeInfo> createChange =
+            () -> {
+              requestScopeOperations.setApiUser(admin.id());
+              sync.await();
+              return assertCreateSucceeds(changeInput);
+            };
+
+        Future<ChangeInfo> changeInfo1 = executor.submit(createChange);
+        Future<ChangeInfo> changeInfo2 = executor.submit(createChange);
+        assertThat(changeInfo1.get().currentRevision)
+            .isNotEqualTo(changeInfo2.get().currentRevision);
+        assertThat(changeInfo1.get().changeId).isNotEqualTo(changeInfo2.get().changeId);
+      }
+    } finally {
+      executor.shutdown();
+      executor.awaitTermination(5, TimeUnit.SECONDS);
+    }
+  }
+
+  @Test
   public void createChangeOnExistingBranchNotPermitted() throws Exception {
     createBranch(BranchNameKey.create(project, "foo"));
     projectOperations

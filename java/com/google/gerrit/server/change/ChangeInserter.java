@@ -67,6 +67,7 @@ import com.google.gerrit.server.update.ChangeContext;
 import com.google.gerrit.server.update.Context;
 import com.google.gerrit.server.update.InsertChangeOp;
 import com.google.gerrit.server.update.RepoContext;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.RequestScopePropagator;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -204,7 +205,11 @@ public class ChangeInserter implements InsertChangeOp {
     }
     // A Change-Id is generated for the review, but not appended to the commit message.
     // This can happen if requireChangeId is false.
+<<<<<<< HEAD   (c344ac Merge branch 'stable-3.0' into stable-3.1)
     return Change.generateKey();
+=======
+    return CommitMessageUtil.generateKey();
+>>>>>>> BRANCH (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
   }
 
   public PatchSet.Id getPatchSetId() {
