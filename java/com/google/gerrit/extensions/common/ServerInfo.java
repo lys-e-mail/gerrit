@@ -14,12 +14,19 @@
 
 package com.google.gerrit.extensions.common;
 
+<<<<<<< HEAD   (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
+=======
+import java.util.List;
+import java.util.Map;
+
+>>>>>>> BRANCH (d4ba7f Merge changes from topic "motd" into stable-2.16)
 public class ServerInfo {
   public AccountsInfo accounts;
   public AuthInfo auth;
   public ChangeConfigInfo change;
   public DownloadInfo download;
   public GerritInfo gerrit;
+  public List<MessageOfTheDayInfo> messages;
   public Boolean noteDbEnabled;
   public PluginConfigInfo plugin;
   public SshdInfo sshd;

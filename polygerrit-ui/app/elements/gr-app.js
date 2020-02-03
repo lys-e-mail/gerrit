@@ -341,6 +341,18 @@
       this.$.header.unfloat();
     },
 
+<<<<<<< HEAD   (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
+=======
+    _computeShowGwtUiLink(config) {
+      return !window.DEPRECATE_GWT_UI &&
+          config.gerrit.web_uis && config.gerrit.web_uis.includes('GWT');
+    },
+
+    _getMessages(config) {
+      return config.messages ? config.messages : [];
+    },
+
+>>>>>>> BRANCH (d4ba7f Merge changes from topic "motd" into stable-2.16)
     _handlePageError(e) {
       const props = [
         '_showChangeListView',
