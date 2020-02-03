@@ -26,6 +26,7 @@ import com.google.gerrit.git.ObjectIds;
 import com.google.gerrit.server.logging.Metadata;
 import com.google.gerrit.server.logging.TraceContext;
 import com.google.gerrit.server.logging.TraceContext.TraceTimer;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -330,7 +331,12 @@ public abstract class VersionedMetaData {
         }
 
         if (update.insertChangeId()) {
+<<<<<<< HEAD   (c344ac Merge branch 'stable-3.0' into stable-3.1)
           commit.setMessage(ChangeIdUtil.insertId(commit.getMessage(), Change.generateChangeId()));
+=======
+          commit.setMessage(
+              ChangeIdUtil.insertId(commit.getMessage(), CommitMessageUtil.generateChangeId()));
+>>>>>>> BRANCH (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
         }
 
         src = rw.parseCommit(inserter.insert(commit));
