@@ -63,6 +63,7 @@ import com.google.gerrit.server.update.Context;
 import com.google.gerrit.server.update.RetryHelper;
 import com.google.gerrit.server.update.RetryingRestModifyView;
 import com.google.gerrit.server.update.UpdateException;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.time.TimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -201,14 +202,8 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
                 patch.getRevision().get());
       }
 
-      ObjectId computedChangeId =
-          ChangeIdUtil.computeChangeId(
-              parentToCommitToRevert.getTree(),
-              commitToRevert,
-              authorIdent,
-              committerIdent,
-              message);
-      revertCommitBuilder.setMessage(ChangeIdUtil.insertId(message, computedChangeId, true));
+      ObjectId generatedChangeId = CommitMessageUtil.generateChangeId();
+      revertCommitBuilder.setMessage(ChangeIdUtil.insertId(message, generatedChangeId, true));
 
       Change.Id changeId = new Change.Id(seq.nextChangeId());
       ObjectId id = oi.insert(revertCommitBuilder);
@@ -239,8 +234,13 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
         bu.setRepository(git, revWalk, oi);
         bu.setNotify(notify);
         bu.insertChange(ins);
+<<<<<<< HEAD   (4df5c0 Merge branch 'stable-2.16' into stable-3.0)
         bu.addOp(changeId, new NotifyOp(changeToRevert, ins));
         bu.addOp(changeToRevert.getId(), new PostRevertedMessageOp(computedChangeId));
+=======
+        bu.addOp(changeId, new NotifyOp(changeToRevert, ins, input.notify, accountsToNotify));
+        bu.addOp(changeToRevert.getId(), new PostRevertedMessageOp(generatedChangeId));
+>>>>>>> BRANCH (97331c Merge "Generate Change-Ids randomly instead of computing the)
         bu.execute();
       }
       return changeId;

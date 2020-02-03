@@ -70,6 +70,7 @@ import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.RetryHelper;
 import com.google.gerrit.server.update.RetryingRestCollectionModifyView;
 import com.google.gerrit.server.update.UpdateException;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.time.TimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -290,7 +291,36 @@ public class CreateChange
 
       Timestamp now = TimeUtil.nowTs();
       PersonIdent author = me.newCommitterIdent(now, serverTimeZone);
+<<<<<<< HEAD   (4df5c0 Merge branch 'stable-2.16' into stable-3.0)
       String commitMessage = getCommitMessage(input.subject, me, oi, mergeTip, author);
+=======
+      AccountState accountState = me.state();
+      GeneralPreferencesInfo info = accountState.getGeneralPreferences();
+
+      boolean isWorkInProgress =
+          input.workInProgress == null
+              ? rsrc.getProjectState().is(BooleanProjectConfig.WORK_IN_PROGRESS_BY_DEFAULT)
+                  || MoreObjects.firstNonNull(info.workInProgressByDefault, false)
+              : input.workInProgress;
+
+      // Add a Change-Id line if there isn't already one
+      String commitMessage = subject;
+      if (ChangeIdUtil.indexOfChangeId(commitMessage, "\n") == -1) {
+        ObjectId id = CommitMessageUtil.generateChangeId();
+        commitMessage = ChangeIdUtil.insertId(commitMessage, id);
+      }
+
+      if (Boolean.TRUE.equals(info.signedOffBy)) {
+        commitMessage =
+            Joiner.on("\n")
+                .join(
+                    commitMessage.trim(),
+                    String.format(
+                        "%s%s",
+                        SIGNED_OFF_BY_TAG,
+                        accountState.getAccount().getNameEmail(anonymousCowardName)));
+      }
+>>>>>>> BRANCH (97331c Merge "Generate Change-Ids randomly instead of computing the)
 
       RevCommit c;
       if (input.merge != null) {
