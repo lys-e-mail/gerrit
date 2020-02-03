@@ -58,6 +58,7 @@ import com.google.gerrit.server.submit.IntegrationException;
 import com.google.gerrit.server.submit.MergeIdenticalTreeException;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.UpdateException;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.time.TimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -280,9 +281,14 @@ public class CherryPickChange {
       Timestamp now = TimeUtil.nowTs();
       PersonIdent committerIdent = identifiedUser.newCommitterIdent(now, serverTimeZone);
 
+<<<<<<< HEAD   (c344ac Merge branch 'stable-3.0' into stable-3.1)
       final ObjectId generatedChangeId =
           changeIdForNewChange != null ? changeIdForNewChange : Change.generateChangeId();
       String commitMessage = ChangeIdUtil.insertId(message, generatedChangeId).trim() + '\n';
+=======
+      final ObjectId generatedChangeId = CommitMessageUtil.generateChangeId();
+      String commitMessage = ChangeIdUtil.insertId(input.message, generatedChangeId).trim() + '\n';
+>>>>>>> BRANCH (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
 
       CodeReviewCommit cherryPickCommit;
       ProjectState projectState = projectCache.checkedGet(dest.project());
@@ -317,7 +323,11 @@ public class CherryPickChange {
           final String idStr = idList.get(idList.size() - 1).trim();
           changeKey = Change.key(idStr);
         } else {
+<<<<<<< HEAD   (c344ac Merge branch 'stable-3.0' into stable-3.1)
           changeKey = Change.key("I" + generatedChangeId.name());
+=======
+          changeKey = new Change.Key("I" + generatedChangeId.name());
+>>>>>>> BRANCH (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
         }
 
         BranchNameKey newDest = BranchNameKey.create(project, destRef.getName());

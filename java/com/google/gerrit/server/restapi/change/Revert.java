@@ -62,6 +62,7 @@ import com.google.gerrit.server.update.Context;
 import com.google.gerrit.server.update.RetryHelper;
 import com.google.gerrit.server.update.RetryingRestModifyView;
 import com.google.gerrit.server.update.UpdateException;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.time.TimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -173,7 +174,12 @@ public class Revert extends RetryingRestModifyView<ChangeResource, RevertInput, 
           commitUtil.createRevertCommit(
               input.message, notes, user, generatedChangeId, now, oi, revWalk);
 
+<<<<<<< HEAD   (c344ac Merge branch 'stable-3.0' into stable-3.1)
       RevCommit revertCommit = revWalk.parseCommit(revertCommitId);
+=======
+      ObjectId generatedChangeId = CommitMessageUtil.generateChangeId();
+      revertCommitBuilder.setMessage(ChangeIdUtil.insertId(message, generatedChangeId, true));
+>>>>>>> BRANCH (7b1ba6 Merge branch 'stable-2.16' into stable-3.0)
 
       Change.Id changeId = Change.id(seq.nextChangeId());
       NotifyResolver.Result notify =
