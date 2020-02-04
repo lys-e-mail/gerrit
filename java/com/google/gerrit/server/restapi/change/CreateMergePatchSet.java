@@ -22,7 +22,10 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.MergeInput;
@@ -195,11 +198,16 @@ public class CreateMergePatchSet implements RestModifyView<ChangeResource, Merge
       }
 
       ChangeJson json = jsonFactory.create(ListChangesOption.CURRENT_REVISION);
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
       ChangeInfo changeInfo = json.format(psInserter.getChange());
       changeInfo.containsGitConflicts =
           !newCommit.getFilesWithGitConflicts().isEmpty() ? true : null;
       return Response.ok(changeInfo);
     } catch (InvalidMergeStrategyException | MergeWithConflictsNotSupportedException e) {
+=======
+      return Response.ok(json.format(psInserter.getChange()));
+    } catch (InvalidMergeStrategyException e) {
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
       throw new BadRequestException(e.getMessage());
     }
   }

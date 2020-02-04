@@ -41,7 +41,10 @@ import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.extensions.registration.DynamicSet;
@@ -434,7 +437,11 @@ public class MergeUtil {
       boolean allowConflicts,
       PersonIdent committerIndent,
       String commitMsg,
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
       CodeReviewRevWalk rw)
+=======
+      RevWalk rw)
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
       throws IOException, MergeIdenticalTreeException, MergeConflictException,
           InvalidMergeStrategyException {
 

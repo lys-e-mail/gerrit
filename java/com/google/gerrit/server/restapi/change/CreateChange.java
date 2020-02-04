@@ -29,7 +29,10 @@ import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.SubmitType;
@@ -359,10 +362,15 @@ public class CreateChange
         bu.insertChange(ins);
         bu.execute();
       }
+<<<<<<< HEAD   (735ad6 Upgrade Jgit to v5.7.0.202001151323-m1-35-g730b7a5eb)
       ChangeInfo changeInfo = jsonFactory.noOptions().format(ins.getChange());
       changeInfo.containsGitConflicts = !c.getFilesWithGitConflicts().isEmpty() ? true : null;
       return changeInfo;
     } catch (InvalidMergeStrategyException | MergeWithConflictsNotSupportedException e) {
+=======
+      return ins.getChange();
+    } catch (InvalidMergeStrategyException e) {
+>>>>>>> BRANCH (296ee0 Merge branch 'stable-3.0' into stable-3.1)
       throw new BadRequestException(e.getMessage());
     }
   }
