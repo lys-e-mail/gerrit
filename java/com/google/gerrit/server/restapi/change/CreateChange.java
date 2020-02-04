@@ -428,6 +428,7 @@ public class CreateChange
     return parentCommit;
   }
 
+<<<<<<< HEAD   (cb412d Adapt to deprecation of WindowCacheStats methods in JGit)
   private Optional<String> getChangeIdFromMessage(String subject) {
     int indexOfChangeId = ChangeIdUtil.indexOfChangeId(subject, "\n");
     if (indexOfChangeId == -1) {
@@ -439,6 +440,8 @@ public class CreateChange
             indexOfChangeId + 12 /* "Change-Id: I" */ + Constants.OBJECT_ID_STRING_LENGTH));
   }
 
+=======
+>>>>>>> BRANCH (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
   private String getCommitMessage(String subject, IdentifiedUser me) {
     // Add a Change-Id line if there isn't already one
     String commitMessage = subject;
