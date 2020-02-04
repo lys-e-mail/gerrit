@@ -168,7 +168,16 @@ public class ChangeEditUtil {
 
       RevCommit squashed = squashEdit(rw, oi, edit.getEditCommit(), basePatchSet);
       PatchSet.Id psId = ChangeUtil.nextPatchSetId(repo, change.currentPatchSetId());
+<<<<<<< HEAD   (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
       PatchSetInserter inserter = patchSetInserterFactory.create(notes, psId, squashed);
+=======
+      PatchSetInserter inserter =
+          patchSetInserterFactory
+              .create(notes, psId, squashed)
+              .setNotify(notify)
+              .setAccountsToNotify(accountsToNotify)
+              .setSendEmail(!change.isWorkInProgress());
+>>>>>>> BRANCH (cd4e1d Merge changes I6dd2035d,I6b6710d1,I43c5d7c6 into stable-2.16)
 
       StringBuilder message =
           new StringBuilder("Patch Set ").append(inserter.getPatchSetId().get()).append(": ");

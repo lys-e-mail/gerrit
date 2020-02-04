@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
-  <version>3.0.7-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.17-SNAPSHOT</version>
->>>>>>> BRANCH (cd4e1d Merge changes I6dd2035d,I6b6710d1,I43c5d7c6 into stable-2.16)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (cd4e1d Merge changes I6dd2035d,I6b6710d1,I43c5d7c6 into stable-2.16)

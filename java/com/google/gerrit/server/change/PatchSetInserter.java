@@ -91,6 +91,10 @@ public class PatchSetInserter implements BatchUpdateOp {
   private List<String> groups = Collections.emptyList();
   private boolean fireRevisionCreated = true;
   private boolean allowClosed;
+<<<<<<< HEAD   (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
+=======
+  private boolean copyApprovals = true;
+>>>>>>> BRANCH (cd4e1d Merge changes I6dd2035d,I6b6710d1,I43c5d7c6 into stable-2.16)
   private boolean sendEmail = true;
 
   // Fields set during some phase of BatchUpdate.Op.
@@ -174,6 +178,11 @@ public class PatchSetInserter implements BatchUpdateOp {
     return this;
   }
 
+  public PatchSetInserter setSendEmail(boolean sendEmail) {
+    this.sendEmail = sendEmail;
+    return this;
+  }
+
   public Change getChange() {
     checkState(change != null, "getChange() only valid after executing update");
     return change;
@@ -243,10 +252,15 @@ public class PatchSetInserter implements BatchUpdateOp {
   }
 
   @Override
+<<<<<<< HEAD   (baee4e CreateChange#getCommitMessage: Remove unused parameters and )
   public void postUpdate(Context ctx) {
     NotifyResolver.Result notify = ctx.getNotify(change.getId());
     if (notify.shouldNotify() && sendEmail) {
       requireNonNull(changeMessage);
+=======
+  public void postUpdate(Context ctx) throws OrmException {
+    if (sendEmail && (notify != NotifyHandling.NONE || !accountsToNotify.isEmpty())) {
+>>>>>>> BRANCH (cd4e1d Merge changes I6dd2035d,I6b6710d1,I43c5d7c6 into stable-2.16)
       try {
         ReplacePatchSetSender cm = replacePatchSetFactory.create(ctx.getProject(), change.getId());
         cm.setFrom(ctx.getAccountId());
