@@ -61,8 +61,11 @@ import com.google.gerrit.extensions.events.WorkInProgressStateChangedListener;
 import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.extensions.registration.DynamicMap;
 import com.google.gerrit.extensions.registration.DynamicSet;
+<<<<<<< HEAD   (58b53c e2e-tests: Mention the blog post in documentation)
 import com.google.gerrit.extensions.systemstatus.MessageOfTheDay;
 import com.google.gerrit.extensions.validators.CommentValidator;
+=======
+>>>>>>> BRANCH (72955a Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.extensions.webui.BranchWebLink;
 import com.google.gerrit.extensions.webui.DiffWebLink;
 import com.google.gerrit.extensions.webui.FileHistoryWebLink;
@@ -360,7 +363,6 @@ public class GerritGlobalModule extends FactoryModule {
     DynamicItem.itemOf(binder(), AvatarProvider.class);
     DynamicSet.setOf(binder(), LifecycleListener.class);
     DynamicSet.setOf(binder(), TopMenu.class);
-    DynamicSet.setOf(binder(), MessageOfTheDay.class);
     DynamicMap.mapOf(binder(), DownloadScheme.class);
     DynamicMap.mapOf(binder(), DownloadCommand.class);
     DynamicMap.mapOf(binder(), CloneCommand.class);

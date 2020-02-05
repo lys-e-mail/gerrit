@@ -428,6 +428,7 @@ public class CreateChange
     return parentCommit;
   }
 
+<<<<<<< HEAD   (58b53c e2e-tests: Mention the blog post in documentation)
   private Optional<String> getChangeIdFromMessage(String subject) {
     int indexOfChangeId = ChangeIdUtil.indexOfChangeId(subject, "\n");
     if (indexOfChangeId == -1) {
@@ -439,6 +440,8 @@ public class CreateChange
             indexOfChangeId + 12 /* "Change-Id: I" */ + Constants.OBJECT_ID_STRING_LENGTH));
   }
 
+=======
+>>>>>>> BRANCH (72955a Merge branch 'stable-2.16' into stable-3.0)
   private String getCommitMessage(String subject, IdentifiedUser me) {
     // Add a Change-Id line if there isn't already one
     String commitMessage = subject;

@@ -82,6 +82,16 @@ import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.webui.UiAction;
+<<<<<<< HEAD   (58b53c e2e-tests: Mention the blog post in documentation)
+=======
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.PatchSet;
+import com.google.gerrit.reviewdb.client.PatchSetApproval;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.client.RefNames;
+>>>>>>> BRANCH (72955a Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.change.RevisionResource;
@@ -645,14 +655,7 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     //  |
     // C0 -- Master
     //
-    try (ProjectConfigUpdate u = updateProject(project)) {
-      u.getConfig()
-          .getProject()
-          .setBooleanConfig(
-              BooleanProjectConfig.CREATE_NEW_CHANGE_FOR_ALL_NOT_IN_TARGET,
-              InheritableBoolean.TRUE);
-      u.save();
-    }
+    enableCreateNewChangeForAllNotInTarget();
 
     PushOneCommit push1 =
         pushFactory.create(admin.newIdent(), testRepo, PushOneCommit.SUBJECT, "a.txt", "content");
