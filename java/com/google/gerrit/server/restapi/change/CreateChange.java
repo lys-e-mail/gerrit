@@ -29,7 +29,10 @@ import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.SubmitType;
@@ -359,10 +362,15 @@ public class CreateChange
         bu.insertChange(ins);
         bu.execute();
       }
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
       ChangeInfo changeInfo = jsonFactory.noOptions().format(ins.getChange());
       changeInfo.containsGitConflicts = !c.getFilesWithGitConflicts().isEmpty() ? true : null;
       return changeInfo;
     } catch (InvalidMergeStrategyException | MergeWithConflictsNotSupportedException e) {
+=======
+      return ins.getChange();
+    } catch (InvalidMergeStrategyException e) {
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
       throw new BadRequestException(e.getMessage());
     }
   }

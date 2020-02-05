@@ -41,7 +41,10 @@ import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.extensions.registration.DynamicSet;
@@ -434,7 +437,11 @@ public class MergeUtil {
       boolean allowConflicts,
       PersonIdent committerIndent,
       String commitMsg,
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
       CodeReviewRevWalk rw)
+=======
+      RevWalk rw)
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
       throws IOException, MergeIdenticalTreeException, MergeConflictException,
           InvalidMergeStrategyException {
 

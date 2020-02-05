@@ -41,6 +41,7 @@ import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.project.NoSuchProjectException;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.update.UpdateException;
+import com.google.gerrit.server.util.CommitMessageUtil;
 import com.google.gerrit.server.util.time.TimeUtil;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -95,12 +96,65 @@ public class Revert
     if (patch == null) {
       throw new ResourceNotFoundException(changeIdToRevert.toString());
     }
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
     Timestamp timestamp = TimeUtil.nowTs();
     return Response.ok(
         json.noOptions()
             .format(
                 rsrc.getProject(),
                 commitUtil.createRevertChange(notes, rsrc.getUser(), input, timestamp)));
+=======
+
+    Project.NameKey project = notes.getProjectName();
+    try (Repository git = repoManager.openRepository(project);
+        ObjectInserter oi = git.newObjectInserter();
+        ObjectReader reader = oi.newReader();
+        RevWalk revWalk = new RevWalk(reader)) {
+
+      Timestamp now = TimeUtil.nowTs();
+      ObjectId generatedChangeId = CommitMessageUtil.generateChangeId();
+      Change changeToRevert = notes.getChange();
+      ObjectId revertCommitId =
+          commitUtil.createRevertCommit(
+              input.message, notes, user, generatedChangeId, now, oi, revWalk);
+
+      RevCommit revertCommit = revWalk.parseCommit(revertCommitId);
+
+      Change.Id changeId = Change.id(seq.nextChangeId());
+      NotifyResolver.Result notify =
+          notifyResolver.resolve(
+              firstNonNull(input.notify, NotifyHandling.ALL), input.notifyDetails);
+
+      ChangeInserter ins =
+          changeInserterFactory
+              .create(changeId, revertCommit, notes.getChange().getDest().branch())
+              .setTopic(input.topic == null ? changeToRevert.getTopic() : input.topic.trim());
+      ins.setMessage("Uploaded patch set 1.");
+
+      ReviewerSet reviewerSet = approvalsUtil.getReviewers(notes);
+
+      Set<Account.Id> reviewers = new HashSet<>();
+      reviewers.add(changeToRevert.getOwner());
+      reviewers.addAll(reviewerSet.byState(ReviewerStateInternal.REVIEWER));
+      reviewers.remove(user.getAccountId());
+      Set<Account.Id> ccs = new HashSet<>(reviewerSet.byState(ReviewerStateInternal.CC));
+      ccs.remove(user.getAccountId());
+      ins.setReviewersAndCcs(reviewers, ccs);
+      ins.setRevertOf(changeIdToRevert);
+
+      try (BatchUpdate bu = updateFactory.create(project, user, now)) {
+        bu.setRepository(git, revWalk, oi);
+        bu.setNotify(notify);
+        bu.insertChange(ins);
+        bu.addOp(changeId, new NotifyOp(changeToRevert, ins));
+        bu.addOp(changeToRevert.getId(), new PostRevertedMessageOp(generatedChangeId));
+        bu.execute();
+      }
+      return changeId;
+    } catch (RepositoryNotFoundException e) {
+      throw new ResourceNotFoundException(changeIdToRevert.toString(), e);
+    }
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
   }
 
   @Override

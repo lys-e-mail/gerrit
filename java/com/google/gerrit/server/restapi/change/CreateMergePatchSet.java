@@ -22,7 +22,10 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
+=======
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
 import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.MergeInput;
@@ -195,11 +198,16 @@ public class CreateMergePatchSet implements RestModifyView<ChangeResource, Merge
       }
 
       ChangeJson json = jsonFactory.create(ListChangesOption.CURRENT_REVISION);
+<<<<<<< HEAD   (6426df Merge "Warn user in submit dialog about unresolved comments")
       ChangeInfo changeInfo = json.format(psInserter.getChange());
       changeInfo.containsGitConflicts =
           !newCommit.getFilesWithGitConflicts().isEmpty() ? true : null;
       return Response.ok(changeInfo);
     } catch (InvalidMergeStrategyException | MergeWithConflictsNotSupportedException e) {
+=======
+      return Response.ok(json.format(psInserter.getChange()));
+    } catch (InvalidMergeStrategyException e) {
+>>>>>>> BRANCH (0aa3d6 Adapt to deprecation of WindowCacheStats methods in JGit)
       throw new BadRequestException(e.getMessage());
     }
   }
