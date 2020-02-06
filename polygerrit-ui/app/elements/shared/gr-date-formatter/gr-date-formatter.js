@@ -27,12 +27,74 @@
     TIME_12_WITH_SEC: 'h:mm:ss A', // 2:14:00 PM
     TIME_24: 'HH:mm', // 14:14
     TIME_24_WITH_SEC: 'HH:mm:ss', // 14:14:00
+<<<<<<< HEAD   (1aa611 Merge "Disable hover style for buttons on mobile devices")
+=======
   };
 
   const DateFormats = {
     STD: {
       short: 'MMM DD', // Aug 29
       full: 'MMM DD, YYYY', // Aug 29, 1997
+    },
+    US: {
+      short: 'MM/DD', // 08/29
+      full: 'MM/DD/YY', // 08/29/97
+    },
+    ISO: {
+      short: 'MM-DD', // 08-29
+      full: 'YYYY-MM-DD', // 1997-08-29
+    },
+    EURO: {
+      short: 'DD. MMM', // 29. Aug
+      full: 'DD.MM.YYYY', // 29.08.1997
+    },
+    UK: {
+      short: 'DD/MM', // 29/08
+      full: 'DD/MM/YYYY', // 29/08/1997
+    },
+>>>>>>> BRANCH (27efcb Merge "Process links if leading whitespace are missed" into )
+  };
+
+<<<<<<< HEAD   (1aa611 Merge "Disable hover style for buttons on mobile devices")
+  const DateFormats = {
+    STD: {
+      short: 'MMM DD', // Aug 29
+      full: 'MMM DD, YYYY', // Aug 29, 1997
+=======
+  Polymer({
+    is: 'gr-date-formatter',
+
+    properties: {
+      dateStr: {
+        type: String,
+        value: null,
+        notify: true,
+      },
+      showDateAndTime: {
+        type: Boolean,
+        value: false,
+      },
+
+      /**
+       * When true, the detailed date appears in a GR-TOOLTIP rather than in the
+       * native browser tooltip.
+       */
+      hasTooltip: Boolean,
+
+      /**
+       * The title to be used as the native tooltip or by the tooltip behavior.
+       */
+      title: {
+        type: String,
+        reflectToAttribute: true,
+        computed: '_computeFullDateStr(dateStr, _timeFormat, _dateFormat)',
+      },
+
+      /** @type {?{short: string, full: string}} */
+      _dateFormat: Object,
+      _timeFormat: String, // No default value to prevent flickering.
+      _relative: Boolean, // No default value to prevent flickering.
+>>>>>>> BRANCH (27efcb Merge "Process links if leading whitespace are missed" into )
     },
     US: {
       short: 'MM/DD', // 08/29
@@ -165,6 +227,41 @@
           throw Error('Invalid date format: ' + dateFormat);
       }
     }
+
+    _decideTimeFormat(timeFormat) {
+      switch (timeFormat) {
+        case 'HHMM_12':
+          this._timeFormat = TimeFormats.TIME_12;
+          break;
+        case 'HHMM_24':
+          this._timeFormat = TimeFormats.TIME_24;
+          break;
+        default:
+          throw Error('Invalid time format: ' + timeFormat);
+      }
+    },
+
+    _decideDateFormat(dateFormat) {
+      switch (dateFormat) {
+        case 'STD':
+          this._dateFormat = DateFormats.STD;
+          break;
+        case 'US':
+          this._dateFormat = DateFormats.US;
+          break;
+        case 'ISO':
+          this._dateFormat = DateFormats.ISO;
+          break;
+        case 'EURO':
+          this._dateFormat = DateFormats.EURO;
+          break;
+        case 'UK':
+          this._dateFormat = DateFormats.UK;
+          break;
+        default:
+          throw Error('Invalid date format: ' + dateFormat);
+      }
+    },
 
     _loadRelative() {
       return this._getPreferences().then(prefs => {
