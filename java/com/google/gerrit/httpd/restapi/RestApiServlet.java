@@ -339,7 +339,17 @@ public class RestApiServlet extends HttpServlet {
         // TraceIT#performanceLoggingForRestCall()).
         try (PerformanceLogContext performanceLogContext =
             new PerformanceLogContext(globals.config, globals.performanceLoggers)) {
+<<<<<<< HEAD   (4c8361 Merge "Add debug logs for copying approvals to new patch set)
           traceRequestData(req);
+=======
+          logger.atFinest().log(
+              "Received REST request: %s %s (parameters: %s)",
+              req.getMethod(), req.getRequestURI(), getParameterNames(req));
+          logger.atFinest().log("Calling user: %s", globals.currentUser.get().getLoggableName());
+          logger.atFinest().log(
+              "Groups: %s",
+              lazy(() -> globals.currentUser.get().getEffectiveGroups().getKnownGroups()));
+>>>>>>> BRANCH (eaef51 Set version to 3.1.4-SNAPSHOT)
 
           if (isCorsPreflight(req)) {
             doCorsPreflight(req, res);

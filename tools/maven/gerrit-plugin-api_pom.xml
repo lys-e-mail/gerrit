@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (4c8361 Merge "Add debug logs for copying approvals to new patch set)
   <version>3.2.0-SNAPSHOT</version>
+=======
+  <version>3.1.4-SNAPSHOT</version>
+>>>>>>> BRANCH (eaef51 Set version to 3.1.4-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
