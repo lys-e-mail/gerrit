@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (4c8361 Merge "Add debug logs for copying approvals to new patch set)
   <version>3.2.0-SNAPSHOT</version>
+=======
+  <version>3.1.4-SNAPSHOT</version>
+>>>>>>> BRANCH (ea403b Merge branch 'stable-3.0' into stable-3.1)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
