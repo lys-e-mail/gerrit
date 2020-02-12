@@ -33,9 +33,15 @@ java_package_configuration(
         "-Xep:BadAnnotationImplementation:ERROR",
         "-Xep:BadComparable:ERROR",
         "-Xep:BoxedPrimitiveConstructor:ERROR",
+<<<<<<< HEAD   (c4f2be Merge "Fix error when try assign on getter with existing pro)
         "-Xep:CannotMockFinalClass:ERROR",
         "-Xep:ClassCanBeStatic:ERROR",
         "-Xep:ClassNewInstance:ERROR",
+=======
+        "-Xep:CannotMockFinalClass:WARN",
+        "-Xep:ClassCanBeStatic:ERROR",
+        "-Xep:ClassNewInstance:WARN",
+>>>>>>> BRANCH (556a1a Merge branch 'stable-2.16' into stable-3.0)
         "-Xep:DateFormatConstant:ERROR",
         "-Xep:DefaultCharset:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",

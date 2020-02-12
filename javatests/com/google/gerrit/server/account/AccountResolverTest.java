@@ -34,7 +34,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.Test;
 
+<<<<<<< HEAD   (c4f2be Merge "Fix error when try assign on getter with existing pro)
 public class AccountResolverTest {
+=======
+public class AccountResolverTest extends GerritBaseTests {
+>>>>>>> BRANCH (556a1a Merge branch 'stable-2.16' into stable-3.0)
   private static class TestSearcher extends StringSearcher {
     private final String pattern;
     private final boolean shortCircuit;
