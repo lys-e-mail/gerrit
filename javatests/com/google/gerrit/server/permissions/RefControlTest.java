@@ -230,44 +230,66 @@ public class RefControlTest {
 
   @Test
   public void ownerProject() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(OWNER).ref("refs/*").group(ADMIN))
         .update();
+=======
+    allow(local, OWNER, ADMIN, "refs/*");
+
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertAdminsAreOwnersAndDevsAreNot();
   }
 
   @Test
   public void denyOwnerProject() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(OWNER).ref("refs/*").group(ADMIN))
         .add(deny(OWNER).ref("refs/*").group(DEVS))
         .update();
+=======
+    allow(local, OWNER, ADMIN, "refs/*");
+    deny(local, OWNER, DEVS, "refs/*");
+
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertAdminsAreOwnersAndDevsAreNot();
   }
 
   @Test
   public void blockOwnerProject() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(OWNER).ref("refs/*").group(ADMIN))
         .add(block(OWNER).ref("refs/*").group(DEVS))
         .update();
+=======
+    allow(local, OWNER, ADMIN, "refs/*");
+    block(local, OWNER, DEVS, "refs/*");
+
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertAdminsAreOwnersAndDevsAreNot();
   }
 
   @Test
   public void branchDelegation1() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(OWNER).ref("refs/*").group(ADMIN))
         .add(allow(OWNER).ref("refs/heads/x/*").group(DEVS))
         .update();
+=======
+    allow(local, OWNER, ADMIN, "refs/*");
+    allow(local, OWNER, DEVS, "refs/heads/x/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl uDev = user(localKey, DEVS);
     assertNotOwner(uDev);
@@ -282,6 +304,7 @@ public class RefControlTest {
 
   @Test
   public void branchDelegation2() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -290,6 +313,12 @@ public class RefControlTest {
         .add(allow(OWNER).ref("refs/heads/x/y/*").group(fixers))
         .setExclusiveGroup(permissionKey(OWNER).ref("refs/heads/x/y/*"), true)
         .update();
+=======
+    allow(local, OWNER, ADMIN, "refs/*");
+    allow(local, OWNER, DEVS, "refs/heads/x/*");
+    allow(local, OWNER, fixers, "refs/heads/x/y/*");
+    doNotInherit(local, OWNER, "refs/heads/x/y/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl uDev = user(localKey, DEVS);
     assertNotOwner(uDev);
@@ -313,6 +342,7 @@ public class RefControlTest {
 
   @Test
   public void inheritRead_SingleBranchDeniesUpload() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -326,6 +356,13 @@ public class RefControlTest {
         .setExclusiveGroup(permissionKey(READ).ref("refs/heads/foobar"), true)
         .setExclusiveGroup(permissionKey(PUSH).ref("refs/for/refs/heads/foobar"), true)
         .update();
+=======
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    allow(parent, PUSH, REGISTERED_USERS, "refs/for/refs/*");
+    allow(local, READ, REGISTERED_USERS, "refs/heads/foobar");
+    doNotInherit(local, READ, "refs/heads/foobar");
+    doNotInherit(local, PUSH, "refs/for/refs/heads/foobar");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertCanUpload(u);
@@ -334,6 +371,7 @@ public class RefControlTest {
   }
 
   @Test
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
   public void inheritRead_SingleBranchDoesNotOverrideInherited() throws Exception {
     projectOperations
         .project(parentKey)
@@ -346,8 +384,46 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(READ).ref("refs/heads/foobar").group(REGISTERED_USERS))
         .update();
+=======
+  public void blockPushDrafts() throws Exception {
+    allow(parent, PUSH, REGISTERED_USERS, "refs/for/refs/*");
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/drafts/*");
+    allow(local, PUSH, REGISTERED_USERS, "refs/drafts/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     ProjectControl u = user(localKey);
+=======
+    ProjectControl u = user(local);
+    assertCreateChange("refs/heads/master", u);
+    assertThat(u.controlForRef("refs/drafts/master").canPerform(PUSH)).isFalse();
+  }
+
+  @Test
+  public void blockPushDraftsUnblockAdmin() throws Exception {
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/drafts/*");
+    allow(parent, PUSH, ADMIN, "refs/drafts/*");
+    allow(local, PUSH, REGISTERED_USERS, "refs/drafts/*");
+
+    ProjectControl u = user(local);
+    ProjectControl a = user(local, "a", ADMIN);
+
+    assertThat(a.controlForRef("refs/drafts/master").canPerform(PUSH))
+        .named("push is allowed")
+        .isTrue();
+    assertThat(u.controlForRef("refs/drafts/master").canPerform(PUSH))
+        .named("push is not allowed")
+        .isFalse();
+  }
+
+  @Test
+  public void inheritRead_SingleBranchDoesNotOverrideInherited() throws Exception {
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    allow(parent, PUSH, REGISTERED_USERS, "refs/for/refs/*");
+    allow(local, READ, REGISTERED_USERS, "refs/heads/foobar");
+
+    ProjectControl u = user(local);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertCanUpload(u);
     assertCreateChange("refs/heads/master", u);
     assertCreateChange("refs/heads/foobar", u);
@@ -371,6 +447,7 @@ public class RefControlTest {
 
   @Test
   public void inheritRead_OverrideWithDeny() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -381,12 +458,17 @@ public class RefControlTest {
         .forUpdate()
         .add(deny(READ).ref("refs/*").group(REGISTERED_USERS))
         .update();
+=======
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    deny(local, READ, REGISTERED_USERS, "refs/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     assertAccessDenied(user(localKey));
   }
 
   @Test
   public void inheritRead_AppendWithDenyOfRef() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -397,6 +479,10 @@ public class RefControlTest {
         .forUpdate()
         .add(deny(READ).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
+=======
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    deny(local, READ, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertCanAccess(u);
@@ -407,6 +493,7 @@ public class RefControlTest {
 
   @Test
   public void inheritRead_OverridesAndDeniesOfRef() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -418,6 +505,11 @@ public class RefControlTest {
         .add(deny(READ).ref("refs/*").group(REGISTERED_USERS))
         .add(allow(READ).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
+=======
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    deny(local, READ, REGISTERED_USERS, "refs/*");
+    allow(local, READ, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertCanAccess(u);
@@ -428,6 +520,7 @@ public class RefControlTest {
 
   @Test
   public void inheritSubmit_OverridesAndDeniesOfRef() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -439,6 +532,11 @@ public class RefControlTest {
         .add(deny(SUBMIT).ref("refs/*").group(REGISTERED_USERS))
         .add(allow(SUBMIT).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
+=======
+    allow(parent, SUBMIT, REGISTERED_USERS, "refs/*");
+    deny(local, SUBMIT, REGISTERED_USERS, "refs/*");
+    allow(local, SUBMIT, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertCannotSubmit("refs/foobar", u);
@@ -448,6 +546,7 @@ public class RefControlTest {
 
   @Test
   public void cannotUploadToAnyRef() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -459,6 +558,11 @@ public class RefControlTest {
         .add(allow(READ).ref("refs/heads/*").group(DEVS))
         .add(allow(PUSH).ref("refs/for/refs/heads/*").group(DEVS))
         .update();
+=======
+    allow(parent, READ, REGISTERED_USERS, "refs/*");
+    allow(local, READ, DEVS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/for/refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertCannotUpload(u);
@@ -467,22 +571,31 @@ public class RefControlTest {
 
   @Test
   public void usernamePatternCanUploadToAnyRef() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(PUSH).ref("refs/heads/users/${username}/*").group(REGISTERED_USERS))
         .update();
     ProjectControl u = user(localKey, "a-registered-user");
+=======
+    allow(local, PUSH, REGISTERED_USERS, "refs/heads/users/${username}/*");
+    ProjectControl u = user(local, "a-registered-user");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertCanUpload(u);
   }
 
   @Test
   public void usernamePatternNonRegex() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(READ).ref("refs/sb/${username}/heads/*").group(DEVS))
         .update();
+=======
+    allow(local, READ, DEVS, "refs/sb/${username}/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, "u", DEVS);
     ProjectControl d = user(localKey, "d", DEVS);
@@ -492,11 +605,15 @@ public class RefControlTest {
 
   @Test
   public void usernamePatternWithRegex() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(READ).ref("^refs/sb/${username}/heads/.*").group(DEVS))
         .update();
+=======
+    allow(local, READ, DEVS, "^refs/sb/${username}/heads/.*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, "d.v", DEVS);
     ProjectControl d = user(localKey, "dev", DEVS);
@@ -506,11 +623,15 @@ public class RefControlTest {
 
   @Test
   public void usernameEmailPatternWithRegex() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allow(READ).ref("^refs/sb/${username}/heads/.*").group(DEVS))
         .update();
+=======
+    allow(local, READ, DEVS, "^refs/sb/${username}/heads/.*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, "d.v@ger-rit.org", DEVS);
     ProjectControl d = user(localKey, "dev@ger-rit.org", DEVS);
@@ -520,6 +641,7 @@ public class RefControlTest {
 
   @Test
   public void sortWithRegex() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -530,6 +652,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(READ).ref("^refs/heads/.*-QA-.*").group(ANONYMOUS_USERS))
         .update();
+=======
+    allow(local, READ, DEVS, "^refs/heads/.*");
+    allow(parent, READ, ANONYMOUS_USERS, "^refs/heads/.*-QA-.*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     ProjectControl d = user(localKey, DEVS);
@@ -539,6 +665,7 @@ public class RefControlTest {
 
   @Test
   public void blockRule_ParentBlocksChild() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -550,11 +677,17 @@ public class RefControlTest {
         .add(block(PUSH).ref("refs/tags/*").group(ANONYMOUS_USERS))
         .update();
     ProjectControl u = user(localKey, DEVS);
+=======
+    allow(local, PUSH, DEVS, "refs/tags/*");
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/tags/*");
+    ProjectControl u = user(local, DEVS);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertCannotUpdate("refs/tags/V10", u);
   }
 
   @Test
   public void blockRule_ParentBlocksChildEvenIfAlreadyBlockedInChild() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -566,6 +699,11 @@ public class RefControlTest {
         .forUpdate()
         .add(block(PUSH).ref("refs/tags/*").group(ANONYMOUS_USERS))
         .update();
+=======
+    allow(local, PUSH, DEVS, "refs/tags/*");
+    block(local, PUSH, ANONYMOUS_USERS, "refs/tags/*");
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/tags/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/tags/V10", u);
@@ -573,11 +711,15 @@ public class RefControlTest {
 
   @Test
   public void blockPartialRangeLocally() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/master").group(DEVS).range(+1, +2))
         .update();
+=======
+    block(local, LABEL + "Code-Review", +1, +2, DEVS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
 
@@ -587,6 +729,7 @@ public class RefControlTest {
 
   @Test
   public void blockLabelRange_ParentBlocksChild() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -597,6 +740,10 @@ public class RefControlTest {
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+    block(parent, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
 
@@ -609,6 +756,7 @@ public class RefControlTest {
 
   @Test
   public void blockLabelRange_ParentBlocksChildEvenIfAlreadyBlockedInChild() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -620,6 +768,11 @@ public class RefControlTest {
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+    block(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+    block(parent, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
 
@@ -632,6 +785,7 @@ public class RefControlTest {
 
   @Test
   public void inheritSubmit_AllowInChildDoesntAffectUnblockInParent() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -643,6 +797,11 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(SUBMIT).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
+=======
+    block(parent, SUBMIT, ANONYMOUS_USERS, "refs/heads/*");
+    allow(parent, SUBMIT, REGISTERED_USERS, "refs/heads/*");
+    allow(local, SUBMIT, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey);
     assertWithMessage("submit is allowed")
@@ -652,12 +811,17 @@ public class RefControlTest {
 
   @Test
   public void unblockNoForce() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/*").group(ANONYMOUS_USERS))
         .add(allow(PUSH).ref("refs/heads/*").group(DEVS))
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCanUpdate("refs/heads/master", u);
@@ -665,12 +829,18 @@ public class RefControlTest {
 
   @Test
   public void unblockForce() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/*").group(ANONYMOUS_USERS).force(true))
         .add(allow(PUSH).ref("refs/heads/*").group(DEVS).force(true))
         .update();
+=======
+    PermissionRule r = block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    r.setForce(true);
+    allow(local, PUSH, DEVS, "refs/heads/*").setForce(true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCanForceUpdate("refs/heads/master", u);
@@ -678,6 +848,7 @@ public class RefControlTest {
 
   @Test
   public void unblockRead_NotPossible() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -692,17 +863,30 @@ public class RefControlTest {
         .update();
 
     ProjectControl u = user(localKey);
+=======
+    block(parent, READ, ANONYMOUS_USERS, "refs/*");
+    allow(parent, READ, ADMIN, "refs/*");
+    allow(local, READ, ANONYMOUS_USERS, "refs/*");
+    allow(local, READ, ADMIN, "refs/*");
+    ProjectControl u = user(local);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
     assertCannotRead("refs/heads/master", u);
   }
 
   @Test
   public void unblockForceWithAllowNoForce_NotPossible() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/*").group(ANONYMOUS_USERS).force(true))
         .add(allow(PUSH).ref("refs/heads/*").group(DEVS))
         .update();
+=======
+    PermissionRule r = block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    r.setForce(true);
+    allow(local, PUSH, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotForceUpdate("refs/heads/master", u);
@@ -710,12 +894,17 @@ public class RefControlTest {
 
   @Test
   public void unblockMoreSpecificRef_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/*").group(ANONYMOUS_USERS))
         .add(allow(PUSH).ref("refs/heads/master").group(DEVS))
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -723,6 +912,7 @@ public class RefControlTest {
 
   @Test
   public void unblockMoreSpecificRefInLocal_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -733,6 +923,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(PUSH).ref("refs/heads/master").group(DEVS))
         .update();
+=======
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -740,6 +934,7 @@ public class RefControlTest {
 
   @Test
   public void unblockMoreSpecificRefWithExclusiveFlag() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -747,6 +942,10 @@ public class RefControlTest {
         .add(allow(PUSH).ref("refs/heads/master").group(DEVS))
         .setExclusiveGroup(permissionKey(PUSH).ref("refs/heads/master"), true)
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/master", true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCanUpdate("refs/heads/master", u);
@@ -754,6 +953,7 @@ public class RefControlTest {
 
   @Test
   public void unblockVoteMoreSpecificRefWithExclusiveFlag() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -761,6 +961,9 @@ public class RefControlTest {
         .add(allowLabel("Code-Review").ref("refs/heads/master").group(DEVS).range(-2, 2))
         .setExclusiveGroup(labelPermissionKey("Code-Review").ref("refs/heads/master"), true)
         .update();
+=======
+    String perm = LABEL + "Code-Review";
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -769,6 +972,7 @@ public class RefControlTest {
 
   @Test
   public void unblockFromParentDoesNotAffectChild() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -780,6 +984,10 @@ public class RefControlTest {
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/master").group(DEVS))
         .update();
+=======
+    allow(parent, PUSH, DEVS, "refs/heads/master", true);
+    block(local, PUSH, DEVS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -787,6 +995,7 @@ public class RefControlTest {
 
   @Test
   public void unblockFromParentDoesNotAffectChildDifferentGroups() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -798,6 +1007,10 @@ public class RefControlTest {
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/master").group(ANONYMOUS_USERS))
         .update();
+=======
+    allow(parent, PUSH, DEVS, "refs/heads/master", true);
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -805,6 +1018,7 @@ public class RefControlTest {
 
   @Test
   public void unblockMoreSpecificRefInLocalWithExclusiveFlag_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -816,6 +1030,10 @@ public class RefControlTest {
         .add(allow(PUSH).ref("refs/heads/master").group(DEVS))
         .setExclusiveGroup(permissionKey(PUSH).ref("refs/heads/master"), true)
         .update();
+=======
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/master", true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -823,6 +1041,7 @@ public class RefControlTest {
 
   @Test
   public void blockMoreSpecificRefWithinProject() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -830,6 +1049,10 @@ public class RefControlTest {
         .add(allow(PUSH).ref("refs/heads/*").group(DEVS))
         .setExclusiveGroup(permissionKey(PUSH).ref("refs/heads/*"), true)
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/secret");
+    allow(local, PUSH, DEVS, "refs/heads/*", true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/secret", u);
@@ -838,6 +1061,7 @@ public class RefControlTest {
 
   @Test
   public void unblockOtherPermissionWithMoreSpecificRefAndExclusiveFlag_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -846,6 +1070,11 @@ public class RefControlTest {
         .add(allow(SUBMIT).ref("refs/heads/master").group(DEVS))
         .setExclusiveGroup(permissionKey(SUBMIT).ref("refs/heads/master"), true)
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, DEVS, "refs/heads/master");
+    allow(local, SUBMIT, DEVS, "refs/heads/master", true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -853,12 +1082,17 @@ public class RefControlTest {
 
   @Test
   public void unblockLargerScope_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/master").group(ANONYMOUS_USERS))
         .add(allow(PUSH).ref("refs/heads/*").group(DEVS))
         .update();
+=======
+    block(local, PUSH, ANONYMOUS_USERS, "refs/heads/master");
+    allow(local, PUSH, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", u);
@@ -866,6 +1100,7 @@ public class RefControlTest {
 
   @Test
   public void unblockInLocal_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -876,6 +1111,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(PUSH).ref("refs/heads/*").group(fixers))
         .update();
+=======
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, PUSH, fixers, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl f = user(localKey, fixers);
     assertCannotUpdate("refs/heads/master", f);
@@ -883,6 +1122,7 @@ public class RefControlTest {
 
   @Test
   public void unblockInParentBlockInLocal() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -894,6 +1134,11 @@ public class RefControlTest {
         .forUpdate()
         .add(block(PUSH).ref("refs/heads/*").group(DEVS))
         .update();
+=======
+    block(parent, PUSH, ANONYMOUS_USERS, "refs/heads/*");
+    allow(parent, PUSH, DEVS, "refs/heads/*");
+    block(local, PUSH, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl d = user(localKey, DEVS);
     assertCannotUpdate("refs/heads/master", d);
@@ -901,12 +1146,17 @@ public class RefControlTest {
 
   @Test
   public void unblockForceEditTopicName() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(block(EDIT_TOPIC_NAME).ref("refs/heads/*").group(ANONYMOUS_USERS))
         .add(allow(EDIT_TOPIC_NAME).ref("refs/heads/*").group(DEVS).force(true))
         .update();
+=======
+    block(local, EDIT_TOPIC_NAME, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, EDIT_TOPIC_NAME, DEVS, "refs/heads/*").setForce(true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     assertWithMessage("u can edit topic name")
@@ -916,6 +1166,7 @@ public class RefControlTest {
 
   @Test
   public void unblockInLocalForceEditTopicName_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -926,6 +1177,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(EDIT_TOPIC_NAME).ref("refs/heads/*").group(DEVS).force(true))
         .update();
+=======
+    block(parent, EDIT_TOPIC_NAME, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, EDIT_TOPIC_NAME, DEVS, "refs/heads/*").setForce(true);
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, REGISTERED_USERS);
     assertWithMessage("u can't edit topic name")
@@ -935,12 +1190,17 @@ public class RefControlTest {
 
   @Test
   public void unblockRange() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(ANONYMOUS_USERS).range(-1, +1))
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    block(local, LABEL + "Code-Review", -1, +1, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -950,12 +1210,17 @@ public class RefControlTest {
 
   @Test
   public void unblockRangeOnMoreSpecificRef_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(ANONYMOUS_USERS).range(-1, +1))
         .add(allowLabel("Code-Review").ref("refs/heads/master").group(DEVS).range(-2, +2))
         .update();
+=======
+    block(local, LABEL + "Code-Review", -1, +1, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/master");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -965,6 +1230,7 @@ public class RefControlTest {
 
   @Test
   public void unblockRangeOnLargerScope_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -972,6 +1238,10 @@ public class RefControlTest {
             blockLabel("Code-Review").ref("refs/heads/master").group(ANONYMOUS_USERS).range(-1, +1))
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    block(local, LABEL + "Code-Review", -1, +1, ANONYMOUS_USERS, "refs/heads/master");
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -981,11 +1251,15 @@ public class RefControlTest {
 
   @Test
   public void nonconfiguredCannotVote() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, REGISTERED_USERS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -995,6 +1269,7 @@ public class RefControlTest {
 
   @Test
   public void unblockInLocalRange_Fails() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -1005,6 +1280,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-2, +2))
         .update();
+=======
+    block(parent, LABEL + "Code-Review", -1, 1, ANONYMOUS_USERS, "refs/heads/*");
+    allow(local, LABEL + "Code-Review", -2, +2, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1014,11 +1293,15 @@ public class RefControlTest {
 
   @Test
   public void unblockRangeForChangeOwner() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(CHANGE_OWNER).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, CHANGE_OWNER, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range =
@@ -1029,11 +1312,15 @@ public class RefControlTest {
 
   @Test
   public void unblockRangeForNotChangeOwner() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(CHANGE_OWNER).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, CHANGE_OWNER, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1043,11 +1330,15 @@ public class RefControlTest {
 
   @Test
   public void blockChangeOwnerVote() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(CHANGE_OWNER).range(-2, +2))
         .update();
+=======
+    block(local, LABEL + "Code-Review", -2, +2, CHANGE_OWNER, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1057,12 +1348,17 @@ public class RefControlTest {
 
   @Test
   public void unionOfPermissibleVotes() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-1, +1))
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-2, +2))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -1, +1, DEVS, "refs/heads/*");
+    allow(local, LABEL + "Code-Review", -2, +2, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1072,12 +1368,17 @@ public class RefControlTest {
 
   @Test
   public void unionOfPermissibleVotesPermissionOrder() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(localKey)
         .forUpdate()
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-2, +2))
         .add(allowLabel("Code-Review").ref("refs/heads/*").group(DEVS).range(-1, +1))
         .update();
+=======
+    allow(local, LABEL + "Code-Review", -2, +2, REGISTERED_USERS, "refs/heads/*");
+    allow(local, LABEL + "Code-Review", -1, +1, DEVS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1087,6 +1388,7 @@ public class RefControlTest {
 
   @Test
   public void unionOfBlockedVotes() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -1098,6 +1400,11 @@ public class RefControlTest {
         .forUpdate()
         .add(blockLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-2, +1))
         .update();
+=======
+    allow(parent, LABEL + "Code-Review", -1, +1, DEVS, "refs/heads/*");
+    block(parent, LABEL + "Code-Review", -2, +2, REGISTERED_USERS, "refs/heads/*");
+    block(local, LABEL + "Code-Review", -2, +1, REGISTERED_USERS, "refs/heads/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     ProjectControl u = user(localKey, DEVS);
     PermissionRange range = u.controlForRef("refs/heads/master").getRange(LABEL + "Code-Review");
@@ -1107,6 +1414,7 @@ public class RefControlTest {
 
   @Test
   public void blockOwner() throws Exception {
+<<<<<<< HEAD   (a7eef4 Merge "CreateGroup: Allow to create a group with given UUID")
     projectOperations
         .project(parentKey)
         .forUpdate()
@@ -1117,6 +1425,10 @@ public class RefControlTest {
         .forUpdate()
         .add(allow(OWNER).ref("refs/*").group(DEVS))
         .update();
+=======
+    block(parent, OWNER, ANONYMOUS_USERS, "refs/*");
+    allow(local, OWNER, DEVS, "refs/*");
+>>>>>>> BRANCH (e1bf29 Merge branch 'stable-2.16' into stable-3.0)
 
     assertThat(user(localKey, DEVS).isOwner()).isFalse();
   }
