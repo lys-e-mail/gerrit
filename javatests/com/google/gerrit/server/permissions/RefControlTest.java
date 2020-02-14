@@ -477,6 +477,14 @@ public class RefControlTest {
   }
 
   @Test
+  public void usernamePatternRegExpCanUploadToAnyRef() throws Exception {
+    allow(local, PUSH, REGISTERED_USERS, "^refs/heads/users/${username}/(public|private)/.+");
+    ProjectControl u = user(local, "a-registered-user");
+    assertCanUpload(u);
+    assertCanUpdate("refs/heads/users/a-registered-user/private/a", u);
+  }
+
+  @Test
   public void usernamePatternNonRegex() throws Exception {
     projectOperations
         .project(localKey)
@@ -498,8 +506,15 @@ public class RefControlTest {
         .add(allow(READ).ref("^refs/sb/${username}/heads/.*").group(DEVS))
         .update();
 
+<<<<<<< HEAD   (cc4810 e2e-tests: Mention http credentials in documentation)
     ProjectControl u = user(localKey, "d.v", DEVS);
     ProjectControl d = user(localKey, "dev", DEVS);
+=======
+    ProjectControl u = user(local, "d.v", DEVS);
+    ProjectControl d = user(local, "dev", DEVS);
+    assertCanAccess(u);
+    assertCanAccess(d);
+>>>>>>> BRANCH (27cbb0 Merge branch 'stable-2.16' into stable-3.0)
     assertCannotRead("refs/sb/dev/heads/foobar", u);
     assertCanRead("refs/sb/dev/heads/foobar", d);
   }
@@ -1127,6 +1142,7 @@ public class RefControlTest {
     RefPattern.validate("^refs/heads/*");
     RefPattern.validate("^refs/tags/[0-9a-zA-Z-_.]+");
     RefPattern.validate("refs/heads/review/${username}/*");
+    RefPattern.validate("^refs/heads/review/${username}/.+");
   }
 
   @Test

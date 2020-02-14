@@ -21,7 +21,13 @@ java_library(
         "//lib:guava",
         "//lib:jgit",
         "//lib/guice",
+<<<<<<< HEAD   (cc4810 e2e-tests: Mention http credentials in documentation)
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+        "//lib/log:log4j",
+>>>>>>> BRANCH (27cbb0 Merge branch 'stable-2.16' into stable-3.0)
         "//lib/truth",
+        "//resources:log4j-config",
     ],
 )
 
