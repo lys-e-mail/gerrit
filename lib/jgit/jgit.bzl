@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (93aa1c Upgrade gitiles-servlet and blame-cache to 0.2-12)
 _JGIT_VERS = "5.3.7.202002110540-r"
+=======
+_JGIT_VERS = "5.1.13.202002110435-r"
+>>>>>>> BRANCH (3c953a Merge "Add Jetty connection metrics" into stable-2.16)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,25 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (93aa1c Upgrade gitiles-servlet and blame-cache to 0.2-12)
         sha1 = "b1714d4917750d6fad0d19d3b0e258b373db819a",
+=======
+        sha1 = "dc99e6ef37038090561bd5253c71b150791bea58",
+        src_sha1 = "882b62cac802a26e5fe383cd1a16f8b2d557e2fe",
+        unsign = True,
+>>>>>>> BRANCH (3c953a Merge "Add Jetty connection metrics" into stable-2.16)
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (93aa1c Upgrade gitiles-servlet and blame-cache to 0.2-12)
         sha1 = "cf61e6e00a758a6f33995e53883aede76d3b2400",
+=======
+        sha1 = "5860d7828839db9a41b664488540704f783d0280",
+        unsign = True,
+>>>>>>> BRANCH (3c953a Merge "Add Jetty connection metrics" into stable-2.16)
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (93aa1c Upgrade gitiles-servlet and blame-cache to 0.2-12)
         sha1 = "3c0b259040d3bc3a9e884a301055cf4f2e1bb1e2",
+=======
+        sha1 = "fb8538a090daa5dfb6674cdf860dd34d6a4078ed",
+>>>>>>> BRANCH (3c953a Merge "Add Jetty connection metrics" into stable-2.16)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (93aa1c Upgrade gitiles-servlet and blame-cache to 0.2-12)
         sha1 = "f78409fb808c5a108c629ec3cba74cc6c14ebff2",
+=======
+        sha1 = "1e45351d6c19f65135ee4b693c0346772307671d",
+        unsign = True,
+>>>>>>> BRANCH (3c953a Merge "Add Jetty connection metrics" into stable-2.16)
     )
 
 def jgit_dep(name):
