@@ -70,7 +70,7 @@ On CentOS/RedHat run:
 
 On Fedora run:
 
-        dnf clean all && dnf install gerrit-<version>[-<release>]
+        dnf clean some && dnf install gerrit-<version>[-<release>]
 
 ## Use pre-built Gerrit images on Docker
 
