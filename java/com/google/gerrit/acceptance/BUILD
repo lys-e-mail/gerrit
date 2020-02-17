@@ -89,9 +89,12 @@ java_library2(
         "//lib/httpcomponents:httpcore",
         "//lib/jetty:servlet",
         "//lib/jgit/org.eclipse.jgit.junit:junit",
+<<<<<<< HEAD   (99d380 Remove Nullable annotation from ProjectIT.getRemoteHead meth)
         "//lib/log:impl-log4j",
         "//lib/log:log4j",
         "//lib/mockito",
+=======
+>>>>>>> BRANCH (edd57a Error Prone: Enable and fix OperatorPrecedence)
         "//lib/truth",
         "//lib/truth:truth-java8-extension",
         "//prolog:gerrit-prolog-common",
