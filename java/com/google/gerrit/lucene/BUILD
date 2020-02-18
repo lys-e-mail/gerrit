@@ -9,8 +9,6 @@ java_library(
     deps = [
         "//java/com/google/gerrit/index",
         "//java/com/google/gerrit/index:query_exception",
-        "//java/com/google/gerrit/reviewdb:server",
-        "//java/com/google/gerrit/server",
         "//lib:guava",
         "//lib/lucene:lucene-core-and-backward-codecs",
     ],
@@ -26,14 +24,20 @@ java_library(
     deps = [
         ":query_builder",
         "//java/com/google/gerrit/common:annotations",
+<<<<<<< HEAD   (6f57e5 Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/exceptions",
+=======
+>>>>>>> BRANCH (d16b84 Merge branch 'stable-2.15' into stable-2.16)
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/index",
         "//java/com/google/gerrit/index:query_exception",
         "//java/com/google/gerrit/index/project",
+<<<<<<< HEAD   (6f57e5 Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/lifecycle",
         "//java/com/google/gerrit/proto",
+=======
+>>>>>>> BRANCH (d16b84 Merge branch 'stable-2.15' into stable-2.16)
         "//java/com/google/gerrit/reviewdb:server",
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/logging",

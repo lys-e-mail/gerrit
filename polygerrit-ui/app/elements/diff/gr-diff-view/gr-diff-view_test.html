@@ -349,12 +349,25 @@ limitations under the License.
           PARENT), 'Should navigate to /c/42/1');
     });
 
+<<<<<<< HEAD   (6f57e5 Merge branch 'stable-2.16' into stable-3.0)
     suite('diff prefs hidden', () => {
       test('when no prefs or logged out', () => {
         element.disableDiffPrefs = false;
         element._loggedIn = false;
         flushAsynchronousOperations();
         assert.isTrue(element.$.diffPrefsContainer.hidden);
+=======
+    test('_computeEditURL uses Gerrit.Nav', () => {
+      const getUrlStub = sandbox.stub(Gerrit.Nav, 'getEditUrlForDiff');
+      element._computeEditURL(123, {patchNum: undefined}, 'abc/def');
+      assert.isTrue(getUrlStub.called);
+    });
+
+    test('Diff preferences hidden when no prefs or logged out', () => {
+      element._loggedIn = false;
+      flushAsynchronousOperations();
+      assert.isTrue(element.$.diffPrefsContainer.hidden);
+>>>>>>> BRANCH (d16b84 Merge branch 'stable-2.15' into stable-2.16)
 
         element._loggedIn = true;
         flushAsynchronousOperations();

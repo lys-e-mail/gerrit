@@ -24,7 +24,10 @@ java_library(
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/prettify:server",
         "//java/com/google/gerrit/reviewdb:server",
+<<<<<<< HEAD   (6f57e5 Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gwtorm",
+=======
+>>>>>>> BRANCH (d16b84 Merge branch 'stable-2.15' into stable-2.16)
         "//lib:guava",
         "//lib:servlet-api-3_1",
         "//lib/auto:auto-value",
