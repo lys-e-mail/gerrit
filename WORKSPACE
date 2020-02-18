@@ -731,7 +731,11 @@ maven_jar(
     sha1 = "f7be08ec23c21485b9b5a1cf1654c2ec8c58168d",
 )
 
+<<<<<<< HEAD   (b17671 Upgrade JGit to v5.6.1.202002131546-r)
 GITILES_VERS = "0.3-7"
+=======
+GITILES_VERS = "0.2-12"
+>>>>>>> BRANCH (99d380 Remove Nullable annotation from ProjectIT.getRemoteHead meth)
 
 GITILES_REPO = GERRIT
 
@@ -740,14 +744,22 @@ maven_jar(
     artifact = "com.google.gitiles:blame-cache:" + GITILES_VERS,
     attach_source = False,
     repository = GITILES_REPO,
+<<<<<<< HEAD   (b17671 Upgrade JGit to v5.6.1.202002131546-r)
     sha1 = "af6212a62363906c63d367f8276ae1645f83bf93",
+=======
+    sha1 = "e175e4366d83f20378905ca58a505ba8adac291d",
+>>>>>>> BRANCH (99d380 Remove Nullable annotation from ProjectIT.getRemoteHead meth)
 )
 
 maven_jar(
     name = "gitiles-servlet",
     artifact = "com.google.gitiles:gitiles-servlet:" + GITILES_VERS,
     repository = GITILES_REPO,
+<<<<<<< HEAD   (b17671 Upgrade JGit to v5.6.1.202002131546-r)
     sha1 = "6a53f722f8572a2f1bcb7d86e5692168844bab76",
+=======
+    sha1 = "53f654f79ec65b9af7fbe645c99bf7888cd1ac48",
+>>>>>>> BRANCH (99d380 Remove Nullable annotation from ProjectIT.getRemoteHead meth)
 )
 
 # prettify must match the version used in Gitiles
