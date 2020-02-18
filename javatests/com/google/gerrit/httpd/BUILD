@@ -4,14 +4,14 @@ junit_tests(
     name = "httpd_tests",
     srcs = glob(["**/*.java"]),
     deps = [
-        "//java/com/google/gerrit/common:annotations",
-        "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/httpd",
-        "//java/com/google/gerrit/reviewdb:server",
         "//java/com/google/gerrit/server",
+<<<<<<< HEAD   (6f57e5 Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/testing:gerrit-test-util",
         "//java/com/google/gerrit/util/http",
+=======
+>>>>>>> BRANCH (d16b84 Merge branch 'stable-2.15' into stable-2.16)
         "//javatests/com/google/gerrit/util/http/testutil",
         "//lib:gson",
         "//lib:guava",
