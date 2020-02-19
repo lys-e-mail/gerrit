@@ -24,6 +24,7 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public interface Changes {
   /**
@@ -77,9 +78,13 @@ public interface Changes {
     private String query;
     private int limit;
     private int start;
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     private boolean isNoLimit;
     private EnumSet<ListChangesOption> options = EnumSet.noneOf(ListChangesOption.class);
     private ListMultimap<String, String> pluginOptions = ArrayListMultimap.create();
+=======
+    private Set<ListChangesOption> options = EnumSet.noneOf(ListChangesOption.class);
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
 
     public abstract List<ChangeInfo> get() throws RestApiException;
 
@@ -116,7 +121,7 @@ public interface Changes {
     }
 
     /** Set options on the request, replacing existing options. */
-    public QueryRequest withOptions(EnumSet<ListChangesOption> options) {
+    public QueryRequest withOptions(Set<ListChangesOption> options) {
       this.options = options;
       return this;
     }
@@ -149,7 +154,7 @@ public interface Changes {
       return start;
     }
 
-    public EnumSet<ListChangesOption> getOptions() {
+    public Set<ListChangesOption> getOptions() {
       return options;
     }
 

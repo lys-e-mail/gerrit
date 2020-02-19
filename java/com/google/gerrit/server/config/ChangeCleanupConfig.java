@@ -25,12 +25,20 @@ import org.eclipse.jgit.lib.Config;
 
 @Singleton
 public class ChangeCleanupConfig {
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   private static String SECTION = "changeCleanup";
   private static String KEY_ABANDON_AFTER = "abandonAfter";
   private static String KEY_ABANDON_IF_MERGEABLE = "abandonIfMergeable";
   private static String KEY_ABANDON_MESSAGE = "abandonMessage";
   private static String KEY_CLEANUP_ACCOUNT_PATCH_REVIEW = "cleanupAccountPatchReview";
   private static String DEFAULT_ABANDON_MESSAGE =
+=======
+  private static final String SECTION = "changeCleanup";
+  private static final String KEY_ABANDON_AFTER = "abandonAfter";
+  private static final String KEY_ABANDON_IF_MERGEABLE = "abandonIfMergeable";
+  private static final String KEY_ABANDON_MESSAGE = "abandonMessage";
+  private static final String DEFAULT_ABANDON_MESSAGE =
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
       "Auto-Abandoned due to inactivity, see "
           + "${URL}\n"
           + "\n"
