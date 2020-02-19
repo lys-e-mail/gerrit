@@ -101,7 +101,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("abandon", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -116,7 +116,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("abandon", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -132,7 +132,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("abandon", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -148,7 +148,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("abandon", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, other)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -162,7 +162,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("abandon", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -214,7 +214,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("abandon", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -235,7 +235,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("abandon", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ABANDONED_CHANGES)
         .noOneElse();
@@ -275,13 +275,40 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   private void addReviewerToReviewableChange(Adder adder) throws Exception {
     StagedChange sc = stageReviewableChange();
     TestAccount reviewer = accountCreator.create("added", "added@example.com", "added");
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     addReviewer(adder, sc.changeId, sc.owner, reviewer.email());
+=======
+    addReviewer(adder, sc.changeId, sc.owner, reviewer.email);
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(reviewer)
+        .cc(sc.reviewer, sc.ccer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .noOneElse();
+  }
+
+  @Test
+  public void addReviewerToReviewableChangeInReviewDbSingly() throws Exception {
+    addReviewerToReviewableChangeInReviewDb(singly());
+  }
+
+  @Test
+  public void addReviewerToReviewableChangeInReviewDbBatch() throws Exception {
+    addReviewerToReviewableChangeInReviewDb(batch());
+  }
+
+  private void addReviewerToReviewableChangeInNoteDb(Adder adder) throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+    StagedChange sc = stageReviewableChange();
+    TestAccount reviewer = accountCreator.create("added", "added@example.com", "added");
+    addReviewer(adder, sc.changeId, sc.owner, reviewer.email);
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     // TODO(logan): Should CCs be included?
     assertThat(sender)
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -305,7 +332,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.owner, sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -330,7 +357,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.owner, sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -355,7 +382,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.owner, sc.reviewer, other)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -379,7 +406,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(email)
         .cc(sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -435,20 +462,48 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
   }
 
   private void addReviewerToWipChangeNotifyAll(Adder adder) throws Exception {
     StagedChange sc = stageWipChange();
     TestAccount reviewer = accountCreator.create("added", "added@example.com", "added");
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     addReviewer(adder, sc.changeId, sc.owner, reviewer.email(), NotifyHandling.ALL);
+=======
+    addReviewer(adder, sc.changeId, sc.owner, reviewer.email, NotifyHandling.ALL);
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(reviewer)
+        .cc(sc.reviewer, sc.ccer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .noOneElse();
+  }
+
+  @Test
+  public void addReviewerToWipChangeInReviewDbNotifyAllSingly() throws Exception {
+    addReviewerToWipChangeInReviewDbNotifyAll(singly());
+  }
+
+  @Test
+  public void addReviewerToWipChangeInReviewDbNotifyAllBatch() throws Exception {
+    addReviewerToWipChangeInReviewDbNotifyAll(batch());
+  }
+
+  private void addReviewerToReviewableChangeInNoteDbNotifyOwnerReviewers(Adder adder)
+      throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+    StagedChange sc = stageReviewableChange();
+    TestAccount reviewer = accountCreator.create("added", "added@example.com", "added");
+    addReviewer(adder, sc.changeId, sc.owner, reviewer.email, OWNER_REVIEWERS);
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     // TODO(logan): Should CCs be included?
     assertThat(sender)
         .sent("newchange", sc)
         .to(reviewer)
         .cc(sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -530,7 +585,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to("nonexistent@example.com")
         .cc(sc.reviewer)
-        .cc(sc.ccerByEmail, sc.reviewerByEmail)
+        .cc(StagedUsers.CC_BY_EMAIL, StagedUsers.REVIEWER_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -552,7 +607,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .cc("nonexistent@example.com")
         .cc(sc.reviewer)
-        .cc(sc.ccerByEmail, sc.reviewerByEmail)
+        .cc(StagedUsers.CC_BY_EMAIL, StagedUsers.REVIEWER_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -638,7 +693,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -653,7 +708,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -668,7 +723,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -683,7 +738,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -699,7 +754,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -715,7 +770,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, other)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -729,7 +784,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -773,7 +828,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -799,7 +854,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -833,7 +888,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -847,7 +902,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -870,7 +925,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -885,7 +940,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -900,7 +955,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer, other)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -909,9 +964,35 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newchange", sc)
         .to(other)
         .cc(sc.reviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     assertThat(sender).didNotSend();
+=======
+    assertThat(sender).notSent();
+  }
+
+  @Test
+  public void addReviewerOnWipChangeAndStartReviewInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageWipChange();
+    ReviewInput in = ReviewInput.noScore().reviewer(other.email).setWorkInProgress(false);
+    gApi.changes().id(sc.changeId).revision("current").review(in);
+    assertThat(sender)
+        .sent("comment", sc)
+        .cc(sc.reviewer, sc.ccer, other)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS)
+        .noOneElse();
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(other)
+        .cc(sc.reviewer, sc.ccer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .noOneElse();
+    assertThat(sender).notSent();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   }
 
   @Test
@@ -1079,7 +1160,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(extraReviewer)
         .cc(extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1095,7 +1176,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(sc.owner, extraReviewer)
         .cc(extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1111,7 +1192,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(sc.owner, extraReviewer)
         .cc(extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1128,7 +1209,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(sc.owner, extraReviewer)
         .cc(admin, extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1144,7 +1225,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(extraCcer)
         .cc(sc.reviewer, sc.ccer, extraReviewer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1160,7 +1241,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(extraReviewer)
         .cc(extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1219,7 +1300,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteReviewer", sc)
         .to(extraReviewer)
         .cc(extraCcer, sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1247,8 +1328,13 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   @Test
   public void deleteReviewerByEmailFromWipChange() throws Exception {
     StagedChange sc = stageWipChangeWithExtraReviewer();
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     gApi.changes().id(sc.changeId).reviewer(sc.reviewerByEmail).remove();
     assertThat(sender).didNotSend();
+=======
+    gApi.changes().id(sc.changeId).reviewer(StagedUsers.REVIEWER_BY_EMAIL).remove();
+    assertThat(sender).notSent();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   }
 
   private void recommend(StagedChange sc, TestAccount by) throws Exception {
@@ -1314,7 +1400,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("deleteVote", sc)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1332,7 +1418,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteVote", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1349,7 +1435,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteVote", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1367,7 +1453,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteVote", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, admin, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1383,7 +1469,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("deleteVote", sc)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1399,7 +1485,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("deleteVote", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1442,7 +1528,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("deleteVote", sc)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1458,7 +1544,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("deleteVote", sc)
         .cc(sc.reviewer, sc.ccer, extraReviewer, extraCcer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -1484,6 +1570,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
    */
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void mergeByOwnerAllSubmitStrategies() throws Exception {
     mergeByOwnerAllSubmitStrategies(false);
   }
@@ -1526,6 +1613,18 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
           .noOneElse();
       assertThat(sender).named(name).didNotSend();
     }
+=======
+  public void mergeByOwner() throws Exception {
+    StagedChange sc = stageChangeReadyForMerge();
+    merge(sc.changeId, sc.owner);
+    assertThat(sender)
+        .sent("merged", sc)
+        .cc(sc.reviewer, sc.ccer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS, SUBMITTED_CHANGES)
+        .noOneElse();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   }
 
   @Test
@@ -1536,7 +1635,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("merged", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS, SUBMITTED_CHANGES)
         .noOneElse();
@@ -1551,7 +1650,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("merged", sc)
         .to(sc.owner)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS, SUBMITTED_CHANGES)
         .noOneElse();
@@ -1566,7 +1665,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("merged", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS, SUBMITTED_CHANGES)
         .noOneElse();
@@ -1581,7 +1680,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("merged", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1663,7 +1762,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1679,7 +1778,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .notTo(sc.owner) // TODO(logan): This shouldn't be sent *from* the owner.
         .to(sc.reviewer, other)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1695,7 +1794,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .notTo(sc.owner) // TODO(logan): This shouldn't be sent *from* the owner.
         .to(sc.reviewer, other)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1712,7 +1811,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .to(sc.reviewer)
         .to(other)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1728,7 +1827,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .to(sc.reviewer)
         .to(other)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1787,7 +1886,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1802,7 +1901,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1825,11 +1924,31 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer, newReviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     assertThat(sender).didNotSend();
+=======
+    assertThat(sender).notSent();
+  }
+
+  @Test
+  public void newPatchSetOnReviewableChangeAddingReviewerInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageReviewableChange();
+    TestAccount newReviewer = sc.testAccount("newReviewer");
+    pushTo(sc, "refs/for/master%r=" + newReviewer.username, sc.owner);
+    assertThat(sender)
+        .sent("newpatchset", sc)
+        .to(sc.reviewer, sc.ccer, newReviewer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(NEW_PATCHSETS)
+        .noOneElse();
+    assertThat(sender).notSent();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   }
 
   @Test
@@ -1849,7 +1968,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer, newReviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1857,18 +1976,58 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   }
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void newPatchSetOnWipChangeSettingReady() throws Exception {
+=======
+  public void newPatchSetOnWipChangeAddingReviewerNotifyAllInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageWipChange();
+    TestAccount newReviewer = sc.testAccount("newReviewer");
+    pushTo(sc, "refs/for/master%notify=ALL,r=" + newReviewer.username, sc.owner);
+    assertThat(sender)
+        .sent("newpatchset", sc)
+        .to(sc.reviewer, sc.ccer, newReviewer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(NEW_PATCHSETS)
+        .noOneElse();
+    assertThat(sender).notSent();
+  }
+
+  @Test
+  public void newPatchSetOnWipChangeSettingReadyInNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     StagedChange sc = stageWipChange();
     pushTo(sc, "refs/for/master%ready", sc.owner);
     assertThat(sender)
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     assertThat(sender).didNotSend();
+=======
+    assertThat(sender).notSent();
+  }
+
+  @Test
+  public void newPatchSetOnWipChangeSettingReadyInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageWipChange();
+    pushTo(sc, "refs/for/master%ready", sc.owner);
+    assertThat(sender)
+        .sent("newpatchset", sc)
+        .to(sc.reviewer, sc.ccer)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(NEW_PATCHSETS)
+        .noOneElse();
+    assertThat(sender).notSent();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   }
 
   private void pushTo(StagedChange sc, String ref, TestAccount by) throws Exception {
@@ -1889,7 +2048,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1904,7 +2063,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.owner, sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1919,7 +2078,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.owner, sc.reviewer, other)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -1934,7 +2093,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.owner, sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -1948,7 +2107,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.owner, sc.reviewer)
         .cc(sc.ccer, other)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -2014,7 +2173,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("newpatchset", sc)
         .to(sc.reviewer)
         .cc(sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(NEW_PATCHSETS)
         .noOneElse();
@@ -2057,7 +2216,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("restore", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2071,7 +2230,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("restore", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2085,7 +2244,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("restore", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2100,7 +2259,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("restore", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2115,7 +2274,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("restore", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2130,7 +2289,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("restore", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2153,7 +2312,35 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
    */
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void revertChangeByOwner() throws Exception {
+=======
+  public void revertChangeByOwnerInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageChange();
+    revert(sc, sc.owner);
+
+    // email for the newly created revert change
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(sc.reviewer, sc.ccer, sc.watchingProjectOwner, admin)
+        .bcc(NEW_CHANGES, NEW_PATCHSETS)
+        .noOneElse();
+
+    // email for the change that is reverted
+    assertThat(sender)
+        .sent("revert", sc)
+        .cc(sc.reviewer, sc.ccer, admin)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS)
+        .noOneElse();
+  }
+
+  @Test
+  public void revertChangeByOwnerInNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     StagedChange sc = stageChange();
     revert(sc, sc.owner);
 
@@ -2169,7 +2356,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("revert", sc)
         .cc(sc.reviewer, sc.ccer, admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2177,7 +2364,37 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   }
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void revertChangeByOwnerCcingSelf() throws Exception {
+=======
+  public void revertChangeByOwnerCcingSelfInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageChange();
+    revert(sc, sc.owner, CC_ON_OWN_COMMENTS);
+
+    // email for the newly created revert change
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(sc.reviewer, sc.ccer, sc.watchingProjectOwner, admin)
+        .cc(sc.owner)
+        .bcc(NEW_CHANGES, NEW_PATCHSETS)
+        .noOneElse();
+
+    // email for the change that is reverted
+    assertThat(sender)
+        .sent("revert", sc)
+        .to(sc.owner)
+        .cc(sc.reviewer, sc.ccer, admin)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS)
+        .noOneElse();
+  }
+
+  @Test
+  public void revertChangeByOwnerCcingSelfInNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     StagedChange sc = stageChange();
     revert(sc, sc.owner, CC_ON_OWN_COMMENTS);
 
@@ -2194,7 +2411,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("revert", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2202,7 +2419,36 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   }
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void revertChangeByOther() throws Exception {
+=======
+  public void revertChangeByOtherInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageChange();
+    revert(sc, other);
+
+    // email for the newly created revert change
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(sc.owner, sc.reviewer, sc.ccer, sc.watchingProjectOwner, admin)
+        .bcc(NEW_CHANGES, NEW_PATCHSETS)
+        .noOneElse();
+
+    // email for the change that is reverted
+    assertThat(sender)
+        .sent("revert", sc)
+        .to(sc.owner)
+        .cc(sc.reviewer, sc.ccer, admin)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS)
+        .noOneElse();
+  }
+
+  @Test
+  public void revertChangeByOtherInNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     StagedChange sc = stageChange();
     revert(sc, other);
 
@@ -2219,7 +2465,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("revert", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer, admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2227,7 +2473,37 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
   }
 
   @Test
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   public void revertChangeByOtherCcingSelf() throws Exception {
+=======
+  public void revertChangeByOtherCcingSelfInReviewDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isFalse();
+    StagedChange sc = stageChange();
+    revert(sc, other, CC_ON_OWN_COMMENTS);
+
+    // email for the newly created revert change
+    assertThat(sender)
+        .sent("newchange", sc)
+        .to(sc.owner, sc.reviewer, sc.ccer, sc.watchingProjectOwner, admin)
+        .cc(other)
+        .bcc(NEW_CHANGES, NEW_PATCHSETS)
+        .noOneElse();
+
+    // email for the change that is reverted
+    assertThat(sender)
+        .sent("revert", sc)
+        .to(sc.owner)
+        .cc(other, sc.reviewer, sc.ccer, admin)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL)
+        .bcc(sc.starrer)
+        .bcc(ALL_COMMENTS)
+        .noOneElse();
+  }
+
+  @Test
+  public void revertChangeByOtherCcingSelfInNoteDb() throws Exception {
+    assume().that(notesMigration.readChanges()).isTrue();
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
     StagedChange sc = stageChange();
     revert(sc, other, CC_ON_OWN_COMMENTS);
 
@@ -2244,7 +2520,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("revert", sc)
         .to(sc.owner)
         .cc(other, sc.reviewer, sc.ccer, admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2281,7 +2557,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.assignee);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2294,7 +2572,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("setassignee", sc)
         .cc(sc.owner)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2306,7 +2586,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, admin, sc.assignee);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2319,7 +2601,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("setassignee", sc)
         .cc(admin)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2331,7 +2615,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.owner);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -2345,7 +2631,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.assignee);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2359,7 +2647,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.owner);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .noOneElse();
     assertThat(sender).didNotSend();
   }
@@ -2370,7 +2660,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.assignee);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2382,7 +2674,9 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assign(sc, sc.owner, sc.assignee);
     assertThat(sender)
         .sent("setassignee", sc)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail) // TODO(logan): This is probably not intended!
+        .cc(
+            StagedUsers.REVIEWER_BY_EMAIL,
+            StagedUsers.CC_BY_EMAIL) // TODO(logan): This is probably not intended!
         .to(sc.assignee)
         .noOneElse();
     assertThat(sender).didNotSend();
@@ -2412,7 +2706,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
     assertThat(sender)
         .sent("comment", sc)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
@@ -2428,7 +2722,7 @@ public class ChangeNotificationsIT extends AbstractNotificationTest {
         .sent("comment", sc)
         .to(sc.owner)
         .cc(sc.reviewer, sc.ccer)
-        .cc(sc.reviewerByEmail, sc.ccerByEmail)
+        .cc(StagedUsers.REVIEWER_BY_EMAIL, StagedUsers.CC_BY_EMAIL)
         .bcc(sc.starrer)
         .bcc(ALL_COMMENTS)
         .noOneElse();
