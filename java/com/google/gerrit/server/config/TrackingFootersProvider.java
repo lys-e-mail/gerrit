@@ -32,12 +32,19 @@ import org.eclipse.jgit.lib.Config;
 public class TrackingFootersProvider implements Provider<TrackingFooters> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
   private static final int MAX_LENGTH = 10;
 
   private static String TRACKING_ID_TAG = "trackingid";
   private static String FOOTER_TAG = "footer";
   private static String SYSTEM_TAG = "system";
   private static String REGEX_TAG = "match";
+=======
+  private static final String TRACKING_ID_TAG = "trackingid";
+  private static final String FOOTER_TAG = "footer";
+  private static final String SYSTEM_TAG = "system";
+  private static final String REGEX_TAG = "match";
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
   private final List<TrackingFooter> trackingFooters = new ArrayList<>();
 
   @Inject

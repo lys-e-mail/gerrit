@@ -32,4 +32,32 @@ public enum ListAccountsOption implements ListOption {
   public int getValue() {
     return value;
   }
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
+=======
+
+  public static Set<ListAccountsOption> fromBits(int v) {
+    EnumSet<ListAccountsOption> r = EnumSet.noneOf(ListAccountsOption.class);
+    for (ListAccountsOption o : ListAccountsOption.values()) {
+      if ((v & (1 << o.value)) != 0) {
+        r.add(o);
+        v &= ~(1 << o.value);
+      }
+      if (v == 0) {
+        return r;
+      }
+    }
+    if (v != 0) {
+      throw new IllegalArgumentException("unknown " + Integer.toHexString(v));
+    }
+    return r;
+  }
+
+  public static int toBits(Set<ListAccountsOption> set) {
+    int r = 0;
+    for (ListAccountsOption o : set) {
+      r |= 1 << o.value;
+    }
+    return r;
+  }
+>>>>>>> BRANCH (9ec0b9 ChangeNotificationsIT: Fix eclipse warning(s) about static u)
 }
