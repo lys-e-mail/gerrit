@@ -391,8 +391,13 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
     }
 
     @Override
+<<<<<<< HEAD   (de6373 Merge "Fix a dependency injection runtime error in DeleteZom)
     public ResultSet<V> read() {
       return readImpl((doc) -> AbstractElasticIndex.this.fromDocument(doc, opts.fields()));
+=======
+    public ResultSet<V> read() throws OrmException {
+      return readImpl(doc -> AbstractElasticIndex.this.fromDocument(doc, opts.fields()));
+>>>>>>> BRANCH (f34572 CacheMetrics: Make F_NAME a final constant in class scope)
     }
 
     @Override
