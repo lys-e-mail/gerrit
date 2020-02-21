@@ -32,5 +32,9 @@ java_library(
         "//lib/flogger:api",
         "//lib/guice",
         "//lib/guice:guice-servlet",
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
     ],
 )

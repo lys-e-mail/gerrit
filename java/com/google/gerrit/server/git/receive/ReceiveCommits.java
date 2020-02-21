@@ -2142,6 +2142,7 @@ class ReceiveCommits {
             }
           }
 
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
           List<String> idList = c.getFooterLines(FooterConstants.CHANGE_ID);
           if (!idList.isEmpty()) {
             pending.put(c, lookupByChangeKey(c, Change.key(idList.get(idList.size() - 1).trim())));
@@ -2155,6 +2156,11 @@ class ReceiveCommits {
             reject(
                 magicBranch.cmd,
                 "the number of pushed changes in a batch exceeds the max limit " + maxBatchChanges);
+=======
+        if (changes.isEmpty()) {
+          if (!isValidChangeId(p.changeKey.get())) {
+            reject(magicBranch.cmd, "invalid Change-Id");
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
             return Collections.emptyList();
           }
 

@@ -12,7 +12,10 @@ java_library(
     srcs = ABSTRACT_QUERY_TEST,
     visibility = ["//visibility:public"],
     runtime_deps = [
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         "//java/com/google/gerrit/lucene",
+=======
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//prolog:gerrit-prolog-common",
     ],
     deps = [
@@ -32,9 +35,13 @@ java_library(
         "//lib:jgit",
         "//lib:jgit-junit",
         "//lib/guice",
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         "//lib/log:log4j",
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+        "//lib/jgit/org.eclipse.jgit.junit:junit",
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//lib/truth",
-        "//resources:log4j-config",
     ],
 )
 

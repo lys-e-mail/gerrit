@@ -35,10 +35,17 @@ public class AccountsConsistencyChecker {
     List<ConsistencyProblemInfo> problems = new ArrayList<>();
 
     for (AccountState accountState : accounts.all()) {
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       Account account = accountState.account();
       if (account.preferredEmail() != null) {
         if (!accountState.externalIds().stream()
             .anyMatch(e -> account.preferredEmail().equals(e.email()))) {
+=======
+      Account account = accountState.getAccount();
+      if (account.getPreferredEmail() != null) {
+        if (accountState.getExternalIds().stream()
+            .noneMatch(e -> account.getPreferredEmail().equals(e.email()))) {
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
           addError(
               String.format(
                   "Account '%s' has no external ID for its preferred email '%s'",

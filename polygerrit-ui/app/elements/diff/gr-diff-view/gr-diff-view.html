@@ -137,12 +137,19 @@ limitations under the License.
         align-items: center;
         display: flex;
       }
-      .diffModeSelector {
+      .diffModeSelector,
+      .editButton {
         align-items: center;
         display: flex;
       }
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       .diffModeSelector span {
         margin-right: var(--spacing-xs);
+=======
+      .diffModeSelector span,
+      .editButton span {
+        margin-right: .2rem;
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
       }
       .diffModeSelector.hide,
       .separator.hide {
@@ -152,6 +159,9 @@ limitations under the License.
         --trigger-style: {
           text-transform: none;
         }
+      }
+      .editButtona a {
+        text-decoration: none;
       }
       @media screen and (max-width: 50em) {
         header {
@@ -281,9 +291,21 @@ limitations under the License.
             <gr-button
                 link
                 disabled="[[_isBlameLoading]]"
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
                 on-click="_toggleBlame">[[_computeBlameToggleLabel(_isBlameLoaded, _isBlameLoading)]]</gr-button>
             <span class="separator"></span>
+=======
+                on-tap="_toggleBlame">[[_computeBlameToggleLabel(_isBlameLoaded, _isBlameLoading)]]</gr-button>
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
           </span>
+          <template is="dom-if" if="[[_computeIsLoggedIn(_loggedIn)]]">
+            <span class="editButton">
+              <a href$="[[_computeEditURL(_change, _patchRange, _path)]]">
+                <iron-icon icon="gr-icons:edit"></iron-icon>
+              </a>
+              <span class="separator"></span>
+            </span>
+          </template>
           <div class$="diffModeSelector [[_computeModeSelectHideClass(_isImageDiff)]]">
             <span>Diff view:</span>
             <gr-diff-mode-selector

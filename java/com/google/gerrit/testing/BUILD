@@ -44,6 +44,7 @@ java_library(
         "//lib/flogger:api",
         "//lib/guice",
         "//lib/guice:guice-servlet",
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         "//lib/truth",
     ],
 )
@@ -56,6 +57,12 @@ java_library(
     visibility = ["//visibility:public"],
     deps = [
         "//lib:guava",
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+        "//lib/jgit/org.eclipse.jgit.junit:junit",
+        "//lib/log:impl-log4j",
+        "//lib/log:log4j",
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//lib/truth",
     ],
 )

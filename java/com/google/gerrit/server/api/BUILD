@@ -12,6 +12,10 @@ java_library(
         "//java/com/google/gerrit/entities",
         "//java/com/google/gerrit/exceptions",
         "//java/com/google/gerrit/extensions:api",
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+        "//java/com/google/gerrit/reviewdb:server",
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/restapi",
         "//java/com/google/gerrit/util/cli",

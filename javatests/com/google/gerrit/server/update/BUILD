@@ -9,12 +9,19 @@ junit_tests(
         "//prolog:gerrit-prolog-common",
     ],
     deps = [
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         "//java/com/google/gerrit/common:annotations",
         "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/entities",
         "//java/com/google/gerrit/extensions:api",
+=======
+        "//java/com/google/gerrit/reviewdb:server",
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//java/com/google/gerrit/server",
+<<<<<<< HEAD   (7dfa6a Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         "//java/com/google/gerrit/server/logging",
+=======
+>>>>>>> BRANCH (7bcca9 Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         "//java/com/google/gerrit/server/util/time",
         "//java/com/google/gerrit/testing:gerrit-test-util",
         "//lib:guava",
