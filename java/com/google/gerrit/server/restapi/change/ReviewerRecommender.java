@@ -230,6 +230,7 @@ public class ReviewerRecommender {
     }
   }
 
+<<<<<<< HEAD   (294522 Update git submodules)
   private boolean accountMatchesQuery(Account.Id id, String query) {
     Optional<Account> account = accountCache.get(id).map(AccountState::account);
     if (account.isPresent() && account.get().isActive()) {
@@ -237,6 +238,46 @@ public class ReviewerRecommender {
           || (account.get().preferredEmail() != null
               && account.get().preferredEmail().startsWith(query))) {
         return true;
+=======
+  private Map<Account.Id, MutableDouble> baseRankingForCandidateList(
+      List<Account.Id> candidates, ProjectState projectState, double baseWeight)
+      throws IOException, ConfigInvalidException {
+    // Get each reviewer's activity based on number of applied labels
+    // (weighted 10d), number of comments (weighted 0.5d) and number of owned
+    // changes (weighted 1d).
+    Map<Account.Id, MutableDouble> reviewers = new LinkedHashMap<>();
+    if (candidates.isEmpty()) {
+      return reviewers;
+    }
+    List<Predicate<ChangeData>> predicates = new ArrayList<>();
+    for (Account.Id id : candidates) {
+      try {
+        Predicate<ChangeData> projectQuery = changeQueryBuilder.project(projectState.getName());
+
+        // Get all labels for this project and create a compound OR query to
+        // fetch all changes where users have applied one of these labels
+        List<LabelType> labelTypes = projectState.getLabelTypes().getLabelTypes();
+        List<Predicate<ChangeData>> labelPredicates = new ArrayList<>(labelTypes.size());
+        for (LabelType type : labelTypes) {
+          labelPredicates.add(changeQueryBuilder.label(type.getName() + ",user=" + id));
+        }
+        Predicate<ChangeData> reviewerQuery =
+            Predicate.and(projectQuery, Predicate.or(labelPredicates));
+
+        Predicate<ChangeData> ownerQuery =
+            Predicate.and(projectQuery, changeQueryBuilder.owner(id.toString()));
+        Predicate<ChangeData> commentedByQuery =
+            Predicate.and(projectQuery, changeQueryBuilder.commentby(id.toString()));
+
+        predicates.add(reviewerQuery);
+        predicates.add(ownerQuery);
+        predicates.add(commentedByQuery);
+        reviewers.put(id, new MutableDouble());
+      } catch (QueryParseException e) {
+        // Unhandled: If an exception is thrown, we won't increase the
+        // candidates's score
+        logger.atSevere().withCause(e).log("Exception while suggesting reviewers");
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
       }
     }
     return false;

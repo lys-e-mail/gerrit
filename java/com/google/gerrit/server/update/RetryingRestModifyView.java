@@ -30,6 +30,7 @@ public abstract class RetryingRestModifyView<R extends RestResource, I, O>
   }
 
   @Override
+<<<<<<< HEAD   (294522 Update git submodules)
   public final Response<O> apply(R resource, I input) throws RestApiException {
     AtomicReference<String> traceId = new AtomicReference<>(null);
     try {
@@ -46,6 +47,10 @@ public abstract class RetryingRestModifyView<R extends RestResource, I, O>
       Throwables.throwIfInstanceOf(e, RestApiException.class);
       return Response.<O>internalServerError(e).traceId(traceId.get());
     }
+=======
+  public final O apply(R resource, I input) throws Exception {
+    return retryHelper.execute(updateFactory -> applyImpl(updateFactory, resource, input));
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
   }
 
   protected abstract Response<O> applyImpl(BatchUpdate.Factory updateFactory, R resource, I input)

@@ -20,10 +20,13 @@ java_library(
         "//lib:guava",
         "//lib:jgit",
         "//lib/guice",
+<<<<<<< HEAD   (294522 Update git submodules)
         "//lib/log:log4j",
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//lib/truth",
         "//lib/truth:truth-java8-extension",
-        "//resources:log4j-config",
     ],
 )
 

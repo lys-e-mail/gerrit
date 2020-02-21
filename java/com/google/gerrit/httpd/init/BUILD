@@ -32,5 +32,9 @@ java_library(
         "//lib/flogger:api",
         "//lib/guice",
         "//lib/guice:guice-servlet",
+<<<<<<< HEAD   (294522 Update git submodules)
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
     ],
 )
