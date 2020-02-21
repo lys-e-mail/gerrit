@@ -7,11 +7,18 @@ junit_tests(
     visibility = ["//visibility:public"],
     runtime_deps = ["//java/com/google/gerrit/lucene"],
     deps = [
+<<<<<<< HEAD   (294522 Update git submodules)
         "//java/com/google/gerrit/entities",
+=======
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/gpg",
         "//java/com/google/gerrit/gpg/testing:gpg-test-util",
         "//java/com/google/gerrit/lifecycle",
+<<<<<<< HEAD   (294522 Update git submodules)
+=======
+        "//java/com/google/gerrit/reviewdb:server",
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/schema",
         "//java/com/google/gerrit/testing:gerrit-test-util",

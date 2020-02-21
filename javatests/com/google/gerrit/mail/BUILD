@@ -8,8 +8,15 @@ junit_tests(
     ),
     visibility = ["//visibility:public"],
     deps = [
+<<<<<<< HEAD   (294522 Update git submodules)
         "//java/com/google/gerrit/entities",
+=======
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/mail",
+<<<<<<< HEAD   (294522 Update git submodules)
+=======
+        "//java/com/google/gerrit/reviewdb:server",
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/testing:gerrit-test-util",
         "//lib:gson",
         "//lib:guava-retrying",

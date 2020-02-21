@@ -36,6 +36,7 @@ public abstract class RetryingRestCollectionModifyView<
   @Override
   public final Response<O> apply(P parentResource, I input)
       throws AuthException, BadRequestException, ResourceConflictException, Exception {
+<<<<<<< HEAD   (294522 Update git submodules)
     AtomicReference<String> traceId = new AtomicReference<>(null);
     try {
       RetryHelper.Options retryOptions =
@@ -51,6 +52,9 @@ public abstract class RetryingRestCollectionModifyView<
       Throwables.throwIfInstanceOf(e, RestApiException.class);
       return Response.<O>internalServerError(e).traceId(traceId.get());
     }
+=======
+    return retryHelper.execute(updateFactory -> applyImpl(updateFactory, parentResource, input));
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
   }
 
   protected abstract Response<O> applyImpl(

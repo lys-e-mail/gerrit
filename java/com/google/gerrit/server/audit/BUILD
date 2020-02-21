@@ -11,6 +11,10 @@ java_library(
     deps = [
         "//java/com/google/gerrit/entities",
         "//java/com/google/gerrit/extensions:api",
+<<<<<<< HEAD   (294522 Update git submodules)
+=======
+        "//java/com/google/gerrit/reviewdb:server",
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/server",
         "//lib:args4j",
         "//lib:autolink",
