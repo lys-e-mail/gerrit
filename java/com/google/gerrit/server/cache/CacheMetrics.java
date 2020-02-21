@@ -32,10 +32,15 @@ import java.util.Set;
 
 @Singleton
 public class CacheMetrics {
+  private static final Field<String> F_NAME = Field.ofString("cache_name");
+
   @Inject
   public CacheMetrics(MetricMaker metrics, DynamicMap<Cache<?, ?>> cacheMap) {
+<<<<<<< HEAD   (294522 Update git submodules)
     Field<String> F_NAME = Field.ofString("cache_name", Metadata.Builder::cacheName).build();
 
+=======
+>>>>>>> BRANCH (c492db Merge branch 'stable-2.16' into stable-3.0)
     CallbackMetric1<String, Long> memEnt =
         metrics.newCallbackMetric(
             "caches/memory_cached",
