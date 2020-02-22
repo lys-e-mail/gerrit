@@ -18,18 +18,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Objects.requireNonNull;
-import static org.apache.log4j.Logger.getLogger;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
 import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.config.ConfigAnnotationParser;
 import com.google.gerrit.acceptance.config.GerritConfig;
 import com.google.gerrit.acceptance.config.GerritConfigs;
 import com.google.gerrit.acceptance.config.GlobalPluginConfig;
 import com.google.gerrit.acceptance.config.GlobalPluginConfigs;
+=======
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.acceptance.testsuite.account.AccountOperations;
 import com.google.gerrit.acceptance.testsuite.account.AccountOperationsImpl;
 import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
@@ -55,6 +57,7 @@ import com.google.gerrit.server.util.SystemLog;
 import com.google.gerrit.testing.FakeEmailSender;
 import com.google.gerrit.testing.InMemoryRepositoryManager;
 import com.google.gerrit.testing.SshMode;
+import com.google.gerrit.testing.TestLoggingActivator;
 import com.google.inject.AbstractModule;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
@@ -80,11 +83,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.util.FS;
@@ -122,8 +120,7 @@ public class GerritServer implements AutoCloseable {
           null, // @GerritConfig is only valid on methods.
           null, // @GerritConfigs is only valid on methods.
           null, // @GlobalPluginConfig is only valid on methods.
-          null, // @GlobalPluginConfigs is only valid on methods.
-          getLogLevelThresholdAnnotation(testDesc));
+          null); // @GlobalPluginConfigs is only valid on methods.
     }
 
     public static Description forTestMethod(
@@ -159,8 +156,7 @@ public class GerritServer implements AutoCloseable {
           testDesc.getAnnotation(GerritConfig.class),
           testDesc.getAnnotation(GerritConfigs.class),
           testDesc.getAnnotation(GlobalPluginConfig.class),
-          testDesc.getAnnotation(GlobalPluginConfigs.class),
-          getLogLevelThresholdAnnotation(testDesc));
+          testDesc.getAnnotation(GlobalPluginConfigs.class));
     }
 
     private static boolean has(Class<? extends Annotation> annotation, Class<?> clazz) {
@@ -180,14 +176,6 @@ public class GerritServer implements AutoCloseable {
         }
       }
       return null;
-    }
-
-    private static Level getLogLevelThresholdAnnotation(org.junit.runner.Description testDesc) {
-      LogThreshold logLevelThreshold = testDesc.getTestClass().getAnnotation(LogThreshold.class);
-      if (logLevelThreshold == null) {
-        return Level.DEBUG;
-      }
-      return Level.toLevel(logLevelThreshold.level());
     }
 
     abstract org.junit.runner.Description testDescription();
@@ -229,8 +217,6 @@ public class GerritServer implements AutoCloseable {
     @Nullable
     abstract GlobalPluginConfigs pluginConfigs();
 
-    abstract Level logLevelThreshold();
-
     private void checkValidAnnotations() {
       if (useClockStep() != null && useSystemTime()) {
         throw new IllegalStateException("Use either @UseClockStep or @UseSystemTime, not both");
@@ -267,6 +253,7 @@ public class GerritServer implements AutoCloseable {
     }
   }
 
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
   private static final ImmutableMap<String, Level> LOG_LEVELS =
       ImmutableMap.<String, Level>builder()
           .put("com.google.gerrit", getGerritLogLevel())
@@ -315,6 +302,8 @@ public class GerritServer implements AutoCloseable {
     return Level.toLevel(value, Level.INFO);
   }
 
+=======
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
   private static boolean forceLocalDisk() {
     String value = Strings.nullToEmpty(System.getenv("GERRIT_FORCE_LOCAL_DISK"));
     if (value.isEmpty()) {
@@ -430,7 +419,7 @@ public class GerritServer implements AutoCloseable {
       throws Exception {
     checkArgument(site != null, "site is required (even for in-memory server");
     desc.checkValidAnnotations();
-    configureLogging(desc.logLevelThreshold());
+    TestLoggingActivator.configureLogging();
     CyclicBarrier serverStarted = new CyclicBarrier(2);
     Daemon daemon =
         new Daemon(
@@ -529,25 +518,6 @@ public class GerritServer implements AutoCloseable {
     System.out.println("Gerrit Server Started");
 
     return new GerritServer(desc, site, createTestInjector(daemon), daemon, daemonService);
-  }
-
-  private static void configureLogging(Level threshold) {
-    LogManager.resetConfiguration();
-
-    PatternLayout layout = new PatternLayout();
-    layout.setConversionPattern("%-5p %c %x: %m%n");
-
-    ConsoleAppender dst = new ConsoleAppender();
-    dst.setLayout(layout);
-    dst.setTarget("System.err");
-    dst.setThreshold(threshold);
-    dst.activateOptions();
-
-    Logger root = LogManager.getRootLogger();
-    root.removeAllAppenders();
-    root.addAppender(dst);
-
-    LOG_LEVELS.entrySet().stream().forEach(e -> getLogger(e.getKey()).setLevel(e.getValue()));
   }
 
   private static void mergeTestConfig(Config cfg) {

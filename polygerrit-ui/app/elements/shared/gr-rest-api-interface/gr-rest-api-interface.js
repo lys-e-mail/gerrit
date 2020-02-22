@@ -1170,7 +1170,11 @@
           res.files);
       }
       return this.getChangeFiles(changeNum, patchRange);
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     getChangeRevisionActions(changeNum, patchNum) {
       const req = {

@@ -151,12 +151,64 @@ public class GetDiff implements RestReadView<FileResource> {
           DiffSide.create(
               ps.getFileInfoA(),
               MoreObjects.firstNonNull(ps.getOldName(), ps.getNewName()),
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
               DiffSide.Type.SIDE_A);
       DiffSide sideB = DiffSide.create(ps.getFileInfoB(), ps.getNewName(), DiffSide.Type.SIDE_B);
       DiffWebLinksProvider webLinksProvider =
           new DiffWebLinksProviderImpl(sideA, sideB, projectName, basePatchSet, webLinks, resource);
       DiffInfoCreator diffInfoCreator = new DiffInfoCreator(state, webLinksProvider, intraline);
       DiffInfo result = diffInfoCreator.create(ps, sideA, sideB);
+=======
+              resource.getPatchKey().patchSetId().get(),
+              revB,
+              ps.getNewName());
+      result.webLinks = links.isEmpty() ? null : links;
+
+      if (ps.isBinary()) {
+        result.binary = true;
+      }
+      if (ps.getDisplayMethodA() != DisplayMethod.NONE) {
+        result.metaA = new FileMeta();
+        result.metaA.name = MoreObjects.firstNonNull(ps.getOldName(), ps.getNewName());
+        result.metaA.contentType =
+            FileContentUtil.resolveContentType(
+                state, result.metaA.name, ps.getFileModeA(), ps.getMimeTypeA());
+        result.metaA.lines = ps.getA().size();
+        result.metaA.webLinks = getFileWebLinks(state.getProject(), revA, result.metaA.name);
+        result.metaA.commitId = content.commitIdA;
+      }
+
+      if (ps.getDisplayMethodB() != DisplayMethod.NONE) {
+        result.metaB = new FileMeta();
+        result.metaB.name = ps.getNewName();
+        result.metaB.contentType =
+            FileContentUtil.resolveContentType(
+                state, result.metaB.name, ps.getFileModeB(), ps.getMimeTypeB());
+        result.metaB.lines = ps.getB().size();
+        result.metaB.webLinks = getFileWebLinks(state.getProject(), revB, result.metaB.name);
+        result.metaB.commitId = content.commitIdB;
+      }
+
+      if (intraline) {
+        if (ps.hasIntralineTimeout()) {
+          result.intralineStatus = IntraLineStatus.TIMEOUT;
+        } else if (ps.hasIntralineFailure()) {
+          result.intralineStatus = IntraLineStatus.FAILURE;
+        } else {
+          result.intralineStatus = IntraLineStatus.OK;
+        }
+      }
+
+      result.changeType = CHANGE_TYPE.get(ps.getChangeType());
+      if (result.changeType == null) {
+        throw new IllegalStateException("unknown change type: " + ps.getChangeType());
+      }
+
+      if (!ps.getPatchHeader().isEmpty()) {
+        result.diffHeader = ps.getPatchHeader();
+      }
+      result.content = content.lines;
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
       Response<DiffInfo> r = Response.ok(result);
       if (resource.isCacheable()) {

@@ -818,7 +818,11 @@
       // Load the current change without any patch range.
       Gerrit.Nav.navigateToChange(this.change);
       this.cancel();
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _computeSendButtonLabel(canBeStarted) {
       return canBeStarted ? ButtonLabels.START_REVIEW : ButtonLabels.SEND;

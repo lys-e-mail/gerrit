@@ -5,7 +5,12 @@ junit_tests(
     name = "pgm_tests",
     srcs = glob(["**/*.java"]),
     deps = [
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
         "//java/com/google/gerrit/pgm/http/jetty",
+=======
+        "//java/com/google/gerrit/pgm",
+        "//java/com/google/gerrit/pgm/init",
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
         "//java/com/google/gerrit/pgm/init/api",
         "//java/com/google/gerrit/server",
         "//java/com/google/gerrit/server/securestore/testing",
