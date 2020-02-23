@@ -243,8 +243,13 @@ public class ProjectWatch {
     if (user == null) {
       qb = args.queryBuilder.get().asUser(args.anonymousUser.get());
     } else {
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
       qb = args.queryBuilder.get().asUser(user);
       p = qb.is_visible();
+=======
+      qb = args.queryBuilder.asUser(user);
+      p = qb.isVisible();
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
     }
 
     if (filter != null) {

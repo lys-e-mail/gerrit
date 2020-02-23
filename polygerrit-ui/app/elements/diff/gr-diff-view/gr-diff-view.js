@@ -68,6 +68,7 @@
       /**
        * URL params passed from the router.
        */
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
         params: {
           type: Object,
           observer: '_paramsChanged',
@@ -134,6 +135,101 @@
           type: Object,
           value() { return {sortedFileList: [], changeFilesByPath: {}}; },
         },
+=======
+      params: {
+        type: Object,
+        observer: '_paramsChanged',
+      },
+      keyEventTarget: {
+        type: Object,
+        value() { return document.body; },
+      },
+      /**
+       * @type {{ diffMode: (string|undefined) }}
+       */
+      changeViewState: {
+        type: Object,
+        notify: true,
+        value() { return {}; },
+        observer: '_changeViewStateChanged',
+      },
+      disableDiffPrefs: {
+        type: Boolean,
+        value: false,
+      },
+      _diffPrefsDisabled: {
+        type: Boolean,
+        computed: '_computeDiffPrefsDisabled(disableDiffPrefs, _loggedIn)',
+      },
+      /** @type {?} */
+      _patchRange: Object,
+      /** @type {?} */
+      _commitRange: Object,
+      /**
+       * @type {{
+       *  subject: string,
+       *  project: string,
+       *  revisions: string,
+       * }}
+       */
+      _change: Object,
+      /** @type {?} */
+      _changeComments: Object,
+      _changeNum: String,
+      /**
+       * This is a DiffInfo object.
+       * This is retrieved and owned by a child component.
+       */
+      _diff: Object,
+      // An array specifically formatted to be used in a gr-dropdown-list
+      // element for selected a file to view.
+      _formattedFiles: {
+        type: Array,
+        computed: '_formatFilesForDropdown(_files, _patchRange.patchNum, ' +
+            '_changeComments)',
+      },
+      // An sorted array of files, as returned by the rest API.
+      _fileList: {
+        type: Array,
+        computed: '_getSortedFileList(_files)',
+      },
+      /**
+       * Contains information about files as returned by the rest API.
+       *
+       * @type {{ sortedFileList: Array<string>, changeFilesByPath: Object }}
+       */
+      _files: {
+        type: Object,
+        value() { return {sortedFileList: [], changeFilesByPath: {}}; },
+      },
+
+      _path: {
+        type: String,
+        observer: '_pathChanged',
+      },
+      _fileNum: {
+        type: Number,
+        computed: '_computeFileNum(_path, _formattedFiles)',
+      },
+      _loggedIn: {
+        type: Boolean,
+        value: false,
+      },
+      _loading: {
+        type: Boolean,
+        value: true,
+      },
+      _prefs: Object,
+      _localPrefs: Object,
+      _projectConfig: Object,
+      _userPrefs: Object,
+      _diffMode: {
+        type: String,
+        computed: '_getDiffViewMode(changeViewState.diffMode, _userPrefs)',
+      },
+      _isImageDiff: Boolean,
+      _filesWeblinks: Object,
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
         _path: {
           type: String,
@@ -204,6 +300,7 @@
           value: () => new Set(),
         },
 
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
         /**
          * gr-diff-view has gr-fixed-panel on top. The panel can
          * intersect a main element and partially hides a content of
@@ -218,6 +315,13 @@
         },
       };
     }
+=======
+    observers: [
+      '_getProjectConfig(_change.project)',
+      '_getFiles(_changeNum, _patchRange.*, _changeComments)',
+      '_setReviewedObserver(_loggedIn, params.*, _prefs)',
+    ],
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     static get observers() {
       return [
@@ -306,7 +410,11 @@
 
     _getSortedFileList(files) {
       return files.sortedFileList;
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _getFiles(changeNum, patchRangeRecord, changeComments) {
       // Polymer 2: check for undefined
@@ -611,6 +719,14 @@
       return Gerrit.Nav.getEditUrlForDiff(
           change, path, patchRange.patchNum);
     }
+
+    _computeEditURL(change, patchRange, path) {
+      if ([change, patchRange, path].some(arg => arg === undefined)) {
+        return '';
+      }
+      return Gerrit.Nav.getEditUrlForDiff(
+          change, path, patchRange.patchNum);
+    },
 
     /**
      * Gives an object representing the target of navigating either left or
@@ -919,7 +1035,11 @@
         commentString,
         unresolvedString]
           .filter(v => v && v.length > 0).join(', ');
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _computePrefsButtonHidden(prefs, prefsDisabled) {
       return prefsDisabled || !prefs;
@@ -1224,6 +1344,7 @@
 
     _handleReloadingDiffPreference() {
       this._getDiffPreferences();
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
 
     _onChangeHeaderPanelHeightChanged(e) {
@@ -1236,4 +1357,12 @@
   }
 
   customElements.define(GrDiffView.is, GrDiffView);
+=======
+    },
+
+    _computeIsLoggedIn(loggedIn) {
+      return loggedIn ? true : false;
+    },
+  });
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 })();

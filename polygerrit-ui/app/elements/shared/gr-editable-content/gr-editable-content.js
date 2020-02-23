@@ -143,8 +143,22 @@
     }
 
     _computeSaveDisabled(disabled, content, newContent) {
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
       return disabled || !newContent || content === newContent;
     }
+=======
+      // Polymer 2: check for undefined
+      if ([
+        disabled,
+        content,
+        newContent,
+      ].some(arg => arg === undefined)) {
+        return true;
+      }
+
+      return disabled || !newContent || content === newContent;
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _handleSave(e) {
       e.preventDefault();
@@ -152,7 +166,11 @@
       // It would be nice, if we would set this._newContent = undefined here,
       // but we can only do that when we are sure that the save operation has
       // succeeded.
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _handleCancel(e) {
       e.preventDefault();

@@ -177,10 +177,15 @@
               for (const query in LookupQueryPatterns) {
                 if (LookupQueryPatterns.hasOwnProperty(query) &&
                 this._query.match(LookupQueryPatterns[query])) {
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
                   Gerrit.Nav.navigateToChange(changes[0]);
                   return;
                 }
               }
+=======
+              Gerrit.Nav.navigateToChange(changes[0]);
+              return;
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
             }
             this._changes = changes;
             this._loading = false;
@@ -197,7 +202,11 @@
           this.preferences = {};
         }
       });
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
     }
+=======
+    },
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
     _getChanges() {
       return this.$.restAPI.getChanges(this._changesPerPage, this._query,

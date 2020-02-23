@@ -27,6 +27,7 @@ import org.eclipse.jgit.lib.Config;
 
 @Singleton
 public class ChangeCleanupConfig {
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private static String SECTION = "changeCleanup";
@@ -35,6 +36,14 @@ public class ChangeCleanupConfig {
   private static String KEY_ABANDON_MESSAGE = "abandonMessage";
   private static String KEY_CLEANUP_ACCOUNT_PATCH_REVIEW = "cleanupAccountPatchReview";
   private static String DEFAULT_ABANDON_MESSAGE =
+=======
+  private static final String SECTION = "changeCleanup";
+  private static final String KEY_ABANDON_AFTER = "abandonAfter";
+  private static final String KEY_ABANDON_IF_MERGEABLE = "abandonIfMergeable";
+  private static final String KEY_ABANDON_MESSAGE = "abandonMessage";
+  private static final String KEY_CLEANUP_ACCOUNT_PATCH_REVIEW = "cleanupAccountPatchReview";
+  private static final String DEFAULT_ABANDON_MESSAGE =
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
       "Auto-Abandoned due to inactivity, see "
           + "${URL}\n"
           + "\n"

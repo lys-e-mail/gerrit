@@ -233,7 +233,7 @@ public class ProjectsConsistencyChecker {
         predicates.add(new CommitPredicate(commit.name()));
       }
 
-      if (predicates.size() > 0) {
+      if (!predicates.isEmpty()) {
         // Execute the query with the remaining predicates that were collected.
         autoCloseableChanges.addAll(
             executeQueryAndAutoCloseChanges(
@@ -258,6 +258,7 @@ public class ProjectsConsistencyChecker {
 
     try {
       List<ChangeData> queryResult =
+<<<<<<< HEAD   (71632f Merge "Let GrDiffHost determine whether to show newline warn)
           retryHelper
               .changeIndexQuery(
                   "projectsConsistencyCheckerQueryChanges",
@@ -265,6 +266,17 @@ public class ProjectsConsistencyChecker {
                       q.setRequestedFields(ChangeField.CHANGE, ChangeField.PATCH_SET)
                           .query(and(basePredicate, or(predicates))))
               .call();
+=======
+          retryHelper.execute(
+              ActionType.INDEX_QUERY,
+              () ->
+                  // Execute the query.
+                  changeQueryProvider
+                      .get()
+                      .setRequestedFields(ChangeField.CHANGE, ChangeField.PATCH_SET)
+                      .query(and(basePredicate, or(predicates))),
+              StorageException.class::isInstance);
+>>>>>>> BRANCH (86ed97 Merge branch 'stable-3.0' into stable-3.1)
 
       // Result for this query that we want to return to the client.
       List<ChangeInfo> autoCloseableChangesByBranch = new ArrayList<>();
