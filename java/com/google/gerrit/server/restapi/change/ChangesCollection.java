@@ -80,8 +80,13 @@ public class ChangesCollection implements RestCollection<TopLevelResource, Chang
 
   @Override
   public ChangeResource parse(TopLevelResource root, IdString id)
+<<<<<<< HEAD   (6213e7 Merge branch 'stable-2.16' into stable-3.0)
       throws RestApiException, PermissionBackendException, IOException {
     List<ChangeNotes> notes = changeFinder.find(id.encoded(), true);
+=======
+      throws RestApiException, OrmException, PermissionBackendException, IOException {
+    List<ChangeNotes> notes = changeFinder.find(id.encoded());
+>>>>>>> BRANCH (5b6194 Merge "Documentation: Add site-path arg to reindex command" )
     if (notes.isEmpty()) {
       throw new ResourceNotFoundException(id);
     } else if (notes.size() != 1) {

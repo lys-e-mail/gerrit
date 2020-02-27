@@ -1152,6 +1152,7 @@ Allow blame on side by side diff. If set to false, blame cannot be used.
 Default is true.
 
 [[change.allowDrafts]]change.allowDrafts::
+<<<<<<< HEAD   (6213e7 Merge branch 'stable-2.16' into stable-3.0)
 +
 Legacy support for drafts workflow. If set to true, pushing a new change
 with draft option will create a private change. Pushing with draft option
@@ -1175,6 +1176,8 @@ explicitly.
 Default is `ALL`.
 
 [[change.api.excludeMergeableInChangeInfo]]change.api.excludeMergeableInChangeInfo::
+=======
+>>>>>>> BRANCH (5b6194 Merge "Documentation: Add site-path arg to reindex command" )
 +
 If true, the mergeability bit in
 link:rest-api-changes.html#change-info[ChangeInfo] will never be set. It can
