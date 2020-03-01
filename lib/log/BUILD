@@ -4,7 +4,12 @@ java_library(
     name = "api",
     data = ["//lib:LICENSE-slf4j"],
     visibility = [
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
         "//lib:__pkg__",
+=======
+        "//javatests/com/google/gerrit/elasticsearch:__pkg__",
+        "//lib/jgit/org.eclipse.jgit:__pkg__",
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
         "//plugins:__pkg__",
     ],
     exports = ["@log-api//jar"],

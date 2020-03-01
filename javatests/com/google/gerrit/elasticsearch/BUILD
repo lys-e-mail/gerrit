@@ -17,6 +17,11 @@ java_library(
         "//lib:junit",
         "//lib/guice",
         "//lib/httpcomponents:httpcore",
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
+=======
+        "//lib/jgit/org.eclipse.jgit:jgit",
+        "//lib/log:api",
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
         "//lib/testcontainers",
         "//lib/testcontainers:testcontainers-elasticsearch",
     ],

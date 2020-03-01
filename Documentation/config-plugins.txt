@@ -176,6 +176,7 @@ Configuration]
 [[other-plugins]]
 == Other Plugins
 
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
 Besides core plugins there are many other Gerrit plugins available.
 These plugins are developed and maintained by different parties.
 The Gerrit Project doesn't guarantee proper functionality of any of
@@ -819,6 +820,10 @@ Documentation] |
 link:https://gerrit.googlesource.com/plugins/x-docs/+doc/master/src/main/resources/Documentation/config.md[
 Configuration]
 
+=======
+Besides core plugins there are many other Gerrit plugins available. This Gerrit home
+link:https://www.gerritcodereview.com/plugins.html[page for plugins] lists them.
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 
 GERRIT
 ------

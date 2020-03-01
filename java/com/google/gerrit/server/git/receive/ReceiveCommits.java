@@ -242,6 +242,7 @@ class ReceiveCommits {
   private static final String CANNOT_DELETE_CHANGES = "Cannot delete from '" + REFS_CHANGES + "'";
   private static final String CANNOT_DELETE_CONFIG =
       "Cannot delete project configuration from '" + RefNames.REFS_CONFIG + "'";
+  private static final String INTERNAL_SERVER_ERROR = "internal server error";
 
   interface Factory {
     ReceiveCommits create(
@@ -556,6 +557,26 @@ class ReceiveCommits {
   }
 
   void processCommands(Collection<ReceiveCommand> commands, MultiProgressMonitor progress) {
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
+=======
+    Task commandProgress = progress.beginSubTask("refs", UNKNOWN);
+    commands = commands.stream().map(c -> wrapReceiveCommand(c, commandProgress)).collect(toList());
+    processCommandsUnsafe(commands, progress);
+    rejectRemaining(commands, INTERNAL_SERVER_ERROR);
+
+    // This sends error messages before the 'done' string of the progress monitor is sent.
+    // Currently, the test framework relies on this ordering to understand if pushes completed
+    // successfully.
+    sendErrorMessages();
+
+    commandProgress.end();
+    progress.end();
+  }
+
+  // Process as many commands as possible, but may leave some commands in state NOT_ATTEMPTED.
+  private void processCommandsUnsafe(
+      Collection<ReceiveCommand> commands, MultiProgressMonitor progress) {
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
     parsePushOptions();
     int commandCount = commands.size();
     try (TraceContext traceContext =
@@ -738,6 +759,15 @@ class ReceiveCommits {
           }
         }
       }
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
+=======
+      logger.atFine().log("Added %d additional ref updates", added);
+      bu.execute();
+    } catch (UpdateException | RestApiException e) {
+      rejectRemaining(cmds, INTERNAL_SERVER_ERROR);
+      logger.atFine().withCause(e).log("update failed:");
+    }
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 
       // Update superproject gitlinks if required.
       if (!branches.isEmpty()) {
@@ -901,10 +931,23 @@ class ReceiveCommits {
           replace.addOps(bu, replaceProgress);
         }
 
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
         logger.atFine().log("Adding %d create requests", newChanges.size());
         for (CreateRequest create : newChanges) {
           create.addOps(bu);
         }
+=======
+    } catch (ResourceConflictException e) {
+      addError(e.getMessage());
+      reject(magicBranchCmd, "conflict");
+    } catch (BadRequestException | UnprocessableEntityException | AuthException e) {
+      logger.atFine().withCause(e).log("Rejecting due to client error");
+      reject(magicBranchCmd, e.getMessage());
+    } catch (RestApiException | IOException e) {
+      logger.atSevere().withCause(e).log("Can't insert change/patch set for %s", project.getName());
+      reject(magicBranchCmd, String.format("%s: %s", INTERNAL_SERVER_ERROR, e.getMessage()));
+    }
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 
         logger.atFine().log("Adding %d group update requests", newChanges.size());
         updateGroups.forEach(r -> r.addOps(bu));
@@ -1872,6 +1915,7 @@ class ReceiveCommits {
         }
 
         if (magicBranch.base != null) {
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
           logger.atFine().log("Handling %%base: %s", magicBranch.base);
           magicBranch.baseCommit = Lists.newArrayListWithCapacity(magicBranch.base.size());
           for (ObjectId id : magicBranch.base) {
@@ -1907,6 +1951,49 @@ class ReceiveCommits {
               reject(cmd, magicBranch.dest.branch() + " not found");
               return;
             }
+=======
+          reject(cmd, "cannot use merged with base");
+          return;
+        }
+        RevCommit branchTip = readBranchTip(magicBranch.dest);
+        if (branchTip == null) {
+          reject(cmd, magicBranch.dest.get() + " not found");
+          return;
+        }
+        if (!walk.isMergedInto(tip, branchTip)) {
+          reject(cmd, "not merged into branch");
+          return;
+        }
+      }
+
+      // If tip is a merge commit, or the root commit or
+      // if %base or %merged was specified, ignore newChangeForAllNotInTarget.
+      if (tip.getParentCount() > 1
+          || magicBranch.base != null
+          || magicBranch.merged
+          || tip.getParentCount() == 0) {
+        logger.atFine().log("Forcing newChangeForAllNotInTarget = false");
+        newChangeForAllNotInTarget = false;
+      }
+
+      if (magicBranch.base != null) {
+        logger.atFine().log("Handling %%base: %s", magicBranch.base);
+        magicBranch.baseCommit = Lists.newArrayListWithCapacity(magicBranch.base.size());
+        for (ObjectId id : magicBranch.base) {
+          try {
+            magicBranch.baseCommit.add(walk.parseCommit(id));
+          } catch (IncorrectObjectTypeException notCommit) {
+            reject(cmd, "base must be a commit");
+            return;
+          } catch (MissingObjectException e) {
+            reject(cmd, "base not found");
+            return;
+          } catch (IOException e) {
+            logger.atWarning().withCause(e).log(
+                "Project %s cannot read %s", project.getName(), id.name());
+            reject(cmd, INTERNAL_SERVER_ERROR);
+            return;
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
           }
         }
       } catch (IOException ex) {
@@ -1915,6 +2002,15 @@ class ReceiveCommits {
         reject(cmd, "internal server error");
         return;
       }
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
+=======
+    } catch (IOException ex) {
+      logger.atWarning().withCause(ex).log(
+          "Error walking to %s in project %s", destBranch, project.getName());
+      reject(cmd, INTERNAL_SERVER_ERROR);
+      return;
+    }
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 
       if (magicBranch.deprecatedTopicSeen) {
         messages.add(
@@ -2333,6 +2429,30 @@ class ReceiveCommits {
       }
       return newChanges;
     }
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
+=======
+
+    try {
+      SortedSetMultimap<ObjectId, String> groups = groupCollector.getGroups();
+      List<Integer> newIds = seq.nextChangeIds(newChanges.size());
+      for (int i = 0; i < newChanges.size(); i++) {
+        CreateRequest create = newChanges.get(i);
+        create.setChangeId(newIds.get(i));
+        create.groups = ImmutableList.copyOf(groups.get(create.commit));
+      }
+      for (ReplaceRequest replace : replaceByChange.values()) {
+        replace.groups = ImmutableList.copyOf(groups.get(replace.newCommitId));
+      }
+      for (UpdateGroupsRequest update : updateGroups) {
+        update.groups = ImmutableList.copyOf((groups.get(update.commit)));
+      }
+      logger.atFine().log("Finished updating groups from GroupCollector");
+    } catch (StorageException e) {
+      logger.atSevere().withCause(e).log("Error collecting groups for changes");
+      reject(magicBranch.cmd, INTERNAL_SERVER_ERROR);
+    }
+    return newChanges;
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private boolean foundInExistingRef(Collection<Ref> existingRefs) {
@@ -2658,7 +2778,20 @@ class ReceiveCommits {
             "Cannot read repository before replacement for project %s", project.getName());
         rejectRemainingRequests(replaceByChange.values(), "internal server error");
       }
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
       logger.atFine().log("Read %d changes to replace", replaceByChange.size());
+=======
+    } catch (StorageException err) {
+      logger.atSevere().withCause(err).log(
+          "Cannot read database before replacement for project %s", project.getName());
+      rejectRemainingRequests(replaceByChange.values(), INTERNAL_SERVER_ERROR);
+    } catch (IOException | PermissionBackendException err) {
+      logger.atSevere().withCause(err).log(
+          "Cannot read repository before replacement for project %s", project.getName());
+      rejectRemainingRequests(replaceByChange.values(), INTERNAL_SERVER_ERROR);
+    }
+    logger.atFine().log("Read %d changes to replace", replaceByChange.size());
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 
       if (magicBranch != null && magicBranch.cmd.getResult() != NOT_ATTEMPTED) {
         // Cancel creations tied to refs/for/ command.

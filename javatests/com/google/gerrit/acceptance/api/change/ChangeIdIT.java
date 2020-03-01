@@ -18,14 +18,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
-import com.google.gerrit.acceptance.GerritConfig;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.api.changes.ChangeApi;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.ChangeInput;
-import com.google.gerrit.extensions.restapi.DeprecatedIdentifierException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.inject.Inject;
 import org.junit.Before;
@@ -140,6 +138,7 @@ public class ChangeIdIT extends AbstractDaemonTest {
   public void wrongChangeIdReturnsNotFound() throws Exception {
     assertThrows(ResourceNotFoundException.class, () -> gApi.changes().id("I1234567890"));
   }
+<<<<<<< HEAD   (9dabfa Update .gitreview file)
 
   @Test
   @GerritConfig(
@@ -164,4 +163,6 @@ public class ChangeIdIT extends AbstractDaemonTest {
                 + ci.changeId
                 + " is deprecated. Use 'project~changeNumber' instead.");
   }
+=======
+>>>>>>> BRANCH (e02b0d Merge branch 'stable-2.16' into stable-3.0)
 }
