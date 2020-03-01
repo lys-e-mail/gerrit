@@ -609,7 +609,11 @@
       const editUrl = Gerrit.Nav.getEditUrlForDiff(
           this._change, this._path, this._patchRange.patchNum);
       return Gerrit.Nav.navigateToRelativeUrl(editUrl);
+<<<<<<< HEAD   (b38c0e Merge "Add configs for enabling attention set and assignee")
     }
+=======
+    },
+>>>>>>> BRANCH (5979ce Merge branch 'stable-3.0' into stable-3.1)
 
     /**
      * Gives an object representing the target of navigating either left or
