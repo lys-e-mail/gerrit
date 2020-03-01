@@ -175,6 +175,7 @@ Configuration,role=external,window=_blank]
 [[other-plugins]]
 == Other Plugins
 
+<<<<<<< HEAD   (b38c0e Merge "Add configs for enabling attention set and assignee")
 Besides core plugins there are many other Gerrit plugins available.
 These plugins are developed and maintained by different parties.
 The Gerrit Project doesn't guarantee proper functionality of any of
@@ -818,6 +819,10 @@ Documentation,role=external,window=_blank] |
 link:https://gerrit.googlesource.com/plugins/x-docs/+doc/master/src/main/resources/Documentation/config.md[
 Configuration,role=external,window=_blank]
 
+=======
+Besides core plugins there are many other Gerrit plugins available. This Gerrit home
+link:https://www.gerritcodereview.com/plugins.html[page for plugins] lists them.
+>>>>>>> BRANCH (5979ce Merge branch 'stable-3.0' into stable-3.1)
 
 GERRIT
 ------

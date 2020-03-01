@@ -34,7 +34,11 @@ public abstract class JsonLayout extends Layout {
 
   public JsonLayout() {
     dateFormatter = createDateTimeFormatter();
+<<<<<<< HEAD   (b38c0e Merge "Add configs for enabling attention set and assignee")
     timeOffset = OffsetDateTime.now(ZoneId.systemDefault()).getOffset();
+=======
+    timeOffset = OffsetDateTime.now().getOffset();
+>>>>>>> BRANCH (5979ce Merge branch 'stable-3.0' into stable-3.1)
 
     gson = newGson();
   }
