@@ -383,6 +383,7 @@ class DefaultRefFilter {
     }
   }
 
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
   private List<Ref> fastHideRefsMetaConfig(List<Ref> refs) throws PermissionBackendException {
     if (!canReadRef(REFS_CONFIG)) {
       return refs.stream()
@@ -391,6 +392,14 @@ class DefaultRefFilter {
           // expand an array list as new elements are added. Instead, provide a list that has the
           // right size. This spares incremental list expansion which is quadratic in complexity.
           .collect(toCollection(() -> new ArrayList<>(refs.size())));
+=======
+  private Map<String, Ref> fastHideRefsMetaConfig(Map<String, Ref> refs)
+      throws PermissionBackendException {
+    if (refs.containsKey(REFS_CONFIG) && !canReadRef(REFS_CONFIG)) {
+      Map<String, Ref> r = new HashMap<>(refs);
+      r.remove(REFS_CONFIG);
+      return r;
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
     }
     return refs;
   }

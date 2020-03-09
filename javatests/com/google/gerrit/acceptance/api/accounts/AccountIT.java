@@ -130,6 +130,10 @@ import com.google.gerrit.server.git.meta.MetaDataUpdate;
 import com.google.gerrit.server.index.account.AccountIndexer;
 import com.google.gerrit.server.index.account.StalenessChecker;
 import com.google.gerrit.server.notedb.Sequences;
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
+=======
+import com.google.gerrit.server.plugincontext.PluginContext.PluginMetrics;
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.project.ProjectConfig;
 import com.google.gerrit.server.project.RefPattern;
