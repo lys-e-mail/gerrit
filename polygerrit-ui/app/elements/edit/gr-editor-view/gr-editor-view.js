@@ -62,6 +62,7 @@
           observer: '_paramsChanged',
         },
 
+<<<<<<< HEAD   (91442b Merge "ReceiveCommits: Retry inserting changes and patch set)
         _change: Object,
         _changeEditDetail: Object,
         _changeNum: String,
@@ -87,6 +88,32 @@
         _lineNum: Number,
       };
     }
+=======
+      _change: Object,
+      _changeEditDetail: Object,
+      _changeNum: String,
+      _patchNum: String,
+      _path: String,
+      _type: String,
+      _content: String,
+      _newContent: String,
+      _saving: {
+        type: Boolean,
+        value: false,
+      },
+      _successfulSave: {
+        type: Boolean,
+        value: false,
+      },
+      _saveDisabled: {
+        type: Boolean,
+        value: true,
+        computed: '_computeSaveDisabled(_content, _newContent, _saving)',
+      },
+      _prefs: Object,
+      _lineNum: Number,
+    },
+>>>>>>> BRANCH (451c69 Merge branch 'stable-3.0' into stable-3.1)
 
     get keyBindings() {
       return {
