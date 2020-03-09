@@ -205,7 +205,13 @@
       },
 
       /**
+<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
        * @type {!Array<!Gerrit.CoverageRange>}
+=======
+       * TODO(brohlfs): Replace Object type by Gerrit.CoverageRange.
+       *
+       * @type {!Array<!Object>}
+>>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
        */
       _coverageRanges: {
         type: Array,
@@ -282,6 +288,7 @@
       this._errorMessage = null;
       const whitespaceLevel = this._getIgnoreWhitespace();
 
+<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       const layers = [this.$.syntaxLayer];
       // Get layers from plugins (if any).
       for (const pluginLayer of this.$.jsAPI.getDiffLayers(
@@ -295,6 +302,8 @@
         this._listenToViewportRender();
       }
 
+=======
+>>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
       this._coverageRanges = [];
       const {changeNum, path, patchRange: {basePatchNum, patchNum}} = this;
       this.$.jsAPI.getCoverageRanges(changeNum, path, basePatchNum, patchNum).

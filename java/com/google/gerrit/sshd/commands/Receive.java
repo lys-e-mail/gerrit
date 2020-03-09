@@ -20,7 +20,13 @@ import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.Capable;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.extensions.restapi.AuthException;
+<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import com.google.gerrit.server.IdentifiedUser;
+=======
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.git.DefaultAdvertiseRefsHook;
+>>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.git.receive.AsyncReceiveCommits;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 import com.google.gerrit.server.permissions.PermissionBackend;
@@ -28,7 +34,6 @@ import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.permissions.ProjectPermission;
 import com.google.gerrit.sshd.AbstractGitCommand;
 import com.google.gerrit.sshd.CommandMetaData;
-import com.google.gerrit.sshd.SshSession;
 import com.google.inject.Inject;
 import java.io.IOException;
 import org.eclipse.jgit.errors.TooLargeObjectInPackException;
@@ -45,8 +50,6 @@ final class Receive extends AbstractGitCommand {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   @Inject private AsyncReceiveCommits.Factory factory;
-  @Inject private IdentifiedUser currentUser;
-  @Inject private SshSession session;
   @Inject private PermissionBackend permissionBackend;
 
   private final SetMultimap<ReviewerStateInternal, Account.Id> reviewers =
@@ -72,6 +75,7 @@ final class Receive extends AbstractGitCommand {
 
   @Override
   protected void runImpl() throws IOException, Failure {
+    CurrentUser currentUser = session.getUser();
     try {
       permissionBackend
           .user(currentUser)
@@ -83,7 +87,8 @@ final class Receive extends AbstractGitCommand {
       throw new Failure(1, "fatal: unable to check permissions " + e);
     }
 
-    AsyncReceiveCommits arc = factory.create(projectState, currentUser, repo, null);
+    AsyncReceiveCommits arc =
+        factory.create(projectState, currentUser.asIdentifiedUser(), repo, null);
 
     try {
       Capable r = arc.canUpload();

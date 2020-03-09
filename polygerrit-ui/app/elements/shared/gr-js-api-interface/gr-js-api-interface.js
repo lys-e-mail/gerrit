@@ -237,11 +237,21 @@
      * provider, the first one is used. If no plugin offers a coverage provider,
      * will resolve to [].
      *
+<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
      * @param {string|number} changeNum
      * @param {string} path
      * @param {string|number} basePatchNum
      * @param {string|number} patchNum
      * @return {!Promise<!Array<!Gerrit.CoverageRange>>}
+=======
+     * TODO(brohlfs): Replace Array<Object> type by Array<Gerrit.CoverageRange>.
+     *
+     * @param {string|number} changeNum
+     * @param {string} path
+     * @param {string|number} basePatchNum
+     * @param {string|number} patchNum
+     * @return {!Promise<!Array<Object>>}
+>>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
      */
     getCoverageRanges(changeNum, path, basePatchNum, patchNum) {
       return Gerrit.awaitPluginsLoaded().then(() => {

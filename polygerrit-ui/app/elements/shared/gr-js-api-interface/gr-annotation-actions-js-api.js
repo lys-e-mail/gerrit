@@ -67,8 +67,15 @@
    * providers are not supported. A second call will just overwrite the
    * provider of the first call.
    *
+<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
    * @param {function(changeNum, path, basePatchNum, patchNum):
    * !Promise<!Array<!Gerrit.CoverageRange>>} coverageProvider
+=======
+   * TODO(brohlfs): Replace Array<Object> type by Array<Gerrit.CoverageRange>.
+   *
+   * @param {function(changeNum, path, basePatchNum, patchNum):
+   * !Promise<!Array<Object>>} coverageProvider
+>>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
    * @return {GrAnnotationActionsInterface}
    */
   GrAnnotationActionsInterface.prototype.setCoverageProvider = function(

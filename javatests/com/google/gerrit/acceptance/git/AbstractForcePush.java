@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (a14e5c Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 // Copyright (C) 2015 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,27 +16,21 @@ package com.google.gerrit.acceptance.git;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.GitUtil.deleteRef;
-import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static org.eclipse.jgit.lib.Constants.HEAD;
 import static org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK;
 import static org.eclipse.jgit.transport.RemoteRefUpdate.Status.REJECTED_OTHER_REASON;
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
-import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
-import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.projects.BranchInput;
-import com.google.inject.Inject;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.junit.Test;
 
-@NoHttpd
-public class ForcePushIT extends AbstractDaemonTest {
-  @Inject private ProjectOperations projectOperations;
+public abstract class AbstractForcePush extends AbstractDaemonTest {
 
   @Test
   public void forcePushNotAllowed() throws Exception {
@@ -62,11 +55,7 @@ public class ForcePushIT extends AbstractDaemonTest {
   @Test
   public void forcePushAllowed() throws Exception {
     ObjectId initial = repo().exactRef(HEAD).getLeaf().getObjectId();
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/*").group(adminGroupUuid()).force(true))
-        .update();
+    grant(project, "refs/*", Permission.PUSH, true);
     PushOneCommit push1 =
         pushFactory.create(admin.newIdent(), testRepo, "change1", "a.txt", "content");
     PushOneCommit.Result r1 = push1.to("refs/heads/master");
@@ -91,31 +80,19 @@ public class ForcePushIT extends AbstractDaemonTest {
 
   @Test
   public void deleteNotAllowedWithOnlyPushPermission() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/*").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/*", Permission.PUSH, false);
     assertDeleteRef(REJECTED_OTHER_REASON);
   }
 
   @Test
   public void deleteAllowedWithForcePushPermission() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/*").group(adminGroupUuid()).force(true))
-        .update();
+    grant(project, "refs/*", Permission.PUSH, true);
     assertDeleteRef(OK);
   }
 
   @Test
   public void deleteAllowedWithDeletePermission() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.DELETE).ref("refs/*").group(adminGroupUuid()).force(true))
-        .update();
+    grant(project, "refs/*", Permission.DELETE, true);
     assertDeleteRef(OK);
   }
 
@@ -128,5 +105,3 @@ public class ForcePushIT extends AbstractDaemonTest {
     assertThat(refUpdate.getStatus()).isEqualTo(expectedStatus);
   }
 }
-=======
->>>>>>> BRANCH (03969a Merge branch 'stable-2.16' into stable-3.0)
