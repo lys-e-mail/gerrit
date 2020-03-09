@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (cf47c0 Add tooltips to coverage layer line elements)
 // Copyright (C) 2015 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@ import static org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK;
 import static org.eclipse.jgit.transport.RemoteRefUpdate.Status.REJECTED_OTHER_REASON;
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
-import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.extensions.api.projects.BranchInput;
@@ -32,14 +30,13 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.junit.Test;
 
-@NoHttpd
-public class ForcePushIT extends AbstractDaemonTest {
+public abstract class AbstractForcePush extends AbstractDaemonTest {
 
   @Test
   public void forcePushNotAllowed() throws Exception {
     ObjectId initial = repo().exactRef(HEAD).getLeaf().getObjectId();
     PushOneCommit push1 =
-        pushFactory.create(admin.newIdent(), testRepo, "change1", "a.txt", "content");
+        pushFactory.create(db, admin.getIdent(), testRepo, "change1", "a.txt", "content");
     PushOneCommit.Result r1 = push1.to("refs/heads/master");
     r1.assertOkStatus();
 
@@ -49,7 +46,7 @@ public class ForcePushIT extends AbstractDaemonTest {
     assertThat(ru.forceUpdate()).isEqualTo(RefUpdate.Result.FORCED);
 
     PushOneCommit push2 =
-        pushFactory.create(admin.newIdent(), testRepo, "change2", "b.txt", "content");
+        pushFactory.create(db, admin.getIdent(), testRepo, "change2", "b.txt", "content");
     push2.setForce(true);
     PushOneCommit.Result r2 = push2.to("refs/heads/master");
     r2.assertErrorStatus("not permitted: force update");
@@ -60,7 +57,7 @@ public class ForcePushIT extends AbstractDaemonTest {
     ObjectId initial = repo().exactRef(HEAD).getLeaf().getObjectId();
     grant(project, "refs/*", Permission.PUSH, true);
     PushOneCommit push1 =
-        pushFactory.create(admin.newIdent(), testRepo, "change1", "a.txt", "content");
+        pushFactory.create(db, admin.getIdent(), testRepo, "change1", "a.txt", "content");
     PushOneCommit.Result r1 = push1.to("refs/heads/master");
     r1.assertOkStatus();
 
@@ -70,7 +67,7 @@ public class ForcePushIT extends AbstractDaemonTest {
     assertThat(ru.forceUpdate()).isEqualTo(RefUpdate.Result.FORCED);
 
     PushOneCommit push2 =
-        pushFactory.create(admin.newIdent(), testRepo, "change2", "b.txt", "content");
+        pushFactory.create(db, admin.getIdent(), testRepo, "change2", "b.txt", "content");
     push2.setForce(true);
     PushOneCommit.Result r2 = push2.to("refs/heads/master");
     r2.assertOkStatus();
@@ -108,5 +105,3 @@ public class ForcePushIT extends AbstractDaemonTest {
     assertThat(refUpdate.getStatus()).isEqualTo(expectedStatus);
   }
 }
-=======
->>>>>>> BRANCH (d82b6f Merge "Fix the access-path for AbstractGitCommand subclasses)
