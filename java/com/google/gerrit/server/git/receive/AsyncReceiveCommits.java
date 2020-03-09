@@ -33,7 +33,10 @@ import com.google.gerrit.metrics.Histogram1;
 import com.google.gerrit.metrics.MetricMaker;
 import com.google.gerrit.metrics.Timer1;
 import com.google.gerrit.server.IdentifiedUser;
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
 import com.google.gerrit.server.PublishCommentsOp;
+=======
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.ConfigUtil;
 import com.google.gerrit.server.config.GerritServerConfig;
@@ -317,12 +320,16 @@ public class AsyncReceiveCommits implements PreReceiveHook {
     allRefsWatcher = new AllRefsWatcher();
     receivePack.setAdvertiseRefsHook(
         ReceiveCommitsAdvertiseRefsHookChain.create(
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
             allRefsWatcher,
             usersSelfAdvertiseRefsHook,
             allUsersName,
             queryProvider,
             projectName,
             user.getAccountId()));
+=======
+            allRefsWatcher, usersSelfAdvertiseRefsHook, allUsersName, queryProvider, projectName));
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
     resultChangeIds = new ResultChangeIds();
     receiveCommits =
         factory.create(

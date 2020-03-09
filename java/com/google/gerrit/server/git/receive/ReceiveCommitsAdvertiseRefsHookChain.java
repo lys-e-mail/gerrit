@@ -43,6 +43,7 @@ public class ReceiveCommitsAdvertiseRefsHookChain {
       UsersSelfAdvertiseRefsHook usersSelfAdvertiseRefsHook,
       AllUsersName allUsersName,
       Provider<InternalChangeQuery> queryProvider,
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
       Project.NameKey projectName,
       Account.Id user) {
     return create(
@@ -52,6 +53,15 @@ public class ReceiveCommitsAdvertiseRefsHookChain {
         queryProvider,
         projectName,
         user,
+=======
+      Project.NameKey projectName) {
+    return create(
+        allRefsWatcher,
+        usersSelfAdvertiseRefsHook,
+        allUsersName,
+        queryProvider,
+        projectName,
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
         false);
   }
 
@@ -70,7 +80,10 @@ public class ReceiveCommitsAdvertiseRefsHookChain {
         new AllUsersName(AllUsersNameProvider.DEFAULT),
         queryProvider,
         projectName,
+<<<<<<< HEAD   (e7683e Merge "Merge branch 'stable-3.1'")
         user.getAccountId(),
+=======
+>>>>>>> BRANCH (25048d Merge branch 'stable-3.0' into stable-3.1)
         true);
   }
 
