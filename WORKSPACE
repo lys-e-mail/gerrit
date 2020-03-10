@@ -930,6 +930,15 @@ maven_jar(
     name = "jetty-jmx",
     artifact = "org.eclipse.jetty:jetty-jmx:" + JETTY_VERS,
     sha1 = "22be18a055850a6cf3b0efd56c789c3929c87e98",
+<<<<<<< HEAD   (9c0114 Upgrade JGit to v5.7.0.202003090808-r)
+=======
+)
+
+maven_jar(
+    name = "jetty-continuation",
+    artifact = "org.eclipse.jetty:jetty-continuation:" + JETTY_VERS,
+    sha1 = "69125cf74b07f1b9d60b5c94da47cb04c098f654",
+>>>>>>> BRANCH (30a619 Merge branch 'stable-3.0' into stable-3.1)
 )
 
 maven_jar(
