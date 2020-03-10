@@ -877,54 +877,97 @@ maven_jar(
     sha1 = "7e060dd5b19431e6d198e91ff670644372f60fbd",
 )
 
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
 JETTY_VERS = "9.4.18.v20190429"
+=======
+# When bumping the easymock version number, make sure to also move powermock to a compatible version
+maven_jar(
+    name = "easymock",
+    artifact = "org.easymock:easymock:3.1",
+    sha1 = "3e127311a86fc2e8f550ef8ee4abe094bbcf7e7e",
+)
+
+JETTY_VERS = "9.4.24.v20191120"
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 
 maven_jar(
     name = "jetty-servlet",
     artifact = "org.eclipse.jetty:jetty-servlet:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "290f7a88f351950d51ebc9fb4a794752c62d7de5",
+=======
+    sha1 = "ca1803fde51b795c0a8346ca8bc6277d9d04d01d",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-security",
     artifact = "org.eclipse.jetty:jetty-security:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "01aceff3608ca1b223bfd275a497797cfe675ef4",
+=======
+    sha1 = "9fa640d36c088cf55843900043d28aef830ade4d",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-server",
     artifact = "org.eclipse.jetty:jetty-server:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "b76ef50e04635f11d4d43bc6ccb7c4482a8384f0",
+=======
+    sha1 = "7885cc3d5d7701a444acada7ab97f89846514875",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-jmx",
     artifact = "org.eclipse.jetty:jetty-jmx:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "f4c2654db1a55f0780acdfcee8bb98550f56ca70",
+=======
+    sha1 = "22be18a055850a6cf3b0efd56c789c3929c87e98",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-continuation",
     artifact = "org.eclipse.jetty:jetty-continuation:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "3c421a3be5be5805e32b1a7f9c6046526524181d",
+=======
+    sha1 = "69125cf74b07f1b9d60b5c94da47cb04c098f654",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-http",
     artifact = "org.eclipse.jetty:jetty-http:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "c2e73db2db5c369326b717da71b6587b3da11e0e",
+=======
+    sha1 = "d3f0b0fb016ef8d35ffb199d928ffbcbfa121c86",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-io",
     artifact = "org.eclipse.jetty:jetty-io:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "844af5efe58ab23fd0166a796efef123f4cb06b0",
+=======
+    sha1 = "dcb6d4d505ef74898e3a64a38c40195c01e97119",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
     name = "jetty-util",
     artifact = "org.eclipse.jetty:jetty-util:" + JETTY_VERS,
+<<<<<<< HEAD   (25048d Merge branch 'stable-3.0' into stable-3.1)
     sha1 = "13e6148bfda7ae511f69ae7e5e3ea898bc9b0e33",
+=======
+    sha1 = "3095acb088f4ff9e3fd9aedf98db73e3c18ea849",
+>>>>>>> BRANCH (0895db Merge branch 'stable-2.16' into stable-3.0)
 )
 
 maven_jar(
