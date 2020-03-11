@@ -493,6 +493,7 @@
           .then(revisionActions => {
             if (!revisionActions) { return; }
 
+<<<<<<< HEAD   (b4341c Merge changes from topic "project-cache-remove-unthrown-IOEx)
             this.revisionActions = this._updateRebaseAction(revisionActions);
             this._sendShowRevisionActions({
               change: this.change,
@@ -506,6 +507,20 @@
             throw err;
           });
     }
+=======
+        this.revisionActions = this._updateRebaseAction(revisionActions);
+        this._sendShowRevisionActions({
+          change: this.change,
+          revisionActions,
+        });
+        this._handleLoadingComplete();
+      }).catch(err => {
+        this.fire('show-alert', {message: ERR_REVISION_ACTIONS});
+        this._loading = false;
+        throw err;
+      });
+    },
+>>>>>>> BRANCH (b8aa85 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 
     _handleLoadingComplete() {
       Gerrit.awaitPluginsLoaded().then(() => this._loading = false);
@@ -517,6 +532,13 @@
           detail
       );
     }
+
+    _sendShowRevisionActions(detail) {
+      this.$.jsAPI.handleEvent(
+          this.$.jsAPI.EventType.SHOW_REVISION_ACTIONS,
+          detail
+      );
+    },
 
     _updateRebaseAction(revisionActions) {
       if (revisionActions && revisionActions.rebase) {
