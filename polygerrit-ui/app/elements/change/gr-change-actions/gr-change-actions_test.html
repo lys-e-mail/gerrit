@@ -120,8 +120,73 @@ limitations under the License.
         return element.reload();
       });
 
+<<<<<<< HEAD   (040783 Merge changes I5f74b124,I3f474829)
       teardown(() => {
         sandbox.restore();
+=======
+      sandbox = sinon.sandbox.create();
+      sandbox.stub(Gerrit, 'awaitPluginsLoaded').returns(Promise.resolve());
+
+      element = fixture('basic');
+      element.change = {};
+      element.changeNum = '42';
+      element.latestPatchNum = '2';
+      element.actions = {
+        '/': {
+          method: 'DELETE',
+          label: 'Delete Change',
+          title: 'Delete change X_X',
+          enabled: true,
+        },
+      };
+      sandbox.stub(element.$.confirmCherrypick.$.restAPI,
+          'getRepoBranches').returns(Promise.resolve([]));
+      sandbox.stub(element.$.confirmMove.$.restAPI,
+          'getRepoBranches').returns(Promise.resolve([]));
+
+      return element.reload();
+    });
+
+    teardown(() => {
+      sandbox.restore();
+    });
+
+    test('show-revision-actions event should fire', done => {
+      const spy = sinon.spy(element, '_sendShowRevisionActions');
+      element.reload();
+      flush(() => {
+        assert.isTrue(spy.called);
+        done();
+      });
+    });
+
+    test('primary and secondary actions split properly', () => {
+      // Submit should be the only primary action.
+      assert.equal(element._topLevelPrimaryActions.length, 1);
+      assert.equal(element._topLevelPrimaryActions[0].label, 'Submit');
+      assert.equal(element._topLevelSecondaryActions.length,
+          element._topLevelActions.length - 1);
+    });
+
+    test('_shouldHideActions', () => {
+      assert.isTrue(element._shouldHideActions(undefined, true));
+      assert.isTrue(element._shouldHideActions({base: {}}, false));
+      assert.isFalse(element._shouldHideActions({base: ['test']}, false));
+    });
+
+    test('plugin revision actions', done => {
+      sandbox.stub(element.$.restAPI, 'getChangeActionURL').returns(
+          Promise.resolve('the-url'));
+      element.revisionActions = {
+        'plugin~action': {},
+      };
+      assert.isOk(element.revisionActions['plugin~action']);
+      flush(() => {
+        assert.isTrue(element.$.restAPI.getChangeActionURL.calledWith(
+            element.changeNum, element.latestPatchNum, '/plugin~action'));
+        assert.equal(element.revisionActions['plugin~action'].__url, 'the-url');
+        done();
+>>>>>>> BRANCH (b8aa85 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       });
 
       test('show-revision-actions event should fire', done => {
