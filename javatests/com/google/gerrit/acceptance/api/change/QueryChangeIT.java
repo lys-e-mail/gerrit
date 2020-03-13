@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (38263b Merge "SetTopicCommand: Remove unused members")
 // Copyright (C) 2019 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -289,3 +290,5 @@ public class QueryChangeIT extends AbstractDaemonTest {
     }
   }
 }
+=======
+>>>>>>> BRANCH (b97934 Import from com.google.inject rather than javax.inject)

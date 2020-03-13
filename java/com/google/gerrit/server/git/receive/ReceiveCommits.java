@@ -3098,8 +3098,12 @@ class ReceiveCommits {
       if (isConfig(cmd)) {
         logger.atFine().log("Reloading project in cache");
         projectCache.evict(project);
+<<<<<<< HEAD   (38263b Merge "SetTopicCommand: Remove unused members")
         ProjectState ps =
             projectCache.get(project.getNameKey()).orElseThrow(illegalState(project.getNameKey()));
+=======
+        ProjectState ps = projectCache.get(project.getNameKey());
+>>>>>>> BRANCH (b97934 Import from com.google.inject rather than javax.inject)
         try {
           logger.atFine().log("Updating project description");
           repo.setGitwebDescription(ps.getProject().getDescription());
