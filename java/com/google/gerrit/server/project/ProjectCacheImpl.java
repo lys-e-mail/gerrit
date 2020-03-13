@@ -158,6 +158,23 @@ public class ProjectCacheImpl implements ProjectCache {
   }
 
   @Override
+<<<<<<< HEAD   (38263b Merge "SetTopicCommand: Remove unused members")
+=======
+  public ProjectState checkedGet(Project.NameKey projectName, boolean strict) throws Exception {
+    return strict ? strictCheckedGet(projectName) : checkedGet(projectName);
+  }
+
+  private ProjectState strictCheckedGet(Project.NameKey projectName) throws Exception {
+    ProjectState state = byName.get(projectName.get());
+    if (state != null && state.needsRefresh(clock.read())) {
+      byName.invalidate(projectName.get());
+      state = byName.get(projectName.get());
+    }
+    return state;
+  }
+
+  @Override
+>>>>>>> BRANCH (b97934 Import from com.google.inject rather than javax.inject)
   public void evict(Project p) {
     evict(p.getNameKey());
   }
