@@ -15,9 +15,12 @@
 package com.google.gerrit.acceptance.api.project;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (68b42d e2e-tests: Collapse the load-tests directory level)
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.git.QueueProvider.QueueType.BATCH;
+=======
+>>>>>>> BRANCH (9cf5a6 ProjectCache: Remove declarations of unthrown IOException)
 import static com.google.gerrit.server.project.ProjectState.INHERITED_FROM_GLOBAL;
 import static com.google.gerrit.server.project.ProjectState.INHERITED_FROM_PARENT;
 import static com.google.gerrit.server.project.ProjectState.OVERRIDDEN_BY_GLOBAL;
@@ -31,7 +34,6 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.AtomicLongMap;
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.ExtensionRegistry;
 import com.google.gerrit.acceptance.ExtensionRegistry.Registration;
@@ -65,7 +67,6 @@ import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.server.config.ProjectConfigEntry;
 import com.google.gerrit.server.group.SystemGroupBackend;
-import com.google.gerrit.server.index.IndexExecutor;
 import com.google.gerrit.server.project.CommentLinkInfoImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -90,9 +91,14 @@ public class ProjectIT extends AbstractDaemonTest {
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private ExtensionRegistry extensionRegistry;
 
+<<<<<<< HEAD   (68b42d e2e-tests: Collapse the load-tests directory level)
   @Inject
   @IndexExecutor(BATCH)
   private ListeningExecutorService executor;
+=======
+  private ProjectIndexedCounter projectIndexedCounter;
+  private RegistrationHandle projectIndexedCounterHandle;
+>>>>>>> BRANCH (9cf5a6 ProjectCache: Remove declarations of unthrown IOException)
 
   @Override
   public Module createModule() {
