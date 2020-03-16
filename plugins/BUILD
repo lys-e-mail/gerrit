@@ -54,8 +54,12 @@ EXPORTS = [
     "//java/com/google/gerrit/server/util/time",
     "//java/com/google/gerrit/util/cli",
     "//java/com/google/gerrit/util/http",
+<<<<<<< HEAD   (164086 Merge branch 'stable-2.16' into stable-3.0)
     "//lib/antlr:java-runtime",
     "//lib/auto:auto-value-annotations",
+=======
+    "//java/com/google/gerrit/util/logging",
+>>>>>>> BRANCH (3a85a1 Merge "Introduce NamedFluentLogger" into stable-2.16)
     "//lib/commons:compress",
     "//lib/commons:dbcp",
     "//lib/commons:lang",
