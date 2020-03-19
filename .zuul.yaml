@@ -6,8 +6,12 @@
 
       This adds required projects needed for all Gerrit-related builds
       (i.e., builds of Gerrit itself or plugins) on this branch.
+<<<<<<< HEAD   (829662 Add Zuul config)
     required-projects:
       - jgit
+=======
+    # No additional required projects required for this branch.
+>>>>>>> BRANCH (584cc9 Merge branch 'stable-2.16' into stable-3.0)
 
 - job:
     name: gerrit-build

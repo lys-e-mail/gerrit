@@ -1699,9 +1699,13 @@ limitations under the License.
 
       // Commit message should not have edit controls.
       const editControls =
+<<<<<<< HEAD   (829662 Add Zuul config)
           Array.from(
               Polymer.dom(element.root)
                   .querySelectorAll('.row:not(.header-row)'))
+=======
+          Polymer.dom(element.root).querySelectorAll('.row:not(.header-row)')
+>>>>>>> BRANCH (584cc9 Merge branch 'stable-2.16' into stable-3.0)
               .map(row => row.querySelector('gr-edit-file-controls'));
       assert.isTrue(editControls[0].classList.contains('invisible'));
     });
