@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (e26ab2 Remove redirects.json and cleanup server.go)
 :linkattrs:
 = Making a Snapshot Release of JGit
 
@@ -51,3 +52,5 @@ Part of link:index.html[Gerrit Code Review]
 
 SEARCHBOX
 ---------
+=======
+>>>>>>> BRANCH (59f8b6 Documentation: Remove obsolete dev-release-jgit.txt)
