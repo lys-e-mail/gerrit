@@ -343,7 +343,10 @@ class GrChangeView extends mixinBehaviors( [
         value: false,
         observer: '_updateToggleContainerClass',
       },
-      _parentIsCurrent: Boolean,
+      _parentIsCurrent: {
+        type: Boolean,
+        computed: '_isParentCurrent(_currentRevisionActions)',
+      },
       _submitEnabled: {
         type: Boolean,
         computed: '_isSubmitEnabled(_currentRevisionActions)',
@@ -1978,6 +1981,673 @@ class GrChangeView extends mixinBehaviors( [
           return;
         }
 
+<<<<<<< HEAD   (a2ceb5 Add Zuul config)
+=======
+        e.preventDefault();
+        this._openReplyDialog(this.$.replyDialog.FocusTarget.ANY);
+      });
+    },
+
+    _handleOpenDownloadDialogShortcut(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this.$.downloadOverlay.open();
+    },
+
+    _handleEditTopic(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this.$.metadata.editTopic();
+    },
+
+    _handleRefreshChange(e) {
+      if (this.shouldSuppressKeyboardShortcut(e)) { return; }
+      e.preventDefault();
+      Gerrit.Nav.navigateToChange(this._change);
+    },
+
+    _handleToggleChangeStar(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this.$.changeStar.toggleStar();
+    },
+
+    _handleUpToDashboard(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this._determinePageBack();
+    },
+
+    _handleExpandAllMessages(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this.messagesList.handleExpandCollapse(true);
+    },
+
+    _handleCollapseAllMessages(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      e.preventDefault();
+      this.messagesList.handleExpandCollapse(false);
+    },
+
+    _handleOpenDiffPrefsShortcut(e) {
+      if (this.shouldSuppressKeyboardShortcut(e) ||
+          this.modifierPressed(e)) { return; }
+
+      if (this._diffPrefsDisabled) { return; }
+
+      e.preventDefault();
+      this.$.fileList.openDiffPrefs();
+    },
+
+    _determinePageBack() {
+      // Default backPage to root if user came to change view page
+      // via an email link, etc.
+      Gerrit.Nav.navigateToRelativeUrl(this.backPage ||
+          Gerrit.Nav.getUrlForRoot());
+    },
+
+    _handleLabelRemoved(splices, path) {
+      for (const splice of splices) {
+        for (const removed of splice.removed) {
+          const changePath = path.split('.');
+          const labelPath = changePath.splice(0, changePath.length - 2);
+          const labelDict = this.get(labelPath);
+          if (labelDict.approved &&
+              labelDict.approved._account_id === removed._account_id) {
+            this._reload();
+            return;
+          }
+        }
+      }
+    },
+
+    _labelsChanged(changeRecord) {
+      if (!changeRecord) { return; }
+      if (changeRecord.value && changeRecord.value.indexSplices) {
+        this._handleLabelRemoved(changeRecord.value.indexSplices,
+            changeRecord.path);
+      }
+      this.$.jsAPI.handleEvent(this.$.jsAPI.EventType.LABEL_CHANGE, {
+        change: this._change,
+      });
+    },
+
+    /**
+     * @param {string=} opt_section
+     */
+    _openReplyDialog(opt_section) {
+      this.$.replyOverlay.open().then(() => {
+        this._resetReplyOverlayFocusStops();
+        this.$.replyDialog.open(opt_section);
+        Polymer.dom.flush();
+        this.$.replyOverlay.center();
+      });
+    },
+
+    _handleReloadChange(e) {
+      return this._reload().then(() => {
+        // If the change was rebased or submitted, we need to reload the page
+        // with the latest patch.
+        const action = e.detail.action;
+        if (action === 'rebase' || action === 'submit') {
+          Gerrit.Nav.navigateToChange(this._change);
+        }
+      });
+    },
+
+    _handleGetChangeDetailError(response) {
+      this.fire('page-error', {response});
+    },
+
+    _getLoggedIn() {
+      return this.$.restAPI.getLoggedIn();
+    },
+
+    _getServerConfig() {
+      return this.$.restAPI.getConfig();
+    },
+
+    _getProjectConfig() {
+      if (!this._change) return;
+      return this.$.restAPI.getProjectConfig(this._change.project).then(
+          config => {
+            this._projectConfig = config;
+          });
+    },
+
+    _getPreferences() {
+      return this.$.restAPI.getPreferences();
+    },
+
+    _prepareCommitMsgForLinkify(msg) {
+      // TODO(wyatta) switch linkify sequence, see issue 5526.
+      // This is a zero-with space. It is added to prevent the linkify library
+      // from including R= or CC= as part of the email address.
+      return msg.replace(REVIEWERS_REGEX, '$1=\u200B');
+    },
+
+    /**
+     * Utility function to make the necessary modifications to a change in the
+     * case an edit exists.
+     *
+     * @param {!Object} change
+     * @param {?Object} edit
+     */
+    _processEdit(change, edit) {
+      if (!edit) { return; }
+      change.revisions[edit.commit.commit] = {
+        _number: this.EDIT_NAME,
+        basePatchNum: edit.base_patch_set_number,
+        commit: edit.commit,
+        fetch: edit.fetch,
+      };
+      // If the edit is based on the most recent patchset, load it by
+      // default, unless another patch set to load was specified in the URL.
+      if (!this._patchRange.patchNum &&
+          change.current_revision === edit.base_revision) {
+        change.current_revision = edit.commit.commit;
+        this.set('_patchRange.patchNum', this.EDIT_NAME);
+        // Because edits are fibbed as revisions and added to the revisions
+        // array, and revision actions are always derived from the 'latest'
+        // patch set, we must copy over actions from the patch set base.
+        // Context: Issue 7243
+        change.revisions[edit.commit.commit].actions =
+            change.revisions[edit.base_revision].actions;
+      }
+    },
+
+    _getChangeDetail() {
+      const detailCompletes = this.$.restAPI.getChangeDetail(
+          this._changeNum, this._handleGetChangeDetailError.bind(this));
+      const editCompletes = this._getEdit();
+      const prefCompletes = this._getPreferences();
+
+      return Promise.all([detailCompletes, editCompletes, prefCompletes])
+          .then(([change, edit, prefs]) => {
+            this._prefs = prefs;
+
+            if (!change) {
+              return '';
+            }
+            this._processEdit(change, edit);
+            // Issue 4190: Coalesce missing topics to null.
+            if (!change.topic) { change.topic = null; }
+            if (!change.reviewer_updates) {
+              change.reviewer_updates = null;
+            }
+            const latestRevisionSha = this._getLatestRevisionSHA(change);
+            const currentRevision = change.revisions[latestRevisionSha];
+            if (currentRevision.commit && currentRevision.commit.message) {
+              this._latestCommitMessage = this._prepareCommitMsgForLinkify(
+                  currentRevision.commit.message);
+            } else {
+              this._latestCommitMessage = null;
+            }
+
+
+            const lineHeight = getComputedStyle(this).lineHeight;
+
+            // Slice returns a number as a string, convert to an int.
+            this._lineHeight =
+                parseInt(lineHeight.slice(0, lineHeight.length - 2), 10);
+
+            this._change = change;
+            if (!this._patchRange || !this._patchRange.patchNum ||
+                this.patchNumEquals(this._patchRange.patchNum,
+                    currentRevision._number)) {
+              // CommitInfo.commit is optional, and may need patching.
+              if (!currentRevision.commit.commit) {
+                currentRevision.commit.commit = latestRevisionSha;
+              }
+              this._commitInfo = currentRevision.commit;
+              this._selectedRevision = currentRevision;
+              // TODO: Fetch and process files.
+            } else {
+              this._selectedRevision =
+                Object.values(this._change.revisions).find(
+                    revision => revision._number ===
+                      parseInt(this._patchRange.patchNum, 10));
+            }
+          });
+    },
+
+    _isSubmitEnabled(revisionActions) {
+      return !!(revisionActions && revisionActions.submit &&
+        revisionActions.submit.enabled);
+    },
+
+    _isParentCurrent(revisionActions) {
+      if (revisionActions && revisionActions.rebase) {
+        return !revisionActions.rebase.enabled;
+      } else {
+        return true;
+      }
+    },
+
+    _getEdit() {
+      return this.$.restAPI.getChangeEdit(this._changeNum, true);
+    },
+
+    _getLatestCommitMessage() {
+      return this.$.restAPI.getChangeCommitInfo(this._changeNum,
+          this.computeLatestPatchNum(this._allPatchSets)).then(commitInfo => {
+        if (!commitInfo) return Promise.resolve();
+        this._latestCommitMessage =
+                    this._prepareCommitMsgForLinkify(commitInfo.message);
+      });
+    },
+
+    _getLatestRevisionSHA(change) {
+      if (change.current_revision) {
+        return change.current_revision;
+      }
+      // current_revision may not be present in the case where the latest rev is
+      // a draft and the user doesn’t have permission to view that rev.
+      let latestRev = null;
+      let latestPatchNum = -1;
+      for (const rev in change.revisions) {
+        if (!change.revisions.hasOwnProperty(rev)) { continue; }
+
+        if (change.revisions[rev]._number > latestPatchNum) {
+          latestRev = rev;
+          latestPatchNum = change.revisions[rev]._number;
+        }
+      }
+      return latestRev;
+    },
+
+    _getCommitInfo() {
+      return this.$.restAPI.getChangeCommitInfo(
+          this._changeNum, this._patchRange.patchNum).then(
+          commitInfo => {
+            this._commitInfo = commitInfo;
+          });
+    },
+
+    _reloadDraftsWithCallback(e) {
+      return this._reloadDrafts().then(() => {
+        return e.detail.resolve();
+      });
+    },
+
+    /**
+     * Fetches a new changeComment object, and data for all types of comments
+     * (comments, robot comments, draft comments) is requested.
+     */
+    _reloadComments() {
+      return this.$.commentAPI.loadAll(this._changeNum)
+          .then(comments => {
+            this._changeComments = comments;
+            this._diffDrafts = Object.assign({}, this._changeComments.drafts);
+            this._commentThreads = this._changeComments.getAllThreadsForChange()
+                .map(c => Object.assign({}, c));
+          });
+    },
+
+    /**
+     * Fetches a new changeComment object, but only updated data for drafts is
+     * requested.
+     */
+    _reloadDrafts() {
+      return this.$.commentAPI.reloadDrafts(this._changeNum)
+          .then(comments => {
+            this._changeComments = comments;
+            this._diffDrafts = Object.assign({}, this._changeComments.drafts);
+          });
+    },
+
+    /**
+     * Reload the change.
+     *
+     * @param {boolean=} opt_isLocationChange Reloads the related changes
+     *     when true and ends reporting events that started on location change.
+     * @return {Promise} A promise that resolves when the core data has loaded.
+     *     Some non-core data loading may still be in-flight when the core data
+     *     promise resolves.
+     */
+    _reload(opt_isLocationChange) {
+      this._loading = true;
+      this._relatedChangesCollapsed = true;
+      this.$.reporting.time(CHANGE_RELOAD_TIMING_LABEL);
+      this.$.reporting.time(CHANGE_DATA_TIMING_LABEL);
+
+      // Array to house all promises related to data requests.
+      const allDataPromises = [];
+
+      // Resolves when the change detail and the edit patch set (if available)
+      // are loaded.
+      const detailCompletes = this._getChangeDetail();
+      allDataPromises.push(detailCompletes);
+
+      // Resolves when the loading flag is set to false, meaning that some
+      // change content may start appearing.
+      const loadingFlagSet = detailCompletes
+          .then(() => { this._loading = false; })
+          .then(() => {
+            this.$.reporting.timeEnd(CHANGE_RELOAD_TIMING_LABEL);
+            if (opt_isLocationChange) {
+              this.$.reporting.changeDisplayed();
+            }
+          });
+
+      // Resolves when the project config has loaded.
+      const projectConfigLoaded = detailCompletes
+          .then(() => this._getProjectConfig());
+      allDataPromises.push(projectConfigLoaded);
+
+      // Resolves when change comments have loaded (comments, drafts and robot
+      // comments).
+      const commentsLoaded = this._reloadComments();
+      allDataPromises.push(commentsLoaded);
+
+      let coreDataPromise;
+
+      // If the patch number is specified
+      if (this._patchRange.patchNum) {
+        // Because a specific patchset is specified, reload the resources that
+        // are keyed by patch number or patch range.
+        const patchResourcesLoaded = this._reloadPatchNumDependentResources();
+        allDataPromises.push(patchResourcesLoaded);
+
+        // Promise resolves when the change detail and patch dependent resources
+        // have loaded.
+        const detailAndPatchResourcesLoaded =
+            Promise.all([patchResourcesLoaded, loadingFlagSet]);
+
+        // Promise resolves when mergeability information has loaded.
+        const mergeabilityLoaded = detailAndPatchResourcesLoaded
+            .then(() => this._getMergeability());
+        allDataPromises.push(mergeabilityLoaded);
+
+        // Promise resovles when the change actions have loaded.
+        const actionsLoaded = detailAndPatchResourcesLoaded
+            .then(() => this.$.actions.reload());
+        allDataPromises.push(actionsLoaded);
+
+        // The core data is loaded when both mergeability and actions are known.
+        coreDataPromise = Promise.all([mergeabilityLoaded, actionsLoaded]);
+      } else {
+        // Resolves when the file list has loaded.
+        const fileListReload = loadingFlagSet
+            .then(() => this.$.fileList.reload());
+        allDataPromises.push(fileListReload);
+
+        const latestCommitMessageLoaded = loadingFlagSet.then(() => {
+          // If the latest commit message is known, there is nothing to do.
+          if (this._latestCommitMessage) { return Promise.resolve(); }
+          return this._getLatestCommitMessage();
+        });
+        allDataPromises.push(latestCommitMessageLoaded);
+
+        // Promise resolves when mergeability information has loaded.
+        const mergeabilityLoaded = loadingFlagSet
+            .then(() => this._getMergeability());
+        allDataPromises.push(mergeabilityLoaded);
+
+        // Core data is loaded when mergeability has been loaded.
+        coreDataPromise = mergeabilityLoaded;
+      }
+
+      if (opt_isLocationChange) {
+        const relatedChangesLoaded = coreDataPromise
+            .then(() => this.$.relatedChanges.reload());
+        allDataPromises.push(relatedChangesLoaded);
+      }
+
+      Promise.all(allDataPromises).then(() => {
+        this.$.reporting.timeEnd(CHANGE_DATA_TIMING_LABEL);
+        if (opt_isLocationChange) {
+          this.$.reporting.changeFullyLoaded();
+        }
+      });
+
+      return coreDataPromise;
+    },
+
+    /**
+     * Kicks off requests for resources that rely on the patch range
+     * (`this._patchRange`) being defined.
+     */
+    _reloadPatchNumDependentResources() {
+      return Promise.all([
+        this._getCommitInfo(),
+        this.$.fileList.reload(),
+      ]);
+    },
+
+    _getMergeability() {
+      if (!this._change) {
+        this._mergeable = null;
+        return Promise.resolve();
+      }
+      // If the change is closed, it is not mergeable. Note: already merged
+      // changes are obviously not mergeable, but the mergeability API will not
+      // answer for abandoned changes.
+      if (this._change.status === this.ChangeStatus.MERGED ||
+          this._change.status === this.ChangeStatus.ABANDONED) {
+        this._mergeable = false;
+        return Promise.resolve();
+      }
+
+      this._mergeable = null;
+      return this.$.restAPI.getMergeable(this._changeNum).then(m => {
+        this._mergeable = m.mergeable;
+      });
+    },
+
+    _computeCanStartReview(change) {
+      return !!(change.actions && change.actions.ready &&
+          change.actions.ready.enabled);
+    },
+
+    _computeReplyDisabled() { return false; },
+
+    _computeChangePermalinkAriaLabel(changeNum) {
+      return 'Change ' + changeNum;
+    },
+
+    _computeCommitClass(collapsed, commitMessage) {
+      if (this._computeCommitToggleHidden(commitMessage)) { return ''; }
+      return collapsed ? 'collapsed' : '';
+    },
+
+    _computeRelatedChangesClass(collapsed) {
+      return collapsed ? 'collapsed' : '';
+    },
+
+    _computeCollapseText(collapsed) {
+      // Symbols are up and down triangles.
+      return collapsed ? '\u25bc Show more' : '\u25b2 Show less';
+    },
+
+    _toggleCommitCollapsed() {
+      this._commitCollapsed = !this._commitCollapsed;
+      if (this._commitCollapsed) {
+        window.scrollTo(0, 0);
+      }
+    },
+
+    _toggleRelatedChangesCollapsed() {
+      this._relatedChangesCollapsed = !this._relatedChangesCollapsed;
+      if (this._relatedChangesCollapsed) {
+        window.scrollTo(0, 0);
+      }
+    },
+
+    _computeCommitToggleHidden(commitMessage) {
+      if (!commitMessage) { return true; }
+      return commitMessage.split('\n').length < MIN_LINES_FOR_COMMIT_COLLAPSE;
+    },
+
+    _getOffsetHeight(element) {
+      return element.offsetHeight;
+    },
+
+    _getScrollHeight(element) {
+      return element.scrollHeight;
+    },
+
+    /**
+     * Get the line height of an element to the nearest integer.
+     */
+    _getLineHeight(element) {
+      const lineHeightStr = getComputedStyle(element).lineHeight;
+      return Math.round(lineHeightStr.slice(0, lineHeightStr.length - 2));
+    },
+
+    /**
+     * New max height for the related changes section, shorter than the existing
+     * change info height.
+     */
+    _updateRelatedChangeMaxHeight() {
+      // Takes into account approximate height for the expand button and
+      // bottom margin.
+      const EXTRA_HEIGHT = 30;
+      let newHeight;
+      const hasCommitToggle =
+          !this._computeCommitToggleHidden(this._latestCommitMessage);
+
+      if (window.matchMedia(`(max-width: ${BREAKPOINT_RELATED_SMALL})`)
+          .matches) {
+        // In a small (mobile) view, give the relation chain some space.
+        newHeight = SMALL_RELATED_HEIGHT;
+      } else if (window.matchMedia(`(max-width: ${BREAKPOINT_RELATED_MED})`)
+          .matches) {
+        // Since related changes are below the commit message, but still next to
+        // metadata, the height should be the height of the metadata minus the
+        // height of the commit message to reduce jank. However, if that doesn't
+        // result in enough space, instead use the MINIMUM_RELATED_MAX_HEIGHT.
+        // Note: extraHeight is to take into account margin/padding.
+        const medRelatedHeight = Math.max(
+            this._getOffsetHeight(this.$.mainChangeInfo) -
+            this._getOffsetHeight(this.$.commitMessage) - 2 * EXTRA_HEIGHT,
+            MINIMUM_RELATED_MAX_HEIGHT);
+        newHeight = medRelatedHeight;
+      } else {
+        if (hasCommitToggle) {
+          // Make sure the content is lined up if both areas have buttons. If
+          // the commit message is not collapsed, instead use the change info
+          // height.
+          newHeight = this._getOffsetHeight(this.$.commitMessage);
+        } else {
+          newHeight = this._getOffsetHeight(this.$.commitAndRelated) -
+              EXTRA_HEIGHT;
+        }
+      }
+      const stylesToUpdate = {};
+
+      // Get the line height of related changes, and convert it to the nearest
+      // integer.
+      const lineHeight = this._getLineHeight(this.$.relatedChanges);
+
+      // Figure out a new height that is divisible by the rounded line height.
+      const remainder = newHeight % lineHeight;
+      newHeight = newHeight - remainder;
+
+      stylesToUpdate['--relation-chain-max-height'] = newHeight + 'px';
+
+      // Update the max-height of the relation chain to this new height.
+      if (hasCommitToggle) {
+        stylesToUpdate['--related-change-btn-top-padding'] = remainder + 'px';
+      }
+
+      this.updateStyles(stylesToUpdate);
+    },
+
+    _computeShowRelatedToggle() {
+      // Make sure the max height has been applied, since there is now content
+      // to populate.
+      if (!util.getComputedStyleValue('--relation-chain-max-height', this)) {
+        this._updateRelatedChangeMaxHeight();
+      }
+      // Prevents showMore from showing when click on related change, since the
+      // line height would be positive, but related changes height is 0.
+      if (!this._getScrollHeight(this.$.relatedChanges)) {
+        return this._showRelatedToggle = false;
+      }
+
+      if (this._getScrollHeight(this.$.relatedChanges) >
+          (this._getOffsetHeight(this.$.relatedChanges) +
+          this._getLineHeight(this.$.relatedChanges))) {
+        return this._showRelatedToggle = true;
+      }
+      this._showRelatedToggle = false;
+    },
+
+    _updateToggleContainerClass(showRelatedToggle) {
+      if (showRelatedToggle) {
+        this.$.relatedChangesToggle.classList.add('showToggle');
+      } else {
+        this.$.relatedChangesToggle.classList.remove('showToggle');
+      }
+    },
+
+    _startUpdateCheckTimer() {
+      if (!this._serverConfig ||
+          !this._serverConfig.change ||
+          this._serverConfig.change.update_delay === undefined ||
+          this._serverConfig.change.update_delay <= MIN_CHECK_INTERVAL_SECS) {
+        return;
+      }
+
+      this._updateCheckTimerHandle = this.async(() => {
+        this.fetchChangeUpdates(this._change, this.$.restAPI).then(result => {
+          let toastMessage = null;
+          if (!result.isLatest) {
+            toastMessage = ReloadToastMessage.NEWER_REVISION;
+          } else if (result.newStatus === this.ChangeStatus.MERGED) {
+            toastMessage = ReloadToastMessage.MERGED;
+          } else if (result.newStatus === this.ChangeStatus.ABANDONED) {
+            toastMessage = ReloadToastMessage.ABANDONED;
+          } else if (result.newStatus === this.ChangeStatus.NEW) {
+            toastMessage = ReloadToastMessage.RESTORED;
+          } else if (result.newMessages) {
+            toastMessage = ReloadToastMessage.NEW_MESSAGE;
+          }
+
+          if (!toastMessage) {
+            this._startUpdateCheckTimer();
+            return;
+          }
+
+          this._cancelUpdateCheckTimer();
+          this.fire('show-alert', {
+            message: toastMessage,
+            // Persist this alert.
+            dismissOnNavigation: true,
+            action: 'Reload',
+            callback: function() {
+              // Load the current change without any patch range.
+              Gerrit.Nav.navigateToChange(this._change);
+            }.bind(this),
+          });
+        });
+      }, this._serverConfig.change.update_delay * 1000);
+    },
+
+    _cancelUpdateCheckTimer() {
+      if (this._updateCheckTimerHandle) {
+        this.cancelAsync(this._updateCheckTimerHandle);
+      }
+      this._updateCheckTimerHandle = null;
+    },
+
+    _handleVisibilityChange() {
+      if (document.hidden && this._updateCheckTimerHandle) {
+>>>>>>> BRANCH (8eb05d Merge branch 'stable-3.0' into stable-3.1)
         this._cancelUpdateCheckTimer();
         this.fire('show-alert', {
           message: toastMessage,
