@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Enums;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.gerrit.common.data.GroupDescription;
@@ -957,6 +958,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
     if (isSelf(who)) {
       return isVisible();
     }
+<<<<<<< HEAD   (584cc9 Merge branch 'stable-2.16' into stable-3.0)
     try {
       return Predicate.or(
           parseAccount(who).stream()
@@ -967,6 +969,13 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         throw e;
       }
       // Otherwise continue: if it's not an account, maybe it's a group?
+=======
+    Set<Account.Id> m = args.accountResolver.findAll(who);
+    if (m.size() == 1) {
+      return visibleto(args.userFactory.create(Iterables.getOnlyElement(m)));
+    } else if (m.size() > 1) {
+      throw error(String.format("\"%s\" resolves to multiple accounts", who));
+>>>>>>> BRANCH (fc0ebd ChangeQueryBuilder: Throw error on ambiguous visibleto by di)
     }
 
     Collection<GroupReference> suggestions = args.groupBackend.suggest(who, null);
