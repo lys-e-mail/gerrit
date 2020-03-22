@@ -495,11 +495,17 @@ class GrChangeActions extends mixinBehaviors( [
     return this._getRevisionAction(revisionActions, 'submit', null);
   }
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
   _getRebaseAction(revisionActions) {
     return this._getRevisionAction(revisionActions, 'rebase',
         {rebaseOnCurrent: null}
     );
   }
+=======
+    _getRebaseAction(revisionActions) {
+      return this._getRevisionAction(revisionActions, 'rebase', null);
+    },
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
 
   _getRevisionAction(revisionActions, actionName, emptyActionValue) {
     if (!revisionActions) {
@@ -523,6 +529,7 @@ class GrChangeActions extends mixinBehaviors( [
         .then(revisionActions => {
           if (!revisionActions) { return; }
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
           this.revisionActions = this._updateRebaseAction(revisionActions);
           this._sendShowRevisionActions({
             change: this.change,
@@ -534,6 +541,12 @@ class GrChangeActions extends mixinBehaviors( [
           this.fire('show-alert', {message: ERR_REVISION_ACTIONS});
           this._loading = false;
           throw err;
+=======
+        this.revisionActions = revisionActions;
+        this._sendShowRevisionActions({
+          change: this.change,
+          revisionActions,
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
         });
   }
 
@@ -548,6 +561,7 @@ class GrChangeActions extends mixinBehaviors( [
     );
   }
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
   _updateRebaseAction(revisionActions) {
     if (revisionActions && revisionActions.rebase) {
       revisionActions.rebase.rebaseOnCurrent =
@@ -665,6 +679,11 @@ class GrChangeActions extends mixinBehaviors( [
     return this.$.restAPI.getChangeRevisionActions(this.changeNum,
         this.latestPatchNum);
   }
+=======
+    _changeChanged() {
+      this.reload();
+    },
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
 
   _shouldHideActions(actions, loading) {
     return loading || !actions || !actions.base || !actions.base.length;
@@ -1263,6 +1282,7 @@ class GrChangeActions extends mixinBehaviors( [
         .findIndex(action => action.type === type && action.key === key);
   }
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
   _setLoadingOnButtonWithKey(type, key) {
     this._actionLoadingMessage = this._computeLoadingLabel(key);
     let buttonKey = key;
@@ -1272,6 +1292,15 @@ class GrChangeActions extends mixinBehaviors( [
       // Revert submission button no longer exists
       buttonKey = ChangeActions.REVERT;
     }
+=======
+    _calculateDisabled(action, hasKnownChainState) {
+      if (action.__key === 'rebase') {
+        // Rebase button is only disabled when change has no parent(s).
+        return hasKnownChainState === false;
+      }
+      return !action.enabled;
+    },
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
 
     // If the action appears in the overflow menu.
     if (this._getActionOverflowIndex(type, buttonKey) !== -1) {
@@ -1584,6 +1613,7 @@ class GrChangeActions extends mixinBehaviors( [
       !action.__primary);
   }
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
   _computeMenuActions(actionRecord, hiddenActionsRecord) {
     const hiddenActions = hiddenActionsRecord.base || [];
     return actionRecord.base.filter(a => {
@@ -1600,6 +1630,37 @@ class GrChangeActions extends mixinBehaviors( [
       };
     });
   }
+=======
+    _computeRebaseOnCurrent(revisionRebaseAction) {
+      if (revisionRebaseAction) {
+        return !!revisionRebaseAction.enabled;
+      }
+      return null;
+    },
+
+    /**
+     * Occasionally, a change created by a change action is not yet knwon to the
+     * API for a brief time. Wait for the given change number to be recognized.
+     *
+     * Returns a promise that resolves with true if a request is recognized, or
+     * false if the change was never recognized after all attempts.
+     *
+     * @param  {number} changeNum
+     * @return {Promise<boolean>}
+     */
+    _waitForChangeReachable(changeNum) {
+      let attempsRemaining = AWAIT_CHANGE_ATTEMPTS;
+      return new Promise(resolve => {
+        const check = () => {
+          attempsRemaining--;
+          // Pass a no-op error handler to avoid the "not found" error toast.
+          this.$.restAPI.getChange(changeNum, () => {}).then(response => {
+            // If the response is 404, the response will be undefined.
+            if (response) {
+              resolve(true);
+              return;
+            }
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
 
   /**
    * Occasionally, a change created by a change action is not yet knwon to the

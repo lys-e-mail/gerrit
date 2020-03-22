@@ -1084,11 +1084,18 @@ class GrRestApiInterface extends mixinBehaviors( [
         fetchOptions: this._etags.getOptions(urlWithParams),
         anonymizedUrl: '/changes/*~*/detail?O=' + optionsHex,
       };
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
       return this._restApiHelper.fetchRawJSON(req).then(response => {
         if (response && response.status === 304) {
           return Promise.resolve(this._restApiHelper.parsePrefixedJSON(
               this._etags.getCachedPayload(urlWithParams)));
         }
+=======
+      return this._getChangeURLAndFetch(req).then(revisionActions => {
+        return revisionActions;
+      });
+    },
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
 
         if (response && !response.ok) {
           if (opt_errFn) {
