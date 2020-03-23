@@ -1101,11 +1101,16 @@ class GrRestApiInterface extends mixinBehaviors( [
         fetchOptions: this._etags.getOptions(urlWithParams),
         anonymizedUrl: '/changes/*~*/detail?O=' + optionsHex,
       };
+<<<<<<< HEAD   (e7a1d8 Merge "Change page load report to report all navigation and )
       return this._restApiHelper.fetchRawJSON(req).then(response => {
         if (response && response.status === 304) {
           return Promise.resolve(this._restApiHelper.parsePrefixedJSON(
               this._etags.getCachedPayload(urlWithParams)));
         }
+=======
+      return this._getChangeURLAndFetch(req);
+    },
+>>>>>>> BRANCH (363668 Update git submodules)
 
         if (response && !response.ok) {
           if (opt_errFn) {
