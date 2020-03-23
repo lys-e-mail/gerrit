@@ -369,6 +369,7 @@ suite('gr-rest-api-interface tests', () => {
       element.addEventListener('server-error', resolve);
     });
 
+<<<<<<< HEAD   (8f21e3 Merge "AttentionSetUpdate: Fix typo in javadoc")
     element._restApiHelper.fetchJSON({}).then(response => {
       assert.isUndefined(response);
       assert.isTrue(getResponseObjectStub.notCalled);
@@ -406,6 +407,13 @@ suite('gr-rest-api-interface tests', () => {
 
         element._restApiHelper._cache.set(cacheKey, 'fake cache');
         stub.lastCall.args[0].errFn();
+=======
+    test('server error', done => {
+      const getResponseObjectStub = sandbox.stub(element, 'getResponseObject');
+      window.fetch.returns(Promise.resolve({ok: false}));
+      const serverErrorEventPromise = new Promise(resolve => {
+        element.addEventListener('server-error', resolve);
+>>>>>>> BRANCH (73357c Merge branch 'stable-3.0' into stable-3.1)
       });
 
   test('getAccount does not add to the cache when resp.status is 403',
