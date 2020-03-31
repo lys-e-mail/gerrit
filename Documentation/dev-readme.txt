@@ -66,6 +66,7 @@ see <<dev-bazel#tests,Running Unit Tests with Bazel>>.
 <<dev-e2e-tests#,This document>> describes how `e2e` (load or functional) test
 scenarios are implemented using link:https://gatling.io/[`Gatling`].
 
+<<<<<<< HEAD   (b7c5dd e2e-tests: Document how to handle eviction warning)
 
 == Local server
 
@@ -152,6 +153,8 @@ To create changes as users of Gerrit would, run:
 git push origin HEAD:refs/for/master
 ----
 
+=======
+>>>>>>> BRANCH (1fca37 Merge branch 'stable-2.16' into stable-3.0)
 [[run_daemon]]
 === Running the Daemon
 
