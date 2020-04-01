@@ -42,7 +42,9 @@ public class ElasticV7QueryGroupsTest extends AbstractQueryGroupsTest {
     }
 
     container = ElasticContainer.createAndStart(ElasticVersion.V7_6);
-    nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
+    nodeInfo =
+        new ElasticNodeInfo(
+            container.getHttpHost().getHostName(), container.getHttpHost().getPort());
   }
 
   @AfterClass
@@ -62,8 +64,14 @@ public class ElasticV7QueryGroupsTest extends AbstractQueryGroupsTest {
   protected Injector createInjector() {
     Config elasticsearchConfig = new Config(config);
     InMemoryModule.setDefaults(elasticsearchConfig);
+<<<<<<< HEAD   (54eeef Merge branch 'stable-3.0' into stable-3.1)
     String indicesPrefix = testName.getSanitizedMethodName();
     ElasticTestUtils.configure(elasticsearchConfig, nodeInfo.port, indicesPrefix);
+=======
+    String indicesPrefix = getSanitizedMethodName();
+    ElasticTestUtils.configure(
+        elasticsearchConfig, nodeInfo.hostname, nodeInfo.port, indicesPrefix);
+>>>>>>> BRANCH (f34e82 Merge branch 'stable-2.16' into stable-3.0)
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
   }
 }
