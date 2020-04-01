@@ -42,7 +42,9 @@ public class ElasticV5QueryAccountsTest extends AbstractQueryAccountsTest {
     }
 
     container = ElasticContainer.createAndStart(ElasticVersion.V5_6);
-    nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
+    nodeInfo =
+        new ElasticNodeInfo(
+            container.getHttpHost().getHostName(), container.getHttpHost().getPort());
   }
 
   @AfterClass
@@ -64,7 +66,12 @@ public class ElasticV5QueryAccountsTest extends AbstractQueryAccountsTest {
     InMemoryModule.setDefaults(elasticsearchConfig);
     String indicesPrefix = getSanitizedMethodName();
     ElasticTestUtils.configure(
+<<<<<<< HEAD   (085b8b Merge changes I3abb13cb,Idb26a308 into stable-3.0)
         elasticsearchConfig, nodeInfo.port, indicesPrefix, ElasticVersion.V5_6);
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
+=======
+        elasticsearchConfig, nodeInfo.hostname, nodeInfo.port, indicesPrefix, ElasticVersion.V5_6);
+    return Guice.createInjector(new InMemoryModule(elasticsearchConfig, notesMigration));
+>>>>>>> BRANCH (22aa30 Elasticsearch: Unharcode localhost for container's)
   }
 }
