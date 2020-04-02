@@ -14,7 +14,6 @@
 
 package com.google.gerrit.elasticsearch;
 
-import com.google.gerrit.elasticsearch.ElasticTestUtils.ElasticNodeInfo;
 import com.google.gerrit.server.query.change.AbstractQueryChangesTest;
 import com.google.gerrit.testing.ConfigSuite;
 import com.google.gerrit.testing.GerritTestName;
@@ -33,18 +32,14 @@ public class ElasticV5QueryChangesTest extends AbstractQueryChangesTest {
     return IndexConfig.createForElasticsearch();
   }
 
-  private static ElasticNodeInfo nodeInfo;
   private static ElasticContainer container;
 
   @BeforeClass
   public static void startIndexService() {
-    if (nodeInfo != null) {
-      // do not start Elasticsearch twice
-      return;
+    if (container == null) {
+      // Only start Elasticsearch once
+      container = ElasticContainer.createAndStart(ElasticVersion.V5_6);
     }
-
-    container = ElasticContainer.createAndStart(ElasticVersion.V5_6);
-    nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
   }
 
   @AfterClass
@@ -66,9 +61,14 @@ public class ElasticV5QueryChangesTest extends AbstractQueryChangesTest {
   protected Injector createInjector() {
     Config elasticsearchConfig = new Config(config);
     InMemoryModule.setDefaults(elasticsearchConfig);
+<<<<<<< HEAD   (3361b5 Merge changes I8f004718,I67256ab3 into stable-3.1)
     String indicesPrefix = testName.getSanitizedMethodName();
     ElasticTestUtils.configure(
         elasticsearchConfig, nodeInfo.port, indicesPrefix, ElasticVersion.V5_6);
+=======
+    String indicesPrefix = getSanitizedMethodName();
+    ElasticTestUtils.configure(elasticsearchConfig, container, indicesPrefix, ElasticVersion.V5_6);
+>>>>>>> BRANCH (b6350b Merge branch 'stable-2.16' into stable-3.0)
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
   }
 }

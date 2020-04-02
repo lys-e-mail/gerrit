@@ -14,9 +14,12 @@
 
 package com.google.gerrit.elasticsearch;
 
+<<<<<<< HEAD   (3361b5 Merge changes I8f004718,I67256ab3 into stable-3.1)
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import com.google.gerrit.elasticsearch.ElasticTestUtils.ElasticNodeInfo;
+=======
+>>>>>>> BRANCH (b6350b Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.query.change.AbstractQueryChangesTest;
 import com.google.gerrit.testing.ConfigSuite;
 import com.google.gerrit.testing.GerritTestName;
@@ -40,21 +43,17 @@ public class ElasticV6QueryChangesTest extends AbstractQueryChangesTest {
     return IndexConfig.createForElasticsearch();
   }
 
-  private static ElasticNodeInfo nodeInfo;
   private static ElasticContainer container;
   private static CloseableHttpAsyncClient client;
 
   @BeforeClass
   public static void startIndexService() {
-    if (nodeInfo != null) {
-      // do not start Elasticsearch twice
-      return;
+    if (container == null) {
+      // Only start Elasticsearch once
+      container = ElasticContainer.createAndStart(ElasticVersion.V6_8);
+      client = HttpAsyncClients.createDefault();
+      client.start();
     }
-
-    container = ElasticContainer.createAndStart(ElasticVersion.V6_8);
-    nodeInfo = new ElasticNodeInfo(container.getHttpHost().getPort());
-    client = HttpAsyncClients.createDefault();
-    client.start();
   }
 
   @AfterClass
@@ -67,6 +66,7 @@ public class ElasticV6QueryChangesTest extends AbstractQueryChangesTest {
   @Rule public final GerritTestName testName = new GerritTestName();
 
   @After
+<<<<<<< HEAD   (3361b5 Merge changes I8f004718,I67256ab3 into stable-3.1)
   public void closeIndex() throws Exception {
     client
         .execute(
@@ -77,6 +77,18 @@ public class ElasticV6QueryChangesTest extends AbstractQueryChangesTest {
             HttpClientContext.create(),
             null)
         .get(5, MINUTES);
+=======
+  public void closeIndex() {
+    client.execute(
+        new HttpPost(
+            String.format(
+                "http://%s:%d/%s*/_close",
+                container.getHttpHost().getHostName(),
+                container.getHttpHost().getPort(),
+                getSanitizedMethodName())),
+        HttpClientContext.create(),
+        null);
+>>>>>>> BRANCH (b6350b Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @Override
@@ -89,8 +101,13 @@ public class ElasticV6QueryChangesTest extends AbstractQueryChangesTest {
   protected Injector createInjector() {
     Config elasticsearchConfig = new Config(config);
     InMemoryModule.setDefaults(elasticsearchConfig);
+<<<<<<< HEAD   (3361b5 Merge changes I8f004718,I67256ab3 into stable-3.1)
     String indicesPrefix = testName.getSanitizedMethodName();
     ElasticTestUtils.configure(elasticsearchConfig, nodeInfo.port, indicesPrefix);
+=======
+    String indicesPrefix = getSanitizedMethodName();
+    ElasticTestUtils.configure(elasticsearchConfig, container, indicesPrefix);
+>>>>>>> BRANCH (b6350b Merge branch 'stable-2.16' into stable-3.0)
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
   }
 }
