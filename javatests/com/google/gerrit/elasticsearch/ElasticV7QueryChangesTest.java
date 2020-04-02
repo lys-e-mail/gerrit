@@ -62,6 +62,7 @@ public class ElasticV7QueryChangesTest extends AbstractQueryChangesTest {
   @Rule public final GerritTestName testName = new GerritTestName();
 
   @After
+<<<<<<< HEAD   (86fcee Merge branch 'stable-3.0' into stable-3.1)
   public void closeIndex() throws Exception {
     client
         .execute(
@@ -74,6 +75,20 @@ public class ElasticV7QueryChangesTest extends AbstractQueryChangesTest {
             HttpClientContext.create(),
             null)
         .get(5, MINUTES);
+=======
+  public void closeIndex() {
+    // Close the index after each test to prevent exceeding Elasticsearch's
+    // shard limit (see Issue 10120).
+    client.execute(
+        new HttpPost(
+            String.format(
+                "http://%s:%d/%s*/_close",
+                container.getHttpHost().getHostName(),
+                container.getHttpHost().getPort(),
+                getSanitizedMethodName())),
+        HttpClientContext.create(),
+        null);
+>>>>>>> BRANCH (f8f555 Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @Override
