@@ -76,8 +76,13 @@ public class ElasticProjectIndex extends AbstractElasticIndex<Project.NameKey, P
   @Override
   public void replace(ProjectData projectState) {
     BulkRequest bulk =
+<<<<<<< HEAD   (7b5eec Merge "Fix minor Error Prone errors")
         new IndexRequest(projectState.getProject().getName(), indexName, type, client.adapter())
             .add(new UpdateRequest<>(schema, projectState, ImmutableSet.of()));
+=======
+        new IndexRequest(projectState.getProject().getName(), indexName)
+            .add(new UpdateRequest<>(schema, projectState));
+>>>>>>> BRANCH (41334a Merge branch 'stable-3.0' into stable-3.1)
 
     String uri = getURI(type, BULK);
     Response response = postRequest(uri, bulk, getRefreshParam());
@@ -99,12 +104,12 @@ public class ElasticProjectIndex extends AbstractElasticIndex<Project.NameKey, P
 
   @Override
   protected String getDeleteActions(Project.NameKey nameKey) {
-    return delete(type, nameKey);
+    return getDeleteRequest(nameKey);
   }
 
   @Override
   protected String getMappings() {
-    return getMappingsForSingleType(PROJECTS, mapping.projects);
+    return getMappingsForSingleType(mapping.projects);
   }
 
   @Override

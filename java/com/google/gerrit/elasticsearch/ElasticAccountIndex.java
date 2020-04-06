@@ -73,9 +73,13 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
 
   @Override
   public void replace(AccountState as) {
+<<<<<<< HEAD   (7b5eec Merge "Fix minor Error Prone errors")
     BulkRequest bulk =
         new IndexRequest(getId(as), indexName, type, client.adapter())
             .add(new UpdateRequest<>(schema, as, ImmutableSet.of()));
+=======
+    BulkRequest bulk = new IndexRequest(getId(as), indexName).add(new UpdateRequest<>(schema, as));
+>>>>>>> BRANCH (41334a Merge branch 'stable-3.0' into stable-3.1)
 
     String uri = getURI(type, BULK);
     Response response = postRequest(uri, bulk, getRefreshParam());
@@ -105,12 +109,12 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
 
   @Override
   protected String getDeleteActions(Account.Id a) {
-    return delete(type, a);
+    return getDeleteRequest(a);
   }
 
   @Override
   protected String getMappings() {
-    return getMappingsForSingleType(ACCOUNTS, mapping.accounts);
+    return getMappingsForSingleType(mapping.accounts);
   }
 
   @Override
