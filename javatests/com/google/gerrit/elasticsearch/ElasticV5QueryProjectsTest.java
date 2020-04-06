@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (912e54 Update git submodules)
 // Copyright (C) 2018 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,3 +63,5 @@ public class ElasticV5QueryProjectsTest extends AbstractQueryProjectsTest {
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
   }
 }
+=======
+>>>>>>> BRANCH (11d634 Merge branch 'stable-2.16' into stable-3.0)
