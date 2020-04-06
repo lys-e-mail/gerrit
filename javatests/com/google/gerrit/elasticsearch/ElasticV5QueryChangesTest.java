@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (ee22a4 Merge branch 'stable-2.16' into stable-3.0)
 // Copyright (C) 2018 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,3 +63,5 @@ public class ElasticV5QueryChangesTest extends AbstractQueryChangesTest {
     return Guice.createInjector(new InMemoryModule(elasticsearchConfig));
   }
 }
+=======
+>>>>>>> BRANCH (81d2b5 Remove support for discontinued Elasticsearch version 5.6)

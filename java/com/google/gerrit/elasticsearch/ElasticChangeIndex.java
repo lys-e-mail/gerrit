@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -29,7 +28,6 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 import com.google.gerrit.elasticsearch.ElasticMapping.MappingProperties;
 import com.google.gerrit.elasticsearch.bulk.BulkRequest;
-import com.google.gerrit.elasticsearch.bulk.DeleteRequest;
 import com.google.gerrit.elasticsearch.bulk.IndexRequest;
 import com.google.gerrit.elasticsearch.bulk.UpdateRequest;
 import com.google.gerrit.exceptions.StorageException;
@@ -104,6 +102,7 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
   }
 
   @Override
+<<<<<<< HEAD   (ee22a4 Merge branch 'stable-2.16' into stable-3.0)
   public void replace(ChangeData cd) {
     String deleteIndex;
     String insertIndex;
@@ -123,6 +122,10 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
     if (adapter.deleteToReplace()) {
       bulk.add(new DeleteRequest(cd.getId().toString(), indexName, deleteIndex, adapter));
     }
+=======
+  public void replace(ChangeData cd) throws IOException {
+    BulkRequest bulk = new IndexRequest(getId(cd), indexName).add(new UpdateRequest<>(schema, cd));
+>>>>>>> BRANCH (81d2b5 Remove support for discontinued Elasticsearch version 5.6)
 
     String uri = getURI(type, BULK);
     Response response = postRequest(uri, bulk, getRefreshParam());
@@ -175,18 +178,19 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
 
   @Override
   protected String getDeleteActions(Change.Id c) {
+<<<<<<< HEAD   (ee22a4 Merge branch 'stable-2.16' into stable-3.0)
     if (!client.adapter().useV5Type()) {
       return delete(client.adapter().getType(), c);
     }
     return delete(OPEN_CHANGES, c) + delete(CLOSED_CHANGES, c);
+=======
+    return getDeleteRequest(c);
+>>>>>>> BRANCH (81d2b5 Remove support for discontinued Elasticsearch version 5.6)
   }
 
   @Override
   protected String getMappings() {
-    if (!client.adapter().useV5Type()) {
-      return getMappingsFor(client.adapter().getType(), mapping.changes);
-    }
-    return gson.toJson(ImmutableMap.of(MAPPINGS, mapping));
+    return getMappingsFor(client.adapter().getType(), mapping.changes);
   }
 
   @Override

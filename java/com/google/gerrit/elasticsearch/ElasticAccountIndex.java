@@ -73,10 +73,15 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
   }
 
   @Override
+<<<<<<< HEAD   (ee22a4 Merge branch 'stable-2.16' into stable-3.0)
   public void replace(AccountState as) {
     BulkRequest bulk =
         new IndexRequest(getId(as), indexName, type, client.adapter())
             .add(new UpdateRequest<>(schema, as));
+=======
+  public void replace(AccountState as) throws IOException {
+    BulkRequest bulk = new IndexRequest(getId(as), indexName).add(new UpdateRequest<>(schema, as));
+>>>>>>> BRANCH (81d2b5 Remove support for discontinued Elasticsearch version 5.6)
 
     String uri = getURI(type, BULK);
     Response response = postRequest(uri, bulk, getRefreshParam());
@@ -98,12 +103,12 @@ public class ElasticAccountIndex extends AbstractElasticIndex<Account.Id, Accoun
 
   @Override
   protected String getDeleteActions(Account.Id a) {
-    return delete(type, a);
+    return getDeleteRequest(a);
   }
 
   @Override
   protected String getMappings() {
-    return getMappingsForSingleType(ACCOUNTS, mapping.accounts);
+    return getMappingsForSingleType(mapping.accounts);
   }
 
   @Override
