@@ -34,10 +34,16 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.MethodNotAllowedException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
+<<<<<<< HEAD   (11d634 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.inject.Inject;
+=======
+import com.google.gerrit.server.project.ProjectConfig;
+>>>>>>> BRANCH (2c1340 REST: Allow to create annotated tag with only CREATE_TAG)
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Before;
 import org.junit.Test;
 
 @NoHttpd
@@ -59,7 +65,19 @@ public class TagsIT extends AbstractDaemonTest {
           + "=XFeC\n"
           + "-----END PGP SIGNATURE-----";
 
+<<<<<<< HEAD   (11d634 Merge branch 'stable-2.16' into stable-3.0)
   @Inject private RequestScopeOperations requestScopeOperations;
+=======
+  @Before
+  public void setupPermissions() throws Exception {
+    try (ProjectConfigUpdate u = updateProject(allProjects)) {
+      ProjectConfig cfg = u.getConfig();
+      removeAllBranchPermissions(
+          cfg, Permission.CREATE, Permission.CREATE_TAG, Permission.CREATE_SIGNED_TAG);
+      u.save();
+    }
+  }
+>>>>>>> BRANCH (2c1340 REST: Allow to create annotated tag with only CREATE_TAG)
 
   @Test
   public void listTagsOfNonExistingProject() throws Exception {
@@ -169,7 +187,7 @@ public class TagsIT extends AbstractDaemonTest {
 
   @Test
   public void lightweightTag() throws Exception {
-    grantTagPermissions();
+    grant(project, R_TAGS + "*", Permission.CREATE);
 
     PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
     PushOneCommit.Result r = push.to("refs/heads/master");
@@ -201,7 +219,7 @@ public class TagsIT extends AbstractDaemonTest {
 
   @Test
   public void annotatedTag() throws Exception {
-    grantTagPermissions();
+    grant(project, R_TAGS + "*", Permission.CREATE_TAG);
 
     PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
     PushOneCommit.Result r = push.to("refs/heads/master");
@@ -428,5 +446,11 @@ public class TagsIT extends AbstractDaemonTest {
     grant(project, R_TAGS + "", Permission.DELETE);
     grant(project, R_TAGS + "*", Permission.CREATE_TAG);
     grant(project, R_TAGS + "*", Permission.CREATE_SIGNED_TAG);
+  }
+
+  private static void removeAllBranchPermissions(ProjectConfig cfg, String... permissions) {
+    cfg.getAccessSections().stream()
+        .filter(s -> s.getName().startsWith("refs/tags/"))
+        .forEach(s -> Arrays.stream(permissions).forEach(s::removePermission));
   }
 }
