@@ -79,7 +79,7 @@ public class CreateRefControl {
     PermissionBackend.ForRef perm = permissionBackend.user(user.get()).ref(branch);
     if (object instanceof RevCommit) {
       perm.check(RefPermission.CREATE);
-      checkCreateCommit(repo, (RevCommit) object, ps.getNameKey(), perm);
+      checkCreateCommit(user, repo, (RevCommit) object, ps.getNameKey(), perm);
     } else if (object instanceof RevTag) {
       RevTag tag = (RevTag) object;
       try (RevWalk rw = new RevWalk(repo)) {
@@ -100,7 +100,7 @@ public class CreateRefControl {
 
       RevObject target = tag.getObject();
       if (target instanceof RevCommit) {
-        checkCreateCommit(repo, (RevCommit) target, ps.getNameKey(), perm);
+        checkCreateCommit(user, repo, (RevCommit) target, ps.getNameKey(), perm);
       } else {
         checkCreateRef(user, repo, branch, target);
       }
@@ -121,8 +121,17 @@ public class CreateRefControl {
    * new commit to the repository.
    */
   private void checkCreateCommit(
+<<<<<<< HEAD   (03e7d1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
       Repository repo, RevCommit commit, Project.NameKey project, PermissionBackend.ForRef forRef)
       throws AuthException, PermissionBackendException, IOException {
+=======
+      Provider<? extends CurrentUser> user,
+      Repository repo,
+      RevCommit commit,
+      Project.NameKey project,
+      PermissionBackend.ForRef forRef)
+      throws AuthException, PermissionBackendException {
+>>>>>>> BRANCH (4a6b05 Elasticsearch: Remove support for EOL 6.x versions)
     try {
       // If the user has update (push) permission, they can create the ref regardless
       // of whether they are pushing any new objects along with the create.
@@ -131,11 +140,15 @@ public class CreateRefControl {
     } catch (AuthException denied) {
       // Fall through to check reachability.
     }
+<<<<<<< HEAD   (03e7d1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
     if (reachable.fromRefs(
         project,
         repo,
         commit,
         repo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS, Constants.R_TAGS))) {
+=======
+    if (reachable.fromHeadsOrTags(project, repo, commit, user)) {
+>>>>>>> BRANCH (4a6b05 Elasticsearch: Remove support for EOL 6.x versions)
       // If the user has no push permissions, check whether the object is
       // merged into a branch or tag readable by this user. If so, they are
       // not effectively "pushing" more objects, so they can create the ref
