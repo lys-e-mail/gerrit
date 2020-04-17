@@ -381,6 +381,14 @@ class ChangeApiImpl implements ChangeApi {
     }
   }
 
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
+=======
+  @Override
+  public void rebase() throws RestApiException {
+    rebase(new RebaseInput());
+  }
+
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
   @Override
   public void rebase(RebaseInput in) throws RestApiException {
     try {
@@ -478,6 +486,16 @@ class ChangeApiImpl implements ChangeApi {
   }
 
   @Override
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
+=======
+  public ChangeInfo get() throws RestApiException {
+    return get(
+        EnumSet.complementOf(
+            EnumSet.of(ListChangesOption.CHECK, ListChangesOption.SKIP_MERGEABLE)));
+  }
+
+  @Override
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
   public ChangeEditApi edit() throws RestApiException {
     return changeEditApi.create(change);
   }
