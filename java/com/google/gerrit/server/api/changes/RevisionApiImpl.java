@@ -261,6 +261,15 @@ class RevisionApiImpl implements RevisionApi {
   }
 
   @Override
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
+=======
+  public ChangeApi rebase() throws RestApiException {
+    RebaseInput in = new RebaseInput();
+    return rebase(in);
+  }
+
+  @Override
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
   public ChangeApi rebase(RebaseInput in) throws RestApiException {
     try {
       return changes.id(rebase.apply(revision, in)._number);

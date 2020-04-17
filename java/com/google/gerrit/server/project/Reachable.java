@@ -16,15 +16,22 @@ package com.google.gerrit.server.project;
 
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.change.IncludedInResolver;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackend.RefFilterOptions;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
+=======
+import java.util.Optional;
+import org.eclipse.jgit.lib.Constants;
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -51,11 +58,25 @@ public class Reachable {
    *     filtered separately and will only be returned if reachable by a provided ref.
    */
   public boolean fromRefs(
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
       Project.NameKey project, Repository repo, RevCommit commit, List<Ref> refs) {
+=======
+      Project.NameKey project, Repository repo, RevCommit commit, Map<String, Ref> refs) {
+    return fromRefs(project, repo, commit, refs, Optional.empty());
+  }
+
+  private boolean fromRefs(
+      Project.NameKey project,
+      Repository repo,
+      RevCommit commit,
+      Map<String, Ref> refs,
+      Optional<Provider<? extends CurrentUser>> userProvider) {
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
     try (RevWalk rw = new RevWalk(repo)) {
       Map<String, Ref> filtered =
-          permissionBackend
-              .currentUser()
+          userProvider
+              .map(up -> permissionBackend.user(up.get()))
+              .orElse(permissionBackend.currentUser())
               .project(project)
               .filter(refs, repo, RefFilterOptions.defaults());
       return IncludedInResolver.includedInAny(repo, rw, commit, filtered.values());
@@ -65,4 +86,29 @@ public class Reachable {
       return false;
     }
   }
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
+=======
+
+  /** @return true if a commit is reachable from a repo's branches and tags. */
+  boolean fromHeadsOrTags(
+      Project.NameKey project,
+      Repository repo,
+      RevCommit commit,
+      Provider<? extends CurrentUser> userProvider) {
+    try {
+      RefDatabase refdb = repo.getRefDatabase();
+      Collection<Ref> heads = refdb.getRefsByPrefix(Constants.R_HEADS);
+      Collection<Ref> tags = refdb.getRefsByPrefix(Constants.R_TAGS);
+      Map<String, Ref> refs = Maps.newHashMapWithExpectedSize(heads.size() + tags.size());
+      for (Ref r : Iterables.concat(heads, tags)) {
+        refs.put(r.getName(), r);
+      }
+      return fromRefs(project, repo, commit, refs, Optional.of(userProvider));
+    } catch (IOException e) {
+      logger.atSevere().withCause(e).log(
+          "Cannot verify permissions to commit object %s in repository %s", commit.name(), project);
+      return false;
+    }
+  }
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
 }
