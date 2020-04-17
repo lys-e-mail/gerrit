@@ -36,11 +36,14 @@ import java.util.Map;
 import java.util.Set;
 
 public interface RevisionApi {
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
   @Deprecated
   default void delete() {
     throw new UnsupportedOperationException("draft workflow is discontinued");
   }
 
+=======
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
   String description() throws RestApiException;
 
   void description(String description) throws RestApiException;
@@ -60,11 +63,14 @@ public interface RevisionApi {
 
   BinaryResult submitPreview(String format) throws RestApiException;
 
+<<<<<<< HEAD   (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
   @Deprecated
   default void publish() {
     throw new UnsupportedOperationException("draft workflow is discontinued");
   }
 
+=======
+>>>>>>> BRANCH (06141d Make the build pipeline fail if cannot post Checks feedback)
   ChangeApi cherryPick(CherryPickInput in) throws RestApiException;
 
   CherryPickChangeInfo cherryPickAsInfo(CherryPickInput in) throws RestApiException;
