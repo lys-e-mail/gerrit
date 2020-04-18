@@ -1,4 +1,3 @@
-<<<<<<< HEAD   (b8fe56 HttpLogoutServlet: Test redirections with canonicalWebUrl se)
 // Copyright (C) 2013 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,31 +17,21 @@ package com.google.gerrit.acceptance.git;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.acceptance.GitUtil.assertPushOk;
 import static com.google.gerrit.acceptance.GitUtil.pushHead;
-import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.Iterables;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
-import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
-import com.google.gerrit.acceptance.TestAccount;
-import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
-import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.Permission;
-import com.google.gerrit.entities.Change;
-import com.google.gerrit.entities.PatchSet;
-import com.google.gerrit.entities.PatchSetApproval;
-import com.google.gerrit.entities.Project;
-import com.google.gerrit.entities.RefNames;
-import com.google.gerrit.extensions.api.changes.NotifyHandling;
-import com.google.gerrit.extensions.api.changes.RecipientType;
-import com.google.gerrit.mail.Address;
-import com.google.gerrit.mail.EmailHeader;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.PatchSet;
+import com.google.gerrit.reviewdb.client.PatchSetApproval;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.events.ChangeMergedEvent;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.inject.Inject;
 import java.util.List;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -54,20 +43,20 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.junit.Before;
 import org.junit.Test;
 
-@NoHttpd
-public class SubmitOnPushIT extends AbstractDaemonTest {
+public abstract class AbstractSubmitOnPush extends AbstractDaemonTest {
   @Inject private ApprovalsUtil approvalsUtil;
-  @Inject private ProjectOperations projectOperations;
+
+  @Before
+  public void blockAnonymous() throws Exception {
+    blockAnonymousRead();
+  }
 
   @Test
   public void submitOnPush() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/for/refs/heads/master", Permission.SUBMIT);
     PushOneCommit.Result r = pushTo("refs/for/master%submit");
     r.assertOkStatus();
     r.assertChange(Change.Status.MERGED, null, admin);
@@ -77,11 +66,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
 
   @Test
   public void submitOnPushToRefsMetaConfig() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/meta/config").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/for/refs/meta/config", Permission.SUBMIT);
 
     git().fetch().setRefSpecs(new RefSpec("refs/meta/config:refs/meta/config")).call();
     testRepo.reset(RefNames.REFS_CONFIG);
@@ -99,11 +84,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     push("refs/heads/master", "one change", "a.txt", "some content");
     testRepo.reset(objectId);
 
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/for/refs/heads/master", Permission.SUBMIT);
     PushOneCommit.Result r =
         push("refs/for/master%submit", "other change", "a.txt", "other content");
     r.assertErrorStatus();
@@ -119,11 +100,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     push(master, "one change", "a.txt", "some content");
     testRepo.reset(objectId);
 
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/for/refs/heads/master", Permission.SUBMIT);
     PushOneCommit.Result r =
         push("refs/for/master%submit", "other change", "b.txt", "other content");
     r.assertOkStatus();
@@ -136,11 +113,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     PushOneCommit.Result r =
         push("refs/for/master", PushOneCommit.SUBJECT, "a.txt", "some content");
 
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/for/refs/heads/master", Permission.SUBMIT);
     r =
         push(
             "refs/for/master%submit",
@@ -180,11 +153,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
 
   @Test
   public void mergeOnPushToBranch() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/heads/master", Permission.PUSH);
     PushOneCommit.Result r =
         push("refs/for/master", PushOneCommit.SUBJECT, "a.txt", "some content");
     r.assertOkStatus();
@@ -193,32 +162,28 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     assertCommit(project, "refs/heads/master");
 
     ChangeData cd =
-        Iterables.getOnlyElement(queryProvider.get().byKey(Change.key(r.getChangeId())));
+        Iterables.getOnlyElement(queryProvider.get().byKey(new Change.Key(r.getChangeId())));
     RevCommit c = r.getCommit();
-    PatchSet.Id psId = cd.currentPatchSet().id();
+    PatchSet.Id psId = cd.currentPatchSet().getId();
     assertThat(psId.get()).isEqualTo(1);
     assertThat(cd.change().isMerged()).isTrue();
     assertSubmitApproval(psId);
 
     assertThat(cd.patchSets()).hasSize(1);
-    assertThat(cd.patchSet(psId).commitId()).isEqualTo(c);
+    assertThat(cd.patchSet(psId).getRevision().get()).isEqualTo(c.name());
   }
 
   @Test
   public void correctNewRevOnMergeByPushToBranch() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/heads/master", Permission.PUSH);
     push("refs/for/master", PushOneCommit.SUBJECT, "one.txt", "One");
     PushOneCommit.Result r = push("refs/for/master", PushOneCommit.SUBJECT, "two.txt", "Two");
     startEventRecorder();
     git().push().setRefSpecs(new RefSpec(r.getCommit().name() + ":refs/heads/master")).call();
     List<ChangeMergedEvent> changeMergedEvents =
         eventRecorder.getChangeMergedEvents(project.get(), "refs/heads/master", 2);
-    assertThat(changeMergedEvents.get(0).newRev).isEqualTo(r.getPatchSet().commitId().name());
-    assertThat(changeMergedEvents.get(1).newRev).isEqualTo(r.getPatchSet().commitId().name());
+    assertThat(changeMergedEvents.get(0).newRev).isEqualTo(r.getPatchSet().getRevision().get());
+    assertThat(changeMergedEvents.get(1).newRev).isEqualTo(r.getPatchSet().getRevision().get());
   }
 
   @Test
@@ -226,14 +191,10 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     enableCreateNewChangeForAllNotInTarget();
     String master = "refs/heads/master";
     String other = "refs/heads/other";
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref(master).group(adminGroupUuid()))
-        .add(allow(Permission.CREATE).ref(other).group(adminGroupUuid()))
-        .add(allow(Permission.PUSH).ref(other).group(adminGroupUuid()))
-        .update();
-    RevCommit masterRev = projectOperations.project(project).getHead("master");
+    grant(project, master, Permission.PUSH);
+    grant(project, other, Permission.CREATE);
+    grant(project, other, Permission.PUSH);
+    RevCommit masterRev = getRemoteHead();
     pushCommitTo(masterRev, other);
     PushOneCommit.Result r = createChange();
     r.assertOkStatus();
@@ -241,7 +202,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     pushCommitTo(commit, master);
     assertCommit(project, master);
     ChangeData cd =
-        Iterables.getOnlyElement(queryProvider.get().byKey(Change.key(r.getChangeId())));
+        Iterables.getOnlyElement(queryProvider.get().byKey(new Change.Key(r.getChangeId())));
     assertThat(cd.change().isMerged()).isTrue();
 
     RemoteRefUpdate.Status status = pushCommitTo(commit, "refs/for/other");
@@ -250,8 +211,8 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     pushCommitTo(commit, other);
     assertCommit(project, other);
 
-    for (ChangeData c : queryProvider.get().byKey(Change.key(r.getChangeId()))) {
-      if (c.change().getDest().branch().equals(other)) {
+    for (ChangeData c : queryProvider.get().byKey(new Change.Key(r.getChangeId()))) {
+      if (c.change().getDest().get().equals(other)) {
         assertThat(c.change().isMerged()).isTrue();
       }
     }
@@ -267,11 +228,7 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
 
   @Test
   public void mergeOnPushToBranchWithNewPatchset() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/heads/master", Permission.PUSH);
     PushOneCommit.Result r = pushTo("refs/for/master");
     r.assertOkStatus();
     RevCommit c1 = r.getCommit();
@@ -299,17 +256,13 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     assertSubmitApproval(psId2);
 
     assertThat(cd.patchSets()).hasSize(2);
-    assertThat(cd.patchSet(psId1).commitId()).isEqualTo(c1);
-    assertThat(cd.patchSet(psId2).commitId()).isEqualTo(c2);
+    assertThat(cd.patchSet(psId1).getRevision().get()).isEqualTo(c1.name());
+    assertThat(cd.patchSet(psId2).getRevision().get()).isEqualTo(c2.name());
   }
 
   @Test
   public void mergeOnPushToBranchWithOldPatchset() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/heads/master", Permission.PUSH);
     PushOneCommit.Result r = pushTo("refs/for/master");
     r.assertOkStatus();
     RevCommit c1 = r.getCommit();
@@ -320,30 +273,26 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     r = amendChange(changeId);
     ChangeData cd = r.getChange();
     PatchSet.Id psId2 = cd.change().currentPatchSetId();
-    assertThat(psId2.changeId()).isEqualTo(psId1.changeId());
+    assertThat(psId2.getParentKey()).isEqualTo(psId1.getParentKey());
     assertThat(psId2.get()).isEqualTo(2);
 
     testRepo.reset(c1);
     assertPushOk(pushHead(testRepo, "refs/heads/master", false), "refs/heads/master");
 
-    cd = changeDataFactory.create(project, psId1.changeId());
+    cd = changeDataFactory.create(project, psId1.getParentKey());
     Change c = cd.change();
     assertThat(c.isMerged()).isTrue();
     assertThat(c.currentPatchSetId()).isEqualTo(psId1);
-    assertThat(cd.patchSets().stream().map(PatchSet::id).collect(toList()))
+    assertThat(cd.patchSets().stream().map(PatchSet::getId).collect(toList()))
         .containsExactly(psId1, psId2);
   }
 
   @Test
   public void mergeMultipleOnPushToBranchWithNewPatchset() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.PUSH).ref("refs/heads/master").group(adminGroupUuid()))
-        .update();
+    grant(project, "refs/heads/master", Permission.PUSH);
 
     // Create 2 changes.
-    ObjectId initialHead = projectOperations.project(project).getHead("master");
+    ObjectId initialHead = getRemoteHead();
     PushOneCommit.Result r1 = createChange("Change 1", "a", "a");
     r1.assertOkStatus();
     PushOneCommit.Result r2 = createChange("Change 2", "b", "b");
@@ -374,96 +323,27 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
     assertThat(cd2.change().isMerged()).isTrue();
     PatchSet.Id psId2_2 = cd2.change().currentPatchSetId();
     assertThat(psId2_2.get()).isEqualTo(2);
-    assertThat(cd2.patchSet(psId2_1).commitId()).isEqualTo(c2_1);
-    assertThat(cd2.patchSet(psId2_2).commitId()).isEqualTo(c2_2);
+    assertThat(cd2.patchSet(psId2_1).getRevision().get()).isEqualTo(c2_1.name());
+    assertThat(cd2.patchSet(psId2_2).getRevision().get()).isEqualTo(c2_2.name());
 
     ChangeData cd1 = r1.getChange();
     assertThat(cd1.change().isMerged()).isTrue();
     PatchSet.Id psId1_2 = cd1.change().currentPatchSetId();
     assertThat(psId1_2.get()).isEqualTo(2);
-    assertThat(cd1.patchSet(psId1_1).commitId()).isEqualTo(c1_1);
-    assertThat(cd1.patchSet(psId1_2).commitId()).isEqualTo(c1_2);
-  }
-
-  @Test
-  public void pushForSubmitWithNotifyOption() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
-
-    TestAccount user = accountCreator.user();
-    String pushSpec = "refs/for/master%reviewer=" + user.email();
-    sender.clear();
-
-    PushOneCommit.Result result = pushTo(pushSpec + ",submit,notify=" + NotifyHandling.NONE);
-    result.assertOkStatus();
-    assertThat(sender.getMessages()).isEmpty();
-
-    sender.clear();
-    result = pushTo(pushSpec + ",submit,notify=" + NotifyHandling.OWNER);
-    result.assertOkStatus();
-    assertThat(sender.getMessages()).isEmpty();
-
-    sender.clear();
-    result = pushTo(pushSpec + ",submit,notify=" + NotifyHandling.OWNER_REVIEWERS);
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user, null);
-
-    sender.clear();
-    result = pushTo(pushSpec + ",submit,notify=" + NotifyHandling.ALL);
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user, null);
-
-    sender.clear();
-    result = pushTo(pushSpec + ",submit"); // default is notify = ALL
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user, null);
-  }
-
-  @Test
-  public void pushForSubmitWithNotifyingUsersExplicitly() throws Exception {
-    projectOperations
-        .project(project)
-        .forUpdate()
-        .add(allow(Permission.SUBMIT).ref("refs/for/refs/heads/master").group(adminGroupUuid()))
-        .update();
-
-    TestAccount user = accountCreator.user();
-    String pushSpec = "refs/for/master%reviewer=" + user.email() + ",cc=" + user.email();
-
-    TestAccount user2 = accountCreator.user2();
-
-    sender.clear();
-    PushOneCommit.Result result =
-        pushTo(pushSpec + ",submit,notify=" + NotifyHandling.NONE + ",notify-to=" + user2.email());
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user2, RecipientType.TO);
-
-    sender.clear();
-    result =
-        pushTo(pushSpec + ",submit,notify=" + NotifyHandling.NONE + ",notify-cc=" + user2.email());
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user2, RecipientType.CC);
-
-    sender.clear();
-    result =
-        pushTo(pushSpec + ",submit,notify=" + NotifyHandling.NONE + ",notify-bcc=" + user2.email());
-    result.assertOkStatus();
-    assertThatEmailsForChangeCreationAndSubmitWereSent(user2, RecipientType.BCC);
+    assertThat(cd1.patchSet(psId1_1).getRevision().get()).isEqualTo(c1_1.name());
+    assertThat(cd1.patchSet(psId1_2).getRevision().get()).isEqualTo(c1_2.name());
   }
 
   private PatchSetApproval getSubmitter(PatchSet.Id patchSetId) throws Exception {
-    ChangeNotes notes = notesFactory.createChecked(project, patchSetId.changeId()).load();
+    ChangeNotes notes = notesFactory.createChecked(project, patchSetId.getParentKey()).load();
     return approvalsUtil.getSubmitter(notes, patchSetId);
   }
 
   private void assertSubmitApproval(PatchSet.Id patchSetId) throws Exception {
     PatchSetApproval a = getSubmitter(patchSetId);
     assertThat(a.isLegacySubmit()).isTrue();
-    assertThat(a.value()).isEqualTo((short) 1);
-    assertThat(a.accountId()).isEqualTo(admin.id());
+    assertThat(a.getValue()).isEqualTo((short) 1);
+    assertThat(a.getAccountId()).isEqualTo(admin.id());
   }
 
   private void assertCommit(Project.NameKey project, String branch) throws Exception {
@@ -501,47 +381,4 @@ public class SubmitOnPushIT extends AbstractDaemonTest {
         pushFactory.create(admin.newIdent(), testRepo, subject, fileName, content, changeId);
     return push.to(ref);
   }
-
-  /**
-   * Makes sure that two emails are sent: one for the change creation, and one for the submit.
-   *
-   * @param expected The account expected to receive message.
-   * @param expectedRecipientType The notification's type: To/Cc/Bcc. if {@code null} then it is not
-   *     needed to check the recipientType. It is meant for -notify without other flags like
-   *     notify-cc, notify-to, and notify-bcc. With the -notify flag, the message can sometimes be
-   *     sent as "To" and sometimes can be sent as "Cc".
-   */
-  private void assertThatEmailsForChangeCreationAndSubmitWereSent(
-      TestAccount expected, @Nullable RecipientType expectedRecipientType) {
-    String expectedEmail = expected.email();
-    String expectedFullName = expected.fullName();
-    Address expectedAddress = new Address(expectedFullName, expectedEmail);
-    assertThat(sender.getMessages()).hasSize(2);
-    Message message = sender.getMessages().get(0);
-    assertThat(message.body().contains("review")).isTrue();
-    assertAddress(message, expectedAddress, expectedRecipientType);
-    message = sender.getMessages().get(1);
-    assertThat(message.rcpt()).containsExactly(expectedAddress);
-    assertAddress(message, expectedAddress, expectedRecipientType);
-    assertThat(message.body().contains("submitted")).isTrue();
-  }
-
-  private void assertAddress(
-      Message message, Address expectedAddress, @Nullable RecipientType expectedRecipientType) {
-    assertThat(message.rcpt()).containsExactly(expectedAddress);
-    if (expectedRecipientType != null
-        && expectedRecipientType
-            != RecipientType.BCC) { // When Bcc, it does not appear in the header.
-      String expectedRecipientTypeString = "To";
-      if (expectedRecipientType == RecipientType.CC) {
-        expectedRecipientTypeString = "Cc";
-      }
-      assertThat(
-              ((EmailHeader.AddressList) message.headers().get(expectedRecipientTypeString))
-                  .getAddressList())
-          .containsExactly(expectedAddress);
-    }
-  }
 }
-=======
->>>>>>> BRANCH (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)

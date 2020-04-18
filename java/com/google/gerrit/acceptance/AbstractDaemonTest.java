@@ -23,8 +23,17 @@ import static com.google.common.truth.TruthJUnit.assume;
 import static com.google.gerrit.entities.Patch.COMMIT_MSG;
 import static com.google.gerrit.entities.Patch.MERGE_LIST;
 import static com.google.gerrit.extensions.api.changes.SubmittedTogetherOption.NON_VISIBLE_CHANGES;
+<<<<<<< HEAD   (b8fe56 HttpLogoutServlet: Test redirections with canonicalWebUrl se)
 import static com.google.gerrit.server.project.testing.TestLabels.label;
 import static com.google.gerrit.server.project.testing.TestLabels.value;
+=======
+import static com.google.gerrit.reviewdb.client.Patch.COMMIT_MSG;
+import static com.google.gerrit.reviewdb.client.Patch.MERGE_LIST;
+import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
+import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
+import static com.google.gerrit.server.project.testing.Util.category;
+import static com.google.gerrit.server.project.testing.Util.value;
+>>>>>>> BRANCH (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -970,6 +979,130 @@ public abstract class AbstractDaemonTest {
     }
   }
 
+<<<<<<< HEAD   (b8fe56 HttpLogoutServlet: Test redirections with canonicalWebUrl se)
+=======
+  protected void deny(String ref, String permission, AccountGroup.UUID id) throws Exception {
+    deny(project, ref, permission, id);
+  }
+
+  protected void deny(Project.NameKey p, String ref, String permission, AccountGroup.UUID id)
+      throws Exception {
+    try (ProjectConfigUpdate u = updateProject(p)) {
+      Util.deny(u.getConfig(), permission, id, ref);
+      u.save();
+    }
+  }
+
+  protected PermissionRule block(String ref, String permission, AccountGroup.UUID id)
+      throws Exception {
+    return block(project, ref, permission, id);
+  }
+
+  protected PermissionRule block(
+      Project.NameKey project, String ref, String permission, AccountGroup.UUID id)
+      throws Exception {
+    try (ProjectConfigUpdate u = updateProject(project)) {
+      PermissionRule rule = Util.block(u.getConfig(), permission, id, ref);
+      u.save();
+      return rule;
+    }
+  }
+
+  protected void blockLabel(
+      String label, int min, int max, AccountGroup.UUID id, String ref, Project.NameKey project)
+      throws Exception {
+    try (ProjectConfigUpdate u = updateProject(project)) {
+      Util.block(u.getConfig(), Permission.LABEL + label, min, max, id, ref);
+      u.save();
+    }
+  }
+
+  protected void grant(Project.NameKey project, String ref, String permission)
+      throws RepositoryNotFoundException, IOException, ConfigInvalidException {
+    grant(project, ref, permission, false);
+  }
+
+  protected void grant(Project.NameKey project, String ref, String permission, boolean force)
+      throws RepositoryNotFoundException, IOException, ConfigInvalidException {
+    grant(project, ref, permission, force, adminGroupUuid());
+  }
+
+  protected void grant(
+      Project.NameKey project,
+      String ref,
+      String permission,
+      boolean force,
+      AccountGroup.UUID groupUUID)
+      throws RepositoryNotFoundException, IOException, ConfigInvalidException {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      md.setMessage(String.format("Grant %s on %s", permission, ref));
+      ProjectConfig config = projectConfigFactory.read(md);
+      AccessSection s = config.getAccessSection(ref, true);
+      Permission p = s.getPermission(permission, true);
+      PermissionRule rule = Util.newRule(config, groupUUID);
+      rule.setForce(force);
+      p.add(rule);
+      config.commit(md);
+      projectCache.evict(config.getProject());
+    }
+  }
+
+  protected void grantLabel(
+      String label,
+      int min,
+      int max,
+      Project.NameKey project,
+      String ref,
+      boolean force,
+      AccountGroup.UUID groupUUID,
+      boolean exclusive)
+      throws RepositoryNotFoundException, IOException, ConfigInvalidException {
+    String permission = Permission.LABEL + label;
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      md.setMessage(String.format("Grant %s on %s", permission, ref));
+      ProjectConfig config = projectConfigFactory.read(md);
+      AccessSection s = config.getAccessSection(ref, true);
+      Permission p = s.getPermission(permission, true);
+      p.setExclusiveGroup(exclusive);
+      PermissionRule rule = Util.newRule(config, groupUUID);
+      rule.setForce(force);
+      rule.setMin(min);
+      rule.setMax(max);
+      p.add(rule);
+      config.commit(md);
+      projectCache.evict(config.getProject());
+    }
+  }
+
+  protected void removePermission(Project.NameKey project, String ref, String permission)
+      throws IOException, ConfigInvalidException {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      md.setMessage(String.format("Remove %s on %s", permission, ref));
+      ProjectConfig config = projectConfigFactory.read(md);
+      AccessSection s = config.getAccessSection(ref, true);
+      Permission p = s.getPermission(permission, true);
+      p.clearRules();
+      config.commit(md);
+      projectCache.evict(config.getProject());
+    }
+  }
+
+  protected void blockRead(String ref) throws Exception {
+    block(ref, Permission.READ, REGISTERED_USERS);
+  }
+
+  protected void blockAnonymousRead() throws Exception {
+    AccountGroup.UUID anonymous = systemGroupBackend.getGroup(ANONYMOUS_USERS).getUUID();
+    AccountGroup.UUID registered = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
+    String allRefs = RefNames.REFS + "*";
+    try (ProjectConfigUpdate u = updateProject(project)) {
+      Util.block(u.getConfig(), Permission.READ, anonymous, allRefs);
+      Util.allow(u.getConfig(), Permission.READ, registered, allRefs);
+      u.save();
+    }
+  }
+
+>>>>>>> BRANCH (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
   protected PushOneCommit.Result pushTo(String ref) throws Exception {
     PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
     return push.to(ref);

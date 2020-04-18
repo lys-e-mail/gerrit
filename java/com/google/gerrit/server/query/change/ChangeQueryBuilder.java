@@ -46,7 +46,15 @@ import com.google.gerrit.index.query.QueryBuilder;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.index.query.QueryRequiresAuthException;
 import com.google.gerrit.mail.Address;
+<<<<<<< HEAD   (b8fe56 HttpLogoutServlet: Test redirections with canonicalWebUrl se)
 import com.google.gerrit.server.AnonymousUser;
+=======
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.AccountGroup;
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.RefNames;
+>>>>>>> BRANCH (6018f1 ChangeQueryBuilder: Use ChangeIsVisibleToPredicate.Factory)
 import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
@@ -68,7 +76,6 @@ import com.google.gerrit.server.index.change.ChangeField;
 import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.ChangeIndexRewriter;
-import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 import com.google.gerrit.server.patch.PatchListCache;
 import com.google.gerrit.server.permissions.PermissionBackend;
@@ -202,7 +209,6 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
     final ChangeData.Factory changeDataFactory;
     final ChangeIndex index;
     final ChangeIndexRewriter rewriter;
-    final ChangeNotes.Factory notesFactory;
     final CommentsUtil commentsUtil;
     final ConflictsCache conflictsCache;
     final DynamicMap<ChangeHasOperandFactory> hasOperands;
@@ -218,7 +224,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
     final StarredChangesUtil starredChangesUtil;
     final SubmitDryRun submitDryRun;
     final GroupMembers groupMembers;
-    final Provider<AnonymousUser> anonymousUserProvider;
+    final ChangeIsVisibleToPredicate.Factory changeIsVisbleToPredicateFactory;
 
     private final Provider<CurrentUser> self;
 
@@ -232,7 +238,6 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         IdentifiedUser.GenericFactory userFactory,
         Provider<CurrentUser> self,
         PermissionBackend permissionBackend,
-        ChangeNotes.Factory notesFactory,
         ChangeData.Factory changeDataFactory,
         CommentsUtil commentsUtil,
         AccountResolver accountResolver,
@@ -250,7 +255,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         StarredChangesUtil starredChangesUtil,
         AccountCache accountCache,
         GroupMembers groupMembers,
-        Provider<AnonymousUser> anonymousUserProvider) {
+        ChangeIsVisibleToPredicate.Factory changeIsVisbleToPredicateFactory) {
       this(
           queryProvider,
           rewriter,
@@ -259,7 +264,6 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
           userFactory,
           self,
           permissionBackend,
-          notesFactory,
           changeDataFactory,
           commentsUtil,
           accountResolver,
@@ -277,7 +281,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
           starredChangesUtil,
           accountCache,
           groupMembers,
-          anonymousUserProvider);
+          changeIsVisbleToPredicateFactory);
     }
 
     private Arguments(
@@ -288,7 +292,6 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         IdentifiedUser.GenericFactory userFactory,
         Provider<CurrentUser> self,
         PermissionBackend permissionBackend,
-        ChangeNotes.Factory notesFactory,
         ChangeData.Factory changeDataFactory,
         CommentsUtil commentsUtil,
         AccountResolver accountResolver,
@@ -306,14 +309,13 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
         StarredChangesUtil starredChangesUtil,
         AccountCache accountCache,
         GroupMembers groupMembers,
-        Provider<AnonymousUser> anonymousUserProvider) {
+        ChangeIsVisibleToPredicate.Factory changeIsVisbleToPredicateFactory) {
       this.queryProvider = queryProvider;
       this.rewriter = rewriter;
       this.opFactories = opFactories;
       this.userFactory = userFactory;
       this.self = self;
       this.permissionBackend = permissionBackend;
-      this.notesFactory = notesFactory;
       this.changeDataFactory = changeDataFactory;
       this.commentsUtil = commentsUtil;
       this.accountResolver = accountResolver;
@@ -332,7 +334,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
       this.accountCache = accountCache;
       this.hasOperands = hasOperands;
       this.groupMembers = groupMembers;
-      this.anonymousUserProvider = anonymousUserProvider;
+      this.changeIsVisbleToPredicateFactory = changeIsVisbleToPredicateFactory;
     }
 
     Arguments asUser(CurrentUser otherUser) {
@@ -344,7 +346,6 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
           userFactory,
           Providers.of(otherUser),
           permissionBackend,
-          notesFactory,
           changeDataFactory,
           commentsUtil,
           accountResolver,
@@ -362,7 +363,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
           starredChangesUtil,
           accountCache,
           groupMembers,
-          anonymousUserProvider);
+          changeIsVisbleToPredicateFactory);
     }
 
     Arguments asUser(Account.Id otherId) {
@@ -974,12 +975,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   }
 
   public Predicate<ChangeData> visibleto(CurrentUser user) {
-    return new ChangeIsVisibleToPredicate(
-        args.notesFactory,
-        user,
-        args.permissionBackend,
-        args.projectCache,
-        args.anonymousUserProvider);
+    return args.changeIsVisbleToPredicateFactory.forUser(user);
   }
 
   public Predicate<ChangeData> isVisible() throws QueryParseException {
