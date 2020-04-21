@@ -45,11 +45,7 @@ import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.ValidationError;
 import com.google.gerrit.server.git.validators.ValidationMessage.Type;
-import com.google.gerrit.server.patch.DiffSummary;
-import com.google.gerrit.server.patch.DiffSummaryKey;
 import com.google.gerrit.server.patch.PatchListCache;
-import com.google.gerrit.server.patch.PatchListKey;
-import com.google.gerrit.server.patch.PatchListNotAvailableException;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.permissions.RefPermission;
@@ -69,7 +65,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -80,6 +80,7 @@ import org.eclipse.jgit.revwalk.FooterLine;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.SystemReader;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 /**
  * Represents a list of {@link CommitValidationListener}s to run for a push to one branch of one
@@ -152,7 +153,7 @@ public class CommitValidators {
               new ProjectStateValidationListener(projectState),
               new AmendedGerritMergeCommitValidationListener(perm, gerritIdent),
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
-              new FileCountValidator(patchListCache, config),
+              new FileCountValidator(repoManager, config),
               new CommitterUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectState),
               new ChangeIdValidator(
@@ -181,7 +182,7 @@ public class CommitValidators {
               new ProjectStateValidationListener(projectState),
               new AmendedGerritMergeCommitValidationListener(perm, gerritIdent),
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
-              new FileCountValidator(patchListCache, config),
+              new FileCountValidator(repoManager, config),
               new SignedOffByValidator(user, perm, projectState),
               new ChangeIdValidator(
                   projectState, user, urlFormatter.get(), config, sshInfo, change),
@@ -392,11 +393,11 @@ public class CommitValidators {
   /** Limits the number of files per change. */
   private static class FileCountValidator implements CommitValidationListener {
 
-    private final PatchListCache patchListCache;
+    private final GitRepositoryManager repoManager;
     private final int maxFileCount;
 
-    FileCountValidator(PatchListCache patchListCache, Config config) {
-      this.patchListCache = patchListCache;
+    FileCountValidator(GitRepositoryManager repoManager, Config config) {
+      this.repoManager = repoManager;
       maxFileCount = config.getInt("change", null, "maxFiles", 100_000);
     }
 
@@ -414,25 +415,29 @@ public class CommitValidators {
         return Collections.emptyList();
       }
 
-      PatchListKey patchListKey =
-          PatchListKey.againstBase(
-              receiveEvent.commit.getId(), receiveEvent.commit.getParentCount());
-      DiffSummaryKey diffSummaryKey = DiffSummaryKey.fromPatchListKey(patchListKey);
-      try {
-        DiffSummary diffSummary =
-            patchListCache.getDiffSummary(diffSummaryKey, receiveEvent.project.getNameKey());
-        if (diffSummary.getPaths().size() > maxFileCount) {
+      // Use DiffFormatter to compute the number of files in the change.
+      Set<String> files;
+      try (Repository repository = repoManager.openRepository(receiveEvent.project.getNameKey());
+          RevWalk revWalk = new RevWalk(repository);
+          DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
+        diffFormatter.setReader(revWalk.getObjectReader(), repository.getConfig());
+        diffFormatter.setDetectRenames(true);
+        // ö What happens for what was previously an error case (cherrypick)?
+        // For merge commits, i.e. >1 parents, we use parent #0 by convention.
+        List<DiffEntry> diffEntries =
+            diffFormatter.scan(
+                receiveEvent.commit.getParentCount() > 0 ? receiveEvent.commit.getParent(0) : null,
+                receiveEvent.commit);
+        files = diffEntries.stream().map(DiffEntry::getNewPath).collect(Collectors.toSet());
+        if (files.size() > maxFileCount) {
           throw new CommitValidationException(
               String.format(
                   "Exceeding maximum number of files per change (%d > %d)",
-                  diffSummary.getPaths().size(), maxFileCount));
+                  files.size(), maxFileCount));
         }
-      } catch (PatchListNotAvailableException e) {
-        // This happens e.g. for cherrypicks.
-        if (!receiveEvent.command.getRefName().startsWith(REFS_CHANGES)) {
-          logger.atWarning().withCause(e).log(
-              "Failed to validate file count for commit: %s", receiveEvent.commit.toString());
-        }
+      } catch (IOException e) {
+        logger.atWarning().withCause(e).log(
+            "Failed to validate file count for commit: %s", receiveEvent.commit.toString());
       }
       return Collections.emptyList();
     }

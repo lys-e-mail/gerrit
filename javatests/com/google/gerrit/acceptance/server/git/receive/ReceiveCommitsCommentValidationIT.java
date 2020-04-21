@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.PushOneCommit.Result;
@@ -36,6 +37,7 @@ import com.google.gerrit.extensions.validators.CommentValidator;
 import com.google.gerrit.testing.TestCommentHelper;
 import com.google.inject.Inject;
 import com.google.inject.Module;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -172,6 +174,52 @@ public class ReceiveCommitsCommentValidationIT extends AbstractDaemonTest {
     amendResult.assertMessage(
         String.format("Comment size exceeds limit (%d > %d)", commentLength, COMMENT_SIZE_LIMIT));
     assertThat(testCommentHelper.getPublishedComments(result.getChangeId())).isEmpty();
+  }
+
+  @Test
+  @GerritConfig(name = "change.maxFiles", value = "2")
+  public void validateFileCount() throws Exception {
+    when(mockCommentValidator.validateComments(any(), any())).thenReturn(ImmutableList.of());
+
+    // Create the parent.
+    RevCommit parent =
+        commitBuilder()
+            .add("foo.txt", "same old, same old")
+            .add("bar.txt", "same old, slame old")
+            .message("blah")
+            .create();
+    testRepo.reset(parent);
+
+    // A commit with 2 files is OK.
+    pushFactory
+        .create(
+            admin.newIdent(),
+            testRepo,
+            "blah",
+            ImmutableMap.of(
+                "foo.txt", "same old, same old", "bar.txt", "changed file", "baz.txt", "new file"))
+        .setParent(parent)
+        .to("refs/for/master")
+        .assertOkStatus();
+
+    // A commit with 3 files is rejected.
+    pushFactory
+        .create(
+            admin.newIdent(),
+            testRepo,
+            "blah",
+            ImmutableMap.of(
+                "foo.txt",
+                "same old, same old",
+                "bar.txt",
+                "changed file",
+                "baz.txt",
+                "new file",
+                "boom.txt",
+                "boom!"))
+        .setParent(parent)
+        .to("refs/for/master")
+        .assertErrorStatus("Exceeding maximum number of files per change (3 > 2)");
   }
 
   @Test

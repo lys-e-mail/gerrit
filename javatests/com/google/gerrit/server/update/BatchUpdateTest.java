@@ -252,7 +252,7 @@ public class BatchUpdateTest {
   }
 
   @Test
-  public void limitFileCount_exceed() throws Exception {
+  public void validateFileCount_noParent_exceed() throws Exception {
     Change.Id changeId = createChangeWithUpdates(1);
     ChangeNotes notes = changeNotesFactory.create(project, changeId);
 
