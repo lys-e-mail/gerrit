@@ -252,7 +252,7 @@ public class BatchUpdateTest {
   }
 
   @Test
-  public void limitFileCount_exceed() throws Exception {
+  public void limitFileCount_exceed_noParent() throws Exception {
     Change.Id changeId = createChangeWithUpdates(1);
     ChangeNotes notes = changeNotesFactory.create(project, changeId);
 
@@ -268,6 +268,44 @@ public class BatchUpdateTest {
           changeId,
           patchSetInserterFactory
               .create(notes, PatchSet.id(changeId, 2), commitId)
+              .setMessage("blah"));
+      ResourceConflictException thrown = assertThrows(ResourceConflictException.class, bu::execute);
+      assertThat(thrown)
+          .hasMessageThat()
+          .contains("Exceeding maximum number of files per change (3 > 2)");
+    }
+  }
+
+  @Test
+  public void limitFileCount_exceed_withParent() throws Exception {
+    Change.Id changeId = createChangeWithUpdates(1);
+    ChangeNotes notes = changeNotesFactory.create(project, changeId);
+
+    try (BatchUpdate bu = batchUpdateFactory.create(project, user.get(), TimeUtil.nowTs())) {
+      ObjectId commitId =
+          repo.amend(notes.getCurrentPatchSet().commitId())
+              .add("bar.txt", "bar")
+              .add("baz.txt", "baz")
+              .message("blah")
+              .create();
+      bu.addOp(
+          changeId,
+          patchSetInserterFactory
+              .create(notes, PatchSet.id(changeId, 2), commitId)
+              .setMessage("blah"));
+      bu.execute();
+    }
+
+    try (BatchUpdate bu = batchUpdateFactory.create(project, user.get(), TimeUtil.nowTs())) {
+      ObjectId commitId =
+          repo.amend(notes.getCurrentPatchSet().commitId())
+              .add("boom.txt", "boom")
+              .message("blah")
+              .create();
+      bu.addOp(
+          changeId,
+          patchSetInserterFactory
+              .create(notes, PatchSet.id(changeId, 3), commitId)
               .setMessage("blah"));
       ResourceConflictException thrown = assertThrows(ResourceConflictException.class, bu::execute);
       assertThat(thrown)
