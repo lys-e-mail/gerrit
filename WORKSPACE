@@ -190,6 +190,16 @@ maven_jar(
 )
 
 maven_jar(
+<<<<<<< HEAD   (a293f9 Update git submodules)
+=======
+    name = "gwtjsonrpc",
+    artifact = "com.google.gerrit:gwtjsonrpc:1.12",
+    sha1 = "cade35e5628af56f687d651dd0f43d17d46b20f5",
+    src_sha1 = "e4c17ec9a453f4d41d5e0e55f7020e5919725b0d",
+)
+
+maven_jar(
+>>>>>>> BRANCH (c70995 Set version to 2.16.19-SNAPSHOT)
     name = "gson",
     artifact = "com.google.code.gson:gson:2.8.5",
     sha1 = "f645ed69d595b24d4cf8b3fbb64cc505bede8829",
