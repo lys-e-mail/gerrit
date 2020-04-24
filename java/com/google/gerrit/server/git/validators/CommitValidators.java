@@ -135,6 +135,7 @@ public class CommitValidators {
         @Nullable Change change,
         boolean skipValidation)
         throws IOException {
+<<<<<<< HEAD   (896a05 Update git submodules)
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
       ProjectState projectState = projectCache.checkedGet(branch.project());
       return new CommitValidators(
@@ -145,19 +146,33 @@ public class CommitValidators {
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new CommitterUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectState),
+=======
+      PermissionBackend.ForRef perm = forProject.ref(branch.get());
+      ProjectState projectState = projectCache.checkedGet(branch.getParentKey());
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectState))
+          .add(new AmendedGerritMergeCommitValidationListener(perm, gerritIdent))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new CommitterUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new SignedOffByValidator(user, perm, projectState))
+          .add(
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
               new ChangeIdValidator(
                   projectState,
                   user,
                   urlFormatter.get(),
                   installCommitMsgHookCommand,
                   sshInfo,
-                  change),
-              new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
-              new BannedCommitsValidator(rejectCommits),
-              new PluginCommitValidationListener(pluginValidators, skipValidation),
-              new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
-              new AccountCommitValidator(repoManager, allUsers, accountValidator),
-              new GroupCommitValidator(allUsers)));
+                  change))
+          .add(new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects))
+          .add(new BannedCommitsValidator(rejectCommits))
+          .add(new PluginCommitValidationListener(pluginValidators, skipValidation))
+          .add(new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker))
+          .add(new AccountCommitValidator(repoManager, allUsers, accountValidator))
+          .add(new GroupCommitValidator(allUsers));
+      return new CommitValidators(validators.build());
     }
 
     public CommitValidators forGerritCommits(
@@ -168,6 +183,7 @@ public class CommitValidators {
         RevWalk rw,
         @Nullable Change change)
         throws IOException {
+<<<<<<< HEAD   (896a05 Update git submodules)
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
       ProjectState projectState = projectCache.checkedGet(branch.project());
       return new CommitValidators(
@@ -177,18 +193,31 @@ public class CommitValidators {
               new AmendedGerritMergeCommitValidationListener(perm, gerritIdent),
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectCache.checkedGet(branch.project())),
+=======
+      PermissionBackend.ForRef perm = forProject.ref(branch.get());
+      ProjectState projectState = projectCache.checkedGet(branch.getParentKey());
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectState))
+          .add(new AmendedGerritMergeCommitValidationListener(perm, gerritIdent))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new SignedOffByValidator(user, perm, projectCache.checkedGet(branch.getParentKey())))
+          .add(
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
               new ChangeIdValidator(
                   projectState,
                   user,
                   urlFormatter.get(),
                   installCommitMsgHookCommand,
                   sshInfo,
-                  change),
-              new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
-              new PluginCommitValidationListener(pluginValidators),
-              new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
-              new AccountCommitValidator(repoManager, allUsers, accountValidator),
-              new GroupCommitValidator(allUsers)));
+                  change))
+          .add(new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects))
+          .add(new PluginCommitValidationListener(pluginValidators))
+          .add(new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker))
+          .add(new AccountCommitValidator(repoManager, allUsers, accountValidator))
+          .add(new GroupCommitValidator(allUsers));
+      return new CommitValidators(validators.build());
     }
 
     public CommitValidators forMergedCommits(
@@ -207,6 +236,7 @@ public class CommitValidators {
       //    discuss what to do about it.
       //  - Plugin validators may do things like require certain commit message
       //    formats, so we play it safe and exclude them.
+<<<<<<< HEAD   (896a05 Update git submodules)
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
       return new CommitValidators(
           ImmutableList.of(
@@ -214,6 +244,16 @@ public class CommitValidators {
               new ProjectStateValidationListener(projectCache.checkedGet(branch.project())),
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new CommitterUploaderValidator(user, perm, urlFormatter.get())));
+=======
+      PermissionBackend.ForRef perm = forProject.ref(branch.get());
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectCache.checkedGet(branch.getParentKey())))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new CommitterUploaderValidator(user, perm, urlFormatter.get()));
+      return new CommitValidators(validators.build());
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
     }
   }
 
