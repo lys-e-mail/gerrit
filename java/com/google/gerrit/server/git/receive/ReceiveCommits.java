@@ -731,7 +731,12 @@ class ReceiveCommits {
         logger.atFine().log("Added %d additional ref updates", added);
         bu.execute();
       } catch (UpdateException | RestApiException e) {
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
         throw new StorageException(e);
+=======
+        rejectRemaining(cmds, INTERNAL_SERVER_ERROR);
+        logger.atSevere().withCause(e).log("update failed:");
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
       }
 
       Set<BranchNameKey> branches = new HashSet<>();
