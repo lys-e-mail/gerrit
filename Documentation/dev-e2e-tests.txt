@@ -188,8 +188,14 @@ sbt "gatling:lastReport"
 ----
 
 The `src/test/resources/logback.xml` file
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
 link:http://logback.qos.ch/manual/configuration.html[configures,role=external,window=_blank]
 Gatling's logging level.
+=======
+link:http://logback.qos.ch/manual/configuration.html[configures] Gatling's logging level. To quickly
+enable link:https://gatling.io/docs/current/general/debugging#logback[detailed logging] of `http`
+requests and responses, the `root level` can be set to `trace` in that file.
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
 === How to run using Docker
 
