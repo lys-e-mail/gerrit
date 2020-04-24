@@ -266,7 +266,17 @@ meetings.
 === Evaluation
 Product/Vision fit
 
+<<<<<<< HEAD   (896a05 Update git submodules)
 Q: `Do we believe this feature belongs to Gerrit Code Review use-cases?`
+=======
+To format Java source code, Gerrit uses the
+link:https://github.com/google/google-java-format[`google-java-format`]
+tool (version 1.7), and to format Bazel BUILD, WORKSPACE and .bzl files the
+link:https://github.com/bazelbuild/buildtools/tree/master/buildifier[`buildifier`]
+tool (version 2.2.1). Unused dependencies are found and removed using the
+link:https://github.com/bazelbuild/buildtools/tree/master/unused_deps[`unused_deps`]
+build tool, a sibling of `buildifier`.
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
 
 * Yes: Customizable dashboards
 * No: UI for managing an LDAP server

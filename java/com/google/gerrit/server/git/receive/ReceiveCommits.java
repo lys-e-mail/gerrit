@@ -739,6 +739,15 @@ class ReceiveCommits {
           }
         }
       }
+<<<<<<< HEAD   (896a05 Update git submodules)
+=======
+      logger.atFine().log("Added %d additional ref updates", added);
+      bu.execute();
+    } catch (UpdateException | RestApiException e) {
+      rejectRemaining(cmds, INTERNAL_SERVER_ERROR);
+      logger.atSevere().withCause(e).log("update failed:");
+    }
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
 
       // Update superproject gitlinks if required.
       if (!branches.isEmpty()) {

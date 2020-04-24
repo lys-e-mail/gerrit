@@ -63,12 +63,22 @@ java_package_configuration(
         "-Xep:MissingFail:ERROR",
         "-Xep:MissingOverride:ERROR",
         "-Xep:MutableConstantField:ERROR",
+<<<<<<< HEAD   (896a05 Update git submodules)
         "-Xep:NarrowingCompoundAssignment:ERROR",
         "-Xep:NonAtomicVolatileUpdate:ERROR",
         "-Xep:NonOverridingEquals:ERROR",
         "-Xep:NullableConstructor:ERROR",
         "-Xep:NullablePrimitive:ERROR",
         "-Xep:NullableVoid:ERROR",
+=======
+        "-Xep:NarrowingCompoundAssignment:WARN",
+        "-Xep:NonAtomicVolatileUpdate:WARN",
+        "-Xep:NonOverridingEquals:WARN",
+        "-Xep:NullableConstructor:WARN",
+        "-Xep:NullablePrimitive:WARN",
+        "-Xep:NullableVoid:WARN",
+        "-Xep:ObjectToString:ERROR",
+>>>>>>> BRANCH (24f9ec Merge branch 'stable-2.16' into stable-3.0)
         "-Xep:OperatorPrecedence:ERROR",
         "-Xep:OverridesGuiceInjectableMethod:ERROR",
         "-Xep:PreconditionsInvalidPlaceholder:ERROR",
