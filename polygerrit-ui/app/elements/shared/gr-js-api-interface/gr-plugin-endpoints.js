@@ -39,6 +39,7 @@ GrPluginEndpoints.prototype.onDetachedEndpoint = function(endpoint,
   }
 };
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
 GrPluginEndpoints.prototype._getOrCreateModuleInfo = function(plugin,
     endpoint, type, moduleName, domHook) {
   const existingModule = this._endpoints[endpoint].find(info =>
@@ -60,6 +61,37 @@ GrPluginEndpoints.prototype._getOrCreateModuleInfo = function(plugin,
     return newModule;
   }
 };
+=======
+  GrPluginEndpoints.prototype.onDetachedEndpoint = function(endpoint,
+      callback) {
+    if (this._callbacks[endpoint]) {
+      this._callbacks[endpoint] = this._callbacks[endpoint]
+          .filter(cb => cb !== callback);
+    }
+  };
+
+  GrPluginEndpoints.prototype._getOrCreateModuleInfo = function(plugin,
+      endpoint, type, moduleName, domHook) {
+    const existingModule = this._endpoints[endpoint].find(info =>
+      info.plugin === plugin &&
+        info.moduleName === moduleName &&
+        info.domHook === domHook
+    );
+    if (existingModule) {
+      return existingModule;
+    } else {
+      const newModule = {
+        moduleName,
+        plugin,
+        pluginUrl: plugin._url,
+        type,
+        domHook,
+      };
+      this._endpoints[endpoint].push(newModule);
+      return newModule;
+    }
+  };
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
 /**
  * Register a plugin to an endpoint.

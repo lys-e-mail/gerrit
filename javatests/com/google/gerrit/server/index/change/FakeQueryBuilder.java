@@ -27,6 +27,7 @@ public class FakeQueryBuilder extends ChangeQueryBuilder {
     super(
         new ChangeQueryBuilder.Definition<>(FakeQueryBuilder.class),
         new ChangeQueryBuilder.Arguments(
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
             null,
             null,
             null,
@@ -56,6 +57,10 @@ public class FakeQueryBuilder extends ChangeQueryBuilder {
             null,
             new Config(),
             null));
+=======
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, indexes, null, null, null, null, null, null, null));
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
   }
 
   @Operator

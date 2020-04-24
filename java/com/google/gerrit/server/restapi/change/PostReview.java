@@ -91,6 +91,7 @@ import com.google.gerrit.server.PublishCommentUtil;
 import com.google.gerrit.server.ReviewerSet;
 import com.google.gerrit.server.account.AccountResolver;
 import com.google.gerrit.server.change.AddReviewersEmail;
+import com.google.gerrit.server.change.AddReviewersOp.Result;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.EmailReviewComments;
 import com.google.gerrit.server.change.NotifyResolver;
@@ -420,6 +421,7 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
       Change change,
       List<ReviewerAddition> reviewerAdditions,
       NotifyResolver.Result notify) {
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
     try (TraceContext.TraceTimer ignored = newTimer("batchEmailReviewers")) {
       List<Account.Id> to = new ArrayList<>();
       List<Account.Id> cc = new ArrayList<>();
@@ -433,6 +435,24 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
           cc.addAll(addition.reviewers);
           ccByEmail.addAll(addition.reviewersByEmail);
         }
+=======
+    List<Account.Id> to = new ArrayList<>();
+    List<Account.Id> cc = new ArrayList<>();
+    List<Address> toByEmail = new ArrayList<>();
+    List<Address> ccByEmail = new ArrayList<>();
+    for (ReviewerAddition addition : reviewerAdditions) {
+      Result reviewAdditionResult = addition.op.getResult();
+      if (addition.state() == ReviewerState.REVIEWER
+          && (!reviewAdditionResult.addedReviewers().isEmpty()
+              || !reviewAdditionResult.addedReviewersByEmail().isEmpty())) {
+        to.addAll(addition.reviewers);
+        toByEmail.addAll(addition.reviewersByEmail);
+      } else if (addition.state() == ReviewerState.CC
+          && (!reviewAdditionResult.addedCCs().isEmpty()
+              || !reviewAdditionResult.addedCCsByEmail().isEmpty())) {
+        cc.addAll(addition.reviewers);
+        ccByEmail.addAll(addition.reviewersByEmail);
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
       }
       addReviewersEmail.emailReviewersAsync(
           user.asIdentifiedUser(), change, to, cc, toByEmail, ccByEmail, notify);
