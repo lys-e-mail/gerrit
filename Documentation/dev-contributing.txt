@@ -221,10 +221,16 @@ promised support, at least one of the mentors must be a
 link:dev-roles.html#maintainer[maintainer,role=external,window=_blank].
 
 Mentors are assigned by the link:dev-processes.html#steering-committee[
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
 steering committee,role=external,window=_blank]. To gain a mentor, ask for a
 mentor in the link:dev-design-doc-template.html#implementation-plan[Implementation
 Plan,role=external,window=_blank] section of the design doc or ask the steering
 committee after the design has been approved.
+=======
+steering committee]. To gain a mentor, ask for a mentor in the
+link:dev-design-docs.html#structure[Implementation Plan] section of the design
+doc or ask the steering committee after the design has been approved.
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
 Mentors may not be available immediately. In this case, the steering
 committee should include the approved feature into the roadmap or
