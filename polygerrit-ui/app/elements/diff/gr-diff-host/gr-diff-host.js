@@ -303,6 +303,7 @@ class GrDiffHost extends mixinBehaviors( [
     });
   }
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
   /**
    * @param {boolean=} shouldReportMetric indicate a new Diff Page. This is a
    * signal to report metrics event that started on location change.
@@ -312,6 +313,15 @@ class GrDiffHost extends mixinBehaviors( [
     this._loading = true;
     this._errorMessage = null;
     const whitespaceLevel = this._getIgnoreWhitespace();
+=======
+      const layers = [this.$.syntaxLayer];
+      // Get layers from plugins (if any).
+      for (const pluginLayer of this.$.jsAPI.getDiffLayers(
+          this.path, this.changeNum, this.patchNum)) {
+        layers.push(pluginLayer);
+      }
+      this._layers = layers;
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
     const layers = [this.$.syntaxLayer];
     // Get layers from plugins (if any).
@@ -321,6 +331,7 @@ class GrDiffHost extends mixinBehaviors( [
     }
     this._layers = layers;
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
     if (shouldReportMetric) {
       // We listen on render viewport only on DiffPage (on paramsChanged)
       this._listenToViewportRender();
@@ -338,6 +349,20 @@ class GrDiffHost extends mixinBehaviors( [
           this._handleGetDiffError(e);
           return null;
         });
+=======
+      this._coverageRanges = [];
+      this._getCoverageData();
+      const diffRequest = this._getDiff()
+          .then(diff => {
+            this._loadedWhitespaceLevel = whitespaceLevel;
+            this._reportDiff(diff);
+            return diff;
+          })
+          .catch(e => {
+            this._handleGetDiffError(e);
+            return null;
+          });
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
     const assetRequest = diffRequest.then(diff => {
       // If the diff is null, then it's failed to load.
@@ -346,6 +371,7 @@ class GrDiffHost extends mixinBehaviors( [
       return this._loadDiffAssets(diff);
     });
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
     // Not waiting for coverage ranges intentionally as
     // plugin loading should not block the content rendering
     return Promise.all([diffRequest, assetRequest])
@@ -363,8 +389,32 @@ class GrDiffHost extends mixinBehaviors( [
                 this.$.reporting.time(TimingLabel.SYNTAX);
                 this.$.syntaxLayer.process().then(() => {
                   this.$.reporting.timeEnd(TimingLabel.SYNTAX);
+=======
+      // Not waiting for coverage ranges intentionally as
+      // plugin loading should not block the content rendering
+      return Promise.all([diffRequest, assetRequest])
+          .then(results => {
+            const diff = results[0];
+            if (!diff) {
+              return Promise.resolve();
+            }
+            this.filesWeblinks = this._getFilesWeblinks(diff);
+            return new Promise(resolve => {
+              const callback = event => {
+                const needsSyntaxHighlighting = event.detail
+                      && event.detail.contentRendered;
+                if (needsSyntaxHighlighting) {
+                  this.$.reporting.time(TimingLabel.SYNTAX);
+                  this.$.syntaxLayer.process().then(() => {
+                    this.$.reporting.timeEnd(TimingLabel.SYNTAX);
+                    this.$.reporting.timeEnd(TimingLabel.TOTAL);
+                    resolve();
+                  });
+                } else {
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
                   this.$.reporting.timeEnd(TimingLabel.TOTAL);
                   resolve();
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
                 });
               } else {
                 this.$.reporting.timeEnd(TimingLabel.TOTAL);
@@ -379,6 +429,112 @@ class GrDiffHost extends mixinBehaviors( [
             };
             this.addEventListener('render', callback);
             this.diff = diff;
+=======
+                }
+                this.removeEventListener('render', callback);
+              };
+              this.addEventListener('render', callback);
+              this.diff = diff;
+            });
+          })
+          .catch(err => {
+            console.warn('Error encountered loading diff:', err);
+          })
+          .then(() => { this._loading = false; });
+    },
+
+    _getCoverageData() {
+      const {changeNum, path, patchRange: {basePatchNum, patchNum}} = this;
+      this.$.jsAPI.getCoverageAnnotationApi().
+          then(coverageAnnotationApi => {
+            if (!coverageAnnotationApi) return;
+            const provider = coverageAnnotationApi.getCoverageProvider();
+            return provider(changeNum, path, basePatchNum, patchNum)
+                .then(coverageRanges => {
+                  if (!coverageRanges ||
+                    changeNum !== this.changeNum ||
+                    path !== this.path ||
+                    basePatchNum !== this.patchRange.basePatchNum ||
+                    patchNum !== this.patchRange.patchNum) {
+                    return;
+                  }
+
+                  const existingCoverageRanges = this._coverageRanges;
+                  this._coverageRanges = coverageRanges;
+
+                  // Notify with existing coverage ranges
+                  // in case there is some existing coverage data that needs to be removed
+                  existingCoverageRanges.forEach(range => {
+                    coverageAnnotationApi.notify(
+                        path,
+                        range.code_range.start_line,
+                        range.code_range.end_line,
+                        range.side);
+                  });
+
+                  // Notify with new coverage data
+                  coverageRanges.forEach(range => {
+                    coverageAnnotationApi.notify(
+                        path,
+                        range.code_range.start_line,
+                        range.code_range.end_line,
+                        range.side);
+                  });
+                });
+          }).catch(err => {
+            console.warn('Loading coverage ranges failed: ', err);
+          });
+    },
+
+    _getFilesWeblinks(diff) {
+      if (!this.commitRange) {
+        return {};
+      }
+      return {
+        meta_a: Gerrit.Nav.getFileWebLinks(
+            this.projectName, this.commitRange.baseCommit, this.path,
+            {weblinks: diff && diff.meta_a && diff.meta_a.web_links}),
+        meta_b: Gerrit.Nav.getFileWebLinks(
+            this.projectName, this.commitRange.commit, this.path,
+            {weblinks: diff && diff.meta_b && diff.meta_b.web_links}),
+      };
+    },
+
+    /** Cancel any remaining diff builder rendering work. */
+    cancel() {
+      this.$.diff.cancel();
+    },
+
+    /** @return {!Array<!HTMLElement>} */
+    getCursorStops() {
+      return this.$.diff.getCursorStops();
+    },
+
+    /** @return {boolean} */
+    isRangeSelected() {
+      return this.$.diff.isRangeSelected();
+    },
+
+    toggleLeftDiff() {
+      this.$.diff.toggleLeftDiff();
+    },
+
+    /**
+     * Load and display blame information for the base of the diff.
+     *
+     * @return {Promise} A promise that resolves when blame finishes rendering.
+     */
+    loadBlame() {
+      return this.$.restAPI.getBlame(this.changeNum, this.patchRange.patchNum,
+          this.path, true)
+          .then(blame => {
+            if (!blame.length) {
+              this.fire('show-alert', {message: MSG_EMPTY_BLAME});
+              return Promise.reject(MSG_EMPTY_BLAME);
+            }
+
+            this._blame = blame;
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
           });
         })
         .catch(err => {
