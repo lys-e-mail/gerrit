@@ -139,6 +139,7 @@ public class CommitValidators {
         @Nullable Change change,
         boolean skipValidation) {
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
       ProjectState projectState =
           projectCache.get(branch.project()).orElseThrow(illegalState(branch.project()));
       return new CommitValidators(
@@ -150,7 +151,20 @@ public class CommitValidators {
               new FileCountValidator(repoManager, config),
               new CommitterUploaderValidator(user, perm, urlFormatter.get()),
               new SignedOffByValidator(user, perm, projectState),
+=======
+      ProjectState projectState = projectCache.checkedGet(branch.project());
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectState))
+          .add(new AmendedGerritMergeCommitValidationListener(perm, gerritIdent))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new CommitterUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new SignedOffByValidator(user, perm, projectState))
+          .add(
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
               new ChangeIdValidator(
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
                   projectState, user, urlFormatter.get(), config, sshInfo, change),
               new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
               new BannedCommitsValidator(rejectCommits),
@@ -158,6 +172,21 @@ public class CommitValidators {
               new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
               new AccountCommitValidator(repoManager, allUsers, accountValidator),
               new GroupCommitValidator(allUsers)));
+=======
+                  projectState,
+                  user,
+                  urlFormatter.get(),
+                  installCommitMsgHookCommand,
+                  sshInfo,
+                  change))
+          .add(new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects))
+          .add(new BannedCommitsValidator(rejectCommits))
+          .add(new PluginCommitValidationListener(pluginValidators, skipValidation))
+          .add(new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker))
+          .add(new AccountCommitValidator(repoManager, allUsers, accountValidator))
+          .add(new GroupCommitValidator(allUsers));
+      return new CommitValidators(validators.build());
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
     }
 
     public CommitValidators forGerritCommits(
@@ -168,6 +197,7 @@ public class CommitValidators {
         RevWalk rw,
         @Nullable Change change) {
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
       ProjectState projectState =
           projectCache.get(branch.project()).orElseThrow(illegalState(branch.project()));
       return new CommitValidators(
@@ -178,13 +208,39 @@ public class CommitValidators {
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new FileCountValidator(repoManager, config),
               new SignedOffByValidator(user, perm, projectState),
+=======
+      ProjectState projectState = projectCache.checkedGet(branch.project());
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectState))
+          .add(new AmendedGerritMergeCommitValidationListener(perm, gerritIdent))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new SignedOffByValidator(user, perm, projectCache.checkedGet(branch.project())))
+          .add(
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
               new ChangeIdValidator(
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
                   projectState, user, urlFormatter.get(), config, sshInfo, change),
               new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects),
               new PluginCommitValidationListener(pluginValidators),
               new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker),
               new AccountCommitValidator(repoManager, allUsers, accountValidator),
               new GroupCommitValidator(allUsers)));
+=======
+                  projectState,
+                  user,
+                  urlFormatter.get(),
+                  installCommitMsgHookCommand,
+                  sshInfo,
+                  change))
+          .add(new ConfigValidator(projectConfigFactory, branch, user, rw, allUsers, allProjects))
+          .add(new PluginCommitValidationListener(pluginValidators))
+          .add(new ExternalIdUpdateListener(allUsers, externalIdsConsistencyChecker))
+          .add(new AccountCommitValidator(repoManager, allUsers, accountValidator))
+          .add(new GroupCommitValidator(allUsers));
+      return new CommitValidators(validators.build());
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
     }
 
     public CommitValidators forMergedCommits(
@@ -203,6 +259,7 @@ public class CommitValidators {
       //  - Plugin validators may do things like require certain commit message
       //    formats, so we play it safe and exclude them.
       PermissionBackend.ForRef perm = forProject.ref(branch.branch());
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
       ProjectState projectState =
           projectCache.get(branch.project()).orElseThrow(illegalState(branch.project()));
       return new CommitValidators(
@@ -211,6 +268,15 @@ public class CommitValidators {
               new ProjectStateValidationListener(projectState),
               new AuthorUploaderValidator(user, perm, urlFormatter.get()),
               new CommitterUploaderValidator(user, perm, urlFormatter.get())));
+=======
+      ImmutableList.Builder<CommitValidationListener> validators = ImmutableList.builder();
+      validators
+          .add(new UploadMergesPermissionValidator(perm))
+          .add(new ProjectStateValidationListener(projectCache.checkedGet(branch.project())))
+          .add(new AuthorUploaderValidator(user, perm, urlFormatter.get()))
+          .add(new CommitterUploaderValidator(user, perm, urlFormatter.get()));
+      return new CommitValidators(validators.build());
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
     }
   }
 
