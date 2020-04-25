@@ -58,6 +58,7 @@ class GrEndpointDecorator extends GestureEventListeners(
     };
   }
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
   /** @override */
   detached() {
     super.detached();
@@ -66,6 +67,14 @@ class GrEndpointDecorator extends GestureEventListeners(
     }
     pluginEndpoints.onDetachedEndpoint(this.name, this._endpointCallBack);
   }
+=======
+    detached() {
+      for (const [el, domHook] of this._domHooks) {
+        domHook.handleInstanceDetached(el);
+      }
+      Gerrit._endpoints.onDetachedEndpoint(this.name, this._endpointCallBack);
+    },
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
 
   /**
    * @suppress {checkTypes}
@@ -98,6 +107,7 @@ class GrEndpointDecorator extends GestureEventListeners(
         dom(this).querySelectorAll('gr-endpoint-param'));
   }
 
+<<<<<<< HEAD   (306b15 Merge "Fix line number padding and size")
   /**
    * @param {!Element} el
    * @param {!Object} plugin
@@ -115,6 +125,79 @@ class GrEndpointDecorator extends GestureEventListeners(
       return helper.get('value').then(
           value => helper.bind('value',
               value => plugin.attributeHelper(el).set(paramName, value))
+=======
+    /**
+     * @param {!Element} el
+     * @param {!Object} plugin
+     * @param {!Element=} opt_content
+     * @return {!Promise<Element>}
+     */
+    _initProperties(el, plugin, opt_content) {
+      el.plugin = plugin;
+      if (opt_content) {
+        el.content = opt_content;
+      }
+      const expectProperties = this._getEndpointParams().map(paramEl => {
+        const helper = plugin.attributeHelper(paramEl);
+        const paramName = paramEl.getAttribute('name');
+        return helper.get('value').then(
+            value => helper.bind('value',
+                value => plugin.attributeHelper(el).set(paramName, value))
+        );
+      });
+      let timeoutId;
+      const timeout = new Promise(
+          resolve => timeoutId = setTimeout(() => {
+            console.warn(
+                'Timeout waiting for endpoint properties initialization: ' +
+              `plugin ${plugin.getPluginName()}, endpoint ${this.name}`);
+          }, INIT_PROPERTIES_TIMEOUT_MS));
+      return Promise.race([timeout, Promise.all(expectProperties)])
+          .then(() => {
+            clearTimeout(timeoutId);
+            return el;
+          });
+    },
+
+    _appendChild(el) {
+      return Polymer.dom(this.root).appendChild(el);
+    },
+
+    _initModule({moduleName, plugin, type, domHook}) {
+      const name = plugin.getPluginName() + '.' + moduleName;
+      if (this._initializedPlugins.get(name)) {
+        return;
+      }
+      let initPromise;
+      switch (type) {
+        case 'decorate':
+          initPromise = this._initDecoration(moduleName, plugin);
+          break;
+        case 'replace':
+          initPromise = this._initReplacement(moduleName, plugin);
+          break;
+      }
+      if (!initPromise) {
+        console.warn('Unable to initialize module ' + name);
+      }
+      this._initializedPlugins.set(name, true);
+      initPromise.then(el => {
+        domHook.handleInstanceAttached(el);
+        this._domHooks.set(el, domHook);
+      });
+    },
+
+    ready() {
+      this._endpointCallBack = this._initModule.bind(this);
+      Gerrit._endpoints.onNewEndpoint(this.name, this._endpointCallBack);
+      Gerrit.awaitPluginsLoaded().then(() => Promise.all(
+          Gerrit._endpoints.getPlugins(this.name).map(
+              pluginUrl => this._import(pluginUrl)))
+      ).then(() =>
+        Gerrit._endpoints
+            .getDetails(this.name)
+            .forEach(this._initModule, this)
+>>>>>>> BRANCH (85b54c Merge branch 'stable-3.0' into stable-3.1)
       );
     });
     let timeoutId;
