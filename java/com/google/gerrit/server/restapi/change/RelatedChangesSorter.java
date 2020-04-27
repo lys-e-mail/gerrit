@@ -260,7 +260,11 @@ class RelatedChangesSorter {
 
     @Override
     public final int hashCode() {
+<<<<<<< HEAD   (28f72b Merge branch 'stable-3.0' into stable-3.1)
       return Objects.hash(patchSet().id(), commit());
+=======
+      return Objects.hash(patchSet().getId(), commit());
+>>>>>>> BRANCH (8de96a Merge branch 'stable-2.16' into stable-3.0)
     }
 
     @Override

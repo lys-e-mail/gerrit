@@ -28,10 +28,17 @@ java_package_configuration(
     name = "error_prone",
     javacopts = [
         "-XepDisableWarningsInGeneratedCode",
+<<<<<<< HEAD   (28f72b Merge branch 'stable-3.0' into stable-3.1)
         "-Xep:AmbiguousMethodReference:ERROR",
         "-Xep:AutoValueFinalMethods:ERROR",
         "-Xep:BadAnnotationImplementation:ERROR",
         "-Xep:BadComparable:ERROR",
+=======
+        "-Xep:AmbiguousMethodReference:WARN",
+        "-Xep:AutoValueFinalMethods:ERROR",
+        "-Xep:BadAnnotationImplementation:WARN",
+        "-Xep:BadComparable:WARN",
+>>>>>>> BRANCH (8de96a Merge branch 'stable-2.16' into stable-3.0)
         "-Xep:BoxedPrimitiveConstructor:ERROR",
         "-Xep:CannotMockFinalClass:ERROR",
         "-Xep:ClassCanBeStatic:ERROR",
