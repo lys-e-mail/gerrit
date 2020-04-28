@@ -113,6 +113,7 @@ export const htmlTemplate = html`
             </label>
           </p>
         </div>
+<<<<<<< HEAD   (229395 Merge changes Ib468eb4b,I3dfd8f91)
       </div>
     </gr-dialog>
     <gr-dialog
@@ -180,4 +181,47 @@ export const htmlTemplate = html`
     </gr-dialog>
   </gr-overlay>
   <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
+=======
+        <div class="main" slot="main">
+          <gr-autocomplete placeholder="Enter an existing or new full file path." query="[[_query]]" text="{{_path}}"></gr-autocomplete>
+          <div id="dragDropArea" on-drop="_handleDragAndDropUpload">
+            <p>Drag and drop a file here</p>
+            <p>or</p>
+            <p>
+              <iron-input>
+                <input is="iron-input" id="fileUploadInput" type="file" on-change="_handleFileUploadChanged" hidden>
+              </iron-input>
+              <label for="fileUploadInput">
+                <gr-button id="fileUploadBrowse">Browse</gr-button>
+              </label>
+            </p>
+          </div>
+        </div>
+      </gr-dialog>
+      <gr-dialog id="deleteDialog" class="invisible dialog" disabled\$="[[!_isValidPath(_path)]]" confirm-label="Delete" confirm-on-enter="" on-confirm="_handleDeleteConfirm" on-cancel="_handleDialogCancel">
+        <div class="header" slot="header">Delete a file from the repo</div>
+        <div class="main" slot="main">
+          <gr-autocomplete placeholder="Enter an existing full file path." query="[[_query]]" text="{{_path}}"></gr-autocomplete>
+        </div>
+      </gr-dialog>
+      <gr-dialog id="renameDialog" class="invisible dialog" disabled\$="[[!_computeRenameDisabled(_path, _newPath)]]" confirm-label="Rename" confirm-on-enter="" on-confirm="_handleRenameConfirm" on-cancel="_handleDialogCancel">
+        <div class="header" slot="header">Rename a file in the repo</div>
+        <div class="main" slot="main">
+          <gr-autocomplete placeholder="Enter an existing full file path." query="[[_query]]" text="{{_path}}"></gr-autocomplete>
+          <iron-input class="newPathIronInput" bind-value="{{_newPath}}" placeholder="Enter the new path.">
+            <input class="newPathInput" is="iron-input" bind-value="{{_newPath}}" placeholder="Enter the new path.">
+          </iron-input>
+        </div>
+      </gr-dialog>
+      <gr-dialog id="restoreDialog" class="invisible dialog" confirm-label="Restore" confirm-on-enter="" on-confirm="_handleRestoreConfirm" on-cancel="_handleDialogCancel">
+        <div class="header" slot="header">Restore this file?</div>
+        <div class="main" slot="main">
+          <iron-input disabled="" bind-value="{{_path}}">
+            <input is="iron-input" disabled="" bind-value="{{_path}}">
+          </iron-input>
+        </div>
+      </gr-dialog>
+    </gr-overlay>
+    <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
+>>>>>>> BRANCH (2d7cdd Merge branch 'stable-3.1' into stable-3.2)
 `;

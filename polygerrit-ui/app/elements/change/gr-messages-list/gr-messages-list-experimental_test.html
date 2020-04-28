@@ -295,6 +295,7 @@ suite('gr-messages-list-experimental tests', () => {
           comments.file1.filter(isMarvin).filter(
               c => c.change_message_id === messages[2].id));
       assert.isUndefined(messageElements[2].comments.file2);
+<<<<<<< HEAD   (229395 Merge changes Ib468eb4b,I3dfd8f91)
     });
 
     test('isImportant human message', () => {
@@ -359,6 +360,8 @@ suite('gr-messages-list-experimental tests', () => {
       assert.isFalse(TEST_ONLY.isImportant(m1, [m1, m2, m3]));
       assert.isFalse(TEST_ONLY.isImportant(m2, [m1, m2, m3]));
       assert.isTrue(TEST_ONLY.isImportant(m3, [m1, m2, m3]));
+=======
+>>>>>>> BRANCH (2d7cdd Merge branch 'stable-3.1' into stable-3.2)
     });
 
     test('messages without author do not throw', () => {
