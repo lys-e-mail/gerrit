@@ -31,6 +31,10 @@ import com.google.gerrit.server.project.ProjectState;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
+<<<<<<< HEAD   (d90e7f Add `charset` meta tag to all test files)
+=======
+import java.io.IOException;
+>>>>>>> BRANCH (588a5f Merge branch 'stable-3.0' into stable-3.1)
 import java.util.Optional;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
@@ -86,7 +90,10 @@ public class ChangeIsVisibleToPredicate extends IsVisibleToPredicate<ChangeData>
     PermissionBackend.WithUser withUser =
         user.isIdentifiedUser()
             ? permissionBackend.absentUser(user.getAccountId())
-            : permissionBackend.user(anonymousUserProvider.get());
+            : permissionBackend.user(
+                Optional.of(user)
+                    .filter(u -> u instanceof SingleGroupUser)
+                    .orElseGet(anonymousUserProvider::get));
     try {
       withUser.indexedChange(cd, notes).check(ChangePermission.READ);
     } catch (PermissionBackendException e) {
