@@ -66,7 +66,10 @@ export const htmlTemplate = html`
       margin: 0 -4px;
     }
     .collapsed gr-comment-list,
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
     .collapsed gr-thread-list,
+=======
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
     .collapsed .replyBtn,
     .collapsed .deleteBtn,
     .collapsed .hideOnCollapsed,
@@ -245,6 +248,7 @@ export const htmlTemplate = html`
               </gr-button>
             </div>
           </template>
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
           <template is="dom-if" if="[[!_isCleanerLogExperimentEnabled]]">
             <gr-comment-list
               comments="[[comments]]"
@@ -265,9 +269,34 @@ export const htmlTemplate = html`
               on-thread-list-modified="_onThreadListModified"
             >
             </gr-thread-list>
+=======
+          <gr-comment-list
+            comments="[[comments]]"
+            change-num="[[changeNum]]"
+            patch-num="[[message._revision_number]]"
+            project-name="[[projectName]]"
+            project-config="[[_projectConfig]]"
+          ></gr-comment-list>
+        </div>
+      </template>
+      <template is="dom-if" if="[[_computeIsReviewerUpdate(message)]]">
+        <div class="content">
+          <template is="dom-repeat" items="[[message.updates]]" as="update">
+            <div class="updateCategory">
+              [[update.message]]
+              <template
+                is="dom-repeat"
+                items="[[update.reviewers]]"
+                as="reviewer"
+              >
+                <gr-account-chip account="[[reviewer]]"> </gr-account-chip>
+              </template>
+            </div>
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
           </template>
         </div>
       </template>
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
       <template is="dom-if" if="[[_computeIsReviewerUpdate(message)]]">
         <div class="content">
           <template is="dom-repeat" items="[[message.updates]]" as="update">
@@ -284,6 +313,8 @@ export const htmlTemplate = html`
           </template>
         </div>
       </template>
+=======
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
       <span class="dateContainer">
         <template is="dom-if" if="[[message._revision_number]]">
           <span class="patchset">[[message._revision_number]]</span>

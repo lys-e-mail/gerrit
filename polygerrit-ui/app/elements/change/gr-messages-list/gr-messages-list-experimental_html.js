@@ -48,6 +48,7 @@ export const htmlTemplate = html`
     gr-message:not(:last-of-type) {
       border-bottom: 1px solid var(--border-color);
     }
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
     gr-message {
       background-color: var(--background-color-secondary);
     }
@@ -85,6 +86,48 @@ export const htmlTemplate = html`
       change-num="[[changeNum]]"
       message="[[message]]"
       comment-threads="[[_computeThreadsForMessage(changeComments, message)]]"
+=======
+    gr-message:nth-child(2n) {
+      background-color: var(--background-color-secondary);
+    }
+    gr-message:nth-child(2n + 1) {
+      background-color: var(--background-color-tertiary);
+    }
+  </style>
+  <div class="header">
+    <span
+      id="automatedMessageToggleContainer"
+      class="container"
+      hidden$="[[!_hasAutomatedMessages(messages)]]"
+    >
+      <paper-toggle-button
+        id="automatedMessageToggle"
+        checked="{{_hideAutomated}}"
+      ></paper-toggle-button
+      >Only comments
+      <span class="transparent separator"></span>
+    </span>
+    <gr-button
+      id="collapse-messages"
+      link=""
+      title="[[_expandAllTitle]]"
+      on-click="_handleExpandCollapseTap"
+    >
+      [[_expandAllState]]
+    </gr-button>
+  </div>
+  <template
+    id="messageRepeat"
+    is="dom-repeat"
+    items="[[_combinedMessages]]"
+    as="message"
+    filter="_isMessageVisible"
+  >
+    <gr-message
+      change-num="[[changeNum]]"
+      message="[[message]]"
+      comments="[[_computeCommentsForMessage(changeComments, message)]]"
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
       project-name="[[projectName]]"
       show-reply-button="[[showReplyButtons]]"
       on-message-anchor-tap="_handleAnchorClick"

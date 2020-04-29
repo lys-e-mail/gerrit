@@ -298,6 +298,7 @@ export const htmlTemplate = html`
     .newlineWarning.hidden {
       display: none;
     }
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
     .lineNumButton.COVERED {
       background-color: var(--coverage-covered, #e0f2f1);
     }
@@ -305,6 +306,15 @@ export const htmlTemplate = html`
       background-color: var(--coverage-not-covered, #ffd1a4);
     }
     .lineNumButton.PARTIALLY_COVERED {
+=======
+    .lineNum.COVERED .lineNumButton {
+      background-color: var(--coverage-covered, #e0f2f1);
+    }
+    .lineNum.NOT_COVERED .lineNumButton {
+      background-color: var(--coverage-not-covered, #ffd1a4);
+    }
+    .lineNum.PARTIALLY_COVERED .lineNumButton {
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
       background: linear-gradient(
         to right bottom,
         var(--coverage-not-covered, #ffd1a4) 0%,
@@ -337,12 +347,21 @@ export const htmlTemplate = html`
       .contentText,
     .selected-left:not(.selected-comment)
       .unified
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
       .left.lineNumButton
       ~ .content:not(.both)
       .contentText,
     .selected-right:not(.selected-comment)
       .unified
       .right.lineNumButton
+=======
+      .left.lineNum
+      ~ .content:not(.both)
+      .contentText,
+    .selected-right:not(.selected-comment)
+      .unified
+      .right.lineNum
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
       ~ .content
       .contentText,
     .selected-left.selected-comment .side-by-side .left + .content .message,

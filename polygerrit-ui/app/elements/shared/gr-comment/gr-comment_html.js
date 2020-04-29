@@ -192,12 +192,15 @@ export const htmlTemplate = html`
       flex-direction: column;
       width: 100%;
     }
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
     .comment-extra-note {
       color: var(--deemphasized-text-color);
       border: 1px solid var(--deemphasized-text-color);
       border-radius: var(--border-radius);
       padding: 0px var(--spacing-s);
     }
+=======
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
     #deleteBtn {
       display: none;
       --gr-button: {
@@ -245,9 +248,13 @@ export const htmlTemplate = html`
   <div id="container" class="container">
     <div class="header" id="header" on-click="_handleToggleCollapsed">
       <div class="headerLeft">
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
         <span class="authorName">
           [[_computeAuthorName(comment, _serverConfig)]]
         </span>
+=======
+        <span class="authorName">[[_computeAuthorName(comment)]]</span>
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
         <span class="draftLabel">DRAFT</span>
         <gr-tooltip-content
           class="draftTooltip"
@@ -270,9 +277,12 @@ export const htmlTemplate = html`
           </a>
         </div>
       </div>
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
       <template is="dom-if" if="[[comment.extraNote]]">
         <span class="comment-extra-note">[[comment.extraNote]]</span>
       </template>
+=======
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
       <gr-button
         id="deleteBtn"
         link=""
