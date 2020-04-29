@@ -709,7 +709,10 @@ export const htmlTemplate = html`
         <template is="dom-if" if="[[_isChangeLogExperimentEnabled()]]">
           <gr-messages-list-experimental
             class="hideOnMobileOverlay"
+<<<<<<< HEAD   (df1cf5 Merge changes from topic "threaded-comments-in-changelog")
             change="[[_change]]"
+=======
+>>>>>>> BRANCH (96b5fa Fix selection on unified view and coverage style)
             change-num="[[_changeNum]]"
             labels="[[_change.labels]]"
             messages="[[_change.messages]]"
