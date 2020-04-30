@@ -40,7 +40,10 @@ import {htmlTemplate} from './gr-comment_html.js';
 import {KeyboardShortcutBehavior} from '../../../behaviors/keyboard-shortcut-behavior/keyboard-shortcut-behavior.js';
 import {getRootElement} from '../../../scripts/rootElement.js';
 import {GrDisplayNameUtils} from '../../../scripts/gr-display-name-utils/gr-display-name-utils.js';
+<<<<<<< HEAD   (310a0f Merge "Change gr-reporting to class object")
 import {appContext} from '../../../services/app-context.js';
+=======
+>>>>>>> BRANCH (0fb4bf Upgrade replication plugin to latest master revision)
 
 const STORAGE_DEBOUNCE_INTERVAL = 400;
 const TOAST_DEBOUNCE_INTERVAL = 200;
