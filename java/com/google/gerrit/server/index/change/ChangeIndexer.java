@@ -410,11 +410,15 @@ public class ChangeIndexer {
       for (ChangeIndex i : getWriteIndexes()) {
         try (TraceTimer traceTimer =
             TraceContext.newTimer(
+<<<<<<< HEAD   (f32893 Merge branch 'stable-3.0' into stable-3.1)
                 "Deleting change in index",
                 Metadata.builder()
                     .changeId(id.get())
                     .indexVersion(i.getSchema().getVersion())
                     .build())) {
+=======
+                "Deleting change %d in index version %d", id.get(), i.getSchema().getVersion())) {
+>>>>>>> BRANCH (b11aa0 Merge branch 'stable-2.16' into stable-3.0)
           i.delete(id);
         }
       }
