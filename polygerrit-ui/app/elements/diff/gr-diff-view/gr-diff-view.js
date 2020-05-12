@@ -842,6 +842,7 @@ class GrDiffView extends mixinBehaviors( [
     this.$.cursor.initialLineNumber = params.lineNum;
   }
 
+<<<<<<< HEAD   (edf621 Rewrite upload archive tests as real integration tests)
   _getLineOfInterest(params) {
     // If there is a line number specified, pass it along to the diff so that
     // it will not get collapsed.
@@ -1306,3 +1307,15 @@ class GrDiffView extends mixinBehaviors( [
 }
 
 customElements.define(GrDiffView.is, GrDiffView);
+=======
+    _computeIsLoggedIn(loggedIn) {
+      return loggedIn ? true : false;
+    },
+
+    _computeCanEdit(loggedIn, changeChangeRecord) {
+      return this._computeIsLoggedIn(loggedIn) &&
+          this.changeIsOpen(changeChangeRecord.base.status);
+    },
+  });
+})();
+>>>>>>> BRANCH (34dafa Merge branch 'stable-3.0' into stable-3.1)
