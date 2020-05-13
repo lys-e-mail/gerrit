@@ -842,6 +842,7 @@ class GrDiffView extends mixinBehaviors( [
     this.$.cursor.initialLineNumber = params.lineNum;
   }
 
+<<<<<<< HEAD   (4da387 Merge "Upgrade metrics-core to 4.1.7" into stable-3.2)
   _getLineOfInterest(params) {
     // If there is a line number specified, pass it along to the diff so that
     // it will not get collapsed.
@@ -1311,3 +1312,14 @@ class GrDiffView extends mixinBehaviors( [
 }
 
 customElements.define(GrDiffView.is, GrDiffView);
+=======
+    _computeCanEdit(loggedIn, changeChangeRecord) {
+      if ([changeChangeRecord, changeChangeRecord.base]
+          .some(arg => arg === undefined)) {
+        return false;
+      }
+      return loggedIn && this.changeIsOpen(changeChangeRecord.base);
+    },
+  });
+})();
+>>>>>>> BRANCH (7fccfb Merge branch 'stable-3.0' into stable-3.1)
