@@ -263,15 +263,187 @@ case, contributors can still voice concerns or discuss alternatives.
 The decision can be at the next meeting or via email in between
 meetings.
 
+<<<<<<< HEAD   (17eb4b Merge "Decode group id (for UUID) in gr-group" into stable-3)
 === Evaluation
 Product/Vision fit
+=======
+Gerrit follows the
+link:https://google.github.io/styleguide/javaguide.html[Google Java Style
+Guide].
+>>>>>>> BRANCH (4df2d2 Merge branch 'stable-2.16' into stable-3.0)
 
 Q: `Do we believe this feature belongs to Gerrit Code Review use-cases?`
 
 * Yes: Customizable dashboards
 * No: UI for managing an LDAP server
 
+<<<<<<< HEAD   (17eb4b Merge "Decode group id (for UUID) in gr-group" into stable-3)
 Q: `Is the proposed solution aligned with Gerrit’s vision?`
+=======
+You may download and run `google-java-format` on your own, or you may
+run `./tools/setup_gjf.sh` to download a local copy and set up a
+wrapper script. If you run your own copy, please use the same version,
+as there may be slight differences between versions.
+
+When to use `final` modifier and when not (in new code):
+
+Always:
+
+  * final fields: marking fields as final forces them to be
+  initialized in the constructor or at declaration
+  * final static fields: clearly communicates the intent
+  * to use final variables in inner anonymous classes
+
+Optional:
+
+  * final classes: use when appropriate, e.g. API restriction
+  * final methods: similar to final classes
+
+Never:
+
+  * local variables: it clutters the code, and makes the code less
+  readable. When copying old code to new location, finals should
+  be removed
+  * method parameters: similar to local variables
+
+=== Code Organization
+
+Do your best to organize classes and methods in a logical way.
+Here are some guidelines that Gerrit uses:
+
+  * Ensure a standard copyright header is included at the top
+    of any new files (copy it from another file, update the year).
+  * Always place loggers first in your class!
+  * Define any static interfaces next in your class.
+  * Define non static interfaces after static interfaces in your
+    class.
+  * Next you should define static types, static members, and
+    static methods, in decreasing order of visibility (public to private).
+  * Finally instance types, instance members, then constructors,
+    and then instance methods.
+  * Some common exceptions are private helper static methods, which
+    might appear near the instance methods which they help (but may
+    also appear at the top).
+  * Getters and setters for the same instance field should usually
+    be near each other barring a good reason not to.
+  * If you are using assisted injection, the factory for your class
+    should be before the instance members.
+  * Annotations should go before language keywords (`final`, `private`, etc) +
+    Example: `@Assisted @Nullable final type varName`
+  * Prefer to open multiple AutoCloseable resources in the same
+    try-with-resources block instead of nesting the try-with-resources
+    blocks and increasing the indentation level more than necessary.
+
+Wow that's a lot!  But don't worry, you'll get the habit and most
+of the code is organized this way already; so if you pay attention
+to the class you are editing you will likely pick up on it.
+Naturally new classes are a little harder; you may want to come
+back and consult this section when creating them.
+
+
+=== Design
+
+Here are some design level objectives that you should keep in mind
+when coding:
+
+  * Most client pages should perform only one RPC to load so as to
+    keep latencies down.  Exceptions would apply to RPCs which need
+    to load large data sets if splitting them out will help the
+    page load faster.  Generally page loads are expected to complete
+    in under 100ms.  This will be the case for most operations,
+    unless the data being fetched is not using Gerrit's caching
+    infrastructure.  In these slower cases, it is worth considering
+    mitigating this longer load by using a second RPC to fill in
+    this data after the page is displayed (or alternatively it might
+    be worth proposing caching this data).
+  * `@Inject` should be used on constructors, not on fields.  The
+    current exceptions are the ssh commands, these were implemented
+    earlier in Gerrit's development.  To stay consistent, new ssh
+    commands should follow this older pattern; but eventually these
+    should get converted to eliminate this exception.
+  * Don't leave repository objects (git or schema) open.  A .close()
+    after every open should be placed in a finally{} block.
+  * Don't leave UI components, which can cause new actions to occur,
+    enabled during RPCs which update Git repositories, including NoteDb.
+    This is to prevent people from submitting actions more than once
+    when operating on slow links.  If the action buttons are disabled,
+    they cannot be resubmitted and the user can see that Gerrit is still
+    busy.
+  * ...and so is Guava (previously known as Google Collections).
+
+
+=== Tests
+
+  * Tests for new code will greatly help your change get approved.
+
+
+=== Change Size/Number of Files Touched
+
+And finally, I probably cannot say enough about change sizes.
+Generally, smaller is better, hopefully within reason.  Do try to
+keep things which will be confusing on their own together,
+especially if changing one without the other will break something!
+
+  * If a new feature is implemented and it is a larger one, try to
+    identify if it can be split into smaller logical features; when
+    in doubt, err on the smaller side.
+  * Separate bug fixes from feature improvements.  The bug fix may
+    be an easy candidate for approval and should not need to wait
+    for new features to be approved.  Also, combining the two makes
+    reviewing harder since then there is no clear line between the
+    fix and the feature.
+  * Separate supporting refactoring from feature changes.  If your
+    new feature requires some refactoring, it helps to make the
+    refactoring a separate change which your feature change
+    depends on.  This way, reviewers can easily review the refactor
+    change as a something that should not alter the current
+    functionality, and feel more confident they can more easily
+    spot errors this way.  Of course, it also makes it easier to
+    test and locate later on if an unfortunate error does slip in.
+    Lastly, by not having to see refactoring changes at the same
+    time, it helps reviewers understand how your feature changes
+    the current functionality.
+  * Separate logical features into separate changes.  This
+    is often the hardest part.  Here is an example:  when adding a
+    new ability, make separate changes for the UI and the ssh
+    commands if possible.
+  * Do only what the commit message describes.  In other words, things which
+    are not strictly related to the commit message shouldn't be part of
+    a change, even trivial things like externalizing a string somewhere
+    or fixing a typo.  This helps keep `git blame` more useful in the future
+    and it also makes `git revert` more useful.
+  * Use topics to link your separate changes together.
+
+[[process]]
+== Process
+
+[[dev-in-stable-branches]]
+=== Development in stable branches
+
+As their name suggests stable branches are intended to be stable. This means that generally
+only bug-fixes should be done on stable branches, however this is not strictly enforced and
+exceptions may apply:
+
+  * When a stable branch is initially created to prepare a new release the Gerrit community
+    discusses on the mailing list if there are pending features which should still make it into the
+    release. Those features are blocking the release and should be implemented on the stable
+    branch before the first release candidate is created.
+  * To stabilize the code before doing a major release several release candidates are created. Once
+    the first release candidate was done no more features should be accepted on the stable branch.
+    If more features are found to be required they should be discussed with the Gerrit maintainers
+    and should only be allowed if the risk of breaking things is considered to be low.
+  * Once a major release is done only bug-fixes and documentation updates should be done on the
+    stable branch. These updates will be included in the next minor release.
+  * For minor releases new features are only acceptable if they are important to the Gerrit
+    community, if they are backwards compatible and the risk of breaking things is low and if there
+    are no objections from the Gerrit community.
+  * In cases of doubt it's the responsibility of the release maintainer to evaluate the risk of new
+    features and make a decision based on these rules and opinions from the Gerrit community.
+  * The older a stable branch is the more stable it should be. This means old stable branches
+    should only receive bug-fixes that are either important or low risk. Security fixes, including
+    security updates for third party dependencies, are always considered as important and hence can
+    always be done on stable branches.
+>>>>>>> BRANCH (4df2d2 Merge branch 'stable-2.16' into stable-3.0)
 
 * Yes: Showing comments of older patch sets in newer patch sets to
   keep track (core code review)
