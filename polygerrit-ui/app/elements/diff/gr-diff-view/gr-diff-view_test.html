@@ -404,7 +404,11 @@ suite('gr-diff-view tests', () => {
       };
       element._change = {
         _number: 42,
+<<<<<<< HEAD   (3d59f7 Merge "Remove extra note from gr-comment")
         status: ChangeStatus.NEW,
+=======
+        status: 'NEW',
+>>>>>>> BRANCH (3333fe Merge branch 'stable-3.1' into stable-3.2)
         revisions: {
           a: {_number: 1, commit: {parents: []}},
           b: {_number: 2, commit: {parents: []}},
@@ -446,6 +450,7 @@ suite('gr-diff-view tests', () => {
     }
 
     test('edit visible only when logged and status NEW', async () => {
+<<<<<<< HEAD   (3d59f7 Merge "Remove extra note from gr-comment")
       for (const changeStatus in ChangeStatus) {
         if (!ChangeStatus.hasOwnProperty(changeStatus)) {
           continue;
@@ -476,6 +481,38 @@ suite('gr-diff-view tests', () => {
     test('edit hidden when logged and status MERGED', async () => {
       assert.isFalse(await isEditVisibile(
           {loggedIn: true, changeStatus: ChangeStatus.MERGED}));
+=======
+      for (const changeStatus in element.ChangeStatus) {
+        if (!element.ChangeStatus.hasOwnProperty(changeStatus)) {
+          continue;
+        }
+        assert.isFalse(await isEditVisibile({loggedIn: false, changeStatus}),
+            `loggedIn: false, changeStatus: ${changeStatus}`);
+
+        if (changeStatus !== element.ChangeStatus.NEW) {
+          assert.isFalse(await isEditVisibile({loggedIn: true, changeStatus}),
+              `loggedIn: true, changeStatus: ${changeStatus}`);
+        } else {
+          assert.isTrue(await isEditVisibile({loggedIn: true, changeStatus}),
+              `loggedIn: true, changeStatus: ${changeStatus}`);
+        }
+      }
+    });
+
+    test('edit visible when logged and status NEW', async () => {
+      assert.isTrue(await isEditVisibile(
+          {loggedIn: true, changeStatus: element.ChangeStatus.NEW}));
+    });
+
+    test('edit hidden when logged and status ABANDONED', async () => {
+      assert.isFalse(await isEditVisibile(
+          {loggedIn: true, changeStatus: element.ChangeStatus.ABANDONED}));
+    });
+
+    test('edit hidden when logged and status MERGED', async () => {
+      assert.isFalse(await isEditVisibile(
+          {loggedIn: true, changeStatus: element.ChangeStatus.MERGED}));
+>>>>>>> BRANCH (3333fe Merge branch 'stable-3.1' into stable-3.2)
     });
 
     suite('diff prefs hidden', () => {

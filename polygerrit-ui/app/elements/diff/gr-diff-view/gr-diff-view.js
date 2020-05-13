@@ -1324,6 +1324,7 @@ class GrDiffView extends mixinBehaviors( [
     this._scrollTopMargin = e.detail.value;
   }
 
+<<<<<<< HEAD   (3d59f7 Merge "Remove extra note from gr-comment")
   _computeIsLoggedIn(loggedIn) {
     return !!loggedIn;
   }
@@ -1331,6 +1332,14 @@ class GrDiffView extends mixinBehaviors( [
   _computeCanEdit(loggedIn, changeChangeRecord) {
     return this._computeIsLoggedIn(loggedIn) &&
         this.changeIsOpen(changeChangeRecord.base);
+=======
+  _computeCanEdit(loggedIn, changeChangeRecord) {
+    if ([changeChangeRecord, changeChangeRecord.base]
+        .some(arg => arg === undefined)) {
+      return false;
+    }
+    return loggedIn && this.changeIsOpen(changeChangeRecord.base);
+>>>>>>> BRANCH (3333fe Merge branch 'stable-3.1' into stable-3.2)
   }
 }
 
