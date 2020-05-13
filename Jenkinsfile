@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (2d927a Add PolyGerrit validation for merge commits)
 #!/usr/bin/env groovy
 
 // Copyright (C) 2019 The Android Open Source Project
@@ -260,3 +261,6 @@ node ('master') {
         }
     }
 }
+=======
+gerritPipeline()
+>>>>>>> BRANCH (4e8610 Move Jenkinsfile logic into the gerrit-ci-scripts library)
