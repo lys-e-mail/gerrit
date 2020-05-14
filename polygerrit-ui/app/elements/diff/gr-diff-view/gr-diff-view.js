@@ -672,6 +672,7 @@ class GrDiffView extends mixinBehaviors( [
   _getNavLinkPath(path, fileList, direction, opt_noUp) {
     if (!path || !fileList || fileList.length === 0) { return null; }
 
+<<<<<<< HEAD   (b6e349 Merge "Create "Revert" permission" into stable-3.2)
     let idx = fileList.indexOf(path);
     if (idx === -1) {
       const file = direction > 0 ?
@@ -679,6 +680,13 @@ class GrDiffView extends mixinBehaviors( [
         fileList[fileList.length - 1];
       return {path: file};
     }
+=======
+    _goToEditFile() {
+      // TODO(taoalpha): add a shortcut for editing
+      const editUrl = Gerrit.Nav.getEditUrlForDiff(this._change, this._path);
+      return Gerrit.Nav.navigateToRelativeUrl(editUrl);
+    },
+>>>>>>> BRANCH (b8a039 Merge branch 'stable-3.0' into stable-3.1)
 
     idx += direction;
     // Redirect to the change view if opt_noUp isn’t truthy and idx falls
