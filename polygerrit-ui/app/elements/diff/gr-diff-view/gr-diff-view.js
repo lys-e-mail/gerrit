@@ -672,6 +672,7 @@ class GrDiffView extends mixinBehaviors( [
   _getNavLinkPath(path, fileList, direction, opt_noUp) {
     if (!path || !fileList || fileList.length === 0) { return null; }
 
+<<<<<<< HEAD   (61a44a dev-bazel.txt: Sort tag names alphabetically)
     let idx = fileList.indexOf(path);
     if (idx === -1) {
       const file = direction > 0 ?
@@ -679,6 +680,13 @@ class GrDiffView extends mixinBehaviors( [
         fileList[fileList.length - 1];
       return {path: file};
     }
+=======
+    _goToEditFile() {
+      // TODO(taoalpha): add a shortcut for editing
+      const editUrl = Gerrit.Nav.getEditUrlForDiff(this._change, this._path);
+      return Gerrit.Nav.navigateToRelativeUrl(editUrl);
+    },
+>>>>>>> BRANCH (4aebbd Merge branch 'stable-3.0' into stable-3.1)
 
     idx += direction;
     // Redirect to the change view if opt_noUp isn’t truthy and idx falls

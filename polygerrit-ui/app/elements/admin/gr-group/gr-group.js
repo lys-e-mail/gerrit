@@ -266,4 +266,102 @@ class GrGroup extends GestureEventListeners(
   }
 }
 
+<<<<<<< HEAD   (61a44a dev-bazel.txt: Sort tag names alphabetically)
 customElements.define(GrGroup.is, GrGroup);
+=======
+    _isLoading() {
+      return this._loading || this._loading === undefined;
+    },
+
+    _handleSaveName() {
+      return this.$.restAPI.saveGroupName(this.groupId, this._groupConfig.name)
+          .then(config => {
+            if (config.status === 200) {
+              this._groupName = this._groupConfig.name;
+              this.fire('name-changed', {name: this._groupConfig.name,
+                external: this._groupIsExtenral});
+              this._rename = false;
+            }
+          });
+    },
+
+    _handleSaveOwner() {
+      let owner = this._groupConfig.owner;
+      if (this._groupConfigOwner) {
+        owner = decodeURIComponent(this._groupConfigOwner);
+      }
+      return this.$.restAPI.saveGroupOwner(this.groupId,
+          owner).then(config => {
+        this._owner = false;
+      });
+    },
+
+    _handleSaveDescription() {
+      return this.$.restAPI.saveGroupDescription(this.groupId,
+          this._groupConfig.description).then(config => {
+        this._description = false;
+      });
+    },
+
+    _handleSaveOptions() {
+      const visible = this._groupConfig.options.visible_to_all;
+
+      const options = {visible_to_all: visible};
+
+      return this.$.restAPI.saveGroupOptions(this.groupId,
+          options).then(config => {
+        this._options = false;
+      });
+    },
+
+    _handleConfigName() {
+      if (this._isLoading()) { return; }
+      this._rename = true;
+    },
+
+    _handleConfigOwner() {
+      if (this._isLoading()) { return; }
+      this._owner = true;
+    },
+
+    _handleConfigDescription() {
+      if (this._isLoading()) { return; }
+      this._description = true;
+    },
+
+    _handleConfigOptions() {
+      if (this._isLoading()) { return; }
+      this._options = true;
+    },
+
+    _computeHeaderClass(configChanged) {
+      return configChanged ? 'edited' : '';
+    },
+
+    _getGroupSuggestions(input) {
+      return this.$.restAPI.getSuggestedGroups(input)
+          .then(response => {
+            const groups = [];
+            for (const key in response) {
+              if (!response.hasOwnProperty(key)) { continue; }
+              groups.push({
+                name: key,
+                value: decodeURIComponent(response[key].id),
+              });
+            }
+            return groups;
+          });
+    },
+
+    _computeGroupDisabled(owner, admin, groupIsInternal) {
+      return groupIsInternal && (admin || owner) ? false : true;
+    },
+
+    _getGroupUUID(id) {
+      if (!id) return;
+
+      return id.match(INTERNAL_GROUP_REGEX) ? id : decodeURIComponent(id);
+    },
+  });
+})();
+>>>>>>> BRANCH (4aebbd Merge branch 'stable-3.0' into stable-3.1)
