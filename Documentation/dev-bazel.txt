@@ -341,7 +341,11 @@ The following values are currently supported for the group name:
 * edit
 * elastic
 * git
+<<<<<<< HEAD   (eda4c2 Update git submodules)
 * git-protocol-v2
+=======
+* git-upload-archive
+>>>>>>> BRANCH (aa7a8a Merge branch 'stable-2.16' into stable-3.0)
 * notedb
 * pgm
 * rest
