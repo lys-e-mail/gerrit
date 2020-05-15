@@ -526,6 +526,13 @@ public class GerritServer implements AutoCloseable {
     return url;
   }
 
+<<<<<<< HEAD   (518d3d Update git submodules)
+=======
+  public InetSocketAddress getSshdAddress() {
+    return sshdAddress;
+  }
+
+>>>>>>> BRANCH (4415cc Update git submodules)
   InetSocketAddress getHttpAddress() {
     return httpAddress;
   }
