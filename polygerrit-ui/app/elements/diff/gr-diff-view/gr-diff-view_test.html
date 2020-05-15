@@ -404,7 +404,12 @@ suite('gr-diff-view tests', () => {
       };
       element._change = {
         _number: 42,
+<<<<<<< HEAD   (f90f9f Update git submodules)
         status: ChangeStatus.NEW,
+=======
+        project: 'gerrit',
+        status: 'NEW',
+>>>>>>> BRANCH (129fd6 Upgrade metrics-core to 4.1.8)
         revisions: {
           a: {_number: 1, commit: {parents: []}},
           b: {_number: 2, commit: {parents: []}},
@@ -417,6 +422,8 @@ suite('gr-diff-view tests', () => {
         assert.isTrue(!!editBtn);
         MockInteractions.tap(editBtn);
         assert.isTrue(redirectStub.called);
+        assert.isTrue(redirectStub.lastCall.calledWithExactly(
+            GerritNav.getEditUrlForDiff(element._change, element._path)));
         done();
       });
     });
