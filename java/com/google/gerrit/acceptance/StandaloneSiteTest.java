@@ -14,7 +14,11 @@
 
 package com.google.gerrit.acceptance;
 
+<<<<<<< HEAD   (eda4c2 Update git submodules)
 import static com.google.common.truth.Truth.assertWithMessage;
+=======
+import static com.google.common.truth.Truth.assertThat;
+>>>>>>> BRANCH (aa7a8a Merge branch 'stable-2.16' into stable-3.0)
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.fail;
@@ -42,6 +46,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+<<<<<<< HEAD   (eda4c2 Update git submodules)
+=======
+import java.nio.file.Path;
+>>>>>>> BRANCH (aa7a8a Merge branch 'stable-2.16' into stable-3.0)
 import java.util.Arrays;
 import java.util.Collections;
 import org.eclipse.jgit.lib.Config;
@@ -205,8 +213,27 @@ public abstract class StandaloneSiteTest {
 
   protected static String execute(
       ImmutableList<String> cmd, File dir, ImmutableMap<String, String> env) throws IOException {
+<<<<<<< HEAD   (eda4c2 Update git submodules)
     ProcessBuilder pb = new ProcessBuilder(cmd);
     pb.directory(dir).redirectErrorStream(true);
+=======
+    return execute(cmd, dir, env, null);
+  }
+
+  protected static String execute(
+      ImmutableList<String> cmd,
+      File dir,
+      ImmutableMap<String, String> env,
+      @Nullable Path outputPath)
+      throws IOException {
+    ProcessBuilder pb = new ProcessBuilder(cmd);
+    pb.directory(dir);
+    if (outputPath != null) {
+      pb.redirectOutput(outputPath.toFile());
+    } else {
+      pb.redirectErrorStream(true);
+    }
+>>>>>>> BRANCH (aa7a8a Merge branch 'stable-2.16' into stable-3.0)
     pb.environment().putAll(env);
     Process p = pb.start();
     byte[] out;
