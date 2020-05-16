@@ -216,6 +216,20 @@ public abstract class StandaloneSiteTest {
       @Nullable Path outputPath)
       throws IOException {
     ProcessBuilder pb = new ProcessBuilder(cmd);
+<<<<<<< HEAD   (129fd6 Upgrade metrics-core to 4.1.8)
+=======
+    pb.directory(dir).redirectErrorStream(true);
+    return execute(cmd, dir, env, null);
+  }
+
+  protected static String execute(
+      ImmutableList<String> cmd,
+      File dir,
+      ImmutableMap<String, String> env,
+      @Nullable Path outputPath)
+      throws IOException {
+    ProcessBuilder pb = new ProcessBuilder(cmd);
+>>>>>>> BRANCH (92fc90 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     pb.directory(dir);
     if (outputPath != null) {
       pb.redirectOutput(outputPath.toFile());
