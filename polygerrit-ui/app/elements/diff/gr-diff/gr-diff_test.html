@@ -267,8 +267,461 @@ suite('gr-diff tests', () => {
           type: 'image/bmp',
         };
 
+<<<<<<< HEAD   (129fd6 Upgrade metrics-core to 4.1.8)
         element.patchRange = {basePatchNum: 'PARENT', patchNum: 1};
         element.isImageDiff = true;
+=======
+        test('getCursorStops returns [] when hidden and noAutoRender', () => {
+          element.noAutoRender = true;
+          setupDiff();
+          element.hidden = true;
+          assert.equal(element.getCursorStops().length, 0);
+        });
+
+        test('getCursorStops', () => {
+          setupDiff();
+          assert.equal(element.getCursorStops().length, 50);
+        });
+      });
+
+      test('adds .hiddenscroll', () => {
+        Gerrit.hiddenscroll = true;
+        element.displayLine = true;
+        assert.include(element.$$('.diffContainer').className, 'hiddenscroll');
+      });
+    });
+
+    suite('logged in', () => {
+      let fakeLineEl;
+      setup(() => {
+        element = fixture('basic');
+        element.loggedIn = true;
+        element.patchRange = {};
+
+        fakeLineEl = {
+          getAttribute: sandbox.stub().returns(42),
+          classList: {
+            contains: sandbox.stub().returns(true),
+          },
+        };
+      });
+
+      test('addDraftAtLine', () => {
+        sandbox.stub(element, '_selectLine');
+        sandbox.stub(element, '_createComment');
+        element.addDraftAtLine(fakeLineEl);
+        assert.isTrue(element._createComment
+            .calledWithExactly(fakeLineEl, 42));
+      });
+
+      test('addDraftAtLine on an edit', () => {
+        element.patchRange.basePatchNum = element.EDIT_NAME;
+        sandbox.stub(element, '_selectLine');
+        sandbox.stub(element, '_createComment');
+        const alertSpy = sandbox.spy();
+        element.addEventListener('show-alert', alertSpy);
+        element.addDraftAtLine(fakeLineEl);
+        assert.isTrue(alertSpy.called);
+        assert.isFalse(element._createComment.called);
+      });
+
+      test('addDraftAtLine on an edit base', () => {
+        element.patchRange.patchNum = element.EDIT_NAME;
+        element.patchRange.basePatchNum = element.PARENT_NAME;
+        sandbox.stub(element, '_selectLine');
+        sandbox.stub(element, '_createComment');
+        const alertSpy = sandbox.spy();
+        element.addEventListener('show-alert', alertSpy);
+        element.addDraftAtLine(fakeLineEl);
+        assert.isTrue(alertSpy.called);
+        assert.isFalse(element._createComment.called);
+      });
+
+      suite('change in preferences', () => {
+        setup(() => {
+          element.diff = {
+            meta_a: {name: 'carrot.jpg', content_type: 'image/jpeg', lines: 66},
+            meta_b: {name: 'carrot.jpg', content_type: 'image/jpeg',
+              lines: 560},
+            diff_header: [],
+            intraline_status: 'OK',
+            change_type: 'MODIFIED',
+            content: [{skip: 66}],
+          };
+          element.flushDebouncer('renderDiffTable');
+        });
+
+        test('change in preferences re-renders diff', () => {
+          sandbox.stub(element, '_renderDiffTable');
+          element.prefs = Object.assign(
+              {}, MINIMAL_PREFS, {time_format: 'HHMM_12'});
+          element.flushDebouncer('renderDiffTable');
+          assert.isTrue(element._renderDiffTable.called);
+        });
+
+        test('adding/removing property in preferences re-renders diff', () => {
+          const stub = sandbox.stub(element, '_renderDiffTable');
+          const newPrefs1 = Object.assign({}, MINIMAL_PREFS,
+              {line_wrapping: true});
+          element.prefs = newPrefs1;
+          element.flushDebouncer('renderDiffTable');
+          assert.isTrue(element._renderDiffTable.called);
+          stub.reset();
+
+          const newPrefs2 = Object.assign({}, newPrefs1);
+          delete newPrefs2.line_wrapping;
+          element.prefs = newPrefs2;
+          element.flushDebouncer('renderDiffTable');
+          assert.isTrue(element._renderDiffTable.called);
+        });
+
+        test('change in preferences does not re-renders diff with ' +
+            'noRenderOnPrefsChange', () => {
+          sandbox.stub(element, '_renderDiffTable');
+          element.noRenderOnPrefsChange = true;
+          element.prefs = Object.assign(
+              {}, MINIMAL_PREFS, {time_format: 'HHMM_12'});
+          element.flushDebouncer('renderDiffTable');
+          assert.isFalse(element._renderDiffTable.called);
+        });
+      });
+    });
+
+    suite('diff header', () => {
+      setup(() => {
+        element = fixture('basic');
+        element.diff = {
+          meta_a: {name: 'carrot.jpg', content_type: 'image/jpeg', lines: 66},
+          meta_b: {name: 'carrot.jpg', content_type: 'image/jpeg',
+            lines: 560},
+          diff_header: [],
+          intraline_status: 'OK',
+          change_type: 'MODIFIED',
+          content: [{skip: 66}],
+        };
+      });
+
+      test('hidden', () => {
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', 'diff --git a/test.jpg b/test.jpg');
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', 'index 2adc47d..f9c2f2c 100644');
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', '--- a/test.jpg');
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', '+++ b/test.jpg');
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', 'test');
+        assert.equal(element._diffHeaderItems.length, 1);
+        flushAsynchronousOperations();
+
+        assert.equal(element.$.diffHeader.textContent.trim(), 'test');
+      });
+
+      test('binary files', () => {
+        element.diff.binary = true;
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', 'diff --git a/test.jpg b/test.jpg');
+        assert.equal(element._diffHeaderItems.length, 0);
+        element.push('diff.diff_header', 'test');
+        assert.equal(element._diffHeaderItems.length, 1);
+        element.push('diff.diff_header', 'Binary files differ');
+        assert.equal(element._diffHeaderItems.length, 1);
+      });
+    });
+
+    suite('safety and bypass', () => {
+      let renderStub;
+
+      setup(() => {
+        element = fixture('basic');
+        renderStub = sandbox.stub(element.$.diffBuilder, 'render',
+            () => {
+              element.$.diffBuilder.dispatchEvent(
+                  new CustomEvent('render', {bubbles: true, composed: true}));
+              return Promise.resolve({});
+            });
+        const mock = document.createElement('mock-diff-response');
+        sandbox.stub(element, 'getDiffLength').returns(10000);
+        element.diff = mock.diffResponse;
+        element.noRenderOnPrefsChange = true;
+      });
+
+      test('large render w/ context = 10', done => {
+        element.prefs = Object.assign({}, MINIMAL_PREFS, {context: 10});
+        function rendered() {
+          assert.isTrue(renderStub.called);
+          assert.isFalse(element._showWarning);
+          done();
+          element.removeEventListener('render', rendered);
+        }
+        element.addEventListener('render', rendered);
+        element._renderDiffTable();
+      });
+
+      test('large render w/ whole file and bypass', done => {
+        element.prefs = Object.assign({}, MINIMAL_PREFS, {context: -1});
+        element._safetyBypass = 10;
+        function rendered() {
+          assert.isTrue(renderStub.called);
+          assert.isFalse(element._showWarning);
+          done();
+          element.removeEventListener('render', rendered);
+        }
+        element.addEventListener('render', rendered);
+        element._renderDiffTable();
+      });
+
+      test('large render w/ whole file and no bypass', done => {
+        element.prefs = Object.assign({}, MINIMAL_PREFS, {context: -1});
+        function rendered() {
+          assert.isFalse(renderStub.called);
+          assert.isTrue(element._showWarning);
+          done();
+          element.removeEventListener('render', rendered);
+        }
+        element.addEventListener('render', rendered);
+        element._renderDiffTable();
+      });
+    });
+
+    suite('blame', () => {
+      setup(() => {
+        element = fixture('basic');
+      });
+
+      test('unsetting', () => {
+        element.blame = [];
+        const setBlameSpy = sandbox.spy(element.$.diffBuilder, 'setBlame');
+        element.classList.add('showBlame');
+        element.blame = null;
+        assert.isTrue(setBlameSpy.calledWithExactly(null));
+        assert.isFalse(element.classList.contains('showBlame'));
+      });
+
+      test('setting', () => {
+        const mockBlame = [{id: 'commit id', ranges: [{start: 1, end: 2}]}];
+        element.blame = mockBlame;
+        assert.isTrue(element.classList.contains('showBlame'));
+      });
+    });
+
+    suite('trailing newlines', () => {
+      setup(() => {
+        element = fixture('basic');
+      });
+
+      suite('_lastChunkForSide', () => {
+        test('deltas', () => {
+          const diff = {content: [
+            {a: ['foo', 'bar'], b: ['baz']},
+            {ab: ['foo', 'bar', 'baz']},
+            {b: ['foo']},
+          ]};
+          assert.equal(element._lastChunkForSide(diff, false), diff.content[2]);
+          assert.equal(element._lastChunkForSide(diff, true), diff.content[1]);
+
+          diff.content.push({a: ['foo'], b: ['bar']});
+          assert.equal(element._lastChunkForSide(diff, false), diff.content[3]);
+          assert.equal(element._lastChunkForSide(diff, true), diff.content[3]);
+        });
+
+        test('addition with a undefined', () => {
+          const diff = {content: [
+            {b: ['foo', 'bar', 'baz']},
+          ]};
+          assert.equal(element._lastChunkForSide(diff, false), diff.content[0]);
+          assert.isNull(element._lastChunkForSide(diff, true));
+        });
+
+        test('addition with a empty', () => {
+          const diff = {content: [
+            {a: [], b: ['foo', 'bar', 'baz']},
+          ]};
+          assert.equal(element._lastChunkForSide(diff, false), diff.content[0]);
+          assert.isNull(element._lastChunkForSide(diff, true));
+        });
+
+
+        test('deletion with b undefined', () => {
+          const diff = {content: [
+            {a: ['foo', 'bar', 'baz']},
+          ]};
+          assert.isNull(element._lastChunkForSide(diff, false));
+          assert.equal(element._lastChunkForSide(diff, true), diff.content[0]);
+        });
+
+        test('deletion with b empty', () => {
+          const diff = {content: [
+            {a: ['foo', 'bar', 'baz'], b: []},
+          ]};
+          assert.isNull(element._lastChunkForSide(diff, false));
+          assert.equal(element._lastChunkForSide(diff, true), diff.content[0]);
+        });
+
+        test('empty', () => {
+          const diff = {content: []};
+          assert.isNull(element._lastChunkForSide(diff, false));
+          assert.isNull(element._lastChunkForSide(diff, true));
+        });
+      });
+
+      suite('_hasTrailingNewlines', () => {
+        test('shared no trailing', () => {
+          const diff = undefined;
+          sandbox.stub(element, '_lastChunkForSide')
+              .returns({ab: ['foo', 'bar']});
+          assert.isFalse(element._hasTrailingNewlines(diff, false));
+          assert.isFalse(element._hasTrailingNewlines(diff, true));
+        });
+
+        test('delta trailing in right', () => {
+          const diff = undefined;
+          sandbox.stub(element, '_lastChunkForSide')
+              .returns({a: ['foo', 'bar'], b: ['baz', '']});
+          assert.isTrue(element._hasTrailingNewlines(diff, false));
+          assert.isFalse(element._hasTrailingNewlines(diff, true));
+        });
+
+        test('addition', () => {
+          const diff = undefined;
+          sandbox.stub(element, '_lastChunkForSide', (diff, leftSide) => {
+            if (leftSide) { return null; }
+            return {b: ['foo', '']};
+          });
+          assert.isTrue(element._hasTrailingNewlines(diff, false));
+          assert.isNull(element._hasTrailingNewlines(diff, true));
+        });
+
+        test('deletion', () => {
+          const diff = undefined;
+          sandbox.stub(element, '_lastChunkForSide', (diff, leftSide) => {
+            if (!leftSide) { return null; }
+            return {a: ['foo']};
+          });
+          assert.isNull(element._hasTrailingNewlines(diff, false));
+          assert.isFalse(element._hasTrailingNewlines(diff, true));
+        });
+      });
+
+      test('_computeNewlineWarning', () => {
+        const NO_NEWLINE_BASE = 'No newline at end of base file.';
+        const NO_NEWLINE_REVISION = 'No newline at end of revision file.';
+
+        let hasLeft;
+        let hasRight;
+        sandbox.stub(element, '_hasTrailingNewlines', (diff, left) => {
+          if (left) { return hasLeft; }
+          return hasRight;
+        });
+        const diff = undefined;
+
+        // The revision has a trailing newline, but the base doesn't.
+        hasLeft = true;
+        hasRight = false;
+        assert.equal(element._computeNewlineWarning(diff), NO_NEWLINE_REVISION);
+
+        // Trailing newlines were undetermined in the revision.
+        hasLeft = true;
+        hasRight = null;
+        assert.isNull(element._computeNewlineWarning(diff));
+
+        // Missing trailing newlines in the base.
+        hasLeft = false;
+        hasRight = null;
+        assert.equal(element._computeNewlineWarning(diff), NO_NEWLINE_BASE);
+
+        // Missing trailing newlines in both.
+        hasLeft = false;
+        hasRight = false;
+        assert.equal(element._computeNewlineWarning(diff),
+            NO_NEWLINE_BASE + ' — ' + NO_NEWLINE_REVISION);
+      });
+
+      test('_computeNewlineWarningClass', () => {
+        const hidden = 'newlineWarning hidden';
+        const shown = 'newlineWarning';
+        assert.equal(element._computeNewlineWarningClass(null, true), hidden);
+        assert.equal(element._computeNewlineWarningClass('foo', true), hidden);
+        assert.equal(element._computeNewlineWarningClass(null, false), hidden);
+        assert.equal(element._computeNewlineWarningClass('foo', false), shown);
+      });
+
+      test('_prefsEqual', () => {
+        element = fixture('basic');
+        assert.isTrue(element._prefsEqual(null, null));
+        assert.isTrue(element._prefsEqual({}, {}));
+        assert.isTrue(element._prefsEqual({x: 1}, {x: 1}));
+        assert.isTrue(
+            element._prefsEqual({x: 1, abc: 'def'}, {x: 1, abc: 'def'}));
+        const somePref = {abc: 'def', p: true};
+        assert.isTrue(element._prefsEqual(somePref, somePref));
+
+        assert.isFalse(element._prefsEqual({}, null));
+        assert.isFalse(element._prefsEqual(null, {}));
+        assert.isFalse(element._prefsEqual({x: 1}, {x: 2}));
+        assert.isFalse(element._prefsEqual({x: 1, y: 'abc'}, {x: 1, y: 'abcd'}));
+        assert.isFalse(element._prefsEqual({x: 1, y: 'abc'}, {x: 1}));
+        assert.isFalse(element._prefsEqual({x: 1}, {x: 1, y: 'abc'}));
+      });
+    });
+
+    suite('key locations', () => {
+      let renderStub;
+
+      setup(() => {
+        element = fixture('basic');
+        element.prefs = {};
+        renderStub = sandbox.stub(element.$.diffBuilder, 'render')
+            .returns(new Promise(() => {}));
+      });
+
+      test('lineOfInterest is a key location', () => {
+        element.lineOfInterest = {number: 789, leftSide: true};
+        element._renderDiffTable();
+        assert.isTrue(renderStub.called);
+        assert.deepEqual(renderStub.lastCall.args[0], {
+          left: {789: true},
+          right: {},
+        });
+      });
+
+      test('line comments are key locations', () => {
+        const threadEl = document.createElement('div');
+        threadEl.className = 'comment-thread';
+        threadEl.setAttribute('comment-side', 'right');
+        threadEl.setAttribute('line-num', 3);
+        Polymer.dom(element).appendChild(threadEl);
+        Polymer.dom.flush();
+
+        element._renderDiffTable();
+        assert.isTrue(renderStub.called);
+        assert.deepEqual(renderStub.lastCall.args[0], {
+          left: {},
+          right: {3: true},
+        });
+      });
+
+      test('file comments are key locations', () => {
+        const threadEl = document.createElement('div');
+        threadEl.className = 'comment-thread';
+        threadEl.setAttribute('comment-side', 'left');
+        Polymer.dom(element).appendChild(threadEl);
+        Polymer.dom.flush();
+
+        element._renderDiffTable();
+        assert.isTrue(renderStub.called);
+        assert.deepEqual(renderStub.lastCall.args[0], {
+          left: {FILE: true},
+          right: {},
+        });
+      });
+    });
+
+    suite('whitespace changes only message', () => {
+      const setupDiff = function(ignore_whitespace, diffContent) {
+        element = fixture('basic');
+>>>>>>> BRANCH (92fc90 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
         element.prefs = {
           auto_hide_diff_table_header: true,
           context: 10,

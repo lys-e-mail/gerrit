@@ -571,6 +571,7 @@ class GrDiff extends mixinBehaviors( [
     const isEditBase = this.patchNumEquals(patchNum, this.PARENT_NAME) &&
         this.patchNumEquals(this.patchRange.patchNum, this.EDIT_NAME);
 
+<<<<<<< HEAD   (129fd6 Upgrade metrics-core to 4.1.8)
     if (isEdit) {
       this.dispatchEvent(new CustomEvent('show-alert', {
         detail: {message: ERR_COMMENT_ON_EDIT},
@@ -747,15 +748,42 @@ class GrDiff extends mixinBehaviors( [
       if (this.viewMode === 'SIDE_BY_SIDE') {
         stylesToUpdate['--content-width'] = 'none';
         stylesToUpdate['--line-limit'] = lineLength + 'ch';
+=======
+    _prefsObserver(newPrefs, oldPrefs) {
+      if (!this._prefsEqual(newPrefs, oldPrefs)) {
+        this._prefsChanged(newPrefs);
+>>>>>>> BRANCH (92fc90 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       }
     } else {
       this._diffTableClass = '';
       stylesToUpdate['--content-width'] = lineLength + 'ch';
     }
 
+<<<<<<< HEAD   (129fd6 Upgrade metrics-core to 4.1.8)
     if (prefs.font_size) {
       stylesToUpdate['--font-size'] = prefs.font_size + 'px';
     }
+=======
+    _prefsEqual(prefs1, prefs2) {
+      if (prefs1 === prefs2) {
+        return true;
+      }
+      if (!prefs1 || !prefs2) {
+        return false;
+      }
+      // Scan the preference objects one level deep to see if they differ.
+      const keys1 = Object.keys(prefs1);
+      const keys2 = Object.keys(prefs2);
+      return keys1.length === keys2.length &&
+          keys1.every(key => prefs1[key] === prefs2[key]) &&
+          keys2.every(key => prefs1[key] === prefs2[key]);
+    },
+
+    _pathObserver() {
+      // Call _prefsChanged(), because line-limit style value depends on path.
+      this._prefsChanged(this.prefs);
+    },
+>>>>>>> BRANCH (92fc90 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 
     this.updateStyles(stylesToUpdate);
 
