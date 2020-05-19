@@ -114,7 +114,7 @@
 
       _currentParents: {
         type: Array,
-        computed: '_computeParents(change)',
+        computed: '_computeParents(revision)',
       },
 
       /** @type {?} */
@@ -431,13 +431,18 @@
       return null;
     },
 
+<<<<<<< HEAD   (afe5cc Update git submodules)
     _computeParents(change) {
       if (!change || !change.current_revision ||
           !change.revisions[change.current_revision] ||
           !change.revisions[change.current_revision].commit) {
+=======
+    _computeParents(revision) {
+      if (!revision || !revision.commit) {
+>>>>>>> BRANCH (6be92e Merge branch 'stable-2.16' into stable-3.0)
         return undefined;
       }
-      return change.revisions[change.current_revision].commit.parents;
+      return revision.commit.parents;
     },
 
     _computeParentsLabel(parents) {

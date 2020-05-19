@@ -126,18 +126,66 @@ def declare_nongoogle_deps():
         sha1 = "dc13ae4faca6df981fc7aeb5a522d9db446d5d50",
     )
 
+<<<<<<< HEAD   (afe5cc Update git submodules)
     TESTCONTAINERS_VERSION = "1.14.1"
+=======
+    POWERM_VERS = "1.6.1"
+
+    maven_jar(
+        name = "powermock-module-junit4",
+        artifact = "org.powermock:powermock-module-junit4:" + POWERM_VERS,
+        sha1 = "ea8530b2848542624f110a393513af397b37b9cf",
+    )
+
+    maven_jar(
+        name = "powermock-module-junit4-common",
+        artifact = "org.powermock:powermock-module-junit4-common:" + POWERM_VERS,
+        sha1 = "7222ced54dabc310895d02e45c5428ca05193cda",
+    )
+
+    maven_jar(
+        name = "powermock-reflect",
+        artifact = "org.powermock:powermock-reflect:" + POWERM_VERS,
+        sha1 = "97d25eda8275c11161bcddda6ef8beabd534c878",
+    )
+
+    maven_jar(
+        name = "powermock-api-easymock",
+        artifact = "org.powermock:powermock-api-easymock:" + POWERM_VERS,
+        sha1 = "aa740ecf89a2f64d410b3d93ef8cd6833009ef00",
+    )
+
+    maven_jar(
+        name = "powermock-api-support",
+        artifact = "org.powermock:powermock-api-support:" + POWERM_VERS,
+        sha1 = "592ee6d929c324109d3469501222e0c76ccf0869",
+    )
+
+    maven_jar(
+        name = "powermock-core",
+        artifact = "org.powermock:powermock-core:" + POWERM_VERS,
+        sha1 = "5afc1efce8d44ed76b30af939657bd598e45d962",
+    )
+
+    maven_jar(
+        name = "javassist",
+        artifact = "org.javassist:javassist:3.22.0-GA",
+        sha1 = "3e83394258ae2089be7219b971ec21a8288528ad",
+    )
+
+    TESTCONTAINERS_VERSION = "1.14.2"
+>>>>>>> BRANCH (6be92e Merge branch 'stable-2.16' into stable-3.0)
 
     maven_jar(
         name = "testcontainers",
         artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-        sha1 = "defd04ff6ffc93e1ff988024048e8ba5bd298df3",
+        sha1 = "d74bc045fb5f30988b0adff20244412972a9f564",
     )
 
     maven_jar(
         name = "testcontainers-elasticsearch",
         artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-        sha1 = "d682965bbf1334ef40720b4ad2eda2c12bf0b440",
+        sha1 = "66e1a6da0362beee83673b877c9c2e0536d6912c",
     )
 
     maven_jar(
