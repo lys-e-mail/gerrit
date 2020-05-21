@@ -69,7 +69,56 @@ suite('gr-group-list tests', () => {
 
     element = fixture('basic');
 
+<<<<<<< HEAD   (637c96 Update replication plugin to latest master revision)
     element.loadData().then(() => { flush(done); });
+=======
+    test('renders', () => {
+      const rows = Array.from(
+          Polymer.dom(element.root).querySelectorAll('tbody tr'));
+
+      assert.equal(rows.length, 3);
+
+      const nameCells = rows.map(row =>
+        row.querySelectorAll('td a')[0].textContent.trim()
+      );
+
+      assert.equal(nameCells[0], 'Group 1');
+      assert.equal(nameCells[1], 'Group 2');
+      assert.equal(nameCells[2], 'Group 3');
+    });
+
+    test('_computeVisibleToAll', () => {
+      assert.equal(element._computeVisibleToAll(groups[0]), 'No');
+      assert.equal(element._computeVisibleToAll(groups[1]), 'Yes');
+    });
+
+    test('_computeGroupPath', () => {
+      let urlStub = sandbox.stub(Gerrit.Nav, 'getUrlForGroup',
+          () => '/admin/groups/e2cd66f88a2db4d391ac068a92d987effbe872f5');
+
+      let group = {
+        id: 'e2cd66f88a2db4d391ac068a92d987effbe872f5',
+      };
+      assert.equal(element._computeGroupPath(group),
+          '/admin/groups/e2cd66f88a2db4d391ac068a92d987effbe872f5');
+
+      group = {
+        name: 'admin',
+      };
+      assert.isUndefined(element._computeGroupPath(group));
+
+      urlStub.restore();
+
+      urlStub = sandbox.stub(Gerrit.Nav, 'getUrlForGroup',
+          () => '/admin/groups/user/test');
+
+      group = {
+        id: 'user%2Ftest',
+      };
+      assert.equal(element._computeGroupPath(group),
+          '/admin/groups/user/test');
+    });
+>>>>>>> BRANCH (7b6db6 Merge branch 'stable-3.0' into stable-3.1)
   });
 
   teardown(() => { sandbox.restore(); });
