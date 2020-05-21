@@ -425,8 +425,12 @@ suite('gr-diff-view tests', () => {
       };
       element._change = {
         _number: 42,
+<<<<<<< HEAD   (211273 Refine the rules for which messages are hidden in the Change)
         project: 'gerrit',
         status: ChangeStatus.NEW,
+=======
+        status: 'NEW',
+>>>>>>> BRANCH (f7d7df Merge branch 'stable-3.1' into stable-3.2)
         revisions: {
           a: {_number: 1, commit: {parents: []}},
           b: {_number: 2, commit: {parents: []}},
@@ -439,12 +443,15 @@ suite('gr-diff-view tests', () => {
         assert.isTrue(!!editBtn);
         MockInteractions.tap(editBtn);
         assert.isTrue(redirectStub.called);
+<<<<<<< HEAD   (211273 Refine the rules for which messages are hidden in the Change)
         assert.isTrue(redirectStub.lastCall.calledWithExactly(
             GerritNav.getEditUrlForDiff(
                 element._change,
                 element._path,
                 element._patchRange.patchNum
             )));
+=======
+>>>>>>> BRANCH (f7d7df Merge branch 'stable-3.1' into stable-3.2)
         done();
       });
     });
