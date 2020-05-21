@@ -112,6 +112,7 @@ class GrAdminGroupList extends mixinBehaviors( [
         this._offset);
   }
 
+<<<<<<< HEAD   (637c96 Update replication plugin to latest master revision)
   /**
    * Opens the create overlay if the route has a hash 'create'
    *
@@ -119,6 +120,78 @@ class GrAdminGroupList extends mixinBehaviors( [
    */
   _maybeOpenCreateOverlay(params) {
     if (params && params.openCreateModal) {
+=======
+      return this._getGroups(this._filter, this._groupsPerPage,
+          this._offset);
+    },
+
+    /**
+     * Opens the create overlay if the route has a hash 'create'
+     *
+     * @param {!Object} params
+     */
+    _maybeOpenCreateOverlay(params) {
+      if (params && params.openCreateModal) {
+        this.$.createOverlay.open();
+      }
+    },
+
+    /**
+     * Generates groups link (/admin/groups/<uuid>)
+     *
+     * @param {string} id
+     */
+    _computeGroupUrl(id) {
+      return Gerrit.Nav.getUrlForGroup(decodeURIComponent(id));
+    },
+
+    _getCreateGroupCapability() {
+      return this.$.restAPI.getAccount().then(account => {
+        if (!account) { return; }
+        return this.$.restAPI.getAccountCapabilities(['createGroup'])
+            .then(capabilities => {
+              if (capabilities.createGroup) {
+                this._createNewCapability = true;
+              }
+            });
+      });
+    },
+
+    _getGroups(filter, groupsPerPage, offset) {
+      this._groups = [];
+      return this.$.restAPI.getGroups(filter, groupsPerPage, offset)
+          .then(groups => {
+            if (!groups) {
+              return;
+            }
+            this._groups = Object.keys(groups)
+                .map(key => {
+                  const group = groups[key];
+                  group.name = key;
+                  return group;
+                });
+            this._loading = false;
+          });
+    },
+
+    _refreshGroupsList() {
+      this.$.restAPI.invalidateGroupsCache();
+      return this._getGroups(this._filter, this._groupsPerPage,
+          this._offset);
+    },
+
+    _handleCreateGroup() {
+      this.$.createNewModal.handleCreateGroup().then(() => {
+        this._refreshGroupsList();
+      });
+    },
+
+    _handleCloseCreate() {
+      this.$.createOverlay.close();
+    },
+
+    _handleCreateClicked() {
+>>>>>>> BRANCH (7b6db6 Merge branch 'stable-3.0' into stable-3.1)
       this.$.createOverlay.open();
     }
   }

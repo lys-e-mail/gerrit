@@ -403,7 +403,6 @@ suite('gr-diff-view tests', () => {
       };
       element._change = {
         _number: 42,
-        project: 'gerrit',
         status: 'NEW',
         revisions: {
           a: {_number: 1, commit: {parents: []}},
@@ -417,8 +416,11 @@ suite('gr-diff-view tests', () => {
         assert.isTrue(!!editBtn);
         MockInteractions.tap(editBtn);
         assert.isTrue(redirectStub.called);
+<<<<<<< HEAD   (637c96 Update replication plugin to latest master revision)
         assert.isTrue(redirectStub.lastCall.calledWithExactly(
             GerritNav.getEditUrlForDiff(element._change, element._path)));
+=======
+>>>>>>> BRANCH (7b6db6 Merge branch 'stable-3.0' into stable-3.1)
         done();
       });
     });

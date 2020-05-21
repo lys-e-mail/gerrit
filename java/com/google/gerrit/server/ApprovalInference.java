@@ -140,6 +140,7 @@ public class ApprovalInference {
           psa.key().patchSetId().changeId().get(),
           psId.get(),
           project.getName());
+<<<<<<< HEAD   (637c96 Update replication plugin to latest master revision)
       return true;
     } else if (type.getCopyValues().contains(psa.value())) {
       logger.atFine().log(
@@ -152,6 +153,8 @@ public class ApprovalInference {
           psId.get(),
           psa.value(),
           project.getName());
+=======
+>>>>>>> BRANCH (7b6db6 Merge branch 'stable-3.0' into stable-3.1)
       return true;
     }
     switch (kind) {
