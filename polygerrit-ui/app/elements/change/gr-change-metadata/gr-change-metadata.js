@@ -152,7 +152,7 @@ class GrChangeMetadata extends mixinBehaviors( [
 
       _currentParents: {
         type: Array,
-        computed: '_computeParents(change)',
+        computed: '_computeParents(revision)',
       },
 
       /** @type {?} */
@@ -353,6 +353,7 @@ class GrChangeMetadata extends mixinBehaviors( [
       };
     }
 
+<<<<<<< HEAD   (637c96 Update replication plugin to latest master revision)
     const key = rev.push_certificate.key;
     switch (key.status) {
       case CertificateStatus.BAD:
@@ -379,6 +380,14 @@ class GrChangeMetadata extends mixinBehaviors( [
         throw new Error(`unknown certificate status: ${key.status}`);
     }
   }
+=======
+    _computeParents(revision) {
+      if (!revision || !revision.commit) {
+        return undefined;
+      }
+      return revision.commit.parents;
+    },
+>>>>>>> BRANCH (7b6db6 Merge branch 'stable-3.0' into stable-3.1)
 
   _problems(msg, key) {
     if (!key || !key.problems || key.problems.length === 0) {
