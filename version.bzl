@@ -2,4 +2,8 @@
 # Used by :api_install and :api_deploy targets
 # when talking to the destination repository.
 #
+<<<<<<< HEAD   (8ba6c8 Merge branch 'stable-2.16' into stable-3.0)
 GERRIT_VERSION = "3.0.9-SNAPSHOT"
+=======
+GERRIT_VERSION = "2.16.20-SNAPSHOT"
+>>>>>>> BRANCH (bf3efd Set version to 2.16.20-SNAPSHOT)
