@@ -9,8 +9,21 @@ acceptance_tests(
         "no_windows",
     ],
     deps = [
+<<<<<<< HEAD   (7c6f3a Update git submodules)
         "//java/com/google/gerrit/git",
+=======
+        ":util",
+>>>>>>> BRANCH (2ba0f2 Set version to 2.16.21-SNAPSHOT)
         "//java/com/google/gerrit/mail",
         "//java/com/google/gerrit/server/util/time",
+    ],
+)
+
+java_library(
+    name = "util",
+    testonly = True,
+    srcs = glob(["TestRealm.java"]),
+    deps = [
+        "//java/com/google/gerrit/acceptance:lib",
     ],
 )
