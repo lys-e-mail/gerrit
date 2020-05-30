@@ -148,7 +148,14 @@
      *    order to trigger computation when a label is removed from the change.
      */
     _computeShowPlaceholder(labelInfo, changeLabelsRecord) {
+<<<<<<< HEAD   (a1e53f Update git submodules)
       if (labelInfo && labelInfo.all) {
+=======
+      if (!labelInfo.values && (labelInfo.rejected || labelInfo.approved)) {
+        return 'hidden';
+      }
+      if (labelInfo.all) {
+>>>>>>> BRANCH (7c6f3a Update git submodules)
         for (const label of labelInfo.all) {
           if (label.value && label.value != labelInfo.default_value) {
             return 'hidden';
