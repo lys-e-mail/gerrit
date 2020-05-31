@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_USERNAME;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -78,8 +79,9 @@ public class AccountManager {
   private final boolean autoUpdateAccountActiveStatus;
   private final SetInactiveFlag setInactiveFlag;
 
+  @VisibleForTesting
   @Inject
-  AccountManager(
+  public AccountManager(
       Sequences sequences,
       @GerritServerConfig Config cfg,
       Accounts accounts,
@@ -238,6 +240,7 @@ public class AccountManager {
     }
 
     if (!Strings.isNullOrEmpty(who.getDisplayName())
+<<<<<<< HEAD   (a1e53f Update git submodules)
         && !Objects.equals(user.getAccount().fullName(), who.getDisplayName())) {
       if (realm.allowsEdit(AccountFieldName.FULL_NAME)) {
         accountUpdates.add(a -> a.setFullName(who.getDisplayName()));
@@ -246,6 +249,10 @@ public class AccountManager {
             "Not changing already set display name '%s' to '%s'",
             user.getAccount().fullName(), who.getDisplayName());
       }
+=======
+        && !Objects.equals(user.getAccount().getFullName(), who.getDisplayName())) {
+      accountUpdates.add(a -> a.setFullName(who.getDisplayName()));
+>>>>>>> BRANCH (c3cd09 Merge branch 'stable-2.16' into stable-3.0)
     }
 
     if (!realm.allowsEdit(AccountFieldName.USER_NAME)
