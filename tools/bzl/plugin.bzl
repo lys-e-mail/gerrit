@@ -1,5 +1,20 @@
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 load("//tools/bzl:genrule2.bzl", "genrule2")
+<<<<<<< HEAD   (7c6f3a Update git submodules)
+=======
+load("//:version.bzl", "GERRIT_VERSION")
+load(
+    "//tools/bzl:gwt.bzl",
+    "GWT_COMPILER_ARGS",
+    "GWT_JVM_ARGS",
+    "GWT_PLUGIN_DEPS_NEVERLINK",
+    "GWT_TRANSITIVE_DEPS",
+    "gwt_binary",
+    _gwt_plugin_deps = "GWT_PLUGIN_DEPS",
+)
+
+GWT_PLUGIN_DEPS = _gwt_plugin_deps
+>>>>>>> BRANCH (f34f4b Fix gr-label-info test)
 
 PLUGIN_DEPS = ["//plugins:plugin-lib"]
 
@@ -61,7 +76,7 @@ def gerrit_plugin(
             "GEN_VERSION=$$(cat bazel-out/stable-status.txt | grep -w STABLE_BUILD_%s_LABEL | cut -d ' ' -f 2)" % dir_name.upper(),
             "cd $$TMP",
             "unzip -q $$ROOT/$<",
-            "echo \"Implementation-Version: $$GEN_VERSION\n$$(cat META-INF/MANIFEST.MF)\" > META-INF/MANIFEST.MF",
+            "echo \"Implementation-Version: $$GEN_VERSION\nGerrit-ApiVersion: " + GERRIT_VERSION + "\n$$(cat META-INF/MANIFEST.MF)\" > META-INF/MANIFEST.MF",
             "find . -exec touch '{}' ';'",
             "zip -Xqr $$ROOT/$@ .",
         ]),

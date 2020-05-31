@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (7c6f3a Update git submodules)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-war</artifactId>
-<<<<<<< HEAD   (7c6f3a Update git submodules)
-  <version>3.0.10-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.21-SNAPSHOT</version>
->>>>>>> BRANCH (f34f4b Fix gr-label-info test)
-  <packaging>war</packaging>
-  <name>Gerrit Code Review - WAR</name>
-  <description>Gerrit WAR</description>
+  <packaging>jar</packaging>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (f34f4b Fix gr-label-info test)

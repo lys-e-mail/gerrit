@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (7c6f3a Update git submodules)
   <version>3.0.10-SNAPSHOT</version>
+=======
+  <version>2.16.21-SNAPSHOT</version>
+>>>>>>> BRANCH (f34f4b Fix gr-label-info test)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
