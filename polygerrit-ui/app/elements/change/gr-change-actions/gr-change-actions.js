@@ -87,7 +87,11 @@ const ChangeActions = {
   PRIVATE: 'private',
   PRIVATE_DELETE: 'private.delete',
   PUBLISH_EDIT: 'publishEdit',
+<<<<<<< HEAD   (90eccb Update git submodules)
   REBASE: 'rebase',
+=======
+  READY: 'ready',
+>>>>>>> BRANCH (074c53 Merge branch 'stable-3.1' into stable-3.2)
   REBASE_EDIT: 'rebaseEdit',
   RESTORE: 'restore',
   REVERT: 'revert',
@@ -207,6 +211,7 @@ const ACTIONS_WITH_ICONS = new Set([
   ChangeActions.DELETE_EDIT,
   ChangeActions.EDIT,
   ChangeActions.PUBLISH_EDIT,
+  ChangeActions.READY,
   ChangeActions.REBASE_EDIT,
   ChangeActions.RESTORE,
   ChangeActions.REVERT,
@@ -295,6 +300,7 @@ class GrChangeActions extends mixinBehaviors( [
         type: Array,
         value() {
           return [
+            ChangeActions.READY,
             RevisionActions.SUBMIT,
           ];
         },
