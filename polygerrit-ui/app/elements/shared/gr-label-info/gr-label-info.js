@@ -69,6 +69,7 @@ class GrLabelInfo extends GestureEventListeners(
         }];
       }
       return result;
+<<<<<<< HEAD   (f8132e Update replication plugin to latest master revision)
     }
     // Sort votes by positivity.
     const votes = (labelInfo.all || []).sort((a, b) => a.value - b.value);
@@ -90,6 +91,80 @@ class GrLabelInfo extends GestureEventListeners(
             labelClassName = 'min';
           } else {
             labelClassName = 'negative';
+=======
+    },
+
+    /**
+     * A user is able to delete a vote iff the mutable property is true and the
+     * reviewer that left the vote exists in the list of removable_reviewers
+     * received from the backend.
+     *
+     * @param {!Object} reviewer An object describing the reviewer that left the
+     *     vote.
+     * @param {Boolean} mutable
+     * @param {!Object} change
+     */
+    _computeDeleteClass(reviewer, mutable, change) {
+      if (!mutable || !change || !change.removable_reviewers) {
+        return 'hidden';
+      }
+      const removable = change.removable_reviewers;
+      if (removable.find(r => r._account_id === reviewer._account_id)) {
+        return '';
+      }
+      return 'hidden';
+    },
+
+    /**
+     * Closure annotation for Polymer.prototype.splice is off.
+     * For now, supressing annotations.
+     *
+     * @suppress {checkTypes} */
+    _onDeleteVote(e) {
+      e.preventDefault();
+      let target = Polymer.dom(e).rootTarget;
+      while (!target.classList.contains('deleteBtn')) {
+        if (!target.parentElement) { return; }
+        target = target.parentElement;
+      }
+
+      target.disabled = true;
+      const accountID = parseInt(target.getAttribute('data-account-id'), 10);
+      this._xhrPromise =
+          this.$.restAPI.deleteVote(this.change._number, accountID, this.label)
+              .then(response => {
+                target.disabled = false;
+                if (!response.ok) { return; }
+                Gerrit.Nav.navigateToChange(this.change);
+              }).catch(err => {
+                target.disabled = false;
+                return;
+              });
+    },
+
+    _computeValueTooltip(labelInfo, score) {
+      if (!labelInfo || !labelInfo.values || !labelInfo.values[score]) {
+        return '';
+      }
+      return labelInfo.values[score];
+    },
+
+    /**
+     * @param {!Object} labelInfo
+     * @param {Object} changeLabelsRecord not used, but added as a parameter in
+     *    order to trigger computation when a label is removed from the change.
+     */
+    _computeShowPlaceholder(labelInfo, changeLabelsRecord) {
+      if (labelInfo &&
+          !labelInfo.values && (labelInfo.rejected || labelInfo.approved)) {
+        return 'hidden';
+      }
+
+      if (labelInfo && labelInfo.all) {
+        for (const label of labelInfo.all) {
+          if (label.value && label.value != labelInfo.default_value) {
+            return 'hidden';
+>>>>>>> BRANCH (92b792 Merge branch 'stable-3.0' into stable-3.1)
           }
         }
         const formattedLabel = {
