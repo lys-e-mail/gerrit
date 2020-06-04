@@ -25,7 +25,10 @@ java_library(
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/prettify:server",
         "//lib:guava",
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
         "//lib:jgit",
+=======
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
         "//lib:servlet-api",
         "//lib/auto:auto-value",
         "//lib/auto:auto-value-annotations",

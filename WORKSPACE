@@ -187,6 +187,7 @@ maven_jar(
     sha1 = "94ad16d728b374d65bd897625f3fbb3da223a2b6",
 )
 
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
 maven_jar(
     name = "error-prone-annotations",
     artifact = "com.google.errorprone:error_prone_annotations:2.3.3",
@@ -213,6 +214,8 @@ maven_jar(
     sha1 = "287b569d76abcd82f9de87fe41829fbc7ebd8ac9",
 )
 
+=======
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
 maven_jar(
     name = "gson",
     artifact = "com.google.code.gson:gson:2.8.5",

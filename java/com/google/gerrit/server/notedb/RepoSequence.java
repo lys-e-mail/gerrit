@@ -29,7 +29,11 @@ import com.github.rholder.retry.WaitStrategies;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
 import com.google.common.collect.Iterables;
+=======
+import com.google.common.flogger.FluentLogger;
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
 import com.google.common.util.concurrent.Runnables;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
@@ -64,6 +68,8 @@ import org.eclipse.jgit.transport.ReceiveCommand;
  * numbers.
  */
 public class RepoSequence {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   @FunctionalInterface
   public interface Seed {
     int get();
@@ -185,6 +191,7 @@ public class RepoSequence {
     this.afterReadRef = requireNonNull(afterReadRef, "afterReadRef");
     this.retryer = requireNonNull(retryer, "retryer");
 
+    logger.atFine().log("sequence batch size for %s is %s", name, batchSize);
     counterLock = new ReentrantLock(true);
   }
 
@@ -213,6 +220,7 @@ public class RepoSequence {
     }
     checkArgument(count > 0, "count is negative: %s", count);
 
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
     try {
       return retryer.call(
           () -> {
@@ -241,6 +249,17 @@ public class RepoSequence {
               counterLock.unlock();
             }
           });
+=======
+  private void acquire(int count) {
+    try (Repository repo = repoManager.openRepository(projectName);
+        RevWalk rw = new RevWalk(repo)) {
+      logger.atFine().log("acquire %d ids on %s in %s", count, refName, projectName);
+      TryAcquire attempt = new TryAcquire(repo, rw, count);
+      RefUpdateUtil.checkResult(retryer.call(attempt));
+      counter = attempt.next;
+      limit = counter + count;
+      acquireCount++;
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
     } catch (ExecutionException | RetryException e) {
       if (e.getCause() != null) {
         Throwables.throwIfInstanceOf(e.getCause(), StorageException.class);

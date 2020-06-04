@@ -565,7 +565,16 @@ class DefaultRefFilter {
     // even if the change is not part of the set of most recent changes that
     // SearchingChangeCacheImpl returns.
     Change.Id cId = Change.Id.fromRef(refName);
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
     requireNonNull(cId, () -> String.format("invalid change id for ref %s", refName));
+=======
+    if (cId == null) {
+      // The ref is not a valid change ref. Treat it as non-visible since it's not representing a
+      // change.
+      logger.atWarning().log("invalid change ref %s is not visible", refName);
+      return false;
+    }
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
     ChangeNotes notes;
     try {
       notes = changeNotesFactory.create(projectState.getNameKey(), cId);

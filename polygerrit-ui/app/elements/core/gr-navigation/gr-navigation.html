@@ -144,11 +144,15 @@ limitations under the License.
         suffixForDashboard: 'limit:25',
       },
       {
-        // Open changes the viewed user is CCed on. Changes ignored by the viewing
-        // user are filtered out.
+        // Non-WIP open changes the viewed user is CCed on. Changes ignored by the
+        // viewing user are filtered out.
         name: 'CCed on',
+<<<<<<< HEAD   (1a3d84 Enable rolling upgrade to next versions)
         query: 'is:open -is:ignored cc:${user}',
         suffixForDashboard: 'limit:10',
+=======
+        query: 'is:open -is:wip -is:ignored cc:${user}',
+>>>>>>> BRANCH (622ef7 Merge "Bazel: Remove version suffix from servlet-api-3_1 rul)
       },
       {
         name: 'Recently closed',
