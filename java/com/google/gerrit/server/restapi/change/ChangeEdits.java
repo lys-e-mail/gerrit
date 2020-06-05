@@ -14,13 +14,19 @@
 
 package com.google.gerrit.server.restapi.change;
 
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
 import static com.google.gerrit.server.project.ProjectCache.illegalState;
+=======
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
 import com.google.gerrit.common.RawInputUtil;
+=======
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.PatchSet;
@@ -128,10 +134,17 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
     }
 
     @Override
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
     public Response<Object> apply(ChangeResource resource, IdString id, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
             PermissionBackendException {
       putEdit.apply(resource, id.get(), input);
+=======
+    public Response<?> apply(ChangeResource resource, IdString id, Put.Input input)
+        throws AuthException, ResourceConflictException, BadRequestException, IOException,
+            PermissionBackendException, BadRequestException {
+      putEdit.apply(resource, id.get(), input.content);
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
       return Response.none();
     }
   }
@@ -301,12 +314,20 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
     }
 
     @Override
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
     public Response<Object> apply(ChangeEditResource rsrc, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
             PermissionBackendException {
       return apply(rsrc.getChangeResource(), rsrc.getPath(), input);
+=======
+    public Response<?> apply(ChangeEditResource rsrc, Input input)
+        throws AuthException, ResourceConflictException, BadRequestException, IOException,
+            PermissionBackendException, BadRequestException {
+      return apply(rsrc.getChangeResource(), rsrc.getPath(), input.content);
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
     }
 
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
     public Response<Object> apply(ChangeResource rsrc, String path, FileContentInput input)
         throws AuthException, BadRequestException, ResourceConflictException, IOException,
             PermissionBackendException {
@@ -334,6 +355,17 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
         return editMessage.apply(rsrc, editCommitMessageInput);
       }
 
+=======
+    public Response<?> apply(ChangeResource rsrc, String path, RawInput newContent)
+        throws ResourceConflictException, AuthException, BadRequestException, IOException,
+            PermissionBackendException, BadRequestException {
+      if (Patch.COMMIT_MSG.equals(path)) {
+        EditMessage.Input editCommitMessageInput = new EditMessage.Input();
+        editCommitMessageInput.message =
+            new String(ByteStreams.toByteArray(newContent.getInputStream()), UTF_8);
+        return Response.ok(editMessage.apply(rsrc, editCommitMessageInput));
+      }
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
       if (Strings.isNullOrEmpty(path) || path.charAt(0) == '/') {
         throw new ResourceConflictException("Invalid path: " + path);
       }

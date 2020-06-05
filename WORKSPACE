@@ -222,6 +222,7 @@ maven_jar(
     sha1 = "42aa5155a54a87d70af32d4b0d06bf43779de0e2",
 )
 
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
 FLOGGER_VERS = "0.5.1"
 
 maven_jar(
@@ -242,6 +243,8 @@ maven_jar(
     sha1 = "b66d3bedb14da604828a8693bb24fd78e36b0e9e",
 )
 
+=======
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
 maven_jar(
     name = "gson",
     artifact = "com.google.code.gson:gson:2.8.5",
