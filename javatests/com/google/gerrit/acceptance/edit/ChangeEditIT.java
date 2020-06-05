@@ -61,6 +61,12 @@ import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
+<<<<<<< HEAD   (c2dcef Merge branch 'stable-3.0' into stable-3.1)
+=======
+import com.google.gerrit.reviewdb.client.Patch;
+import com.google.gerrit.reviewdb.client.PatchSet;
+import com.google.gerrit.reviewdb.client.Project;
+>>>>>>> BRANCH (fa25a8 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.project.testing.TestLabels;
 import com.google.gerrit.server.restapi.change.ChangeEdits.EditMessage;
@@ -294,6 +300,17 @@ public class ChangeEditIT extends AbstractDaemonTest {
     assertThat(getEdit(changeId)).isPresent();
     ensureSameBytes(getFileContentOfEdit(changeId, FILE_NAME), CONTENT_NEW);
     ensureSameBytes(getFileContentOfEdit(changeId, FILE_NAME), CONTENT_NEW);
+  }
+
+  @Test
+  public void updateCommitMessageByEditingMagicCommitMsgFile() throws Exception {
+    createEmptyEditFor(changeId);
+    gApi.changes()
+        .id(changeId)
+        .edit()
+        .modifyFile(Patch.COMMIT_MSG, RawInputUtil.create("Foo Bar".getBytes(UTF_8)));
+    assertThat(getEdit(changeId)).isPresent();
+    ensureSameBytes(getFileContentOfEdit(changeId, Patch.COMMIT_MSG), "Foo Bar\n".getBytes(UTF_8));
   }
 
   @Test
