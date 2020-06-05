@@ -319,6 +319,7 @@ public class ChangeEditIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (80f274 Set version to 3.2.1-SNAPSHOT)
   public void updateCommitMessageByEditingMagicCommitMsgFileWithoutContent() throws Exception {
     createEmptyEditFor(changeId);
     BadRequestException ex =
@@ -329,6 +330,8 @@ public class ChangeEditIT extends AbstractDaemonTest {
   }
 
   @Test
+=======
+>>>>>>> BRANCH (fe7da8 Merge branch 'stable-3.0' into stable-3.1)
   @TestProjectInput(createEmptyCommit = false)
   public void updateRootCommitMessage() throws Exception {
     // Re-clone empty repo; TestRepository doesn't let us reset to unborn head.
