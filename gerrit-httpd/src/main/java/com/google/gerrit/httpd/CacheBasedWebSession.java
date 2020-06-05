@@ -16,6 +16,7 @@ package com.google.gerrit.httpd;
 
 import static java.util.concurrent.TimeUnit.HOURS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.HostPageData;
@@ -28,6 +29,8 @@ import com.google.gerrit.server.AccessPath;
 import com.google.gerrit.server.AnonymousUser;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.account.AccountCache;
+import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.account.AuthResult;
 import com.google.gerrit.server.account.externalids.ExternalId;
 import com.google.gerrit.server.config.AuthConfig;
@@ -41,7 +44,7 @@ import org.eclipse.jgit.http.server.GitSmartHttpTools;
 
 @RequestScoped
 public abstract class CacheBasedWebSession implements WebSession {
-  private static final String ACCOUNT_COOKIE = "GerritAccount";
+  @VisibleForTesting public static final String ACCOUNT_COOKIE = "GerritAccount";
   protected static final long MAX_AGE_MINUTES = HOURS.toMinutes(12);
 
   private final HttpServletRequest request;
@@ -51,6 +54,7 @@ public abstract class CacheBasedWebSession implements WebSession {
   private final Provider<AnonymousUser> anonymousProvider;
   private final IdentifiedUser.RequestFactory identified;
   private final EnumSet<AccessPath> okPaths = EnumSet.of(AccessPath.UNKNOWN);
+  private final AccountCache byIdCache;
   private Cookie outCookie;
 
   private Key key;
@@ -58,18 +62,29 @@ public abstract class CacheBasedWebSession implements WebSession {
   private CurrentUser user;
 
   protected CacheBasedWebSession(
+<<<<<<< HEAD   (0bc1aa Merge branch 'stable-2.14' into stable-2.15)
       HttpServletRequest request,
       HttpServletResponse response,
       WebSessionManager manager,
       AuthConfig authConfig,
       Provider<AnonymousUser> anonymousProvider,
       IdentifiedUser.RequestFactory identified) {
+=======
+      final HttpServletRequest request,
+      final HttpServletResponse response,
+      final WebSessionManager manager,
+      final AuthConfig authConfig,
+      final Provider<AnonymousUser> anonymousProvider,
+      final IdentifiedUser.RequestFactory identified,
+      final AccountCache byIdCache) {
+>>>>>>> BRANCH (06a3a5 Deny access over HTTP for disabled accounts)
     this.request = request;
     this.response = response;
     this.manager = manager;
     this.authConfig = authConfig;
     this.anonymousProvider = anonymousProvider;
     this.identified = identified;
+    this.byIdCache = byIdCache;
 
     if (request.getRequestURI() == null || !GitSmartHttpTools.isGitClient(request)) {
       String cookie = readCookie(request);
@@ -82,13 +97,26 @@ public abstract class CacheBasedWebSession implements WebSession {
         } catch (BadRequestException e) {
           token = null;
         }
+<<<<<<< HEAD   (0bc1aa Merge branch 'stable-2.14' into stable-2.15)
         if (token != null) {
           authFromQueryParameter(token);
+=======
+
+        if (val != null && !checkAccountStatus(val.getAccountId())) {
+          val = null;
+>>>>>>> BRANCH (06a3a5 Deny access over HTTP for disabled accounts)
         }
       }
+<<<<<<< HEAD   (0bc1aa Merge branch 'stable-2.14' into stable-2.15)
       if (val != null && val.needsCookieRefresh()) {
         // Session is more than half old; update cache entry with new expiration date.
         val = manager.createVal(key, val);
+=======
+
+      String token = request.getHeader(HostPageData.XSRF_HEADER_NAME);
+      if (val != null && token != null && token.equals(val.getAuth())) {
+        okPaths.add(AccessPath.REST_API);
+>>>>>>> BRANCH (06a3a5 Deny access over HTTP for disabled accounts)
       }
     }
   }
@@ -178,6 +206,11 @@ public abstract class CacheBasedWebSession implements WebSession {
       manager.destroy(key);
     }
 
+    if (!checkAccountStatus(id)) {
+      val = null;
+      return;
+    }
+
     key = manager.createKey(id);
     val = manager.createVal(key, id, rememberMe, identity, null, null);
     saveCookie();
@@ -206,6 +239,11 @@ public abstract class CacheBasedWebSession implements WebSession {
   @Override
   public String getSessionId() {
     return val != null ? val.getSessionId() : null;
+  }
+
+  private boolean checkAccountStatus(Account.Id id) {
+    AccountState accountState = byIdCache.get(id);
+    return accountState != null && accountState.getAccount().isActive();
   }
 
   private void saveCookie() {
