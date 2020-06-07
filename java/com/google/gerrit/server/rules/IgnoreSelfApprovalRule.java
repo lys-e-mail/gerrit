@@ -26,9 +26,15 @@ import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.annotations.Exports;
+<<<<<<< HEAD   (44a4f1 Set version to 3.1.7-SNAPSHOT)
 import com.google.gerrit.extensions.config.FactoryModule;
+=======
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.PatchSetApproval;
+import com.google.gerrit.server.project.SubmitRuleOptions;
+>>>>>>> BRANCH (5b3a8a Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.inject.Inject;
+import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +52,7 @@ public class IgnoreSelfApprovalRule implements SubmitRule {
   private static final String E_UNABLE_TO_FETCH_LABELS =
       "Unable to fetch labels and approvals for the change";
 
-  public static class Module extends FactoryModule {
+  public static class Module extends AbstractModule {
     @Override
     public void configure() {
       bind(SubmitRule.class)
@@ -54,9 +60,6 @@ public class IgnoreSelfApprovalRule implements SubmitRule {
           .to(IgnoreSelfApprovalRule.class);
     }
   }
-
-  @Inject
-  IgnoreSelfApprovalRule() {}
 
   @Override
   public Optional<SubmitRecord> evaluate(ChangeData cd) {

@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (44a4f1 Set version to 3.1.7-SNAPSHOT)
   <version>3.1.7-SNAPSHOT</version>
+=======
+  <version>3.0.11-SNAPSHOT</version>
+>>>>>>> BRANCH (5b3a8a Merge branch 'stable-2.16' into stable-3.0)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
