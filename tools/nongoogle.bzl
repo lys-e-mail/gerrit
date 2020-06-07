@@ -96,8 +96,8 @@ def declare_nongoogle_deps():
     # and httpasyncclient as necessary.
     maven_jar(
         name = "elasticsearch-rest-client",
-        artifact = "org.elasticsearch.client:elasticsearch-rest-client:7.7.0",
-        sha1 = "5fc25eec3940bc0e9b0ffddcf50554a609e9db8e",
+        artifact = "org.elasticsearch.client:elasticsearch-rest-client:7.7.1",
+        sha1 = "6d44a8e35c11df6883747200bcf46f476a1782b8",
     )
 
     maven_jar(
@@ -109,6 +109,7 @@ def declare_nongoogle_deps():
     # Google internal dependencies: these are developed at Google, so there is
     # no concern about version skew.
 
+<<<<<<< HEAD   (6642e8 Merge "Fix canceling diff")
     FLOGGER_VERS = "0.5.1"
 
     maven_jar(
@@ -127,6 +128,26 @@ def declare_nongoogle_deps():
         name = "flogger-system-backend",
         artifact = "com.google.flogger:flogger-system-backend:" + FLOGGER_VERS,
         sha1 = "b66d3bedb14da604828a8693bb24fd78e36b0e9e",
+=======
+    FLOGGER_VERS = "0.4"
+
+    maven_jar(
+        name = "flogger",
+        artifact = "com.google.flogger:flogger:" + FLOGGER_VERS,
+        sha1 = "9c8863dcc913b56291c0c88e6d4ca9715b43df98",
+    )
+
+    maven_jar(
+        name = "flogger-log4j-backend",
+        artifact = "com.google.flogger:flogger-log4j-backend:" + FLOGGER_VERS,
+        sha1 = "17aa5e31daa1354187e14b6978597d630391c028",
+    )
+
+    maven_jar(
+        name = "flogger-system-backend",
+        artifact = "com.google.flogger:flogger-system-backend:" + FLOGGER_VERS,
+        sha1 = "287b569d76abcd82f9de87fe41829fbc7ebd8ac9",
+>>>>>>> BRANCH (5eb833 Merge branch 'stable-3.1' into stable-3.2)
     )
 
     # Test-only dependencies below.
@@ -143,18 +164,18 @@ def declare_nongoogle_deps():
         sha1 = "dc13ae4faca6df981fc7aeb5a522d9db446d5d50",
     )
 
-    TESTCONTAINERS_VERSION = "1.14.2"
+    TESTCONTAINERS_VERSION = "1.14.3"
 
     maven_jar(
         name = "testcontainers",
         artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-        sha1 = "d74bc045fb5f30988b0adff20244412972a9f564",
+        sha1 = "071fc82ba663f469447a19434e7db90f3a872753",
     )
 
     maven_jar(
         name = "testcontainers-elasticsearch",
         artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-        sha1 = "66e1a6da0362beee83673b877c9c2e0536d6912c",
+        sha1 = "3709e2ebb0b6aa4e2ba2b6ca92ffdd3bf637a86c",
     )
 
     maven_jar(
