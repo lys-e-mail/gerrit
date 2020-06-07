@@ -17,7 +17,11 @@ package com.google.gerrit.acceptance;
 import com.google.gerrit.extensions.api.changes.ActionVisitor;
 import com.google.gerrit.extensions.config.CapabilityDefinition;
 import com.google.gerrit.extensions.config.DownloadScheme;
+<<<<<<< HEAD   (82db49 Merge branch 'stable-3.1' into stable-3.2)
 import com.google.gerrit.extensions.config.PluginProjectPermissionDefinition;
+=======
+import com.google.gerrit.extensions.events.AccountActivationListener;
+>>>>>>> BRANCH (3e3160 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.extensions.events.AccountIndexedListener;
 import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.extensions.events.CommentAddedListener;
@@ -73,6 +77,7 @@ public class ExtensionRegistry {
   private final DynamicSet<GroupBackend> groupBackends;
   private final DynamicSet<AccountActivationValidationListener>
       accountActivationValidationListeners;
+  private final DynamicSet<AccountActivationListener> accountActivationListeners;
   private final DynamicSet<OnSubmitValidationListener> onSubmitValidationListeners;
   private final DynamicSet<WorkInProgressStateChangedListener> workInProgressStateChangedListeners;
   private final DynamicMap<CapabilityDefinition> capabilityDefinitions;
@@ -101,10 +106,15 @@ public class ExtensionRegistry {
       DynamicSet<RevisionCreatedListener> revisionCreatedListeners,
       DynamicSet<GroupBackend> groupBackends,
       DynamicSet<AccountActivationValidationListener> accountActivationValidationListeners,
+<<<<<<< HEAD   (82db49 Merge branch 'stable-3.1' into stable-3.2)
       DynamicSet<OnSubmitValidationListener> onSubmitValidationListeners,
       DynamicSet<WorkInProgressStateChangedListener> workInProgressStateChangedListeners,
       DynamicMap<CapabilityDefinition> capabilityDefinitions,
       DynamicMap<PluginProjectPermissionDefinition> pluginProjectPermissionDefinitions) {
+=======
+      DynamicSet<AccountActivationListener> accountActivationListeners,
+      DynamicSet<OnSubmitValidationListener> onSubmitValidationListeners) {
+>>>>>>> BRANCH (3e3160 Merge branch 'stable-3.0' into stable-3.1)
     this.accountIndexedListeners = accountIndexedListeners;
     this.changeIndexedListeners = changeIndexedListeners;
     this.groupIndexedListeners = groupIndexedListeners;
@@ -126,6 +136,7 @@ public class ExtensionRegistry {
     this.revisionCreatedListeners = revisionCreatedListeners;
     this.groupBackends = groupBackends;
     this.accountActivationValidationListeners = accountActivationValidationListeners;
+    this.accountActivationListeners = accountActivationListeners;
     this.onSubmitValidationListeners = onSubmitValidationListeners;
     this.workInProgressStateChangedListeners = workInProgressStateChangedListeners;
     this.capabilityDefinitions = capabilityDefinitions;
@@ -227,6 +238,10 @@ public class ExtensionRegistry {
     public Registration add(
         AccountActivationValidationListener accountActivationValidationListener) {
       return add(accountActivationValidationListeners, accountActivationValidationListener);
+    }
+
+    public Registration add(AccountActivationListener accountDeactivatedListener) {
+      return add(accountActivationListeners, accountDeactivatedListener);
     }
 
     public Registration add(OnSubmitValidationListener onSubmitValidationListener) {
