@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (eaf17f Set version to 2.15.20-SNAPSHOT)
   <version>2.15.20-SNAPSHOT</version>
+=======
+  <version>2.14.22-SNAPSHOT</version>
+>>>>>>> BRANCH (f4da11 Bazel: Add always pass test to avoid boilerplate in the CI)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
