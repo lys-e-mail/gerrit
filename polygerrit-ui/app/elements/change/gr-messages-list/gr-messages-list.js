@@ -321,9 +321,123 @@ class GrMessagesList extends mixinBehaviors( [
             fileComments[i].author._account_id !== authorId) {
           continue;
         }
+<<<<<<< HEAD   (5eb833 Merge branch 'stable-3.1' into stable-3.2)
         const cDate = util.parseDate(fileComments[i].updated).getTime();
         if (cDate <= mDate) {
           if (nextMDate && cDate <= nextMDate) {
+=======
+      }
+      result.forEach(m => {
+        if (m.expanded === undefined) {
+          m.expanded = false;
+        }
+      });
+      return result;
+    },
+
+    _expandedChanged(exp) {
+      if (this._processedMessages) {
+        for (let i = 0; i < this._processedMessages.length; i++) {
+          this._processedMessages[i].expanded = exp;
+        }
+      }
+      // _visibleMessages is a subarray of _processedMessages
+      // _processedMessages contains all items from _visibleMessages
+      // At this point all _visibleMessages.expanded values are set,
+      // and notifyPath must be used to notify Polymer about changes.
+      if (this._visibleMessages) {
+        for (let i = 0; i < this._visibleMessages.length; i++) {
+          this.notifyPath(`_visibleMessages.${i}.expanded`);
+        }
+      }
+    },
+
+    _highlightEl(el) {
+      const highlightedEls =
+          Polymer.dom(this.root).querySelectorAll('.highlighted');
+      for (const highlighedEl of highlightedEls) {
+        highlighedEl.classList.remove('highlighted');
+      }
+      function handleAnimationEnd() {
+        el.removeEventListener('animationend', handleAnimationEnd);
+        el.classList.remove('highlighted');
+      }
+      el.addEventListener('animationend', handleAnimationEnd);
+      el.classList.add('highlighted');
+    },
+
+    /**
+     * @param {boolean} expand
+     */
+    handleExpandCollapse(expand) {
+      this._expanded = expand;
+    },
+
+    _handleExpandCollapseTap(e) {
+      e.preventDefault();
+      this.handleExpandCollapse(!this._expanded);
+    },
+
+    _handleAnchorClick(e) {
+      this.scrollToMessage(e.detail.id);
+    },
+
+    _hasAutomatedMessages(messages) {
+      if (!messages) { return false; }
+      for (const message of messages) {
+        if (this._isAutomated(message)) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+    _computeExpandCollapseMessage(expanded) {
+      return expanded ? 'Collapse all' : 'Expand all';
+    },
+
+    /**
+     * Computes message author's file comments for change's message.
+     * Method uses this.messages to find next message and relies on messages
+     * to be sorted by date field descending.
+     *
+     * @param {!Object} changeComments changeComment object, which includes
+     *     a method to get all published comments (including robot comments),
+     *     which returns a Hash of arrays of comments, filename as key.
+     * @param {!Object} message
+     * @return {!Object} Hash of arrays of comments, filename as key.
+     */
+    _computeCommentsForMessage(changeComments, message) {
+      if ([changeComments, message].some(arg => arg === undefined)) {
+        return [];
+      }
+      const comments = changeComments.getAllPublishedComments();
+      if (message._index === undefined || !comments || !this.messages) {
+        return [];
+      }
+      const messages = this.messages || [];
+      const index = message._index;
+      const authorId = message.author && message.author._account_id;
+      const mDate = util.parseDate(message.date).getTime();
+      // NB: Messages array has oldest messages first.
+      let nextMDate;
+      if (index > 0) {
+        for (let i = index - 1; i >= 0; i--) {
+          if (messages[i] && messages[i].author &&
+              messages[i].author._account_id === authorId) {
+            nextMDate = util.parseDate(messages[i].date).getTime();
+            break;
+          }
+        }
+      }
+      const msgComments = {};
+      for (const file in comments) {
+        if (!comments.hasOwnProperty(file)) { continue; }
+        const fileComments = comments[file];
+        for (let i = 0; i < fileComments.length; i++) {
+          if (fileComments[i].author &&
+              fileComments[i].author._account_id !== authorId) {
+>>>>>>> BRANCH (dd6f11 Merge branch 'stable-3.0' into stable-3.1)
             continue;
           }
           msgComments[file] = msgComments[file] || [];
