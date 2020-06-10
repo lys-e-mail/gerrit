@@ -49,7 +49,6 @@
       },
       comments: {
         type: Object,
-        observer: '_commentsChanged',
       },
       config: Object,
       hideAutomated: {
@@ -151,6 +150,7 @@
       return expanded;
     },
 
+<<<<<<< HEAD   (dca489 Merge branch 'stable-3.0' into stable-3.1)
     /**
      * If there is no value set on the message object as to whether _expanded
      * should be true or not, then _expanded is set to true if there are
@@ -163,6 +163,9 @@
     },
 
     _handleClick(e) {
+=======
+    _handleTap(e) {
+>>>>>>> BRANCH (5b4548 Collapse all change messages by default)
       if (this.message.expanded) { return; }
       e.stopPropagation();
       this.set('message.expanded', true);
