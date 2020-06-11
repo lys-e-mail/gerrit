@@ -80,8 +80,15 @@ class GrIncludedInDialog extends GestureEventListeners(
       return [];
     }
 
+<<<<<<< HEAD   (724005 Merge "Fix searching in "included in"" into stable-3.2)
     const filter = item => !filterText.length ||
         item.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+=======
+    _computeGroups(includedIn, filterText) {
+      if (!includedIn || filterText === undefined) {
+        return [];
+      }
+>>>>>>> BRANCH (698f8c Merge "Fix searching in "included in"" into stable-3.1)
 
     const groups = [
       {title: 'Branches', items: includedIn.branches.filter(filter)},
@@ -106,9 +113,17 @@ class GrIncludedInDialog extends GestureEventListeners(
     }));
   }
 
+<<<<<<< HEAD   (724005 Merge "Fix searching in "included in"" into stable-3.2)
   _computeLoadingClass(loaded) {
     return loaded ? 'loading loaded' : 'loading';
   }
 }
 
 customElements.define(GrIncludedInDialog.is, GrIncludedInDialog);
+=======
+    _computeLoadingClass(loaded) {
+      return loaded ? 'loading loaded' : 'loading';
+    },
+  });
+})();
+>>>>>>> BRANCH (698f8c Merge "Fix searching in "included in"" into stable-3.1)

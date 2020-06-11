@@ -95,6 +95,21 @@ suite('gr-included-in-dialog', () => {
 
       done();
     });
+
+    test('_computeGroups with .bindValue', done => {
+      element.$.filterInput.bindValue = 'stable-3.2';
+      const includedIn = {branches: [], tags: []};
+      includedIn.branches.push('master', 'stable-3.2');
+
+      setTimeout(() => {
+        const filterText = element._filterText;
+        assert.deepEqual(element._computeGroups(includedIn, filterText), [
+          {title: 'Branches', items: ['stable-3.2']},
+        ]);
+
+        done();
+      });
+    });
   });
 });
 </script>
