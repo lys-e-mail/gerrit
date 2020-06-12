@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.gerrit.common.IoUtil;
 import com.google.gerrit.common.PageLinks;
 import com.google.gerrit.common.PluginData;
+import com.google.gerrit.index.SchemaDefinitions;
 import com.google.gerrit.index.project.ProjectSchemaDefinitions;
 import com.google.gerrit.pgm.init.BaseInit;
 import com.google.gerrit.pgm.init.Browser;
@@ -31,6 +32,12 @@ import com.google.gerrit.pgm.util.ErrorLogFile;
 import com.google.gerrit.server.config.GerritServerConfigModule;
 import com.google.gerrit.server.config.SitePath;
 import com.google.gerrit.server.index.GerritIndexStatus;
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
+=======
+import com.google.gerrit.server.index.account.AccountSchemaDefinitions;
+import com.google.gerrit.server.index.change.ChangeSchemaDefinitions;
+import com.google.gerrit.server.index.group.GroupSchemaDefinitions;
+>>>>>>> BRANCH (88c3de Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.server.ioutil.HostPlatform;
 import com.google.gerrit.server.securestore.SecureStoreClassName;
 import com.google.gerrit.server.util.ReplicaUtil;
@@ -89,7 +96,11 @@ public class Init extends BaseInit {
 
   @Inject Browser browser;
 
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
   private boolean projectsIndexExists;
+=======
+  private GerritIndexStatus indexStatus;
+>>>>>>> BRANCH (88c3de Merge branch 'stable-3.0' into stable-3.1)
 
   public Init() {
     super(new WarDistribution(), null);
@@ -103,7 +114,11 @@ public class Init extends BaseInit {
 
   @Override
   protected boolean beforeInit(SiteInit init) throws Exception {
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
     projectsIndexExists = new GerritIndexStatus(init.site).exists(ProjectSchemaDefinitions.NAME);
+=======
+    indexStatus = new GerritIndexStatus(init.site);
+>>>>>>> BRANCH (88c3de Merge branch 'stable-3.0' into stable-3.1)
     ErrorLogFile.errorOnlyConsole();
 
     if (!skipPlugins) {
@@ -132,6 +147,12 @@ public class Init extends BaseInit {
 
   @Override
   protected void afterInit(SiteRun run) throws Exception {
+    List<SchemaDefinitions<?>> schemaDefs =
+        ImmutableList.of(
+            AccountSchemaDefinitions.INSTANCE,
+            ChangeSchemaDefinitions.INSTANCE,
+            GroupSchemaDefinitions.INSTANCE,
+            ProjectSchemaDefinitions.INSTANCE);
     List<Module> modules = new ArrayList<>();
     modules.add(
         new AbstractModule() {
@@ -146,8 +167,17 @@ public class Init extends BaseInit {
         });
     modules.add(new GerritServerConfigModule());
     Guice.createInjector(modules).injectMembers(this);
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
     if (!ReplicaUtil.isReplica(run.flags.cfg) && !projectsIndexExists) {
       reindexProjects();
+=======
+    if (!ReplicaUtil.isReplica(run.flags.cfg)) {
+      for (SchemaDefinitions<?> schemaDef : schemaDefs) {
+        if (!indexStatus.exists(schemaDef.getName())) {
+          reindex(schemaDef);
+        }
+      }
+>>>>>>> BRANCH (88c3de Merge branch 'stable-3.0' into stable-3.1)
     }
     start(run);
   }
@@ -260,8 +290,12 @@ public class Init extends BaseInit {
     }
   }
 
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
   private void reindexProjects() throws Exception {
     // Reindex all projects, so that we bootstrap the project index for new installations
+=======
+  private void reindex(SchemaDefinitions<?> schemaDef) throws Exception {
+>>>>>>> BRANCH (88c3de Merge branch 'stable-3.0' into stable-3.1)
     List<String> reindexArgs =
         ImmutableList.of(
             "--site-path",
@@ -269,8 +303,9 @@ public class Init extends BaseInit {
             "--threads",
             Integer.toString(1),
             "--index",
-            ProjectSchemaDefinitions.NAME);
-    getConsoleUI().message("Init complete, reindexing projects with:");
+            schemaDef.getName());
+    getConsoleUI()
+        .message(String.format("Init complete, reindexing %s with:", schemaDef.getName()));
     getConsoleUI().message(" reindex " + reindexArgs.stream().collect(joining(" ")));
     Reindex reindexPgm = new Reindex();
     reindexPgm.main(reindexArgs.stream().toArray(String[]::new));
