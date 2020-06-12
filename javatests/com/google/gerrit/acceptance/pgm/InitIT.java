@@ -65,7 +65,11 @@ public class InitIT extends StandaloneSiteTest {
     // Simulate a projects indexes files modified in the past by 3 seconds
     Optional<Instant> projectsLastModified =
         getProjectsIndexLastModified(sitePaths.index_dir).map(t -> t.minusSeconds(3));
+<<<<<<< HEAD   (2a1a37 Merge changes If23916d2,I70110e99 into stable-3.2)
     assertThat(projectsLastModified).isPresent();
+=======
+    assertThat((projectsLastModified).isPresent()).isTrue();
+>>>>>>> BRANCH (8c8191 Merge branch 'stable-3.0' into stable-3.1)
     setProjectsIndexLastModifiedInThePast(sitePaths.index_dir, projectsLastModified.get());
 
     initSite();
