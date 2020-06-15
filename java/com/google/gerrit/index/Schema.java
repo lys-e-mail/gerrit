@@ -177,11 +177,15 @@ public class Schema<T> {
     return true;
   }
 
+<<<<<<< HEAD   (b13c16 Merge branch 'stable-3.1' into stable-3.2)
   private Values<T> fieldValues(T obj, FieldDef<T, ?> f, ImmutableSet<String> skipFields) {
     if (skipFields.contains(f.getName())) {
       return null;
     }
 
+=======
+  private Values<T> fieldValues(T obj, FieldDef<T, ?> f) {
+>>>>>>> BRANCH (dd9970 Merge branch 'stable-3.0' into stable-3.1)
     Object v;
     try {
       v = f.get(obj);
@@ -213,10 +217,17 @@ public class Schema<T> {
    * @param skipFields set of field names to skip when indexing the document
    * @return all non-null field values from the object.
    */
+<<<<<<< HEAD   (b13c16 Merge branch 'stable-3.1' into stable-3.2)
   public final Iterable<Values<T>> buildFields(T obj, ImmutableSet<String> skipFields) {
     try {
       return fields.values().stream()
           .map(f -> fieldValues(obj, f, skipFields))
+=======
+  public final Iterable<Values<T>> buildFields(T obj) {
+    try {
+      return fields.values().stream()
+          .map(f -> fieldValues(obj, f))
+>>>>>>> BRANCH (dd9970 Merge branch 'stable-3.0' into stable-3.1)
           .filter(Objects::nonNull)
           .collect(toImmutableList());
     } catch (StorageException e) {
