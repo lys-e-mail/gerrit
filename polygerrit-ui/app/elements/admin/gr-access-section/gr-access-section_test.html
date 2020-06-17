@@ -385,11 +385,59 @@ suite('gr-access-section tests', () => {
             },
           },
         };
+<<<<<<< HEAD   (b195da Merge branch 'stable-3.1' into stable-3.2)
         element.capabilities = {};
         element._updateSection(element.section);
         flushAsynchronousOperations();
+=======
+        element.capabilities = {
+          accessDatabase: {
+            id: 'accessDatabase',
+            name: 'Access Database',
+          },
+          administrateServer: {
+            id: 'administrateServer',
+            name: 'Administrate Server',
+          },
+          batchChangesLimit: {
+            id: 'batchChangesLimit',
+            name: 'Batch Changes Limit',
+          },
+          createAccount: {
+            id: 'createAccount',
+            name: 'Create Account',
+          },
+        };
+      });
+      suite('Global section', () => {
+        setup(() => {
+          element.section = {
+            id: 'GLOBAL_CAPABILITIES',
+            value: {
+              permissions: {
+                accessDatabase: {
+                  rules: {},
+                },
+              },
+            },
+          };
+          element._updateSection(element.section);
+          flushAsynchronousOperations();
+        });
+
+        test('classes are assigned correctly', () => {
+          assert.isFalse(element.$.section.classList.contains('editing'));
+          assert.isFalse(element.$.section.classList.contains('deleted'));
+          assert.isTrue(element.$.editBtn.classList.contains('global'));
+          element.editing = true;
+          element.canUpload = true;
+          element.ownerOf = [];
+          assert.equal(getComputedStyle(element.$.editBtn).display, 'none');
+        });
+>>>>>>> BRANCH (9434da Set version to 3.1.8-SNAPSHOT)
       });
 
+<<<<<<< HEAD   (b195da Merge branch 'stable-3.1' into stable-3.2)
       test('classes are assigned correctly', () => {
         assert.isFalse(element.$.section.classList.contains('editing'));
         assert.isFalse(element.$.section.classList.contains('deleted'));
@@ -400,6 +448,23 @@ suite('gr-access-section tests', () => {
         flushAsynchronousOperations();
         assert.notEqual(getComputedStyle(element.$.editBtn).display, 'none');
       });
+=======
+      suite('Non-global section', () => {
+        setup(() => {
+          element.section = {
+            id: 'refs/*',
+            value: {
+              permissions: {
+                read: {
+                  rules: {},
+                },
+              },
+            },
+          };
+          element._updateSection(element.section);
+          flushAsynchronousOperations();
+        });
+>>>>>>> BRANCH (9434da Set version to 3.1.8-SNAPSHOT)
 
       test('add permission', () => {
         element.editing = true;
