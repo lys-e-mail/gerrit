@@ -105,11 +105,26 @@ class GrAccessSection extends mixinBehaviors( [
     this._originalId = section.id;
   }
 
+<<<<<<< HEAD   (b195da Merge branch 'stable-3.1' into stable-3.2)
   _handleAccessSaved() {
     // Set a new 'original' value to keep track of after the value has been
     // saved.
     this._updateSection(this.section);
   }
+=======
+    _updateSection(section) {
+      let permissions = this.toSortedArray(section.value.permissions);
+      // We do not care about permissions for global capabilities that are not
+      // currently supported by the server (f.i. capabilities provided by
+      // plugins that are no longer installed).
+      if (section.id === GLOBAL_NAME) {
+        permissions = permissions.filter(
+            p => this.capabilities.hasOwnProperty(p.id));
+      }
+      this._permissions = permissions;
+      this._originalId = section.id;
+    },
+>>>>>>> BRANCH (9434da Set version to 3.1.8-SNAPSHOT)
 
   _handleValueChange() {
     if (!this.section.value.added) {
