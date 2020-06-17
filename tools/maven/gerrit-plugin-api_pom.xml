@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (0a4a19 Add metrics when users switch patchsets using selector)
   <version>3.3.0-SNAPSHOT</version>
+=======
+  <version>3.2.3-SNAPSHOT</version>
+>>>>>>> BRANCH (e98f3f Set version to 3.2.3-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
