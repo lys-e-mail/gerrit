@@ -1371,11 +1371,16 @@ class ReceiveCommits {
         return;
       }
 
+<<<<<<< HEAD   (e20065 PrologOptions: Enable error logging for dryrun options when )
       Optional<AuthException> err = checkRefPermission(cmd, RefPermission.FORCE_UPDATE);
       if (err.isPresent()) {
         rejectProhibited(cmd, err.get());
       }
     }
+=======
+    checkRefPermission(cmd, RefPermission.FORCE_UPDATE)
+        .ifPresent((AuthException err) -> rejectProhibited(cmd, err));
+>>>>>>> BRANCH (ad273b Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private Optional<AuthException> checkRefPermission(ReceiveCommand cmd, RefPermission perm)
