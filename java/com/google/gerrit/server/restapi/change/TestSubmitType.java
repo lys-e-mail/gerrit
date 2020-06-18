@@ -15,6 +15,7 @@
 package com.google.gerrit.server.restapi.change;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.SubmitTypeRecord;
 import com.google.gerrit.extensions.client.SubmitType;
 import com.google.gerrit.extensions.common.TestSubmitRuleInput;
@@ -36,6 +37,8 @@ import com.google.inject.Inject;
 import org.kohsuke.args4j.Option;
 
 public class TestSubmitType implements RestModifyView<RevisionResource, TestSubmitRuleInput> {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   private final ChangeData.Factory changeDataFactory;
   private final RulesCache rules;
   private final PrologRule prologRule;
@@ -64,6 +67,17 @@ public class TestSubmitType implements RestModifyView<RevisionResource, TestSubm
     }
     input.filters = MoreObjects.firstNonNull(input.filters, filters);
 
+<<<<<<< HEAD   (9434da Set version to 3.1.8-SNAPSHOT)
+=======
+    SubmitRuleOptions opts =
+        SubmitRuleOptions.builder()
+            .logErrors(logger.atFine().isEnabled())
+            .skipFilters(input.filters == Filters.SKIP)
+            .rule(input.rule)
+            .build();
+
+    SubmitRuleEvaluator evaluator = submitRuleEvaluatorFactory.create(opts);
+>>>>>>> BRANCH (f5ef2d Merge branch 'stable-2.16' into stable-3.0)
     ChangeData cd = changeDataFactory.create(rsrc.getNotes());
     SubmitTypeRecord rec =
         prologRule.getSubmitType(

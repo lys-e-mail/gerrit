@@ -15,6 +15,12 @@
 package com.google.gerrit.server.restapi.change;
 
 import com.google.common.base.MoreObjects;
+<<<<<<< HEAD   (9434da Set version to 3.1.8-SNAPSHOT)
+=======
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.flogger.FluentLogger;
+>>>>>>> BRANCH (f5ef2d Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.common.data.SubmitRecord;
 import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.TestSubmitRuleInfo;
@@ -38,6 +44,8 @@ import java.util.LinkedHashMap;
 import org.kohsuke.args4j.Option;
 
 public class TestSubmitRule implements RestModifyView<RevisionResource, TestSubmitRuleInput> {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
   private final ChangeData.Factory changeDataFactory;
   private final RulesCache rules;
   private final AccountLoader.Factory accountInfoFactory;
@@ -75,6 +83,16 @@ public class TestSubmitRule implements RestModifyView<RevisionResource, TestSubm
     }
     input.filters = MoreObjects.firstNonNull(input.filters, filters);
 
+<<<<<<< HEAD   (9434da Set version to 3.1.8-SNAPSHOT)
+=======
+    SubmitRuleOptions opts =
+        SubmitRuleOptions.builder()
+            .skipFilters(input.filters == Filters.SKIP)
+            .rule(input.rule)
+            .logErrors(logger.atFine().isEnabled())
+            .build();
+
+>>>>>>> BRANCH (f5ef2d Merge branch 'stable-2.16' into stable-3.0)
     ProjectState projectState = projectCache.get(rsrc.getProject());
     if (projectState == null) {
       throw new BadRequestException("project not found");
