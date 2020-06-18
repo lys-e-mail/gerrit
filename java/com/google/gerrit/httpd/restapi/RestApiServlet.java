@@ -600,7 +600,11 @@ public class RestApiServlet extends HttpServlet {
           }
         }
       } catch (MalformedJsonException | JsonParseException e) {
+<<<<<<< HEAD   (884422 Merge "When reindexing changes, use multiple threads per pro)
         cause = Optional.of(e);
+=======
+        logger.atFine().withCause(e).log("REST call failed on JSON parsing");
+>>>>>>> BRANCH (e20065 PrologOptions: Enable error logging for dryrun options when )
         responseBytes =
             replyError(
                 req, res, statusCode = SC_BAD_REQUEST, "Invalid " + JSON_TYPE + " in request", e);
