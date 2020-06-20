@@ -152,7 +152,7 @@ class GrChangeMetadata extends mixinBehaviors( [
 
       _currentParents: {
         type: Array,
-        computed: '_computeParents(revision)',
+        computed: '_computeParents(change, revision)',
       },
 
       /** @type {?} */
@@ -353,6 +353,7 @@ class GrChangeMetadata extends mixinBehaviors( [
       };
     }
 
+<<<<<<< HEAD   (30fc6b Update git submodules)
     const key = rev.push_certificate.key;
     switch (key.status) {
       case CertificateStatus.BAD:
@@ -379,6 +380,16 @@ class GrChangeMetadata extends mixinBehaviors( [
         throw new Error(`unknown certificate status: ${key.status}`);
     }
   }
+=======
+    _computeParents(change, revision) {
+      if (!revision || !revision.commit) {
+        if (!change || !change.current_revision) { return []; }
+        revision = change.revisions[change.current_revision];
+        if (!revision || !revision.commit) { return []; }
+      }
+      return revision.commit.parents;
+    },
+>>>>>>> BRANCH (f4b39a Merge branch 'stable-3.0' into stable-3.1)
 
   _problems(msg, key) {
     if (!key || !key.problems || key.problems.length === 0) {
