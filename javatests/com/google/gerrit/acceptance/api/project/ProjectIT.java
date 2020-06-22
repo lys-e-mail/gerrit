@@ -74,6 +74,10 @@ import java.util.Map;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.Config;
+<<<<<<< HEAD   (357df9 Patch: Restore the forCode method)
+=======
+import org.eclipse.jgit.lib.Repository;
+>>>>>>> BRANCH (53993d Merge branch 'stable-3.0' into stable-3.1)
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
@@ -714,6 +718,7 @@ public class ProjectIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (357df9 Patch: Restore the forCode method)
   public void projectConfigUsesLocallySetCommentlinks() throws Exception {
     ConfigInput input = new ConfigInput();
     addCommentLink(input, BUGZILLA, BUGZILLA_MATCH, BUGZILLA_LINK);
@@ -913,6 +918,57 @@ public class ProjectIT extends AbstractDaemonTest {
                 allProjects.get(),
                 RefNames.REFS_CONFIG,
                 projectOperations.project(allProjects).getHead(RefNames.REFS_CONFIG).name()));
+=======
+  public void cannotPushLabelDefinitionWithDuplicateValues() throws Exception {
+    Config cfg = new Config();
+    cfg.fromText(projectOperations.project(allProjects).getConfig().toText());
+    cfg.setStringList(
+        "label",
+        "Code-Review",
+        "value",
+        ImmutableList.of("+1 LGTM", "1 LGTM", "0 No Value", "-1 Looks Bad"));
+
+    TestRepository<InMemoryRepository> repo = cloneProject(allProjects);
+    GitUtil.fetch(repo, RefNames.REFS_CONFIG + ":" + RefNames.REFS_CONFIG);
+    repo.reset(RefNames.REFS_CONFIG);
+    PushOneCommit.Result r =
+        pushFactory
+            .create(admin.newIdent(), repo, "Subject", "project.config", cfg.toText())
+            .to(RefNames.REFS_CONFIG);
+    r.assertErrorStatus("invalid project configuration");
+    r.assertMessage("project.config: duplicate value \"1 lgtm\" for label \"code-review\"");
+  }
+
+  @Test
+  public void getProjectThatHasLabelDefinitionWithDuplicateValues() throws Exception {
+    // Update the definition of the Code-Review label so that it has the value "+1 LGTM" twice.
+    // This update bypasses all validation checks so that the duplicate label value doesn't get
+    // rejected.
+    Config cfg = new Config();
+    cfg.fromText(projectOperations.project(allProjects).getConfig().toText());
+    cfg.setStringList(
+        "label",
+        "Code-Review",
+        "value",
+        ImmutableList.of("+1 LGTM", "1 LGTM", "0 No Value", "-1 Looks Bad"));
+
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(allProjects))) {
+      repo.update(
+          RefNames.REFS_CONFIG,
+          repo.commit()
+              .message("Set label with duplicate value")
+              .parent(getHead(repo.getRepository(), RefNames.REFS_CONFIG))
+              .add(ProjectConfig.PROJECT_CONFIG, cfg.toText()));
+    }
+
+    // Verify that project info can be retrieved and that the label value "+1 LGTM" appears only
+    // once.
+    ProjectInfo projectInfo = gApi.projects().name(allProjects.get()).get();
+    assertThat(projectInfo.labels.keySet()).containsExactly("Code-Review");
+    assertThat(projectInfo.labels.get("Code-Review").values)
+        .containsExactly("+1", "LGTM", " 0", "No Value", "-1", "Looks Bad");
+>>>>>>> BRANCH (53993d Merge branch 'stable-3.0' into stable-3.1)
   }
 
   private CommentLinkInfo commentLinkInfo(String name, String match, String link) {
