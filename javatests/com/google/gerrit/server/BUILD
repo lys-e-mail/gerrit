@@ -62,7 +62,11 @@ junit_tests(
         "//java/com/google/gerrit/server/schema",
         "//java/com/google/gerrit/server/schema/testing",
         "//java/com/google/gerrit/server/util/time",
+<<<<<<< HEAD   (b2a5e3 Merge branch 'stable-3.0' into stable-3.1)
         "//java/com/google/gerrit/testing:assertable-executor",
+=======
+        "//java/com/google/gerrit/sshd",
+>>>>>>> BRANCH (8055eb Merge branch 'stable-2.16' into stable-3.0)
         "//java/com/google/gerrit/testing:gerrit-test-util",
         "//java/com/google/gerrit/truth",
         "//lib:gson",
