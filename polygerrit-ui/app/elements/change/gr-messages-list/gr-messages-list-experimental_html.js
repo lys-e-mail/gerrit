@@ -64,6 +64,7 @@ export const htmlTemplate = html`
     }
   </style>
   <div class="header">
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
     <div id="showAllActivityToggleContainer" class="container">
       <template
         is="dom-if"
@@ -85,6 +86,21 @@ export const htmlTemplate = html`
         <span class="transparent separator"></span>
       </template>
     </div>
+=======
+    <span
+      id="automatedMessageToggleContainer"
+      class="container"
+      hidden$="[[!_hasAutomatedMessages(messages)]]"
+    >
+      <paper-toggle-button
+        id="automatedMessageToggle"
+        checked="{{_hideAutomated}}"
+        on-tap="_onTapAutomatedMessageToggle"
+      ></paper-toggle-button
+      >Only comments
+      <span class="transparent separator"></span>
+    </span>
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
     <gr-button
       id="collapse-messages"
       link=""

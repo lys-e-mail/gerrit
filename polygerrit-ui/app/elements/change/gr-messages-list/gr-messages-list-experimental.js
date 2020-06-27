@@ -424,7 +424,11 @@ class GrMessagesListExperimental extends mixinBehaviors( [
   /**
    * Work around a issue on iOS when clicking turns into double tap
    */
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
   _onTapShowAllActivityToggle(e) {
+=======
+  _onTapAutomatedMessageToggle(e) {
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
     e.preventDefault();
   }
 }

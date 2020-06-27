@@ -65,8 +65,13 @@ export const htmlTemplate = html`
           id="unresolvedToggle"
           checked="{{_unresolvedOnly}}"
           on-tap="_onTapUnresolvedToggle"
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
           >Only unresolved threads</paper-toggle-button
         >
+=======
+        ></paper-toggle-button>
+        Only unresolved threads
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
       </div>
       <div
         class$="toggleItem draftToggle [[_computeShowDraftToggle(loggedIn)]]"
@@ -75,8 +80,13 @@ export const htmlTemplate = html`
           id="draftToggle"
           checked="{{_draftsOnly}}"
           on-tap="_onTapUnresolvedToggle"
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
           >Only threads with drafts</paper-toggle-button
         >
+=======
+        ></paper-toggle-button>
+        Only threads with drafts
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
       </div>
     </div>
   </template>
