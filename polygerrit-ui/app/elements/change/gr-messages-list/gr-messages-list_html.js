@@ -79,11 +79,17 @@ export const htmlTemplate = html`
       <paper-toggle-button
         id="automatedMessageToggle"
         checked="{{_hideAutomated}}"
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
         aria-labelledby="onlyCommentsLabel"
         role="switch"
         on-tap="_onTapHideAutomated"
       ></paper-toggle-button>
       <span id="onlyCommentsLabel">Only comments</span>
+=======
+        on-tap="_onTapHideAutomated"
+      ></paper-toggle-button>
+      Only comments
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
       <span class="transparent separator"></span>
     </span>
     <gr-button

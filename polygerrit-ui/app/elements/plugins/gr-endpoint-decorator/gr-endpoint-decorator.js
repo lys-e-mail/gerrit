@@ -64,6 +64,18 @@ class GrEndpointDecorator extends GestureEventListeners(
     pluginEndpoints.onDetachedEndpoint(this.name, this._endpointCallBack);
   }
 
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
+=======
+  /**
+   * @suppress {checkTypes}
+   */
+  _import(url) {
+    return new Promise((resolve, reject) => {
+      importHref(url, resolve, reject);
+    });
+  }
+
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
   _initDecoration(name, plugin, slot) {
     const el = document.createElement(name);
     return this._initProperties(el, plugin,
@@ -164,7 +176,14 @@ class GrEndpointDecorator extends GestureEventListeners(
     pluginEndpoints.onNewEndpoint(this.name, this._endpointCallBack);
     if (this.name) {
       pluginLoader.awaitPluginsLoaded()
+<<<<<<< HEAD   (07d62e Merge "Re-use logic for opening up download dialog from 'd'")
           .then(() => pluginEndpoints.getAndImportPlugins(this.name))
+=======
+          .then(() => Promise.all(
+              pluginEndpoints.getPlugins(this.name).map(
+                  pluginUrl => this._import(pluginUrl)))
+          )
+>>>>>>> BRANCH (1ece28 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
           .then(() =>
             pluginEndpoints
                 .getDetails(this.name)
