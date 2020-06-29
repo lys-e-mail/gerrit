@@ -424,7 +424,11 @@ class GrMessagesListExperimental extends mixinBehaviors( [
   /**
    * Work around a issue on iOS when clicking turns into double tap
    */
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
   _onTapShowAllActivityToggle(e) {
+=======
+  _onTapAutomatedMessageToggle(e) {
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
     e.preventDefault();
   }
 }

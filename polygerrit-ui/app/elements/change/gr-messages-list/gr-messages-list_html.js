@@ -79,11 +79,17 @@ export const htmlTemplate = html`
       <paper-toggle-button
         id="automatedMessageToggle"
         checked="{{_hideAutomated}}"
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
         aria-labelledby="onlyCommentsLabel"
         role="switch"
         on-tap="_onTapHideAutomated"
       ></paper-toggle-button>
       <span id="onlyCommentsLabel">Only comments</span>
+=======
+        on-tap="_onTapHideAutomated"
+      ></paper-toggle-button>
+      Only comments
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
       <span class="transparent separator"></span>
     </span>
     <gr-button

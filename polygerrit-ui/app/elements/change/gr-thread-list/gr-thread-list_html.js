@@ -65,8 +65,13 @@ export const htmlTemplate = html`
           id="unresolvedToggle"
           checked="{{_unresolvedOnly}}"
           on-tap="_onTapUnresolvedToggle"
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
           >Only unresolved threads</paper-toggle-button
         >
+=======
+        ></paper-toggle-button>
+        Only unresolved threads
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
       </div>
       <div
         class$="toggleItem draftToggle [[_computeShowDraftToggle(loggedIn)]]"
@@ -75,8 +80,13 @@ export const htmlTemplate = html`
           id="draftToggle"
           checked="{{_draftsOnly}}"
           on-tap="_onTapUnresolvedToggle"
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
           >Only threads with drafts</paper-toggle-button
         >
+=======
+        ></paper-toggle-button>
+        Only threads with drafts
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
       </div>
     </div>
   </template>

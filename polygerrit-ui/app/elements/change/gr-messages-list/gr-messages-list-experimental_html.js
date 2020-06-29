@@ -64,6 +64,7 @@ export const htmlTemplate = html`
     }
   </style>
   <div class="header">
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
     <div id="showAllActivityToggleContainer" class="container">
       <template
         is="dom-if"
@@ -85,6 +86,21 @@ export const htmlTemplate = html`
         <span class="transparent separator"></span>
       </template>
     </div>
+=======
+    <span
+      id="automatedMessageToggleContainer"
+      class="container"
+      hidden$="[[!_hasAutomatedMessages(messages)]]"
+    >
+      <paper-toggle-button
+        id="automatedMessageToggle"
+        checked="{{_hideAutomated}}"
+        on-tap="_onTapAutomatedMessageToggle"
+      ></paper-toggle-button
+      >Only comments
+      <span class="transparent separator"></span>
+    </span>
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
     <gr-button
       id="collapse-messages"
       link=""
