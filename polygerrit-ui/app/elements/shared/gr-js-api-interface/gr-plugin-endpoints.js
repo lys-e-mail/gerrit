@@ -27,12 +27,73 @@ export class GrPluginEndpoints {
     this._importedUrls = new Set();
   }
 
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
   onNewEndpoint(endpoint, callback) {
     if (!this._callbacks[endpoint]) {
       this._callbacks[endpoint] = [];
+=======
+GrPluginEndpoints.prototype.onDetachedEndpoint = function(endpoint,
+    callback) {
+  if (this._callbacks[endpoint]) {
+    this._callbacks[endpoint] = this._callbacks[endpoint]
+        .filter(cb => cb !== callback);
+  }
+};
+
+GrPluginEndpoints.prototype._getOrCreateModuleInfo = function(plugin, opts) {
+  const {endpoint, slot, type, moduleName, domHook} = opts;
+  const existingModule = this._endpoints[endpoint].find(info =>
+    info.plugin === plugin &&
+      info.moduleName === moduleName &&
+      info.domHook === domHook &&
+      info.slot === slot
+  );
+  if (existingModule) {
+    return existingModule;
+  } else {
+    const newModule = {
+      moduleName,
+      plugin,
+      pluginUrl: plugin._url,
+      type,
+      domHook,
+      slot,
+    };
+    this._endpoints[endpoint].push(newModule);
+    return newModule;
+  }
+};
+
+/**
+ * Register a plugin to an endpoint.
+ *
+ * Dynamic plugins are registered to a specific prefix, such as
+ * 'change-list-header'. These plugins are then fetched by prefix to determine
+ * which endpoints to dynamically add to the page.
+ *
+ * @param {Object} plugin
+ * @param {Object} opts
+ */
+GrPluginEndpoints.prototype.registerModule = function(plugin, opts) {
+  const {endpoint, dynamicEndpoint} = opts;
+  if (dynamicEndpoint) {
+    if (!this._dynamicPlugins[dynamicEndpoint]) {
+      this._dynamicPlugins[dynamicEndpoint] = new Set();
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
     }
     this._callbacks[endpoint].push(callback);
   }
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
+=======
+  if (!this._endpoints[endpoint]) {
+    this._endpoints[endpoint] = [];
+  }
+  const moduleInfo = this._getOrCreateModuleInfo(plugin, opts);
+  if (pluginLoader.arePluginsLoaded() && this._callbacks[endpoint]) {
+    this._callbacks[endpoint].forEach(callback => callback(moduleInfo));
+  }
+};
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
 
   onDetachedEndpoint(endpoint, callback) {
     if (this._callbacks[endpoint]) {

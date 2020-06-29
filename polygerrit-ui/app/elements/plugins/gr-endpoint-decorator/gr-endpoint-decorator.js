@@ -64,6 +64,18 @@ class GrEndpointDecorator extends GestureEventListeners(
     pluginEndpoints.onDetachedEndpoint(this.name, this._endpointCallBack);
   }
 
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
+=======
+  /**
+   * @suppress {checkTypes}
+   */
+  _import(url) {
+    return new Promise((resolve, reject) => {
+      importHref(url, resolve, reject);
+    });
+  }
+
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
   _initDecoration(name, plugin, slot) {
     const el = document.createElement(name);
     return this._initProperties(el, plugin,
@@ -164,7 +176,14 @@ class GrEndpointDecorator extends GestureEventListeners(
     pluginEndpoints.onNewEndpoint(this.name, this._endpointCallBack);
     if (this.name) {
       pluginLoader.awaitPluginsLoaded()
+<<<<<<< HEAD   (c77af7 Merge "Fix plugin related warnings in tests")
           .then(() => pluginEndpoints.getAndImportPlugins(this.name))
+=======
+          .then(() => Promise.all(
+              pluginEndpoints.getPlugins(this.name).map(
+                  pluginUrl => this._import(pluginUrl)))
+          )
+>>>>>>> BRANCH (3c0a3c Replace all 'this.fire' with 'this.dispatchEvent' for custom)
           .then(() =>
             pluginEndpoints
                 .getDetails(this.name)
