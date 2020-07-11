@@ -53,7 +53,13 @@ public class PluginUtil {
   }
 
   static Path asTemp(InputStream in, String prefix, String suffix, Path dir) throws IOException {
+<<<<<<< HEAD   (d61881 Respect container.replica option in gerrit.sh script)
     Files.createDirectories(dir);
+=======
+    if (!Files.exists(dir)) {
+      Files.createDirectories(dir);
+    }
+>>>>>>> BRANCH (6730fb Restore keyboard shortcut for expand all diff context)
     Path tmp = Files.createTempFile(dir, prefix, suffix);
     boolean keep = false;
     try (OutputStream out = Files.newOutputStream(tmp)) {
