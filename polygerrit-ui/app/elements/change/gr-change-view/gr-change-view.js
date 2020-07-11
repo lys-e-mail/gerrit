@@ -428,6 +428,7 @@ class GrChangeView extends mixinBehaviors( [
     ];
   }
 
+<<<<<<< HEAD   (a828c3 Upgrade metrics-core to 4.1.10.1)
   keyboardShortcuts() {
     return {
       [this.Shortcut.SEND_REPLY]: null, // DOC_ONLY binding
@@ -445,6 +446,26 @@ class GrChangeView extends mixinBehaviors( [
       [this.Shortcut.EDIT_TOPIC]: '_handleEditTopic',
     };
   }
+=======
+    keyboardShortcuts() {
+      return {
+        [this.Shortcut.SEND_REPLY]: null, // DOC_ONLY binding
+        [this.Shortcut.EMOJI_DROPDOWN]: null, // DOC_ONLY binding
+        [this.Shortcut.REFRESH_CHANGE]: '_handleRefreshChange',
+        [this.Shortcut.OPEN_REPLY_DIALOG]: '_handleOpenReplyDialog',
+        [this.Shortcut.OPEN_DOWNLOAD_DIALOG]:
+            '_handleOpenDownloadDialogShortcut',
+        [this.Shortcut.TOGGLE_DIFF_MODE]: '_handleToggleDiffMode',
+        [this.Shortcut.TOGGLE_CHANGE_STAR]: '_handleToggleChangeStar',
+        [this.Shortcut.UP_TO_DASHBOARD]: '_handleUpToDashboard',
+        [this.Shortcut.EXPAND_ALL_MESSAGES]: '_handleExpandAllMessages',
+        [this.Shortcut.COLLAPSE_ALL_MESSAGES]: '_handleCollapseAllMessages',
+        [this.Shortcut.EXPAND_ALL_DIFF_CONTEXT]: '_expandAllDiffs',
+        [this.Shortcut.OPEN_DIFF_PREFS]: '_handleOpenDiffPrefsShortcut',
+        [this.Shortcut.EDIT_TOPIC]: '_handleEditTopic',
+      };
+    },
+>>>>>>> BRANCH (850768 Merge branch 'stable-3.0')
 
   constructor() {
     super();
