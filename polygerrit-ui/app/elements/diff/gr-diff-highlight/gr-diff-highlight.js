@@ -126,6 +126,7 @@ class GrDiffHighlight extends GestureEventListeners(
     // As gr-ranged-comment-layer now does not notify the layer re-render and
     // lack of access to the thread or the lineEl from the ranged-comment-layer,
     // need to update range class for styles here.
+<<<<<<< HEAD   (bd8e73 Merge "Show tooltip for submit requirement if has any")
     let curNode = threadEl.assignedSlot;
     while (curNode) {
       if (curNode.nodeName === 'TABLE') break;
@@ -147,6 +148,22 @@ class GrDiffHighlight extends GestureEventListeners(
           rangeNode.classList.remove('rangeHighlight');
           rangeNode.classList.add('range');
         });
+=======
+    const currentLine = threadEl.assignedSlot.parentElement.previousSibling;
+    if (currentLine && currentLine.querySelector) {
+      if (highlightRange) {
+        const rangeNode = currentLine.querySelector('.range');
+        if (rangeNode) {
+          rangeNode.classList.add('rangeHighlight');
+          rangeNode.classList.remove('range');
+        }
+      } else {
+        const rangeNode = currentLine.querySelector('.rangeHighlight');
+        if (rangeNode) {
+          rangeNode.classList.remove('rangeHighlight');
+          rangeNode.classList.add('range');
+        }
+>>>>>>> BRANCH (21eba9 Merge branch 'stable-3.1' into stable-3.2)
       }
     }
   }

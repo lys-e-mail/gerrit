@@ -138,11 +138,19 @@ class GrRangedCommentLayer extends GestureEventListeners(
     // If the entire set of comments was changed.
     if (record.path === 'commentRanges') {
       this._rangesMap = {left: {}, right: {}};
+<<<<<<< HEAD   (bd8e73 Merge "Show tooltip for submit requirement if has any")
       for (const {side, range, rootId, hovering} of record.value) {
         this._updateRangesMap({
           side, range, hovering,
           operation: (forLine, start, end, hovering) => {
             forLine.push({start, end, hovering, rootId});
+=======
+      for (const {side, range, hovering} of record.value) {
+        this._updateRangesMap({
+          side, range, hovering,
+          operation: (forLine, start, end, hovering) => {
+            forLine.push({start, end, hovering});
+>>>>>>> BRANCH (21eba9 Merge branch 'stable-3.1' into stable-3.2)
           }});
       }
     }
@@ -160,7 +168,10 @@ class GrRangedCommentLayer extends GestureEventListeners(
           const index = forLine.findIndex(lineRange =>
             lineRange.start === start && lineRange.end === end);
           forLine[index].hovering = hovering;
+<<<<<<< HEAD   (bd8e73 Merge "Show tooltip for submit requirement if has any")
           forLine[index].rootId = rootId;
+=======
+>>>>>>> BRANCH (21eba9 Merge branch 'stable-3.1' into stable-3.2)
         }});
     }
 
@@ -168,22 +179,38 @@ class GrRangedCommentLayer extends GestureEventListeners(
     if (record.path === 'commentRanges.splices') {
       for (const indexSplice of record.value.indexSplices) {
         const removed = indexSplice.removed;
+<<<<<<< HEAD   (bd8e73 Merge "Show tooltip for submit requirement if has any")
         for (const {side, range, hovering, rootId} of removed) {
           this._updateRangesMap({
             side, range, hovering, operation: (forLine, start, end) => {
               const index = forLine.findIndex(lineRange =>
                 lineRange.start === start && lineRange.end === end &&
                 rootId === lineRange.rootId);
+=======
+        for (const {side, range, hovering} of removed) {
+          this._updateRangesMap({
+            side, range, hovering, operation: (forLine, start, end) => {
+              const index = forLine.findIndex(lineRange =>
+                lineRange.start === start && lineRange.end === end);
+>>>>>>> BRANCH (21eba9 Merge branch 'stable-3.1' into stable-3.2)
               forLine.splice(index, 1);
             }});
         }
         const added = indexSplice.object.slice(
             indexSplice.index, indexSplice.index + indexSplice.addedCount);
+<<<<<<< HEAD   (bd8e73 Merge "Show tooltip for submit requirement if has any")
         for (const {side, range, hovering, rootId} of added) {
           this._updateRangesMap({
             side, range, hovering,
             operation: (forLine, start, end, hovering) => {
               forLine.push({start, end, hovering, rootId});
+=======
+        for (const {side, range, hovering} of added) {
+          this._updateRangesMap({
+            side, range, hovering,
+            operation: (forLine, start, end, hovering) => {
+              forLine.push({start, end, hovering});
+>>>>>>> BRANCH (21eba9 Merge branch 'stable-3.1' into stable-3.2)
             }});
         }
       }
