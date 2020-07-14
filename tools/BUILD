@@ -38,6 +38,7 @@ java_package_configuration(
         "-Xep:ClassNewInstance:ERROR",
         "-Xep:DateFormatConstant:ERROR",
         "-Xep:DefaultCharset:ERROR",
+<<<<<<< HEAD   (c4e5c0 Provide information about whether the instance is replica to)
         "-Xep:DoubleCheckedLocking:ERROR",
         "-Xep:ElementsCountedInLoop:ERROR",
         "-Xep:EqualsHashCode:ERROR",
@@ -47,6 +48,17 @@ java_package_configuration(
         "-Xep:FloatingPointLiteralPrecision:ERROR",
         "-Xep:FragmentInjection:ERROR",
         "-Xep:FragmentNotInstantiable:ERROR",
+=======
+        "-Xep:DoubleCheckedLocking:WARN",
+        "-Xep:ElementsCountedInLoop:WARN",
+        "-Xep:EqualsHashCode:WARN",
+        "-Xep:EqualsIncompatibleType:WARN",
+        "-Xep:ExpectedExceptionChecker:OFF",
+        "-Xep:Finally:WARN",
+        "-Xep:FloatingPointLiteralPrecision:WARN",
+        "-Xep:FragmentInjection:WARN",
+        "-Xep:FragmentNotInstantiable:WARN",
+>>>>>>> BRANCH (8da0fa Merge "Bump bazel version to 3.4.1" into stable-3.0)
         "-Xep:FunctionalInterfaceClash:ERROR",
         "-Xep:FutureReturnValueIgnored:ERROR",
         "-Xep:GetClassOnEnum:ERROR",
