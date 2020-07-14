@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<< HEAD   (3b60f4 Merge "Merge branch 'stable-3.2'")
 import {getBaseUrl} from '../../../utils/url-util.js';
+=======
+import {BaseUrlBehavior} from '../../../behaviors/base-url-behavior/base-url-behavior.js';
+>>>>>>> BRANCH (9bf50f Merge branch 'stable-3.1' into stable-3.2)
 import {GrDiffLine} from '../gr-diff/gr-diff-line.js';
 import {GrDiffGroup} from '../gr-diff/gr-diff-group.js';
 import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
@@ -612,7 +616,12 @@ GrDiffBuilder.prototype._getBlameForBaseLine = function(lineNum, opt_commit) {
 
   const shaNode = this._createElement('a', 'blameDate');
   shaNode.innerText = `${date}`;
+<<<<<<< HEAD   (3b60f4 Merge "Merge branch 'stable-3.2'")
   shaNode.setAttribute('href', `${getBaseUrl()}/q/${commit.id}`);
+=======
+  shaNode.setAttribute('href',
+      `${BaseUrlBehavior.getBaseUrl()}/q/${commit.id}`);
+>>>>>>> BRANCH (9bf50f Merge branch 'stable-3.1' into stable-3.2)
   blameNode.appendChild(shaNode);
 
   const shortName = commit.author.split(' ')[0];
