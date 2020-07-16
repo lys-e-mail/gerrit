@@ -204,9 +204,75 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
 
     public Stream<ChangeNotesResult> scan(Repository repo, Project.NameKey project)
         throws IOException {
+<<<<<<< HEAD   (4b220c Merge "e2e-tests: Replace hardcoded scheme with property" in)
+=======
+      return scan(repo, db, project, null);
+    }
+
+    public Stream<ChangeNotesResult> scan(
+        Repository repo,
+        ReviewDb db,
+        Project.NameKey project,
+        Predicate<Change.Id> changeIdPredicate)
+        throws IOException {
+      return args.migration.readChanges()
+          ? scanNoteDb(repo, db, project, changeIdPredicate)
+          : scanReviewDb(repo, db, changeIdPredicate);
+    }
+
+    private Stream<ChangeNotesResult> scanReviewDb(
+        Repository repo, ReviewDb db, Predicate<Change.Id> changeIdPredicate) throws IOException {
+      // Scan IDs that might exist in ReviewDb, assuming that each change has at least one patch set
+      // ref. Not all changes might exist: some patch set refs might have been written where the
+      // corresponding ReviewDb write failed. These will be silently filtered out by the batch get
+      // call below, which is intended.
+      Set<Change.Id> ids = scanChangeIds(repo).fromPatchSetRefs();
+
+      Stream<Change.Id> idStream = ids.stream();
+      if (changeIdPredicate != null) {
+        idStream = idStream.filter(changeIdPredicate);
+      }
+
+      // A batch size of N may overload get(Iterable), so use something smaller, but still >1.
+      return Streams.stream(Iterators.partition(idStream.iterator(), 30))
+          .flatMap(
+              batch -> {
+                try {
+                  return Streams.stream(ReviewDbUtil.unwrapDb(db).changes().get(batch))
+                      .map(this::toResult)
+                      .filter(Objects::nonNull);
+                } catch (OrmException e) {
+                  // Return this error for each Id in the input batch.
+                  return batch.stream().map(id -> ChangeNotesResult.error(id, e));
+                }
+              });
+    }
+
+    private Stream<ChangeNotesResult> scanNoteDb(
+        Repository repo, ReviewDb db, Project.NameKey project) throws IOException {
+      return scanNoteDb(repo, db, project, null);
+    }
+
+    private Stream<ChangeNotesResult> scanNoteDb(
+        Repository repo,
+        ReviewDb db,
+        Project.NameKey project,
+        Predicate<Change.Id> changeIdPredicate)
+        throws IOException {
+>>>>>>> BRANCH (871a5f Update git submodules)
       ScanResult sr = scanChangeIds(repo);
 
+<<<<<<< HEAD   (4b220c Merge "e2e-tests: Replace hardcoded scheme with property" in)
       return sr.all().stream().map(id -> scanOneChange(project, sr, id)).filter(Objects::nonNull);
+=======
+      Stream<Change.Id> idStream = sr.all().stream();
+      if (changeIdPredicate != null) {
+        idStream = idStream.filter(changeIdPredicate);
+      }
+      return idStream
+          .map(id -> scanOneNoteDbChange(db, project, sr, defaultStorage, id))
+          .filter(Objects::nonNull);
+>>>>>>> BRANCH (871a5f Update git submodules)
     }
 
     private ChangeNotesResult scanOneChange(Project.NameKey project, ScanResult sr, Change.Id id) {
