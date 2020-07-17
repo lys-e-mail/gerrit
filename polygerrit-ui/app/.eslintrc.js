@@ -176,6 +176,7 @@ module.exports = {
   },
   "overrides": [
     {
+<<<<<<< HEAD   (c54dbe Merge changes from topics "move-label-value", "move-notify-c)
       // .js-only rules
       "files": ["**/*.js"],
       "rules": {
@@ -217,6 +218,9 @@ module.exports = {
     },
     {
       "files": ["*.html", "test.js", "test-infra.js", "template_test.js"],
+=======
+      "files": ["*.html", "test.js", "test-infra.js"],
+>>>>>>> BRANCH (4e8769 Merge branch 'stable-3.1' into stable-3.2)
       "rules": {
         "jsdoc/require-file-overview": "off"
       },
@@ -270,7 +274,11 @@ module.exports = {
       }
     },
     {
+<<<<<<< HEAD   (c54dbe Merge changes from topics "move-label-value", "move-notify-c)
       "files": ["test/functional/**/*.js", "template_test.js"],
+=======
+      "files": ["test/functional/**/*.js", "wct.conf.js"],
+>>>>>>> BRANCH (4e8769 Merge branch 'stable-3.1' into stable-3.2)
       // Settings for functional tests. These scripts are node scripts.
       // Turn off "no-undef" to allow any global variable
       "env": {
