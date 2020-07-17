@@ -209,12 +209,22 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
         throws IOException {
       return scan(repo, project, null);
     }
+<<<<<<< HEAD   (4e8769 Merge branch 'stable-3.1' into stable-3.2)
 
     public Stream<ChangeNotesResult> scan(
         Repository repo, Project.NameKey project, Predicate<Change.Id> changeIdPredicate)
         throws IOException {
       ScanResult sr = scanChangeIds(repo);
+=======
+>>>>>>> BRANCH (8c09be Merge branch 'stable-3.0' into stable-3.1)
 
+<<<<<<< HEAD   (4e8769 Merge branch 'stable-3.1' into stable-3.2)
+=======
+    public Stream<ChangeNotesResult> scan(
+        Repository repo, Project.NameKey project, Predicate<Change.Id> changeIdPredicate)
+        throws IOException {
+      ScanResult sr = scanChangeIds(repo);
+>>>>>>> BRANCH (8c09be Merge branch 'stable-3.0' into stable-3.1)
       Stream<Change.Id> idStream = sr.all().stream();
       if (changeIdPredicate != null) {
         idStream = idStream.filter(changeIdPredicate);
