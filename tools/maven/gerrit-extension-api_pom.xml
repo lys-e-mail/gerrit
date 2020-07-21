@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (1e5692 Merge changes I865edad7,Ibaa01351 into stable-3.0)
   <version>3.0.12-SNAPSHOT</version>
+=======
+  <version>2.16.23-SNAPSHOT</version>
+>>>>>>> BRANCH (635d92 Merge "dev-release: Fix typo in verification step of release)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
