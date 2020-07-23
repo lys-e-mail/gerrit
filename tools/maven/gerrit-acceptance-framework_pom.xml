@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (0c945c Merge branch 'stable-3.0' into stable-3.1)
   <version>3.1.8-SNAPSHOT</version>
+=======
+  <version>3.0.13-SNAPSHOT</version>
+>>>>>>> BRANCH (8b790f Set version to 3.0.13-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
