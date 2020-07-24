@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (574357 Merge "Upgrade metrics-core to 4.1.11" into stable-3.2)
   <version>3.2.3-SNAPSHOT</version>
+=======
+  <version>3.1.9-SNAPSHOT</version>
+>>>>>>> BRANCH (96d02a Set version to 3.1.9-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
