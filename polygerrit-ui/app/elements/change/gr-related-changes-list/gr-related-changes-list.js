@@ -25,9 +25,13 @@ import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mix
 import {PolymerElement} from '@polymer/polymer/polymer-element.js';
 import {htmlTemplate} from './gr-related-changes-list_html.js';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
+<<<<<<< HEAD   (ac1d8e Merge changes Ifca8e2dd,I120dc69e)
 import {ChangeStatus} from '../../../constants/constants.js';
 import {patchNumEquals} from '../../../utils/patch-set-util.js';
 import {changeIsOpen} from '../../../utils/change-util.js';
+=======
+import {pluginEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-endpoints.js';
+>>>>>>> BRANCH (2e170d Merge branch 'stable-3.1' into stable-3.2)
 
 /**
  * @extends PolymerElement
@@ -313,6 +317,22 @@ class GrRelatedChangesList extends GestureEventListeners(
     return '';
   }
 
+  /** @override */
+  attached() {
+    super.attached();
+    // We listen to `new-section-loaded` events to allow plugins to trigger
+    // visibility computations, if their content or visibility changed.
+    this.addEventListener('new-section-loaded',
+        () => this._handleNewSectionLoaded());
+  }
+
+  _handleNewSectionLoaded() {
+    // A plugin sent a `new-section-loaded` event, so its visibility likely
+    // changed. Hence, we update our visibility if needed.
+    this._resultsChanged(this._relatedResponse, this._submittedTogether,
+        this._conflicts, this._cherryPicks, this._sameTopic);
+  }
+
   _resultsChanged(related, submittedTogether, conflicts,
       cherryPicks, sameTopic) {
     // Polymer 2: check for undefined
@@ -345,7 +365,21 @@ class GrRelatedChangesList extends GestureEventListeners(
         return;
       }
     }
-    this.hidden = true;
+
+    this._computeHidden();
+  }
+
+  _computeHidden() {
+    // None of the built-in change lists had elements. So all of them are
+    // hidden. But since plugins might have injected visible content, we need
+    // to check for that and stay visible if we find any such visible content.
+    // (We consider plugins visible except if it's main element has the hidden
+    // attribute set to true.)
+    const plugins = pluginEndpoints.getDetails('related-changes-section');
+    this.hidden = !(plugins.some(plugin => (
+      (!plugin.domHook)
+        || plugin.domHook.getAllAttached().some(
+            instance => !instance.hidden))));
   }
 
   _isIndirectAncestor(change) {
