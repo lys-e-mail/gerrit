@@ -305,7 +305,7 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
         EditMessage.Input editCommitMessageInput = new EditMessage.Input();
         editCommitMessageInput.message =
             new String(ByteStreams.toByteArray(newContent.getInputStream()), UTF_8);
-        return Response.ok(editMessage.apply(rsrc, editCommitMessageInput));
+        return editMessage.apply(rsrc, editCommitMessageInput);
       }
       if (Strings.isNullOrEmpty(path) || path.charAt(0) == '/') {
         throw new ResourceConflictException("Invalid path: " + path);
@@ -444,7 +444,11 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
     }
 
     @Override
+<<<<<<< HEAD   (e712b9 Update git submodules)
     public Response<Object> apply(ChangeResource rsrc, Input input)
+=======
+    public Response<?> apply(ChangeResource rsrc, Input input)
+>>>>>>> BRANCH (0b20ec Merge branch 'stable-2.16' into stable-3.0)
         throws AuthException, IOException, BadRequestException, ResourceConflictException,
             PermissionBackendException {
       if (input == null || Strings.isNullOrEmpty(input.message)) {
