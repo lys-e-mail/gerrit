@@ -29,8 +29,15 @@ import {PatchSetBehavior} from '../../../behaviors/gr-patch-set-behavior/gr-patc
 import {URLEncodingBehavior} from '../../../behaviors/gr-url-encoding-behavior/gr-url-encoding-behavior.js';
 import {GerritNav} from '../gr-navigation/gr-navigation.js';
 
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
 const RoutePattern = {
   ROOT: '/',
+=======
+    DASHBOARD: /^\/dashboard\/(.+)$/,
+    CUSTOM_DASHBOARD: /^\/dashboard\/?$/,
+    PROJECT_DASHBOARD: /^\/p\/(.+)\/\+\/dashboard\/(.+)/,
+    LEGACY_PROJECT_DASHBOARD: /^\/projects\/(.+),dashboards\/(.+)/,
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
 
   DASHBOARD: /^\/dashboard\/(.+)$/,
   CUSTOM_DASHBOARD: /^\/dashboard\/?$/,
@@ -781,7 +788,14 @@ class GrRouter extends mixinBehaviors( [
     this._mapRoute(RoutePattern.PROJECT_DASHBOARD,
         '_handleProjectDashboardRoute');
 
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
     this._mapRoute(RoutePattern.GROUP_INFO, '_handleGroupInfoRoute', true);
+=======
+      this._mapRoute(RoutePattern.LEGACY_PROJECT_DASHBOARD,
+          '_handleLegacyProjectDashboardRoute');
+
+      this._mapRoute(RoutePattern.GROUP_INFO, '_handleGroupInfoRoute', true);
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
 
     this._mapRoute(RoutePattern.GROUP_AUDIT_LOG, '_handleGroupAuditLogRoute',
         true);
@@ -1082,6 +1096,7 @@ class GrRouter extends mixinBehaviors( [
     return Promise.resolve();
   }
 
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
   _handleProjectDashboardRoute(data) {
     const project = data.params[0];
     this._setParams({
@@ -1091,6 +1106,15 @@ class GrRouter extends mixinBehaviors( [
     });
     this.$.reporting.setRepoName(project);
   }
+=======
+    _handleLegacyProjectDashboardRoute(data) {
+      this._redirect('/p/' + data.params[0] + '/+/dashboard/' + data.params[1]);
+    },
+
+    _handleGroupInfoRoute(data) {
+      this._redirect('/admin/groups/' + encodeURIComponent(data.params[0]));
+    },
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
 
   _handleGroupInfoRoute(data) {
     this._redirect('/admin/groups/' + encodeURIComponent(data.params[0]));

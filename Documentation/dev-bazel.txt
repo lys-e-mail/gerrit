@@ -91,12 +91,21 @@ they could be added to ~/.bazelrc resource file:
 
 ```
 $ cat << EOF > ~/.bazelrc
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
 > build --define=ABSOLUTE_JAVABASE=<path-to-java-13>
 > build --javabase=@bazel_tools//tools/jdk:absolute_javabase
 > build --host_javabase=@bazel_tools//tools/jdk:absolute_javabase
 > build --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_vanilla
 > build --java_toolchain=@bazel_tools//tools/jdk:toolchain_vanilla
 > EOF
+=======
+build --define=ABSOLUTE_JAVABASE=<path-to-java-12>
+build --javabase=@bazel_tools//tools/jdk:absolute_javabase
+build --host_javabase=@bazel_tools//tools/jdk:absolute_javabase
+build --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_vanilla
+build --java_toolchain=@bazel_tools//tools/jdk:toolchain_vanilla
+EOF
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
 ```
 
 Now, invoking Bazel with just `bazel build :release` would include

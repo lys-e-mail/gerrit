@@ -691,8 +691,57 @@ suite('gr-router tests', () => {
 
       onExit('', () => {}); // we left page;
 
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
       element._handleDefaultRoute();
       assert.isTrue(handlePassThroughRoute.calledOnce);
+=======
+      const unauthenticatedHandlers = [
+        '_handleBranchListFilterOffsetRoute',
+        '_handleBranchListFilterRoute',
+        '_handleBranchListOffsetRoute',
+        '_handleChangeNumberLegacyRoute',
+        '_handleChangeRoute',
+        '_handleDiffRoute',
+        '_handleDefaultRoute',
+        '_handleChangeLegacyRoute',
+        '_handleDiffLegacyRoute',
+        '_handleDocumentationRedirectRoute',
+        '_handleDocumentationSearchRoute',
+        '_handleDocumentationSearchRedirectRoute',
+        '_handleLegacyLinenum',
+        '_handleImproperlyEncodedPlusRoute',
+        '_handlePassThroughRoute',
+        '_handleProjectDashboardRoute',
+        '_handleLegacyProjectDashboardRoute',
+        '_handleProjectsOldRoute',
+        '_handleRepoAccessRoute',
+        '_handleRepoDashboardsRoute',
+        '_handleRepoListFilterOffsetRoute',
+        '_handleRepoListFilterRoute',
+        '_handleRepoListOffsetRoute',
+        '_handleRepoRoute',
+        '_handleQueryLegacySuffixRoute',
+        '_handleQueryRoute',
+        '_handleRegisterRoute',
+        '_handleTagListFilterOffsetRoute',
+        '_handleTagListFilterRoute',
+        '_handleTagListOffsetRoute',
+        '_handlePluginScreen',
+      ];
+
+      // Handler names that check authentication themselves, and thus don't need
+      // it performed for them.
+      const selfAuthenticatingHandlers = [
+        '_handleDashboardRoute',
+        '_handleCustomDashboardRoute',
+        '_handleRootRoute',
+      ];
+
+      const shouldNotRequireAuth = unauthenticatedHandlers
+          .concat(selfAuthenticatingHandlers);
+      shouldNotRequireAuth.sort();
+      assert.deepEqual(actualDoesNotRequireAuth, shouldNotRequireAuth);
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
     });
 
     test('_handleImproperlyEncodedPlusRoute', () => {
@@ -820,6 +869,372 @@ suite('gr-router tests', () => {
             hash: '/foo/bar/baz',
             querystring: '',
           };
+<<<<<<< HEAD   (3cf5c8 Update git submodules)
+=======
+          assert.equal(element._generateUrl(params), '/dashboard/self');
+        });
+
+        test('user dashboard', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            user: 'user',
+          };
+          assert.equal(element._generateUrl(params), '/dashboard/user');
+        });
+
+        test('custom self dashboard, no title', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            sections: [
+              {name: 'section 1', query: 'query 1'},
+              {name: 'section 2', query: 'query 2'},
+            ],
+          };
+          assert.equal(
+              element._generateUrl(params),
+              '/dashboard/?section%201=query%201&section%202=query%202');
+        });
+
+        test('custom repo dashboard', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            sections: [
+              {name: 'section 1', query: 'query 1 ${project}'},
+              {name: 'section 2', query: 'query 2 ${repo}'},
+            ],
+            repo: 'repo-name',
+          };
+          assert.equal(
+              element._generateUrl(params),
+              '/dashboard/?section%201=query%201%20repo-name&' +
+              'section%202=query%202%20repo-name');
+        });
+
+        test('custom user dashboard, with title', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            user: 'user',
+            sections: [{name: 'name', query: 'query'}],
+            title: 'custom dashboard',
+          };
+          assert.equal(
+              element._generateUrl(params),
+              '/dashboard/user?name=query&title=custom%20dashboard');
+        });
+
+        test('repo dashboard', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            repo: 'gerrit/repo',
+            dashboard: 'default:main',
+          };
+          assert.equal(
+              element._generateUrl(params),
+              '/p/gerrit/repo/+/dashboard/default:main');
+        });
+
+        test('project dashboard (legacy)', () => {
+          const params = {
+            view: Gerrit.Nav.View.DASHBOARD,
+            project: 'gerrit/project',
+            dashboard: 'default:main',
+          };
+          assert.equal(
+              element._generateUrl(params),
+              '/p/gerrit/project/+/dashboard/default:main');
+        });
+      });
+
+      suite('groups', () => {
+        test('group info', () => {
+          const params = {
+            view: Gerrit.Nav.View.GROUP,
+            groupId: 1234,
+          };
+          assert.equal(element._generateUrl(params), '/admin/groups/1234');
+        });
+
+        test('group members', () => {
+          const params = {
+            view: Gerrit.Nav.View.GROUP,
+            groupId: 1234,
+            detail: 'members',
+          };
+          assert.equal(element._generateUrl(params),
+              '/admin/groups/1234,members');
+        });
+
+        test('group audit log', () => {
+          const params = {
+            view: Gerrit.Nav.View.GROUP,
+            groupId: 1234,
+            detail: 'log',
+          };
+          assert.equal(element._generateUrl(params),
+              '/admin/groups/1234,audit-log');
+        });
+      });
+    });
+
+    suite('param normalization', () => {
+      let projectLookupStub;
+
+      setup(() => {
+        projectLookupStub = sandbox
+            .stub(element.$.restAPI, 'getFromProjectLookup');
+        sandbox.stub(element, '_generateUrl');
+      });
+
+      suite('_normalizeLegacyRouteParams', () => {
+        let rangeStub;
+        let redirectStub;
+        let show404Stub;
+
+        setup(() => {
+          rangeStub = sandbox.stub(element, '_normalizePatchRangeParams')
+              .returns(Promise.resolve());
+          redirectStub = sandbox.stub(element, '_redirect');
+          show404Stub = sandbox.stub(element, '_show404');
+        });
+
+        test('w/o changeNum', () => {
+          projectLookupStub.returns(Promise.resolve('foo/bar'));
+          const params = {};
+          return element._normalizeLegacyRouteParams(params).then(() => {
+            assert.isFalse(projectLookupStub.called);
+            assert.isFalse(rangeStub.called);
+            assert.isNotOk(params.project);
+            assert.isFalse(redirectStub.called);
+            assert.isFalse(show404Stub.called);
+          });
+        });
+
+        test('w/ changeNum', () => {
+          projectLookupStub.returns(Promise.resolve('foo/bar'));
+          const params = {changeNum: 1234};
+          return element._normalizeLegacyRouteParams(params).then(() => {
+            assert.isTrue(projectLookupStub.called);
+            assert.isTrue(rangeStub.called);
+            assert.equal(params.project, 'foo/bar');
+            assert.isTrue(redirectStub.calledOnce);
+            assert.isFalse(show404Stub.called);
+          });
+        });
+
+        test('halts on project lookup failure', () => {
+          projectLookupStub.returns(Promise.resolve(undefined));
+          const params = {changeNum: 1234};
+          return element._normalizeLegacyRouteParams(params).then(() => {
+            assert.isTrue(projectLookupStub.called);
+            assert.isFalse(rangeStub.called);
+            assert.isUndefined(params.project);
+            assert.isFalse(redirectStub.called);
+            assert.isTrue(show404Stub.calledOnce);
+          });
+        });
+      });
+
+      suite('_normalizePatchRangeParams', () => {
+        test('range n..n normalizes to n', () => {
+          const params = {basePatchNum: 4, patchNum: 4};
+          const needsRedirect = element._normalizePatchRangeParams(params);
+          assert.isTrue(needsRedirect);
+          assert.isNotOk(params.basePatchNum);
+          assert.equal(params.patchNum, 4);
+        });
+
+        test('range n.. normalizes to n', () => {
+          const params = {basePatchNum: 4};
+          const needsRedirect = element._normalizePatchRangeParams(params);
+          assert.isFalse(needsRedirect);
+          assert.isNotOk(params.basePatchNum);
+          assert.equal(params.patchNum, 4);
+        });
+      });
+    });
+
+    suite('route handlers', () => {
+      let redirectStub;
+      let setParamsStub;
+      let handlePassThroughRoute;
+
+      // Simple route handlers are direct mappings from parsed route data to a
+      // new set of app.params. This test helper asserts that passing `data`
+      // into `methodName` results in setting the params specified in `params`.
+      function assertDataToParams(data, methodName, params) {
+        element[methodName](data);
+        assert.deepEqual(setParamsStub.lastCall.args[0], params);
+      }
+
+      setup(() => {
+        redirectStub = sandbox.stub(element, '_redirect');
+        setParamsStub = sandbox.stub(element, '_setParams');
+        handlePassThroughRoute = sandbox.stub(element, '_handlePassThroughRoute');
+      });
+
+      test('_handleLegacyProjectDashboardRoute', () => {
+        const params = {0: 'gerrit/project', 1: 'dashboard:main'};
+        element._handleLegacyProjectDashboardRoute({params});
+        assert.isTrue(redirectStub.calledOnce);
+        assert.equal(redirectStub.lastCall.args[0],
+            '/p/gerrit/project/+/dashboard/dashboard:main');
+      });
+
+      test('_handleAgreementsRoute', () => {
+        const data = {params: {}};
+        element._handleAgreementsRoute(data);
+        assert.isTrue(redirectStub.calledOnce);
+        assert.equal(redirectStub.lastCall.args[0], '/settings/#Agreements');
+      });
+
+      test('_handleNewAgreementsRoute', () => {
+        element._handleNewAgreementsRoute({params: {}});
+        assert.isTrue(setParamsStub.calledOnce);
+        assert.equal(setParamsStub.lastCall.args[0].view,
+            Gerrit.Nav.View.AGREEMENTS);
+      });
+
+      test('_handleSettingsLegacyRoute', () => {
+        const data = {params: {0: 'my-token'}};
+        assertDataToParams(data, '_handleSettingsLegacyRoute', {
+          view: Gerrit.Nav.View.SETTINGS,
+          emailToken: 'my-token',
+        });
+      });
+
+      test('_handleSettingsLegacyRoute with +', () => {
+        const data = {params: {0: 'my-token test'}};
+        assertDataToParams(data, '_handleSettingsLegacyRoute', {
+          view: Gerrit.Nav.View.SETTINGS,
+          emailToken: 'my-token+test',
+        });
+      });
+
+      test('_handleSettingsRoute', () => {
+        const data = {};
+        assertDataToParams(data, '_handleSettingsRoute', {
+          view: Gerrit.Nav.View.SETTINGS,
+        });
+      });
+
+      test('_handleDefaultRoute on first load', () => {
+        const appElementStub = {dispatchEvent: sinon.stub()};
+        element._appElement = () => appElementStub;
+        element._handleDefaultRoute();
+        assert.isTrue(appElementStub.dispatchEvent.calledOnce);
+        assert.equal(
+            appElementStub.dispatchEvent.lastCall.args[0].detail.response.status,
+            404);
+      });
+
+      test('_handleDefaultRoute after internal navigation', () => {
+        let onExit = null;
+        const onRegisteringExit = (match, _onExit) => {
+          onExit = _onExit;
+        };
+        sandbox.stub(window.page, 'exit', onRegisteringExit);
+        sandbox.stub(Gerrit.Nav, 'setup');
+        sandbox.stub(window.page, 'start');
+        sandbox.stub(window.page, 'base');
+        sandbox.stub(window, 'page');
+        element._startRouter();
+
+        const appElementStub = {dispatchEvent: sinon.stub()};
+        element._appElement = () => appElementStub;
+        element._handleDefaultRoute();
+
+        onExit('', () => {}); // we left page;
+
+        element._handleDefaultRoute();
+        assert.isTrue(handlePassThroughRoute.calledOnce);
+      });
+
+      test('_handleImproperlyEncodedPlusRoute', () => {
+        // Regression test for Issue 7100.
+        element._handleImproperlyEncodedPlusRoute(
+            {canonicalPath: '/c/test/%20/42', params: ['test', '42']});
+        assert.isTrue(redirectStub.calledOnce);
+        assert.equal(
+            redirectStub.lastCall.args[0],
+            '/c/test/+/42');
+
+        sandbox.stub(element, '_getHashFromCanonicalPath').returns('foo');
+        element._handleImproperlyEncodedPlusRoute(
+            {canonicalPath: '/c/test/%20/42', params: ['test', '42']});
+        assert.equal(
+            redirectStub.lastCall.args[0],
+            '/c/test/+/42#foo');
+      });
+
+      test('_handleQueryRoute', () => {
+        const data = {params: ['project:foo/bar/baz']};
+        assertDataToParams(data, '_handleQueryRoute', {
+          view: Gerrit.Nav.View.SEARCH,
+          query: 'project:foo/bar/baz',
+          offset: undefined,
+        });
+
+        data.params.push(',123', '123');
+        assertDataToParams(data, '_handleQueryRoute', {
+          view: Gerrit.Nav.View.SEARCH,
+          query: 'project:foo/bar/baz',
+          offset: '123',
+        });
+      });
+
+      test('_handleQueryLegacySuffixRoute', () => {
+        element._handleQueryLegacySuffixRoute({path: '/q/foo+bar,n,z'});
+        assert.isTrue(redirectStub.calledOnce);
+        assert.equal(redirectStub.lastCall.args[0], '/q/foo+bar');
+      });
+
+      test('_handleQueryRoute', () => {
+        const data = {params: ['project:foo/bar/baz']};
+        assertDataToParams(data, '_handleQueryRoute', {
+          view: Gerrit.Nav.View.SEARCH,
+          query: 'project:foo/bar/baz',
+          offset: undefined,
+        });
+
+        data.params.push(',123', '123');
+        assertDataToParams(data, '_handleQueryRoute', {
+          view: Gerrit.Nav.View.SEARCH,
+          query: 'project:foo/bar/baz',
+          offset: '123',
+        });
+      });
+
+      suite('_handleRegisterRoute', () => {
+        test('happy path', () => {
+          const ctx = {params: ['/foo/bar']};
+          element._handleRegisterRoute(ctx);
+          assert.isTrue(redirectStub.calledWithExactly('/foo/bar'));
+          assert.isTrue(setParamsStub.calledOnce);
+          assert.isTrue(setParamsStub.lastCall.args[0].justRegistered);
+        });
+
+        test('no param', () => {
+          const ctx = {params: ['']};
+          element._handleRegisterRoute(ctx);
+          assert.isTrue(redirectStub.calledWithExactly('/'));
+          assert.isTrue(setParamsStub.calledOnce);
+          assert.isTrue(setParamsStub.lastCall.args[0].justRegistered);
+        });
+
+        test('prevent redirect', () => {
+          const ctx = {params: ['/register']};
+          element._handleRegisterRoute(ctx);
+          assert.isTrue(redirectStub.calledWithExactly('/'));
+          assert.isTrue(setParamsStub.calledOnce);
+          assert.isTrue(setParamsStub.lastCall.args[0].justRegistered);
+        });
+      });
+
+      suite('_handleRootRoute', () => {
+        test('closes for closeAfterLogin', () => {
+          const data = {querystring: 'closeAfterLogin', canonicalPath: ''};
+          const closeStub = sandbox.stub(window, 'close');
+>>>>>>> BRANCH (7f38d1 Merge branch 'stable-3.0' into stable-3.1)
           const result = element._handleRootRoute(data);
           assert.isNotOk(result);
           assert.isTrue(redirectStub.called);
