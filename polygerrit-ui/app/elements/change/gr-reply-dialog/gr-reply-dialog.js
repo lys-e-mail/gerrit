@@ -496,7 +496,14 @@ class GrReplyDialog extends mixinBehaviors( [
     const accountAdditions = {};
     obj.reviewers = this.$.reviewers.additions().map(reviewer => {
       if (reviewer.account) {
+<<<<<<< HEAD   (94d9ec Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
         accountAdditions[reviewer.account._account_id] = true;
+=======
+        reviewerId = reviewer.account._account_id || reviewer.account.email;
+      } else if (reviewer.group) {
+        reviewerId = decodeURIComponent(reviewer.group.id);
+        confirmed = reviewer.group.confirmed;
+>>>>>>> BRANCH (09532c Merge branch 'stable-3.0' into stable-3.1)
       }
       return this._mapReviewer(reviewer);
     });
