@@ -16,6 +16,7 @@ package com.google.gerrit.acceptance.testsuite.change;
 
 import static com.google.gerrit.extensions.common.testing.CommentInfoSubject.assertThat;
 import static com.google.gerrit.extensions.common.testing.CommentInfoSubject.assertThatList;
+import static com.google.gerrit.extensions.common.testing.RobotCommentInfoSubject.assertThatList;
 
 import com.google.common.truth.Correspondence;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
@@ -27,9 +28,11 @@ import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.client.Side;
 import com.google.gerrit.extensions.common.CommentInfo;
+import com.google.gerrit.extensions.common.RobotCommentInfo;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.truth.NullAwareCorrespondence;
 import com.google.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
 
@@ -44,9 +47,18 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
     Change.Id changeId = changeOperations.newChange().create();
 
     String commentUuid = changeOperations.change(changeId).currentPatchset().newComment().create();
-
     List<CommentInfo> comments = getCommentsFromServer(changeId);
     assertThatList(comments).comparingElementsUsing(hasUuid()).containsExactly(commentUuid);
+  }
+
+  @Test
+  public void robotCommentCanBeCreatedWithoutSpecifyingAnyParameters() throws Exception {
+    Change.Id changeId = changeOperations.newChange().create();
+
+    String commentUuid =
+        changeOperations.change(changeId).currentPatchset().newRobotComment().create();
+    List<RobotCommentInfo> robotComments = getRobotCommentsFromServerFromCurrentPatchset(changeId);
+    assertThatList(robotComments).comparingElementsUsing(hasUuid()).containsExactly(commentUuid);
   }
 
   @Test
@@ -60,6 +72,20 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
         changeOperations.change(changeId).patchset(previousPatchsetId).newComment().create();
 
     CommentInfo comment = getCommentFromServer(changeId, commentUuid);
+    assertThat(comment).patchSet().isEqualTo(previousPatchsetId.get());
+  }
+
+  @Test
+  public void robotCommentCanBeCreatedOnOlderPatchset() throws Exception {
+    Change.Id changeId = changeOperations.newChange().create();
+    PatchSet.Id previousPatchsetId =
+        changeOperations.change(changeId).currentPatchset().get().patchsetId();
+    changeOperations.change(changeId).newPatchset().create();
+
+    String commentUuid =
+        changeOperations.change(changeId).patchset(previousPatchsetId).newRobotComment().create();
+
+    CommentInfo comment = getRobotCommentFromServer(changeId, commentUuid);
     assertThat(comment).patchSet().isEqualTo(previousPatchsetId.get());
   }
 
@@ -80,6 +106,22 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
   }
 
   @Test
+  public void robotCommentIsCreatedWithSpecifiedMessage() throws Exception {
+    Change.Id changeId = changeOperations.newChange().create();
+
+    String commentUuid =
+        changeOperations
+            .change(changeId)
+            .currentPatchset()
+            .newRobotComment()
+            .message("Test comment message")
+            .create();
+
+    CommentInfo comment = getRobotCommentFromServer(changeId, commentUuid);
+    assertThat(comment).message().isEqualTo("Test comment message");
+  }
+
+  @Test
   public void commentCanBeCreatedWithEmptyMessage() throws Exception {
     Change.Id changeId = changeOperations.newChange().create();
 
@@ -91,6 +133,17 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
   }
 
   @Test
+  public void robotCommentCanBeCreatedWithEmptyMessage() throws Exception {
+    Change.Id changeId = changeOperations.newChange().create();
+
+    String commentUuid =
+        changeOperations.change(changeId).currentPatchset().newRobotComment().noMessage().create();
+
+    CommentInfo comment = getRobotCommentFromServer(changeId, commentUuid);
+    assertThat(comment).message().isNull();
+  }
+
+  @Test
   public void patchsetLevelCommentCanBeCreated() throws Exception {
     Change.Id changeId = changeOperations.newChange().create();
 
@@ -98,6 +151,22 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
         changeOperations.change(changeId).currentPatchset().newComment().onPatchsetLevel().create();
 
     CommentInfo comment = getCommentFromServer(changeId, commentUuid);
+    assertThat(comment).path().isEqualTo(Patch.PATCHSET_LEVEL);
+  }
+
+  @Test
+  public void patchsetLevelRobotCommentCanBeCreated() throws Exception {
+    Change.Id changeId = changeOperations.newChange().create();
+
+    String commentUuid =
+        changeOperations
+            .change(changeId)
+            .currentPatchset()
+            .newRobotComment()
+            .onPatchsetLevel()
+            .create();
+
+    CommentInfo comment = getRobotCommentFromServer(changeId, commentUuid);
     assertThat(comment).path().isEqualTo(Patch.PATCHSET_LEVEL);
   }
 
@@ -114,6 +183,24 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
             .create();
 
     CommentInfo comment = getCommentFromServer(changeId, commentUuid);
+    assertThat(comment).path().isEqualTo("file1");
+    assertThat(comment).line().isNull();
+    assertThat(comment).range().isNull();
+  }
+
+  @Test
+  public void fileRobotCommentCanBeCreated() throws Exception {
+    Change.Id changeId = changeOperations.newChange().file("file1").content("Line 1").create();
+
+    String commentUuid =
+        changeOperations
+            .change(changeId)
+            .currentPatchset()
+            .newRobotComment()
+            .onFileLevelOf("file1")
+            .create();
+
+    CommentInfo comment = getRobotCommentFromServer(changeId, commentUuid);
     assertThat(comment).path().isEqualTo("file1");
     assertThat(comment).line().isNull();
     assertThat(comment).range().isNull();
@@ -647,6 +734,11 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
     return gApi.changes().id(changeId.get()).commentsAsList();
   }
 
+  private List<RobotCommentInfo> getRobotCommentsFromServerFromCurrentPatchset(Change.Id changeId)
+      throws RestApiException {
+    return gApi.changes().id(changeId.get()).current().robotCommentsAsList();
+  }
+
   private List<CommentInfo> getDraftCommentsFromServer(Change.Id changeId) throws RestApiException {
     return gApi.changes().id(changeId.get()).draftsAsList();
   }
@@ -654,6 +746,18 @@ public class PatchsetOperationsImplTest extends AbstractDaemonTest {
   private CommentInfo getCommentFromServer(Change.Id changeId, String uuid)
       throws RestApiException {
     return gApi.changes().id(changeId.get()).commentsAsList().stream()
+        .filter(comment -> comment.id.equals(uuid))
+        .findAny()
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    String.format("Comment %s not found on change %d", uuid, changeId.get())));
+  }
+
+  private RobotCommentInfo getRobotCommentFromServer(Change.Id changeId, String uuid)
+      throws RestApiException {
+    return gApi.changes().id(changeId.get()).robotComments().values().stream()
+        .flatMap(Collection::stream)
         .filter(comment -> comment.id.equals(uuid))
         .findAny()
         .orElseThrow(
