@@ -153,6 +153,7 @@ export const util = {
    *
    * Note: this can be very expensive, only use when have to.
    */
+<<<<<<< HEAD   (94d9ec Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
   querySelectorAll: (el, selector) => {
     let nodes = [el];
     const results = new Set();
@@ -214,3 +215,34 @@ export const util = {
     }, '');
   },
 };
+=======
+  util.querySelectorAll = (el, selector) => {
+    let nodes = [el];
+    const results = new Set();
+    while (nodes.length) {
+      const node = nodes.pop();
+
+      if (!node || !node.querySelectorAll) continue;
+
+      // Try find all from regular children
+      [...node.querySelectorAll(selector)]
+          .forEach(el => results.add(el));
+
+      // Add all nodes with shadowRoot and loop through
+      const allShadowNodes = [...node.querySelectorAll('*')]
+          .filter(child => !!child.shadowRoot)
+          .map(child => child.shadowRoot);
+      nodes = nodes.concat(allShadowNodes);
+
+      // Add shadowRoot of current node if has one
+      // as its not included in node.querySelectorAll('*')
+      if (node.shadowRoot) {
+        nodes.push(node.shadowRoot);
+      }
+    }
+    return [...results];
+  };
+
+  window.util = util;
+})(window);
+>>>>>>> BRANCH (670aa9 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
