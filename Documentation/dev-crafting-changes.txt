@@ -146,9 +146,15 @@ Guide,role=external,window=_blank].
 To format Java source code, Gerrit uses the
 link:https://github.com/google/google-java-format[`google-java-format`,role=external,window=_blank]
 tool (version 1.7), and to format Bazel BUILD, WORKSPACE and .bzl files the
+<<<<<<< HEAD   (3a25d8 Merge branch 'stable-3.1' into stable-3.2)
 link:https://github.com/bazelbuild/buildtools/tree/master/buildifier[`buildifier`,role=external,window=_blank]
 tool (version 3.3.0). Unused dependencies are found and removed using the
 link:https://github.com/bazelbuild/buildtools/tree/master/unused_deps[`unused_deps`,role=external,window=_blank]
+=======
+link:https://github.com/bazelbuild/buildtools/tree/master/buildifier[`buildifier`]
+tool (version 3.5.0). Unused dependencies are found and removed using the
+link:https://github.com/bazelbuild/buildtools/tree/master/unused_deps[`unused_deps`]
+>>>>>>> BRANCH (5259de Merge branch 'stable-3.0' into stable-3.1)
 build tool, a sibling of `buildifier`.
 
 These tools automatically apply format according to the style guides; this
