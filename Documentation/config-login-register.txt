@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (200e0c Merge branch 'stable-3.0' into stable-3.1)
 [[usersetup]]
 == Initial Login
 It's time to exit the gerrit account as you now have Gerrit running on your
@@ -135,3 +136,5 @@ Verify that the ssh connection works for you.
 
   user@host:~$
 ----
+=======
+>>>>>>> BRANCH (938fcd Merge "Remove unused Documentation/config-login-register.txt)
