@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (db7298 Update git submodules)
   <version>3.1.9-SNAPSHOT</version>
+=======
+  <version>3.0.14-SNAPSHOT</version>
+>>>>>>> BRANCH (724ab7 Documentation: Fix mention of legacy Google Code in dev-rele)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
