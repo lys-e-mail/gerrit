@@ -41,6 +41,7 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.TestPermission;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.Project;
+import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.extensions.api.projects.BranchInfo;
 import com.google.gerrit.extensions.api.projects.ConfigInput;
 import com.google.gerrit.server.project.ProjectConfig;
@@ -84,6 +85,7 @@ public class ProjectOperationsImplTest extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
   public void specifiedBranchesAreCreatedInNewProject() throws Exception {
     Project.NameKey project =
         projectOperations
@@ -111,6 +113,12 @@ public class ProjectOperationsImplTest extends AbstractDaemonTest {
     assertThat(branches)
         .comparingElementsUsing(hasBranchName())
         .containsNoneOf("refs/heads/test-branch", "refs/heads/another-test-branch");
+=======
+  public void permissionOnly() throws Exception {
+    Project.NameKey key = projectOperations.newProject().permissionOnly(true).create();
+    String head = gApi.projects().name(key.get()).head();
+    assertThat(head).isEqualTo(RefNames.REFS_CONFIG);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
   }
 
   @Test

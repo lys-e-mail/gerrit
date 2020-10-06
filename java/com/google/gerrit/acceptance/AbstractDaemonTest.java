@@ -388,6 +388,15 @@ public abstract class AbstractDaemonTest {
     initSsh();
   }
 
+  protected void restart() throws Exception {
+    server = GerritServer.restart(server, createModule(), createSshModule());
+    server.getTestInjector().injectMembers(this);
+    if (resetter != null) {
+      server.getTestInjector().injectMembers(resetter);
+    }
+    initSsh();
+  }
+
   protected void reindexAccount(Account.Id accountId) {
     accountIndexer.index(accountId);
   }
@@ -429,16 +438,28 @@ public abstract class AbstractDaemonTest {
 
     baseConfig.setInt("receive", null, "changeUpdateThreads", 4);
     Module module = createModule();
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
     Module auditModule = createAuditModule();
+=======
+    Module sshModule = createSshModule();
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
     if (classDesc.equals(methodDesc) && !classDesc.sandboxed() && !methodDesc.sandboxed()) {
       if (commonServer == null) {
         commonServer =
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
             GerritServer.initAndStart(temporaryFolder, classDesc, baseConfig, module, auditModule);
+=======
+            GerritServer.initAndStart(temporaryFolder, classDesc, baseConfig, module, sshModule);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
       }
       server = commonServer;
     } else {
       server =
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
           GerritServer.initAndStart(temporaryFolder, methodDesc, baseConfig, module, auditModule);
+=======
+          GerritServer.initAndStart(temporaryFolder, methodDesc, baseConfig, module, sshModule);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
     }
 
     server.getTestInjector().injectMembers(this);
@@ -531,8 +552,13 @@ public abstract class AbstractDaemonTest {
     return null;
   }
 
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
   /** Override to bind an alternative audit Guice module */
   public Module createAuditModule() {
+=======
+  /** Override to bind an additional Guice module for SSH injector */
+  public Module createSshModule() {
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
     return null;
   }
 

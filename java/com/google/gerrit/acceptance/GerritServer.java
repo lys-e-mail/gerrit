@@ -323,6 +323,7 @@ public class GerritServer implements AutoCloseable {
    * @param desc server description.
    * @param baseConfig default config values; merged with config from {@code desc}.
    * @param testSysModule additional Guice module to use.
+   * @param testSshModule additional Guice module to use.
    * @return started server.
    * @throws Exception
    */
@@ -331,14 +332,22 @@ public class GerritServer implements AutoCloseable {
       Description desc,
       Config baseConfig,
       @Nullable Module testSysModule,
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
       @Nullable Module testAuditModule)
+=======
+      @Nullable Module testSshModule)
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
       throws Exception {
     Path site = temporaryFolder.newFolder().toPath();
     try {
       if (!desc.memory()) {
         init(desc, baseConfig, site);
       }
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
       return start(desc, baseConfig, site, testSysModule, testAuditModule, null);
+=======
+      return start(desc, baseConfig, site, testSysModule, testSshModule, null);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
     } catch (Exception e) {
       throw e;
     }
@@ -354,6 +363,7 @@ public class GerritServer implements AutoCloseable {
    *     initialize this directory. Can be retrieved from the returned instance via {@link
    *     #getSitePath()}.
    * @param testSysModule optional additional module to add to the system injector.
+   * @param testSshModule optional additional module to add to the ssh injector.
    * @param inMemoryRepoManager {@link InMemoryRepositoryManager} that should be used if the site is
    *     started in memory
    * @param additionalArgs additional command-line arguments for the daemon program; only allowed if
@@ -366,7 +376,11 @@ public class GerritServer implements AutoCloseable {
       Config baseConfig,
       Path site,
       @Nullable Module testSysModule,
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
       @Nullable Module testAuditModule,
+=======
+      @Nullable Module testSshModule,
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
       @Nullable InMemoryRepositoryManager inMemoryRepoManager,
       String... additionalArgs)
       throws Exception {
@@ -389,6 +403,9 @@ public class GerritServer implements AutoCloseable {
         MoreObjects.firstNonNull(testAuditModule, new FakeGroupAuditService.Module()));
     if (testSysModule != null) {
       daemon.addAdditionalSysModuleForTesting(testSysModule);
+    }
+    if (testSshModule != null) {
+      daemon.addAdditionalSshModuleForTesting(testSshModule);
     }
     daemon.setEnableSshd(desc.useSsh());
 
@@ -615,6 +632,26 @@ public class GerritServer implements AutoCloseable {
     server.close();
     server.daemon.stop();
     return start(server.desc, cfg, site, null, null, inMemoryRepoManager);
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
+=======
+  }
+
+  public static GerritServer restart(
+      GerritServer server, @Nullable Module testSysModule, @Nullable Module testSshModule)
+      throws Exception {
+    checkState(server.desc.sandboxed(), "restarting as slave requires @Sandboxed");
+    Config cfg = server.testInjector.getInstance(Key.get(Config.class, GerritServerConfig.class));
+    Path site = server.testInjector.getInstance(Key.get(Path.class, SitePath.class));
+
+    InMemoryRepositoryManager inMemoryRepoManager = null;
+    if (hasBinding(server.testInjector, InMemoryRepositoryManager.class)) {
+      inMemoryRepoManager = server.testInjector.getInstance(InMemoryRepositoryManager.class);
+    }
+
+    server.close();
+    server.daemon.stop();
+    return start(server.desc, cfg, site, testSysModule, testSshModule, inMemoryRepoManager);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
   }
 
   private static boolean hasBinding(Injector injector, Class<?> clazz) {
