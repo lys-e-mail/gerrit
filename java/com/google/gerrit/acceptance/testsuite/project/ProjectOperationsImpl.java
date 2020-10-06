@@ -90,8 +90,13 @@ public class ProjectOperationsImpl implements ProjectOperations {
 
     CreateProjectArgs args = new CreateProjectArgs();
     args.setProjectName(name);
+<<<<<<< HEAD   (e1b692 Merge "CreateMergePatchSet: Implement 'author' to tweak Git )
     args.branch =
         projectCreation.branches().stream().map(RefNames::fullName).collect(toImmutableList());
+=======
+    args.permissionsOnly = projectCreation.permissionOnly().orElse(false);
+    args.branch = Collections.singletonList(Constants.R_HEADS + Constants.MASTER);
+>>>>>>> BRANCH (7f9b8c Merge branch 'stable-3.1' into stable-3.2)
     args.createEmptyCommit = projectCreation.createEmptyCommit().orElse(true);
     projectCreation.parent().ifPresent(p -> args.newParent = p);
     // ProjectCreator wants non-null owner IDs.
