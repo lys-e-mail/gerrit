@@ -116,7 +116,13 @@ java_library2(
         ":function",
         "//lib:jgit-junit",
         "//lib:jimfs",
+<<<<<<< HEAD   (f091a0 Update git submodules)
         "//lib:servlet-api",
+=======
+        "//lib/auto:auto-value",
+        "//lib/auto:auto-value-annotations",
+        "//lib/flogger:api",
+>>>>>>> BRANCH (32afec Merge branch 'stable-2.16' into stable-3.0)
         "//lib/httpcomponents:fluent-hc",
         "//lib/httpcomponents:httpclient",
         "//lib/httpcomponents:httpcore",

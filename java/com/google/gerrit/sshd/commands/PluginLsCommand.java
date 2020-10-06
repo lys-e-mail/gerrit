@@ -41,7 +41,12 @@ public class PluginLsCommand extends SshCommand {
 
   @Override
   public void run() throws Exception {
+<<<<<<< HEAD   (f091a0 Update git submodules)
     Map<String, PluginInfo> output = list.apply(TopLevelResource.INSTANCE).value();
+=======
+    enableGracefulStop();
+    Map<String, PluginInfo> output = list.apply(TopLevelResource.INSTANCE);
+>>>>>>> BRANCH (32afec Merge branch 'stable-2.16' into stable-3.0)
 
     if (format.isJson()) {
       format

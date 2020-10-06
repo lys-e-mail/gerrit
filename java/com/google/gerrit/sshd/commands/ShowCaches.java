@@ -111,7 +111,12 @@ final class ShowCaches extends SshCommand {
   }
 
   @Override
+<<<<<<< HEAD   (f091a0 Update git submodules)
   protected void run() throws Failure {
+=======
+  protected void run() throws UnloggedFailure {
+    enableGracefulStop();
+>>>>>>> BRANCH (32afec Merge branch 'stable-2.16' into stable-3.0)
     nw = columns - 50;
     Date now = new Date();
     stdout.format(

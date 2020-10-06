@@ -51,12 +51,17 @@ public abstract class AbstractGitCommand extends BaseCommand {
   protected String[] extraParameters;
 
   @Override
+<<<<<<< HEAD   (f091a0 Update git submodules)
   public void start(ChannelSession channel, Environment env) {
     String gitProtocol = env.getEnv().get(GIT_PROTOCOL);
     if (gitProtocol != null) {
       extraParameters = gitProtocol.split(":");
     }
 
+=======
+  public void start(Environment env) {
+    enableGracefulStop();
+>>>>>>> BRANCH (32afec Merge branch 'stable-2.16' into stable-3.0)
     Context ctx = context.subContext(newSession(), context.getCommandLine());
     final Context old = sshScope.set(ctx);
     try {
