@@ -57,6 +57,7 @@ final class CloseConnection extends SshCommand {
 
   @Override
   protected void run() throws Failure {
+<<<<<<< HEAD   (f091a0 Update git submodules)
     SshUtil.forEachSshSession(
         sshDaemon,
         (k, sshSession, abstractSession, ioSession) -> {
@@ -72,6 +73,31 @@ final class CloseConnection extends SshCommand {
                 logger.atWarning().log(
                     "Wait for connection to close interrupted: %s", e.getMessage());
               }
+=======
+    enableGracefulStop();
+    IoAcceptor acceptor = sshDaemon.getIoAcceptor();
+    if (acceptor == null) {
+      throw new Failure(1, "fatal: sshd no longer running");
+    }
+    for (String sessionId : sessionIds) {
+      boolean connectionFound = false;
+      int id = (int) Long.parseLong(sessionId, 16);
+      for (IoSession io : acceptor.getManagedSessions().values()) {
+        AbstractSession serverSession = AbstractSession.getSession(io, true);
+        SshSession sshSession =
+            serverSession != null ? serverSession.getAttribute(SshSession.KEY) : null;
+        if (sshSession != null && sshSession.getSessionId() == id) {
+          connectionFound = true;
+          stdout.println("closing connection " + sessionId + "...");
+          CloseFuture future = io.close(true);
+          if (wait) {
+            try {
+              future.await();
+              stdout.println("closed connection " + sessionId);
+            } catch (IOException e) {
+              logger.atWarning().log(
+                  "Wait for connection to close interrupted: %s", e.getMessage());
+>>>>>>> BRANCH (32afec Merge branch 'stable-2.16' into stable-3.0)
             }
           }
         });
