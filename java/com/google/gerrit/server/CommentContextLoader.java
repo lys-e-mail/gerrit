@@ -62,8 +62,14 @@ public class CommentContextLoader {
   }
 
   /**
+<<<<<<< HEAD   (c5d721 Merge "Tests: fix 500 response when requesting gr-diff-view.)
    * Load the comment context for multiple comments at once. This method will open the repository
    * and read the source files for all necessary comments' file paths.
+=======
+   * Returns an empty list of {@link ContextLineInfo}. Clients are expected to call this method one
+   * or more times. Each call returns a reference to an empty {@link List
+   * List&lt;ContextLineInfo&gt;}.
+>>>>>>> BRANCH (2bf6b2 Set version to 3.3.0-SNAPSHOT)
    *
    * @param comments a list of comments.
    * @return a Map where all entries consist of the input comments and the values are their
