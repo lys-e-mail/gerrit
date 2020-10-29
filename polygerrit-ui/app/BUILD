@@ -111,9 +111,98 @@ sh_test(
         "$(location polymer.json)",
     ],
     data = [
+<<<<<<< HEAD   (5aac23 Update git submodules)
         "polymer.json",
         ":polylint-fg",
         "@tools_npm//polymer-cli/bin:polymer",
+=======
+        ":pg_code",
+        "//polygerrit-ui:polygerrit_components.bower_components.zip",
+    ],
+    # Should not run sandboxed.
+    tags = [
+        "local",
+        "manual",
+    ],
+)
+
+DIRECTORIES = [
+    "admin",
+    "change",
+    "change-list",
+    "core",
+    "diff",
+    "edit",
+    "plugins",
+    "settings",
+    "shared",
+    "gr-app",
+]
+
+[sh_test(
+    name = "template_test_" + directory,
+    size = "enormous",
+    srcs = ["template_test.sh"],
+    args = [directory],
+    data = [
+        ":pg_code",
+        ":template_test_srcs",
+        "//polygerrit-ui:polygerrit_components.bower_components.zip",
+    ],
+    tags = [
+        # Should not run sandboxed.
+        "local",
+        "manual",
+        "template",
+    ],
+) for directory in DIRECTORIES]
+
+# Embed bundle
+polygerrit_bundle(
+    name = "polygerrit_embed_ui",
+    srcs = glob(
+        [
+            "**/*.html",
+            "**/*.js",
+        ],
+        exclude = [
+            "bower_components/**",
+            "test/**",
+            "**/*_test.html",
+        ],
+    ),
+    outs = ["polygerrit_embed_ui.zip"],
+    app = "embed/embed.html",
+)
+
+filegroup(
+    name = "embed_test_files",
+    srcs = glob(
+        [
+            "embed/**/*_test.html",
+        ],
+    ),
+)
+
+filegroup(
+    name = "template_test_srcs",
+    srcs = [
+        "template_test_srcs/convert_for_template_tests.py",
+        "template_test_srcs/template_test.js",
+    ],
+)
+
+sh_test(
+    name = "embed_test",
+    size = "small",
+    srcs = ["embed_test.sh"],
+    data = [
+        "embed/test.html",
+        "test/common-test-setup.html",
+        ":embed_test_files",
+        ":pg_code.zip",
+        ":test_components.zip",
+>>>>>>> BRANCH (1012bf Merge branch 'stable-3.0' into stable-3.1)
     ],
     # Should not run sandboxed.
     tags = [
