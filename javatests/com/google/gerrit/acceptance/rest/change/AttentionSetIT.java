@@ -1386,6 +1386,7 @@ public class AttentionSetIT extends AbstractDaemonTest {
   public void attentionSetEmailHeader() throws Exception {
     PushOneCommit.Result r = createChange();
     TestAccount user2 = accountCreator.user2();
+<<<<<<< HEAD   (2cbfe8 Merge "Improve message if submit fails due to non-fulfilled )
 
     // The pattern ensures the header mentions the attention set requirements in any order.
     Pattern attentionSetHeaderPattern =
@@ -1515,6 +1516,98 @@ public class AttentionSetIT extends AbstractDaemonTest {
     // submitting the change sends an email even when user is not in the attention set.
     change(r).current().submit();
     assertThat(sender.getMessages()).isNotEmpty();
+=======
+    // Add user and user2 to the attention set.
+    change(r)
+        .current()
+        .review(
+            ReviewInput.create().reviewer(user.email()).reviewer(accountCreator.user2().email()));
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).body())
+        .contains(
+            "Attention is currently required from: "
+                + user2.fullName()
+                + ", "
+                + user.fullName()
+                + ".");
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).htmlBody())
+        .contains(
+            "Attention is currently required from: "
+                + user2.fullName()
+                + ", "
+                + user.fullName()
+                + ".");
+    sender.clear();
+
+    // Irrelevant reply, User and User2 are still in the attention set.
+    change(r).current().review(ReviewInput.approve());
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).body())
+        .contains(
+            "Attention is currently required from: "
+                + user2.fullName()
+                + ", "
+                + user.fullName()
+                + ".");
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).htmlBody())
+        .contains(
+            "Attention is currently required from: "
+                + user2.fullName()
+                + ", "
+                + user.fullName()
+                + ".");
+    sender.clear();
+
+    // Abandon the change which removes user from attention set; there is an email but without the
+    // attention footer.
+    change(r).abandon();
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).body())
+        .doesNotContain("Attention is currently required");
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).htmlBody())
+        .doesNotContain("Attention is currently required");
+    sender.clear();
+  }
+
+  @Test
+  @GerritConfig(name = "change.enableAttentionSet", value = "false")
+  public void noReferenceToAttentionSetInEmailsWhenDisabled() throws Exception {
+    PushOneCommit.Result r = createChange();
+    // Add user and to the attention set.
+    change(r).addReviewer(user.id().toString());
+
+    // Attention set is not referenced.
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).body())
+        .doesNotContain("Attention is currently required");
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).htmlBody())
+        .doesNotContain("Attention is currently required");
+    sender.clear();
+  }
+
+  @Test
+  public void attentionSetWithEmailFilter() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    // Add preference for the user such that they only receive an email on changes that require
+    // their attention.
+    requestScopeOperations.setApiUser(user.id());
+    GeneralPreferencesInfo prefs = gApi.accounts().self().getPreferences();
+    prefs.emailStrategy = EmailStrategy.ATTENTION_SET_ONLY;
+    gApi.accounts().self().setPreferences(prefs);
+    requestScopeOperations.setApiUser(admin.id());
+
+    // Add user to attention set. They receive an email since they are in the attention set.
+    change(r).addReviewer(user.id().toString());
+    assertThat(sender.getMessages()).isNotEmpty();
+    sender.clear();
+
+    // Irrelevant reply, User is still in the attention set, thus got another email.
+    change(r).current().review(ReviewInput.approve());
+    assertThat(sender.getMessages()).isNotEmpty();
+    sender.clear();
+
+    // Abandon the change which removes user from attention set; the user doesn't receive an email
+    // since they are not in the attention set.
+    change(r).abandon();
+    assertThat(sender.getMessages()).isEmpty();
+>>>>>>> BRANCH (3a7955 Set version to 3.3.0-SNAPSHOT)
   }
 
   @Test

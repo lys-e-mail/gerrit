@@ -98,7 +98,10 @@ public abstract class ChangeEmail extends NotificationEmail {
     this.changeData = changeData;
     this.change = changeData.change();
     this.emailOnlyAuthors = false;
+<<<<<<< HEAD   (2cbfe8 Merge "Improve message if submit fails due to non-fulfilled )
     this.emailOnlyAttentionSetIfEnabled = true;
+=======
+>>>>>>> BRANCH (3a7955 Set version to 3.3.0-SNAPSHOT)
     this.currentAttentionSet = getAttentionSet();
   }
 
@@ -403,8 +406,12 @@ public abstract class ChangeEmail extends NotificationEmail {
     if (!accountState.isPresent()) {
       return;
     }
+<<<<<<< HEAD   (2cbfe8 Merge "Improve message if submit fails due to non-fulfilled )
     if (emailOnlyAttentionSetIfEnabled
         && accountState.get().generalPreferences().getEmailStrategy()
+=======
+    if (accountState.get().generalPreferences().getEmailStrategy()
+>>>>>>> BRANCH (3a7955 Set version to 3.3.0-SNAPSHOT)
             == EmailStrategy.ATTENTION_SET_ONLY
         && !currentAttentionSet.contains(to)) {
       return;

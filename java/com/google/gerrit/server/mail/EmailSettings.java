@@ -61,6 +61,10 @@ public class EmailSettings {
             TimeUnit.MILLISECONDS.convert(60, TimeUnit.SECONDS),
             TimeUnit.MILLISECONDS);
     sendNewPatchsetEmails = cfg.getBoolean("change", null, "sendNewPatchsetEmails", true);
+<<<<<<< HEAD   (2cbfe8 Merge "Improve message if submit fails due to non-fulfilled )
     isAttentionSetEnabled = cfg.getBoolean("change", null, "enableAttentionSet", true);
+=======
+    isAttentionSetEnabled = cfg.getBoolean("change", null, "enableAttentionSet", false);
+>>>>>>> BRANCH (3a7955 Set version to 3.3.0-SNAPSHOT)
   }
 }
