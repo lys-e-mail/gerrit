@@ -685,7 +685,11 @@ class RefControl {
         return projectControl.asForProject()
             .filter(
                 ImmutableList.of(resolvedRef), repo, PermissionBackend.RefFilterOptions.defaults())
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
             .stream()
+=======
+            .values().stream()
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
             .anyMatch(r -> refName.equals(r.getName()));
       } catch (IOException e) {
         throw new PermissionBackendException(e);

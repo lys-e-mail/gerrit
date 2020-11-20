@@ -17,7 +17,11 @@ package com.google.gerrit.server.permissions;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.gerrit.entities.RefNames.REFS_CONFIG;
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
 import static java.util.stream.Collectors.toCollection;
+=======
+import static java.util.stream.Collectors.toMap;
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -222,9 +226,17 @@ class DefaultRefFilter {
         permissionBackend
             .user(projectControl.getUser())
             .testOrFalse(GlobalPermission.ACCESS_DATABASE);
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
     List<Ref> resultRefs = new ArrayList<>(refs.size());
+=======
+    Map<String, Ref> resultRefs = Maps.newHashMapWithExpectedSize(refs.size());
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
     List<Ref> deferredTags = new ArrayList<>();
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
     for (Ref ref : refs) {
+=======
+    for (Ref ref : refs.values()) {
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
       String refName = ref.getName();
       Change.Id changeId;
       if (opts.filterMeta() && isMetadata(refName)) {
@@ -242,7 +254,11 @@ class DefaultRefFilter {
           // the regular Git tree that users interact with, not on any of the Gerrit trees, so this
           // is a negligible risk.
           logger.atFinest().log("Include tag ref %s because user has read on refs/*", refName);
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
           resultRefs.add(ref);
+=======
+          resultRefs.put(refName, ref);
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
         } else {
           // If its a tag, consider it later.
           if (ref.getObjectId() != null) {
@@ -257,17 +273,29 @@ class DefaultRefFilter {
         // visibility of these refs just fine. But instead, we use highly-optimized logic that
         // looks only on the last 10k most recent changes using the change index and a cache.
         if (hasAccessDatabase) {
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
           resultRefs.add(ref);
+=======
+          resultRefs.put(refName, ref);
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
         } else if (!visible(repo, changeId)) {
           logger.atFinest().log("Filter out invisible change ref %s", refName);
         } else if (RefNames.isRefsEdit(refName) && !visibleEdit(repo, refName)) {
           logger.atFinest().log("Filter out invisible change edit ref %s", refName);
         } else {
           // Change is visible
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
           resultRefs.add(ref);
+=======
+          resultRefs.put(refName, ref);
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
         }
       } else if (refVisibilityControl.isVisible(projectControl, ref.getLeaf().getName())) {
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
         resultRefs.add(ref);
+=======
+        resultRefs.put(refName, ref);
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
       }
     }
     Result result = new AutoValue_DefaultRefFilter_Result(resultRefs, deferredTags);
@@ -277,10 +305,7 @@ class DefaultRefFilter {
 
   /**
    * Returns all refs tag we regard as starting points for reachability computation for tags. In
-   * general, these are all refs not managed by Gerrit excluding symbolic refs and tags.
-   *
-   * <p>We exclude symbolic refs because their target will be included and this will suffice for
-   * computing reachability.
+   * general, these are all refs not managed by Gerrit.
    */
   private static List<Ref> getTaggableRefs(Repository repo) throws PermissionBackendException {
     try {
@@ -291,11 +316,16 @@ class DefaultRefFilter {
                   !RefNames.isGerritRef(r.getName())
                       && !r.getName().startsWith(RefNames.REFS_TAGS)
                       && !r.isSymbolic()
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
                       && !r.getName().equals(RefNames.REFS_CONFIG))
           // Don't use the default Java Collections.toList() as that is not size-aware and would
           // expand an array list as new elements are added. Instead, provide a list that has the
           // right size. This spares incremental list expansion which is quadratic in complexity.
           .collect(toCollection(() -> new ArrayList<>(allRefs.size())));
+=======
+                      && !REFS_CONFIG.equals(r.getName()))
+          .collect(toMap(Ref::getName, r -> r));
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
     } catch (IOException e) {
       throw new PermissionBackendException(e);
     }

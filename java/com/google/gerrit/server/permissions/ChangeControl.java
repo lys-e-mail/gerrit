@@ -75,10 +75,22 @@ class ChangeControl {
   }
 
   ForChange asForChange(@Nullable ChangeData cd) {
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
     if (cd != null) {
       this.cd = cd;
     }
     return new ForChangeImpl();
+=======
+    setChangeData(cd);
+    return new ForChangeImpl();
+  }
+
+  ChangeControl setChangeData(@Nullable ChangeData cd) {
+    if (cd != null) {
+      this.cd = cd;
+    }
+    return this;
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
   }
 
   private CurrentUser getUser() {

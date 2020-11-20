@@ -109,6 +109,7 @@ class RefVisibilityControl {
         // Edits are visible only to the owning user, if change is visible.
         return visibleEdit(refName, projectControl, cd);
       }
+<<<<<<< HEAD   (b0b473 Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
       return projectControl.controlFor(cd.notes()).isVisible();
     }
 
@@ -154,6 +155,53 @@ class RefVisibilityControl {
     }
 
     if (!projectControl.controlFor(cd.notes()).isVisible()) {
+=======
+      return projectControl.controlFor(cd.notes()).setChangeData(cd).isVisible();
+    }
+
+    // Account visibility
+    CurrentUser user = projectControl.getUser();
+    Account.Id currentUserAccountId = user.isIdentifiedUser() ? user.getAccountId() : null;
+    Account.Id accountId;
+    if ((accountId = Account.Id.fromRef(refName)) != null) {
+      // Account ref is visible only to the corresponding account.
+      if (accountId.equals(currentUserAccountId)
+          && projectControl.controlForRef(refName).hasReadPermissionOnRef(true)) {
+        return true;
+      }
+      return false;
+    }
+
+    // Group visibility
+    AccountGroup.UUID accountGroupUuid;
+    if ((accountGroupUuid = AccountGroup.UUID.fromRef(refName)) != null) {
+      // Group ref is visible only to the corresponding owner group.
+      try {
+        return projectControl.controlForRef(refName).hasReadPermissionOnRef(true)
+            && groupControlFactory.controlFor(user, accountGroupUuid).isOwner();
+      } catch (NoSuchGroupException e) {
+        // The group is broken, but the ref is still around. Pretend the ref is not visible.
+        logger.atWarning().withCause(e).log("Found group ref %s but group isn't parsable", refName);
+        return false;
+      }
+    }
+
+    // We are done checking all cases where we would allow access to Gerrit-managed refs. Deny
+    // access in case we got this far.
+    logger.atFine().log(
+        "Denying access to %s because user doesn't have access to this Gerrit ref", refName);
+    return false;
+  }
+
+  private boolean visibleEdit(String refName, ProjectControl projectControl, ChangeData cd)
+      throws PermissionBackendException {
+    Change.Id id = Change.Id.fromEditRefPart(refName);
+    if (id == null) {
+      throw new IllegalStateException("unable to parse change id from edit ref " + refName);
+    }
+
+    if (!projectControl.controlFor(cd.notes()).setChangeData(cd).isVisible()) {
+>>>>>>> BRANCH (184687 Merge branch 'stable-3.0' into stable-3.1)
       // The user can't see the change so they can't see any edits.
       return false;
     }
