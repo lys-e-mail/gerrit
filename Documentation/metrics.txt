@@ -65,10 +65,17 @@ objects needing finalization.
 * `caches/disk_cached`: Disk entries used by persistent cache.
 * `caches/disk_hit_ratio`: Disk hit ratio for persistent cache.
 
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 === Change
 
 * `change/submit_rule_evaluation`: Latency for evaluating submit rules on a change.
 * `change/submit_type_evaluation`: Latency for evaluating the submit type on a change.
+=======
+Cache disk metrics are expensive to compute on larger installations and are not
+computed by default. They can be enabled via the
+link:config.gerrit.html#cache.enableDiskStatMetrics[`cache.enableDiskStatMetrics`]
+setting.
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 
 === HTTP
 

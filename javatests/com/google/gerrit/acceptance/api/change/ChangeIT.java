@@ -1067,11 +1067,15 @@ public class ChangeIT extends AbstractDaemonTest {
       com.google.gerrit.acceptance.TestAccount deleteAs)
       throws Exception {
     try {
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       projectOperations
           .project(projectName)
           .forUpdate()
           .add(allow(Permission.VIEW_PRIVATE_CHANGES).ref("refs/*").group(ANONYMOUS_USERS))
           .update();
+=======
+      allow(projectName, "refs/*", Permission.VIEW_PRIVATE_CHANGES, ANONYMOUS_USERS);
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
       requestScopeOperations.setApiUser(owner.id());
       ChangeInput in = new ChangeInput();
       in.project = projectName.get();

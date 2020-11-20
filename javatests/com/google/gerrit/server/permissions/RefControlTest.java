@@ -103,6 +103,14 @@ public class RefControlTest {
         .isFalse();
   }
 
+  private void assertAllRefsAreVisible(ProjectControl u) {
+    assertThat(u.allRefsAreVisible(Collections.emptySet())).named("all refs visible").isTrue();
+  }
+
+  private void assertAllRefsAreNotVisible(ProjectControl u) {
+    assertThat(u.allRefsAreVisible(Collections.emptySet())).named("all refs NOT visible").isFalse();
+  }
+
   private void assertNotOwner(String ref, ProjectControl u) {
     assertWithMessage("NOT OWN " + ref).that(u.controlForRef(ref).isOwner()).isFalse();
   }
@@ -118,20 +126,32 @@ public class RefControlTest {
   }
 
   private void assertCanRead(String ref, ProjectControl u) {
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     assertWithMessage("can read " + ref)
         .that(
             u.controlForRef(ref)
                 .hasReadPermissionOnRef(
                     true)) // This should be false but the test relies on inheritance into refs/tags
+=======
+    assertThat(u.controlForRef(ref).hasReadPermissionOnRef(true))
+        // This should be false but the test relies on inheritance into refs/tags
+        .named("can read " + ref)
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
         .isTrue();
   }
 
   private void assertCannotRead(String ref, ProjectControl u) {
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     assertWithMessage("cannot read " + ref)
         .that(
             u.controlForRef(ref)
                 .hasReadPermissionOnRef(
                     true)) // This should be false but the test relies on inheritance into refs/tags
+=======
+    assertThat(u.controlForRef(ref).hasReadPermissionOnRef(true))
+        // This should be false but the test relies on inheritance into refs/tags
+        .named("cannot read " + ref)
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
         .isFalse();
   }
 
@@ -203,6 +223,14 @@ public class RefControlTest {
   @Inject private SchemaCreator schemaCreator;
   @Inject private SingleVersionListener singleVersionListener;
   @Inject private ThreadLocalRequestContext requestContext;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+  @Inject private DefaultRefFilter.Factory refFilterFactory;
+  @Inject private TransferConfig transferConfig;
+  @Inject private MetricMaker metricMaker;
+  @Inject private ProjectConfig.Factory projectConfigFactory;
+  @Inject private RefVisibilityControl refVisibilityControl;
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 
   @Before
   public void setUp() throws Exception {
@@ -287,6 +315,7 @@ public class RefControlTest {
 
   @Test
   public void allRefsAreVisibleForRegularProject() throws Exception {
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     projectOperations
         .project(localKey)
         .forUpdate()
@@ -294,6 +323,31 @@ public class RefControlTest {
         .add(allow(READ).ref("refs/groups/*").group(DEVS))
         .add(allow(READ).ref("refs/users/default").group(DEVS))
         .update();
+=======
+    allow(local, READ, DEVS, "refs/*");
+    allow(local, READ, DEVS, "refs/groups/*");
+    allow(local, READ, DEVS, "refs/users/default");
+
+    assertAllRefsAreVisible(user(local, DEVS));
+  }
+
+  @Test
+  public void allRefsAreNotVisibleForAllUsers() throws Exception {
+    ProjectConfig allUsers = projectConfigFactory.create(allUsersName);
+    allUsers.load(newRepository(allUsersName));
+
+    allow(allUsers, READ, DEVS, "refs/*");
+    allow(allUsers, READ, DEVS, "refs/groups/*");
+    allow(allUsers, READ, DEVS, "refs/users/default");
+
+    assertAllRefsAreNotVisible(user(allUsers, DEVS));
+  }
+
+  @Test
+  public void branchDelegation1() throws Exception {
+    allow(local, OWNER, ADMIN, "refs/*");
+    allow(local, OWNER, DEVS, "refs/heads/x/*");
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 
     assertAllRefsAreVisible(user(localKey, DEVS));
   }
@@ -1225,9 +1279,30 @@ public class RefControlTest {
   }
 
   private ProjectControl user(
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
       Project.NameKey localKey, @Nullable String name, AccountGroup.UUID... memberOf)
       throws Exception {
     return projectControlFactory.create(new MockUser(name, memberOf), getProjectState(localKey));
+=======
+      ProjectConfig local, @Nullable String name, AccountGroup.UUID... memberOf) {
+    return new ProjectControl(
+        Collections.emptySet(),
+        Collections.emptySet(),
+        sectionSorter,
+        changeControlFactory,
+        permissionBackend,
+        refVisibilityControl,
+        repoManager,
+        refFilterFactory,
+        allUsersName,
+        new MockUser(name, memberOf),
+        newProjectState(local));
+  }
+
+  private ProjectState newProjectState(ProjectConfig local) {
+    add(local);
+    return all.get(local.getProject().getNameKey());
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private static class MockUser extends CurrentUser {

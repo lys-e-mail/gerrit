@@ -15,6 +15,7 @@
 package com.google.gerrit.server.permissions;
 
 import static com.google.common.base.Preconditions.checkState;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import static com.google.gerrit.entities.RefNames.REFS_CACHE_AUTOMERGE;
 
 import com.google.common.base.Throwables;
@@ -73,6 +74,65 @@ class RefVisibilityControl {
     }
 
     if (refName.startsWith(REFS_CACHE_AUTOMERGE)) {
+=======
+
+import com.google.common.base.Throwables;
+import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.exceptions.NoSuchGroupException;
+import com.google.gerrit.exceptions.StorageException;
+import com.google.gerrit.extensions.restapi.AuthException;
+import com.google.gerrit.reviewdb.client.Account;
+import com.google.gerrit.reviewdb.client.AccountGroup;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.RefNames;
+import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.account.GroupControl;
+import com.google.gerrit.server.project.NoSuchChangeException;
+import com.google.gerrit.server.query.change.ChangeData;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.eclipse.jgit.lib.Constants;
+
+/**
+ * This class is a component that is internal to {@link DefaultPermissionBackend}. It can
+ * authoritatively tell if a ref is accessible by a user.
+ */
+@Singleton
+class RefVisibilityControl {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
+  private final PermissionBackend permissionBackend;
+  private final GroupControl.GenericFactory groupControlFactory;
+  private final ChangeData.Factory changeDataFactory;
+
+  @Inject
+  RefVisibilityControl(
+      PermissionBackend permissionBackend,
+      GroupControl.GenericFactory groupControlFactory,
+      ChangeData.Factory changeDataFactory) {
+    this.permissionBackend = permissionBackend;
+    this.groupControlFactory = groupControlFactory;
+    this.changeDataFactory = changeDataFactory;
+  }
+
+  /**
+   * Returns an authoritative answer if the ref is visible to the user. Does not have support for
+   * tags and will throw a {@link PermissionBackendException} if asked for tags visibility.
+   */
+  boolean isVisible(ProjectControl projectControl, String refName)
+      throws PermissionBackendException {
+    if (refName.startsWith(Constants.R_TAGS)) {
+      throw new PermissionBackendException(
+          "can't check tags through RefVisibilityControl. Use PermissionBackend#filter instead.");
+    }
+    if (!RefNames.isGerritRef(refName)) {
+      // This is not a special Gerrit ref and not a NoteDb ref. Likely, it's just a ref under
+      // refs/heads or another ref the user created. Apply the regular permissions with inheritance.
+      return projectControl.controlForRef(refName).hasReadPermissionOnRef(false);
+    }
+
+    if (refName.startsWith(RefNames.REFS_CACHE_AUTOMERGE)) {
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
       // Internal cache state that is accessible to no one.
       return false;
     }

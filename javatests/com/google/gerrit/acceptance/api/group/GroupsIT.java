@@ -1065,10 +1065,14 @@ public class GroupsIT extends AbstractDaemonTest {
   @Test
   public void pushToDeletedGroupBranchIsRejectedForAllUsersRepo() throws Exception {
     // refs/deleted-groups is only visible with ACCESS_DATABASE
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     projectOperations
         .allProjectsForUpdate()
         .add(allowCapability(GlobalCapability.ACCESS_DATABASE).group(REGISTERED_USERS))
         .update();
+=======
+    allowGlobalCapabilities(REGISTERED_USERS, GlobalCapability.ACCESS_DATABASE);
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
     String groupRef =
         RefNames.refsDeletedGroups(AccountGroup.uuid(gApi.groups().create(name("foo")).get().id));
     createBranch(allUsers, groupRef);
@@ -1262,10 +1266,14 @@ public class GroupsIT extends AbstractDaemonTest {
   @Test
   public void cannotDeleteDeletedGroupBranch() throws Exception {
     // refs/deleted-groups is only visible with ACCESS_DATABASE
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     projectOperations
         .allProjectsForUpdate()
         .add(allowCapability(GlobalCapability.ACCESS_DATABASE).group(REGISTERED_USERS))
         .update();
+=======
+    allowGlobalCapabilities(REGISTERED_USERS, GlobalCapability.ACCESS_DATABASE);
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
     String groupRef = RefNames.refsDeletedGroups(AccountGroup.uuid(name("foo")));
     createBranch(allUsers, groupRef);
     testCannotDeleteGroupBranch(RefNames.REFS_DELETED_GROUPS + "*", groupRef);
