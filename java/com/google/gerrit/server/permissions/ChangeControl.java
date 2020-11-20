@@ -39,12 +39,27 @@ class ChangeControl {
   private final RefControl refControl;
   private final ChangeData changeData;
 
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
   ChangeControl(RefControl refControl, ChangeData changeData) {
+=======
+  private ChangeData cd;
+
+  private ChangeControl(
+      ChangeData.Factory changeDataFactory, RefControl refControl, ChangeNotes notes) {
+    this.changeDataFactory = changeDataFactory;
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
     this.refControl = refControl;
     this.changeData = changeData;
   }
 
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
   ForChange asForChange() {
+=======
+  ForChange asForChange(@Nullable ChangeData cd) {
+    if (cd != null) {
+      this.cd = cd;
+    }
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
     return new ForChangeImpl();
   }
 
@@ -60,9 +75,20 @@ class ChangeControl {
     return changeData.change();
   }
 
+  private ChangeData changeData() {
+    if (cd == null) {
+      cd = changeDataFactory.create(notes);
+    }
+    return cd;
+  }
+
   /** Can this user see this change? */
   boolean isVisible() {
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
     if (getChange().isPrivate() && !isPrivateVisible(changeData)) {
+=======
+    if (getChange().isPrivate() && !isPrivateVisible(changeData())) {
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
       return false;
     }
     // Does the user have READ permission on the destination?
@@ -197,6 +223,10 @@ class ChangeControl {
   }
 
   private class ForChangeImpl extends ForChange {
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
+=======
+
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
     private Map<String, PermissionRange> labels;
     private String resourcePath;
 

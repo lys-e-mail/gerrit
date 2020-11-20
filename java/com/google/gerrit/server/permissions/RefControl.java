@@ -50,7 +50,10 @@ import org.eclipse.jgit.lib.Repository;
 class RefControl {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
   private final ChangeData.Factory changeDataFactory;
+=======
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
   private final RefVisibilityControl refVisibilityControl;
   private final ProjectControl projectControl;
   private final GitRepositoryManager repositoryManager;
@@ -69,6 +72,7 @@ class RefControl {
   private Boolean hasReadPermissionOnRef;
 
   RefControl(
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
       ChangeData.Factory changeDataFactory,
       RefVisibilityControl refVisibilityControl,
       ProjectControl projectControl,
@@ -76,6 +80,13 @@ class RefControl {
       String ref,
       PermissionCollection relevant) {
     this.changeDataFactory = changeDataFactory;
+=======
+      RefVisibilityControl refVisibilityControl,
+      ProjectControl projectControl,
+      GitRepositoryManager repositoryManager,
+      String ref,
+      PermissionCollection relevant) {
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
     this.refVisibilityControl = refVisibilityControl;
     this.projectControl = projectControl;
     this.repositoryManager = repositoryManager;

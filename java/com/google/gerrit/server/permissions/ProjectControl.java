@@ -36,6 +36,7 @@ import com.google.gerrit.extensions.conditions.BooleanCondition;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.account.GroupMembership;
+import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.GitReceivePackGroups;
 import com.google.gerrit.server.config.GitUploadPackGroups;
 import com.google.gerrit.server.git.GitRepositoryManager;
@@ -75,7 +76,11 @@ class ProjectControl {
   private final ProjectState state;
   private final PermissionCollection.Factory permissionFilter;
   private final DefaultRefFilter.Factory refFilterFactory;
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
   private final ChangeData.Factory changeDataFactory;
+=======
+  private final AllUsersName allUsersName;
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
 
   private List<SectionMatcher> allSections;
   private Map<String, RefControl> refControls;
@@ -90,7 +95,11 @@ class ProjectControl {
       RefVisibilityControl refVisibilityControl,
       GitRepositoryManager repositoryManager,
       DefaultRefFilter.Factory refFilterFactory,
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
       ChangeData.Factory changeDataFactory,
+=======
+      AllUsersName allUsersName,
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
       @Assisted CurrentUser who,
       @Assisted ProjectState ps) {
     this.uploadGroups = uploadGroups;
@@ -100,7 +109,11 @@ class ProjectControl {
     this.refVisibilityControl = refVisibilityControl;
     this.repositoryManager = repositoryManager;
     this.refFilterFactory = refFilterFactory;
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
     this.changeDataFactory = changeDataFactory;
+=======
+    this.allUsersName = allUsersName;
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
     user = who;
     state = ps;
   }
@@ -124,9 +137,13 @@ class ProjectControl {
     RefControl ctl = refControls.get(refName);
     if (ctl == null) {
       PermissionCollection relevant = permissionFilter.filter(access(), refName, user);
+<<<<<<< HEAD   (2000ba Make PermissionBackend#ForRef authoritative)
       ctl =
           new RefControl(
               changeDataFactory, refVisibilityControl, this, repositoryManager, refName, relevant);
+=======
+      ctl = new RefControl(refVisibilityControl, this, repositoryManager, refName, relevant);
+>>>>>>> BRANCH (826283 Merge branch 'stable-3.1' into stable-3.2)
       refControls.put(refName, ctl);
     }
     return ctl;
@@ -173,7 +190,9 @@ class ProjectControl {
   }
 
   boolean allRefsAreVisible(Set<String> ignore) {
-    return user.isInternalUser() || canPerformOnAllRefs(Permission.READ, ignore);
+    return user.isInternalUser()
+        || (!getProject().getNameKey().equals(allUsersName)
+            && canPerformOnAllRefs(Permission.READ, ignore));
   }
 
   /** Can the user run upload pack? */
