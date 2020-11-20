@@ -16,7 +16,12 @@ package com.google.gerrit.server.permissions;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import static com.google.gerrit.entities.RefNames.REFS_CONFIG;
+=======
+import static com.google.gerrit.reviewdb.client.RefNames.REFS_CONFIG;
+import static com.google.gerrit.reviewdb.client.RefNames.REFS_USERS_SELF;
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 import static java.util.stream.Collectors.toMap;
 
 import com.google.auto.value.AutoValue;
@@ -36,13 +41,23 @@ import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.metrics.Counter0;
 import com.google.gerrit.metrics.Description;
 import com.google.gerrit.metrics.MetricMaker;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+import com.google.gerrit.reviewdb.client.Branch;
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.reviewdb.client.RefNames;
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.git.SearchingChangeCacheImpl;
 import com.google.gerrit.server.git.TagCache;
 import com.google.gerrit.server.git.TagMatcher;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import com.google.gerrit.server.logging.TraceContext;
 import com.google.gerrit.server.logging.TraceContext.TraceTimer;
+=======
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeNotes.Factory.ChangeNotesResult;
 import com.google.gerrit.server.permissions.PermissionBackend.RefFilterOptions;
@@ -270,9 +285,13 @@ class DefaultRefFilter {
         resultRefs.put(refName, ref);
       }
     }
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     Result result = new AutoValue_DefaultRefFilter_Result(resultRefs, deferredTags);
     logger.atFinest().log("Result of ref filtering = %s", result);
     return result;
+=======
+    return new AutoValue_DefaultRefFilter_Result(resultRefs, deferredTags);
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
   }
 
   /**

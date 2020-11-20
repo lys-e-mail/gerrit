@@ -77,6 +77,7 @@ class ChangeControl {
   ForChange asForChange(@Nullable ChangeData cd) {
     setChangeData(cd);
     return new ForChangeImpl();
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
   }
 
   ChangeControl setChangeData(@Nullable ChangeData cd) {
@@ -84,6 +85,8 @@ class ChangeControl {
       this.cd = cd;
     }
     return this;
+=======
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private CurrentUser getUser() {
@@ -105,6 +108,16 @@ class ChangeControl {
     return cd;
   }
 
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+  ChangeControl setChangeData(@Nullable ChangeData cd) {
+    if (cd != null) {
+      this.cd = cd;
+    }
+    return this;
+  }
+
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
   /** Can this user see this change? */
   boolean isVisible() {
     if (getChange().isPrivate() && !isPrivateVisible(changeData())) {

@@ -17,8 +17,15 @@ java_library(
         "//lib:junit",
         "//lib/guice",
         "//lib/httpcomponents:httpcore",
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+        "//lib/jackson:jackson-annotations",
+        "//lib/jgit/org.eclipse.jgit:jgit",
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
         "//lib/log:api",
         "//lib/testcontainers",
+        "//lib/testcontainers:docker-java-api",
+        "//lib/testcontainers:docker-java-transport",
         "//lib/testcontainers:testcontainers-elasticsearch",
     ],
 )

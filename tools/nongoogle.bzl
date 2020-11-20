@@ -149,18 +149,88 @@ def declare_nongoogle_deps():
         sha1 = "dc13ae4faca6df981fc7aeb5a522d9db446d5d50",
     )
 
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     TESTCONTAINERS_VERSION = "1.14.3"
+=======
+    POWERM_VERS = "1.6.1"
+
+    maven_jar(
+        name = "powermock-module-junit4",
+        artifact = "org.powermock:powermock-module-junit4:" + POWERM_VERS,
+        sha1 = "ea8530b2848542624f110a393513af397b37b9cf",
+    )
+
+    maven_jar(
+        name = "powermock-module-junit4-common",
+        artifact = "org.powermock:powermock-module-junit4-common:" + POWERM_VERS,
+        sha1 = "7222ced54dabc310895d02e45c5428ca05193cda",
+    )
+
+    maven_jar(
+        name = "powermock-reflect",
+        artifact = "org.powermock:powermock-reflect:" + POWERM_VERS,
+        sha1 = "97d25eda8275c11161bcddda6ef8beabd534c878",
+    )
+
+    maven_jar(
+        name = "powermock-api-easymock",
+        artifact = "org.powermock:powermock-api-easymock:" + POWERM_VERS,
+        sha1 = "aa740ecf89a2f64d410b3d93ef8cd6833009ef00",
+    )
+
+    maven_jar(
+        name = "powermock-api-support",
+        artifact = "org.powermock:powermock-api-support:" + POWERM_VERS,
+        sha1 = "592ee6d929c324109d3469501222e0c76ccf0869",
+    )
+
+    maven_jar(
+        name = "powermock-core",
+        artifact = "org.powermock:powermock-core:" + POWERM_VERS,
+        sha1 = "5afc1efce8d44ed76b30af939657bd598e45d962",
+    )
+
+    maven_jar(
+        name = "javassist",
+        artifact = "org.javassist:javassist:3.22.0-GA",
+        sha1 = "3e83394258ae2089be7219b971ec21a8288528ad",
+    )
+
+    DOCKER_JAVA_VERS = "3.2.5"
+
+    maven_jar(
+        name = "docker-java-api",
+        artifact = "com.github.docker-java:docker-java-api:" + DOCKER_JAVA_VERS,
+        sha1 = "8fe5c5e39f940ce58620e77cedc0a2a52d76f9d8",
+    )
+
+    maven_jar(
+        name = "docker-java-transport",
+        artifact = "com.github.docker-java:docker-java-transport:" + DOCKER_JAVA_VERS,
+        sha1 = "27af0ee7ebc2f5672e23ea64769497b5d55ce3ac",
+    )
+
+    # https://github.com/docker-java/docker-java/blob/3.2.5/pom.xml#L61
+    # <=> DOCKER_JAVA_VERS
+    maven_jar(
+        name = "jackson-annotations",
+        artifact = "com.fasterxml.jackson.core:jackson-annotations:2.10.3",
+        sha1 = "0f63b3b1da563767d04d2e4d3fc1ae0cdeffebe7",
+    )
+
+    TESTCONTAINERS_VERSION = "1.15.0"
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 
     maven_jar(
         name = "testcontainers",
         artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
-        sha1 = "071fc82ba663f469447a19434e7db90f3a872753",
+        sha1 = "b627535b444d88e7b14953bb953d80d9b7b3bd76",
     )
 
     maven_jar(
         name = "testcontainers-elasticsearch",
         artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-        sha1 = "3709e2ebb0b6aa4e2ba2b6ca92ffdd3bf637a86c",
+        sha1 = "2bd79fd915e5c7bcf9b5d86cd8e0b7a0fff4b8ce",
     )
 
     maven_jar(

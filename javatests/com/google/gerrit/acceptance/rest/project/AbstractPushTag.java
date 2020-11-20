@@ -30,9 +30,14 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.GitUtil;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.data.Permission;
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.testing.ConfigSuite;
 import com.google.inject.Inject;
+=======
+import com.google.gerrit.reviewdb.client.RefNames;
+import com.google.gerrit.testing.ConfigSuite;
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -61,8 +66,11 @@ public abstract class AbstractPushTag extends AbstractDaemonTest {
     return config;
   }
 
+<<<<<<< HEAD   (fb6428 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
   @Inject private ProjectOperations projectOperations;
 
+=======
+>>>>>>> BRANCH (fcef5f Merge branch 'stable-2.16' into stable-3.0)
   private RevCommit initialHead;
   private TagType tagType;
 
@@ -307,6 +315,33 @@ public abstract class AbstractPushTag extends AbstractDaemonTest {
         .forUpdate()
         .add(allow(Permission.READ).ref("refs/meta/config").group(REGISTERED_USERS))
         .update();
+  }
+
+  private void removeReadAccessOnRefsStar() throws Exception {
+    removePermission(allProjects, "refs/heads/*", Permission.READ);
+    removePermission(project, "refs/heads/*", Permission.READ);
+  }
+
+  private void grantReadAccessOnRefsHeadsStar() throws Exception {
+    grant(project, "refs/heads/*", Permission.READ, false, REGISTERED_USERS);
+  }
+
+  private void allowReadingAllTag() throws Exception {
+    // Tags are only visible if the commits to which they point are part of a visible branch.
+    // To make all tags visible, including tags that point to commits that are not part of a visible
+    // branch, either auth.skipFullRefEvaluationIfAllRefsAreVisible in gerrit.config needs to be
+    // true, or the user must have READ access for all refs in the repository.
+
+    if (cfg.getBoolean("auth", "skipFullRefEvaluationIfAllRefsAreVisible", true)) {
+      return;
+    }
+
+    // By default READ access in the All-Projects project is granted to registered users on refs/*,
+    // which makes all refs, except refs/meta/config, visible to them. refs/meta/config is not
+    // visible since by default READ access to it is exclusively granted to the project owners only.
+    // This means to make all refs, and thus all tags, visible, we must allow registered users to
+    // see the refs/meta/config branch.
+    allow(project, "refs/meta/config", Permission.READ, REGISTERED_USERS);
   }
 
   private void allowTagCreation() throws Exception {
