@@ -1221,7 +1221,11 @@ public class GroupsIT extends AbstractDaemonTest {
   public void cannotDeleteDeletedGroupBranch() throws Exception {
     // refs/deleted-groups is only visible with ACCESS_DATABASE
     allowGlobalCapabilities(REGISTERED_USERS, GlobalCapability.ACCESS_DATABASE);
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
     String groupRef = RefNames.refsDeletedGroups(AccountGroup.uuid(name("foo")));
+=======
+    String groupRef = RefNames.refsDeletedGroups(new AccountGroup.UUID(name("foo")));
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
     createBranch(allUsers, groupRef);
     testCannotDeleteGroupBranch(RefNames.REFS_DELETED_GROUPS + "*", groupRef);
   }

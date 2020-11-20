@@ -74,9 +74,15 @@ class ChangeControl {
     this.notes = notes;
   }
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
   ForChange asForChange(@Nullable ChangeData cd) {
     setChangeData(cd);
     return new ForChangeImpl();
+=======
+  ForChange asForChange(@Nullable ChangeData cd, @Nullable Provider<ReviewDb> db) {
+    setChangeData(cd);
+    return new ForChangeImpl(db);
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   private CurrentUser getUser() {
@@ -91,9 +97,15 @@ class ChangeControl {
     return notes.getChange();
   }
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
   private ChangeData changeData() {
     if (cd == null) {
       cd = changeDataFactory.create(notes);
+=======
+  private ChangeData changeData(ReviewDb db) {
+    if (cd == null) {
+      cd = changeDataFactory.create(db, notes);
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
     }
     return cd;
   }
@@ -106,8 +118,13 @@ class ChangeControl {
   }
 
   /** Can this user see this change? */
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
   boolean isVisible() {
     if (getChange().isPrivate() && !isPrivateVisible(changeData())) {
+=======
+  boolean isVisible(ReviewDb db) throws OrmException {
+    if (getChange().isPrivate() && !isPrivateVisible(db, cd)) {
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
       return false;
     }
     // Does the user have READ permission on the destination?
@@ -236,12 +253,41 @@ class ChangeControl {
         || getUser().isInternalUser();
   }
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
   private class ForChangeImpl extends ForChange {
+=======
+  class ForChangeImpl extends ForChange {
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 
     private Map<String, PermissionRange> labels;
     private String resourcePath;
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
     private ForChangeImpl() {}
+=======
+    ForChangeImpl(@Nullable Provider<ReviewDb> db) {
+      this.db = db;
+    }
+
+    private ReviewDb db() {
+      if (db != null) {
+        return db.get();
+      } else if (cd != null) {
+        return cd.db();
+      } else {
+        return null;
+      }
+    }
+
+    private ChangeData changeData() {
+      if (cd == null) {
+        ReviewDb reviewDb = db();
+        checkState(reviewDb != null, "need ReviewDb");
+        cd = changeDataFactory.create(reviewDb, notes);
+      }
+      return cd;
+    }
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 
     @Override
     public String resourcePath() {
@@ -294,7 +340,11 @@ class ChangeControl {
       try {
         switch (perm) {
           case READ:
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
             return isVisible();
+=======
+            return isVisible(db());
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
           case ABANDON:
             return canAbandon();
           case DELETE:

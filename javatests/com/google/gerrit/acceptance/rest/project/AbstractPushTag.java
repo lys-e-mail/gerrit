@@ -28,6 +28,10 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.GitUtil;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.reviewdb.client.RefNames;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+import com.google.gerrit.server.project.testing.Util;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.testing.ConfigSuite;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.PersonIdent;

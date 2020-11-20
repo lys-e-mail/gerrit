@@ -39,7 +39,11 @@ java_package_configuration(
         "-Xep:ElementsCountedInLoop:WARN",
         "-Xep:EqualsHashCode:WARN",
         "-Xep:EqualsIncompatibleType:WARN",
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
         "-Xep:ExpectedExceptionChecker:OFF",
+=======
+        "-Xep:ExpectedExceptionChecker:WARN",
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
         "-Xep:Finally:WARN",
         "-Xep:FloatingPointLiteralPrecision:WARN",
         "-Xep:FragmentInjection:WARN",

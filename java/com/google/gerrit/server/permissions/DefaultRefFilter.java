@@ -16,6 +16,10 @@ package com.google.gerrit.server.permissions;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+import static com.google.gerrit.reviewdb.client.RefNames.REFS_CHANGES;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 import static com.google.gerrit.reviewdb.client.RefNames.REFS_CONFIG;
 import static com.google.gerrit.reviewdb.client.RefNames.REFS_USERS_SELF;
 import static java.util.stream.Collectors.toMap;
@@ -71,6 +75,10 @@ class DefaultRefFilter {
   private final TagCache tagCache;
   private final ChangeNotes.Factory changeNotesFactory;
   @Nullable private final SearchingChangeCacheImpl changeCache;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+  private final Provider<ReviewDb> db;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
   private final PermissionBackend permissionBackend;
   private final RefVisibilityControl refVisibilityControl;
   private final ProjectControl projectControl;
@@ -88,6 +96,10 @@ class DefaultRefFilter {
       TagCache tagCache,
       ChangeNotes.Factory changeNotesFactory,
       @Nullable SearchingChangeCacheImpl changeCache,
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+      Provider<ReviewDb> db,
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
       PermissionBackend permissionBackend,
       RefVisibilityControl refVisibilityControl,
       @GerritServerConfig Config config,
@@ -96,6 +108,10 @@ class DefaultRefFilter {
     this.tagCache = tagCache;
     this.changeNotesFactory = changeNotesFactory;
     this.changeCache = changeCache;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+    this.db = db;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
     this.permissionBackend = permissionBackend;
     this.refVisibilityControl = refVisibilityControl;
     this.skipFullRefEvaluationIfAllRefsAreVisible =
@@ -193,6 +209,12 @@ class DefaultRefFilter {
             .testOrFalse(GlobalPermission.ACCESS_DATABASE);
     Map<String, Ref> resultRefs = Maps.newHashMapWithExpectedSize(refs.size());
     List<Ref> deferredTags = new ArrayList<>();
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+
+    boolean hasReadOnRefsStar =
+        checkProjectPermission(permissionBackendForProject, ProjectPermission.READ);
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
     for (Ref ref : refs.values()) {
       String refName = ref.getName();
       Change.Id changeId;
@@ -242,6 +264,54 @@ class DefaultRefFilter {
     return new AutoValue_DefaultRefFilter_Result(resultRefs, deferredTags);
   }
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+  /**
+   * Returns all refs tag we regard as starting points for reachability computation for tags. In
+   * general, these are all refs not managed by Gerrit.
+   */
+  private static Map<String, Ref> getTaggableRefsMap(Repository repo)
+      throws PermissionBackendException {
+    try {
+      return repo.getRefDatabase().getRefs().stream()
+          .filter(
+              r ->
+                  !RefNames.isGerritRef(r.getName())
+                      && !r.getName().startsWith(RefNames.REFS_TAGS)
+                      && !r.isSymbolic()
+                      && !REFS_CONFIG.equals(r.getName()))
+          .collect(toMap(Ref::getName, r -> r));
+    } catch (IOException e) {
+      throw new PermissionBackendException(e);
+=======
+    // If we have tags that were deferred, we need to do a revision walk
+    // to identify what tags we can actually reach, and what we cannot.
+    //
+    if (!deferredTags.isEmpty() && (!resultRefs.isEmpty() || opts.filterTagsSeparately())) {
+      TagMatcher tags =
+          tagCache
+              .get(projectState.getNameKey())
+              .matcher(
+                  tagCache,
+                  repo,
+                  opts.filterTagsSeparately()
+                      ? filter(
+                              getTaggableRefsMap(repo),
+                              repo,
+                              opts.toBuilder().setFilterTagsSeparately(false).build())
+                          .values()
+                      : resultRefs.values());
+      for (Ref tag : deferredTags) {
+        if (tags.isReachable(tag)) {
+          resultRefs.put(tag.getName(), tag);
+        }
+      }
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
+    }
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+    return resultRefs;
+  }
+
   /**
    * Returns all refs tag we regard as starting points for reachability computation for tags. In
    * general, these are all refs not managed by Gerrit.
@@ -260,6 +330,7 @@ class DefaultRefFilter {
     } catch (IOException e) {
       throw new PermissionBackendException(e);
     }
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   private Map<String, Ref> fastHideRefsMetaConfig(Map<String, Ref> refs)
@@ -419,6 +490,7 @@ class DefaultRefFilter {
     }
     return true;
   }
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
 
   /**
    * Returns true if the user can see the provided change ref. Uses NoteDb for evaluation, hence
@@ -466,4 +538,6 @@ class DefaultRefFilter {
      */
     abstract List<Ref> deferredTags();
   }
+=======
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 }
