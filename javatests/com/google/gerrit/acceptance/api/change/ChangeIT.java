@@ -1082,8 +1082,13 @@ public class ChangeIT extends AbstractDaemonTest {
       com.google.gerrit.acceptance.TestAccount deleteAs)
       throws Exception {
     try {
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
       allow(projectName, "refs/*", Permission.VIEW_PRIVATE_CHANGES, ANONYMOUS_USERS);
       requestScopeOperations.setApiUser(owner.id());
+=======
+      setApiUser(owner);
+      allow(projectName, "refs/*", Permission.VIEW_PRIVATE_CHANGES, ANONYMOUS_USERS);
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
       ChangeInput in = new ChangeInput();
       in.project = projectName.get();
       in.branch = "refs/heads/master";

@@ -125,7 +125,11 @@ public class RefNames {
 
   public static String patchSetRef(PatchSet.Id id) {
     StringBuilder r = newStringBuilder().append(REFS_CHANGES);
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
     return shard(id.changeId().get(), r).append('/').append(id.get()).toString();
+=======
+    return shard(id.changeId.get(), r).append('/').append(id.get()).toString();
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
   }
 
   public static String robotCommentsRef(Change.Id id) {

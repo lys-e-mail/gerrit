@@ -16,7 +16,11 @@ package com.google.gerrit.server.permissions;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
 import com.google.common.collect.ImmutableList;
+=======
+import com.google.common.collect.ImmutableMap;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.data.Permission;
 import com.google.gerrit.common.data.PermissionRange;
@@ -36,6 +40,11 @@ import com.google.gerrit.server.permissions.PermissionBackend.ForChange;
 import com.google.gerrit.server.permissions.PermissionBackend.ForRef;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.util.MagicBranch;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
+=======
+import com.google.gwtorm.server.OrmException;
+import com.google.inject.util.Providers;
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -681,7 +690,16 @@ class RefControl {
         }
         return projectControl.asForProject()
             .filter(
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
                 ImmutableList.of(resolvedRef), repo, PermissionBackend.RefFilterOptions.defaults())
+=======
+                ImmutableMap.of(resolvedRef.getName(), resolvedRef),
+                repo,
+                PermissionBackend.RefFilterOptions.builder()
+                    .setFilterMeta(true)
+                    .setFilterTagsSeparately(true)
+                    .build())
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
             .values().stream()
             .anyMatch(r -> refName.equals(r.getName()));
       } catch (IOException e) {

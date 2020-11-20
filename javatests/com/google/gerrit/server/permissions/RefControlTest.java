@@ -198,6 +198,7 @@ public class RefControlTest extends GerritBaseTests {
   private final Map<Project.NameKey, ProjectState> all = new HashMap<>();
   private Project.NameKey localKey = new Project.NameKey("local");
   private ProjectConfig local;
+  private ProjectConfig allUsers;
   private Project.NameKey parentKey = new Project.NameKey("parent");
   private ProjectConfig parent;
   private InMemoryRepositoryManager repoManager;
@@ -213,7 +214,10 @@ public class RefControlTest extends GerritBaseTests {
   @Inject private DefaultRefFilter.Factory refFilterFactory;
   @Inject private TransferConfig transferConfig;
   @Inject private MetricMaker metricMaker;
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
   @Inject private ProjectConfig.Factory projectConfigFactory;
+=======
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
   @Inject private RefVisibilityControl refVisibilityControl;
 
   @Before
@@ -228,7 +232,7 @@ public class RefControlTest extends GerritBaseTests {
 
           @Override
           public ProjectState getAllUsers() {
-            return null;
+            return get(allUsersName);
           }
 
           @Override
@@ -282,13 +286,24 @@ public class RefControlTest extends GerritBaseTests {
     injector.injectMembers(this);
 
     try {
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
       Repository repo = repoManager.createRepository(allProjectsName);
       ProjectConfig allProjects =
           projectConfigFactory.create(new Project.NameKey(allProjectsName.get()));
       allProjects.load(repo);
+=======
+      Repository allProjectsRepo = repoManager.createRepository(allProjectsName);
+      ProjectConfig allProjects = new ProjectConfig(new Project.NameKey(allProjectsName.get()));
+      allProjects.load(allProjectsRepo);
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
       LabelType cr = Util.codeReview();
       allProjects.getLabelSections().put(cr.getName(), cr);
       add(allProjects);
+
+      Repository allUsersRepo = repoManager.createRepository(allUsersName);
+      allUsers = new ProjectConfig(new Project.NameKey(allUsersName.get()));
+      allUsers.load(allUsersRepo);
+      add(allUsers);
     } catch (IOException | ConfigInvalidException e) {
       throw new RuntimeException(e);
     }
@@ -357,9 +372,12 @@ public class RefControlTest extends GerritBaseTests {
 
   @Test
   public void allRefsAreNotVisibleForAllUsers() throws Exception {
+<<<<<<< HEAD   (ba19d5 Merge "ElasticContainer: Upgrade V6_8 to elasticsearch 6.8.1)
     ProjectConfig allUsers = projectConfigFactory.create(allUsersName);
     allUsers.load(newRepository(allUsersName));
 
+=======
+>>>>>>> BRANCH (77e876 Merge branch 'stable-2.15' into stable-2.16)
     allow(allUsers, READ, DEVS, "refs/*");
     allow(allUsers, READ, DEVS, "refs/groups/*");
     allow(allUsers, READ, DEVS, "refs/users/default");
