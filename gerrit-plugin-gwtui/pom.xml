@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-gwtui</artifactId>
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
   <version>2.15.22-SNAPSHOT</version>
+=======
+  <version>2.14.23-SNAPSHOT</version>
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin GWT UI</name>
   <description>Common Classes for Gerrit GWT UI Plugins</description>

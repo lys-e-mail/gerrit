@@ -39,7 +39,13 @@ import com.google.gerrit.reviewdb.client.RefNames;
 import com.google.gerrit.reviewdb.server.ReviewDb;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.account.GroupMembership;
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
 import com.google.gerrit.server.config.AllUsersName;
+=======
+import com.google.gerrit.server.change.IncludedInResolver;
+import com.google.gerrit.server.config.AllUsersName;
+import com.google.gerrit.server.config.CanonicalWebUrl;
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
 import com.google.gerrit.server.config.GitReceivePackGroups;
 import com.google.gerrit.server.config.GitUploadPackGroups;
 import com.google.gerrit.server.git.GitRepositoryManager;
@@ -138,9 +144,17 @@ public class ProjectControl {
   private final CommitsCollection commits;
   private final ChangeControl.Factory changeControlFactory;
   private final PermissionCollection.Factory permissionFilter;
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
   private final RefVisibilityControl refVisibilityControl;
   private final VisibleRefFilter.Factory visibleRefFilterFactory;
   private final GitRepositoryManager gitRepositoryManager;
+=======
+  private final Collection<ContributorAgreement> contributorAgreements;
+  private final TagCache tagCache;
+  @Nullable private final SearchingChangeCacheImpl changeCache;
+  private final Provider<InternalChangeQuery> queryProvider;
+  private final Metrics metrics;
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
   private final AllUsersName allUsersName;
 
   private List<SectionMatcher> allSections;
@@ -154,10 +168,17 @@ public class ProjectControl {
       PermissionCollection.Factory permissionFilter,
       CommitsCollection commits,
       ChangeControl.Factory changeControlFactory,
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
       PermissionBackend permissionBackend,
       RefVisibilityControl refVisibilityControl,
       GitRepositoryManager gitRepositoryManager,
       VisibleRefFilter.Factory visibleRefFilterFactory,
+=======
+      TagCache tagCache,
+      Provider<InternalChangeQuery> queryProvider,
+      @Nullable SearchingChangeCacheImpl changeCache,
+      @CanonicalWebUrl @Nullable String canonicalWebUrl,
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
       AllUsersName allUsersName,
       @Assisted CurrentUser who,
       @Assisted ProjectState ps) {
@@ -165,11 +186,18 @@ public class ProjectControl {
     this.uploadGroups = uploadGroups;
     this.receiveGroups = receiveGroups;
     this.permissionFilter = permissionFilter;
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
     this.commits = commits;
     this.perm = permissionBackend.user(who);
     this.refVisibilityControl = refVisibilityControl;
     this.gitRepositoryManager = gitRepositoryManager;
     this.visibleRefFilterFactory = visibleRefFilterFactory;
+=======
+    this.contributorAgreements = pc.getAllProjects().getConfig().getContributorAgreements();
+    this.canonicalWebUrl = canonicalWebUrl;
+    this.queryProvider = queryProvider;
+    this.metrics = metrics;
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
     this.allUsersName = allUsersName;
     user = who;
     state = ps;
@@ -298,6 +326,7 @@ public class ProjectControl {
     return false;
   }
 
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
   boolean isAdmin() {
     try {
       perm.check(GlobalPermission.ADMINISTRATE_SERVER);
@@ -305,6 +334,23 @@ public class ProjectControl {
     } catch (AuthException | PermissionBackendException e) {
       return false;
     }
+=======
+  /** Can this user see all the refs in this projects? */
+  public boolean allRefsAreVisible() {
+    return allRefsAreVisible(Collections.<String>emptySet());
+  }
+
+  public boolean allRefsAreVisible(Set<String> ignore) {
+    return user.isInternalUser()
+        || (!getProject().getNameKey().equals(allUsersName)
+            && canPerformOnAllRefs(Permission.READ, ignore));
+  }
+
+  /** Is this user a project owner? Ownership does not imply {@link #isVisible()} */
+  public boolean isOwner() {
+    return (isDeclaredOwner() && !controlForRef("refs/*").isBlocked(Permission.OWNER))
+        || user.getCapabilities().canAdministrateServer();
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
   }
 
   private boolean isDeclaredOwner() {

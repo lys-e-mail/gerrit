@@ -115,6 +115,7 @@ public class RefControlTest {
     assertThat(u.asForProject().test(ProjectPermission.READ)).named("all refs visible").isTrue();
   }
 
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
   private void assertAllRefsAreNotVisible(ProjectControl u) throws PermissionBackendException {
     assertThat(u.asForProject().test(ProjectPermission.READ))
         .named("all refs NOT visible")
@@ -129,6 +130,18 @@ public class RefControlTest {
   private void assertAccessDenied(ProjectControl u) {
     boolean access = u.asForProject().testOrFalse(ProjectPermission.ACCESS);
     assertThat(access).named("cannot access").isFalse();
+=======
+  private void assertAllRefsAreVisible(ProjectControl u) {
+    assertThat(u.allRefsAreVisible()).named("all refs visible").isTrue();
+  }
+
+  private void assertAllRefsAreNotVisible(ProjectControl u) {
+    assertThat(u.allRefsAreVisible()).named("all refs NOT visible").isFalse();
+  }
+
+  private void assertCannotRead(ProjectControl u) {
+    assertThat(u.isVisible()).named("cannot read").isFalse();
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
   }
 
   private void assertCanRead(String ref, ProjectControl u) {
@@ -928,10 +941,17 @@ public class RefControlTest {
         sectionSorter,
         null, // commitsCollection
         changeControlFactory,
+<<<<<<< HEAD   (a0eeeb Merge branch 'stable-2.15-2020-11.notedb-refs-tags' into sta)
         permissionBackend,
         refVisibilityControl,
         gitRepositoryManager,
         visibleRefFilterFactory,
+=======
+        null,
+        queryProvider,
+        null,
+        canonicalWebUrl,
+>>>>>>> BRANCH (047263 Merge branch 'stable-2.14-2020-11.notedb-refs-tags' into sta)
         allUsersName,
         new MockUser(name, memberOf),
         newProjectState(local));
