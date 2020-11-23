@@ -48,8 +48,11 @@ import {
   MergeabilityComputationBehavior,
 } from '../constants/constants';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 
 import {DiffInfo, IgnoreWhitespaceType, WebLinkInfo} from './diff';
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 export type BrandType<T, BrandName extends string> = T &
   {[__brand in BrandName]: never};
@@ -1231,6 +1234,55 @@ export interface LabelTypeInfo {
 
 export type LabelTypeInfoValues = {[value: string]: string};
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+=======
+/**
+ * The DiffContent entity contains information about the content differences in a file.
+ * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-content
+ */
+export interface DiffContent {
+  a?: string[];
+  b?: string[];
+  ab?: string[];
+  // The inner array is always of length two. The first entry is the 'skip'
+  // length. The second entry is the 'edit' length.
+  edit_a?: number[][];
+  edit_b?: number[][];
+  due_to_rebase?: boolean;
+  due_to_move?: boolean;
+  skip?: number;
+  common?: string;
+  keyLocation?: boolean;
+}
+
+/**
+ * The DiffFileMetaInfo entity contains meta information about a file diff.
+ * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-file-meta-info
+ */
+export interface DiffFileMetaInfo {
+  name: string;
+  content_type: string;
+  lines: string;
+  web_links?: WebLinkInfo[];
+  language?: string;
+}
+
+/**
+ * The DiffInfo entity contains information about the diff of a file in a revision.
+ * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-info
+ */
+export interface DiffInfo {
+  meta_a: DiffFileMetaInfo;
+  meta_b: DiffFileMetaInfo;
+  change_type: string;
+  intraline_status: string;
+  diff_header: string[];
+  content: DiffContent[];
+  web_links?: DiffWebLinkInfo[];
+  binary: boolean;
+}
+
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 export type FilePathToDiffInfoMap = {[path: string]: DiffInfo};
 
 /**

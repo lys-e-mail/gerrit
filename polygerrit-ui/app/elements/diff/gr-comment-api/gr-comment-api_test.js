@@ -690,9 +690,12 @@ suite('gr-comment-api tests', () => {
             path: 'file/three',
             line: 1,
             rootId: '09',
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
             range: undefined,
             diffSide: undefined,
             commentSide: CommentSide.REVISION,
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
           }, {
             comments: [
               {
@@ -710,8 +713,11 @@ suite('gr-comment-api tests', () => {
             path: 'file/four',
             line: 1,
             rootId: '10',
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
             range: undefined,
             diffSide: undefined,
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
           }, {
             comments: [
               {

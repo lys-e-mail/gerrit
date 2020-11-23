@@ -43,7 +43,6 @@ import {
   ReviewerState,
   SpecialFilePath,
 } from '../../../constants/constants';
-import {KnownExperimentId} from '../../../services/flags/flags';
 import {fetchChangeUpdates} from '../../../utils/patch-set-util';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {accountKey, removeServiceUsers} from '../../../utils/account-util';
@@ -110,7 +109,10 @@ import {GrStorage, StorageLocation} from '../../shared/gr-storage/gr-storage';
 import {isAttentionSetEnabled} from '../../../utils/attention-set-util';
 import {CODE_REVIEW, getMaxAccounts} from '../../../utils/label-util';
 import {isUnresolved} from '../../../utils/comment-util';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {fire, EventType} from '../../../utils/event-util';
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 const STORAGE_DEBOUNCE_INTERVAL_MS = 400;
 
@@ -381,8 +383,6 @@ export class GrReplyDialog extends KeyboardShortcutMixin(
     };
   }
 
-  _isPatchsetCommentsExperimentEnabled = false;
-
   constructor() {
     super();
     this.filterReviewerSuggestion = this._filterReviewerSuggestionGenerator(
@@ -422,9 +422,6 @@ export class GrReplyDialog extends KeyboardShortcutMixin(
   /** @override */
   ready() {
     super.ready();
-    this._isPatchsetCommentsExperimentEnabled = this.flagsService.isEnabled(
-      KnownExperimentId.PATCHSET_COMMENTS
-    );
     this.$.jsAPI.addElement(TargetElement.REPLY_DIALOG, this);
   }
 
@@ -681,17 +678,13 @@ export class GrReplyDialog extends KeyboardShortcutMixin(
     }
 
     if (this.draft) {
-      if (this._isPatchsetCommentsExperimentEnabled) {
-        const comment: CommentInput = {
-          message: this.draft,
-          unresolved: !this._isResolvedPatchsetLevelComment,
-        };
-        reviewInput.comments = {
-          [SpecialFilePath.PATCHSET_LEVEL_COMMENTS]: [comment],
-        };
-      } else {
-        reviewInput.message = this.draft;
-      }
+      const comment: CommentInput = {
+        message: this.draft,
+        unresolved: !this._isResolvedPatchsetLevelComment,
+      };
+      reviewInput.comments = {
+        [SpecialFilePath.PATCHSET_LEVEL_COMMENTS]: [comment],
+      };
     }
 
     const accountAdditions = new Map<AccountId | EmailAddress, boolean>();

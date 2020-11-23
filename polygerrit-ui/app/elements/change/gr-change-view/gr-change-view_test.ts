@@ -190,6 +190,7 @@ suite('gr-change-view tests', () => {
       path: '/COMMIT_MSG',
       line: 5,
       rootId: 'ecf0b9fa_fe1a5f62' as UrlEncodedCommentId,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
       commentSide: CommentSide.REVISION,
     },
     {
@@ -357,6 +358,169 @@ suite('gr-change-view tests', () => {
       line: 5,
       rootId: 'rc2' as UrlEncodedCommentId,
       commentSide: CommentSide.REVISION,
+=======
+    },
+    {
+      comments: [
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 3 as PatchSetNum,
+          id: 'ecf0b9fa_fe5f62' as UrlEncodedCommentId,
+          robot_id: 'rb2' as RobotId,
+          line: 5,
+          updated: '2018-02-08 18:49:18.000000000' as Timestamp,
+          message: 'test',
+          unresolved: true,
+        },
+        {
+          __path: 'test.txt',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 3 as PatchSetNum,
+          id: '09a9fb0a_1484e6cf' as UrlEncodedCommentId,
+          side: CommentSide.PARENT,
+          updated: '2018-02-13 22:47:19.000000000' as Timestamp,
+          message: 'Some comment on another patchset.',
+          unresolved: false,
+        },
+      ],
+      patchNum: 3 as PatchSetNum,
+      path: 'test.txt',
+      rootId: '09a9fb0a_1484e6cf' as UrlEncodedCommentId,
+      commentSide: CommentSide.PARENT,
+    },
+    {
+      comments: [
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 2 as PatchSetNum,
+          id: '8caddf38_44770ec1' as UrlEncodedCommentId,
+          line: 4,
+          updated: '2018-02-13 22:48:40.000000000' as Timestamp,
+          message: 'Another unresolved comment',
+          unresolved: true,
+        },
+      ],
+      patchNum: 2 as PatchSetNum,
+      path: '/COMMIT_MSG',
+      line: 4,
+      rootId: '8caddf38_44770ec1' as UrlEncodedCommentId,
+    },
+    {
+      comments: [
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 2 as PatchSetNum,
+          id: 'scaddf38_44770ec1' as UrlEncodedCommentId,
+          line: 4,
+          updated: '2018-02-14 22:48:40.000000000' as Timestamp,
+          message: 'Yet another unresolved comment',
+          unresolved: true,
+        },
+      ],
+      patchNum: 2 as PatchSetNum,
+      path: '/COMMIT_MSG',
+      line: 4,
+      rootId: 'scaddf38_44770ec1' as UrlEncodedCommentId,
+    },
+    {
+      comments: [
+        {
+          id: 'zcf0b9fa_fe1a5f62' as UrlEncodedCommentId,
+          path: '/COMMIT_MSG',
+          line: 6,
+          updated: '2018-02-15 22:48:48.018000000' as Timestamp,
+          message: 'resolved draft',
+          unresolved: false,
+          __draft: true,
+          __draftID: '0.m683trwff68',
+          __editing: false,
+          patch_set: 2 as PatchSetNum,
+        },
+      ],
+      patchNum: 4 as PatchSetNum,
+      path: '/COMMIT_MSG',
+      line: 6,
+      rootId: 'zcf0b9fa_fe1a5f62' as UrlEncodedCommentId,
+    },
+    {
+      comments: [
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 4 as PatchSetNum,
+          id: 'rc1' as UrlEncodedCommentId,
+          line: 5,
+          updated: '2019-02-08 18:49:18.000000000' as Timestamp,
+          message: 'test',
+          unresolved: true,
+          robot_id: 'rc1' as RobotId,
+        },
+      ],
+      patchNum: 4 as PatchSetNum,
+      path: '/COMMIT_MSG',
+      line: 5,
+      rootId: 'rc1' as UrlEncodedCommentId,
+    },
+    {
+      comments: [
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 4 as PatchSetNum,
+          id: 'rc2' as UrlEncodedCommentId,
+          line: 5,
+          updated: '2019-03-08 18:49:18.000000000' as Timestamp,
+          message: 'test',
+          unresolved: true,
+          robot_id: 'rc2' as RobotId,
+        },
+        {
+          __path: '/COMMIT_MSG',
+          author: {
+            _account_id: 1000000 as AccountId,
+            name: 'user',
+            username: 'user',
+          },
+          patch_set: 4 as PatchSetNum,
+          id: 'c2_1' as UrlEncodedCommentId,
+          line: 5,
+          updated: '2019-03-08 18:49:18.000000000' as Timestamp,
+          message: 'test',
+          unresolved: true,
+        },
+      ],
+      patchNum: 4 as PatchSetNum,
+      path: '/COMMIT_MSG',
+      line: 5,
+      rootId: 'rc2' as UrlEncodedCommentId,
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     },
   ];
 

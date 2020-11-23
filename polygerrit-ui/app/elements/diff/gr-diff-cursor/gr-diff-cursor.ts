@@ -20,7 +20,10 @@ import {
   AbortStop,
   CursorMoveResult,
   GrCursorManager,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   Stop,
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
   isTargetable,
 } from '../../shared/gr-cursor-manager/gr-cursor-manager';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status';
@@ -36,7 +39,10 @@ import {PolymerSpliceChange} from '@polymer/polymer/interfaces';
 import {PolymerDomWrapper} from '../../../types/types';
 import {GrDiffGroupType} from '../gr-diff/gr-diff-group';
 import {GrDiff} from '../gr-diff/gr-diff';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {fire, EventType} from '../../../utils/event-util';
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 const DiffViewMode = {
   SIDE_BY_SIDE: 'SIDE_BY_SIDE',

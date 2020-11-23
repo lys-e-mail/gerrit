@@ -19,7 +19,11 @@ import {
   ActionPriority,
 } from '../../../services/services/gr-rest-api/gr-rest-api';
 import {JsApiService} from './gr-js-api-types';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {PluginApi, TargetElement} from '../../plugins/gr-plugin-types';
+=======
+import {TargetElement} from '../../plugins/gr-plugin-types';
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 import {ActionInfo, RequireProperties} from '../../../types/common';
 
 export enum ChangeActions {
@@ -89,16 +93,104 @@ export interface GrChangeActionsElement extends Element {
   getActionDetails(actionName: string): ActionInfo | undefined;
 }
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 export class GrChangeActionsInterface {
   private _el?: GrChangeActionsElement;
+=======
+export enum ChangeActions {
+  ABANDON = 'abandon',
+  DELETE = '/',
+  DELETE_EDIT = 'deleteEdit',
+  EDIT = 'edit',
+  FOLLOW_UP = 'followup',
+  IGNORE = 'ignore',
+  MOVE = 'move',
+  PRIVATE = 'private',
+  PRIVATE_DELETE = 'private.delete',
+  PUBLISH_EDIT = 'publishEdit',
+  REBASE = 'rebase',
+  REBASE_EDIT = 'rebaseEdit',
+  READY = 'ready',
+  RESTORE = 'restore',
+  REVERT = 'revert',
+  REVERT_SUBMISSION = 'revert_submission',
+  REVIEWED = 'reviewed',
+  STOP_EDIT = 'stopEdit',
+  SUBMIT = 'submit',
+  UNIGNORE = 'unignore',
+  UNREVIEWED = 'unreviewed',
+  WIP = 'wip',
+}
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   RevisionActions = RevisionActions;
+=======
+export enum RevisionActions {
+  CHERRYPICK = 'cherrypick',
+  REBASE = 'rebase',
+  SUBMIT = 'submit',
+  DOWNLOAD = 'download',
+}
 
+export type PrimaryActionKey = ChangeActions | RevisionActions;
+
+export interface UIActionInfo extends RequireProperties<ActionInfo, 'label'> {
+  __key: string;
+  __url?: string;
+  __primary?: boolean;
+  __type: ActionType;
+  icon?: string;
+}
+
+// This interface is required to avoid circular dependencies between files;
+export interface GrChangeActionsElement extends Element {
+  RevisionActions?: Record<string, string>;
+  ChangeActions: Record<string, string>;
+  ActionType: Record<string, string>;
+  primaryActionKeys: string[];
+  push(propName: 'primaryActionKeys', value: string): void;
+  hideQuickApproveAction(): void;
+  setActionOverflow(type: ActionType, key: string, overflow: boolean): void;
+  setActionPriority(
+    type: ActionType,
+    key: string,
+    overflow: ActionPriority
+  ): void;
+  setActionHidden(type: ActionType, key: string, hidden: boolean): void;
+  addActionButton(type: ActionType, label: string): string;
+  removeActionButton(key: string): void;
+  setActionButtonProp<T extends keyof UIActionInfo>(
+    key: string,
+    prop: T,
+    value: UIActionInfo[T]
+  ): void;
+  getActionDetails(actionName: string): ActionInfo | undefined;
+}
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
+
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+  ChangeActions = ChangeActions;
+=======
+export class GrChangeActionsInterface {
+  private _el?: GrChangeActionsElement;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
+
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+  ActionType = ActionType;
+=======
+  RevisionActions = RevisionActions;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
+
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+  constructor(public plugin: PluginApi, el?: GrChangeActionsElement) {
+=======
   ChangeActions = ChangeActions;
 
   ActionType = ActionType;
 
-  constructor(public plugin: PluginApi, el?: GrChangeActionsElement) {
+  constructor(public plugin: Plugin, el?: GrChangeActionsElement) {
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     this.setEl(el);
   }
 

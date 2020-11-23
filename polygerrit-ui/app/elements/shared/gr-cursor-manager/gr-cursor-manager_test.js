@@ -147,6 +147,11 @@ suite('gr-cursor-manager tests', () => {
     assert.equal(element.index, -1);
     assert.isNotOk(element.target);
     assert.isFalse(list.children[1].classList.contains('targeted'));
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+=======
+    assert.isFalse(element.isAtStart());
+    assert.isFalse(element.isAtEnd());
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
   });
 
   test('previous() goes to last element when no cursor is set', () => {

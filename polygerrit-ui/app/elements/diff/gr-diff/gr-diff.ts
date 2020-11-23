@@ -195,6 +195,7 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Object})
   lineOfInterest?: LineOfInterest;
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   /**
    * True when diff is changed, until the content is done rendering.
    *
@@ -207,6 +208,11 @@ export class GrDiff extends GestureEventListeners(
 
   // Polymer generated when setting readOnly above.
   _setLoading!: (loading: boolean) => void;
+=======
+  /** True when diff is changed, until the content is done rendering. */
+  @property({type: Boolean})
+  _loading = false;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
   @property({type: Boolean})
   loggedIn = false;
@@ -472,7 +478,11 @@ export class GrDiff extends GestureEventListeners(
     this.cancelDebouncer(RENDER_DIFF_TABLE_DEBOUNCE_NAME);
   }
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   getCursorStops(): Array<HTMLElement | AbortStop> {
+=======
+  getCursorStops(): HTMLElement[] {
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     if (this.hidden && this.noAutoRender) return [];
 
     if (this.loading) {
@@ -480,9 +490,15 @@ export class GrDiff extends GestureEventListeners(
     }
 
     return Array.from(
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
       this.root?.querySelectorAll<HTMLElement>(
         ':not(.contextControl) > .diff-row'
       ) || []
+=======
+      this.root.querySelectorAll<HTMLElement>(
+        ':not(.contextControl) > .diff-row'
+      )
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     ).filter(tr => tr.querySelector('button'));
   }
 
@@ -825,7 +841,11 @@ export class GrDiff extends GestureEventListeners(
   }
 
   _diffChanged(newValue?: DiffInfo) {
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
     this._setLoading(true);
+=======
+    this._loading = true;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     this._cleanup();
     if (newValue) {
       this._diffLength = this.getDiffLength(newValue);
@@ -885,7 +905,11 @@ export class GrDiff extends GestureEventListeners(
   }
 
   _handleRenderContent() {
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
     this._setLoading(false);
+=======
+    this._loading = false;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     this._unobserveIncrementalNodes();
     this._incrementalNodeObserver = (dom(
       this

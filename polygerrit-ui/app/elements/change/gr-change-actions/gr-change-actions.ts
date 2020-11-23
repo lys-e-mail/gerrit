@@ -54,6 +54,7 @@ import {
   HttpMethod,
   NotifyType,
 } from '../../../constants/constants';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {
   EventType as PluginEventType,
   TargetElement,
@@ -1394,6 +1395,1368 @@ export class GrChangeActions
     const el = this.$.confirmMove;
     if (!el.branch) {
       fire(this, EventType.SHOW_ALERT, ERR_BRANCH_EMPTY);
+=======
+import {EventType, TargetElement} from '../../plugins/gr-plugin-types';
+import {customElement, observe, property} from '@polymer/decorators';
+import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {
+  ActionPriority,
+  ActionType,
+  ErrorCallback,
+  RestApiService,
+} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {
+  ActionInfo,
+  ActionNameToActionInfoMap,
+  BranchName,
+  ChangeInfo,
+  ChangeViewChangeInfo,
+  CherryPickInput,
+  CommitId,
+  InheritedBooleanInfo,
+  isDetailedLabelInfo,
+  isQuickLabelInfo,
+  LabelInfo,
+  NumericChangeId,
+  PatchSetNum,
+  PropertyType,
+  RequestPayload,
+  RevertSubmissionInfo,
+  ReviewInput,
+  ServerInfo,
+} from '../../../types/common';
+import {GrConfirmAbandonDialog} from '../gr-confirm-abandon-dialog/gr-confirm-abandon-dialog';
+import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
+import {GrDialog} from '../../shared/gr-dialog/gr-dialog';
+import {GrCreateChangeDialog} from '../../admin/gr-create-change-dialog/gr-create-change-dialog';
+import {GrConfirmSubmitDialog} from '../gr-confirm-submit-dialog/gr-confirm-submit-dialog';
+import {GrConfirmRevertSubmissionDialog} from '../gr-confirm-revert-submission-dialog/gr-confirm-revert-submission-dialog';
+import {
+  ConfirmRevertEventDetail,
+  GrConfirmRevertDialog,
+  RevertType,
+} from '../gr-confirm-revert-dialog/gr-confirm-revert-dialog';
+import {GrConfirmMoveDialog} from '../gr-confirm-move-dialog/gr-confirm-move-dialog';
+import {GrConfirmCherrypickDialog} from '../gr-confirm-cherrypick-dialog/gr-confirm-cherrypick-dialog';
+import {GrConfirmCherrypickConflictDialog} from '../gr-confirm-cherrypick-conflict-dialog/gr-confirm-cherrypick-conflict-dialog';
+import {
+  ConfirmRebaseEventDetail,
+  GrConfirmRebaseDialog,
+} from '../gr-confirm-rebase-dialog/gr-confirm-rebase-dialog';
+import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+import {GrButton} from '../../shared/gr-button/gr-button';
+import {
+  ChangeActions,
+  GrChangeActionsElement,
+  PrimaryActionKey,
+  RevisionActions,
+  UIActionInfo,
+} from '../../shared/gr-js-api-interface/gr-change-actions-js-api';
+
+const ERR_BRANCH_EMPTY = 'The destination branch can’t be empty.';
+const ERR_COMMIT_EMPTY = 'The commit message can’t be empty.';
+const ERR_REVISION_ACTIONS = 'Couldn’t load revision actions.';
+
+enum LabelStatus {
+  /**
+   * This label provides what is necessary for submission.
+   */
+  OK = 'OK',
+  /**
+   * This label prevents the change from being submitted.
+   */
+  REJECT = 'REJECT',
+  /**
+   * The label may be set, but it's neither necessary for submission
+   * nor does it block submission if set.
+   */
+  MAY = 'MAY',
+  /**
+   * The label is required for submission, but has not been satisfied.
+   */
+  NEED = 'NEED',
+  /**
+   * The label is required for submission, but is impossible to complete.
+   * The likely cause is access has not been granted correctly by the
+   * project owner or site administrator.
+   */
+  IMPOSSIBLE = 'IMPOSSIBLE',
+  OPTIONAL = 'OPTIONAL',
+}
+
+const ActionLoadingLabels: {[actionKey: string]: string} = {
+  abandon: 'Abandoning...',
+  cherrypick: 'Cherry-picking...',
+  delete: 'Deleting...',
+  move: 'Moving..',
+  rebase: 'Rebasing...',
+  restore: 'Restoring...',
+  revert: 'Reverting...',
+  revert_submission: 'Reverting Submission...',
+  submit: 'Submitting...',
+};
+
+const ADDITIONAL_ACTION_KEY_PREFIX = '__additionalAction_';
+
+interface QuickApproveUIActionInfo extends UIActionInfo {
+  key: string;
+  payload?: RequestPayload;
+}
+
+const QUICK_APPROVE_ACTION: QuickApproveUIActionInfo = {
+  __key: 'review',
+  __type: ActionType.CHANGE,
+  enabled: true,
+  key: 'review',
+  label: 'Quick approve',
+  method: HttpMethod.POST,
+};
+
+function isQuckApproveAction(
+  action: UIActionInfo
+): action is QuickApproveUIActionInfo {
+  return (action as QuickApproveUIActionInfo).key === QUICK_APPROVE_ACTION.key;
+}
+
+const DOWNLOAD_ACTION: UIActionInfo = {
+  enabled: true,
+  label: 'Download patch',
+  title: 'Open download dialog',
+  __key: 'download',
+  __primary: false,
+  __type: ActionType.REVISION,
+};
+
+const REBASE_EDIT: UIActionInfo = {
+  enabled: true,
+  label: 'Rebase edit',
+  title: 'Rebase change edit',
+  __key: 'rebaseEdit',
+  __primary: false,
+  __type: ActionType.CHANGE,
+  method: HttpMethod.POST,
+};
+
+const PUBLISH_EDIT: UIActionInfo = {
+  enabled: true,
+  label: 'Publish edit',
+  title: 'Publish change edit',
+  __key: 'publishEdit',
+  __primary: false,
+  __type: ActionType.CHANGE,
+  method: HttpMethod.POST,
+};
+
+const DELETE_EDIT: UIActionInfo = {
+  enabled: true,
+  label: 'Delete edit',
+  title: 'Delete change edit',
+  __key: 'deleteEdit',
+  __primary: false,
+  __type: ActionType.CHANGE,
+  method: HttpMethod.DELETE,
+};
+
+const EDIT: UIActionInfo = {
+  enabled: true,
+  label: 'Edit',
+  title: 'Edit this change',
+  __key: 'edit',
+  __primary: false,
+  __type: ActionType.CHANGE,
+};
+
+const STOP_EDIT: UIActionInfo = {
+  enabled: true,
+  label: 'Stop editing',
+  title: 'Stop editing this change',
+  __key: 'stopEdit',
+  __primary: false,
+  __type: ActionType.CHANGE,
+};
+
+// Set of keys that have icons. As more icons are added to gr-icons.html, this
+// set should be expanded.
+const ACTIONS_WITH_ICONS = new Set([
+  ChangeActions.ABANDON,
+  ChangeActions.DELETE_EDIT,
+  ChangeActions.EDIT,
+  ChangeActions.PUBLISH_EDIT,
+  ChangeActions.READY,
+  ChangeActions.REBASE_EDIT,
+  ChangeActions.RESTORE,
+  ChangeActions.REVERT,
+  ChangeActions.REVERT_SUBMISSION,
+  ChangeActions.STOP_EDIT,
+  QUICK_APPROVE_ACTION.key,
+  RevisionActions.REBASE,
+  RevisionActions.SUBMIT,
+]);
+
+const EDIT_ACTIONS: Set<string> = new Set([
+  ChangeActions.DELETE_EDIT,
+  ChangeActions.EDIT,
+  ChangeActions.PUBLISH_EDIT,
+  ChangeActions.REBASE_EDIT,
+  ChangeActions.STOP_EDIT,
+]);
+
+const AWAIT_CHANGE_ATTEMPTS = 5;
+const AWAIT_CHANGE_TIMEOUT_MS = 1000;
+
+/* Revert submission is skipped as the normal revert dialog will now show
+the user a choice between reverting single change or an entire submission.
+Hence, a second button is not needed.
+*/
+const SKIP_ACTION_KEYS = [ChangeActions.REVERT_SUBMISSION];
+
+const SKIP_ACTION_KEYS_ATTENTION_SET = [
+  ChangeActions.REVIEWED,
+  ChangeActions.UNREVIEWED,
+];
+
+function assertUIActionInfo(action?: ActionInfo): UIActionInfo {
+  // TODO(TS): Remove this function. The gr-change-actions adds properties
+  // to existing ActionInfo objects instead of creating a new objects. This
+  // function checks, that 'action' has all property required by UIActionInfo.
+  // In the future, we should avoid updates of an existing ActionInfos and
+  // instead create a new object to make code cleaner. However, at the current
+  // state this is unsafe, because other code can expect these properties to be
+  // set in ActionInfo.
+  if (!action) {
+    throw new Error('action is undefined');
+  }
+  const result = action as UIActionInfo;
+  if (result.__key === undefined || result.__type === undefined) {
+    throw new Error('action is not an UIActionInfo');
+  }
+  return result;
+}
+
+interface MenuAction {
+  name: string;
+  id: string;
+  action: UIActionInfo;
+  tooltip?: string;
+}
+
+interface OverflowAction {
+  type: ActionType;
+  key: string;
+  overflow?: boolean;
+}
+
+interface ActionPriorityOverride {
+  type: ActionType.CHANGE | ActionType.REVISION;
+  key: string;
+  priority: ActionPriority;
+}
+
+interface ChangeActionDialog extends HTMLElement {
+  resetFocus?(): void;
+}
+
+export interface GrChangeActions {
+  $: {
+    jsAPI: GrJsApiInterface;
+    restAPI: RestApiService & Element;
+    mainContent: Element;
+    overlay: GrOverlay;
+    confirmRebase: GrConfirmRebaseDialog;
+    confirmCherrypick: GrConfirmCherrypickDialog;
+    confirmCherrypickConflict: GrConfirmCherrypickConflictDialog;
+    confirmMove: GrConfirmMoveDialog;
+    confirmRevertDialog: GrConfirmRevertDialog;
+    confirmRevertSubmissionDialog: GrConfirmRevertSubmissionDialog;
+    confirmAbandonDialog: GrConfirmAbandonDialog;
+    confirmSubmitDialog: GrConfirmSubmitDialog;
+    createFollowUpDialog: GrDialog;
+    createFollowUpChange: GrCreateChangeDialog;
+    confirmDeleteDialog: GrDialog;
+    confirmDeleteEditDialog: GrDialog;
+  };
+}
+
+@customElement('gr-change-actions')
+export class GrChangeActions
+  extends GestureEventListeners(LegacyElementMixin(PolymerElement))
+  implements GrChangeActionsElement {
+  static get template() {
+    return htmlTemplate;
+  }
+
+  /**
+   * Fired when the change should be reloaded.
+   *
+   * @event reload
+   */
+
+  /**
+   * Fired when an action is tapped.
+   *
+   * @event custom-tap - naming pattern: <action key>-tap
+   */
+
+  /**
+   * Fires to show an alert when a send is attempted on the non-latest patch.
+   *
+   * @event show-alert
+   */
+
+  /**
+   * Fires when a change action fails.
+   *
+   * @event show-error
+   */
+
+  // TODO(TS): Ensure that ActionType, ChangeActions and RevisionActions
+  // properties are replaced with enums everywhere and remove them from
+  // the GrChangeActions class
+  ActionType = ActionType;
+
+  ChangeActions = ChangeActions;
+
+  RevisionActions = RevisionActions;
+
+  reporting = appContext.reportingService;
+
+  @property({type: Object})
+  change?: ChangeViewChangeInfo;
+
+  @property({type: Object})
+  actions: ActionNameToActionInfoMap = {};
+
+  @property({type: Array})
+  primaryActionKeys: PrimaryActionKey[] = [
+    ChangeActions.READY,
+    RevisionActions.SUBMIT,
+  ];
+
+  @property({type: Boolean})
+  disableEdit = false;
+
+  @property({type: Boolean})
+  _hasKnownChainState = false;
+
+  @property({type: Boolean})
+  _hideQuickApproveAction = false;
+
+  @property({type: String})
+  changeNum?: NumericChangeId;
+
+  @property({type: String})
+  changeStatus?: ChangeStatus;
+
+  @property({type: String})
+  commitNum?: CommitId;
+
+  @property({type: Boolean, observer: '_computeChainState'})
+  hasParent?: boolean;
+
+  @property({type: String})
+  latestPatchNum?: PatchSetNum;
+
+  @property({type: String})
+  commitMessage = '';
+
+  @property({type: Object, notify: true})
+  revisionActions: ActionNameToActionInfoMap = {};
+
+  @property({type: Object, computed: '_getSubmitAction(revisionActions)'})
+  _revisionSubmitAction?: ActionInfo | null;
+
+  @property({type: Object, computed: '_getRebaseAction(revisionActions)'})
+  _revisionRebaseAction?: ActionInfo | null;
+
+  @property({type: String})
+  privateByDefault?: InheritedBooleanInfo;
+
+  @property({type: Boolean})
+  _loading = true;
+
+  @property({type: String})
+  _actionLoadingMessage = '';
+
+  @property({
+    type: Array,
+    computed:
+      '_computeAllActions(actions.*, revisionActions.*,' +
+      'primaryActionKeys.*, _additionalActions.*, change, ' +
+      '_config, _actionPriorityOverrides.*)',
+  })
+  _allActionValues: UIActionInfo[] = []; // _computeAllActions always returns an array
+
+  @property({
+    type: Array,
+    computed:
+      '_computeTopLevelActions(_allActionValues.*, ' +
+      '_hiddenActions.*, editMode, _overflowActions.*)',
+    observer: '_filterPrimaryActions',
+  })
+  _topLevelActions?: UIActionInfo[];
+
+  @property({type: Array})
+  _topLevelPrimaryActions?: UIActionInfo[];
+
+  @property({type: Array})
+  _topLevelSecondaryActions?: UIActionInfo[];
+
+  @property({
+    type: Array,
+    computed:
+      '_computeMenuActions(_allActionValues.*, ' +
+      '_hiddenActions.*, _overflowActions.*)',
+  })
+  _menuActions?: MenuAction[];
+
+  @property({type: Array})
+  _overflowActions: OverflowAction[] = [
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.WIP,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.DELETE,
+    },
+    {
+      type: ActionType.REVISION,
+      key: RevisionActions.CHERRYPICK,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.MOVE,
+    },
+    {
+      type: ActionType.REVISION,
+      key: RevisionActions.DOWNLOAD,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.IGNORE,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.UNIGNORE,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.REVIEWED,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.UNREVIEWED,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.PRIVATE,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.PRIVATE_DELETE,
+    },
+    {
+      type: ActionType.CHANGE,
+      key: ChangeActions.FOLLOW_UP,
+    },
+  ];
+
+  @property({type: Array})
+  _actionPriorityOverrides: ActionPriorityOverride[] = [];
+
+  @property({type: Array})
+  _additionalActions: UIActionInfo[] = [];
+
+  @property({type: Array})
+  _hiddenActions: string[] = [];
+
+  @property({type: Array})
+  _disabledMenuActions: string[] = [];
+
+  @property({type: Boolean})
+  editPatchsetLoaded = false;
+
+  @property({type: Boolean})
+  editMode = false;
+
+  @property({type: Boolean})
+  editBasedOnCurrentPatchSet = true;
+
+  @property({type: Object})
+  _config?: ServerInfo;
+
+  /** @override */
+  created() {
+    super.created();
+    this.addEventListener('fullscreen-overlay-opened', () =>
+      this._handleHideBackgroundContent()
+    );
+    this.addEventListener('fullscreen-overlay-closed', () =>
+      this._handleShowBackgroundContent()
+    );
+  }
+
+  /** @override */
+  ready() {
+    super.ready();
+    this.$.jsAPI.addElement(TargetElement.CHANGE_ACTIONS, this);
+    this.$.restAPI.getConfig().then(config => {
+      this._config = config;
+    });
+    this._handleLoadingComplete();
+  }
+
+  _getSubmitAction(revisionActions: ActionNameToActionInfoMap) {
+    return this._getRevisionAction(revisionActions, 'submit');
+  }
+
+  _getRebaseAction(revisionActions: ActionNameToActionInfoMap) {
+    return this._getRevisionAction(revisionActions, 'rebase');
+  }
+
+  _getRevisionAction(
+    revisionActions: ActionNameToActionInfoMap,
+    actionName: string
+  ) {
+    if (!revisionActions) {
+      return undefined;
+    }
+    if (revisionActions[actionName] === undefined) {
+      // Return null to fire an event when reveisionActions was loaded
+      // but doesn't contain actionName. undefined doesn't fire an event
+      return null;
+    }
+    return revisionActions[actionName];
+  }
+
+  reload() {
+    if (!this.changeNum || !this.latestPatchNum || !this.change) {
+      return Promise.resolve();
+    }
+    const change = this.change;
+
+    this._loading = true;
+    return this.$.restAPI
+      .getChangeRevisionActions(this.changeNum, this.latestPatchNum)
+      .then(revisionActions => {
+        if (!revisionActions) {
+          return;
+        }
+
+        this.revisionActions = revisionActions;
+        this._sendShowRevisionActions({
+          change,
+          revisionActions,
+        });
+        this._handleLoadingComplete();
+      })
+      .catch(err => {
+        this.dispatchEvent(
+          new CustomEvent('show-alert', {
+            detail: {message: ERR_REVISION_ACTIONS},
+            composed: true,
+            bubbles: true,
+          })
+        );
+        this._loading = false;
+        throw err;
+      });
+  }
+
+  _handleLoadingComplete() {
+    getPluginLoader()
+      .awaitPluginsLoaded()
+      .then(() => (this._loading = false));
+  }
+
+  _sendShowRevisionActions(detail: {
+    change: ChangeInfo;
+    revisionActions: ActionNameToActionInfoMap;
+  }) {
+    this.$.jsAPI.handleEvent(EventType.SHOW_REVISION_ACTIONS, detail);
+  }
+
+  @observe('change')
+  _changeChanged() {
+    this.reload();
+  }
+
+  addActionButton(type: ActionType, label: string) {
+    if (type !== ActionType.CHANGE && type !== ActionType.REVISION) {
+      throw Error(`Invalid action type: ${type}`);
+    }
+    const action: UIActionInfo = {
+      enabled: true,
+      label,
+      __type: type,
+      __key:
+        ADDITIONAL_ACTION_KEY_PREFIX + Math.random().toString(36).substr(2),
+    };
+    this.push('_additionalActions', action);
+    return action.__key;
+  }
+
+  removeActionButton(key: string) {
+    const idx = this._indexOfActionButtonWithKey(key);
+    if (idx === -1) {
+      return;
+    }
+    this.splice('_additionalActions', idx, 1);
+  }
+
+  setActionButtonProp<T extends keyof UIActionInfo>(
+    key: string,
+    prop: T,
+    value: UIActionInfo[T]
+  ) {
+    this.set(
+      ['_additionalActions', this._indexOfActionButtonWithKey(key), prop],
+      value
+    );
+  }
+
+  setActionOverflow(type: ActionType, key: string, overflow: boolean) {
+    if (type !== ActionType.CHANGE && type !== ActionType.REVISION) {
+      throw Error(`Invalid action type given: ${type}`);
+    }
+    const index = this._getActionOverflowIndex(type, key);
+    const action: OverflowAction = {
+      type,
+      key,
+      overflow,
+    };
+    if (!overflow && index !== -1) {
+      this.splice('_overflowActions', index, 1);
+    } else if (overflow) {
+      this.push('_overflowActions', action);
+    }
+  }
+
+  setActionPriority(
+    type: ActionType.CHANGE | ActionType.REVISION,
+    key: string,
+    priority: ActionPriority
+  ) {
+    if (type !== ActionType.CHANGE && type !== ActionType.REVISION) {
+      throw Error(`Invalid action type given: ${type}`);
+    }
+    const index = this._actionPriorityOverrides.findIndex(
+      action => action.type === type && action.key === key
+    );
+    const action: ActionPriorityOverride = {
+      type,
+      key,
+      priority,
+    };
+    if (index !== -1) {
+      this.set('_actionPriorityOverrides', index, action);
+    } else {
+      this.push('_actionPriorityOverrides', action);
+    }
+  }
+
+  setActionHidden(
+    type: ActionType.CHANGE | ActionType.REVISION,
+    key: string,
+    hidden: boolean
+  ) {
+    if (type !== ActionType.CHANGE && type !== ActionType.REVISION) {
+      throw Error(`Invalid action type given: ${type}`);
+    }
+
+    const idx = this._hiddenActions.indexOf(key);
+    if (hidden && idx === -1) {
+      this.push('_hiddenActions', key);
+    } else if (!hidden && idx !== -1) {
+      this.splice('_hiddenActions', idx, 1);
+    }
+  }
+
+  getActionDetails(actionName: string) {
+    if (this.revisionActions[actionName]) {
+      return this.revisionActions[actionName];
+    } else if (this.actions[actionName]) {
+      return this.actions[actionName];
+    } else {
+      return undefined;
+    }
+  }
+
+  _indexOfActionButtonWithKey(key: string) {
+    for (let i = 0; i < this._additionalActions.length; i++) {
+      if (this._additionalActions[i].__key === key) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  _shouldHideActions(
+    actions?: PolymerDeepPropertyChange<UIActionInfo[], UIActionInfo[]>,
+    loading?: boolean
+  ) {
+    return loading || !actions || !actions.base || !actions.base.length;
+  }
+
+  _keyCount(
+    changeRecord?: PolymerDeepPropertyChange<
+      ActionNameToActionInfoMap,
+      ActionNameToActionInfoMap
+    >
+  ) {
+    return Object.keys(changeRecord?.base || {}).length;
+  }
+
+  @observe('actions.*', 'revisionActions.*', '_additionalActions.*')
+  _actionsChanged(
+    actionsChangeRecord?: PolymerDeepPropertyChange<
+      ActionNameToActionInfoMap,
+      ActionNameToActionInfoMap
+    >,
+    revisionActionsChangeRecord?: PolymerDeepPropertyChange<
+      ActionNameToActionInfoMap,
+      ActionNameToActionInfoMap
+    >,
+    additionalActionsChangeRecord?: PolymerDeepPropertyChange<
+      UIActionInfo[],
+      UIActionInfo[]
+    >
+  ) {
+    // Polymer 2: check for undefined
+    if (
+      actionsChangeRecord === undefined ||
+      revisionActionsChangeRecord === undefined ||
+      additionalActionsChangeRecord === undefined
+    ) {
+      return;
+    }
+
+    const additionalActions =
+      (additionalActionsChangeRecord && additionalActionsChangeRecord.base) ||
+      [];
+    this.hidden =
+      this._keyCount(actionsChangeRecord) === 0 &&
+      this._keyCount(revisionActionsChangeRecord) === 0 &&
+      additionalActions.length === 0;
+    this._actionLoadingMessage = '';
+    this._actionLoadingMessage = '';
+    this._disabledMenuActions = [];
+
+    const revisionActions = revisionActionsChangeRecord.base || {};
+    if (Object.keys(revisionActions).length !== 0) {
+      if (!revisionActions.download) {
+        this.set('revisionActions.download', DOWNLOAD_ACTION);
+      }
+    }
+  }
+
+  _deleteAndNotify(actionName: string) {
+    if (this.actions && this.actions[actionName]) {
+      delete this.actions[actionName];
+      // We assign a fake value of 'false' to support Polymer 2
+      // see https://github.com/Polymer/polymer/issues/2631
+      this.notifyPath('actions.' + actionName, false);
+    }
+  }
+
+  @observe(
+    'editMode',
+    'editPatchsetLoaded',
+    'editBasedOnCurrentPatchSet',
+    'disableEdit',
+    'actions.*',
+    'change.*'
+  )
+  _editStatusChanged(
+    editMode: boolean,
+    editPatchsetLoaded: boolean,
+    editBasedOnCurrentPatchSet: boolean,
+    disableEdit: boolean,
+    actionsChangeRecord?: PolymerDeepPropertyChange<
+      ActionNameToActionInfoMap,
+      ActionNameToActionInfoMap
+    >,
+    changeChangeRecord?: PolymerDeepPropertyChange<ChangeInfo, ChangeInfo>
+  ) {
+    if (actionsChangeRecord === undefined || changeChangeRecord === undefined) {
+      return;
+    }
+    if (disableEdit) {
+      this._deleteAndNotify('publishEdit');
+      this._deleteAndNotify('rebaseEdit');
+      this._deleteAndNotify('deleteEdit');
+      this._deleteAndNotify('stopEdit');
+      this._deleteAndNotify('edit');
+      return;
+    }
+    const actions = actionsChangeRecord.base;
+    const change = changeChangeRecord.base;
+    if (actions && editPatchsetLoaded) {
+      // Only show actions that mutate an edit if an actual edit patch set
+      // is loaded.
+      if (changeIsOpen(change)) {
+        if (editBasedOnCurrentPatchSet) {
+          if (!actions.publishEdit) {
+            this.set('actions.publishEdit', PUBLISH_EDIT);
+          }
+          this._deleteAndNotify('rebaseEdit');
+        } else {
+          if (!actions.rebaseEdit) {
+            this.set('actions.rebaseEdit', REBASE_EDIT);
+          }
+          this._deleteAndNotify('publishEdit');
+        }
+      }
+      if (!actions.deleteEdit) {
+        this.set('actions.deleteEdit', DELETE_EDIT);
+      }
+    } else {
+      this._deleteAndNotify('publishEdit');
+      this._deleteAndNotify('rebaseEdit');
+      this._deleteAndNotify('deleteEdit');
+    }
+
+    if (actions && changeIsOpen(change)) {
+      // Only show edit button if there is no edit patchset loaded and the
+      // file list is not in edit mode.
+      if (editPatchsetLoaded || editMode) {
+        this._deleteAndNotify('edit');
+      } else {
+        if (!actions.edit) {
+          this.set('actions.edit', EDIT);
+        }
+      }
+      // Only show STOP_EDIT if edit mode is enabled, but no edit patch set
+      // is loaded.
+      if (editMode && !editPatchsetLoaded) {
+        if (!actions.stopEdit) {
+          this.set('actions.stopEdit', STOP_EDIT);
+        }
+      } else {
+        this._deleteAndNotify('stopEdit');
+      }
+    } else {
+      // Remove edit button.
+      this._deleteAndNotify('edit');
+    }
+  }
+
+  _getValuesFor<T>(obj: {[key: string]: T}): T[] {
+    return Object.keys(obj).map(key => obj[key]);
+  }
+
+  _getLabelStatus(label: LabelInfo): LabelStatus {
+    if (isQuickLabelInfo(label)) {
+      if (label.approved) {
+        return LabelStatus.OK;
+      } else if (label.rejected) {
+        return LabelStatus.REJECT;
+      }
+    }
+    if (label.optional) {
+      return LabelStatus.OPTIONAL;
+    } else {
+      return LabelStatus.NEED;
+    }
+  }
+
+  /**
+   * Get highest score for last missing permitted label for current change.
+   * Returns null if no labels permitted or more than one label missing.
+   */
+  _getTopMissingApproval() {
+    if (!this.change || !this.change.labels || !this.change.permitted_labels) {
+      return null;
+    }
+    let result;
+    for (const label in this.change.labels) {
+      if (!(label in this.change.permitted_labels)) {
+        continue;
+      }
+      if (this.change.permitted_labels[label].length === 0) {
+        continue;
+      }
+      const status = this._getLabelStatus(this.change.labels[label]);
+      if (status === LabelStatus.NEED) {
+        if (result) {
+          // More than one label is missing, so it's unclear which to quick
+          // approve, return null;
+          return null;
+        }
+        result = label;
+      } else if (
+        status === LabelStatus.REJECT ||
+        status === LabelStatus.IMPOSSIBLE
+      ) {
+        return null;
+      }
+    }
+    if (result) {
+      const score = this.change.permitted_labels[result].slice(-1)[0];
+      const labelInfo = this.change.labels[result];
+      if (!isDetailedLabelInfo(labelInfo)) {
+        return null;
+      }
+      const maxScore = Object.keys(labelInfo.values).slice(-1)[0];
+      if (score === maxScore) {
+        // Allow quick approve only for maximal score.
+        return {
+          label: result,
+          score,
+        };
+      }
+    }
+    return null;
+  }
+
+  hideQuickApproveAction() {
+    if (!this._topLevelSecondaryActions) {
+      throw new Error('_topLevelSecondaryActions must be set');
+    }
+    this._topLevelSecondaryActions = this._topLevelSecondaryActions.filter(
+      sa => !isQuckApproveAction(sa)
+    );
+    this._hideQuickApproveAction = true;
+  }
+
+  _getQuickApproveAction(): QuickApproveUIActionInfo | null {
+    if (this._hideQuickApproveAction) {
+      return null;
+    }
+    const approval = this._getTopMissingApproval();
+    if (!approval) {
+      return null;
+    }
+    const action = {...QUICK_APPROVE_ACTION};
+    action.label = approval.label + approval.score;
+
+    const score = Number(approval.score);
+    if (isNaN(score)) {
+      return null;
+    }
+
+    const review: ReviewInput = {
+      drafts: DraftsAction.PUBLISH_ALL_REVISIONS,
+      labels: {
+        [approval.label]: score,
+      },
+    };
+    action.payload = review;
+    return action;
+  }
+
+  _getActionValues(
+    actionsChangeRecord: PolymerDeepPropertyChange<
+      ActionNameToActionInfoMap,
+      ActionNameToActionInfoMap
+    >,
+    primariesChangeRecord: PolymerDeepPropertyChange<
+      PrimaryActionKey[],
+      PrimaryActionKey[]
+    >,
+    additionalActionsChangeRecord: PolymerDeepPropertyChange<
+      UIActionInfo[],
+      UIActionInfo[]
+    >,
+    type: ActionType
+  ): UIActionInfo[] {
+    if (!actionsChangeRecord || !primariesChangeRecord) {
+      return [];
+    }
+
+    const actions = actionsChangeRecord.base || {};
+    const primaryActionKeys = primariesChangeRecord.base || [];
+    const result: UIActionInfo[] = [];
+    const values: Array<ChangeActions | RevisionActions> =
+      type === ActionType.CHANGE
+        ? this._getValuesFor(ChangeActions)
+        : this._getValuesFor(RevisionActions);
+
+    const pluginActions: UIActionInfo[] = [];
+    Object.keys(actions).forEach(a => {
+      const action: UIActionInfo = actions[a] as UIActionInfo;
+      action.__key = a;
+      action.__type = type;
+      action.__primary = primaryActionKeys.includes(a as PrimaryActionKey);
+      // Plugin actions always contain ~ in the key.
+      if (a.indexOf('~') !== -1) {
+        this._populateActionUrl(action);
+        pluginActions.push(action);
+        // Add server-side provided plugin actions to overflow menu.
+        this._overflowActions.push({
+          type,
+          key: a,
+        });
+        return;
+      } else if (!values.includes(a as PrimaryActionKey)) {
+        return;
+      }
+      action.label = this._getActionLabel(action);
+
+      // Triggers a re-render by ensuring object inequality.
+      result.push({...action});
+    });
+
+    let additionalActions =
+      (additionalActionsChangeRecord && additionalActionsChangeRecord.base) ||
+      [];
+    additionalActions = additionalActions
+      .filter(a => a.__type === type)
+      .map(a => {
+        a.__primary = primaryActionKeys.includes(a.__key as PrimaryActionKey);
+        // Triggers a re-render by ensuring object inequality.
+        return {...a};
+      });
+    return result.concat(additionalActions).concat(pluginActions);
+  }
+
+  _populateActionUrl(action: UIActionInfo) {
+    const patchNum =
+      action.__type === ActionType.REVISION ? this.latestPatchNum : undefined;
+    if (!this.changeNum) {
+      return;
+    }
+    this.$.restAPI
+      .getChangeActionURL(this.changeNum, patchNum, '/' + action.__key)
+      .then(url => (action.__url = url));
+  }
+
+  /**
+   * Given a change action, return a display label that uses the appropriate
+   * casing or includes explanatory details.
+   */
+  _getActionLabel(action: UIActionInfo) {
+    if (action.label === 'Delete') {
+      // This label is common within change and revision actions. Make it more
+      // explicit to the user.
+      return 'Delete change';
+    } else if (action.label === 'WIP') {
+      return 'Mark as work in progress';
+    }
+    // Otherwise, just map the name to sentence case.
+    return this._toSentenceCase(action.label);
+  }
+
+  /**
+   * Capitalize the first letter and lowecase all others.
+   */
+  _toSentenceCase(s: string) {
+    if (!s.length) {
+      return '';
+    }
+    return s[0].toUpperCase() + s.slice(1).toLowerCase();
+  }
+
+  _computeLoadingLabel(action: string) {
+    return ActionLoadingLabels[action] || 'Working...';
+  }
+
+  _canSubmitChange() {
+    if (!this.change) {
+      return false;
+    }
+    return this.$.jsAPI.canSubmitChange(
+      this.change,
+      this._getRevision(this.change, this.latestPatchNum)
+    );
+  }
+
+  _getRevision(change: ChangeViewChangeInfo, patchNum?: PatchSetNum) {
+    for (const rev of Object.values(change.revisions)) {
+      if (patchNumEquals(rev._number, patchNum)) {
+        return rev;
+      }
+    }
+    return null;
+  }
+
+  showRevertDialog() {
+    const change = this.change;
+    if (!change) return;
+    // The search is still broken if there is a " in the topic.
+    const query = `submissionid: "${change.submission_id}"`;
+    /* A chromium plugin expects that the modifyRevertMsg hook will only
+    be called after the revert button is pressed, hence we populate the
+    revert dialog after revert button is pressed. */
+    this.$.restAPI.getChanges(0, query).then(changes => {
+      if (!changes) {
+        console.error('changes is undefined');
+        return;
+      }
+      this.$.confirmRevertDialog.populate(change, this.commitMessage, changes);
+      this._showActionDialog(this.$.confirmRevertDialog);
+    });
+  }
+
+  showRevertSubmissionDialog() {
+    const change = this.change;
+    if (!change) return;
+    const query = `submissionid:${change.submission_id}`;
+    this.$.restAPI.getChanges(0, query).then(changes => {
+      if (!changes) {
+        console.error('changes is undefined');
+        return;
+      }
+      this.$.confirmRevertSubmissionDialog._populateRevertSubmissionMessage(
+        change,
+        changes
+      );
+      this._showActionDialog(this.$.confirmRevertSubmissionDialog);
+    });
+  }
+
+  _handleActionTap(e: MouseEvent) {
+    e.preventDefault();
+    let el = (dom(e) as EventApi).localTarget as Element;
+    while (el.tagName.toLowerCase() !== 'gr-button') {
+      if (!el.parentElement) {
+        return;
+      }
+      el = el.parentElement;
+    }
+
+    const key = el.getAttribute('data-action-key');
+    if (!key) {
+      throw new Error("Button doesn't have data-action-key attribute");
+    }
+    if (
+      key.startsWith(ADDITIONAL_ACTION_KEY_PREFIX) ||
+      key.indexOf('~') !== -1
+    ) {
+      this.dispatchEvent(
+        new CustomEvent(`${key}-tap`, {
+          detail: {node: el},
+          composed: true,
+          bubbles: true,
+        })
+      );
+      return;
+    }
+    const type = el.getAttribute('data-action-type') as ActionType;
+    this._handleAction(type, key);
+  }
+
+  _handleOverflowItemTap(e: CustomEvent<MenuAction>) {
+    e.preventDefault();
+    const el = (dom(e) as EventApi).localTarget as Element;
+    const key = e.detail.action.__key;
+    if (
+      key.startsWith(ADDITIONAL_ACTION_KEY_PREFIX) ||
+      key.indexOf('~') !== -1
+    ) {
+      this.dispatchEvent(
+        new CustomEvent(`${key}-tap`, {
+          detail: {node: el},
+          composed: true,
+          bubbles: true,
+        })
+      );
+      return;
+    }
+    this._handleAction(e.detail.action.__type, e.detail.action.__key);
+  }
+
+  _handleAction(type: ActionType, key: string) {
+    this.reporting.reportInteraction(`${type}-${key}`);
+    switch (type) {
+      case ActionType.REVISION:
+        this._handleRevisionAction(key);
+        break;
+      case ActionType.CHANGE:
+        this._handleChangeAction(key);
+        break;
+      default:
+        this._fireAction(
+          this._prependSlash(key),
+          assertUIActionInfo(this.actions[key]),
+          false
+        );
+    }
+  }
+
+  _handleChangeAction(key: string) {
+    switch (key) {
+      case ChangeActions.REVERT:
+        this.showRevertDialog();
+        break;
+      case ChangeActions.REVERT_SUBMISSION:
+        this.showRevertSubmissionDialog();
+        break;
+      case ChangeActions.ABANDON:
+        this._showActionDialog(this.$.confirmAbandonDialog);
+        break;
+      case QUICK_APPROVE_ACTION.key: {
+        const action = this._allActionValues.find(isQuckApproveAction);
+        if (!action) {
+          return;
+        }
+        this._fireAction(this._prependSlash(key), action, true, action.payload);
+        break;
+      }
+      case ChangeActions.EDIT:
+        this._handleEditTap();
+        break;
+      case ChangeActions.STOP_EDIT:
+        this._handleStopEditTap();
+        break;
+      case ChangeActions.DELETE:
+        this._handleDeleteTap();
+        break;
+      case ChangeActions.DELETE_EDIT:
+        this._handleDeleteEditTap();
+        break;
+      case ChangeActions.FOLLOW_UP:
+        this._handleFollowUpTap();
+        break;
+      case ChangeActions.WIP:
+        this._handleWipTap();
+        break;
+      case ChangeActions.MOVE:
+        this._handleMoveTap();
+        break;
+      case ChangeActions.PUBLISH_EDIT:
+        this._handlePublishEditTap();
+        break;
+      case ChangeActions.REBASE_EDIT:
+        this._handleRebaseEditTap();
+        break;
+      default:
+        this._fireAction(
+          this._prependSlash(key),
+          assertUIActionInfo(this.actions[key]),
+          false
+        );
+    }
+  }
+
+  _handleRevisionAction(key: string) {
+    switch (key) {
+      case RevisionActions.REBASE:
+        this._showActionDialog(this.$.confirmRebase);
+        this.$.confirmRebase.fetchRecentChanges();
+        break;
+      case RevisionActions.CHERRYPICK:
+        this._handleCherrypickTap();
+        break;
+      case RevisionActions.DOWNLOAD:
+        this._handleDownloadTap();
+        break;
+      case RevisionActions.SUBMIT:
+        if (!this._canSubmitChange()) {
+          return;
+        }
+        this._showActionDialog(this.$.confirmSubmitDialog);
+        break;
+      default:
+        this._fireAction(
+          this._prependSlash(key),
+          assertUIActionInfo(this.revisionActions[key]),
+          true
+        );
+    }
+  }
+
+  _prependSlash(key: string) {
+    return key === '/' ? key : `/${key}`;
+  }
+
+  /**
+   * _hasKnownChainState set to true true if hasParent is defined (can be
+   * either true or false). set to false otherwise.
+   */
+  _computeChainState() {
+    this._hasKnownChainState = true;
+  }
+
+  _calculateDisabled(action: UIActionInfo, hasKnownChainState: boolean) {
+    if (action.__key === 'rebase') {
+      // Rebase button is only disabled when change has no parent(s).
+      return hasKnownChainState === false;
+    }
+    return !action.enabled;
+  }
+
+  _handleConfirmDialogCancel() {
+    this._hideAllDialogs();
+  }
+
+  _hideAllDialogs() {
+    const dialogEls = this.root!.querySelectorAll('.confirmDialog');
+    for (const dialogEl of dialogEls) {
+      (dialogEl as HTMLElement).hidden = true;
+    }
+    this.$.overlay.close();
+  }
+
+  _handleRebaseConfirm(e: CustomEvent<ConfirmRebaseEventDetail>) {
+    const el = this.$.confirmRebase;
+    const payload = {base: e.detail.base};
+    this.$.overlay.close();
+    el.hidden = true;
+    this._fireAction(
+      '/rebase',
+      assertUIActionInfo(this.revisionActions.rebase),
+      true,
+      payload
+    );
+  }
+
+  _handleCherrypickConfirm() {
+    this._handleCherryPickRestApi(false);
+  }
+
+  _handleCherrypickConflictConfirm() {
+    this._handleCherryPickRestApi(true);
+  }
+
+  _handleCherryPickRestApi(conflicts: boolean) {
+    const el = this.$.confirmCherrypick;
+    if (!el.branch) {
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message: ERR_BRANCH_EMPTY},
+          composed: true,
+          bubbles: true,
+        })
+      );
+      return;
+    }
+    if (!el.message) {
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message: ERR_COMMIT_EMPTY},
+          composed: true,
+          bubbles: true,
+        })
+      );
+      return;
+    }
+    this.$.overlay.close();
+    el.hidden = true;
+    this._fireAction(
+      '/cherrypick',
+      assertUIActionInfo(this.revisionActions.cherrypick),
+      true,
+      {
+        destination: el.branch,
+        base: el.baseCommit ? el.baseCommit : null,
+        message: el.message,
+        allow_conflicts: conflicts,
+      }
+    );
+  }
+
+  _handleMoveConfirm() {
+    const el = this.$.confirmMove;
+    if (!el.branch) {
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message: ERR_BRANCH_EMPTY},
+          composed: true,
+          bubbles: true,
+        })
+      );
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
       return;
     }
     this.$.overlay.close();
