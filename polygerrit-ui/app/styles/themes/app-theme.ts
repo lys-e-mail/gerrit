@@ -122,6 +122,10 @@ const styleSheet = safeStyleSheet`
     --font-size-h3: 1.143rem;   /* 16px */
     --font-size-h2: 1.429rem;   /* 20px */
     --font-size-h1: 1.714rem;   /* 24px */
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+=======
+    --line-height-code: 1.143rem;   /* 16px */
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     --line-height-mono: 1.286rem;   /* 18px */
     --line-height-small: 1.143rem;  /* 16px */
     --line-height-normal: 1.429rem; /* 20px */

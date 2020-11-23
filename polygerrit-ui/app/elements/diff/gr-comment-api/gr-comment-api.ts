@@ -46,11 +46,19 @@ import {
   CommentThread,
   DraftInfo,
   isUnresolved,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   UIComment,
   UIDraft,
   UIHuman,
   UIRobot,
   createCommentThreads,
+=======
+  sortComments,
+  UIComment,
+  UIDraft,
+  UIHuman,
+  UIRobot,
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 } from '../../../utils/comment-util';
 import {PatchSetFile, PatchNumOnly, isPatchSetFile} from '../../../types/types';
 
@@ -448,7 +456,11 @@ export class ChangeComments {
       );
     }
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
     return createCommentThreads(comments).length;
+=======
+    return this.getCommentThreads(comments).length;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
   }
 
   /**
@@ -480,7 +492,11 @@ export class ChangeComments {
     }
 
     comments = comments.concat(drafts);
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
     const threads = createCommentThreads(comments);
+=======
+    const threads = this.getCommentThreads(sortComments(comments));
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     const unresolvedThreads = threads.filter(isUnresolved);
     return unresolvedThreads.length;
   }

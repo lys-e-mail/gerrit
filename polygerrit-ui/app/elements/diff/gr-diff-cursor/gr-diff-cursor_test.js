@@ -226,6 +226,7 @@ suite('gr-diff-cursor tests', () => {
     assert.equal(cursorElement.side, 'left');
   });
 
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   // To be removed as soon due_to_move (deprecated) is removed
   suite('moved chunks (dueToMove=true)', () => {
     setup(done => {
@@ -326,6 +327,72 @@ suite('gr-diff-cursor tests', () => {
           .querySelectorAll('.dueToMove .moveControls');
       assert.equal(movedIn.textContent, 'Moved from lines 4 - 6');
       assert.equal(movedOut.textContent, 'Moved to lines 2 - 4');
+=======
+  suite('moved chunks (dueToMove=true)', () => {
+    setup(done => {
+      const renderHandler = function() {
+        diffElement.removeEventListener('render', renderHandler);
+        cursorElement.reInitCursor();
+        done();
+      };
+      diffElement.addEventListener('render', renderHandler);
+      diffElement.diff = {...diff, content: [
+        {
+          ab: [
+            'Lorem ipsum dolor sit amet, suspendisse inceptos vehicula, ',
+          ],
+        },
+        {
+          b: [
+            'Nullam neque, ligula ac, id blandit.',
+            'Sagittis tincidunt torquent, tempor nunc amet.',
+            'At rhoncus id.',
+          ],
+          due_to_move: true,
+        },
+        {
+          ab: [
+            'Sem nascetur, erat ut, non in.',
+          ],
+        },
+        {
+          a: [
+            'Nullam neque, ligula ac, id blandit.',
+            'Sagittis tincidunt torquent, tempor nunc amet.',
+            'At rhoncus id.',
+          ],
+          due_to_move: true,
+        },
+        {
+          ab: [
+            'Arcu eget, rhoncus amet cursus, ipsum elementum.',
+          ],
+        },
+      ]};
+    });
+
+    test('chunk skip functionality', () => {
+      const chunks = diffElement.root.querySelectorAll(
+          '.section.delta');
+      const indexOfChunk = function(chunk) {
+        return Array.prototype.indexOf.call(chunks, chunk);
+      };
+
+      // We should be initialized to the first chunk (b)
+      let currentIndex = indexOfChunk(cursorElement.diffRow.parentElement);
+      assert.equal(currentIndex, 0);
+      assert.equal(cursorElement.side, 'right');
+
+      // Move to the next chunk.
+      cursorElement.moveToNextChunk();
+
+      // Since the next chunk only has content on the left side (a). we should have been
+      // automatically moved over.
+      const previousIndex = currentIndex;
+      currentIndex = indexOfChunk(cursorElement.diffRow.parentElement);
+      assert.equal(currentIndex, previousIndex + 1);
+      assert.equal(cursorElement.side, 'left');
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     });
   });
 

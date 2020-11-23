@@ -23,8 +23,12 @@ import {
   hideInContextControl,
   rangeBySide,
 } from '../gr-diff/gr-diff-group';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {BlameInfo} from '../../../types/common';
 import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
+=======
+import {BlameInfo, DiffInfo, DiffPreferencesInfo} from '../../../types/common';
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 import {DiffViewMode, Side} from '../../../constants/constants';
 import {DiffLayer} from '../../../types/types';
 
@@ -563,7 +567,10 @@ export abstract class GrDiffBuilder {
     if (type === GrDiffBuilder.ContextButtonType.ALL) {
       if (this.useNewContextControls) {
         text = `+${numLines} common line`;
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
         button.setAttribute('aria-label', `Show ${numLines} common lines`);
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
       } else {
         text = `Show ${numLines} common line`;
         const icon = this._createElement('iron-icon', 'showContext');
@@ -584,7 +591,10 @@ export abstract class GrDiffBuilder {
       if (this.useNewContextControls) {
         text = `+${context}`;
         button.classList.add('aboveButton');
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
         button.setAttribute('aria-label', `Show ${context} lines above`);
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
       } else {
         text = `+${context} above`;
       }
@@ -593,7 +603,10 @@ export abstract class GrDiffBuilder {
       if (this.useNewContextControls) {
         text = `+${context}`;
         button.classList.add('belowButton');
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
         button.setAttribute('aria-label', `Show ${context} lines below`);
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
       } else {
         text = `+${context} below`;
       }

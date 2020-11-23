@@ -22,7 +22,10 @@ import {htmlTemplate} from './gr-overlay_html';
 import {IronOverlayMixin} from '../../../mixins/iron-overlay-mixin/iron-overlay-mixin';
 import {customElement, property} from '@polymer/decorators';
 import {IronOverlayBehavior} from '@polymer/iron-overlay-behavior/iron-overlay-behavior';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {findActiveElement} from '../../../utils/dom-util';
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 const AWAIT_MAX_ITERS = 10;
 const AWAIT_STEP = 5;

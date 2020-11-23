@@ -17,7 +17,11 @@
 import {GrDiffLine, GrDiffLineType} from '../gr-diff/gr-diff-line';
 import {GrDiffBuilder} from './gr-diff-builder';
 import {GrDiffGroup, GrDiffGroupType} from '../gr-diff/gr-diff-group';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
+=======
+import {DiffInfo, DiffPreferencesInfo} from '../../../types/common';
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 import {DiffViewMode, Side} from '../../../constants/constants';
 
 export class GrDiffBuilderUnified extends GrDiffBuilder {

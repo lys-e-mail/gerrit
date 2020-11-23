@@ -366,8 +366,12 @@ export class GrDiffProcessor extends GestureEventListeners(
     const group = new GrDiffGroup(type, lines);
     group.keyLocation = !!chunk.keyLocation;
     group.dueToRebase = !!chunk.due_to_rebase;
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
     group.moveDetails =
       chunk.move_details || (chunk.due_to_move ? {changed: false} : undefined);
+=======
+    group.dueToMove = !!chunk.due_to_move;
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     group.skip = chunk.skip;
     group.ignoredWhitespaceOnly = !!chunk.common;
     if (chunk.skip) {
