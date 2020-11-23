@@ -57,6 +57,7 @@ import {customElement, observe, property} from '@polymer/decorators';
 import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   ConfigInfo,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   ElementPropertyDeepChange,
   FileInfo,
   FileNameToFileInfoMap,
@@ -999,6 +1000,949 @@ export class GrFileList extends KeyboardShortcutMixin(
     }
     e.preventDefault();
     this.classList.remove('hideComments');
+=======
+  DiffPreferencesInfo,
+  ElementPropertyDeepChange,
+  FileInfo,
+  FileNameToFileInfoMap,
+  NumericChangeId,
+  PatchRange,
+  PreferencesInfo,
+  RevisionInfo,
+  UrlEncodedCommentId,
+} from '../../../types/common';
+import {GrDiffHost} from '../../diff/gr-diff-host/gr-diff-host';
+import {GrDiffPreferencesDialog} from '../../diff/gr-diff-preferences-dialog/gr-diff-preferences-dialog';
+import {hasOwnProperty} from '../../../utils/common-util';
+import {GrDiffCursor} from '../../diff/gr-diff-cursor/gr-diff-cursor';
+import {GrCursorManager} from '../../shared/gr-cursor-manager/gr-cursor-manager';
+import {PolymerSpliceChange} from '@polymer/polymer/interfaces';
+import {ChangeComments} from '../../diff/gr-comment-api/gr-comment-api';
+import {UIDraft} from '../../../utils/comment-util';
+import {ParsedChangeInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
+import {PatchSetFile} from '../../../types/types';
+import {CustomKeyboardEvent} from '../../../types/events';
+
+export const DEFAULT_NUM_FILES_SHOWN = 200;
+
+const WARN_SHOW_ALL_THRESHOLD = 1000;
+const LOADING_DEBOUNCE_INTERVAL = 100;
+
+const SIZE_BAR_MAX_WIDTH = 61;
+const SIZE_BAR_GAP_WIDTH = 1;
+const SIZE_BAR_MIN_WIDTH = 1.5;
+
+const RENDER_TIMING_LABEL = 'FileListRenderTime';
+const RENDER_AVG_TIMING_LABEL = 'FileListRenderTimePerFile';
+const EXPAND_ALL_TIMING_LABEL = 'ExpandAllDiffs';
+const EXPAND_ALL_AVG_TIMING_LABEL = 'ExpandAllPerDiff';
+
+const FileStatus = {
+  A: 'Added',
+  C: 'Copied',
+  D: 'Deleted',
+  M: 'Modified',
+  R: 'Renamed',
+  W: 'Rewritten',
+  U: 'Unchanged',
+};
+
+const FILE_ROW_CLASS = 'file-row';
+
+export interface GrFileList {
+  $: {
+    restAPI: RestApiService & Element;
+    diffPreferencesDialog: GrDiffPreferencesDialog;
+    diffCursor: GrDiffCursor;
+    fileCursor: GrCursorManager;
+  };
+}
+
+interface ReviewedFileInfo extends FileInfo {
+  isReviewed?: boolean;
+}
+interface NormalizedFileInfo extends ReviewedFileInfo {
+  __path: string;
+}
+
+interface PatchChange {
+  inserted: number;
+  deleted: number;
+  size_delta_inserted: number;
+  size_delta_deleted: number;
+  total_size: number;
+}
+
+function createDefaultPatchChange(): PatchChange {
+  // Use function instead of const to prevent unexpected changes in the default
+  // values.
+  return {
+    inserted: 0,
+    deleted: 0,
+    size_delta_inserted: 0,
+    size_delta_deleted: 0,
+    total_size: 0,
+  };
+}
+
+interface SizeBarLayout {
+  maxInserted: number;
+  maxDeleted: number;
+  maxAdditionWidth: number;
+  maxDeletionWidth: number;
+  deletionOffset: number;
+}
+
+function createDefaultSizeBarLayout(): SizeBarLayout {
+  // Use function instead of const to prevent unexpected changes in the default
+  // values.
+  return {
+    maxInserted: 0,
+    maxDeleted: 0,
+    maxAdditionWidth: 0,
+    maxDeletionWidth: 0,
+    deletionOffset: 0,
+  };
+}
+
+interface FileRow {
+  file: PatchSetFile;
+  element: HTMLElement;
+}
+
+export type FileNameToReviewedFileInfoMap = {[name: string]: ReviewedFileInfo};
+
+/**
+ * Type for FileInfo
+ *
+ * This should match with the type returned from `files` API plus
+ * additional info like `__path`.
+ *
+ * @typedef {Object} FileInfo
+ * @property {string} __path
+ * @property {?string} old_path
+ * @property {number} size
+ * @property {number} size_delta - fallback to 0 if not present in api
+ * @property {number} lines_deleted - fallback to 0 if not present in api
+ * @property {number} lines_inserted - fallback to 0 if not present in api
+ */
+
+@customElement('gr-file-list')
+export class GrFileList extends KeyboardShortcutMixin(
+  GestureEventListeners(LegacyElementMixin(PolymerElement))
+) {
+  static get template() {
+    return htmlTemplate;
+  }
+
+  /**
+   * Fired when a draft refresh should get triggered
+   *
+   * @event reload-drafts
+   */
+
+  @property({type: Object})
+  patchRange?: PatchRange;
+
+  @property({type: String})
+  patchNum?: string;
+
+  @property({type: Number})
+  changeNum?: NumericChangeId;
+
+  @property({type: Object})
+  changeComments?: ChangeComments;
+
+  @property({type: Object})
+  drafts?: {[path: string]: UIDraft[]};
+
+  @property({type: Array})
+  revisions?: {[revisionId: string]: RevisionInfo};
+
+  @property({type: Object})
+  projectConfig?: ConfigInfo;
+
+  @property({type: Number, notify: true})
+  selectedIndex = -1;
+
+  @property({type: Object})
+  keyEventTarget = document.body;
+
+  @property({type: Object})
+  change?: ParsedChangeInfo;
+
+  @property({type: String, notify: true, observer: '_updateDiffPreferences'})
+  diffViewMode?: DiffViewMode;
+
+  @property({type: Boolean, observer: '_editModeChanged'})
+  editMode?: boolean;
+
+  @property({type: String, notify: true})
+  filesExpanded = FilesExpandedState.NONE;
+
+  @property({type: Object})
+  _filesByPath?: FileNameToFileInfoMap;
+
+  @property({type: Array, observer: '_filesChanged'})
+  _files: NormalizedFileInfo[] = [];
+
+  @property({type: Boolean})
+  _loggedIn = false;
+
+  @property({type: Array})
+  _reviewed?: string[] = [];
+
+  @property({type: Object, notify: true, observer: '_updateDiffPreferences'})
+  diffPrefs?: DiffPreferencesInfo;
+
+  @property({type: Object})
+  _userPrefs?: PreferencesInfo;
+
+  @property({type: Boolean})
+  _showInlineDiffs?: boolean;
+
+  @property({type: Number, notify: true})
+  numFilesShown: number = DEFAULT_NUM_FILES_SHOWN;
+
+  @property({type: Object, computed: '_calculatePatchChange(_files)'})
+  _patchChange: PatchChange = createDefaultPatchChange();
+
+  @property({type: Number})
+  fileListIncrement: number = DEFAULT_NUM_FILES_SHOWN;
+
+  @property({type: Boolean, computed: '_shouldHideChangeTotals(_patchChange)'})
+  _hideChangeTotals = true;
+
+  @property({
+    type: Boolean,
+    computed: '_shouldHideBinaryChangeTotals(_patchChange)',
+  })
+  _hideBinaryChangeTotals = true;
+
+  @property({
+    type: Array,
+    computed: '_computeFilesShown(numFilesShown, _files)',
+  })
+  _shownFiles: NormalizedFileInfo[] = [];
+
+  @property({type: Number})
+  _reportinShownFilesIncrement = 0;
+
+  @property({type: Array})
+  _expandedFiles: PatchSetFile[] = [];
+
+  @property({type: Boolean})
+  _displayLine?: boolean;
+
+  @property({type: Boolean, observer: '_loadingChanged'})
+  _loading?: boolean;
+
+  @property({type: Object, computed: '_computeSizeBarLayout(_shownFiles.*)'})
+  _sizeBarLayout: SizeBarLayout = createDefaultSizeBarLayout();
+
+  @property({type: Boolean, computed: '_computeShowSizeBars(_userPrefs)'})
+  _showSizeBars = true;
+
+  private _cancelForEachDiff?: () => void;
+
+  @property({
+    type: Boolean,
+    computed:
+      '_computeShowDynamicColumns(_dynamicHeaderEndpoints, ' +
+      '_dynamicContentEndpoints, _dynamicSummaryEndpoints)',
+  })
+  _showDynamicColumns = false;
+
+  @property({
+    type: Boolean,
+    computed:
+      '_computeShowPrependedDynamicColumns(' +
+      '_dynamicPrependedHeaderEndpoints, _dynamicPrependedContentEndpoints)',
+  })
+  _showPrependedDynamicColumns = false;
+
+  @property({type: Array})
+  _dynamicHeaderEndpoints?: string[];
+
+  @property({type: Array})
+  _dynamicContentEndpoints?: string[];
+
+  @property({type: Array})
+  _dynamicSummaryEndpoints?: string[];
+
+  @property({type: Array})
+  _dynamicPrependedHeaderEndpoints?: string[];
+
+  @property({type: Array})
+  _dynamicPrependedContentEndpoints?: string[];
+
+  private readonly reporting = appContext.reportingService;
+
+  get keyBindings() {
+    return {
+      esc: '_handleEscKey',
+    };
+  }
+
+  keyboardShortcuts() {
+    return {
+      [Shortcut.LEFT_PANE]: '_handleLeftPane',
+      [Shortcut.RIGHT_PANE]: '_handleRightPane',
+      [Shortcut.TOGGLE_INLINE_DIFF]: '_handleToggleInlineDiff',
+      [Shortcut.TOGGLE_ALL_INLINE_DIFFS]: '_handleToggleAllInlineDiffs',
+      [Shortcut.TOGGLE_HIDE_ALL_COMMENT_THREADS]:
+        '_handleToggleHideAllCommentThreads',
+      [Shortcut.CURSOR_NEXT_FILE]: '_handleCursorNext',
+      [Shortcut.CURSOR_PREV_FILE]: '_handleCursorPrev',
+      [Shortcut.NEXT_LINE]: '_handleCursorNext',
+      [Shortcut.PREV_LINE]: '_handleCursorPrev',
+      [Shortcut.NEW_COMMENT]: '_handleNewComment',
+      [Shortcut.OPEN_LAST_FILE]: '_handleOpenLastFile',
+      [Shortcut.OPEN_FIRST_FILE]: '_handleOpenFirstFile',
+      [Shortcut.OPEN_FILE]: '_handleOpenFile',
+      [Shortcut.NEXT_CHUNK]: '_handleNextChunk',
+      [Shortcut.PREV_CHUNK]: '_handlePrevChunk',
+      [Shortcut.TOGGLE_FILE_REVIEWED]: '_handleToggleFileReviewed',
+      [Shortcut.TOGGLE_LEFT_PANE]: '_handleToggleLeftPane',
+
+      // Final two are actually handled by gr-comment-thread.
+      [Shortcut.EXPAND_ALL_COMMENT_THREADS]: null,
+      [Shortcut.COLLAPSE_ALL_COMMENT_THREADS]: null,
+    };
+  }
+
+  /** @override */
+  created() {
+    super.created();
+    this.addEventListener('keydown', e => this._scopedKeydownHandler(e));
+  }
+
+  /** @override */
+  attached() {
+    super.attached();
+    getPluginLoader()
+      .awaitPluginsLoaded()
+      .then(() => {
+        this._dynamicHeaderEndpoints = getPluginEndpoints().getDynamicEndpoints(
+          'change-view-file-list-header'
+        );
+        this._dynamicContentEndpoints = getPluginEndpoints().getDynamicEndpoints(
+          'change-view-file-list-content'
+        );
+        this._dynamicPrependedHeaderEndpoints = getPluginEndpoints().getDynamicEndpoints(
+          'change-view-file-list-header-prepend'
+        );
+        this._dynamicPrependedContentEndpoints = getPluginEndpoints().getDynamicEndpoints(
+          'change-view-file-list-content-prepend'
+        );
+        this._dynamicSummaryEndpoints = getPluginEndpoints().getDynamicEndpoints(
+          'change-view-file-list-summary'
+        );
+
+        if (
+          this._dynamicHeaderEndpoints.length !==
+          this._dynamicContentEndpoints.length
+        ) {
+          console.warn(
+            'Different number of dynamic file-list header and content.'
+          );
+        }
+        if (
+          this._dynamicPrependedHeaderEndpoints.length !==
+          this._dynamicPrependedContentEndpoints.length
+        ) {
+          console.warn(
+            'Different number of dynamic file-list header and content.'
+          );
+        }
+        if (
+          this._dynamicHeaderEndpoints.length !==
+          this._dynamicSummaryEndpoints.length
+        ) {
+          console.warn(
+            'Different number of dynamic file-list headers and summary.'
+          );
+        }
+      });
+  }
+
+  /** @override */
+  detached() {
+    super.detached();
+    this._cancelDiffs();
+  }
+
+  /**
+   * Iron-a11y-keys-behavior catches keyboard events globally. Some keyboard
+   * events must be scoped to a component level (e.g. `enter`) in order to not
+   * override native browser functionality.
+   *
+   * Context: Issue 7277
+   */
+  _scopedKeydownHandler(e: KeyboardEvent) {
+    if (e.keyCode === 13) {
+      // TODO(TS): e is not an instance of CustomKeyboardEvent.
+      // However, to fix it we should fix keyboard-shortcut-mixin first
+      // The keyboard-shortcut-mixin will be updated in a separate change
+      this._handleOpenFile((e as unknown) as CustomKeyboardEvent);
+    }
+  }
+
+  reload() {
+    if (!this.changeNum || !this.patchRange?.patchNum) {
+      return Promise.resolve();
+    }
+    const changeNum = this.changeNum;
+    const patchRange = this.patchRange;
+
+    this._loading = true;
+
+    this.collapseAllDiffs();
+    const promises = [];
+
+    promises.push(
+      this.$.restAPI
+        .getChangeOrEditFiles(changeNum, patchRange)
+        .then(filesByPath => {
+          this._filesByPath = filesByPath;
+        })
+    );
+    promises.push(
+      this._getLoggedIn()
+        .then(loggedIn => (this._loggedIn = loggedIn))
+        .then(loggedIn => {
+          if (!loggedIn) {
+            return;
+          }
+
+          return this._getReviewedFiles(changeNum, patchRange).then(
+            reviewed => {
+              this._reviewed = reviewed;
+            }
+          );
+        })
+    );
+
+    promises.push(
+      this._getDiffPreferences().then(prefs => {
+        this.diffPrefs = prefs;
+      })
+    );
+
+    promises.push(
+      this._getPreferences().then(prefs => {
+        this._userPrefs = prefs;
+      })
+    );
+
+    return Promise.all(promises).then(() => {
+      this._loading = false;
+      this._detectChromiteButler();
+      this.reporting.fileListDisplayed();
+    });
+  }
+
+  _detectChromiteButler() {
+    const hasButler = !!document.getElementById('butler-suggested-owners');
+    if (hasButler) {
+      this.reporting.reportExtension('butler');
+    }
+  }
+
+  get diffs(): GrDiffHost[] {
+    const diffs = this.root!.querySelectorAll('gr-diff-host');
+    // It is possible that a bogus diff element is hanging around invisibly
+    // from earlier with a different patch set choice and associated with a
+    // different entry in the files array. So filter on visible items only.
+    return Array.from(diffs).filter(
+      el => !!el && !!el.style && el.style.display !== 'none'
+    );
+  }
+
+  openDiffPrefs() {
+    this.$.diffPreferencesDialog.open();
+  }
+
+  _calculatePatchChange(files: NormalizedFileInfo[]): PatchChange {
+    const magicFilesExcluded = files.filter(
+      files => !isMagicPath(files.__path)
+    );
+
+    return magicFilesExcluded.reduce((acc, obj) => {
+      const inserted = obj.lines_inserted ? obj.lines_inserted : 0;
+      const deleted = obj.lines_deleted ? obj.lines_deleted : 0;
+      const total_size = obj.size && obj.binary ? obj.size : 0;
+      const size_delta_inserted =
+        obj.binary && obj.size_delta > 0 ? obj.size_delta : 0;
+      const size_delta_deleted =
+        obj.binary && obj.size_delta < 0 ? obj.size_delta : 0;
+
+      return {
+        inserted: acc.inserted + inserted,
+        deleted: acc.deleted + deleted,
+        size_delta_inserted: acc.size_delta_inserted + size_delta_inserted,
+        size_delta_deleted: acc.size_delta_deleted + size_delta_deleted,
+        total_size: acc.total_size + total_size,
+      };
+    }, createDefaultPatchChange());
+  }
+
+  _getDiffPreferences() {
+    return this.$.restAPI.getDiffPreferences();
+  }
+
+  _getPreferences() {
+    return this.$.restAPI.getPreferences();
+  }
+
+  private _toggleFileExpanded(file: PatchSetFile) {
+    // Is the path in the list of expanded diffs? IF so remove it, otherwise
+    // add it to the list.
+    const pathIndex = this._expandedFiles.findIndex(f => f.path === file.path);
+    if (pathIndex === -1) {
+      this.push('_expandedFiles', file);
+    } else {
+      this.splice('_expandedFiles', pathIndex, 1);
+    }
+  }
+
+  _toggleFileExpandedByIndex(index: number) {
+    this._toggleFileExpanded(this._computePatchSetFile(this._files[index]));
+  }
+
+  _updateDiffPreferences() {
+    if (!this.diffs.length) {
+      return;
+    }
+    // Re-render all expanded diffs sequentially.
+    this.reporting.time(EXPAND_ALL_TIMING_LABEL);
+    this._renderInOrder(
+      this._expandedFiles,
+      this.diffs,
+      this._expandedFiles.length
+    );
+  }
+
+  _forEachDiff(fn: (host: GrDiffHost) => void) {
+    const diffs = this.diffs;
+    for (let i = 0; i < diffs.length; i++) {
+      fn(diffs[i]);
+    }
+  }
+
+  expandAllDiffs() {
+    this._showInlineDiffs = true;
+
+    // Find the list of paths that are in the file list, but not in the
+    // expanded list.
+    const newFiles: PatchSetFile[] = [];
+    let path: string;
+    for (let i = 0; i < this._shownFiles.length; i++) {
+      path = this._shownFiles[i].__path;
+      if (!this._expandedFiles.some(f => f.path === path)) {
+        newFiles.push(this._computePatchSetFile(this._shownFiles[i]));
+      }
+    }
+
+    this.splice('_expandedFiles', 0, 0, ...newFiles);
+  }
+
+  collapseAllDiffs() {
+    this._showInlineDiffs = false;
+    this._expandedFiles = [];
+    this.filesExpanded = this._computeExpandedFiles(
+      this._expandedFiles.length,
+      this._files.length
+    );
+    this.$.diffCursor.handleDiffUpdate();
+  }
+
+  /**
+   * Computes a string with the number of comments and unresolved comments.
+   */
+  _computeCommentsString(
+    changeComments?: ChangeComments,
+    patchRange?: PatchRange,
+    path?: string
+  ) {
+    if (
+      changeComments === undefined ||
+      patchRange === undefined ||
+      path === undefined
+    ) {
+      return '';
+    }
+    const unresolvedCount =
+      changeComments.computeUnresolvedNum({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeUnresolvedNum({
+        patchNum: patchRange.patchNum,
+        path,
+      });
+    const commentThreadCount =
+      changeComments.computeCommentThreadCount({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeCommentThreadCount({
+        patchNum: patchRange.patchNum,
+        path,
+      });
+    const commentString = GrCountStringFormatter.computePluralString(
+      commentThreadCount,
+      'comment'
+    );
+    const unresolvedString = GrCountStringFormatter.computeString(
+      unresolvedCount,
+      'unresolved'
+    );
+
+    return (
+      commentString +
+      // Add a space if both comments and unresolved
+      (commentString && unresolvedString ? ' ' : '') +
+      // Add parentheses around unresolved if it exists.
+      (unresolvedString ? `(${unresolvedString})` : '')
+    );
+  }
+
+  /**
+   * Computes a string with the number of drafts.
+   */
+  _computeDraftsString(
+    changeComments?: ChangeComments,
+    patchRange?: PatchRange,
+    path?: string
+  ) {
+    if (
+      changeComments === undefined ||
+      patchRange === undefined ||
+      path === undefined
+    ) {
+      return '';
+    }
+    const draftCount =
+      changeComments.computeDraftCount({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeDraftCount({
+        patchNum: patchRange.patchNum,
+        path,
+      });
+    return GrCountStringFormatter.computePluralString(draftCount, 'draft');
+  }
+
+  /**
+   * Computes a shortened string with the number of drafts.
+   */
+  _computeDraftsStringMobile(
+    changeComments?: ChangeComments,
+    patchRange?: PatchRange,
+    path?: string
+  ) {
+    if (
+      changeComments === undefined ||
+      patchRange === undefined ||
+      path === undefined
+    ) {
+      return '';
+    }
+    const draftCount =
+      changeComments.computeDraftCount({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeDraftCount({
+        patchNum: patchRange.patchNum,
+        path,
+      });
+    return GrCountStringFormatter.computeShortString(draftCount, 'd');
+  }
+
+  /**
+   * Computes a shortened string with the number of comments.
+   */
+  _computeCommentsStringMobile(
+    changeComments?: ChangeComments,
+    patchRange?: PatchRange,
+    path?: string
+  ) {
+    if (
+      changeComments === undefined ||
+      patchRange === undefined ||
+      path === undefined
+    ) {
+      return '';
+    }
+    const commentThreadCount =
+      changeComments.computeCommentThreadCount({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeCommentThreadCount({
+        patchNum: patchRange.patchNum,
+        path,
+      });
+    return GrCountStringFormatter.computeShortString(commentThreadCount, 'c');
+  }
+
+  private _reviewFile(path: string, reviewed?: boolean) {
+    if (this.editMode) {
+      return Promise.resolve();
+    }
+    const index = this._files.findIndex(file => file.__path === path);
+    reviewed = reviewed || !this._files[index].isReviewed;
+
+    this.set(['_files', index, 'isReviewed'], reviewed);
+    if (index < this._shownFiles.length) {
+      this.notifyPath(`_shownFiles.${index}.isReviewed`);
+    }
+
+    return this._saveReviewedState(path, reviewed);
+  }
+
+  _saveReviewedState(path: string, reviewed: boolean) {
+    if (!this.changeNum || !this.patchRange) {
+      throw new Error('changeNum and patchRange must be set');
+    }
+
+    return this.$.restAPI.saveFileReviewed(
+      this.changeNum,
+      this.patchRange.patchNum,
+      path,
+      reviewed
+    );
+  }
+
+  _getLoggedIn() {
+    return this.$.restAPI.getLoggedIn();
+  }
+
+  _getReviewedFiles(changeNum: NumericChangeId, patchRange: PatchRange) {
+    if (this.editMode) {
+      return Promise.resolve([]);
+    }
+    return this.$.restAPI.getReviewedFiles(changeNum, patchRange.patchNum);
+  }
+
+  _normalizeChangeFilesResponse(
+    response: FileNameToReviewedFileInfoMap
+  ): NormalizedFileInfo[] {
+    const paths = Object.keys(response).sort(specialFilePathCompare);
+    const files: NormalizedFileInfo[] = [];
+    for (let i = 0; i < paths.length; i++) {
+      // TODO(TS): make copy instead of as NormalizedFileInfo
+      const info = response[paths[i]] as NormalizedFileInfo;
+      info.__path = paths[i];
+      info.lines_inserted = info.lines_inserted || 0;
+      info.lines_deleted = info.lines_deleted || 0;
+      info.size_delta = info.size_delta || 0;
+      files.push(info);
+    }
+    return files;
+  }
+
+  /**
+   * Returns true if the event e is a click on an element.
+   *
+   * The click is: mouse click or pressing Enter or Space key
+   * P.S> Screen readers sends click event as well
+   */
+  _isClickEvent(e: MouseEvent | KeyboardEvent) {
+    if (e.type === 'click') {
+      return true;
+    }
+    const ke = e as KeyboardEvent;
+    const isSpaceOrEnter = ke.key === 'Enter' || ke.key === ' ';
+    return ke.type === 'keydown' && isSpaceOrEnter;
+  }
+
+  _fileActionClick(
+    e: MouseEvent | KeyboardEvent,
+    fileAction: (file: PatchSetFile) => void
+  ) {
+    if (this._isClickEvent(e)) {
+      const fileRow = this._getFileRowFromEvent(e);
+      if (!fileRow) {
+        return;
+      }
+      // Prevent default actions (e.g. scrolling for space key)
+      e.preventDefault();
+      // Prevent _handleFileListClick handler call
+      e.stopPropagation();
+      this.$.fileCursor.setCursor(fileRow.element);
+      fileAction(fileRow.file);
+    }
+  }
+
+  _reviewedClick(e: MouseEvent | KeyboardEvent) {
+    this._fileActionClick(e, file => this._reviewFile(file.path));
+  }
+
+  _expandedClick(e: MouseEvent | KeyboardEvent) {
+    this._fileActionClick(e, file => this._toggleFileExpanded(file));
+  }
+
+  /**
+   * Handle all events from the file list dom-repeat so event handleers don't
+   * have to get registered for potentially very long lists.
+   */
+  _handleFileListClick(e: MouseEvent) {
+    if (!e.target) {
+      return;
+    }
+    const fileRow = this._getFileRowFromEvent(e);
+    if (!fileRow) {
+      return;
+    }
+    const file = fileRow.file;
+    const path = file.path;
+    // If a path cannot be interpreted from the click target (meaning it's not
+    // somewhere in the row, e.g. diff content) or if the user clicked the
+    // link, defer to the native behavior.
+    if (!path || descendedFromClass(e.target as Element, 'pathLink')) {
+      return;
+    }
+
+    // Disregard the event if the click target is in the edit controls.
+    if (descendedFromClass(e.target as Element, 'editFileControls')) {
+      return;
+    }
+
+    e.preventDefault();
+    this.$.fileCursor.setCursor(fileRow.element);
+    this._toggleFileExpanded(file);
+  }
+
+  _getFileRowFromEvent(e: Event): FileRow | null {
+    // Traverse upwards to find the row element if the target is not the row.
+    let row = e.target as HTMLElement;
+    while (!row.classList.contains(FILE_ROW_CLASS) && row.parentElement) {
+      row = row.parentElement;
+    }
+
+    // No action needed for item without a valid file
+    if (!row.dataset['file']) {
+      return null;
+    }
+
+    return {
+      file: JSON.parse(row.dataset['file']) as PatchSetFile,
+      element: row,
+    };
+  }
+
+  /**
+   * Generates file range from file info object.
+   */
+  _computePatchSetFile(file: NormalizedFileInfo): PatchSetFile {
+    const fileData: PatchSetFile = {
+      path: file.__path,
+    };
+    if (file.old_path) {
+      fileData.basePath = file.old_path;
+    }
+    return fileData;
+  }
+
+  _handleLeftPane(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this._noDiffsExpanded()) {
+      return;
+    }
+
+    e.preventDefault();
+    this.$.diffCursor.moveLeft();
+  }
+
+  _handleRightPane(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this._noDiffsExpanded()) {
+      return;
+    }
+
+    e.preventDefault();
+    this.$.diffCursor.moveRight();
+  }
+
+  _handleToggleInlineDiff(e: CustomKeyboardEvent) {
+    if (
+      this.shouldSuppressKeyboardShortcut(e) ||
+      this.modifierPressed(e) ||
+      this.$.fileCursor.index === -1
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    this._toggleFileExpandedByIndex(this.$.fileCursor.index);
+  }
+
+  _handleToggleAllInlineDiffs(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e)) {
+      return;
+    }
+
+    e.preventDefault();
+    this._toggleInlineDiffs();
+  }
+
+  _handleToggleHideAllCommentThreads(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this.modifierPressed(e)) {
+      return;
+    }
+
+    e.preventDefault();
+    this.toggleClass('hideComments');
+  }
+
+  _handleCursorNext(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this.modifierPressed(e)) {
+      return;
+    }
+
+    if (this._showInlineDiffs) {
+      e.preventDefault();
+      this.$.diffCursor.moveDown();
+      this._displayLine = true;
+    } else {
+      // Down key
+      if (this.getKeyboardEvent(e).keyCode === 40) {
+        return;
+      }
+      e.preventDefault();
+      this.$.fileCursor.next();
+      this.selectedIndex = this.$.fileCursor.index;
+    }
+  }
+
+  _handleCursorPrev(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this.modifierPressed(e)) {
+      return;
+    }
+
+    if (this._showInlineDiffs) {
+      e.preventDefault();
+      this.$.diffCursor.moveUp();
+      this._displayLine = true;
+    } else {
+      // Up key
+      if (this.getKeyboardEvent(e).keyCode === 38) {
+        return;
+      }
+      e.preventDefault();
+      this.$.fileCursor.previous();
+      this.selectedIndex = this.$.fileCursor.index;
+    }
+  }
+
+  _handleNewComment(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e) || this.modifierPressed(e)) {
+      return;
+    }
+    e.preventDefault();
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
     this.$.diffCursor.createCommentInPlace();
   }
 

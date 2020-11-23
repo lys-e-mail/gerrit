@@ -34,9 +34,16 @@ import {
 import {
   Comment,
   isDraft,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
+=======
+  sortComments,
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
   UIComment,
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   CommentThread,
   createCommentThreads,
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 } from '../../../utils/comment-util';
 import {TwoSidesComments} from '../gr-comment-api/gr-comment-api';
 import {customElement, observe, property} from '@polymer/decorators';
@@ -71,8 +78,13 @@ import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {FilesWebLinks} from '../gr-patch-range-select/gr-patch-range-select';
 import {LineNumber, FILE} from '../gr-diff/gr-diff-line';
 import {GrCommentThread} from '../../shared/gr-comment-thread/gr-comment-thread';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {KnownExperimentId} from '../../../services/flags/flags';
 import {EventType, fire} from '../../../utils/event-util';
+=======
+import {PatchSetFile} from '../../../types/types';
+import {KnownExperimentId} from '../../../services/flags/flags';
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 const MSG_EMPTY_BLAME = 'No blame information for this diff.';
 

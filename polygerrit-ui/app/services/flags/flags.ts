@@ -24,7 +24,10 @@ export interface FlagsService {
  * @desc Experiment ids used in Gerrit.
  */
 export enum KnownExperimentId {
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
   PATCHSET_COMMENTS = 'UiFeature__patchset_comments',
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
   NEW_CONTEXT_CONTROLS = 'UiFeature__new_context_controls',
   CI_REBOOT_CHECKS = 'UiFeature__ci_reboot_checks',
 }

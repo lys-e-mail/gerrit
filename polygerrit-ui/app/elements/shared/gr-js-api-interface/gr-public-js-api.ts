@@ -46,7 +46,10 @@ import {RequestPayload} from '../../../types/common';
 import {HttpMethod} from '../../../constants/constants';
 import {JsApiService} from './gr-js-api-types';
 import {GrChangeActions} from '../../change/gr-change-actions/gr-change-actions';
+<<<<<<< HEAD   (556f79 Merge "A11y - Fix tabbing out of searchbar")
 import {GrChecksApi} from '../../plugins/gr-checks-api/gr-checks-api';
+=======
+>>>>>>> BRANCH (d642a2 Merge branch 'stable-3.2' into stable-3.3)
 
 /**
  * Plugin-provided custom components can affect content in extension
