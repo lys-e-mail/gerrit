@@ -39,9 +39,57 @@ suite('gr-file-list-header tests', () => {
   let element;
   let sandbox;
 
+<<<<<<< HEAD   (e78e71 Upgrade JGit to d1801402)
   setup(() => {
     sandbox = sinon.sandbox.create();
     element = fixture('basic');
+=======
+    setup(() => {
+      sandbox = sinon.sandbox.create();
+      element = fixture('basic');
+    });
+
+    teardown(() => {
+      sandbox.restore();
+    });
+
+    test('display', () => {
+      element.action = {label: 'my-label'};
+      element.change = {
+        subject: 'my-subject',
+        revisions: {},
+      };
+      flushAsynchronousOperations();
+      const header = element.$$('.header');
+      assert.equal(header.textContent.trim(), 'my-label');
+
+      const message = element.$$('.main p');
+      assert.notEqual(message.textContent.length, 0);
+      assert.notEqual(message.textContent.indexOf('my-subject'), -1);
+    });
+
+    test('_computeHasChangeEdit', () => {
+      const change = {
+        revisions: {
+          d442ff05d6c4f2a3af0eeca1f67374b39f9dc3d8: {
+            _number: 'edit',
+          },
+        },
+        unresolved_comment_count: 0,
+      };
+
+      assert.equal(element._computeHasChangeEdit(change), true);
+
+      const change2 = {
+        revisions: {
+          d442ff05d6c4f2a3af0eeca1f67374b39f9dc3d8: {
+            _number: 2,
+          },
+        },
+      };
+      assert.equal(element._computeHasChangeEdit(change2), false);
+    });
+>>>>>>> BRANCH (0153ef Merge branch 'stable-3.0' into stable-3.1)
   });
 
   teardown(() => {

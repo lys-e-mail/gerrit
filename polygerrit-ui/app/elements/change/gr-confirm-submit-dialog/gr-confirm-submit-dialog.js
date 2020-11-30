@@ -67,10 +67,23 @@ class GrConfirmSubmitDialog extends GestureEventListeners(
     this.$.dialog.resetFocus();
   }
 
+<<<<<<< HEAD   (e78e71 Upgrade JGit to d1801402)
   _computeHasChangeEdit(change) {
     return !!change.revisions &&
         Object.values(change.revisions).some(rev => rev._number == 'edit');
   }
+=======
+    _computeHasChangeEdit(change) {
+      return !!change.revisions &&
+          Object.values(change.revisions).some(rev => rev._number === 'edit');
+    },
+
+    _handleConfirmTap(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.dispatchEvent(new CustomEvent('confirm', {bubbles: false}));
+    },
+>>>>>>> BRANCH (0153ef Merge branch 'stable-3.0' into stable-3.1)
 
   _computeUnresolvedCommentsWarning(change) {
     const unresolvedCount = change.unresolved_comment_count;
