@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (f85362 Merge "Fix for text selection in comment")
   <version>3.4.0-SNAPSHOT</version>
+=======
+  <version>3.3.1-SNAPSHOT</version>
+>>>>>>> BRANCH (81cd8f Update git submodules)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
