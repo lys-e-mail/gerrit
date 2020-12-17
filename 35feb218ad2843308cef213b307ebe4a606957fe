@@ -9,9 +9,9 @@
       "updated": "2020-12-17T21:23:33Z"
     },
     "gerritforge:notedb-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "NOT_STARTED",
+      "state": "SCHEDULED",
       "created": "2020-12-17T21:05:38Z",
-      "updated": "2020-12-17T21:54:07Z"
+      "updated": "2020-12-17T21:56:49Z"
     },
     "gerritforge:polygerrit-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "NOT_STARTED",
