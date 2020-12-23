@@ -44,7 +44,11 @@
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
+<<<<<<< HEAD   (73e162 Merge changes from topic "group-backend-currentuser-identifi)
       <name>Joerg Zieren</name>
+=======
+      <name>Jacek Centkowski</name>
+>>>>>>> BRANCH (b933ed Merge changes I2b470424,I8b45988a,Ib1f79cf4 into stable-3.3)
     </developer>
     <developer>
       <name>Luca Milanesio</name>
