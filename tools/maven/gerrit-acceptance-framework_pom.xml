@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (d14db1 Expose patch set level comment in stream event)
   <version>3.3.1-SNAPSHOT</version>
+=======
+  <version>3.2.7-SNAPSHOT</version>
+>>>>>>> BRANCH (c02530 Set version to 3.2.7-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
