@@ -2,4 +2,8 @@
 # Used by :api_install and :api_deploy targets
 # when talking to the destination repository.
 #
+<<<<<<< HEAD   (718a0a Tidy up dev-plugins documentation table of files)
 GERRIT_VERSION = "3.4.0-SNAPSHOT"
+=======
+GERRIT_VERSION = "3.3.2-SNAPSHOT"
+>>>>>>> BRANCH (4b1de7 Merge branch 'stable-3.2' into stable-3.3)

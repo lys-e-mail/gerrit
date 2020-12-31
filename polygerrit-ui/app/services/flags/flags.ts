@@ -25,6 +25,10 @@ export interface FlagsService {
  */
 export enum KnownExperimentId {
   PATCHSET_COMMENTS = 'UiFeature__patchset_comments',
+<<<<<<< HEAD   (718a0a Tidy up dev-plugins documentation table of files)
+=======
+  PATCHSET_CHOICE_FOR_COMMENT_LINKS = 'UiFeature__patchset_choice_for_comment_links',
+>>>>>>> BRANCH (4b1de7 Merge branch 'stable-3.2' into stable-3.3)
   NEW_CONTEXT_CONTROLS = 'UiFeature__new_context_controls',
   CI_REBOOT_CHECKS = 'UiFeature__ci_reboot_checks',
   NEW_CHANGE_SUMMARY_UI = 'UiFeature__new_change_summary_ui',

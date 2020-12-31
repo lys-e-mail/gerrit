@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (718a0a Tidy up dev-plugins documentation table of files)
   <version>3.4.0-SNAPSHOT</version>
+=======
+  <version>3.3.2-SNAPSHOT</version>
+>>>>>>> BRANCH (4b1de7 Merge branch 'stable-3.2' into stable-3.3)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
@@ -44,7 +48,11 @@
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
+<<<<<<< HEAD   (718a0a Tidy up dev-plugins documentation table of files)
       <name>Joerg Zieren</name>
+=======
+      <name>Jacek Centkowski</name>
+>>>>>>> BRANCH (4b1de7 Merge branch 'stable-3.2' into stable-3.3)
     </developer>
     <developer>
       <name>Luca Milanesio</name>
