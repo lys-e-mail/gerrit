@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (b4c32b Merge "CreateChange: Allow specifying correct project")
   <version>3.4.0-SNAPSHOT</version>
+=======
+  <version>3.3.2-SNAPSHOT</version>
+>>>>>>> BRANCH (ac5dd6 Set version to 3.3.2-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
@@ -44,7 +48,11 @@
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
+<<<<<<< HEAD   (b4c32b Merge "CreateChange: Allow specifying correct project")
       <name>Joerg Zieren</name>
+=======
+      <name>Jacek Centkowski</name>
+>>>>>>> BRANCH (ac5dd6 Set version to 3.3.2-SNAPSHOT)
     </developer>
     <developer>
       <name>Luca Milanesio</name>

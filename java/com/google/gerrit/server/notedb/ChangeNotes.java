@@ -129,6 +129,7 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
       return new ChangeNotes(args, newChange(project, changeId), true, null).load();
     }
 
+<<<<<<< HEAD   (b4c32b Merge "CreateChange: Allow specifying correct project")
     public ChangeNotes createForBatchUpdate(Change change, boolean shouldExist) {
       return new ChangeNotes(args, change, shouldExist, null).load();
     }
@@ -155,11 +156,50 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
       return changes.get(0).notes();
     }
 
+=======
+>>>>>>> BRANCH (ac5dd6 Set version to 3.3.2-SNAPSHOT)
     /**
      * Create change notes based on a list of {@link com.google.gerrit.entities.Change.Id}s. This
      * requires using the Change index and should only be used when {@link
      * com.google.gerrit.entities.Project.NameKey} and the numeric change ID are not available.
      */
+<<<<<<< HEAD   (b4c32b Merge "CreateChange: Allow specifying correct project")
+=======
+    public ChangeNotes createFromIndexedChange(Change change) {
+      return new ChangeNotes(args, change, true, null);
+    }
+
+    public ChangeNotes createForBatchUpdate(Change change, boolean shouldExist) {
+      return new ChangeNotes(args, change, shouldExist, null).load();
+    }
+
+    public ChangeNotes create(Change change, RefCache refs) {
+      return new ChangeNotes(args, change, true, refs).load();
+    }
+
+    /**
+     * Create change notes based on a {@link Change.Id}. This requires using the Change index and
+     * should only be used when {@link Project.NameKey} and the numeric change ID are not available.
+     */
+    public ChangeNotes createCheckedUsingIndexLookup(Change.Id changeId) {
+      InternalChangeQuery query = queryProvider.get().noFields();
+      List<ChangeData> changes = query.byLegacyChangeId(changeId);
+      if (changes.isEmpty()) {
+        throw new NoSuchChangeException(changeId);
+      }
+      if (changes.size() != 1) {
+        logger.atSevere().log("Multiple changes found for %d", changeId.get());
+        throw new NoSuchChangeException(changeId);
+      }
+      return changes.get(0).notes();
+    }
+
+    /**
+     * Create change notes based on a list of {@link Change.Id}s. This requires using the Change
+     * index and should only be used when {@link Project.NameKey} and the numeric change ID are not
+     * available.
+     */
+>>>>>>> BRANCH (ac5dd6 Set version to 3.3.2-SNAPSHOT)
     public List<ChangeNotes> createUsingIndexLookup(Collection<Change.Id> changeIds) {
       List<ChangeNotes> notes = new ArrayList<>();
       for (Change.Id changeId : changeIds) {
