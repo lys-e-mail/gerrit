@@ -25,6 +25,10 @@ export interface FlagsService {
  */
 export enum KnownExperimentId {
   PATCHSET_COMMENTS = 'UiFeature__patchset_comments',
+<<<<<<< HEAD   (b4c32b Merge "CreateChange: Allow specifying correct project")
+=======
+  PATCHSET_CHOICE_FOR_COMMENT_LINKS = 'UiFeature__patchset_choice_for_comment_links',
+>>>>>>> BRANCH (ac5dd6 Set version to 3.3.2-SNAPSHOT)
   NEW_CONTEXT_CONTROLS = 'UiFeature__new_context_controls',
   CI_REBOOT_CHECKS = 'UiFeature__ci_reboot_checks',
   NEW_CHANGE_SUMMARY_UI = 'UiFeature__new_change_summary_ui',
