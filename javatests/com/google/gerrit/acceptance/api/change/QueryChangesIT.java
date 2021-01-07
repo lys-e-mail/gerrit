@@ -15,16 +15,21 @@
 package com.google.gerrit.acceptance.api.change;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.util.stream.Collectors.toList;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
+=======
+import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
 import com.google.gerrit.acceptance.UseClockStep;
 import com.google.gerrit.acceptance.config.GerritConfig;
 import com.google.gerrit.acceptance.testsuite.account.AccountOperations;
@@ -34,12 +39,23 @@ import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
+=======
+import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.common.data.Permission;
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
 import com.google.gerrit.extensions.common.ChangeInfo;
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
 import com.google.gerrit.extensions.restapi.BadRequestException;
+=======
+import com.google.gerrit.extensions.restapi.AuthException;
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
 import com.google.gerrit.extensions.restapi.TopLevelResource;
+import com.google.gerrit.server.project.ProjectConfig;
 import com.google.gerrit.server.restapi.change.QueryChanges;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.Arrays;
 import java.util.List;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
@@ -50,6 +66,7 @@ public class QueryChangesIT extends AbstractDaemonTest {
   @Inject private AccountOperations accountOperations;
   @Inject private ProjectOperations projectOperations;
   @Inject private Provider<QueryChanges> queryChangesProvider;
+  @Inject private RequestScopeOperations requestScopeOperations;
 
   @Test
   @SuppressWarnings("unchecked")
@@ -117,6 +134,7 @@ public class QueryChangesIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
   @SuppressWarnings("unchecked")
   @GerritConfig(name = "operator-alias.change.numberaliastest", value = "change")
   public void aliasQuery() throws Exception {
@@ -281,11 +299,88 @@ public class QueryChangesIT extends AbstractDaemonTest {
         ImmutableList.of(result.get(0).get(0)._number, result.get(0).get(1)._number);
     assertThat(firstResultIds).containsExactly(numericId1, numericId2);
     assertThat(result.get(1).get(0)._number).isEqualTo(numericId2);
+=======
+  public void skipVisibility_rejectedForNonAdmin() throws Exception {
+    requestScopeOperations.setApiUser(user.id());
+    final QueryChanges queryChanges = queryChangesProvider.get();
+    String query = "is:open repo:" + project.get();
+    queryChanges.addQuery(query);
+    AuthException thrown =
+        assertThrows(AuthException.class, () -> queryChanges.skipVisibility(true));
+    assertThat(thrown).hasMessageThat().isEqualTo("administrate server not permitted");
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void skipVisibility_noReadPermission() throws Exception {
+    createChange().getChangeId();
+    requestScopeOperations.setApiUser(admin.id());
+    QueryChanges queryChanges = queryChangesProvider.get();
+
+    queryChanges.addQuery("is:open repo:" + project.get());
+    List<List<ChangeInfo>> result =
+        (List<List<ChangeInfo>>) queryChanges.apply(TopLevelResource.INSTANCE).value();
+    assertThat(result).hasSize(1);
+
+    try (ProjectConfigUpdate u = updateProject(allProjects)) {
+      ProjectConfig cfg = u.getConfig();
+      removeAllBranchPermissions(cfg, Permission.READ);
+      u.save();
+    }
+
+    queryChanges = queryChangesProvider.get();
+    queryChanges.addQuery("is:open repo:" + project.get());
+    List<List<ChangeInfo>> result2 =
+        (List<List<ChangeInfo>>) queryChanges.apply(TopLevelResource.INSTANCE).value();
+    assertThat(result2).hasSize(0);
+
+    queryChanges = queryChangesProvider.get();
+    queryChanges.addQuery("is:open repo:" + project.get());
+    queryChanges.skipVisibility(true);
+    List<List<ChangeInfo>> result3 =
+        (List<List<ChangeInfo>>) queryChanges.apply(TopLevelResource.INSTANCE).value();
+    assertThat(result3).hasSize(1);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void skipVisibility_privateChange() throws Exception {
+    TestRepository<InMemoryRepository> userRepo = cloneProject(project, user);
+    PushOneCommit.Result result =
+        pushFactory.create(user.newIdent(), userRepo).to("refs/for/master");
+    requestScopeOperations.setApiUser(user.id());
+    gApi.changes().id(result.getChangeId()).setPrivate(true);
+
+    requestScopeOperations.setApiUser(admin.id());
+    QueryChanges queryChanges = queryChangesProvider.get();
+
+    queryChanges.addQuery("is:open repo:" + project.get());
+    List<List<ChangeInfo>> result2 =
+        (List<List<ChangeInfo>>) queryChanges.apply(TopLevelResource.INSTANCE).value();
+    assertThat(result2).hasSize(0);
+
+    queryChanges = queryChangesProvider.get();
+    queryChanges.addQuery("is:open repo:" + project.get());
+    queryChanges.skipVisibility(true);
+    List<List<ChangeInfo>> result3 =
+        (List<List<ChangeInfo>>) queryChanges.apply(TopLevelResource.INSTANCE).value();
+    assertThat(result3).hasSize(1);
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
   }
 
   private static void assertNoChangeHasMoreChangesSet(List<ChangeInfo> results) {
     for (ChangeInfo info : results) {
       assertThat(info._moreChanges).isNull();
     }
+  }
+
+  private static void removeAllBranchPermissions(ProjectConfig cfg, String... permissions) {
+    cfg.getAccessSections().stream()
+        .filter(
+            s ->
+                s.getName().startsWith("refs/heads/")
+                    || s.getName().startsWith("refs/for/")
+                    || s.getName().equals("refs/*"))
+        .forEach(s -> Arrays.stream(permissions).forEach(s::removePermission));
   }
 }

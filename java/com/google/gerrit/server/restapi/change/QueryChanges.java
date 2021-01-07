@@ -27,8 +27,11 @@ import com.google.gerrit.extensions.restapi.TopLevelResource;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.index.query.QueryRequiresAuthException;
 import com.google.gerrit.index.query.QueryResult;
+import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.DynamicOptions;
 import com.google.gerrit.server.change.ChangeJson;
+import com.google.gerrit.server.permissions.GlobalPermission;
+import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangeQueryBuilder;
@@ -47,8 +50,14 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
 
   private final ChangeJson.Factory json;
   private final ChangeQueryBuilder qb;
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
   private final Provider<ChangeQueryProcessor> queryProcessorProvider;
   private final HashMap<String, DynamicOptions.DynamicBean> dynamicBeans = new HashMap<>();
+=======
+  private final ChangeQueryProcessor imp;
+  private final Provider<CurrentUser> userProvider;
+  private final PermissionBackend permissionBackend;
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
   private EnumSet<ListChangesOption> options;
   private Integer limit;
   private Integer start;
@@ -94,6 +103,15 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
     this.noLimit = on;
   }
 
+  @Option(name = "--skip-visibility", usage = "Skip visibility check, only for administrators")
+  public void skipVisibility(boolean on) throws AuthException, PermissionBackendException {
+    if (on) {
+      CurrentUser user = userProvider.get();
+      permissionBackend.user(user).check(GlobalPermission.ADMINISTRATE_SERVER);
+      imp.enforceVisibility(false);
+    }
+  }
+
   @Override
   public void setDynamicBean(String plugin, DynamicOptions.DynamicBean dynamicBean) {
     dynamicBeans.put(plugin, dynamicBean);
@@ -103,10 +121,22 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
   QueryChanges(
       ChangeJson.Factory json,
       ChangeQueryBuilder qb,
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
       Provider<ChangeQueryProcessor> queryProcessorProvider) {
+=======
+      ChangeQueryProcessor qp,
+      Provider<CurrentUser> userProvider,
+      PermissionBackend permissionBackend) {
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
     this.json = json;
     this.qb = qb;
+<<<<<<< HEAD   (f742f6 Merge branch 'stable-3.1' into stable-3.2)
     this.queryProcessorProvider = queryProcessorProvider;
+=======
+    this.imp = qp;
+    this.userProvider = userProvider;
+    this.permissionBackend = permissionBackend;
+>>>>>>> BRANCH (dfcb9b Add script for incremental reindexing during upgrade)
 
     options = EnumSet.noneOf(ListChangesOption.class);
   }
