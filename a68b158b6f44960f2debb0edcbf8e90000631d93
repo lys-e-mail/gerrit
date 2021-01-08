@@ -17,10 +17,11 @@
       "updated": "2020-05-14T17:31:16Z"
     },
     "gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "RUNNING",
+      "state": "FAILED",
+      "message": "uuid \"gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928\" has unknown language",
       "started": "2021-01-08T20:47:59Z",
       "created": "2021-01-08T20:47:59Z",
-      "updated": "2021-01-08T20:47:59Z"
+      "updated": "2021-01-08T20:48:01Z"
     }
   }
 }
