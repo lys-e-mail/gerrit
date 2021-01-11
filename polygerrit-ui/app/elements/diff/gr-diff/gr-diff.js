@@ -408,12 +408,58 @@ class GrDiff extends mixinBehaviors( [
     return keyLocations;
   }
 
+<<<<<<< HEAD   (8d9e30 Merge "AliasConfig: Pass recursive=true into getNames() JGit)
   // Dispatch events that are handled by the gr-diff-highlight.
   _redispatchHoverEvents(addedThreadEls) {
     for (const threadEl of addedThreadEls) {
       threadEl.addEventListener('mouseenter', () => {
         threadEl.dispatchEvent(new CustomEvent(
             'comment-thread-mouseenter', {bubbles: true, composed: true}));
+=======
+      if (loggedIn && isAttached) {
+        this.listen(document, '-shadow-selectionchange', '_handleSelectionChange');
+        this.listen(document, 'mouseup', '_handleMouseUp');
+      } else {
+        this.unlisten(document, '-shadow-selectionchange', '_handleSelectionChange');
+        this.unlisten(document, 'mouseup', '_handleMouseUp');
+      }
+    },
+
+    _handleSelectionChange() {
+      // Because of shadow DOM selections, we handle the selectionchange here,
+      // and pass the shadow DOM selection into gr-diff-highlight, where the
+      // corresponding range is determined and normalized.
+      const selection = this._getShadowOrDocumentSelection();
+      this.$.highlights.handleSelectionChange(selection, false);
+    },
+
+    _handleMouseUp(e) {
+      // To handle double-click outside of text creating comments, we check on
+      // mouse-up if there's a selection that just covers a line change. We
+      // can't do that on selection change since the user may still be dragging.
+      const selection = this._getShadowOrDocumentSelection();
+      this.$.highlights.handleSelectionChange(selection, true);
+    },
+
+    /** Gets the current selection, preferring the shadow DOM selection. */
+    _getShadowOrDocumentSelection() {
+      // When using native shadow DOM, the selection returned by
+      // document.getSelection() cannot reference the actual DOM elements making
+      // up the diff, because they are in the shadow DOM of the gr-diff element.
+      // This takes the shadow DOM selection if one exists.
+      return this.root.getSelection ?
+        this.root.getSelection() :
+        // This is coming from shadow.js
+        getRange(this.root);
+    },
+
+    _observeNodes() {
+      this._nodeObserver = Polymer.dom(this).observeNodes(info => {
+        const addedThreadEls = info.addedNodes.filter(isThreadEl);
+        const removedThreadEls = info.removedNodes.filter(isThreadEl);
+        this._updateRanges(addedThreadEls, removedThreadEls);
+        this._redispatchHoverEvents(addedThreadEls);
+>>>>>>> BRANCH (96ccc2 Add shadow-selection-polyfill)
       });
       threadEl.addEventListener('mouseleave', () => {
         threadEl.dispatchEvent(new CustomEvent(

@@ -220,12 +220,211 @@ class GrDiffHighlight extends GestureEventListeners(
     const rangeCount = selection.rangeCount;
     if (rangeCount === 0) {
       return null;
+<<<<<<< HEAD   (8d9e30 Merge "AliasConfig: Pass recursive=true into getNames() JGit)
     } else if (rangeCount === 1) {
       return this._normalizeRange(selection.getRangeAt(0));
     } else {
       const startRange = this._normalizeRange(selection.getRangeAt(0));
       const endRange = this._normalizeRange(
           selection.getRangeAt(rangeCount - 1));
+=======
+    },
+
+    _handleCommentThreadMouseenter(e) {
+      const threadEl = this._getThreadEl(e);
+      const index = this._indexForThreadEl(threadEl);
+
+      if (index !== undefined) {
+        this.set(['commentRanges', index, 'hovering'], true);
+      }
+    },
+
+    _handleCommentThreadMouseleave(e) {
+      const threadEl = this._getThreadEl(e);
+      const index = this._indexForThreadEl(threadEl);
+
+      if (index !== undefined) {
+        this.set(['commentRanges', index, 'hovering'], false);
+      }
+    },
+
+    _indexForThreadEl(threadEl) {
+      const side = threadEl.getAttribute('comment-side');
+      const range = JSON.parse(threadEl.getAttribute('range'));
+
+      if (!range) return undefined;
+
+      return this._indexOfCommentRange(side, range);
+    },
+
+    _indexOfCommentRange(side, range) {
+      function rangesEqual(a, b) {
+        if (!a && !b) {
+          return true;
+        }
+        if (!a || !b) {
+          return false;
+        }
+        return a.start_line === b.start_line &&
+            a.start_character === b.start_character &&
+            a.end_line === b.end_line &&
+            a.end_character === b.end_character;
+      }
+
+      return this.commentRanges.findIndex(commentRange =>
+        commentRange.side === side && rangesEqual(commentRange.range, range));
+    },
+
+    /**
+     * Get current normalized selection.
+     * Merges multiple ranges, accounts for triple click, accounts for
+     * syntax highligh, convert native DOM Range objects to Gerrit concepts
+     * (line, side, etc).
+     *
+     * @param {Selection} selection
+     * @return {({
+     *   start: {
+     *     node: Node,
+     *     side: string,
+     *     line: Number,
+     *     column: Number
+     *   },
+     *   end: {
+     *     node: Node,
+     *     side: string,
+     *     line: Number,
+     *     column: Number
+     *   }
+     * })|null|!Object}
+     */
+    _getNormalizedRange(selection) {
+      /* On Safari the ShadowRoot.getSelection() isn't there and the only thing
+         we can get is a single Range */
+      if (selection instanceof Range) {
+        return this._normalizeRange(selection);
+      }
+      const rangeCount = selection.rangeCount;
+      if (rangeCount === 0) {
+        return null;
+      } else if (rangeCount === 1) {
+        return this._normalizeRange(selection.getRangeAt(0));
+      } else {
+        const startRange = this._normalizeRange(selection.getRangeAt(0));
+        const endRange = this._normalizeRange(
+            selection.getRangeAt(rangeCount - 1));
+        return {
+          start: startRange.start,
+          end: endRange.end,
+        };
+      }
+    },
+
+    /**
+     * Normalize a specific DOM Range.
+     *
+     * @return {!Object} fixed normalized range
+     */
+    _normalizeRange(domRange) {
+      const range = GrRangeNormalizer.normalize(domRange);
+      return this._fixTripleClickSelection({
+        start: this._normalizeSelectionSide(
+            range.startContainer, range.startOffset),
+        end: this._normalizeSelectionSide(
+            range.endContainer, range.endOffset),
+      }, domRange);
+    },
+
+    /**
+     * Adjust triple click selection for the whole line.
+     * A triple click always results in:
+     * - start.column == end.column == 0
+     * - end.line == start.line + 1
+     *
+     * @param {!Object} range Normalized range, ie column/line numbers
+     * @param {!Range} domRange DOM Range object
+     * @return {!Object} fixed normalized range
+     */
+    _fixTripleClickSelection(range, domRange) {
+      if (!range.start) {
+        // Selection outside of current diff.
+        return range;
+      }
+      const start = range.start;
+      const end = range.end;
+      // Happens when triple click in side-by-side mode with other side empty.
+      const endsAtOtherEmptySide = !end &&
+          domRange.endOffset === 0 &&
+          domRange.endContainer.nodeName === 'TD' &&
+          (domRange.endContainer.classList.contains('left') ||
+           domRange.endContainer.classList.contains('right'));
+      const endsAtBeginningOfNextLine = end &&
+          start.column === 0 &&
+          end.column === 0 &&
+          end.line === start.line + 1;
+      const content = domRange.cloneContents().querySelector('.contentText');
+      const lineLength = content && this._getLength(content) || 0;
+      if (lineLength && (endsAtBeginningOfNextLine || endsAtOtherEmptySide)) {
+        // Move the selection to the end of the previous line.
+        range.end = {
+          node: start.node,
+          column: lineLength,
+          side: start.side,
+          line: start.line,
+        };
+      }
+      return range;
+    },
+
+    /**
+     * Convert DOM Range selection to concrete numbers (line, column, side).
+     * Moves range end if it's not inside td.content.
+     * Returns null if selection end is not valid (outside of diff).
+     *
+     * @param {Node} node td.content child
+     * @param {number} offset offset within node
+     * @return {({
+     *   node: Node,
+     *   side: string,
+     *   line: Number,
+     *   column: Number
+     * }|undefined)}
+     */
+    _normalizeSelectionSide(node, offset) {
+      let column;
+      if (!this.contains(node)) {
+        return;
+      }
+      const lineEl = this.diffBuilder.getLineElByChild(node);
+      if (!lineEl) {
+        return;
+      }
+      const side = this.diffBuilder.getSideByLineEl(lineEl);
+      if (!side) {
+        return;
+      }
+      const line = this.diffBuilder.getLineNumberByChild(lineEl);
+      if (!line) {
+        return;
+      }
+      const contentText = this.diffBuilder.getContentByLineEl(lineEl);
+      if (!contentText) {
+        return;
+      }
+      const contentTd = contentText.parentElement;
+      if (!contentTd.contains(node)) {
+        node = contentText;
+        column = 0;
+      } else {
+        const thread = contentTd.querySelector('.comment-thread');
+        if (thread && thread.contains(node)) {
+          column = this._getLength(contentText);
+          node = contentText;
+        } else {
+          column = this._convertOffsetToColumn(node, offset);
+        }
+      }
+
+>>>>>>> BRANCH (96ccc2 Add shadow-selection-polyfill)
       return {
         start: startRange.start,
         end: endRange.end,
@@ -289,6 +488,7 @@ class GrDiffHighlight extends GestureEventListeners(
     return range;
   }
 
+<<<<<<< HEAD   (8d9e30 Merge "AliasConfig: Pass recursive=true into getNames() JGit)
   /**
    * Convert DOM Range selection to concrete numbers (line, column, side).
    * Moves range end if it's not inside td.content.
@@ -335,8 +535,28 @@ class GrDiffHighlight extends GestureEventListeners(
         node = contentText;
       } else {
         column = this._convertOffsetToColumn(node, offset);
+=======
+    _handleSelection(selection, isMouseUp) {
+      /* On Safari, the selection events may return a null range that should
+         be ignored */
+      if (!selection) {
+        return;
       }
+      const normalizedRange = this._getNormalizedRange(selection);
+      if (!this._isRangeValid(normalizedRange)) {
+        this._removeActionBox();
+        return;
+>>>>>>> BRANCH (96ccc2 Add shadow-selection-polyfill)
+      }
+<<<<<<< HEAD   (8d9e30 Merge "AliasConfig: Pass recursive=true into getNames() JGit)
     }
+=======
+      /* On Safari the ShadowRoot.getSelection() isn't there and the only thing
+         we can get is a single Range */
+      const domRange = selection instanceof Range ? selection:selection.getRangeAt(0);
+      const start = normalizedRange.start;
+      const end = normalizedRange.end;
+>>>>>>> BRANCH (96ccc2 Add shadow-selection-polyfill)
 
     return {
       node,
