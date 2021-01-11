@@ -32,7 +32,11 @@
     "page": "^1.11.5",
     "polymer-bridges": "file:../../polymer-bridges/",
     "polymer-resin": "^2.0.1",
+<<<<<<< HEAD   (6c37e7 Merge "Add bug icon next to "Ported from" message")
     "rxjs": "^6.6.2"
+=======
+    "shadow-selection-polyfill": "^1.1.0"
+>>>>>>> BRANCH (8f112b Merge branch 'stable-3.2' into stable-3.3)
   },
   "license": "Apache-2.0",
   "private": true
