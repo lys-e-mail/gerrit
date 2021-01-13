@@ -283,7 +283,12 @@ module.exports = {
           name: '@polymer/decorators/lib/decorators',
           message: 'Use @polymer/decorators instead',
         }],
+<<<<<<< HEAD   (1f60e3 Update git submodules)
         '@typescript-eslint/no-explicit-any': 'error',
+=======
+        // See https://github.com/GoogleChromeLabs/shadow-selection-polyfill/issues/9
+        "@typescript-eslint/ban-ts-ignore": "off",
+>>>>>>> BRANCH (57fbb6 Merge branch 'stable-3.2' into stable-3.3)
         // The following rules is required to match internal google rules
         '@typescript-eslint/restrict-plus-operands': 'error',
         '@typescript-eslint/no-unused-vars': [
