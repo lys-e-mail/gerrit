@@ -283,7 +283,12 @@ module.exports = {
           name: '@polymer/decorators/lib/decorators',
           message: 'Use @polymer/decorators instead',
         }],
+<<<<<<< HEAD   (fc60e4 Merge "DeleteTag: remove unreachable check")
         '@typescript-eslint/no-explicit-any': 'error',
+=======
+        // See https://github.com/GoogleChromeLabs/shadow-selection-polyfill/issues/9
+        "@typescript-eslint/ban-ts-ignore": "off",
+>>>>>>> BRANCH (0e041d Merge branch 'stable-3.2' into stable-3.3)
         // The following rules is required to match internal google rules
         '@typescript-eslint/restrict-plus-operands': 'error',
         '@typescript-eslint/no-unused-vars': [
