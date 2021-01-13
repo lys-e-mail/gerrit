@@ -72,6 +72,12 @@ Apache2.0
 * jetty:server
 * jetty:servlet
 * jetty:util
+<<<<<<< HEAD   (40f0df Add shadow-selection-polyfill)
+=======
+* jetty:util-ajax
+* log:json-smart
+* log:jsonevent-layout
+>>>>>>> BRANCH (d1319c Update jetty version to 9.4.35.v20201120)
 * log:log4j
 * lucene:lucene-analyzers-common
 * lucene:lucene-core-and-backward-codecs-merged
