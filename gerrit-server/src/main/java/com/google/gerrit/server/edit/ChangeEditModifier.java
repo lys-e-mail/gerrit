@@ -14,12 +14,20 @@
 
 package com.google.gerrit.server.edit;
 
+<<<<<<< HEAD   (b5f92f ForRef#check should permit internal users to read all refs)
 import com.google.common.collect.ImmutableList;
+=======
+import static com.google.common.base.Preconditions.checkState;
+
+import com.google.common.base.Strings;
+import com.google.gerrit.common.FooterConstants;
+>>>>>>> BRANCH (2975ba Disallow editing the Change-Id during inline edits)
 import com.google.gerrit.common.TimeUtil;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.MergeConflictException;
 import com.google.gerrit.extensions.restapi.RawInput;
+import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.reviewdb.client.RefNames;
@@ -201,14 +209,27 @@ public class ChangeEditModifier {
    * @param newCommitMessage the new commit message
    * @throws AuthException if the user isn't authenticated or not allowed to use change edits
    * @throws UnchangedCommitMessageException if the commit message is the same as before
+<<<<<<< HEAD   (b5f92f ForRef#check should permit internal users to read all refs)
    * @throws PermissionBackendException
    * @throws BadRequestException if the commit message is malformed
+=======
+   * @throws ResourceConflictException if the commit message has a Change-Id modification
+>>>>>>> BRANCH (2975ba Disallow editing the Change-Id during inline edits)
    */
+<<<<<<< HEAD   (b5f92f ForRef#check should permit internal users to read all refs)
   public void modifyMessage(Repository repository, ChangeNotes notes, String newCommitMessage)
       throws AuthException, IOException, UnchangedCommitMessageException, OrmException,
           PermissionBackendException, BadRequestException {
     assertCanEdit(notes);
     newCommitMessage = CommitMessageUtil.checkAndSanitizeCommitMessage(newCommitMessage);
+=======
+  public void modifyMessage(
+      Repository repository, ChangeControl changeControl, String newCommitMessage)
+      throws AuthException, IOException, UnchangedCommitMessageException, OrmException,
+          ResourceConflictException {
+    ensureAuthenticatedAndPermitted(changeControl);
+    newCommitMessage = getWellFormedCommitMessage(newCommitMessage);
+>>>>>>> BRANCH (2975ba Disallow editing the Change-Id during inline edits)
 
     Optional<ChangeEdit> optionalChangeEdit = lookupChangeEdit(notes);
     PatchSet basePatchSet = getBasePatchSet(optionalChangeEdit, notes);
@@ -225,6 +246,17 @@ public class ChangeEditModifier {
     Timestamp nowTimestamp = TimeUtil.nowTs();
     ObjectId newEditCommit =
         createCommit(repository, basePatchSetCommit, baseTree, newCommitMessage, nowTimestamp);
+
+    if (changeControl.getProjectControl().getProjectState().isRequireChangeID()) {
+      try (RevWalk revWalk = new RevWalk(repository)) {
+        if (!revWalk
+            .parseCommit(newEditCommit)
+            .getFooterLines(FooterConstants.CHANGE_ID)
+            .contains(changeControl.getChange().getKey().get())) {
+          throw new ResourceConflictException("Editing of the Change-Id footer is not allowed");
+        }
+      }
+    }
 
     if (optionalChangeEdit.isPresent()) {
       updateEdit(repository, optionalChangeEdit.get(), newEditCommit, nowTimestamp);
