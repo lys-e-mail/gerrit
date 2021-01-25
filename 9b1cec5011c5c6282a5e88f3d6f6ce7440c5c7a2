@@ -9,9 +9,11 @@
       "updated": "2021-01-25T13:15:39Z"
     },
     "gerritforge:notedb-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "SCHEDULED",
+      "state": "RUNNING",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/20%252F280520%252F11/11/console",
+      "started": "2021-01-25T13:15:42Z",
       "created": "2021-01-11T15:20:26Z",
-      "updated": "2021-01-25T13:15:15Z"
+      "updated": "2021-01-25T13:15:42Z"
     },
     "gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "SCHEDULED",
