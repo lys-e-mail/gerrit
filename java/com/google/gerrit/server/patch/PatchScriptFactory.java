@@ -64,7 +64,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
         ChangeNotes notes,
         String fileName,
         @Assisted("patchSetA") PatchSet.Id patchSetA,
-        @Assisted("patchSetB") PatchSet.Id patchSetB,
+        @Assisted("patchSetB") PatchSet patchSetB,
         DiffPreferencesInfo diffPrefs,
         CurrentUser currentUser);
 
@@ -72,7 +72,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
         ChangeNotes notes,
         String fileName,
         int parentNum,
-        PatchSet.Id patchSetB,
+        PatchSet patchSetB,
         DiffPreferencesInfo diffPrefs,
         CurrentUser currentUser);
   }
@@ -85,7 +85,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
   private final String fileName;
   @Nullable private final PatchSet.Id psa;
   private final int parentNum;
-  private final PatchSet.Id psb;
+  private final PatchSet psb;
   private final DiffPreferencesInfo diffPrefs;
   private final CurrentUser currentUser;
 
@@ -109,7 +109,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
       @Assisted ChangeNotes notes,
       @Assisted String fileName,
       @Assisted("patchSetA") @Nullable PatchSet.Id patchSetA,
-      @Assisted("patchSetB") PatchSet.Id patchSetB,
+      @Assisted("patchSetB") PatchSet patchSetB,
       @Assisted DiffPreferencesInfo diffPrefs,
       @Assisted CurrentUser currentUser) {
     this.repoManager = grm;
@@ -128,7 +128,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
     this.diffPrefs = diffPrefs;
     this.currentUser = currentUser;
 
-    changeId = patchSetB.changeId();
+    changeId = patchSetB.id().changeId();
   }
 
   @AssistedInject
@@ -143,7 +143,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
       @Assisted ChangeNotes notes,
       @Assisted String fileName,
       @Assisted int parentNum,
-      @Assisted PatchSet.Id patchSetB,
+      @Assisted PatchSet patchSetB,
       @Assisted DiffPreferencesInfo diffPrefs,
       @Assisted CurrentUser currentUser) {
     this.repoManager = grm;
@@ -162,7 +162,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
     this.diffPrefs = diffPrefs;
     this.currentUser = currentUser;
 
-    changeId = patchSetB.changeId();
+    changeId = patchSetB.id().changeId();
     checkArgument(parentNum >= 0, "parentNum must be >= 0");
   }
 
@@ -187,7 +187,7 @@ public class PatchScriptFactory implements Callable<PatchScript> {
     try (Repository git = repoManager.openRepository(notes.getProjectName())) {
       try {
         validatePatchSetId(psa);
-        validatePatchSetId(psb);
+        validatePatchSetId(psb.id());
 
         ObjectId aId = getAId().orElse(null);
         ObjectId bId = getBId().orElse(null);
@@ -232,11 +232,11 @@ public class PatchScriptFactory implements Callable<PatchScript> {
   }
 
   private Optional<ObjectId> getBId() {
-    if (psb.get() == 0) {
+    if (psb.id().get() == 0) {
       // Change edit
       return Optional.empty();
     }
-    return Optional.of(getCommitId(psb));
+    return Optional.of(psb.commitId());
   }
 
   private PatchListKey keyFor(ObjectId aId, ObjectId bId, Whitespace whitespace) {
