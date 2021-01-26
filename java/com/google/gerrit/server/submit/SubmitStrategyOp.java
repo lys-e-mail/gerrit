@@ -439,7 +439,7 @@ abstract class SubmitStrategyOp implements BatchUpdateOp {
   private ChangeMessage message(ChangeContext ctx, PatchSet.Id psId, String body)
       throws AuthException, IOException, PermissionBackendException,
           InvalidChangeOperationException {
-    String diff = args.submitWithStickyApprovalDiff.apply(ctx.getNotes(), ctx.getUser());
+    String diff = args.submitWithStickyApprovalDiff.apply(ctx.getNotes(), ctx.getUser(), null);
     return ChangeMessagesUtil.newMessage(
         psId, ctx.getUser(), ctx.getWhen(), body + diff, ChangeMessagesUtil.TAG_MERGED);
   }

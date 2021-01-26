@@ -16,6 +16,7 @@ package com.google.gerrit.server.patch;
 
 import static com.google.gerrit.server.project.ProjectCache.illegalState;
 
+import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.PatchScript;
 import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.Patch;
@@ -38,6 +39,7 @@ import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.inject.Inject;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.eclipse.jgit.diff.Edit;
 
@@ -68,7 +70,7 @@ public class SubmitWithStickyApprovalDiff {
     this.patchListCache = patchListCache;
   }
 
-  public String apply(ChangeNotes notes, CurrentUser currentUser)
+  public String apply(ChangeNotes notes, CurrentUser currentUser, PatchSet patchSet)
       throws AuthException, IOException, PermissionBackendException,
           InvalidChangeOperationException {
     // In some submit strategies, the current patch-set doesn't exist yet as it's being created
@@ -81,9 +83,12 @@ public class SubmitWithStickyApprovalDiff {
                     new IllegalStateException(
                         String.format(
                             "change %s can't load any patchset", notes.getChangeId().toString())));
-
-    PatchSet.Id latestApprovedPatchsetId = getLatestApprovedPatchsetId(notes);
-    if (latestApprovedPatchsetId.get() == currentPatchset.id().get()) {
+    if (patchSet != null) {
+      currentPatchset = patchSet;
+    }
+    Optional<PatchSet.Id> latestApprovedPatchsetId = getLatestApprovedPatchsetId(notes);
+    if (latestApprovedPatchsetId.isPresent()
+        && latestApprovedPatchsetId.get().get() == currentPatchset.id().get()) {
       // If the latest approved patchset is the current patchset, no need to return anything.
       return "";
     }
@@ -93,7 +98,9 @@ public class SubmitWithStickyApprovalDiff {
         getPatchList(
             notes.getProjectName(),
             currentPatchset,
-            notes.getPatchSets().get(latestApprovedPatchsetId));
+            latestApprovedPatchsetId.isPresent()
+                ? Optional.of(notes.getPatchSets().get(latestApprovedPatchsetId.get()))
+                : Optional.empty());
 
     // To make the message a bit more concise, we skip the magic files.
     for (PatchListEntry patchListEntry :
@@ -102,15 +109,19 @@ public class SubmitWithStickyApprovalDiff {
             .collect(Collectors.toList())) {
       diff +=
           getDiffForFile(
-              notes, currentPatchset.id(), latestApprovedPatchsetId, patchListEntry, currentUser);
+              notes,
+              currentPatchset,
+              latestApprovedPatchsetId.orElse(null),
+              patchListEntry,
+              currentUser);
     }
     return diff;
   }
 
   private String getDiffForFile(
       ChangeNotes notes,
-      PatchSet.Id currentPatchsetId,
-      PatchSet.Id latestApprovedPatchsetId,
+      PatchSet currentPatchset,
+      @Nullable PatchSet.Id latestApprovedPatchsetId,
       PatchListEntry patchListEntry,
       CurrentUser currentUser)
       throws AuthException, InvalidChangeOperationException, IOException,
@@ -127,7 +138,7 @@ public class SubmitWithStickyApprovalDiff {
             notes,
             patchListEntry.getNewName(),
             latestApprovedPatchsetId,
-            currentPatchsetId,
+            currentPatchset,
             diffPreferencesInfo,
             currentUser);
     PatchScript patchScript = null;
@@ -196,10 +207,10 @@ public class SubmitWithStickyApprovalDiff {
     return diffPreferencesInfo;
   }
 
-  private PatchSet.Id getLatestApprovedPatchsetId(ChangeNotes notes) {
+  private Optional<PatchSet.Id> getLatestApprovedPatchsetId(ChangeNotes notes) {
     ProjectState projectState =
         projectCache.get(notes.getProjectName()).orElseThrow(illegalState(notes.getProjectName()));
-    PatchSet.Id maxPatchSetId = PatchSet.id(notes.getChangeId(), 1);
+    PatchSet.Id maxPatchSetId = PatchSet.id(notes.getChangeId(), 0);
     for (PatchSetApproval patchSetApproval : notes.getApprovals().values()) {
       if (!patchSetApproval.label().equals(LabelId.CODE_REVIEW)) {
         continue;
@@ -214,17 +225,24 @@ public class SubmitWithStickyApprovalDiff {
         maxPatchSetId = patchSetApproval.patchSetId();
       }
     }
-    return maxPatchSetId;
+    if (maxPatchSetId.get() == 0) {
+      // we didn't find an approved patch-set.
+      return Optional.empty();
+    }
+    return Optional.of(maxPatchSetId);
   }
 
   /**
    * Gets the {@link PatchList} between the two latest patch-sets. Can be used to compute difference
    * in files between those two patch-sets .
    */
-  private PatchList getPatchList(Project.NameKey project, PatchSet ps, PatchSet priorPatchSet) {
+  private PatchList getPatchList(
+      Project.NameKey project, PatchSet ps, Optional<PatchSet> priorPatchSet) {
     PatchListKey key =
-        PatchListKey.againstCommit(
-            priorPatchSet.commitId(), ps.commitId(), DiffPreferencesInfo.Whitespace.IGNORE_NONE);
+        priorPatchSet.isPresent()
+            ? PatchListKey.againstCommit(
+                priorPatchSet.get().commitId(), ps.commitId(), Whitespace.IGNORE_NONE)
+            : PatchListKey.againstDefaultBase(ps.commitId(), Whitespace.IGNORE_NONE);
     try {
       return patchListCache.get(key, project);
     } catch (PatchListNotAvailableException ex) {

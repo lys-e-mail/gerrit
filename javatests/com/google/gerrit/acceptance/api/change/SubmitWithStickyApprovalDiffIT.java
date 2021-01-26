@@ -23,6 +23,7 @@ import static com.google.gerrit.server.project.testing.TestLabels.value;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
+import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.testsuite.change.ChangeOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.entities.Change;
@@ -234,6 +235,33 @@ public class SubmitWithStickyApprovalDiffIT extends AbstractDaemonTest {
 
     assertThat(Iterables.getLast(gApi.changes().id(changeId.get()).messages()).message.trim())
         .isEqualTo("Change has been successfully merged");
+  }
+
+  @Test
+  public void diffChangeMessageExtendedAlsoOnDirectPushWithApprovalToPriorPatchset()
+      throws Exception {
+    PushOneCommit push =
+        pushFactory.create(admin.newIdent(), testRepo, "Subject", "a.txt", "content");
+
+    // push to code review
+    PushOneCommit.Result result = push.to("refs/for/master");
+    gApi.changes().id(result.getChangeId()).current().review(ReviewInput.approve());
+
+    result = amendChangeWithDirectPush(result.getChangeId(), "Subject", "a.txt", "new content");
+    assertThat(Iterables.getLast(gApi.changes().id(result.getChangeId()).messages()).message)
+        .contains("The change was submitted with unreviewed changes in the following files:");
+  }
+
+  @Test
+  public void diffChangeMessageNotExtendedOnDirectPushWithNoApproval() throws Exception {
+    PushOneCommit push =
+        pushFactory.create(admin.newIdent(), testRepo, "Change", "a.txt", "content");
+
+    // direct push without code-review.
+    PushOneCommit.Result result = push.to("refs/heads/master");
+
+    assertThat(Iterables.getLast(gApi.changes().id(result.getChangeId()).messages()).message)
+        .contains("The change was submitted with unreviewed changes in the following files:");
   }
 
   private void assertDiffChangeMessageWithStickyApproval(

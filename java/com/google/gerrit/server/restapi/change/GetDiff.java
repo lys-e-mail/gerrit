@@ -139,13 +139,20 @@ public class GetDiff implements RestReadView<FileResource> {
       }
       psf =
           patchScriptFactoryFactory.create(
-              notes, fileName, basePatchSet.id(), pId, prefs, currentUser.get());
+              notes,
+              fileName,
+              basePatchSet.id(),
+              notes.getCurrentPatchSet(),
+              prefs,
+              currentUser.get());
     } else if (parentNum > 0) {
       psf =
           patchScriptFactoryFactory.create(
-              notes, fileName, parentNum - 1, pId, prefs, currentUser.get());
+              notes, fileName, parentNum - 1, notes.getCurrentPatchSet(), prefs, currentUser.get());
     } else {
-      psf = patchScriptFactoryFactory.create(notes, fileName, null, pId, prefs, currentUser.get());
+      psf =
+          patchScriptFactoryFactory.create(
+              notes, fileName, null, notes.getCurrentPatchSet(), prefs, currentUser.get());
     }
 
     try {
