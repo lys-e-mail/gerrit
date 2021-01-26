@@ -922,6 +922,11 @@ public abstract class AbstractDaemonTest {
     return amendChange(changeId, "refs/for/master", admin, testRepo, subject, fileName, content);
   }
 
+  protected PushOneCommit.Result amendChangeWithDirectPush(
+      String changeId, String subject, String fileName, String content) throws Exception {
+    return amendChange(changeId, "refs/heads/master", admin, testRepo, subject, fileName, content);
+  }
+
   protected PushOneCommit.Result amendChange(
       String changeId,
       String ref,

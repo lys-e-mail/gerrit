@@ -23,6 +23,7 @@ import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetInfo;
 import com.google.gerrit.entities.SubmissionId;
+import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.config.SendEmailExecutor;
@@ -31,6 +32,9 @@ import com.google.gerrit.server.mail.send.MergedSender;
 import com.google.gerrit.server.mail.send.MessageIdGenerator;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.patch.PatchSetInfoFactory;
+import com.google.gerrit.server.patch.SubmitWithStickyApprovalDiff;
+import com.google.gerrit.server.permissions.PermissionBackendException;
+import com.google.gerrit.server.project.InvalidChangeOperationException;
 import com.google.gerrit.server.update.BatchUpdateOp;
 import com.google.gerrit.server.update.ChangeContext;
 import com.google.gerrit.server.update.Context;
@@ -72,6 +76,7 @@ public class MergedByPushOp implements BatchUpdateOp {
   private final ExecutorService sendEmailExecutor;
   private final ChangeMerged changeMerged;
   private final MessageIdGenerator messageIdGenerator;
+  private final SubmitWithStickyApprovalDiff submitWithStickyApprovalDiff;
 
   private final PatchSet.Id psId;
   private final SubmissionId submissionId;
@@ -93,6 +98,7 @@ public class MergedByPushOp implements BatchUpdateOp {
       @SendEmailExecutor ExecutorService sendEmailExecutor,
       ChangeMerged changeMerged,
       MessageIdGenerator messageIdGenerator,
+      SubmitWithStickyApprovalDiff submitWithStickyApprovalDiff,
       @Assisted RequestScopePropagator requestScopePropagator,
       @Assisted PatchSet.Id psId,
       @Assisted SubmissionId submissionId,
@@ -105,6 +111,7 @@ public class MergedByPushOp implements BatchUpdateOp {
     this.sendEmailExecutor = sendEmailExecutor;
     this.changeMerged = changeMerged;
     this.messageIdGenerator = messageIdGenerator;
+    this.submitWithStickyApprovalDiff = submitWithStickyApprovalDiff;
     this.requestScopePropagator = requestScopePropagator;
     this.submissionId = submissionId;
     this.psId = psId;
@@ -122,7 +129,9 @@ public class MergedByPushOp implements BatchUpdateOp {
   }
 
   @Override
-  public boolean updateChange(ChangeContext ctx) throws IOException {
+  public boolean updateChange(ChangeContext ctx)
+      throws IOException, PermissionBackendException, AuthException,
+          InvalidChangeOperationException {
     change = ctx.getChange();
     correctBranch = refName.equals(change.getDest().branch());
     if (!correctBranch) {
@@ -168,9 +177,14 @@ public class MergedByPushOp implements BatchUpdateOp {
       }
     }
     msgBuf.append(".");
+    String diff = submitWithStickyApprovalDiff.apply(ctx.getNotes(), ctx.getUser(), patchSet);
     ChangeMessage msg =
         ChangeMessagesUtil.newMessage(
-            psId, ctx.getUser(), ctx.getWhen(), msgBuf.toString(), ChangeMessagesUtil.TAG_MERGED);
+            psId,
+            ctx.getUser(),
+            ctx.getWhen(),
+            msgBuf.toString() + diff,
+            ChangeMessagesUtil.TAG_MERGED);
     cmUtil.addChangeMessage(update, msg);
     update.putApproval(LabelId.legacySubmit().get(), (short) 1);
     return true;

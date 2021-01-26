@@ -68,6 +68,7 @@ import com.google.gerrit.server.mail.send.ReplacePatchSetSender;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ChangeUpdate;
 import com.google.gerrit.server.permissions.PermissionBackendException;
+import com.google.gerrit.server.project.InvalidChangeOperationException;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.gerrit.server.query.change.ChangeData;
@@ -254,7 +255,7 @@ public class ReplaceOp implements BatchUpdateOp {
   @Override
   public boolean updateChange(ChangeContext ctx)
       throws RestApiException, IOException, PermissionBackendException, ConfigInvalidException,
-          ValidationException {
+          ValidationException, InvalidChangeOperationException {
     notes = ctx.getNotes();
     Change change = notes.getChange();
     if (change == null || change.isClosed()) {
