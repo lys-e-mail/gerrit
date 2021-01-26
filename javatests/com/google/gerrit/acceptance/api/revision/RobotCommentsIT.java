@@ -790,7 +790,14 @@ public class RobotCommentsIT extends AbstractDaemonTest {
 
   @Test
   public void fixDoesNotModifyCommitMessageOfChangeEdit() throws Exception {
+<<<<<<< HEAD   (09548a Update git submodules)
     String changeEditCommitMessage = "This is the commit message of the change edit.\n";
+=======
+    assume().that(notesMigration.readChanges()).isTrue();
+
+    String changeEditCommitMessage =
+        "This is the commit message of the change edit.\n\nChange-Id: " + changeId + "\n";
+>>>>>>> BRANCH (2e2292 Merge branch 'stable-2.15' into stable-2.16)
     gApi.changes().id(changeId).edit().modifyCommitMessage(changeEditCommitMessage);
 
     fixReplacementInfo.path = FILE_NAME;

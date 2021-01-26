@@ -20,9 +20,15 @@ import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.MergeConflictException;
 import com.google.gerrit.extensions.restapi.RawInput;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
+import com.google.gerrit.reviewdb.client.BooleanProjectConfig;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.PatchSet;
+import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.reviewdb.client.RefNames;
+<<<<<<< HEAD   (09548a Update git submodules)
+=======
+import com.google.gerrit.reviewdb.server.ReviewDb;
+>>>>>>> BRANCH (2e2292 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.server.ChangeUtil;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.GerritPersonIdent;
@@ -206,8 +212,14 @@ public class ChangeEditModifier {
    * @throws PermissionBackendException
    * @throws BadRequestException if the commit message is malformed
    */
+<<<<<<< HEAD   (09548a Update git submodules)
   public void modifyMessage(Repository repository, ChangeNotes notes, String newCommitMessage)
       throws AuthException, IOException, UnchangedCommitMessageException,
+=======
+  public void modifyMessage(
+      Repository repository, Project.NameKey project, ChangeNotes notes, String newCommitMessage)
+      throws AuthException, IOException, UnchangedCommitMessageException, OrmException,
+>>>>>>> BRANCH (2e2292 Merge branch 'stable-2.15' into stable-2.16)
           PermissionBackendException, BadRequestException, ResourceConflictException {
     assertCanEdit(notes);
     newCommitMessage = CommitMessageUtil.checkAndSanitizeCommitMessage(newCommitMessage);
@@ -227,6 +239,11 @@ public class ChangeEditModifier {
     Timestamp nowTimestamp = TimeUtil.nowTs();
     ObjectId newEditCommit =
         createCommit(repository, basePatchSetCommit, baseTree, newCommitMessage, nowTimestamp);
+
+    ChangeUtil.ensureChangeIdIsCorrect(
+        projectCache.checkedGet(project).is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
+        notes.getChange().getKey().get(),
+        newCommitMessage);
 
     if (optionalChangeEdit.isPresent()) {
       updateEdit(repository, optionalChangeEdit.get(), newEditCommit, nowTimestamp);
