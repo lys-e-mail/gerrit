@@ -14,9 +14,12 @@
 
 package com.google.gerrit.server.restapi.change;
 
+<<<<<<< HEAD   (22d758 Update git submodules)
 import com.google.gerrit.common.FooterConstants;
 import com.google.gerrit.entities.BooleanProjectConfig;
 import com.google.gerrit.entities.PatchSet;
+=======
+>>>>>>> BRANCH (62d9bd Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.common.CommitMessageInput;
 import com.google.gerrit.extensions.restapi.AuthException;
@@ -48,11 +51,9 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.TimeZone;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.CommitBuilder;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -110,6 +111,7 @@ public class PutMessage extends RetryingRestModifyView<ChangeResource, CommitMes
     String sanitizedCommitMessage = CommitMessageUtil.checkAndSanitizeCommitMessage(input.message);
 
     ensureCanEditCommitMessage(resource.getNotes());
+<<<<<<< HEAD   (22d758 Update git submodules)
     sanitizedCommitMessage =
         ensureChangeIdIsCorrect(
             projectCache
@@ -117,6 +119,12 @@ public class PutMessage extends RetryingRestModifyView<ChangeResource, CommitMes
                 .is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
             resource.getChange().getKey().get(),
             sanitizedCommitMessage);
+=======
+    ChangeUtil.ensureChangeIdIsCorrect(
+        projectCache.checkedGet(resource.getProject()).is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
+        resource.getChange().getKey().get(),
+        sanitizedCommitMessage);
+>>>>>>> BRANCH (62d9bd Merge branch 'stable-2.16' into stable-3.0)
 
     try (Repository repository = repositoryManager.openRepository(resource.getProject());
         RevWalk revWalk = new RevWalk(repository);
@@ -194,6 +202,7 @@ public class PutMessage extends RetryingRestModifyView<ChangeResource, CommitMes
       throw new AuthException("modifying commit message not permitted", denied);
     }
   }
+<<<<<<< HEAD   (22d758 Update git submodules)
 
   private static String ensureChangeIdIsCorrect(
       boolean requireChangeId, String currentChangeId, String newCommitMessage)
@@ -223,4 +232,6 @@ public class PutMessage extends RetryingRestModifyView<ChangeResource, CommitMes
 
     return newCommitMessage;
   }
+=======
+>>>>>>> BRANCH (62d9bd Merge branch 'stable-2.16' into stable-3.0)
 }
