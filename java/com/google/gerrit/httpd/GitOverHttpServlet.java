@@ -338,7 +338,10 @@ public class GitOverHttpServlet extends GitServlet {
     private final PermissionBackend permissionBackend;
     private final Provider<CurrentUser> userProvider;
     private final GroupAuditService groupAuditService;
+<<<<<<< HEAD   (def37b Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
     private final Metrics metrics;
+=======
+>>>>>>> BRANCH (13ff51 Merge branch 'stable-2.15' into stable-2.16)
     private final Provider<WebSession> sessionProvider;
 
     @Inject
@@ -347,8 +350,12 @@ public class GitOverHttpServlet extends GitServlet {
         PermissionBackend permissionBackend,
         Provider<CurrentUser> userProvider,
         Provider<WebSession> sessionProvider,
+<<<<<<< HEAD   (def37b Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         GroupAuditService groupAuditService,
         Metrics metrics) {
+=======
+        GroupAuditService groupAuditService) {
+>>>>>>> BRANCH (13ff51 Merge branch 'stable-2.15' into stable-2.16)
       this.uploadValidatorsFactory = uploadValidatorsFactory;
       this.permissionBackend = permissionBackend;
       this.userProvider = userProvider;
@@ -399,7 +406,11 @@ public class GitOverHttpServlet extends GitServlet {
       } finally {
         groupAuditService.dispatch(
             new HttpAuditEvent(
+<<<<<<< HEAD   (def37b Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
                 sessionId,
+=======
+                getSessionIdOrNull(sessionProvider),
+>>>>>>> BRANCH (13ff51 Merge branch 'stable-2.15' into stable-2.16)
                 userProvider.get(),
                 extractWhat(httpRequest),
                 TimeUtil.nowMs(),
@@ -459,7 +470,10 @@ public class GitOverHttpServlet extends GitServlet {
     private final PermissionBackend permissionBackend;
     private final Provider<CurrentUser> userProvider;
     private final GroupAuditService groupAuditService;
+<<<<<<< HEAD   (def37b Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
     private final Metrics metrics;
+=======
+>>>>>>> BRANCH (13ff51 Merge branch 'stable-2.15' into stable-2.16)
     private final Provider<WebSession> sessionProvider;
 
     @Inject
@@ -468,8 +482,12 @@ public class GitOverHttpServlet extends GitServlet {
         PermissionBackend permissionBackend,
         Provider<CurrentUser> userProvider,
         Provider<WebSession> sessionProvider,
+<<<<<<< HEAD   (def37b Merge "Merge branch 'stable-2.16' into stable-3.0" into stab)
         GroupAuditService groupAuditService,
         Metrics metrics) {
+=======
+        GroupAuditService groupAuditService) {
+>>>>>>> BRANCH (13ff51 Merge branch 'stable-2.15' into stable-2.16)
       this.cache = cache;
       this.permissionBackend = permissionBackend;
       this.userProvider = userProvider;
