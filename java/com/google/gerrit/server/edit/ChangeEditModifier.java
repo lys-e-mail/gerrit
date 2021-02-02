@@ -16,7 +16,12 @@ package com.google.gerrit.server.edit;
 
 import static com.google.gerrit.server.project.ProjectCache.illegalState;
 
+<<<<<<< HEAD   (22fe3a Merge branch 'stable-3.3-issue-13858' into stable-3.3)
 import com.google.common.base.Charsets;
+=======
+import com.google.common.collect.ImmutableList;
+import com.google.gerrit.entities.BooleanProjectConfig;
+>>>>>>> BRANCH (d505c2 Merge branch 'stable-3.1' into stable-3.2)
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
@@ -207,14 +212,60 @@ public class ChangeEditModifier {
    * @throws InvalidChangeOperationException if the commit message is the same as before
    * @throws BadRequestException if the commit message is malformed
    */
+<<<<<<< HEAD   (22fe3a Merge branch 'stable-3.3-issue-13858' into stable-3.3)
   public void modifyMessage(Repository repository, ChangeNotes notes, String newCommitMessage)
       throws AuthException, IOException, InvalidChangeOperationException,
+=======
+  public void modifyMessage(
+      Repository repository, Project.NameKey project, ChangeNotes notes, String newCommitMessage)
+      throws AuthException, IOException, UnchangedCommitMessageException,
+>>>>>>> BRANCH (d505c2 Merge branch 'stable-3.1' into stable-3.2)
           PermissionBackendException, BadRequestException, ResourceConflictException {
+<<<<<<< HEAD   (22fe3a Merge branch 'stable-3.3-issue-13858' into stable-3.3)
     modifyCommit(
         repository,
         notes,
         new ModificationIntention.LatestCommit(),
         CommitModification.builder().newCommitMessage(newCommitMessage).build());
+=======
+    assertCanEdit(notes);
+    newCommitMessage = CommitMessageUtil.checkAndSanitizeCommitMessage(newCommitMessage);
+
+    Optional<ChangeEdit> optionalChangeEdit = lookupChangeEdit(notes);
+    PatchSet basePatchSet = getBasePatchSet(optionalChangeEdit, notes);
+    RevCommit basePatchSetCommit = lookupCommit(repository, basePatchSet);
+    RevCommit baseCommit =
+        optionalChangeEdit.map(ChangeEdit::getEditCommit).orElse(basePatchSetCommit);
+
+    String currentCommitMessage = baseCommit.getFullMessage();
+    if (newCommitMessage.equals(currentCommitMessage)) {
+      throw new UnchangedCommitMessageException();
+    }
+
+    RevTree baseTree = baseCommit.getTree();
+    Timestamp nowTimestamp = TimeUtil.nowTs();
+    ObjectId newEditCommit =
+        createCommit(repository, basePatchSetCommit, baseTree, newCommitMessage, nowTimestamp);
+
+    ChangeUtil.ensureChangeIdIsCorrect(
+        projectCache
+            .get(project)
+            .orElseThrow(illegalState(project))
+            .is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
+        notes.getChange().getKey().get(),
+        newCommitMessage);
+
+    if (optionalChangeEdit.isPresent()) {
+      updateEdit(
+          notes.getProjectName(),
+          repository,
+          optionalChangeEdit.get(),
+          newEditCommit,
+          nowTimestamp);
+    } else {
+      createEdit(repository, notes, basePatchSet, newEditCommit, nowTimestamp);
+    }
+>>>>>>> BRANCH (d505c2 Merge branch 'stable-3.1' into stable-3.2)
   }
 
   /**

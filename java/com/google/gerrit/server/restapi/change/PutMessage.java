@@ -16,7 +16,6 @@ package com.google.gerrit.server.restapi.change;
 
 import static com.google.gerrit.server.project.ProjectCache.illegalState;
 
-import com.google.gerrit.common.FooterConstants;
 import com.google.gerrit.entities.BooleanProjectConfig;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
@@ -51,11 +50,9 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.TimeZone;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.CommitBuilder;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -116,14 +113,13 @@ public class PutMessage implements RestModifyView<ChangeResource, CommitMessageI
     String sanitizedCommitMessage = CommitMessageUtil.checkAndSanitizeCommitMessage(input.message);
 
     ensureCanEditCommitMessage(resource.getNotes());
-    sanitizedCommitMessage =
-        ensureChangeIdIsCorrect(
-            projectCache
-                .get(resource.getProject())
-                .orElseThrow(illegalState(resource.getProject()))
-                .is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
-            resource.getChange().getKey().get(),
-            sanitizedCommitMessage);
+    ChangeUtil.ensureChangeIdIsCorrect(
+        projectCache
+            .get(resource.getProject())
+            .orElseThrow(illegalState(resource.getProject()))
+            .is(BooleanProjectConfig.REQUIRE_CHANGE_ID),
+        resource.getChange().getKey().get(),
+        sanitizedCommitMessage);
 
     try (Repository repository = repositoryManager.openRepository(resource.getProject());
         RevWalk revWalk = new RevWalk(repository);
@@ -204,6 +200,7 @@ public class PutMessage implements RestModifyView<ChangeResource, CommitMessageI
       throw new AuthException("modifying commit message not permitted", denied);
     }
   }
+<<<<<<< HEAD   (22fe3a Merge branch 'stable-3.3-issue-13858' into stable-3.3)
 
   private String ensureChangeIdIsCorrect(
       boolean requireChangeId, String currentChangeId, String newCommitMessage)
@@ -233,4 +230,6 @@ public class PutMessage implements RestModifyView<ChangeResource, CommitMessageI
 
     return newCommitMessage;
   }
+=======
+>>>>>>> BRANCH (d505c2 Merge branch 'stable-3.1' into stable-3.2)
 }

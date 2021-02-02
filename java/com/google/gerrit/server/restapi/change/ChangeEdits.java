@@ -480,8 +480,13 @@ public class ChangeEdits implements ChildCollection<ChangeResource, ChangeEditRe
 
       Project.NameKey project = rsrc.getProject();
       try (Repository repository = repositoryManager.openRepository(project)) {
+<<<<<<< HEAD   (22fe3a Merge branch 'stable-3.3-issue-13858' into stable-3.3)
         editModifier.modifyMessage(repository, rsrc.getNotes(), input.message);
       } catch (InvalidChangeOperationException e) {
+=======
+        editModifier.modifyMessage(repository, project, rsrc.getNotes(), input.message);
+      } catch (UnchangedCommitMessageException e) {
+>>>>>>> BRANCH (d505c2 Merge branch 'stable-3.1' into stable-3.2)
         throw new ResourceConflictException(e.getMessage());
       }
 
