@@ -19,8 +19,13 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.FakeGroupAuditService;
 import com.google.gerrit.acceptance.Sandboxed;
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.pgm.http.jetty.JettyServer;
+=======
+import com.google.gerrit.pgm.http.jetty.JettyServer;
+import com.google.gerrit.reviewdb.client.Account;
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.audit.HttpAuditEvent;
 import com.google.inject.Inject;
 import java.util.Optional;
@@ -77,11 +82,21 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
   }
 
   @Test
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
   public void anonymousUploadPackAuditEventLog() throws Exception {
     uploadPackAuditEventLog(Constants.DEFAULT_REMOTE_NAME, Optional.empty());
   }
 
   @Test
+=======
+  @Sandboxed
+  public void anonymousUploadPackAuditEventLog() throws Exception {
+    uploadPackAuditEventLog(Constants.DEFAULT_REMOTE_NAME, Optional.empty());
+  }
+
+  @Test
+  @Sandboxed
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
   public void authenticatedUploadPackAuditEventLog() throws Exception {
     String remote = "authenticated";
     Config cfg = testRepo.git().getRepository().getConfig();
@@ -107,6 +122,10 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
     assertThat(auditEvents).hasSize(2);
 
     HttpAuditEvent lsRemote = auditEvents.get(0);
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
+=======
+    // Repo URL doesn't include /a, so fetching doesn't cause authentication.
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
     assertThat(lsRemote.who.toString())
         .isEqualTo(
             accountId.map(id -> "IdentifiedUser[account " + id.get() + "]").orElse("ANONYMOUS"));
@@ -115,7 +134,11 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
     assertThat(lsRemote.httpStatus).isEqualTo(HttpServletResponse.SC_OK);
 
     HttpAuditEvent uploadPack = auditEvents.get(1);
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     assertThat(uploadPack.who.toString())
+=======
+    assertThat(lsRemote.who.toString())
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
         .isEqualTo(
             accountId.map(id -> "IdentifiedUser[account " + id.get() + "]").orElse("ANONYMOUS"));
     assertThat(uploadPack.what).endsWith("/git-upload-pack");

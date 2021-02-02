@@ -220,6 +220,7 @@ public class Daemon extends SiteProgram {
     httpd = enable;
   }
 
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
   public void setReplica(boolean replica) {
     this.replica = replica;
   }
@@ -227,6 +228,15 @@ public class Daemon extends SiteProgram {
   @VisibleForTesting
   public Injector getHttpdInjector() {
     return httpdInjector;
+=======
+  @VisibleForTesting
+  public Injector getHttpdInjector() {
+    return httpdInjector;
+  }
+
+  public void setSlave(boolean slave) {
+    this.slave = slave;
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @Override

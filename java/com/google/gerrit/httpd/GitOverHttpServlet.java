@@ -355,8 +355,11 @@ public class GitOverHttpServlet extends GitServlet {
     private final Provider<CurrentUser> userProvider;
     private final GroupAuditService groupAuditService;
     private final Metrics metrics;
+<<<<<<< HEAD   (791047 Merge "Merge branch 'stable-3.0' into stable-3.1" into stabl)
     private final PluginSetContext<RequestListener> requestListeners;
     private final UsersSelfAdvertiseRefsHook usersSelfAdvertiseRefsHook;
+=======
+>>>>>>> BRANCH (086b26 Merge branch 'stable-2.16' into stable-3.0)
     private final Provider<WebSession> sessionProvider;
 
     @Inject
@@ -364,6 +367,7 @@ public class GitOverHttpServlet extends GitServlet {
         UploadValidators.Factory uploadValidatorsFactory,
         PermissionBackend permissionBackend,
         Provider<CurrentUser> userProvider,
+        Provider<WebSession> sessionProvider,
         GroupAuditService groupAuditService,
         Metrics metrics,
         PluginSetContext<RequestListener> requestListeners,
@@ -372,6 +376,7 @@ public class GitOverHttpServlet extends GitServlet {
       this.uploadValidatorsFactory = uploadValidatorsFactory;
       this.permissionBackend = permissionBackend;
       this.userProvider = userProvider;
+      this.sessionProvider = sessionProvider;
       this.groupAuditService = groupAuditService;
       this.metrics = metrics;
       this.requestListeners = requestListeners;
@@ -502,12 +507,14 @@ public class GitOverHttpServlet extends GitServlet {
         @Named(ID_CACHE) Cache<AdvertisedObjectsCacheKey, Set<ObjectId>> cache,
         PermissionBackend permissionBackend,
         Provider<CurrentUser> userProvider,
+        Provider<WebSession> sessionProvider,
         GroupAuditService groupAuditService,
         Metrics metrics,
         Provider<WebSession> sessionProvider) {
       this.cache = cache;
       this.permissionBackend = permissionBackend;
       this.userProvider = userProvider;
+      this.sessionProvider = sessionProvider;
       this.groupAuditService = groupAuditService;
       this.metrics = metrics;
       this.sessionProvider = sessionProvider;
