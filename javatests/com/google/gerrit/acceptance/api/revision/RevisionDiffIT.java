@@ -429,7 +429,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     gApi.changes().id(changeId).edit().modifyFile(filePath, RawInputUtil.create(fileContent));
     gApi.changes().id(changeId).edit().publish();
     String previousPatchSetId = gApi.changes().id(changeId).get().currentRevision;
-    gApi.changes().id(changeId).edit().modifyCommitMessage("An unchanged patchset");
+    gApi.changes().id(changeId).edit().modifyCommitMessage(updatedCommitMessage());
     gApi.changes().id(changeId).edit().publish();
 
     DiffInfo diffInfo =
@@ -451,7 +451,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     gApi.changes().id(changeId).edit().modifyFile(filePath, RawInputUtil.create(fileContent));
     gApi.changes().id(changeId).edit().publish();
     String previousPatchSetId = gApi.changes().id(changeId).get().currentRevision;
-    gApi.changes().id(changeId).edit().modifyCommitMessage("An unchanged patchset");
+    gApi.changes().id(changeId).edit().modifyCommitMessage(updatedCommitMessage());
     gApi.changes().id(changeId).edit().publish();
 
     DiffInfo diffInfo =
@@ -469,7 +469,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     gApi.changes().id(changeId).edit().modifyFile(filePath, RawInputUtil.create(fileContent));
     gApi.changes().id(changeId).edit().publish();
     String previousPatchSetId = gApi.changes().id(changeId).get().currentRevision;
-    gApi.changes().id(changeId).edit().modifyCommitMessage("An unchanged patchset");
+    gApi.changes().id(changeId).edit().modifyCommitMessage(updatedCommitMessage());
     gApi.changes().id(changeId).edit().publish();
 
     DiffInfo diffInfo =
@@ -2720,6 +2720,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     assertThat(diffInfo).content().element(0).numberOfSkippedLines().isGreaterThan(0);
   }
 
+<<<<<<< HEAD   (08f2e5 Merge branch 'stable-3.2-issue-13858' into stable-3.2)
   @Test
   public void editNotAllowedAsBase() throws Exception {
     gApi.changes().id(changeId).edit().create();
@@ -2735,6 +2736,10 @@ public class RevisionDiffIT extends AbstractDaemonTest {
             BadRequestException.class,
             () -> getDiffRequest(changeId, CURRENT, FILE_NAME).withBase("0").get());
     assertThat(e).hasMessageThat().isEqualTo("edit not allowed as base");
+=======
+  private String updatedCommitMessage() {
+    return "An unchanged patchset\n\nChange-Id: " + changeId;
+>>>>>>> BRANCH (245631 Merge branch 'stable-3.0' into stable-3.1)
   }
 
   private static CommentInput createCommentInput(

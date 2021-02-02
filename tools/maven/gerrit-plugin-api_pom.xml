@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (08f2e5 Merge branch 'stable-3.2-issue-13858' into stable-3.2)
   <version>3.2.8-SNAPSHOT</version>
+=======
+  <version>3.1.13-SNAPSHOT</version>
+>>>>>>> BRANCH (245631 Merge branch 'stable-3.0' into stable-3.1)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
