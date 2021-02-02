@@ -19,10 +19,18 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.FakeGroupAuditService;
 import com.google.gerrit.acceptance.Sandboxed;
+<<<<<<< HEAD   (22df7a Merge "Set 'compression-level' to 1 in UploadArchiveIT")
+=======
+import com.google.gerrit.entities.Account;
+import com.google.gerrit.pgm.http.jetty.JettyServer;
+>>>>>>> BRANCH (aceb85 Merge branch 'stable-3.2' into stable-3.3)
 import com.google.gerrit.server.audit.HttpAuditEvent;
 import com.google.inject.Inject;
+import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
@@ -32,9 +40,11 @@ import org.junit.Test;
 
 public class AbstractGitOverHttpServlet extends AbstractPushForReview {
   @Inject protected FakeGroupAuditService auditService;
+  private JettyServer jettyServer;
 
   @Before
   public void beforeEach() throws Exception {
+    jettyServer = server.getHttpdInjector().getInstance(JettyServer.class);
     CredentialsProvider.setDefault(
         new UsernamePasswordCredentialsProvider(admin.username(), admin.httpPassword()));
     selectProtocol(AbstractPushForReview.Protocol.HTTP);
@@ -70,6 +80,7 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
     assertThat(receivePack.what).endsWith("/git-receive-pack");
     assertThat(receivePack.params).isEmpty();
     assertThat(receivePack.httpStatus).isEqualTo(HttpServletResponse.SC_OK);
+    assertThat(jettyServer.numActiveSessions()).isEqualTo(0);
   }
 
   /**
@@ -78,24 +89,55 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
    * details.
    */
   @Test
-  @Sandboxed
-  public void uploadPackAuditEventLog() throws Exception {
+  public void anonymousUploadPackAuditEventLog() throws Exception {
+    uploadPackAuditEventLog(Constants.DEFAULT_REMOTE_NAME, Optional.empty());
+  }
+
+  @Test
+  public void authenticatedUploadPackAuditEventLog() throws Exception {
+    String remote = "authenticated";
+    Config cfg = testRepo.git().getRepository().getConfig();
+
+    String uri = admin.getHttpUrl(server) + "/a/" + project.get();
+    cfg.setString("remote", remote, "url", uri);
+    cfg.setString("remote", remote, "fetch", "+refs/heads/*:refs/remotes/origin/*");
+
+    uploadPackAuditEventLog(remote, Optional.of(admin.id()));
+  }
+
+  private void uploadPackAuditEventLog(String remote, Optional<Account.Id> accountId)
+      throws Exception {
     auditService.drainHttpAuditEvents();
     // testRepo is already a clone. Make a server-side change so we have something to fetch.
     try (Repository repo = repoManager.openRepository(project);
         TestRepository<?> testRepo = new TestRepository<>(repo)) {
       testRepo.branch("master").commit().create();
     }
+<<<<<<< HEAD   (22df7a Merge "Set 'compression-level' to 1 in UploadArchiveIT")
 
     testRepo.git().fetch().call();
+=======
+    testRepo.git().fetch().setRemote(remote).call();
+>>>>>>> BRANCH (aceb85 Merge branch 'stable-3.2' into stable-3.3)
 
     ImmutableList<HttpAuditEvent> auditEvents = auditService.drainHttpAuditEvents();
     assertThat(auditEvents).hasSize(4);
 
+<<<<<<< HEAD   (22df7a Merge "Set 'compression-level' to 1 in UploadArchiveIT")
     // Protocol V2 Capability advertisement
     // https://git-scm.com/docs/protocol-v2#_capability_advertisement
     HttpAuditEvent infoRef = auditEvents.get(0);
+=======
+    HttpAuditEvent lsRemote = auditEvents.get(0);
+    assertThat(lsRemote.who.toString())
+        .isEqualTo(
+            accountId.map(id -> "IdentifiedUser[account " + id.get() + "]").orElse("ANONYMOUS"));
+    assertThat(lsRemote.what).endsWith("/info/refs?service=git-upload-pack");
+    assertThat(lsRemote.params).containsExactly("service", "git-upload-pack");
+    assertThat(lsRemote.httpStatus).isEqualTo(HttpServletResponse.SC_OK);
+>>>>>>> BRANCH (aceb85 Merge branch 'stable-3.2' into stable-3.3)
 
+<<<<<<< HEAD   (22df7a Merge "Set 'compression-level' to 1 in UploadArchiveIT")
     // JGit supports shared session during fetch and push, see
     // org.eclipse.jgit.transport.http.HttpConnectionFactory2.GitSession, thus the authentication
     // details are carried over from the first git clone request.
@@ -124,5 +166,15 @@ public class AbstractGitOverHttpServlet extends AbstractPushForReview {
     assertThat(uploadPackDone.what).endsWith("/git-upload-pack");
     assertThat(uploadPackDone.params).isEmpty();
     assertThat(uploadPackDone.httpStatus).isEqualTo(HttpServletResponse.SC_OK);
+=======
+    HttpAuditEvent uploadPack = auditEvents.get(1);
+    assertThat(uploadPack.who.toString())
+        .isEqualTo(
+            accountId.map(id -> "IdentifiedUser[account " + id.get() + "]").orElse("ANONYMOUS"));
+    assertThat(uploadPack.what).endsWith("/git-upload-pack");
+    assertThat(uploadPack.params).isEmpty();
+    assertThat(uploadPack.httpStatus).isEqualTo(HttpServletResponse.SC_OK);
+    assertThat(jettyServer.numActiveSessions()).isEqualTo(0);
+>>>>>>> BRANCH (aceb85 Merge branch 'stable-3.2' into stable-3.3)
   }
 }
