@@ -66,8 +66,15 @@ protobuf_deps()
 
 http_archive(
     name = "build_bazel_rules_nodejs",
+<<<<<<< HEAD   (7ce72d Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
     sha256 = "5bf77cc2d13ddf9124f4c1453dd96063774d755d4fc75d922471540d1c9a8ea8",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.0/rules_nodejs-2.0.0.tar.gz"],
+=======
+    patch_args = ["-p1"],
+    patches = ["//:rules_nodejs-1.5.patch"],
+    sha256 = "d0c4bb8b902c1658f42eb5563809c70a06e46015d64057d25560b0eb4bdc9007",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.5.0/rules_nodejs-1.5.0.tar.gz"],
+>>>>>>> BRANCH (31f17c Merge branch 'stable-3.1' into stable-3.2)
 )
 
 # Golang support for PolyGerrit local dev server.
