@@ -33,14 +33,22 @@ public class SequencesOnInit {
     this.allUsersName = allUsersName;
   }
 
+<<<<<<< HEAD   (b0b35d Merge "ForRef#check should permit internal users to read all)
   public int nextAccountId() {
+=======
+  public int nextAccountId() throws OrmException {
+>>>>>>> BRANCH (caba13 Set version to 2.16.28-SNAPSHOT)
     RepoSequence accountSeq =
         new RepoSequence(
             repoManager,
             GitReferenceUpdated.DISABLED,
             new Project.NameKey(allUsersName.get()),
             Sequences.NAME_ACCOUNTS,
+<<<<<<< HEAD   (b0b35d Merge "ForRef#check should permit internal users to read all)
             () -> Sequences.FIRST_ACCOUNT_ID,
+=======
+            () -> ReviewDb.FIRST_ACCOUNT_ID,
+>>>>>>> BRANCH (caba13 Set version to 2.16.28-SNAPSHOT)
             1);
     return accountSeq.next();
   }
