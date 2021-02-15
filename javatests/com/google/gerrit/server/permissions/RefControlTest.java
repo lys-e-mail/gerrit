@@ -45,6 +45,10 @@ import com.google.gerrit.entities.Project;
 import com.google.gerrit.exceptions.InvalidNameException;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.InternalUser;
+<<<<<<< HEAD   (3777db Merge "Bump bazel-toolchains to 5.0.0" into stable-3.1)
+=======
+import com.google.gerrit.server.account.CapabilityCollection;
+>>>>>>> BRANCH (7a2116 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.account.GroupMembership;
 import com.google.gerrit.server.account.ListGroupMembership;
 import com.google.gerrit.server.config.AllProjectsName;
@@ -315,6 +319,11 @@ public class RefControlTest {
   @Test
   public void userRefIsVisibleForInternalUser() throws Exception {
     internalUser(localKey).controlForRef("refs/users/default").asForRef().check(RefPermission.READ);
+  }
+
+  @Test
+  public void userRefIsVisibleForInternalUser() throws Exception {
+    internalUser(local).controlForRef("refs/users/default").asForRef().check(RefPermission.READ);
   }
 
   @Test
@@ -1225,6 +1234,7 @@ public class RefControlTest {
     return projectCache.checkedGet(nameKey, true);
   }
 
+<<<<<<< HEAD   (3777db Merge "Bump bazel-toolchains to 5.0.0" into stable-3.1)
   private ProjectControl internalUser(Project.NameKey localKey) throws Exception {
     return projectControlFactory.create(new InternalUser(), getProjectState(localKey));
   }
@@ -1232,6 +1242,25 @@ public class RefControlTest {
   private ProjectControl user(Project.NameKey localKey, AccountGroup.UUID... memberOf)
       throws Exception {
     return user(localKey, null, memberOf);
+=======
+  private ProjectControl internalUser(ProjectConfig local) throws Exception {
+    return new ProjectControl(
+        Collections.emptySet(),
+        Collections.emptySet(),
+        sectionSorter,
+        changeControlFactory,
+        permissionBackend,
+        refVisibilityControl,
+        repoManager,
+        refFilterFactory,
+        allUsersName,
+        new InternalUser(),
+        newProjectState(local));
+  }
+
+  private ProjectControl user(ProjectConfig local, AccountGroup.UUID... memberOf) {
+    return user(local, null, memberOf);
+>>>>>>> BRANCH (7a2116 Merge branch 'stable-2.16' into stable-3.0)
   }
 
   private ProjectControl user(
