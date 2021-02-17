@@ -41,6 +41,9 @@
       <name>Edwin Kempin</name>
     </developer>
     <developer>
+      <name>Gal Paikin</name>
+    </developer>
+    <developer>
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
@@ -48,6 +51,9 @@
     </developer>
     <developer>
       <name>Jacek Centkowski</name>
+    </developer>
+    <developer>
+      <name>Joerg Zieren</name>
     </developer>
     <developer>
       <name>Luca Milanesio</name>
@@ -62,6 +68,12 @@
       <name>Matthias Sohn</name>
     </developer>
     <developer>
+<<<<<<< HEAD   (5ff1d4 Merge "Add context padding to comment context request")
+=======
+      <name>Milutin Kristofic</name>
+    </developer>
+    <developer>
+>>>>>>> BRANCH (f947ba Merge branch 'stable-3.2' into stable-3.3)
       <name>Nasser Grainawi</name>
     </developer>
     <developer>
