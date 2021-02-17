@@ -48,10 +48,14 @@ public class HttpPasswordUpdateSender extends OutgoingEmail {
   protected void init() throws EmailException {
     super.init();
     setHeader("Subject", "[Gerrit Code Review] HTTP password was " + operation);
+<<<<<<< HEAD   (31f9d8 Update git submodules)
     setMessageId(
         messageIdGenerator.fromReasonAccountIdAndTimestamp(
             "HTTP_password_change", user.getAccountId(), TimeUtil.now()));
     add(RecipientType.TO, Address.create(getEmail()));
+=======
+    add(RecipientType.TO, user.getAccountId());
+>>>>>>> BRANCH (66aa88 Merge branch 'stable-3.1' into stable-3.2)
   }
 
   @Override

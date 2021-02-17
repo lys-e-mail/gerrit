@@ -70,8 +70,12 @@ public class DeleteKeySender extends OutgoingEmail {
   protected void init() throws EmailException {
     super.init();
     setHeader("Subject", String.format("[Gerrit Code Review] %s Keys Deleted", getKeyType()));
+<<<<<<< HEAD   (31f9d8 Update git submodules)
     setMessageId(messageIdGenerator.fromAccountUpdate(user.getAccountId()));
     add(RecipientType.TO, Address.create(getEmail()));
+=======
+    add(RecipientType.TO, user.getAccountId());
+>>>>>>> BRANCH (66aa88 Merge branch 'stable-3.1' into stable-3.2)
   }
 
   @Override
