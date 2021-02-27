@@ -375,7 +375,11 @@ export class GrDiff extends GestureEventListeners(
     // element. This takes the shadow DOM selection if one exists.
     return this.root instanceof ShadowRoot && this.root.getSelection
       ? this.root.getSelection()
+<<<<<<< HEAD   (acf4b8 Merge "Document how to get pretty-printed JSON for REST call)
       : isSafari()
+=======
+      : this._isSafari()
+>>>>>>> BRANCH (7d8ad5 Bazel: Fix source jar fetching with provided classifier)
       ? shadow.getRange(this.root)
       : document.getSelection();
   }
@@ -1036,6 +1040,13 @@ export class GrDiff extends GestureEventListeners(
         );
       }
     }, 0);
+  }
+
+  _isSafari() {
+    return (
+      /^((?!chrome|android).)*safari/i.test(navigator.userAgent) ||
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+    );
   }
 }
 
