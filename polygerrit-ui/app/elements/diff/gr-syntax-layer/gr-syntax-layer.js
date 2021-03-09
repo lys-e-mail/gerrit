@@ -16,6 +16,7 @@
  */
 import '../../../scripts/bundled-polymer.js';
 
+<<<<<<< HEAD   (3233b9 Ensure InternalUser can parse groups)
 import '../../shared/gr-lib-loader/gr-lib-loader.js';
 import {GrAnnotation} from '../gr-diff-highlight/gr-annotation.js';
 import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners.js';
@@ -24,6 +25,87 @@ import {PolymerElement} from '@polymer/polymer/polymer-element.js';
 import {htmlTemplate} from './gr-syntax-layer_html.js';
 import {GrDiffLine} from '../gr-diff/gr-diff-line.js';
 import {util} from '../../../scripts/util.js';
+=======
+  const LANGUAGE_MAP = {
+    'application/dart': 'dart',
+    'application/json': 'json',
+    'application/x-powershell': 'powershell',
+    'application/typescript': 'typescript',
+    'application/xml': 'xml',
+    'application/xquery': 'xquery',
+    'application/x-erb': 'erb',
+    'text/css': 'css',
+    'text/html': 'html',
+    'text/javascript': 'js',
+    'text/jsx': 'jsx',
+    'text/x-c': 'cpp',
+    'text/x-c++src': 'cpp',
+    'text/x-clojure': 'clojure',
+    'text/x-cmake': 'cmake',
+    'text/x-coffeescript': 'coffeescript',
+    'text/x-common-lisp': 'lisp',
+    'text/x-crystal': 'crystal',
+    'text/x-csharp': 'csharp',
+    'text/x-csrc': 'cpp',
+    'text/x-d': 'd',
+    'text/x-diff': 'diff',
+    'text/x-django': 'django',
+    'text/x-dockerfile': 'dockerfile',
+    'text/x-ebnf': 'ebnf',
+    'text/x-elm': 'elm',
+    'text/x-erlang': 'erlang',
+    'text/x-fortran': 'fortran',
+    'text/x-fsharp': 'fsharp',
+    'text/x-go': 'go',
+    'text/x-groovy': 'groovy',
+    'text/x-haml': 'haml',
+    'text/x-handlebars': 'handlebars',
+    'text/x-haskell': 'haskell',
+    'text/x-haxe': 'haxe',
+    'text/x-ini': 'ini',
+    'text/x-java': 'java',
+    'text/x-julia': 'julia',
+    'text/x-kotlin': 'kotlin',
+    'text/x-latex': 'latex',
+    'text/x-latex': 'tex',
+    'text/x-less': 'less',
+    'text/x-lua': 'lua',
+    'text/x-mathematica': 'mathematica',
+    'text/x-nginx-conf': 'nginx',
+    'text/x-nsis': 'nsis',
+    'text/x-objectivec': 'objectivec',
+    'text/x-ocaml': 'ocaml',
+    'text/x-perl': 'perl',
+    'text/x-pgsql': 'pgsql', // postgresql
+    'text/x-php': 'php',
+    'text/x-properties': 'properties',
+    'text/x-protobuf': 'protobuf',
+    'text/x-puppet': 'puppet',
+    'text/x-python': 'python',
+    'text/x-q': 'q',
+    'text/x-ruby': 'ruby',
+    'text/x-rustsrc': 'rust',
+    'text/x-scala': 'scala',
+    'text/x-scss': 'scss',
+    'text/x-scheme': 'scheme',
+    'text/x-shell': 'shell',
+    'text/x-soy': 'soy',
+    'text/x-spreadsheet': 'excel',
+    'text/x-sh': 'bash',
+    'text/x-sql': 'sql',
+    'text/x-swift': 'swift',
+    'text/x-systemverilog': 'sv',
+    'text/x-tcl': 'tcl',
+    'text/x-torque': 'torque',
+    'text/x-twig': 'twig',
+    'text/x-vb': 'vb',
+    'text/x-verilog': 'v',
+    'text/x-vhdl': 'vhdl',
+    'text/x-yaml': 'yaml',
+    'text/vbscript': 'vbscript',
+  };
+  const ASYNC_DELAY = 10;
+>>>>>>> BRANCH (5170ea Merge branch 'stable-3.0' into stable-3.1)
 
 const LANGUAGE_MAP = {
   'application/dart': 'dart',
