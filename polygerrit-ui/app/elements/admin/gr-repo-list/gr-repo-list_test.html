@@ -32,6 +32,7 @@ limitations under the License.
   </template>
 </test-fixture>
 
+<<<<<<< HEAD   (35b01a Merge branch 'stable-3.1' into stable-3.2)
 <script type="module">
 import '../../../test/common-test-setup.js';
 import './gr-repo-list.js';
@@ -48,6 +49,22 @@ const repoGenerator = () => {
         url: `https://phabricator.example.org/r/project/test${counter}`,
       },
     ],
+=======
+<script>
+  let counter;
+  const repoGenerator = () => {
+    return {
+      id: `test${++counter}`,
+      name: `test`,
+      state: 'ACTIVE',
+      web_links: [
+        {
+          name: 'diffusion',
+          url: `https://phabricator.example.org/r/project/test${counter}`,
+        },
+      ],
+    };
+>>>>>>> BRANCH (19d1f3 Apply a second filter after receiving the initial repo list)
   };
 };
 
