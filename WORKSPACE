@@ -139,12 +139,15 @@ maven_jar(
     sha1 = "83cd2cd674a217ade95a4bb83a8a14f351f48bd0",
 )
 
+<<<<<<< HEAD   (f8e3b4 Merge "Convert dark-theme_test to typescript")
 maven_jar(
     name = "aopalliance",
     artifact = "aopalliance:aopalliance:1.0",
     sha1 = "0235ba8b489512805ac13a8f9ea77a1ca5ebe3e8",
 )
 
+=======
+>>>>>>> BRANCH (e897cd Merge branch 'stable-3.2' into stable-3.3)
 maven_jar(
     name = "javax_inject",
     artifact = "javax.inject:javax.inject:1",
