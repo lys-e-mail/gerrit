@@ -137,6 +137,7 @@ export class GrRepoList extends ListViewMixin(PolymerElement) {
 
   _getRepos(filter: string, reposPerPage: number, offset?: number) {
     this._repos = [];
+<<<<<<< HEAD   (f8e3b4 Merge "Convert dark-theme_test to typescript")
     return this.restApiService
       .getRepos(filter, reposPerPage, offset)
       .then(repos => {
@@ -147,6 +148,16 @@ export class GrRepoList extends ListViewMixin(PolymerElement) {
         this._repos = repos;
         this._loading = false;
       });
+=======
+    return this.$.restAPI.getRepos(filter, reposPerPage, offset).then(repos => {
+      // Late response.
+      if (filter !== this._filter || !repos) {
+        return;
+      }
+      this._repos = repos.filter(repo => repo.name.includes(filter));
+      this._loading = false;
+    });
+>>>>>>> BRANCH (e897cd Merge branch 'stable-3.2' into stable-3.3)
   }
 
   _refreshReposList() {

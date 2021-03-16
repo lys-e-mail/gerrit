@@ -21,9 +21,14 @@ eddsa
 flogger
 flogger-log4j-backend
 flogger-system-backend
+<<<<<<< HEAD   (f8e3b4 Merge "Convert dark-theme_test to typescript")
 guava
 guice-assistedinject
 guice-library
+=======
+guice-assistedinject
+guice-library-no-aop
+>>>>>>> BRANCH (e897cd Merge branch 'stable-3.2' into stable-3.3)
 guice-servlet
 httpasyncclient
 httpcore-nio
