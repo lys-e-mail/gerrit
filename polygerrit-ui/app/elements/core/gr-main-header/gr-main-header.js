@@ -240,6 +240,7 @@ class GrMainHeader extends mixinBehaviors( [
           title: m.name,
           links: topMenuLinks[m.name] = items,
         });
+<<<<<<< HEAD   (4050ed Merge branch 'stable-3.1' into stable-3.2)
       }
     }
     return links;
@@ -282,6 +283,14 @@ class GrMainHeader extends mixinBehaviors( [
           this.$.jsAPI.getAdminMenuLinks.bind(this.$.jsAPI))
           .then(res => {
             this._adminLinks = res.links;
+=======
+        if (m.name in topMenuLinks) {
+          items.forEach(link => { topMenuLinks[m.name].push(link); });
+        } else if (items.length > 0) {
+          links.push({
+            title: m.name,
+            links: topMenuLinks[m.name] = items,
+>>>>>>> BRANCH (bf8de8 Merge branch 'stable-3.0' into stable-3.1)
           });
     });
   }
