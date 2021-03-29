@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.gerrit.server.quota.QuotaGroupDefinitions.REPOSITORY_SIZE_GROUP;
 import static com.google.gerrit.server.quota.QuotaResponse.ok;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+<<<<<<< HEAD   (6e730e Merge "AccountPatchReview mariadb: fix key length" into stab)
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
@@ -25,6 +26,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+=======
+import static org.easymock.EasyMock.anyLong;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.resetToStrict;
+import static org.easymock.EasyMock.verify;
+>>>>>>> BRANCH (cda59e RepositorySizeQuotaIT: change try/catch to assertThrows)
 
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.UseLocalDisk;
@@ -34,7 +43,12 @@ import com.google.gerrit.server.quota.QuotaBackend;
 import com.google.gerrit.server.quota.QuotaResponse;
 import com.google.inject.Module;
 import java.util.Collections;
+<<<<<<< HEAD   (6e730e Merge "AccountPatchReview mariadb: fix key length" into stab)
 import org.eclipse.jgit.api.errors.TooLargeObjectInPackException;
+=======
+import org.easymock.EasyMock;
+import org.eclipse.jgit.api.errors.TooLargePackException;
+>>>>>>> BRANCH (cda59e RepositorySizeQuotaIT: change try/catch to assertThrows)
 import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,11 +90,22 @@ public class RepositorySizeQuotaIT extends AbstractDaemonTest {
 
   @Test
   public void pushWithAvailableTokens() throws Exception {
+<<<<<<< HEAD   (6e730e Merge "AccountPatchReview mariadb: fix key length" into stab)
     when(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
         .thenReturn(singletonAggregation(ok(276L)));
     when(quotaBackendWithResource.requestTokens(eq(REPOSITORY_SIZE_GROUP), anyLong()))
         .thenReturn(singletonAggregation(ok()));
     when(quotaBackendWithUser.project(project)).thenReturn(quotaBackendWithResource);
+=======
+    expect(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
+        .andReturn(singletonAggregation(ok(277L)))
+        .times(2);
+    expect(quotaBackendWithResource.requestTokens(eq(REPOSITORY_SIZE_GROUP), anyLong()))
+        .andReturn(singletonAggregation(ok()));
+    expect(quotaBackendWithUser.project(project)).andReturn(quotaBackendWithResource).anyTimes();
+    replay(quotaBackendWithResource);
+    replay(quotaBackendWithUser);
+>>>>>>> BRANCH (cda59e RepositorySizeQuotaIT: change try/catch to assertThrows)
     pushCommit();
     verify(quotaBackendWithResource, times(2)).availableTokens(REPOSITORY_SIZE_GROUP);
   }
@@ -88,6 +113,7 @@ public class RepositorySizeQuotaIT extends AbstractDaemonTest {
   @Test
   public void pushWithNotSufficientTokens() throws Exception {
     long availableTokens = 1L;
+<<<<<<< HEAD   (6e730e Merge "AccountPatchReview mariadb: fix key length" into stab)
     when(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
         .thenReturn(singletonAggregation(ok(availableTokens)));
     when(quotaBackendWithUser.project(project)).thenReturn(quotaBackendWithResource);
@@ -97,15 +123,43 @@ public class RepositorySizeQuotaIT extends AbstractDaemonTest {
     assertThat(thrown)
         .hasMessageThat()
         .contains(String.format("Max object size limit is %d bytes.", availableTokens));
+=======
+    expect(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
+        .andReturn(singletonAggregation(ok(availableTokens)))
+        .anyTimes();
+    expect(quotaBackendWithUser.project(project)).andReturn(quotaBackendWithResource).anyTimes();
+    replay(quotaBackendWithResource);
+    replay(quotaBackendWithUser);
+    assertThat(assertThrows(TooLargePackException.class, () -> pushCommit()).getMessage())
+        .contains(
+            String.format(
+                "Pack exceeds the limit of %d bytes, rejecting the pack", availableTokens));
+    verify(quotaBackendWithUser);
+    verify(quotaBackendWithResource);
+>>>>>>> BRANCH (cda59e RepositorySizeQuotaIT: change try/catch to assertThrows)
   }
 
   @Test
   public void errorGettingAvailableTokens() throws Exception {
     String msg = "quota error";
+<<<<<<< HEAD   (6e730e Merge "AccountPatchReview mariadb: fix key length" into stab)
     when(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
         .thenReturn(singletonAggregation(QuotaResponse.error(msg)));
     when(quotaBackendWithUser.project(project)).thenReturn(quotaBackendWithResource);
     assertThrows(TransportException.class, () -> pushCommit());
+=======
+    expect(quotaBackendWithResource.availableTokens(REPOSITORY_SIZE_GROUP))
+        .andReturn(singletonAggregation(QuotaResponse.error(msg)))
+        .anyTimes();
+    expect(quotaBackendWithUser.project(project)).andReturn(quotaBackendWithResource).anyTimes();
+    replay(quotaBackendWithResource);
+    replay(quotaBackendWithUser);
+
+    assertThrows(TransportException.class, () -> pushCommit());
+
+    verify(quotaBackendWithUser);
+    verify(quotaBackendWithResource);
+>>>>>>> BRANCH (cda59e RepositorySizeQuotaIT: change try/catch to assertThrows)
   }
 
   private void pushCommit() throws Exception {
