@@ -293,9 +293,32 @@ crawlers is a non-issue for most Gerrit deployments.
 
 == Product Integration
 
+<<<<<<< HEAD   (65a4d8 Merge "Expose auto-value-gson in plugin API")
 Gerrit optionally surfaces links to HTML pages in a code browser. The
 links are configurable, and Gerrit comes with a built-in code browser,
 called Gitiles.
+=======
+Gerrit integrates with an existing gitweb installation by optionally
+creating hyperlinks to reference changes on the gitweb server.
+
+Gerrit integrates with an existing git-daemon installation by
+optionally displaying `git://` URLs for users to download a
+change through the native Git protocol.
+
+Gerrit integrates with any OpenID provider for user authentication,
+making it easier for users to join a Gerrit site and manage their
+authentication credentials to it.
+
+Site administrators may limit the range of OpenID providers to
+a subset of "reliable providers".  Users may continue to use
+any OpenID provider to publish comments, but granted privileges
+are only available to a user if the only entry point to their
+account is through the defined set of "reliable OpenID providers".
+This permits site administrators to require HTTPS for OpenID,
+and to use only large main-stream providers that are trustworthy,
+or to require users to only use a custom OpenID provider installed
+alongside Gerrit Code Review.
+>>>>>>> BRANCH (afcf3f Merge branch 'stable-3.2' into stable-3.3)
 
 Gerrit integrates with some types of corporate single-sign-on (SSO)
 solutions, typically by having the SSO authentication be performed

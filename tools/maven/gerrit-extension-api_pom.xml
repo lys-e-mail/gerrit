@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (65a4d8 Merge "Expose auto-value-gson in plugin API")
   <version>3.4.0-SNAPSHOT</version>
+=======
+  <version>3.3.4-SNAPSHOT</version>
+>>>>>>> BRANCH (afcf3f Merge branch 'stable-3.2' into stable-3.3)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
