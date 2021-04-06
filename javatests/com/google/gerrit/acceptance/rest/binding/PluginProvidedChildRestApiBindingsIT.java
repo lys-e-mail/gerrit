@@ -195,7 +195,11 @@ public class PluginProvidedChildRestApiBindingsIT extends AbstractDaemonTest {
 
   private String createRobotComment(Change.Id changeId) throws Exception {
     testCommentHelper.addRobotComment(
+<<<<<<< HEAD   (afcf3f Merge branch 'stable-3.2' into stable-3.3)
         changeId, TestCommentHelper.createRobotCommentInput(PushOneCommit.FILE_NAME));
+=======
+        changeId.toString(), TestCommentHelper.createRobotCommentInput(PushOneCommit.FILE_NAME));
+>>>>>>> BRANCH (6087ba Merge branch 'stable-3.1' into stable-3.2)
     return Iterables.getOnlyElement(
             Iterables.getOnlyElement(
                 gApi.changes().id(changeId.get()).current().robotComments().values()))
