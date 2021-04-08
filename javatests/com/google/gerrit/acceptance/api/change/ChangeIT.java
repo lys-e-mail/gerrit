@@ -2991,11 +2991,7 @@ public class ChangeIT extends AbstractDaemonTest {
     PushOneCommit.Result r = createChange();
     gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).review(ReviewInput.approve());
     requestScopeOperations.setApiUser(user.id());
-    AuthException thrown =
-        assertThrows(
-            AuthException.class,
-            () -> gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).submit());
-    assertThat(thrown).hasMessageThat().contains("submit not permitted");
+    gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).submit();
   }
 
   @Test
