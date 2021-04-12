@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toSet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.exceptions.DuplicateKeyException;
@@ -47,6 +48,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,7 +67,7 @@ import org.eclipse.jgit.lib.Repository;
  * updated.
  *
  * <p>Updates to one account are always atomic. Batch updating several accounts within one
- * transaction is not supported.
+ * transaction is not supported. ö TODO
  *
  * <p>For any account update the caller must provide a commit message, the account ID and an {@link
  * ConfigureDeltaFromState}. The account updater reads the current {@link AccountState} and to
@@ -305,24 +307,29 @@ public class AccountsUpdate {
   public AccountState insert(String message, Account.Id accountId, ConfigureDeltaFromState init)
       throws IOException, ConfigInvalidException {
     return execute(
-            repo -> {
-              AccountConfig accountConfig = read(repo, accountId);
-              Account account =
-                  accountConfig.getNewAccount(new Timestamp(committerIdent.getWhen().getTime()));
-              AccountState accountState = AccountState.forAccount(account);
-              AccountDelta.Builder updateBuilder = AccountDelta.builder();
-              init.configure(accountState, updateBuilder);
+            ImmutableList.of(
+                repo -> {
+                  AccountConfig accountConfig = read(repo, accountId);
+                  Account account =
+                      accountConfig.getNewAccount(
+                          new Timestamp(committerIdent.getWhen().getTime()));
+                  AccountState accountState = AccountState.forAccount(account);
+                  AccountDelta.Builder updateBuilder = AccountDelta.builder();
+                  init.configure(accountState, updateBuilder);
 
-              AccountDelta update = updateBuilder.build();
-              accountConfig.setAccountDelta(update);
-              ExternalIdNotes extIdNotes =
-                  createExternalIdNotes(repo, accountConfig.getExternalIdsRev(), accountId, update);
-              CachedPreferences defaultPreferences =
-                  CachedPreferences.fromConfig(VersionedDefaultPreferences.get(repo, allUsersName));
+                  AccountDelta accountDelta = updateBuilder.build();
+                  accountConfig.setAccountDelta(accountDelta);
+                  ExternalIdNotes extIdNotes =
+                      createExternalIdNotes(
+                          repo, accountConfig.getExternalIdsRev(), accountId, accountDelta);
+                  CachedPreferences defaultPreferences =
+                      CachedPreferences.fromConfig(
+                          VersionedDefaultPreferences.get(repo, allUsersName));
 
-              return new UpdatedAccount(
-                  message, accountConfig, extIdNotes, defaultPreferences, true);
-            })
+                  return new UpdatedAccount(
+                      message, accountConfig, extIdNotes, defaultPreferences, true);
+                }))
+        .get(0)
         .get();
   }
 
@@ -351,33 +358,58 @@ public class AccountsUpdate {
    *     after the retry timeout exceeded
    * @throws ConfigInvalidException if any of the account fields has an invalid value
    */
+  // ö This should take a collection of such inputs. Or should we rather use a builder pattern?
   public Optional<AccountState> update(
       String message, Account.Id accountId, ConfigureDeltaFromState configureDeltaFromState)
       throws LockFailureException, IOException, ConfigInvalidException {
     return execute(
-        repo -> {
-          AccountConfig accountConfig = read(repo, accountId);
-          CachedPreferences defaultPreferences =
-              CachedPreferences.fromConfig(VersionedDefaultPreferences.get(repo, allUsersName));
-          Optional<AccountState> account =
-              AccountState.fromAccountConfig(externalIds, accountConfig, defaultPreferences);
-          if (!account.isPresent()) {
-            return null;
-          }
+            // ö Add a builder that collects these, then pass them to another update() overload
+            // and execute them in batch.
+            ImmutableList.of(
+                repo -> {
+                  AccountConfig accountConfig = read(repo, accountId);
+                  CachedPreferences defaultPreferences =
+                      CachedPreferences.fromConfig(
+                          VersionedDefaultPreferences.get(repo, allUsersName));
+                  Optional<AccountState> accountState =
+                      AccountState.fromAccountConfig(
+                          externalIds, accountConfig, defaultPreferences);
+                  if (!accountState.isPresent()) {
+                    return null;
+                  }
 
-          AccountDelta.Builder deltaBuilder = AccountDelta.builder();
-          configureDeltaFromState.configure(account.get(), deltaBuilder);
+                  AccountDelta.Builder deltaBuilder = AccountDelta.builder();
+                  configureDeltaFromState.configure(accountState.get(), deltaBuilder);
 
-          AccountDelta delta = deltaBuilder.build();
-          accountConfig.setAccountDelta(delta);
-          ExternalIdNotes extIdNotes =
-              createExternalIdNotes(repo, accountConfig.getExternalIdsRev(), accountId, delta);
-          CachedPreferences cachedDefaultPreferences =
-              CachedPreferences.fromConfig(VersionedDefaultPreferences.get(repo, allUsersName));
+                  AccountDelta delta = deltaBuilder.build();
+                  accountConfig.setAccountDelta(delta);
+                  ExternalIdNotes extIdNotes =
+                      createExternalIdNotes(
+                          repo, accountConfig.getExternalIdsRev(), accountId, delta);
+                  CachedPreferences cachedDefaultPreferences =
+                      CachedPreferences.fromConfig(
+                          VersionedDefaultPreferences.get(repo, allUsersName));
 
-          return new UpdatedAccount(
-              message, accountConfig, extIdNotes, cachedDefaultPreferences, false);
-        });
+                  return new UpdatedAccount(
+                      message, accountConfig, extIdNotes, cachedDefaultPreferences, false);
+                }))
+        .get(0);
+  }
+
+  public void updateBatch(Collection<BatchedUpdate> updates) {}
+
+  /** ö */
+  public static class BatchedUpdate {
+    private final String message;
+    private final Account.Id accountId;
+    private final ConfigureDeltaFromState configureDeltaFromState;
+
+    public BatchedUpdate(
+        String message, Account.Id accountId, ConfigureDeltaFromState configureDeltaFromState) {
+      this.message = message;
+      this.accountId = accountId;
+      this.configureDeltaFromState = configureDeltaFromState;
+    }
   }
 
   private AccountConfig read(Repository allUsersRepo, Account.Id accountId)
@@ -387,20 +419,24 @@ public class AccountsUpdate {
     return accountConfig;
   }
 
-  private Optional<AccountState> execute(ExecutableUpdate accountUpdate)
+  private ImmutableList<Optional<AccountState>> execute(List<ExecutableUpdate> executableUpdates)
       throws IOException, ConfigInvalidException {
-    return executeWithRetry(
-        () -> {
-          try (Repository allUsersRepo = repoManager.openRepository(allUsersName)) {
-            UpdatedAccount updatedAccount = accountUpdate.execute(allUsersRepo);
-            if (updatedAccount == null) {
-              return Optional.empty();
-            }
-
-            commit(allUsersRepo, updatedAccount);
-            return Optional.of(updatedAccount.getAccountState());
-          }
-        });
+    ImmutableList.Builder<Optional<AccountState>> accountStateBuilder = ImmutableList.builder();
+    try (Repository allUsersRepo = repoManager.openRepository(allUsersName)) {
+      for (ExecutableUpdate executableUpdate : executableUpdates) {
+        accountStateBuilder.add(
+            executeWithRetry(
+                () -> {
+                  UpdatedAccount updatedAccount = executableUpdate.execute(allUsersRepo);
+                  if (updatedAccount == null) {
+                    return Optional.empty();
+                  }
+                  commit(allUsersRepo, ImmutableList.of(updatedAccount));
+                  return Optional.of(updatedAccount.getAccountState());
+                }));
+      }
+      return accountStateBuilder.build();
+    }
   }
 
   private Optional<AccountState> executeWithRetry(Action<Optional<AccountState>> action)
@@ -431,33 +467,42 @@ public class AccountsUpdate {
     return extIdNotes;
   }
 
-  private void commit(Repository allUsersRepo, UpdatedAccount updatedAccount) throws IOException {
+  // ö This is the "culprit" that updates the external ID cache
+  private void commit(Repository allUsersRepo, List<UpdatedAccount> updatedAccounts)
+      throws IOException {
     beforeCommit.run();
 
     BatchRefUpdate batchRefUpdate = allUsersRepo.getRefDatabase().newBatchUpdate();
 
-    if (updatedAccount.created) {
-      commitNewAccountConfig(
-          updatedAccount.message, allUsersRepo, batchRefUpdate, updatedAccount.accountConfig);
-    } else {
-      commitAccountConfig(
-          updatedAccount.message,
-          allUsersRepo,
-          batchRefUpdate,
-          updatedAccount.accountConfig,
-          false);
-    }
+    for (UpdatedAccount updatedAccount : updatedAccounts) {
+      if (updatedAccount.created) {
+        commitNewAccountConfig(
+            updatedAccount.message, allUsersRepo, batchRefUpdate, updatedAccount.accountConfig);
+      } else {
+        commitAccountConfig(
+            updatedAccount.message,
+            allUsersRepo,
+            batchRefUpdate,
+            updatedAccount.accountConfig,
+            false);
+      }
 
-    commitExternalIdUpdates(
-        updatedAccount.message, allUsersRepo, batchRefUpdate, updatedAccount.externalIdNotes);
+      commitExternalIdUpdates(
+          updatedAccount.message, allUsersRepo, batchRefUpdate, updatedAccount.externalIdNotes);
+
+      // ö Remove this, just for verifying correctness up to here.
+      // Set<Account.Id> accountsThatWillBeReindexByReindexAfterRefUpdate =
+      //     getUpdatedAccounts(batchRefUpdate);
+      // updatedAccount.externalIdNotes.updateCaches(accountsThatWillBeReindexByReindexAfterRefUpdate);
+    }
 
     RefUpdateUtil.executeChecked(batchRefUpdate, allUsersRepo);
 
     // Skip accounts that are updated when evicting the account cache via ExternalIdNotes to avoid
     // double reindexing. The updated accounts will already be reindexed by ReindexAfterRefUpdate.
-    Set<Account.Id> accountsThatWillBeReindexByReindexAfterRefUpdate =
-        getUpdatedAccounts(batchRefUpdate);
-    updatedAccount.externalIdNotes.updateCaches(accountsThatWillBeReindexByReindexAfterRefUpdate);
+    // ö disabled to test correctness w/ old approach above -- extIdNotesLoader.batchUpdateCaches(getUpdatedAccounts(batchRefUpdate));
+    // ö Document the expectation about the loader being "clean" when passed here.
+    // Maybe we should construct it ourselves?
 
     gitRefUpdated.fire(
         allUsersName, batchRefUpdate, currentUser.map(IdentifiedUser::state).orElse(null));

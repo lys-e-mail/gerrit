@@ -114,15 +114,24 @@ public class ExternalIdNotes extends VersionedMetaData {
      */
     ExternalIdNotes load(Repository allUsersRepo, @Nullable ObjectId rev)
         throws IOException, ConfigInvalidException;
+
+    // ö Add docs. This should probably clear the instance buffer. Should we also clear the
+    // instance buffer explicitly? Now that we're adding state we need to make sure it's not
+    // accidentally populated before when reusing an instance. Maybe it's better to have
+    // the loader provide access to the required fields and not track instances itself?
+    void batchUpdateCaches(Collection<Account.Id> accountsToSkip) throws IOException;
   }
 
   @Singleton
   public static class Factory implements ExternalIdNotesLoader {
+
     private final ExternalIdCache externalIdCache;
     private final AccountCache accountCache;
     private final Provider<AccountIndexer> accountIndexer;
     private final MetricMaker metricMaker;
     private final AllUsersName allUsersName;
+
+    private final List<ExternalIdNotes> instances = new ArrayList<>();
 
     @Inject
     Factory(
@@ -141,27 +150,69 @@ public class ExternalIdNotes extends VersionedMetaData {
     @Override
     public ExternalIdNotes load(Repository allUsersRepo)
         throws IOException, ConfigInvalidException {
-      return new ExternalIdNotes(
-              externalIdCache,
-              accountCache,
-              accountIndexer,
-              metricMaker,
-              allUsersName,
-              allUsersRepo)
-          .load();
+      ExternalIdNotes externalIdNotes =
+          new ExternalIdNotes(
+                  externalIdCache,
+                  accountCache,
+                  accountIndexer,
+                  metricMaker,
+                  allUsersName,
+                  allUsersRepo)
+              .load();
+      instances.add(externalIdNotes);
+      return externalIdNotes;
     }
 
     @Override
     public ExternalIdNotes load(Repository allUsersRepo, @Nullable ObjectId rev)
         throws IOException, ConfigInvalidException {
-      return new ExternalIdNotes(
-              externalIdCache,
-              accountCache,
-              accountIndexer,
-              metricMaker,
-              allUsersName,
-              allUsersRepo)
-          .load(rev);
+      ExternalIdNotes externalIdNotes =
+          new ExternalIdNotes(
+                  externalIdCache,
+                  accountCache,
+                  accountIndexer,
+                  metricMaker,
+                  allUsersName,
+                  allUsersRepo)
+              .load(rev);
+      instances.add(externalIdNotes);
+      return externalIdNotes;
+    }
+
+    // ö mention that this requires all instances were committed in creation order. Can we
+    // check that at least partially?
+    @Override
+    public void batchUpdateCaches(Collection<Account.Id> accountsToSkip) throws IOException {
+      if (instances.isEmpty()) {
+        return;
+      }
+
+      ObjectId oldRev = instances.get(0).oldRev;
+      ObjectId newRev = instances.get(instances.size() - 1).getRevision();
+
+      ExternalIdCacheUpdates externalIdCacheUpdates = new ExternalIdCacheUpdates();
+      for (ExternalIdNotes e : instances) {
+        checkState(e.oldRev != null, "no changes committed yet");
+        for (CacheUpdate cacheUpdate : e.cacheUpdates) {
+          cacheUpdate.execute(externalIdCacheUpdates);
+        }
+      }
+
+      externalIdCache.onReplace(
+          oldRev, newRev, externalIdCacheUpdates.getRemoved(), externalIdCacheUpdates.getAdded());
+
+      Streams.concat(
+              externalIdCacheUpdates.getAdded().stream(),
+              externalIdCacheUpdates.getRemoved().stream())
+          .map(ExternalId::accountId)
+          .filter(i -> !accountsToSkip.contains(i))
+          .forEach(id -> accountIndexer.get().index(id));
+
+      instances.forEach(
+          e -> {
+            e.cacheUpdates.clear();
+            e.oldRev = null;
+          });
     }
   }
 
@@ -170,6 +221,7 @@ public class ExternalIdNotes extends VersionedMetaData {
     private final ExternalIdCache externalIdCache;
     private final MetricMaker metricMaker;
     private final AllUsersName allUsersName;
+    private final List<ExternalIdNotes> instances = new ArrayList<>();
 
     @Inject
     FactoryNoReindex(
@@ -182,17 +234,49 @@ public class ExternalIdNotes extends VersionedMetaData {
     @Override
     public ExternalIdNotes load(Repository allUsersRepo)
         throws IOException, ConfigInvalidException {
-      return new ExternalIdNotes(
-              externalIdCache, null, null, metricMaker, allUsersName, allUsersRepo)
-          .load();
+      ExternalIdNotes externalIdNotes =
+          new ExternalIdNotes(externalIdCache, null, null, metricMaker, allUsersName, allUsersRepo)
+              .load();
+      instances.add(externalIdNotes);
+      return externalIdNotes;
     }
 
     @Override
     public ExternalIdNotes load(Repository allUsersRepo, @Nullable ObjectId rev)
         throws IOException, ConfigInvalidException {
-      return new ExternalIdNotes(
-              externalIdCache, null, null, metricMaker, allUsersName, allUsersRepo)
-          .load(rev);
+      ExternalIdNotes externalIdNotes =
+          new ExternalIdNotes(externalIdCache, null, null, metricMaker, allUsersName, allUsersRepo)
+              .load(rev);
+      instances.add(externalIdNotes);
+      return externalIdNotes;
+    }
+
+    // ö code duplication; use abstract base class instead of interface? default impl?
+    @Override
+    public void batchUpdateCaches(Collection<Account.Id> accountsToSkip) throws IOException {
+      if (instances.isEmpty()) {
+        return;
+      }
+
+      ObjectId oldRev = instances.get(0).oldRev;
+      ObjectId newRev = instances.get(instances.size() - 1).getRevision();
+
+      ExternalIdCacheUpdates externalIdCacheUpdates = new ExternalIdCacheUpdates();
+      for (ExternalIdNotes e : instances) {
+        checkState(e.oldRev != null, "no changes committed yet");
+        for (CacheUpdate cacheUpdate : e.cacheUpdates) {
+          cacheUpdate.execute(externalIdCacheUpdates);
+        }
+      }
+
+      externalIdCache.onReplace(
+          oldRev, newRev, externalIdCacheUpdates.getRemoved(), externalIdCacheUpdates.getAdded());
+
+      instances.forEach(
+          e -> {
+            e.cacheUpdates.clear();
+            e.oldRev = null;
+          });
     }
   }
 
@@ -737,6 +821,7 @@ public class ExternalIdNotes extends VersionedMetaData {
         externalIdCacheUpdates.getRemoved(),
         externalIdCacheUpdates.getAdded());
 
+    // ö this conditional clashes with the contained one.
     if (accountCache != null || accountIndexer != null) {
       for (Account.Id id :
           Streams.concat(
@@ -754,6 +839,54 @@ public class ExternalIdNotes extends VersionedMetaData {
     cacheUpdates.clear();
     oldRev = null;
   }
+
+  // // ö mention that notes need to be in order of commit
+  // public static void batchUpdateCaches(
+  //     List<ExternalIdNotes> externalIdNotes, Collection<Account.Id> accountsToSkip)
+  //     throws IOException {
+  //   // ö must share accountCache, accountIndexer
+  //   if (externalIdNotes.isEmpty()) {
+  //     return;
+  //   }
+  //
+  //   ExternalIdCache commonExternalIdCache = externalIdNotes.get(0).externalIdCache;
+  //   AccountCache commonAccountCache = externalIdNotes.get(0).accountCache;
+  //   Provider<AccountIndexer> commonAccountIndexer = externalIdNotes.get(0).accountIndexer;
+  //
+  //   ObjectId oldRev = externalIdNotes.get(0).oldRev;
+  //   ObjectId newRev = externalIdNotes.get(externalIdNotes.size() - 1).getRevision();
+  //
+  //   ExternalIdCacheUpdates externalIdCacheUpdates = new ExternalIdCacheUpdates();
+  //   for (ExternalIdNotes e : externalIdNotes) {
+  //     checkState(e.oldRev != null, "no changes committed yet");
+  //     for (CacheUpdate cacheUpdate : e.cacheUpdates) {
+  //       cacheUpdate.execute(externalIdCacheUpdates);
+  //     }
+  //   }
+  //
+  //   // ö unhack
+  //   externalIdNotes
+  //       .get(0)
+  //       .externalIdCache
+  //       .onReplace(
+  //           oldRev, newRev, externalIdCacheUpdates.getRemoved(),
+  // externalIdCacheUpdates.getAdded());
+  //
+  //   if (accountIndexer != null) {
+  //     for (Account.Id id :
+  //         Streams.concat(
+  //                 externalIdCacheUpdates.getAdded().stream(),
+  //                 externalIdCacheUpdates.getRemoved().stream())
+  //             .map(ExternalId::accountId)
+  //             .filter(i -> !accountsToSkip.contains(i))
+  //             .collect(toSet())) {
+  //       accountIndexer.get().index(id);
+  //     }
+  //   }
+  //
+  //   cacheUpdates.clear();
+  //   oldRev = null;
+  // }
 
   @Override
   protected boolean onSave(CommitBuilder commit) throws IOException, ConfigInvalidException {
