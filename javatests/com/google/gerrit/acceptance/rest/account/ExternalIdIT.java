@@ -882,7 +882,8 @@ public class ExternalIdIT extends AbstractDaemonTest {
       ExternalIdNotes extIdNotes = externalIdNotesFactory.load(repo);
       extIdNotes.insert(extId);
       extIdNotes.commit(update);
-      extIdNotes.updateCaches();
+      externalIdNotesFactory.batchUpdateExternalIdCacheAndMaybeReindexAccounts(
+          ImmutableList.of(extIdNotes), ImmutableSet.of());
     }
   }
 
@@ -909,7 +910,8 @@ public class ExternalIdIT extends AbstractDaemonTest {
       metaDataUpdate.getCommitBuilder().setAuthor(admin.newIdent());
       metaDataUpdate.getCommitBuilder().setCommitter(admin.newIdent());
       extIdNotes.commit(metaDataUpdate);
-      extIdNotes.updateCaches();
+      externalIdNotesFactory.batchUpdateExternalIdCacheAndMaybeReindexAccounts(
+          ImmutableList.of(extIdNotes), ImmutableSet.of());
     }
   }
 

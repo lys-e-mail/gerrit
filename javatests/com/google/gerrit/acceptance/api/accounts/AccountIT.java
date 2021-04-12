@@ -1392,6 +1392,40 @@ public class AccountIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void externalIdBatchUpdates() throws Exception {
+    String email1 = "foo.1@example.com";
+    String email2 = "foo.2@example.com";
+    String extId1 = "foo:bar";
+    String extId2 = "foo:baz";
+
+    AccountsUpdate.UpdateArguments ua1 =
+        new AccountsUpdate.UpdateArguments(
+            "Add External IDs",
+            admin.id(),
+            (a, u) ->
+                u.addExternalId(
+                    ExternalId.createWithEmail(ExternalId.Key.parse(extId1), admin.id(), email1)));
+    AccountsUpdate.UpdateArguments ua2 =
+        new AccountsUpdate.UpdateArguments(
+            "Add External IDs",
+            user.id(),
+            (a, u) ->
+                u.addExternalId(
+                    ExternalId.createWithEmail(ExternalId.Key.parse(extId2), user.id(), email2)));
+    accountsUpdateProvider.get().updateBatch(ImmutableList.of(ua1, ua2));
+    assertThat(
+            gApi.accounts().id(admin.id().get()).getExternalIds().stream()
+                .map(e -> e.identity)
+                .collect(toSet()))
+        .contains(extId1);
+    assertThat(
+            gApi.accounts().id(user.id().get()).getExternalIds().stream()
+                .map(e -> e.identity)
+                .collect(toSet()))
+        .contains(extId2);
+  }
+
+  @Test
   public void deleteEmailFromCustomExternalIdSchemes() throws Exception {
     AccountIndexedCounter accountIndexedCounter = new AccountIndexedCounter();
     try (Registration registration =
