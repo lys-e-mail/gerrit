@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (6c32ef Merge "Show user first in list of reviewers in change view")
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.0-rc1</version>
+>>>>>>> BRANCH (0a9548 Merge branch 'stable-3.3' into stable-3.4)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

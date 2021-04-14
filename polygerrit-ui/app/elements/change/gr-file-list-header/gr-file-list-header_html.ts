@@ -159,6 +159,35 @@ export const htmlTemplate = html`
           <span class="separator"></span>
           <a href$="[[changeUrl]]">Go to latest patch set</a>
         </span>
+<<<<<<< HEAD   (6c32ef Merge "Show user first in list of reviewers in change view")
+=======
+        <span class="container descriptionContainer hideOnEdit">
+          <span class="separator"></span>
+          <template is="dom-if" if="[[_patchsetDescription]]">
+            <gr-linked-chip
+              id="descriptionChip"
+              text="[[_patchsetDescription]]"
+              removable="[[!_descriptionReadOnly]]"
+              on-remove="_handleDescriptionRemoved"
+            ></gr-linked-chip>
+          </template>
+          <template
+            is="dom-if"
+            if="[[_showAddPatchsetDescription(_patchsetDescription, change)]]"
+          >
+            <gr-editable-label
+              id="descriptionLabel"
+              uppercase=""
+              class="descriptionLabel"
+              label-text="Add patchset description"
+              value="[[_patchsetDescription]]"
+              placeholder="[[_computeDescriptionPlaceholder(_descriptionReadOnly)]]"
+              read-only="[[_descriptionReadOnly]]"
+              on-changed="_handleDescriptionChanged"
+            ></gr-editable-label>
+          </template>
+        </span>
+>>>>>>> BRANCH (0a9548 Merge branch 'stable-3.3' into stable-3.4)
       </div>
     </div>
     <div class$="rightControls [[_computeExpandedClass(filesExpanded)]]">
