@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (eadd8a Merge "Renamings around (Accounts|Groups)Update to increase )
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.0-rc2</version>
+>>>>>>> BRANCH (142a34 Merge "Welcome administrator of freshly installed Gerrit sit)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
