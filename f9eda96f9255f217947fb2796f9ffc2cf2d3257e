@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6cb588f_bff017da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1083042
+      },
+      "writtenOn": "2021-04-20T18:13:40Z",
+      "side": 1,
+      "message": "I\u0027ve tried numerous ways to make this work, but to no avail. I\u0027m now beginning to suspect it\u0027s not even possible. There is a check in AccountsUpdate.createExternalIdNotes() that all updates are for a single account that points in that direction.\n\nThe current code is just to show the intention. The writes aren\u0027t really batched at the upper level, so when they eventually meet at the lower level they trigger the error mentioned in the change description. But how can they be batched properly?",
+      "revId": "f9eda96f9255f217947fb2796f9ffc2cf2d3257e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
