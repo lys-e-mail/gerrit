@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (946037 Merge "Make AccountsUpdate.joinConsumers() public")
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.0-rc2</version>
+>>>>>>> BRANCH (ebccff Merge "Cleanup undefined check for access in getRepoAccess" )
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

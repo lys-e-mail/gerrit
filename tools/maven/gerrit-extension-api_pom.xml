@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (946037 Merge "Make AccountsUpdate.joinConsumers() public")
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.0-rc2</version>
+>>>>>>> BRANCH (ebccff Merge "Cleanup undefined check for access in getRepoAccess" )
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
