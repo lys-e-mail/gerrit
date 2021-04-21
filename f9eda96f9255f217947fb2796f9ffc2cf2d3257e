@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "720ec4c2_2706b6f1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1026112
+      },
+      "writtenOn": "2021-04-21T07:34:16Z",
+      "side": 1,
+      "message": "You are trying to update refs/meta/external-ids twice in the same ref transaction.\n\nYou can\u0027t update refs multiple times in the same transaction, but you can still do what you want:\n\nYou want to put N commits atop r/m/eid. That\u0027s OK. Just do it :-)\n\nBut instead of adding one ref update to the transaction for each such update, just add a single one.\n\nI\u0027ll leave an inline comment where the problematic code sits.",
+      "range": {
+        "startLine": 14,
+        "startChar": 33,
+        "endLine": 14,
+        "endChar": 84
+      },
+      "revId": "f9eda96f9255f217947fb2796f9ffc2cf2d3257e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a6cb588f_bff017da",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -14,6 +37,29 @@
       "writtenOn": "2021-04-20T18:13:40Z",
       "side": 1,
       "message": "I\u0027ve tried numerous ways to make this work, but to no avail. I\u0027m now beginning to suspect it\u0027s not even possible. There is a check in AccountsUpdate.createExternalIdNotes() that all updates are for a single account that points in that direction.\n\nThe current code is just to show the intention. The writes aren\u0027t really batched at the upper level, so when they eventually meet at the lower level they trigger the error mentioned in the change description. But how can they be batched properly?",
+      "revId": "f9eda96f9255f217947fb2796f9ffc2cf2d3257e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33574540_38eb8561",
+        "filename": "java/com/google/gerrit/server/account/AccountsUpdate.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1026112
+      },
+      "writtenOn": "2021-04-21T07:34:16Z",
+      "side": 1,
+      "message": "Inside commitNewAccountConfig, don\u0027t add ref updates for each element in the loop as far as external IDs refs go. You need to add a single ref update to batchrefupdate that makes it point to the tip of your update commits.\n\nMake sure to actually stack your update commits on top of each other :-)\n\nLMK if you want to chat about this briefly in person.",
+      "range": {
+        "startLine": 483,
+        "startChar": 50,
+        "endLine": 483,
+        "endChar": 64
+      },
       "revId": "f9eda96f9255f217947fb2796f9ffc2cf2d3257e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
