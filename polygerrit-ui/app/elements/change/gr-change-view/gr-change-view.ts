@@ -831,6 +831,7 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
     }
   }
 
+<<<<<<< HEAD   (83befb Merge branch 'stable-3.4')
   _onPaperTabClick(e: MouseEvent) {
     let target = e.target as HTMLElement | null;
     let tabName: string | undefined;
@@ -846,6 +847,8 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
     });
   }
 
+=======
+>>>>>>> BRANCH (b2e672 Remove KnownExperimentId from gr-comment-thread)
   _handleCommitMessageSave(e: EditableContentSaveEvent) {
     assertIsDefined(this._change, '_change');
     if (!this._changeNum)
@@ -1523,6 +1526,20 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
     return GerritNav.getUrlForChange(change);
   }
 
+<<<<<<< HEAD   (83befb Merge branch 'stable-3.4')
+=======
+  _computeShowCommitInfo(
+    changeStatuses: string[],
+    current_revision: RevisionInfo
+  ) {
+    return (
+      changeStatuses.length === 1 &&
+      changeStatuses[0] === 'Merged' &&
+      current_revision
+    );
+  }
+
+>>>>>>> BRANCH (b2e672 Remove KnownExperimentId from gr-comment-thread)
   _computeReplyButtonLabel(
     changeRecord?: ElementPropertyDeepChange<
       GrChangeView,

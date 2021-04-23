@@ -24,11 +24,17 @@ export interface FlagsService {
  * @desc Experiment ids used in Gerrit.
  */
 export enum KnownExperimentId {
+<<<<<<< HEAD   (83befb Merge branch 'stable-3.4')
   // Note that this flag is not supposed to be used by Gerrit itself, but can
   // be used by plugins. The new Checks UI will show up, if a plugin registers
   // with the new Checks plugin API.
   CI_REBOOT_CHECKS = 'UiFeature__ci_reboot_checks',
+=======
+>>>>>>> BRANCH (b2e672 Remove KnownExperimentId from gr-comment-thread)
   NEW_IMAGE_DIFF_UI = 'UiFeature__new_image_diff_ui',
+<<<<<<< HEAD   (83befb Merge branch 'stable-3.4')
   COMMENT_CONTEXT = 'UiFeature__comment_context',
+=======
+>>>>>>> BRANCH (b2e672 Remove KnownExperimentId from gr-comment-thread)
   TOKEN_HIGHLIGHTING = 'UiFeature__token_highlighting',
 }

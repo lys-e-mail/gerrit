@@ -53,7 +53,6 @@ import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {CustomKeyboardEvent} from '../../../types/events';
 import {LineNumber, FILE} from '../../diff/gr-diff/gr-diff-line';
 import {GrButton} from '../gr-button/gr-button';
-import {KnownExperimentId} from '../../../services/flags/flags';
 import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
 import {RenderPreferences} from '../../../api/diff';
 import {check, assertIsDefined} from '../../../utils/common-util';
@@ -213,10 +212,6 @@ export class GrCommentThread extends KeyboardShortcutMixin(PolymerElement) {
 
   private readonly syntaxLayer = new GrSyntaxLayer();
 
-  private isCommentContextExperimentEnabled = this.flagsService.isEnabled(
-    KnownExperimentId.COMMENT_CONTEXT
-  );
-
   readonly restApiService = appContext.restApiService;
 
   constructor() {
@@ -262,11 +257,7 @@ export class GrCommentThread extends KeyboardShortcutMixin(PolymerElement) {
   }
 
   _shouldShowCommentContext(diff?: DiffInfo) {
-    return (
-      this.isCommentContextExperimentEnabled &&
-      this.showCommentContext &&
-      !!diff
-    );
+    return this.showCommentContext && !!diff;
   }
 
   addOrEditDraft(lineNum?: LineNumber, rangeParam?: CommentRange) {
