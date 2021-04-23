@@ -80,9 +80,14 @@ export const htmlTemplate = html`
           type="radio"
           on-click="_handleOnlyDrafts"
           checked="[[_draftsOnly]]"
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
           hidden$="[[!loggedIn]]"
         />
         <label for="draftsRadio" hidden$="[[!loggedIn]]">
+=======
+        />
+        <label for="draftsRadio">
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
           Drafts ([[_countDrafts(threads)]])
         </label>
         <input

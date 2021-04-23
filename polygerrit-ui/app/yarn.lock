@@ -269,6 +269,7 @@
     "@polymer/paper-ripple" "^3.0.0-pre.26"
     "@polymer/paper-styles" "^3.0.0-pre.26"
     "@polymer/polymer" "^3.3.1"
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
 
 "@polymer/paper-fab@^3.0.1":
   version "3.0.1"
@@ -280,6 +281,8 @@
     "@polymer/paper-behaviors" "^3.0.0-pre.27"
     "@polymer/paper-styles" "^3.0.0-pre.26"
     "@polymer/polymer" "^3.0.0"
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
 
 "@polymer/paper-icon-button@^3.0.0-pre.26":
   version "3.0.2"
