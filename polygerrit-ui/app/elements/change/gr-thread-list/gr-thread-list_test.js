@@ -270,6 +270,7 @@ suite('gr-thread-list tests', () => {
     });
   });
 
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
   test('draft toggle only appears when logged in', () => {
     element.loggedIn = false;
     assert.equal(getComputedStyle(element.shadowRoot
@@ -281,6 +282,8 @@ suite('gr-thread-list tests', () => {
     'none');
   });
 
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
   test('show all threads by default', () => {
     assert.equal(dom(element.root)
         .querySelectorAll('gr-comment-thread').length, element.threads.length);

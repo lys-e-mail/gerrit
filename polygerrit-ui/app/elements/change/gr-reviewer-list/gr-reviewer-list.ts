@@ -41,7 +41,10 @@ import {hasOwnProperty} from '../../../utils/common-util';
 import {isRemovableReviewer} from '../../../utils/change-util';
 import {ReviewerState} from '../../../constants/constants';
 import {appContext} from '../../../services/app-context';
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
 import {fireAlert} from '../../../utils/event-util';
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
 
 @customElement('gr-reviewer-list')
 export class GrReviewerList extends PolymerElement {

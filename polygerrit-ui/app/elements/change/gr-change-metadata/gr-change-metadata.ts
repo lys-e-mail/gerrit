@@ -582,6 +582,7 @@ export class GrChangeMetadata extends PolymerElement {
     return rev.commit;
   }
 
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
   _getRevertSectionTitle(
     _change?: ParsedChangeInfo,
     revertedChange?: ChangeInfo
@@ -609,6 +610,8 @@ export class GrChangeMetadata extends PolymerElement {
     return {commit: getRevertCreatedChangeIds(change.messages)?.[0]};
   }
 
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
   _computeShowAllLabelText(showAllSections: boolean) {
     if (showAllSections) {
       return 'Show less';

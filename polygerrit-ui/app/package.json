@@ -22,7 +22,10 @@
     "@polymer/paper-dialog-behavior": "^3.0.1",
     "@polymer/paper-dialog-scrollable": "^3.0.1",
     "@polymer/paper-dropdown-menu": "^3.2.0",
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
     "@polymer/paper-fab": "^3.0.1",
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
     "@polymer/paper-input": "^3.2.1",
     "@polymer/paper-item": "^3.0.1",
     "@polymer/paper-listbox": "^3.0.1",

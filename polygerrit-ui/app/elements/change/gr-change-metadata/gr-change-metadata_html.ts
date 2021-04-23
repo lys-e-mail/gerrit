@@ -351,6 +351,7 @@ export const htmlTemplate = html`
         </span>
       </section>
     </template>
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
     <template is="dom-if" if="[[_showRevertCreatedAs(change)]]">
       <section
         class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REVERT_CREATED_AS)]]"
@@ -367,6 +368,8 @@ export const htmlTemplate = html`
         </span>
       </section>
     </template>
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
     <section
       class$="topic [[_computeDisplayState(_showAllSections, change, _SECTION.TOPIC)]]"
     >

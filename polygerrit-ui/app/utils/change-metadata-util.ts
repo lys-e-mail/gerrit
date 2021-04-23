@@ -24,7 +24,10 @@ export enum Metadata {
   SUBMITTED = 'Submitted',
   PARENT = 'Parent',
   MERGED_AS = 'Merged as',
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
   REVERT_CREATED_AS = 'Revert Created as',
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
   STRATEGY = 'Strategy',
   UPDATED = 'Updated',
   CC = 'CC',
@@ -57,7 +60,10 @@ export const DisplayRules = {
   ALWAYS_HIDE: [
     Metadata.PARENT,
     Metadata.MERGED_AS,
+<<<<<<< HEAD   (17b3aa Merge "Expose the TokenHighlightLayer to embedders")
     Metadata.REVERT_CREATED_AS,
+=======
+>>>>>>> BRANCH (9093a6 Merge "Clean up Add Patchset Description from File List head)
     Metadata.STRATEGY,
     Metadata.UPDATED,
   ],
