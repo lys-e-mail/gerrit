@@ -19,7 +19,23 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.gerrit.acceptance.testsuite.account.TestAccount;
 import com.google.gerrit.acceptance.testsuite.account.TestSshKeys;
+<<<<<<< HEAD   (411d9a Merge "Clean up polygerrit_plugin rule" into stable-3.4)
+=======
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.KeyPair;
+import com.jcraft.jsch.Session;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+>>>>>>> BRANCH (d8c23d Merge "Add initial stream-events acceptance tests" into stab)
 import java.net.InetSocketAddress;
+<<<<<<< HEAD   (411d9a Merge "Clean up polygerrit_plugin rule" into stable-3.4)
+=======
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+>>>>>>> BRANCH (d8c23d Merge "Add initial stream-events acceptance tests" into stab)
 
 public abstract class SshSession {
   protected final TestSshKeys sshKeys;
@@ -40,6 +56,20 @@ public abstract class SshSession {
   public abstract String exec(String command) throws Exception;
 
   public abstract int execAndReturnStatus(String command) throws Exception;
+
+  public Reader execAndReturnReader(String command) throws Exception {
+    ChannelExec channel = (ChannelExec) getSession().openChannel("exec");
+    channel.setCommand(command);
+    channel.connect();
+
+    return new InputStreamReader(channel.getInputStream(), StandardCharsets.UTF_8) {
+      @Override
+      public void close() throws IOException {
+        super.close();
+        channel.disconnect();
+      }
+    };
+  }
 
   private boolean hasError() {
     return error != null;
