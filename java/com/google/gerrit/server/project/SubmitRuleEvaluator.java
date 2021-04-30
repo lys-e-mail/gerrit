@@ -97,7 +97,11 @@ public class SubmitRuleEvaluator {
           throw new StorageException("Change not found");
         }
 
+<<<<<<< HEAD   (cbc59c Merge "Remove unused licenses")
         projectState = projectCache.get(cd.project()).orElseThrow(noSuchProject(cd.project()));
+=======
+        projectCache.get(cd.project()).orElseThrow(noSuchProject(cd.project()));
+>>>>>>> BRANCH (8fd931 Fix link for change.enableAssignee configuration option)
       } catch (NoSuchProjectException e) {
         throw new IllegalStateException("Unable to find project while evaluating submit rule", e);
       }
