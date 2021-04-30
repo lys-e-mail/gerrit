@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (cbc59c Merge "Remove unused licenses")
 //  Copyright (C) 2021 The Android Open Source Project
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,3 +83,5 @@ public abstract class SubmitRequirement {
     public abstract SubmitRequirement build();
   }
 }
+=======
+>>>>>>> BRANCH (8fd931 Fix link for change.enableAssignee configuration option)

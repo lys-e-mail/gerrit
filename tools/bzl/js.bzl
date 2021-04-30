@@ -1,6 +1,55 @@
 load("@npm//@bazel/rollup:index.bzl", "rollup_bundle")
 load("@npm//@bazel/terser:index.bzl", "terser_minified")
+<<<<<<< HEAD   (cbc59c Merge "Remove unused licenses")
 load("//tools/bzl:genrule2.bzl", "genrule2")
+=======
+load("//lib/js:npm.bzl", "NPM_SHA1S", "NPM_VERSIONS")
+load("//tools/bzl:genrule2.bzl", "genrule2")
+
+NPMJS = "NPMJS"
+
+GERRIT = "GERRIT:"
+
+def _npm_tarball(name):
+    return "%s@%s.npm_binary.tgz" % (name, NPM_VERSIONS[name])
+
+def _npm_binary_impl(ctx):
+    """rule to download a NPM archive."""
+    name = ctx.name
+    version = NPM_VERSIONS[name]
+    sha1 = NPM_SHA1S[name]
+
+    dir = "%s-%s" % (name, version)
+    filename = "%s.tgz" % dir
+    base = "%s@%s.npm_binary.tgz" % (name, version)
+    dest = ctx.path(base)
+    repository = ctx.attr.repository
+    if repository == GERRIT:
+        url = "https://gerrit-maven.storage.googleapis.com/npm-packages/%s" % filename
+    elif repository == NPMJS:
+        url = "https://registry.npmjs.org/%s/-/%s" % (name, filename)
+    else:
+        fail("repository %s not in {%s,%s}" % (repository, GERRIT, NPMJS))
+
+    python = ctx.which("python")
+    script = ctx.path(ctx.attr._download_script)
+
+    args = [python, script, "-o", dest, "-u", url, "-v", sha1]
+    out = ctx.execute(args)
+    if out.return_code:
+        fail("failed %s: %s" % (args, out.stderr))
+    ctx.file("BUILD", "package(default_visibility=['//visibility:public'])\nfilegroup(name='tarball', srcs=['%s'])" % base, False)
+
+npm_binary = repository_rule(
+    attrs = {
+        "repository": attr.string(default = NPMJS),
+        # Label resolves within repo of the .bzl file.
+        "_download_script": attr.label(default = Label("//tools:download_file.py")),
+    },
+    local = True,
+    implementation = _npm_binary_impl,
+)
+>>>>>>> BRANCH (8fd931 Fix link for change.enableAssignee configuration option)
 
 ComponentInfo = provider()
 
