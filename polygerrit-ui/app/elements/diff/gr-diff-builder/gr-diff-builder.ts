@@ -324,7 +324,13 @@ export abstract class GrDiffBuilder {
         section,
         contextGroups,
         showAbove,
+<<<<<<< HEAD   (f236ef Merge "Add a UI widget for check run attempts")
         showBelow
+=======
+        showBelow,
+        numLines,
+        viewMode
+>>>>>>> BRANCH (547ba9 Merge branch 'stable-3.3' into stable-3.4)
       )
     );
     if (showBelow) {
@@ -342,16 +348,40 @@ export abstract class GrDiffBuilder {
     section: HTMLElement,
     contextGroups: GrDiffGroup[],
     showAbove: boolean,
+<<<<<<< HEAD   (f236ef Merge "Add a UI widget for check run attempts")
     showBelow: boolean
+=======
+    showBelow: boolean,
+    numLines: number,
+    viewMode: DiffViewMode
+>>>>>>> BRANCH (547ba9 Merge branch 'stable-3.3' into stable-3.4)
   ): HTMLElement {
-    const row = this._createElement('tr', 'contextDivider');
-    if (!(showAbove && showBelow)) {
-      row.classList.add('collapsed');
+    const row = this._createElement('tr', 'dividerRow');
+    if (showAbove && !showBelow) {
+      row.classList.add('showAboveOnly');
+    } else if (!showAbove && showBelow) {
+      row.classList.add('showBelowOnly');
+    } else {
+      // Note that !showAbove && !showBelow also intentionally creates
+      // "showBoth". This means the file is completely collapsed, which is
+      // unusual, but at least happens in one test.
+      row.classList.add('showBoth');
     }
 
-    const element = this._createElement('td', 'dividerCell');
-    row.appendChild(element);
+    row.appendChild(this._createBlameCell(0));
+    if (viewMode === DiffViewMode.SIDE_BY_SIDE) {
+      row.appendChild(this._createElement('td'));
+    }
 
+    const cell = this._createElement('td', 'dividerCell');
+    cell.setAttribute('colspan', '3');
+    row.appendChild(cell);
+    const verticalFlex = this._createElement('div', 'verticalFlex');
+    cell.appendChild(verticalFlex);
+    const horizontalFlex = this._createElement('div', 'horizontalFlex');
+    verticalFlex.appendChild(horizontalFlex);
+
+<<<<<<< HEAD   (f236ef Merge "Add a UI widget for check run attempts")
     const contextControls = this._createElement(
       'gr-context-controls'
     ) as GrContextControls;
@@ -362,6 +392,51 @@ export abstract class GrDiffBuilder {
     contextControls.showAbove = showAbove;
     contextControls.showBelow = showBelow;
     element.appendChild(contextControls);
+=======
+    const showAllContainer = this._createElement('div', 'aboveBelowButtons');
+    horizontalFlex.appendChild(showAllContainer);
+    const showAllButton = this._createContextButton(
+      ContextButtonType.ALL,
+      section,
+      contextGroups,
+      numLines
+    );
+    showAllButton.classList.add(
+      showAbove && showBelow
+        ? 'centeredButton'
+        : showAbove
+        ? 'aboveButton'
+        : 'belowButton'
+    );
+    showAllContainer.appendChild(showAllButton);
+
+    const showPartialLinks = numLines > PARTIAL_CONTEXT_AMOUNT;
+    if (showPartialLinks) {
+      const container = this._createElement('div', 'aboveBelowButtons');
+      if (showAbove) {
+        container.appendChild(
+          this._createContextButton(
+            ContextButtonType.ABOVE,
+            section,
+            contextGroups,
+            numLines
+          )
+        );
+      }
+      if (showBelow) {
+        container.appendChild(
+          this._createContextButton(
+            ContextButtonType.BELOW,
+            section,
+            contextGroups,
+            numLines
+          )
+        );
+      }
+      horizontalFlex.appendChild(container);
+    }
+
+>>>>>>> BRANCH (547ba9 Merge branch 'stable-3.3' into stable-3.4)
     return row;
   }
 
