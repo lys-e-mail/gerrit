@@ -72,7 +72,11 @@ export class GrRegistrationDialog extends PolymerElement {
   _serverConfig?: ServerInfo;
 
   @property({
+<<<<<<< HEAD   (bbc7de Merge "Bump rules_nodejs version to 3.5.0")
     computed: '_computeUsernameMutable(_serverConfig, _account.username)',
+=======
+    computed: '_computeUsernameMutable(_account.username)',
+>>>>>>> BRANCH (50d6ca Merge branch 'stable-3.3' into stable-3.4)
     type: Boolean,
   })
   _usernameMutable = false;
@@ -121,6 +125,7 @@ export class GrRegistrationDialog extends PolymerElement {
       (this._account.username || '') !== (this._username || '');
   }
 
+<<<<<<< HEAD   (bbc7de Merge "Bump rules_nodejs version to 3.5.0")
   _computeUsernameMutable(config?: ServerInfo, username?: string) {
     // Polymer 2: check for undefined
     if (config === undefined) {
@@ -132,6 +137,16 @@ export class GrRegistrationDialog extends PolymerElement {
       config.auth.editable_account_fields.includes(
         EditableAccountField.USER_NAME
       ) && !username
+=======
+  _computeUsernameMutable(username?: string) {
+    // Username may not be changed once it is set.
+    return !username;
+  }
+
+  _computeUsernameEditable(config?: ServerInfo) {
+    return !!config?.auth.editable_account_fields.includes(
+      EditableAccountField.USER_NAME
+>>>>>>> BRANCH (50d6ca Merge branch 'stable-3.3' into stable-3.4)
     );
   }
 

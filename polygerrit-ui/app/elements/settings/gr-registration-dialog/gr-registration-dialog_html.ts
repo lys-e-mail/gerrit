@@ -84,6 +84,7 @@ export const htmlTemplate = html`
           </iron-input>
         </span>
       </section>
+<<<<<<< HEAD   (bbc7de Merge "Bump rules_nodejs version to 3.5.0")
       <section>
         <span class="title">Username</span>
         <span hidden$="[[_usernameMutable]]" class="value">[[_username]]</span>
@@ -98,6 +99,26 @@ export const htmlTemplate = html`
           </iron-input>
         </span>
       </section>
+=======
+      <template is="dom-if" if="[[_computeUsernameEditable(_serverConfig)]]">
+        <section>
+          <span class="title">Username</span>
+          <span hidden$="[[_usernameMutable]]" class="value"
+            >[[_username]]</span
+          >
+          <span hidden$="[[!_usernameMutable]]" class="value">
+            <iron-input bind-value="{{_username}}">
+              <input
+                is="iron-input"
+                id="username"
+                bind-value="{{_username}}"
+                disabled="[[_saving]]"
+              />
+            </iron-input>
+          </span>
+        </section>
+      </template>
+>>>>>>> BRANCH (50d6ca Merge branch 'stable-3.3' into stable-3.4)
       <hr />
       <p>
         More configuration options for Gerrit may be found in the

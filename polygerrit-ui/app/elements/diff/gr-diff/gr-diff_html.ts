@@ -326,24 +326,128 @@ export const htmlTemplate = html`
       height: calc(var(--line-height-normal) + var(--spacing-s));
     }
 
-    .contextDivider {
-      height: var(--divider-height);
-      /* Create a positioning context. */
-      transform: translateX(0px);
+    .dividerCell {
+      vertical-align: top;
     }
-    .contextDivider.collapsed {
-      /* Hide divider gap, but still show child elements (expansion buttons). */
+    .dividerRow.showBoth .dividerCell {
+      height: var(--divider-height);
+    }
+    .dividerRow.showAboveOnly .dividerCell,
+    .dividerRow.showBelowOnly .dividerCell {
       height: 0;
     }
-    .dividerCell {
-      width: 100%;
-      height: 100%;
+
+    .verticalFlex {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .dividerRow.showBoth .verticalFlex {
+      justify-content: center;
+      margin-top: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(
+        2 * var(--line-height-normal) + 2 * var(--spacing-s) +
+          var(--divider-height) - 1px
+      );
+    }
+    .dividerRow.showAboveOnly .verticalFlex {
+      justify-content: flex-end;
+      /* margin-top has to make room for height+1px. */
+      margin-top: calc(-1px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(var(--line-height-normal) + var(--spacing-s));
+    }
+    .dividerRow.showBelowOnly .verticalFlex {
+      justify-content: flex-start;
+      /* This just pushes the container down 1 pixel as to render below the
+         1px border-top of the padding row below. The same could be achieved
+         by position:relative; top:1px.*/
+      margin-top: 1px;
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+    }
+
+    .horizontalFlex {
       display: flex;
       justify-content: center;
-      position: absolute;
-      top: 0;
-      left: 0;
     }
+    .dividerRow.showBoth .horizontalFlex {
+      align-items: center;
+    }
+    .dividerRow.showAboveOnly .horizontalFlex {
+      align-items: end;
+    }
+    .dividerRow.showBelowOnly .horizontalFlex {
+      align-items: start;
+    }
+<<<<<<< HEAD   (bbc7de Merge "Bump rules_nodejs version to 3.5.0")
+=======
+    .contextControlButton {
+      background-color: var(--default-button-background-color);
+      font: var(--context-control-button-font, inherit);
+    }
+    .centeredButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        padding: var(--spacing-s) var(--spacing-l);
+      }
+    }
+    .aboveBelowButtons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: var(--spacing-m);
+    }
+    .aboveBelowButtons:first-child {
+      margin-left: 0;
+    }
+    .dividerRow.showBoth .aboveButton {
+      /* The size of the gap between the above and below button. */
+      margin-bottom: calc(var(--divider-height) + 1px);
+    }
+    .aboveButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 0;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: var(--spacing-xxs) var(--spacing-l);
+      }
+    }
+    .belowButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 0;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        padding: var(--spacing-xxs) var(--spacing-l);
+      }
+    }
+
+>>>>>>> BRANCH (50d6ca Merge branch 'stable-3.3' into stable-3.4)
     .displayLine .diff-row.target-row td {
       box-shadow: inset 0 -1px var(--border-color);
     }
