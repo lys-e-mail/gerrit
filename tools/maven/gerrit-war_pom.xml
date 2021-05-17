@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (75a138 Merge changes Iae9f11b2,I1a93df4a,I6ed00dda,I9fa3e46e,I51373)
   <version>3.4.0-rc5</version>
+=======
+  <version>3.3.4</version>
+>>>>>>> BRANCH (61eba2 Set version to 3.3.4)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
