@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (9f56f3 Set version to 3.2.10-SNAPSHOT)
   <version>3.2.10-SNAPSHOT</version>
+=======
+  <version>3.1.15</version>
+>>>>>>> BRANCH (c66dfb Set version to 3.1.15)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
