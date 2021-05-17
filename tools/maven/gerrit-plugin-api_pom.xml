@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (9f56f3 Set version to 3.2.10-SNAPSHOT)
   <version>3.2.10-SNAPSHOT</version>
+=======
+  <version>3.1.14</version>
+>>>>>>> BRANCH (d2ebdd Fix PUT/POST/DELETE REST-API with cookie authentication)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
