@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (75a138 Merge changes Iae9f11b2,I1a93df4a,I6ed00dda,I9fa3e46e,I51373)
   <version>3.4.0-rc5</version>
+=======
+  <version>3.3.4</version>
+>>>>>>> BRANCH (61eba2 Set version to 3.3.4)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
