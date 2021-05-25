@@ -61,12 +61,18 @@ import {
 import {KeyLocations} from '../gr-diff-processor/gr-diff-processor';
 import {FlattenedNodesObserver} from '@polymer/polymer/lib/utils/flattened-nodes-observer';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+<<<<<<< HEAD   (3fc217 Merge remote-tracking branch 'origin/stable-3.3' into stable)
 import {AbortStop} from '../../shared/gr-cursor-manager/gr-cursor-manager';
 import {fireAlert, fireEvent} from '../../../utils/event-util';
 import {MovedLinkClickedEvent} from '../../../types/events';
 // TODO(davido): See: https://github.com/GoogleChromeLabs/shadow-selection-polyfill/issues/9
 // @ts-ignore
 import * as shadow from 'shadow-selection-polyfill/shadow.js';
+=======
+import {getContentEditableRange} from '../../../utils/safari-selection-util';
+
+import {isSafari} from '../../../utils/dom-util';
+>>>>>>> BRANCH (c0138d Merge changes I4daebbfd,Id61a7f66 into stable-3.3)
 
 import {
   CreateCommentEventDetail as CreateCommentEventDetailApi,
@@ -227,6 +233,14 @@ export class GrDiff extends PolymerElement {
   revisionImage?: ImageInfo;
 
   /**
+   * In order to allow multi-select in Safari browsers, a workaround is required
+   * to trigger 'beforeinput' events to get a list of static ranges. This is
+   * obtained by making the content of the diff table "contentEditable".
+   */
+  @property({type: Boolean})
+  isContentEditable = isSafari();
+
+  /**
    * Whether the safety check for large diffs when whole-file is set has
    * been bypassed. If the value is null, then the safety has not been
    * bypassed. If the value is a number, then that number represents the
@@ -335,17 +349,27 @@ export class GrDiff extends PolymerElement {
   @observe('loggedIn', 'isAttached')
   _enableSelectionObserver(loggedIn: boolean, isAttached: boolean) {
     if (loggedIn && isAttached) {
+<<<<<<< HEAD   (3fc217 Merge remote-tracking branch 'origin/stable-3.3' into stable)
       document.addEventListener(
         '-shadow-selectionchange',
         this.handleSelectionChange
       );
       document.addEventListener('mouseup', this.handleMouseUp);
+=======
+      this.listen(document, 'selectionchange', '_handleSelectionChange');
+      this.listen(document, 'mouseup', '_handleMouseUp');
+>>>>>>> BRANCH (c0138d Merge changes I4daebbfd,Id61a7f66 into stable-3.3)
     } else {
+<<<<<<< HEAD   (3fc217 Merge remote-tracking branch 'origin/stable-3.3' into stable)
       document.removeEventListener(
         '-shadow-selectionchange',
         this.handleSelectionChange
       );
       document.removeEventListener('mouseup', this.handleMouseUp);
+=======
+      this.unlisten(document, 'selectionchange', '_handleSelectionChange');
+      this.unlisten(document, 'mouseup', '_handleMouseUp');
+>>>>>>> BRANCH (c0138d Merge changes I4daebbfd,Id61a7f66 into stable-3.3)
     }
   }
 
@@ -374,7 +398,11 @@ export class GrDiff extends PolymerElement {
     return this.root instanceof ShadowRoot && this.root.getSelection
       ? this.root.getSelection()
       : isSafari()
+<<<<<<< HEAD   (3fc217 Merge remote-tracking branch 'origin/stable-3.3' into stable)
       ? shadow.getRange(this.root)
+=======
+      ? getContentEditableRange()
+>>>>>>> BRANCH (c0138d Merge changes I4daebbfd,Id61a7f66 into stable-3.3)
       : document.getSelection();
   }
 
