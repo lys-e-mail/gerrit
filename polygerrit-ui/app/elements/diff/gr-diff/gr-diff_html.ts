@@ -97,6 +97,10 @@ export const htmlTemplate = html`
       height: 100%;
       background-color: var(--diff-blank-background-color);
     }
+    td.lineNum {
+      vertical-align: top;
+    }
+
     /*
       The only way to focus this (clicking) will apply our own focus styling,
       so this default styling is not needed and distracting.
@@ -318,6 +322,120 @@ export const htmlTemplate = html`
       height: 0;
     }
 
+<<<<<<< HEAD   (396a62 Only render a label chip for the latest attempt of a check r)
+=======
+    .verticalFlex {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .dividerRow.showBoth .verticalFlex {
+      justify-content: center;
+      margin-top: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(
+        2 * var(--line-height-normal) + 2 * var(--spacing-s) +
+          var(--divider-height) - 1px
+      );
+    }
+    .dividerRow.showAboveOnly .verticalFlex {
+      justify-content: flex-end;
+      /* margin-top has to make room for height+1px. */
+      margin-top: calc(-1px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(var(--line-height-normal) + var(--spacing-s));
+    }
+    .dividerRow.showBelowOnly .verticalFlex {
+      justify-content: flex-start;
+      /* This just pushes the container down 1 pixel as to render below the
+         1px border-top of the padding row below. The same could be achieved
+         by position:relative; top:1px.*/
+      margin-top: 1px;
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+    }
+
+    .horizontalFlex {
+      display: flex;
+      justify-content: center;
+    }
+    .dividerRow.showBoth .horizontalFlex {
+      align-items: center;
+    }
+    .dividerRow.showAboveOnly .horizontalFlex {
+      align-items: end;
+    }
+    .dividerRow.showBelowOnly .horizontalFlex {
+      align-items: start;
+    }
+    .contextControlButton {
+      background-color: var(--default-button-background-color);
+      font: var(--context-control-button-font, inherit);
+    }
+    .centeredButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        padding: var(--spacing-s) var(--spacing-l);
+      }
+    }
+    .aboveBelowButtons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: var(--spacing-m);
+    }
+    .aboveBelowButtons:first-child {
+      margin-left: 0;
+    }
+    .dividerRow.showBoth .aboveButton {
+      /* The size of the gap between the above and below button. */
+      margin-bottom: calc(var(--divider-height) + 1px);
+    }
+    .aboveButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 0;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+        padding: var(--spacing-xxs) var(--spacing-l);
+      }
+    }
+    .belowButton {
+      --gr-button: {
+        color: var(--diff-context-control-color);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 0;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        padding: var(--spacing-xxs) var(--spacing-l);
+      }
+    }
+    #diffTable:focus {
+      outline: none;
+    }
+
+>>>>>>> BRANCH (514621 Merge branch 'stable-3.3' into stable-3.4)
     .displayLine .diff-row.target-row td {
       box-shadow: inset 0 -1px var(--border-color);
     }
@@ -558,6 +676,7 @@ export const htmlTemplate = html`
             id="diffTable"
             class$="[[_diffTableClass]]"
             role="presentation"
+            contenteditable$="[[isContentEditable]]"
           ></table>
 
           <template
