@@ -37,9 +37,13 @@
     "lit-element": "^2.4.0",
     "page": "^1.11.6",
     "polymer-bridges": "file:../../polymer-bridges/",
+<<<<<<< HEAD   (3fc217 Merge remote-tracking branch 'origin/stable-3.3' into stable)
     "polymer-resin": "^2.0.1",
     "rxjs": "^6.6.7",
     "shadow-selection-polyfill": "^1.1.0"
+=======
+    "polymer-resin": "^2.0.1"
+>>>>>>> BRANCH (c0138d Merge changes I4daebbfd,Id61a7f66 into stable-3.3)
   },
   "license": "Apache-2.0",
   "private": true
