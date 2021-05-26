@@ -105,9 +105,52 @@ public class EqualsLabelPredicate extends ChangeIndexPredicate {
     return null;
   }
 
+<<<<<<< HEAD   (0cd51e Merge branch 'stable-2.15-issue-13858' into stable-2.15)
   protected boolean match(ChangeData cd, short value, Account.Id approver) {
     if (value != expVal) {
       return false;
+=======
+  private boolean match(Change change, int value, Account.Id approver, LabelType type)
+      throws OrmException {
+    int psVal = value;
+    if (psVal == expVal) {
+      // Double check the value is still permitted for the user.
+      //
+      IdentifiedUser reviewer = userFactory.create(approver);
+      try {
+        ChangeControl cc = ccFactory.controlFor(dbProvider.get(), change, reviewer);
+        if (!cc.isVisible(dbProvider.get())) {
+          // The user can't see the change anymore.
+          //
+          return false;
+        }
+        psVal = cc.getRange(Permission.forLabel(type.getName())).squash(psVal);
+      } catch (NoSuchChangeException e) {
+        // The project has disappeared.
+        //
+        return false;
+      }
+
+      if (account != null
+          && !account.equals(approver)
+          && !account.equals(ChangeQueryBuilder.OWNER_ACCOUNT_ID)) {
+        return false;
+      }
+
+      if (account != null
+          && account.equals(ChangeQueryBuilder.OWNER_ACCOUNT_ID)
+          && !change.getOwner().equals(approver)) {
+        return false;
+      }
+
+      if (group != null && !reviewer.getEffectiveGroups().contains(group)) {
+        return false;
+      }
+
+      if (psVal == expVal) {
+        return true;
+      }
+>>>>>>> BRANCH (7a8b42 Fix to not throw NPE while accessing draft refs)
     }
 
     if (account != null && !account.equals(approver)) {
