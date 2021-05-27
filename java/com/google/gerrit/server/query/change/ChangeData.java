@@ -973,6 +973,7 @@ public class ChangeData {
       }
 
       draftsByUser = new HashMap<>();
+<<<<<<< HEAD   (39456f Merge changes If5e4876e,I37e57397 into stable-3.0)
       for (Ref ref : commentsUtil.getDraftRefs(notes.getChangeId())) {
         Account.Id account = Account.Id.fromRefSuffix(ref.getName());
         if (account != null
@@ -984,6 +985,25 @@ public class ChangeData {
             // this point.
             && !notes().getDraftComments(account, ref).isEmpty()) {
           draftsByUser.put(account, ref);
+=======
+      if (notesMigration.readChanges()) {
+        for (Ref ref : commentsUtil.getDraftRefs(notes().getChangeId())) {
+          Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+          if (account != null
+              // Double-check that any drafts exist for this user after
+              // filtering out zombies. If some but not all drafts in the ref
+              // were zombies, the returned Ref still includes those zombies;
+              // this is suboptimal, but is ok for the purposes of
+              // draftsByUser(), and easier than trying to rebuild the change at
+              // this point.
+              && !notes().getDraftComments(account, ref).isEmpty()) {
+            draftsByUser.put(account, ref);
+          }
+        }
+      } else {
+        for (Comment sc : commentsUtil.draftByChange(db, notes())) {
+          draftsByUser.put(sc.author.getId(), null);
+>>>>>>> BRANCH (91b79b Merge branch 'stable-2.15' into stable-2.16)
         }
       }
     }
