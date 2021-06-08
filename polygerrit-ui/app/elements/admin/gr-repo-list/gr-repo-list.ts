@@ -137,6 +137,7 @@ export class GrRepoList extends ListViewMixin(PolymerElement) {
 
   _getRepos(filter: string, reposPerPage: number, offset?: number) {
     this._repos = [];
+<<<<<<< HEAD   (71e8b2 Merge branch 'stable-3.3' into stable-3.4)
     return this.restApiService
       .getRepos(filter, reposPerPage, offset)
       .then(repos => {
@@ -149,6 +150,18 @@ export class GrRepoList extends ListViewMixin(PolymerElement) {
         );
         this._loading = false;
       });
+=======
+    return this.$.restAPI.getRepos(filter, reposPerPage, offset).then(repos => {
+      // Late response.
+      if (filter !== this._filter || !repos) {
+        return;
+      }
+      this._repos = repos.filter(repo =>
+        repo.name.toLowerCase().includes(filter.toLowerCase())
+      );
+      this._loading = false;
+    });
+>>>>>>> BRANCH (9001d0 Merge branch 'stable-3.2' into stable-3.3)
   }
 
   _refreshReposList() {
