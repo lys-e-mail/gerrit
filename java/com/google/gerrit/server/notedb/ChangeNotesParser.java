@@ -327,8 +327,12 @@ class ChangeNotesParser {
   }
 
   private void parse(ChangeNotesCommit commit) throws ConfigInvalidException {
+<<<<<<< HEAD   (a1d51e Update git submodules)
     updateCount++;
     Timestamp commitTimestamp = getCommitTimestamp(commit);
+=======
+    Timestamp ts = new Timestamp(commit.getCommitterIdent().getWhen().getTime());
+>>>>>>> BRANCH (242dcb Merge "AS ops shouldn't count towards change.maxUpdates limi)
 
     createdOn = commitTimestamp;
     parseTag(commit);
@@ -370,7 +374,11 @@ class ChangeNotesParser {
       originalSubject = currSubject;
     }
 
+<<<<<<< HEAD   (a1d51e Update git submodules)
     parseChangeMessage(psId, accountId, realAccountId, commit, commitTimestamp);
+=======
+    boolean hasChangeMessage = parseChangeMessage(psId, accountId, realAccountId, commit, ts);
+>>>>>>> BRANCH (242dcb Merge "AS ops shouldn't count towards change.maxUpdates limi)
     if (topic == null) {
       topic = parseTopic(commit);
     }
@@ -435,6 +443,9 @@ class ChangeNotesParser {
 
     previousWorkInProgressFooter = null;
     parseWorkInProgress(commit);
+    if (countTowardsMaxUpdatesLimit(commit, hasChangeMessage)) {
+      updateCount++;
+    }
   }
 
   private void parseSubmission(ChangeNotesCommit commit, Timestamp commitTimestamp)
@@ -720,7 +731,7 @@ class ChangeNotesParser {
     }
   }
 
-  private void parseChangeMessage(
+  private boolean parseChangeMessage(
       PatchSet.Id psId,
       Account.Id accountId,
       Account.Id realAccountId,
@@ -728,7 +739,7 @@ class ChangeNotesParser {
       Timestamp ts) {
     Optional<String> changeMsgString = getChangeMessageString(commit);
     if (!changeMsgString.isPresent()) {
-      return;
+      return false;
     }
 
     ChangeMessage changeMessage =
@@ -736,7 +747,7 @@ class ChangeNotesParser {
     changeMessage.setMessage(changeMsgString.get());
     changeMessage.setTag(tag);
     changeMessage.setRealAuthor(realAccountId);
-    allChangeMessages.add(changeMessage);
+    return allChangeMessages.add(changeMessage);
   }
 
   public static Optional<String> getChangeMessageString(ChangeNotesCommit commit) {
@@ -1192,5 +1203,10 @@ class ChangeNotesParser {
     return NoteDbUtil.parseIdent(ident)
         .orElseThrow(
             () -> parseException("cannot retrieve account id: %s", ident.getEmailAddress()));
+  }
+
+  protected boolean countTowardsMaxUpdatesLimit(
+      ChangeNotesCommit commit, boolean hasChangeMessage) {
+    return !commit.isAttentionSetCommitOnly(hasChangeMessage);
   }
 }
