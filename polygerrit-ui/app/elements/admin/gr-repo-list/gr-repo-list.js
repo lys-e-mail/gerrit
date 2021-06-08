@@ -115,6 +115,7 @@ class GrRepoList extends mixinBehaviors( [
         this._offset);
   }
 
+<<<<<<< HEAD   (2161cc Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
   /**
    * Opens the create overlay if the route has a hash 'create'
    *
@@ -122,6 +123,73 @@ class GrRepoList extends mixinBehaviors( [
    */
   _maybeOpenCreateOverlay(params) {
     if (params && params.openCreateModal) {
+=======
+      return this._getRepos(this._filter, this._reposPerPage,
+          this._offset);
+    },
+
+    /**
+     * Opens the create overlay if the route has a hash 'create'
+     *
+     * @param {!Object} params
+     */
+    _maybeOpenCreateOverlay(params) {
+      if (params && params.openCreateModal) {
+        this.$.createOverlay.open();
+      }
+    },
+
+    _computeRepoUrl(name) {
+      return this.getUrl(this._path + '/', name);
+    },
+
+    _computeChangesLink(name) {
+      return Gerrit.Nav.getUrlForProjectChanges(name);
+    },
+
+    _getCreateRepoCapability() {
+      return this.$.restAPI.getAccount().then(account => {
+        if (!account) { return; }
+        return this.$.restAPI.getAccountCapabilities(['createProject'])
+            .then(capabilities => {
+              if (capabilities.createProject) {
+                this._createNewCapability = true;
+              }
+            });
+      });
+    },
+
+    _getRepos(filter, reposPerPage, offset) {
+      this._repos = [];
+      return this.$.restAPI.getRepos(filter, reposPerPage, offset)
+          .then(repos => {
+            // Late response.
+            if (filter !== this._filter || !repos) { return; }
+            this._repos = repos.filter(repo =>
+              repo.name.toLowerCase().includes(filter.toLowerCase())
+            );
+            this._loading = false;
+          });
+    },
+
+    _refreshReposList() {
+      this.$.restAPI.invalidateReposCache();
+      return this._getRepos(this._filter, this._reposPerPage,
+          this._offset);
+    },
+
+    _handleCreateRepo() {
+      this.$.createNewModal.handleCreateRepo().then(() => {
+        this._refreshReposList();
+      });
+    },
+
+    _handleCloseCreate() {
+      this.$.createOverlay.close();
+    },
+
+    _handleCreateClicked() {
+>>>>>>> BRANCH (18dd78 Add a test for case insensitive repo search)
       this.$.createOverlay.open();
     }
   }

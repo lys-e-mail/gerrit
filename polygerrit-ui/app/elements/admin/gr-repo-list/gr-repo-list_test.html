@@ -32,6 +32,7 @@ limitations under the License.
   </template>
 </test-fixture>
 
+<<<<<<< HEAD   (2161cc Merge "Merge branch 'stable-3.1' into stable-3.2" into stabl)
 <script type="module">
 import '../../../test/common-test-setup.js';
 import './gr-repo-list.js';
@@ -51,6 +52,25 @@ const repoGenerator = () => {
     ],
   };
 };
+=======
+<script>
+  function createRepo(name, counter) {
+    return {
+      id: `${name}${counter}`,
+      name: `${name}`,
+      state: 'ACTIVE',
+      web_links: [
+        {
+          name: 'diffusion',
+          url: `https://phabricator.example.org/r/project/${name}${counter}`,
+        },
+      ],
+    };
+  }
+
+  let counter;
+  const repoGenerator = () => createRepo('test', ++counter);
+>>>>>>> BRANCH (18dd78 Add a test for case insensitive repo search)
 
 suite('gr-repo-list tests', () => {
   let element;
@@ -84,6 +104,15 @@ suite('gr-repo-list tests', () => {
       flush(() => {
         assert.equal(element._repos[1].id, 'test2');
         done();
+      });
+
+      test('filter is case insensitive', async () => {
+        const repoStub = sandbox.stub(element.$.restAPI, 'getRepos');
+        const repos = [createRepo('aSDf', 0)];
+        repoStub.withArgs('asdf').returns(Promise.resolve(repos));
+        element._filter = 'asdf';
+        await element._getRepos('asdf', 25, 0);
+        assert.equal(element._repos.length, 1);
       });
     });
 
