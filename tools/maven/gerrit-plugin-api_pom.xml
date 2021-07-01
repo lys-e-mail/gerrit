@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (d2c749 Merge "Redirect from change edit if change is merged or aban)
   <version>3.3.5-SNAPSHOT</version>
+=======
+  <version>3.2.12-SNAPSHOT</version>
+>>>>>>> BRANCH (d0d57a Set version to 3.2.12-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
