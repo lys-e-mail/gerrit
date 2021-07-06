@@ -37,7 +37,6 @@ import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
-import com.google.gerrit.entities.PatchSet.Id;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.config.FactoryModule;
@@ -65,9 +64,9 @@ import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.project.NoSuchProjectException;
 import com.google.gerrit.server.project.NoSuchRefException;
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -124,6 +123,14 @@ public class BatchUpdate implements AutoCloseable {
 
   public interface Factory {
     BatchUpdate create(Project.NameKey project, CurrentUser user, Timestamp when);
+
+    BatchUpdate create(
+        Project.NameKey project,
+        CurrentUser user,
+        Timestamp when,
+        Optional<Integer> maxRefUpdates,
+        @Assisted("executeNonAtomicBatch") boolean executeNonAtomicBatch,
+        @Assisted("executeEntireBatch") boolean executeEntireBatch);
   }
 
   public static void execute(
@@ -137,47 +144,66 @@ public class BatchUpdate implements AutoCloseable {
     checkDifferentProject(updates);
 
     try {
-      List<ListenableFuture<ChangeData>> indexFutures = new ArrayList<>();
-      List<ChangesHandle> changesHandles = new ArrayList<>(updates.size());
       try {
         for (BatchUpdate u : updates) {
-          u.executeUpdateRepo();
+          u.collectRepoUpdates();
         }
         notifyAfterUpdateRepo(listeners);
         for (BatchUpdate u : updates) {
-          changesHandles.add(u.executeChangeOps(listeners, dryrun));
+          // First collect update operations for all batches,  so that we fail all batches if any of
+          // batch updates failed to collect updates.
+          u.collectChangeUpdateOps(listeners, dryrun);
         }
-        for (ChangesHandle h : changesHandles) {
-          h.execute();
-          indexFutures.addAll(h.startIndexFutures());
+        for (BatchUpdate u : updates) {
+          // Now execute each batch and fire for everything that was actually updated
+          // Execute handles for batches that were not executed yet.
+          if (u.executeEntireBatch) {
+            for (ChangesHandle h : u.changeHandles) {
+              executeChangesHandle(u, h, dryrun);
+            }
+          }
         }
         notifyAfterUpdateRefs(listeners);
         notifyAfterUpdateChanges(listeners);
       } finally {
-        for (ChangesHandle h : changesHandles) {
-          h.close();
-        }
-      }
-
-      Map<Change.Id, ChangeData> changeDatas =
-          Futures.allAsList(indexFutures).get().stream()
-              // filter out null values that were returned for change deletions
-              .filter(Objects::nonNull)
-              .collect(toMap(cd -> cd.change().getId(), Function.identity()));
-
-      // Fire ref update events only after all mutations are finished, since callers may assume a
-      // patch set ref being created means the change was created, or a branch advancing meaning
-      // some changes were closed.
-      updates.forEach(BatchUpdate::fireRefChangeEvent);
-
-      if (!dryrun) {
         for (BatchUpdate u : updates) {
-          u.executePostOps(changeDatas);
+          for (ChangesHandle h : u.changeHandles) {
+            h.close();
+          }
         }
       }
     } catch (Exception e) {
       wrapAndThrowException(e);
     }
+  }
+
+  public static void executePartialBatches(
+      Collection<BatchUpdate> updates, ImmutableList<BatchUpdateListener> listeners, boolean dryrun)
+      throws UpdateException, RestApiException {
+    // unclear if this method is needed
+  }
+
+  private static void executeChangesHandle(BatchUpdate u, ChangesHandle h, boolean dryrun)
+      throws Exception {
+    h.execute();
+    List<ListenableFuture<ChangeData>> indexFutures = h.startIndexFutures();
+    // possible need to close after all changes are done on the repo, or start new repo each time?
+    h.close();
+    // Start indexing changes already update
+    Map<Change.Id, ChangeData> changeDatas =
+        Futures.allAsList(indexFutures).get().stream()
+            // filter out null values that were returned for change deletions
+            .filter(Objects::nonNull)
+            .collect(toMap(cd -> cd.change().getId(), Function.identity()));
+    // Fire post update for everyting already executed, in case next batch fails
+    if (!dryrun) {
+      u.executePostOps(changeDatas);
+    }
+    // Fire ref update events for atomic mutation that has already finished, since callers may
+    // assume a
+    // patch set ref being created means the change was created, or a branch advancing meaning
+    // some changes were closed.
+    u.fireRefChangeEvent(h.update);
   }
 
   private static void notifyAfterUpdateRepo(ImmutableList<BatchUpdateListener> listeners)
@@ -275,6 +301,9 @@ public class BatchUpdate implements AutoCloseable {
   }
 
   private class RepoContextImpl extends ContextImpl implements RepoContext {
+    private final ListMultimap<String, ReceiveCommand> pendingRefUpdates =
+        MultimapBuilder.hashKeys().arrayListValues().build();;
+
     @Override
     public ObjectInserter getInserter() throws IOException {
       return getRepoView().getInserterWrapper();
@@ -282,7 +311,8 @@ public class BatchUpdate implements AutoCloseable {
 
     @Override
     public void addRefUpdate(ReceiveCommand cmd) throws IOException {
-      getRepoView().getCommands().add(cmd);
+      pendingRefUpdates.put(cmd.getRefName(), cmd);
+      // getRepoView().getCommands().add(cmd);
     }
   }
 
@@ -300,7 +330,7 @@ public class BatchUpdate implements AutoCloseable {
      * commit in NoteDb by re-using the same ChangeUpdate instance. Will still be one commit per
      * patch set.
      */
-    private final ListMultimap<Id, ChangeUpdate> distinctUpdates;
+    private final ListMultimap<PatchSet.Id, ChangeUpdate> distinctUpdates;
 
     private boolean deleted;
 
@@ -360,7 +390,7 @@ public class BatchUpdate implements AutoCloseable {
     }
   }
 
-  /** Per-change result status from {@link #executeChangeOps}. */
+  /** Per-change result status from {@link #collectChangeUpdateOps}. */
   private enum ChangeResult {
     SKIPPED,
     UPSERTED,
@@ -379,6 +409,9 @@ public class BatchUpdate implements AutoCloseable {
   private final CurrentUser user;
   private final Timestamp when;
   private final TimeZone tz;
+  private final Optional<Integer> maxRefUpdates;
+  private final boolean executeNonAtomicBatch;
+  private final boolean executeEntireBatch;
 
   private final ListMultimap<Change.Id, BatchUpdateOp> ops =
       MultimapBuilder.linkedHashKeys().arrayListValues().build();
@@ -387,14 +420,14 @@ public class BatchUpdate implements AutoCloseable {
   private final Map<Change.Id, NotifyHandling> perChangeNotifyHandling = new HashMap<>();
 
   private RepoView repoView;
-  private BatchRefUpdate batchRefUpdate;
-  private boolean executed;
+  private List<ChangesHandle> changeHandles = new ArrayList<>();
+
   private OnSubmitValidators onSubmitValidators;
   private PushCertificate pushCert;
   private String refLogMessage;
   private NotifyResolver.Result notify = NotifyResolver.Result.all();
 
-  @Inject
+  @AssistedInject
   BatchUpdate(
       GitRepositoryManager repoManager,
       @GerritPersonIdent PersonIdent serverIdent,
@@ -407,6 +440,39 @@ public class BatchUpdate implements AutoCloseable {
       @Assisted Project.NameKey project,
       @Assisted CurrentUser user,
       @Assisted Timestamp when) {
+    this(
+        repoManager,
+        serverIdent,
+        changeDataFactory,
+        changeNotesFactory,
+        changeUpdateFactory,
+        updateManagerFactory,
+        indexer,
+        gitRefUpdated,
+        project,
+        user,
+        when,
+        Optional.empty(),
+        false,
+        true);
+  }
+
+  @AssistedInject
+  BatchUpdate(
+      GitRepositoryManager repoManager,
+      @GerritPersonIdent PersonIdent serverIdent,
+      ChangeData.Factory changeDataFactory,
+      ChangeNotes.Factory changeNotesFactory,
+      ChangeUpdate.Factory changeUpdateFactory,
+      NoteDbUpdateManager.Factory updateManagerFactory,
+      ChangeIndexer indexer,
+      GitReferenceUpdated gitRefUpdated,
+      @Assisted Project.NameKey project,
+      @Assisted CurrentUser user,
+      @Assisted Timestamp when,
+      @Assisted Optional<Integer> maxRefUpdates,
+      @Assisted("executeNonAtomicBatch") boolean executeNonAtomicBatch,
+      @Assisted("executeEntireBatch") boolean executeEntireBatch) {
     this.repoManager = repoManager;
     this.changeDataFactory = changeDataFactory;
     this.changeNotesFactory = changeNotesFactory;
@@ -418,6 +484,9 @@ public class BatchUpdate implements AutoCloseable {
     this.user = user;
     this.when = when;
     tz = serverIdent.getTimeZone();
+    this.maxRefUpdates = maxRefUpdates;
+    this.executeNonAtomicBatch = executeNonAtomicBatch;
+    this.executeEntireBatch = executeEntireBatch;
   }
 
   @Override
@@ -436,7 +505,7 @@ public class BatchUpdate implements AutoCloseable {
   }
 
   public boolean isExecuted() {
-    return executed;
+    return changeHandles.stream().allMatch(handle -> handle.executed);
   }
 
   public BatchUpdate setRepository(Repository repo, RevWalk revWalk, ObjectInserter inserter) {
@@ -549,19 +618,11 @@ public class BatchUpdate implements AutoCloseable {
     return this;
   }
 
-  private void executeUpdateRepo() throws UpdateException, RestApiException {
+  private void collectRepoUpdates() throws UpdateException, RestApiException {
     try {
-      logDebug("Executing updateRepo on %d ops", ops.size());
-      RepoContextImpl ctx = new RepoContextImpl();
-      for (BatchUpdateOp op : ops.values()) {
-        try (TraceContext.TraceTimer ignored =
-            TraceContext.newTimer(
-                op.getClass().getSimpleName() + "#updateRepo", Metadata.empty())) {
-          op.updateRepo(ctx);
-        }
-      }
 
       logDebug("Executing updateRepo on %d RepoOnlyOps", repoOnlyOps.size());
+      RepoContextImpl ctx = new RepoContextImpl();
       for (RepoOnlyOp op : repoOnlyOps) {
         op.updateRepo(ctx);
       }
@@ -580,7 +641,100 @@ public class BatchUpdate implements AutoCloseable {
     }
   }
 
-  private void fireRefChangeEvent() {
+  /*
+  private void executeMultiChangeUpdate(
+      BatchUpdate.Factory batchUpdateFactory,
+      Project.NameKey project,
+      Map<Change.Id, List<BatchUpdateOp>> batchUpdateOps,
+      CurrentUser user,
+      Timestamp when,
+      Optional<Integer> maxRefsInBatch)
+      throws RestApiException, UpdateException {
+
+    int changesInBatch = 0;
+    for(Map.Entry<Change.Id, List<BatchUpdateOp>> changeToOperation: batchUpdateOps.entrySet()) {
+      changesInBatch++;
+      BatchUpdate bu = batchUpdateFactory.create(project, user, when, maxRefsInBatch, executeNonAtomicBatch);
+      for(BatchUpdateOp operation: changeToOperation.getValue()) {
+        bu.addOp(changeToOperation.getKey(), operation);
+      }
+      bu.execute();
+      bu.close();
+
+    }
+  }
+  */
+  /*
+    private void executeNonAtomicMultiChangeUpdate(
+        BatchUpdate.Factory batchUpdateFactory,
+        Project.NameKey project,
+        Map<Change.Id, List<BatchUpdateOp>> batchUpdateOps,
+        CurrentUser user,
+        Timestamp when,
+        Optional<Integer> maxRefsInBatch, boolean executeNonAtomicBatch)
+        throws RestApiException, UpdateException {
+
+      if (!maxRefsInBatch.isPresent()) {
+        // Execute without limiting the batch size
+        try (BatchUpdate bu = batchUpdateFactory
+            .create(project, user, when, maxRefsInBatch, executeNonAtomicBatch)) {
+          for (Map.Entry<Change.Id, List<BatchUpdateOp>> changeToOperation : batchUpdateOps
+              .entrySet()) {
+            for (BatchUpdateOp operation : changeToOperation.getValue()) {
+              bu.addOp(changeToOperation.getKey(), operation);
+              bu.execute();
+            }
+          }
+        }
+        return;
+      }
+      if (!executeNonAtomicBatch) {
+        // this is only possible to preform non-atomic batch update case when we only update single ref per change for unrelated set of changes, see NoteDbManager limitations.
+        // This option is only used if the update would e.g only touch meta ref, or only draft_comments.
+        int changesInBatch = 0;
+        BatchUpdate bu = null;
+        for (Map.Entry<Change.Id, List<BatchUpdateOp>> changeToOperation : batchUpdateOps
+            .entrySet()) {
+          changesInBatch++;
+          if (bu == null) {
+            bu = batchUpdateFactory
+                .create(project, user, when, maxRefsInBatch, executeNonAtomicBatch);
+          }
+          for (BatchUpdateOp operation : changeToOperation.getValue()) {
+            bu.addOp(changeToOperation.getKey(), operation);
+          }
+          if (changesInBatch == maxRefsInBatch.get()) {
+            bu.execute();
+            bu.close();
+            bu = null;
+          }
+        }
+        return;
+      }
+      // The update might touch multiple refs. Make sure we do not exceed the limit of refs per batch, but all updates to the same change end up in the same batch.
+      int changesInBatch = 0;
+      BatchUpdate bu = null;
+      for (Map.Entry<Change.Id, List<BatchUpdateOp>> changeToOperation : batchUpdateOps
+          .entrySet()) {
+        changesInBatch++;
+        if (bu == null) {
+          bu = batchUpdateFactory
+              .create(project, user, when, maxRefsInBatch, executeNonAtomicBatch);
+        }
+        for (BatchUpdateOp operation : changeToOperation.getValue()) {
+          bu.addOp(changeToOperation.getKey(), operation);
+        }
+        if (changesInBatch == maxRefsInBatch.get()) {
+          // can we tell how many refs are affected before the actual execution?
+          bu.execute();
+          bu.close();
+          bu = null;
+        }
+      }
+      return;
+    }
+  */
+  private void fireRefChangeEvent(BatchRefUpdate batchRefUpdate) {
     if (batchRefUpdate != null) {
       gitRefUpdated.fire(project, batchRefUpdate, getAccount().orElse(null));
     }
@@ -590,6 +744,8 @@ public class BatchUpdate implements AutoCloseable {
     private final NoteDbUpdateManager manager;
     private final boolean dryrun;
     private final Map<Change.Id, ChangeResult> results;
+    private BatchRefUpdate update;
+    private boolean executed;
 
     ChangesHandle(NoteDbUpdateManager manager, boolean dryrun) {
       this.manager = manager;
@@ -608,8 +764,8 @@ public class BatchUpdate implements AutoCloseable {
     }
 
     void execute() throws IOException {
-      BatchUpdate.this.batchRefUpdate = manager.execute(dryrun);
-      BatchUpdate.this.executed = manager.isExecuted();
+      update = manager.execute(dryrun);
+      executed = manager.isExecuted();
     }
 
     List<ListenableFuture<ChangeData>> startIndexFutures() {
@@ -637,7 +793,7 @@ public class BatchUpdate implements AutoCloseable {
     }
   }
 
-  private ChangesHandle executeChangeOps(
+  private void collectChangeUpdateOps(
       ImmutableList<BatchUpdateListener> batchUpdateListeners, boolean dryrun) throws Exception {
     logDebug("Executing change ops");
     initRepository();
@@ -646,22 +802,18 @@ public class BatchUpdate implements AutoCloseable {
         repo.getRefDatabase().performsAtomicTransactions(),
         "cannot use NoteDb with a repository that does not support atomic batch ref updates: %s",
         repo);
-
-    ChangesHandle handle =
-        new ChangesHandle(
-            updateManagerFactory
-                .create(project)
-                .setBatchUpdateListeners(batchUpdateListeners)
-                .setChangeRepo(
-                    repo, repoView.getRevWalk(), repoView.getInserter(), repoView.getCommands()),
-            dryrun);
-    if (user.isIdentifiedUser()) {
-      handle.manager.setRefLogIdent(user.asIdentifiedUser().newRefLogIdent(when, tz));
+    if (maxRefUpdates.isPresent()) {
+      checkState(
+          repoOnlyOps.isEmpty() && repoView.getCommands().isEmpty(),
+          "BatchUpdate with repoOnlyOps is not supported");
     }
-    handle.manager.setRefLogMessage(refLogMessage);
-    handle.manager.setPushCertificate(pushCert);
+    int numberOfRefsInBatch = 0;
+    ChangesHandle handle = null;
     for (Map.Entry<Change.Id, Collection<BatchUpdateOp>> e : ops.asMap().entrySet()) {
+
+      logDebug("Executing updateRepo on %d ops", e.getValue().size());
       Change.Id id = e.getKey();
+      RepoContextImpl repoCtx = new RepoContextImpl();
       ChangeContextImpl ctx = newChangeContext(id);
       boolean dirty = false;
       logDebug(
@@ -672,15 +824,60 @@ public class BatchUpdate implements AutoCloseable {
       for (BatchUpdateOp op : e.getValue()) {
         try (TraceContext.TraceTimer ignored =
             TraceContext.newTimer(
+                op.getClass().getSimpleName() + "#updateRepo", Metadata.empty())) {
+          op.updateRepo(repoCtx);
+        }
+        try (TraceContext.TraceTimer ignored =
+            TraceContext.newTimer(
                 op.getClass().getSimpleName() + "#updateChange", Metadata.empty())) {
           dirty |= op.updateChange(ctx);
         }
       }
+      int numberOfRefsInUpdate = countRefsInUpdate(ctx, repoCtx);
+      checkState(
+          !executeNonAtomicBatch || numberOfRefsInUpdate < 1,
+          "can not update multiple refs for the same ref in non-atomic batch");
+      if (handle == null
+          || (maxRefUpdates.isPresent()
+              && numberOfRefsInBatch + numberOfRefsInUpdate >= maxRefUpdates.get())) {
+        if (handle != null && !executeEntireBatch) {
+          // execute anything pending before starting the new batch, if this option was specified by
+          // the caller.
+          executeChangesHandle(this, handle, dryrun);
+        }
+        // start new handle
+        handle =
+            new ChangesHandle(
+                updateManagerFactory
+                    .create(project, maxRefUpdates, executeNonAtomicBatch)
+                    .setBatchUpdateListeners(batchUpdateListeners)
+                    .setChangeRepo(
+                        repo,
+                        repoView.getRevWalk(),
+                        repoView.getInserter(),
+                        // should probably reset commands, they were already executed
+                        // do not close repo and repo view, regardless of wether the commands were
+                        // executed or not, we would like to see the results of changes.
+                        repoView.getCommands(),
+                        maxRefUpdates),
+                dryrun);
+        if (user.isIdentifiedUser()) {
+          handle.manager.setRefLogIdent(user.asIdentifiedUser().newRefLogIdent(when, tz));
+        }
+        handle.manager.setRefLogMessage(refLogMessage);
+        handle.manager.setPushCertificate(pushCert);
+        this.changeHandles.add(handle);
+        numberOfRefsInBatch = 0;
+      }
+      numberOfRefsInBatch += numberOfRefsInUpdate;
+      // Add repo only operations in any case.
+      repoCtx.pendingRefUpdates.forEach(handle.manager::addRefUpdate);
       if (!dirty) {
         logDebug("No ops reported dirty, short-circuiting");
         handle.setResult(id, ChangeResult.SKIPPED);
         continue;
       }
+
       ctx.defaultUpdates.values().forEach(handle.manager::add);
       ctx.distinctUpdates.values().forEach(handle.manager::add);
       if (ctx.deleted) {
@@ -690,8 +887,24 @@ public class BatchUpdate implements AutoCloseable {
       } else {
         handle.setResult(id, ChangeResult.UPSERTED);
       }
+      checkState(
+          handle.manager.numberChangeRefsToUpdate() == numberOfRefsInBatch,
+          "Number of refs to be updated by NoteDb manager does not match number of refs in batch");
     }
-    return handle;
+    if (handle != null && !executeEntireBatch) {
+      // execute anything that could be pending on the last update.
+      executeChangesHandle(this, handle, dryrun);
+    }
+  }
+
+  private int countRefsInUpdate(ChangeContextImpl ctx, RepoContextImpl repoContext) {
+    ImmutableList<ChangeUpdate> allUpdates =
+        ImmutableList.<ChangeUpdate>builder()
+            .addAll(ctx.defaultUpdates.values())
+            .addAll(ctx.distinctUpdates.values())
+            .build();
+    return NoteDbUpdateManager.numberOfRefsPerUpdate(
+        ctx.getChange().getId(), allUpdates, repoContext.pendingRefUpdates.keySet(), ctx.deleted);
   }
 
   private ChangeContextImpl newChangeContext(Change.Id id) {

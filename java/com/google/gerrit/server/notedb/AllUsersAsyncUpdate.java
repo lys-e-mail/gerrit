@@ -28,6 +28,7 @@ import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.eclipse.jgit.lib.BatchRefUpdate;
@@ -81,7 +82,11 @@ public class AllUsersAsyncUpdate {
   }
 
   /** Executes repository update asynchronously. No-op in case no updates were scheduled. */
-  void execute(PersonIdent refLogIdent, String refLogMessage, PushCertificate pushCert) {
+  void execute(
+      PersonIdent refLogIdent,
+      String refLogMessage,
+      PushCertificate pushCert,
+      boolean executeNonAtomicBatch) {
     if (isEmpty()) {
       return;
     }
@@ -90,7 +95,8 @@ public class AllUsersAsyncUpdate {
     Future<?> possiblyIgnoredError =
         executor.submit(
             () -> {
-              try (OpenRepo allUsersRepo = OpenRepo.open(repoManager, allUsersName)) {
+              try (OpenRepo allUsersRepo =
+                  OpenRepo.open(repoManager, allUsersName, Optional.empty())) {
                 allUsersRepo.addUpdatesNoLimits(draftUpdates);
                 allUsersRepo.flush();
                 BatchRefUpdate bru = allUsersRepo.repo.getRefDatabase().newBatchUpdate();
@@ -103,7 +109,7 @@ public class AllUsersAsyncUpdate {
                       false);
                 }
                 bru.setRefLogIdent(refLogIdent != null ? refLogIdent : serverIdent);
-                bru.setAtomic(true);
+                bru.setAtomic(!executeNonAtomicBatch);
                 allUsersRepo.cmds.addTo(bru);
                 bru.setAllowNonFastForwards(true);
                 RefUpdateUtil.executeChecked(bru, allUsersRepo.rw);
