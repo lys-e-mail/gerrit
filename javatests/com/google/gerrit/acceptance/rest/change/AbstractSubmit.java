@@ -461,6 +461,7 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
   }
 
   @Test
+  @GerritConfig(name = "change.submitWholeTopic", value = "true")
   public void submitWholeTopicMultipleProjects() throws Throwable {
     assume().that(isSubmitWholeTopicEnabled()).isTrue();
     String topic = "test-topic";

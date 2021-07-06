@@ -51,15 +51,17 @@ class OpenRepo implements AutoCloseable {
   private final InMemoryInserter inMemIns;
   @Nullable private final ObjectInserter finalIns;
   private final boolean close;
+  private final Optional<Integer> maxRefsUpdates;
 
   /** Returns a {@link OpenRepo} wrapping around an open {@link Repository}. */
-  static OpenRepo open(GitRepositoryManager repoManager, Project.NameKey project)
+  static OpenRepo open(
+      GitRepositoryManager repoManager, Project.NameKey project, Optional<Integer> maxRefUpdates)
       throws IOException {
     Repository repo = repoManager.openRepository(project); // Closed by OpenRepo#close.
     ObjectInserter ins = repo.newObjectInserter(); // Closed by OpenRepo#close.
     ObjectReader reader = ins.newReader(); // Not closed by OpenRepo#close.
     try (RevWalk rw = new RevWalk(reader)) { // Doesn't escape OpenRepo constructor.
-      return new OpenRepo(repo, rw, ins, new ChainedReceiveCommands(repo), true) {
+      return new OpenRepo(repo, rw, ins, new ChainedReceiveCommands(repo), true, maxRefUpdates) {
         @Override
         public void close() {
           reader.close();
@@ -74,13 +76,17 @@ class OpenRepo implements AutoCloseable {
       RevWalk rw,
       @Nullable ObjectInserter ins,
       ChainedReceiveCommands cmds,
-      boolean close) {
+      boolean close,
+      Optional<Integer> maxRefUpdates) {
     ObjectReader reader = rw.getObjectReader();
     checkArgument(
         ins == null || reader.getCreatedFromInserter() == ins,
         "expected reader to be created from %s, but was %s",
         ins,
         reader.getCreatedFromInserter());
+    checkArgument(
+        !maxRefUpdates.isPresent() || cmds.getCommands().size() <= maxRefUpdates.get(),
+        "exceeded max ref update");
     this.repo = requireNonNull(repo);
 
     this.inMemIns = new InMemoryInserter(rw.getObjectReader());
@@ -90,6 +96,7 @@ class OpenRepo implements AutoCloseable {
     this.finalIns = ins;
     this.cmds = requireNonNull(cmds);
     this.close = close;
+    this.maxRefsUpdates = maxRefUpdates;
   }
 
   @Override
@@ -137,6 +144,13 @@ class OpenRepo implements AutoCloseable {
     for (Map.Entry<String, Collection<U>> e : all.asMap().entrySet()) {
       String refName = e.getKey();
       Collection<U> updates = e.getValue();
+      if (maxRefsUpdates.isPresent()
+          && cmds.getCommands().size() >= maxRefsUpdates.get()
+          && !cmds.get(refName).isPresent()) {
+        throw new LimitExceededException(
+            String.format(
+                "Exceeded number of ref updates for repo, limit=%d", maxRefsUpdates.get()));
+      }
       ObjectId old = cmds.get(refName).orElse(ObjectId.zeroId());
       // Only actually write to the ref if one of the updates explicitly allows
       // us to do so, i.e. it is known to represent a new change. This avoids

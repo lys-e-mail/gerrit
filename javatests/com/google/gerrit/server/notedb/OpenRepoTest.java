@@ -265,6 +265,6 @@ public class OpenRepoTest extends AbstractChangeNotesTest {
   }
 
   private OpenRepo openRepo() {
-    return new OpenRepo(repo, rw, null, fakeChainedReceiveCommands, false);
+    return new OpenRepo(repo, rw, null, fakeChainedReceiveCommands, false, Optional.empty());
   }
 }

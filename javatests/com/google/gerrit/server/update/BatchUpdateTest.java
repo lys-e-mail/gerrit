@@ -23,12 +23,15 @@ import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.HumanComment;
+import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.entities.SubmissionId;
 import com.google.gerrit.entities.SubmitRecord;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
+import com.google.gerrit.server.CommentsUtil;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.change.ChangeInserter;
 import com.google.gerrit.server.change.PatchSetInserter;
@@ -43,7 +46,15 @@ import com.google.gerrit.testing.InMemoryTestEnvironment;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.BatchRefUpdate;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -74,6 +85,7 @@ public class BatchUpdateTest {
   @Inject private PatchSetInserter.Factory patchSetInserterFactory;
   @Inject private Provider<CurrentUser> user;
   @Inject private Sequences sequences;
+  @Inject private CommentsUtil commentsUtil;
 
   @Inject
   private @Named("diff_summary") Cache<DiffSummaryKey, DiffSummary> diffSummaryCache;
@@ -304,6 +316,33 @@ public class BatchUpdateTest {
     assertThat(diffSummaryCache.asMap()).hasSize(cacheSizeBefore + 1);
   }
 
+  @Test
+  public void batchUpdateWithBatchRefSize() throws Exception {
+    int sizeOfBatch = 6;
+    int numberOfChanges = 10;
+    Map<Change.Id, ObjectId> changeIdsToMeta = new HashMap<>();
+    for (int i = 0; i < numberOfChanges; i++) {
+      Change.Id changeId = createChangeWithUpdates(1);
+      changeIdsToMeta.put(changeId, getMetaId(changeId));
+    }
+    try (BatchUpdate bu = batchUpdateFactory.create(project, user.get(), TimeUtil.nowTs(),
+        Optional.of(sizeOfBatch), /*executeNonAtomicBatch=*/false,/*executeEntireBatch=*/ false)) {
+      for (Change.Id changeId : changeIdsToMeta.keySet()) {
+        bu.addOp(changeId, new UpdateChangeOnlyOp());
+      }
+      bu.execute();
+      ImmutableList<BatchRefUpdate> batchRefUpdates = bu.executedBatches();
+      assertThat(batchRefUpdates).hasSize(2);
+      assertThat(batchRefUpdates.get(0).getCommands()).hasSize(6);
+      assertThat(batchRefUpdates.get(1).getCommands()).hasSize(4);
+
+    }
+    for (Map.Entry<Change.Id, ObjectId> changeIdAndOldMeta : changeIdsToMeta.entrySet()) {
+      // all changes were updated
+      assertThat(changeIdAndOldMeta.getValue()).isEqualTo(getMetaId(changeIdAndOldMeta.getKey()));
+    }
+  }
+
   private Change.Id createChangeWithUpdates(int totalUpdates) throws Exception {
     checkArgument(totalUpdates > 0);
     checkArgument(totalUpdates <= MAX_UPDATES);
@@ -396,6 +435,100 @@ public class BatchUpdateTest {
       update.merge(new SubmissionId(ctx.getChange()), ImmutableList.of(sr));
       update.setChangeMessage("Submitted");
       return true;
+    }
+  }
+
+
+  private static class UpdateChangeOnlyOp implements BatchUpdateOp {
+
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+      ctx.getUpdate(ctx.getChange().currentPatchSetId()).setChangeMessage("Update change message for current patch set");
+      return true;
+    }
+  }
+
+  private static class UpdateChangeOnlyOpWithDistinctUpdate implements BatchUpdateOp {
+
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+      ctx.getUpdate(ctx.getChange().currentPatchSetId()).setChangeMessage("First change message in update");
+      ctx.getDistinctUpdate(ctx.getChange().currentPatchSetId()).setChangeMessage("Second change message in update");
+      return true;
+    }
+  }
+
+  private static class UpdateChangeWithRobotComment implements BatchUpdateOp {
+    CommentsUtil commentsUtil;
+
+    UpdateChangeWithRobotComment(CommentsUtil commentsUtil) {
+      this.commentsUtil = commentsUtil;
+    }
+
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+      ctx.getUpdate(ctx.getChange().currentPatchSetId()).putRobotComment(commentsUtil.newRobotComment(ctx, Patch.PATCHSET_LEVEL,ctx.getChange().currentPatchSetId(), (short)0, "Comment", "robot", "1"));
+      return true;
+    }
+  }
+
+  private static class DeleteChangeUpdate implements BatchUpdateOp {
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+
+      ctx.deleteChange();
+      return true;
+    }
+  }
+
+  private static class UpdateChangeWithDraft implements BatchUpdateOp {
+
+    CommentsUtil commentsUtil;
+
+    UpdateChangeWithDraft(CommentsUtil commentsUtil) {
+      this.commentsUtil = commentsUtil;
+    }
+
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+      HumanComment newComment =
+          commentsUtil.newHumanComment(
+              ctx.getNotes(),
+              ctx.getUser(),
+              TimeUtil.nowTs(),
+              Patch.PATCHSET_LEVEL,
+              ctx.getChange().currentPatchSetId(),
+              (short) 0,
+              "Comment message",
+              null,
+              null);
+      ctx.getUpdate(ctx.getChange().currentPatchSetId())
+          .putComment(HumanComment.Status.DRAFT, newComment);
+      return true;
+    }
+  }
+
+  private static class RepoOnlyUpdate implements BatchUpdateOp {
+    @Override
+    public boolean updateChange(ChangeContext ctx) throws Exception {
+
+      return true;
+    }
+  }
+
+  private static class CreateRefUpdateRepoUpdate implements BatchUpdateOp {
+
+    private final String ref;
+    private final ObjectId tip;
+
+    CreateRefUpdateRepoUpdate(String ref,  ObjectId tip) {
+      this.ref = ref;
+      this.tip = tip;
+    }
+
+    @Override
+    public void updateRepo(RepoContext ctx) throws IOException {
+      ctx.addRefUpdate(ObjectId.zeroId(), tip, ref);
     }
   }
 }
