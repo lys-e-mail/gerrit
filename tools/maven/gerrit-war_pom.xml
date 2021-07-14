@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
   <version>3.4.1-SNAPSHOT</version>
+=======
+  <version>3.3.6-SNAPSHOT</version>
+>>>>>>> BRANCH (78a6ad Merge branch 'stable-3.2' into stable-3.3)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

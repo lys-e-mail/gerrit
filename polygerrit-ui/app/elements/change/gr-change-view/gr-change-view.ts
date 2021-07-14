@@ -74,6 +74,12 @@ import {changeStatuses} from '../../../utils/change-util';
 import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
 import {EventType as PluginEventType} from '../../../api/plugin';
 import {customElement, property, observe} from '@polymer/decorators';
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
+=======
+import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
+>>>>>>> BRANCH (78a6ad Merge branch 'stable-3.2' into stable-3.3)
 import {GrApplyFixDialog} from '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
 import {GrFileListHeader} from '../gr-file-list-header/gr-file-list-header';
 import {GrEditableContent} from '../../shared/gr-editable-content/gr-editable-content';
@@ -1809,9 +1815,20 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
       (changeIsMerged(change) || changeIsAbandoned(change)) &&
       this._editMode
     ) {
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
       fireAlert(
         this,
         'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
+=======
+      const message =
+        'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message},
+          bubbles: true,
+          composed: true,
+        })
+>>>>>>> BRANCH (78a6ad Merge branch 'stable-3.2' into stable-3.3)
       );
       GerritNav.navigateToChange(change);
       return;
