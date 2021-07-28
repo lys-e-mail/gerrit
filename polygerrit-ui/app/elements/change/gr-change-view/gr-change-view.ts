@@ -74,6 +74,16 @@ import {changeStatuses} from '../../../utils/change-util';
 import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
 import {EventType as PluginEventType} from '../../../api/plugin';
 import {customElement, property, observe} from '@polymer/decorators';
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
+=======
+import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {
+  changeIsAbandoned,
+  changeIsMerged,
+  changeIsOpen,
+} from '../../../utils/change-util';
+>>>>>>> BRANCH (5be8b8 Fix deleting edits when change is merged)
 import {GrApplyFixDialog} from '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
 import {GrFileListHeader} from '../gr-file-list-header/gr-file-list-header';
 import {GrEditableContent} from '../../shared/gr-editable-content/gr-editable-content';
@@ -1806,12 +1816,45 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
    */
   _processEdit(change: ParsedChangeInfo, edit?: EditInfo | false) {
     if (
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
       (changeIsMerged(change) || changeIsAbandoned(change)) &&
       this._editMode
     ) {
       fireAlert(
         this,
         'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
+=======
+      !edit &&
+      this._patchRange?.patchNum === EditPatchSetNum &&
+      changeIsOpen(change)
+    ) {
+      /* eslint-disable max-len */
+      const message = 'Change edit not found. Please create a change edit.';
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message},
+          bubbles: true,
+          composed: true,
+        })
+      );
+      GerritNav.navigateToChange(change);
+      return;
+    }
+
+    if (
+      !edit &&
+      (changeIsMerged(change) || changeIsAbandoned(change)) &&
+      this._editMode
+    ) {
+      const message =
+        'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message},
+          bubbles: true,
+          composed: true,
+        })
+>>>>>>> BRANCH (5be8b8 Fix deleting edits when change is merged)
       );
       GerritNav.navigateToChange(change);
       return;
@@ -1982,13 +2025,37 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
 
   _getCommitInfo() {
     if (!this._changeNum)
-      throw new Error('missing required changeNum property');
+      throw new Error('missing required _changeNum property');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     if (this._patchRange.patchNum === undefined)
       throw new Error('missing required patchNum property');
+<<<<<<< HEAD   (feddd0 NoteDb: Micro optimization)
     return this.restApiService
       .getChangeCommitInfo(this._changeNum, this._patchRange.patchNum)
+=======
+
+    // We only call _getEdit if the patchset number is an edit.
+    // We have to do this to ensure we can tell if an edit
+    // exists or not.
+    // This safely works even if a edit does not exist.
+    if (this._patchRange!.patchNum! === EditPatchSetNum) {
+      return this._getEdit().then(edit => {
+        if (!edit) {
+          return Promise.resolve();
+        }
+
+        return this._getChangeCommitInfo();
+      });
+    }
+
+    return this._getChangeCommitInfo();
+  }
+
+  _getChangeCommitInfo() {
+    return this.$.restAPI
+      .getChangeCommitInfo(this._changeNum!, this._patchRange!.patchNum!)
+>>>>>>> BRANCH (5be8b8 Fix deleting edits when change is merged)
       .then(commitInfo => {
         this._commitInfo = commitInfo;
       });
