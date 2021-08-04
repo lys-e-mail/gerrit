@@ -44,9 +44,12 @@ import {ErrorCallback} from '../../../api/rest';
 import {assertIsDefined} from '../../../utils/common-util';
 import {debounce, DelayedTask} from '../../../utils/async-util';
 import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
+<<<<<<< HEAD   (3f3b83 Merge changes I4eab3c4b,Ia7eaae54,I17438a57)
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrDefaultEditor} from '../gr-default-editor/gr-default-editor';
 import {GrEndpointDecorator} from '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
+=======
+>>>>>>> BRANCH (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
 
 const RESTORED_MESSAGE = 'Content restored from a previous edit.';
 const SAVING_MESSAGE = 'Saving changes...';
@@ -211,6 +214,7 @@ export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
   }
 
   _editChange(value?: ChangeInfo | null) {
+<<<<<<< HEAD   (3f3b83 Merge changes I4eab3c4b,Ia7eaae54,I17438a57)
     if (!value) return;
     if (!changeIsMerged(value) && !changeIsAbandoned(value)) return;
     fireAlert(
@@ -227,6 +231,15 @@ export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
     // Prevent editing binary files
     fireAlert(this, 'You cannot edit binary files within the inline editor.');
     GerritNav.navigateToChange(change);
+=======
+    if (!changeIsMerged(value) && !changeIsAbandoned(value)) return;
+    if (!value) return;
+    fireAlert(
+      this,
+      'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
+    );
+    GerritNav.navigateToChange(value);
+>>>>>>> BRANCH (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
   }
 
   _handlePathChanged(e: CustomEvent<string>) {
