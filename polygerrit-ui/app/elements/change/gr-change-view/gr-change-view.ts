@@ -78,6 +78,16 @@ import {
 } from '../../../utils/change-util';
 import {EventType as PluginEventType} from '../../../api/plugin';
 import {customElement, property, observe} from '@polymer/decorators';
+<<<<<<< HEAD   (8e7581 Merge branch 'stable-3.3' into stable-3.4)
+=======
+import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {
+  changeIsAbandoned,
+  changeIsMerged,
+  changeIsOpen,
+} from '../../../utils/change-util';
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
 import {GrApplyFixDialog} from '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
 import {GrFileListHeader} from '../gr-file-list-header/gr-file-list-header';
 import {GrEditableContent} from '../../shared/gr-editable-content/gr-editable-content';
@@ -1815,6 +1825,7 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
       changeIsOpen(change)
     ) {
       /* eslint-disable max-len */
+<<<<<<< HEAD   (8e7581 Merge branch 'stable-3.3' into stable-3.4)
       fireAlert(this, 'Change edit not found. Please create a change edit.');
       GerritNav.navigateToChange(change);
       return;
@@ -1828,6 +1839,33 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
       fireAlert(
         this,
         'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
+=======
+      const message = 'Change edit not found. Please create a change edit.';
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message},
+          bubbles: true,
+          composed: true,
+        })
+      );
+      GerritNav.navigateToChange(change);
+      return;
+    }
+
+    if (
+      !edit &&
+      (changeIsMerged(change) || changeIsAbandoned(change)) &&
+      this._editMode
+    ) {
+      const message =
+        'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
+      this.dispatchEvent(
+        new CustomEvent('show-alert', {
+          detail: {message},
+          bubbles: true,
+          composed: true,
+        })
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
       );
       GerritNav.navigateToChange(change);
       return;
@@ -2022,7 +2060,11 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
   }
 
   _getChangeCommitInfo() {
+<<<<<<< HEAD   (8e7581 Merge branch 'stable-3.3' into stable-3.4)
     return this.restApiService
+=======
+    return this.$.restAPI
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
       .getChangeCommitInfo(this._changeNum!, this._patchRange!.patchNum!)
       .then(commitInfo => {
         this._commitInfo = commitInfo;
