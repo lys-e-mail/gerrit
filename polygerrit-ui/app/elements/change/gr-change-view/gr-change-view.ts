@@ -75,6 +75,7 @@ import {
   hasEditPatchsetLoaded,
   PatchSet,
 } from '../../../utils/patch-set-util';
+<<<<<<< HEAD   (3f3b83 Merge changes I4eab3c4b,Ia7eaae54,I17438a57)
 import {
   changeIsAbandoned,
   changeIsMerged,
@@ -84,6 +85,10 @@ import {
   isOwner,
   isReviewer,
 } from '../../../utils/change-util';
+=======
+import {changeStatuses} from '../../../utils/change-util';
+import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
+>>>>>>> BRANCH (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
 import {EventType as PluginEventType} from '../../../api/plugin';
 import {customElement, observe, property} from '@polymer/decorators';
 import {GrApplyFixDialog} from '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
@@ -1754,6 +1759,7 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
    */
   _processEdit(change: ParsedChangeInfo, edit?: EditInfo | false) {
     if (
+<<<<<<< HEAD   (3f3b83 Merge changes I4eab3c4b,Ia7eaae54,I17438a57)
       !edit &&
       this._patchRange?.patchNum === EditPatchSetNum &&
       changeIsOpen(change)
@@ -1765,6 +1771,8 @@ export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
 
     if (
       !edit &&
+=======
+>>>>>>> BRANCH (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
       (changeIsMerged(change) || changeIsAbandoned(change)) &&
       this._editMode
     ) {
