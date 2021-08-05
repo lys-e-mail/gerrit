@@ -121,6 +121,7 @@ export const htmlTemplate = html`
       </span>
     </section>
     <section>
+<<<<<<< HEAD   (8e7581 Merge branch 'stable-3.3' into stable-3.4)
       <label for="showTrailingWhitespaceInput" class="title"
         >Show trailing whitespace</label
       >
@@ -135,6 +136,20 @@ export const htmlTemplate = html`
     </section>
     <section>
       <label for="showMatchBrackets" class="title">Match brackets</label>
+=======
+      <span class="title">Show trailing whitespace</span>
+      <span class="value">
+        <input
+          id="editShowTrailingWhitespaceInput"
+          type="checkbox"
+          checked$="[[editPrefs.show_whitespace_errors]]"
+          on-change="_handleEditShowTrailingWhitespaceTap"
+        />
+      </span>
+    </section>
+    <section>
+      <span class="title">Match brackets</span>
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
       <span class="value">
         <input
           id="showMatchBrackets"
