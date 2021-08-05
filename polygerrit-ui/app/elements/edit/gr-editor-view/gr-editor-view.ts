@@ -38,11 +38,14 @@ import {
   EditPatchSetNum,
 } from '../../../types/common';
 import {HttpMethod, NotifyType} from '../../../constants/constants';
+<<<<<<< HEAD   (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
 import {fireAlert, fireTitleChange} from '../../../utils/event-util';
 import {appContext} from '../../../services/app-context';
 import {ErrorCallback} from '../../../api/rest';
 import {assertIsDefined} from '../../../utils/common-util';
 import {debounce, DelayedTask} from '../../../utils/async-util';
+=======
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
 import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
 
 const RESTORED_MESSAGE = 'Content restored from a previous edit.';
@@ -198,9 +201,20 @@ export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
   _editChange(value?: ChangeInfo | null) {
     if (!changeIsMerged(value) && !changeIsAbandoned(value)) return;
     if (!value) return;
+<<<<<<< HEAD   (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
     fireAlert(
       this,
       'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
+=======
+    const message =
+      'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
+    this.dispatchEvent(
+      new CustomEvent('show-alert', {
+        detail: {message},
+        bubbles: true,
+        composed: true,
+      })
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
     );
     GerritNav.navigateToChange(value);
   }
@@ -227,6 +241,7 @@ export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
   }
 
   _viewEditInChangeView() {
+<<<<<<< HEAD   (b37f91 Merge "Remove float from rightControls on mobiles" into stab)
     const patch = this._successfulSave
       ? (EditPatchSetNum as PatchSetNum)
       : this._patchNum;
@@ -237,6 +252,10 @@ export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
         undefined,
         patch !== EditPatchSetNum
       );
+=======
+    if (this._change)
+      GerritNav.navigateToChange(this._change, undefined, undefined, true);
+>>>>>>> BRANCH (3dc60e Remove contenteditable="false" from within dragDropArea)
   }
 
   _getFileData(
