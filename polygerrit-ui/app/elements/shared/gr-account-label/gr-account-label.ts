@@ -280,7 +280,47 @@ export class GrAccountLabel extends GrLitElement {
     account: AccountInfo,
     change?: ChangeInfo
   ) {
+<<<<<<< HEAD   (3b9fcf Merge "Adjust CommitRewriter based on the test run")
     return highlight && !!change && !!account && !isServiceUser(account);
+=======
+    return (
+      !!config &&
+      !!config.change &&
+      !!config.change.enable_attention_set &&
+      !!highlight &&
+      !!change &&
+      !!account &&
+      !isServiceUser(account)
+    );
+  }
+
+  _computeCancelLeftPadding(
+    hideAvatar: boolean,
+    config: ServerInfo | undefined,
+    highlight: boolean,
+    account: AccountInfo,
+    change: ChangeInfo,
+    force: boolean
+  ) {
+    const hasAvatars = !!config?.plugin?.has_avatars;
+    return (
+      !hideAvatar &&
+      !this._hasAttention(config, highlight, account, change, force) &&
+      hasAvatars
+    );
+  }
+
+  _hasAttention(
+    config: ServerInfo | undefined,
+    highlight: boolean,
+    account: AccountInfo,
+    change: ChangeInfo,
+    force: boolean
+  ) {
+    return (
+      force || this._hasUnforcedAttention(config, highlight, account, change)
+    );
+>>>>>>> BRANCH (c00539 Merge "Merge branch 'stable-3.3' into stable-3.4" into stabl)
   }
 
   _hasUnforcedAttention(
