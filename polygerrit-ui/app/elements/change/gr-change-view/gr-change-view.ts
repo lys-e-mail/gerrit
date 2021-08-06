@@ -75,6 +75,7 @@ import {
   hasEditPatchsetLoaded,
   PatchSet,
 } from '../../../utils/patch-set-util';
+<<<<<<< HEAD   (3b9fcf Merge "Adjust CommitRewriter based on the test run")
 import {
   changeIsAbandoned,
   changeIsMerged,
@@ -83,6 +84,13 @@ import {
   isCc,
   isOwner,
   isReviewer,
+=======
+import {changeStatuses} from '../../../utils/change-util';
+import {
+  changeIsAbandoned,
+  changeIsMerged,
+  changeIsOpen,
+>>>>>>> BRANCH (c00539 Merge "Merge branch 'stable-3.3' into stable-3.4" into stabl)
 } from '../../../utils/change-util';
 import {EventType as PluginEventType} from '../../../api/plugin';
 import {customElement, observe, property} from '@polymer/decorators';
