@@ -19,8 +19,13 @@ To build Gerrit from source, you need:
 
 * A Linux or macOS system (Windows is not supported at this time)
 * A JDK for Java 8|9|10|11|...
+<<<<<<< HEAD   (4f8f1d Update licenses.txt and js_licenses.txt)
 * Python 2 or 3
 * link:https://github.com/nodesource/distributions/blob/master/README.md[Node.js (including npm),role=external,window=_blank]
+=======
+* Python 3
+* link:https://github.com/nodesource/distributions/blob/master/README.md[Node.js (including npm)]
+>>>>>>> BRANCH (2c2300 ProjectOperations: Add method to wipe all access sections)
 * Bower (`sudo npm install -g bower`)
 * link:https://docs.bazel.build/versions/master/install.html[Bazel,role=external,window=_blank] -launched with
 link:https://github.com/bazelbuild/bazelisk[Bazelisk,role=external,window=_blank]
