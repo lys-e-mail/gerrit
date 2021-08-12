@@ -50,7 +50,11 @@ def license_map(name, targets = [], opts = [], json_maps = [], **kwargs):
     # post process the XML into our favorite format.
     native.genrule(
         name = "gen_license_txt_" + name,
+<<<<<<< HEAD   (9f255b Merge "Prevent removing e-mail associated with OpenId accoun)
         cmd = "python $(location //tools/bzl:license-map.py) %s %s %s > $@" % (" ".join(opts), " ".join(json_maps_locations), " ".join(xmls)),
+=======
+        cmd = "python3 $(location //tools/bzl:license-map.py) %s %s > $@" % (" ".join(opts), " ".join(xmls)),
+>>>>>>> BRANCH (2c2300 ProjectOperations: Add method to wipe all access sections)
         outs = [name + ".gen.txt"],
         tools = tools,
         **kwargs
