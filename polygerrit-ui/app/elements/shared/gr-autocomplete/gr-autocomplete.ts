@@ -442,7 +442,11 @@ export class GrAutocomplete extends KeyboardShortcutMixin(PolymerElement) {
     }
   }
 
+<<<<<<< HEAD   (f75dab Update git submodules)
   private readonly handleBodyClick = (e: Event) => {
+=======
+  _handleBodyClick(e: Event) {
+>>>>>>> BRANCH (0458df Merge branch 'stable-3.2')
     const eventPath = e.composedPath();
     if (!eventPath) return;
     for (let i = 0; i < eventPath.length; i++) {
