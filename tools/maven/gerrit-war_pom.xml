@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (c93ad6 Merge branch 'stable-3.3-2021-07' into stable-3.3)
   <version>3.3.7-SNAPSHOT</version>
+=======
+  <version>3.2.13-SNAPSHOT</version>
+>>>>>>> BRANCH (eea603 dev-plugins: Fix code examples and header levels)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
