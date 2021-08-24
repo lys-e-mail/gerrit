@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (3faf31 Merge "Add css styles to the frontend plugin api")
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.2-SNAPSHOT</version>
+>>>>>>> BRANCH (761c4b Merge branch 'stable-3.3' into stable-3.4)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
