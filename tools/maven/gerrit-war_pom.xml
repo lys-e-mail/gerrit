@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (3faf31 Merge "Add css styles to the frontend plugin api")
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.2-SNAPSHOT</version>
+>>>>>>> BRANCH (761c4b Merge branch 'stable-3.3' into stable-3.4)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
