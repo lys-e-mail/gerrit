@@ -199,6 +199,34 @@ export class GrRepoPluginConfig extends GrLitElement {
     });
   }
 
+<<<<<<< HEAD   (8f8df9 Merge "Fix more cases when CommitRewriter does not rewrite")
+=======
+  _isArray(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.ARRAY;
+  }
+
+  _isBoolean(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.BOOLEAN;
+  }
+
+  _isList(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.LIST;
+  }
+
+  _isString(type: ConfigParameterInfoType) {
+    // Treat numbers like strings for simplicity.
+    return (
+      type === ConfigParameterInfoType.STRING ||
+      type === ConfigParameterInfoType.INT ||
+      type === ConfigParameterInfoType.LONG
+    );
+  }
+
+  _computeDisabled(editable: boolean) {
+    return !editable;
+  }
+
+>>>>>>> BRANCH (00ea3e dev-plugins: Fix ModulesClassNamesProvider example)
   _computeChecked(value = 'false') {
     return JSON.parse(value) as boolean;
   }
