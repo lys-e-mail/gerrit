@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.ProgressMonitor;
@@ -120,6 +121,7 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
     List<ProjectSlice> projectSlices = new ArrayList<>();
     int changeCount = 0;
     Stopwatch sw = Stopwatch.createStarted();
+    Stopwatch sw1 = Stopwatch.createStarted();
     int projectsFailed = 0;
     for (Project.NameKey name : projectCache.all()) {
       try (Repository repo = repoManager.openRepository(name)) {
@@ -137,7 +139,10 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
         // which had 2 big projects, many middle sized ones, and lots of smaller ones, the
         // splitting of repos into smaller parts reduced indexing time from 1.5 hours to 55 minutes
         // in 2020.
+        sw1.start();
         int size = estimateSize(repo);
+        verboseWriter.println("Estimated repo " + name + " size in: " + sw1.toString());
+        sw1.reset();
         changeCount += size;
         int slices = 1 + size / PROJECT_SLICE_MAX_REFS;
         if (slices > 1) {
@@ -289,7 +294,18 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
         // It does mean that reindexing after invalidating the DiffSummary cache will be expensive,
         // but the goal is to invalidate that cache as infrequently as we possibly can. And besides,
         // we don't have concrete proof that improving packfile locality would help.
+        Stopwatch sw = Stopwatch.createStarted();
         notesFactory.scan(repo, project, id -> (id.get() % slices) == slice).forEach(r -> index(r));
+        logger.atSevere().log(
+            "Indexed project: "
+                + project.toString()
+                + " slice: "
+                + slice
+                + "/"
+                + slices
+                + "in "
+                + sw.elapsed(TimeUnit.SECONDS)
+                + "seconds.");
       } catch (RepositoryNotFoundException rnfe) {
         logger.atSevere().log(rnfe.getMessage());
       } finally {
