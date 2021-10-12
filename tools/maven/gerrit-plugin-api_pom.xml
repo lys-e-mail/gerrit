@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (1fe5dc Doc: Fix asciidoctor warning)
   <version>3.3.7-SNAPSHOT</version>
+=======
+  <version>3.2.14-SNAPSHOT</version>
+>>>>>>> BRANCH (d663e1 Set version to 3.2.14-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
