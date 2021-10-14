@@ -29,8 +29,13 @@ public class EventGsonProvider implements Provider<Gson> {
         .registerTypeAdapter(Event.class, new EventDeserializer())
         .registerTypeAdapter(Supplier.class, new SupplierSerializer())
         .registerTypeAdapter(Supplier.class, new SupplierDeserializer())
+<<<<<<< HEAD   (e34561 Ignore the Rule-Name key in submit record footers)
         .registerTypeAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
         .registerTypeAdapterFactory(EntitiesAdapterFactory.create())
+=======
+        .registerTypeAdapter(Change.Key.class, new ChangeKeyAdapter())
+        .registerTypeHierarchyAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
+>>>>>>> BRANCH (48c065 Merge branch 'stable-3.2' into stable-3.3)
         .create();
   }
 }

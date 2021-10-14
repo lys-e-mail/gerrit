@@ -134,6 +134,25 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
       return new ChangeNotes(args, newChange(project, changeId), true, null).load();
     }
 
+<<<<<<< HEAD   (e34561 Ignore the Rule-Name key in submit record footers)
+=======
+    public ChangeNotes create(Repository repository, Project.NameKey project, Change.Id changeId) {
+      checkArgument(project != null, "project is required");
+      return new ChangeNotes(args, newChange(project, changeId), true, null).load(repository);
+    }
+
+    /**
+     * Create change notes for a change that was loaded from index. This method should only be used
+     * when database access is harmful and potentially stale data from the index is acceptable.
+     *
+     * @param change change loaded from secondary index
+     * @return change notes
+     */
+    public ChangeNotes createFromIndexedChange(Change change) {
+      return new ChangeNotes(args, change, true, null);
+    }
+
+>>>>>>> BRANCH (48c065 Merge branch 'stable-3.2' into stable-3.3)
     public ChangeNotes createForBatchUpdate(Change change, boolean shouldExist) {
       return new ChangeNotes(args, change, shouldExist, null).load();
     }
