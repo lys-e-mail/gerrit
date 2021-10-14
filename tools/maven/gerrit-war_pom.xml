@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (e34561 Ignore the Rule-Name key in submit record footers)
   <version>3.4.2-SNAPSHOT</version>
+=======
+  <version>3.3.8-SNAPSHOT</version>
+>>>>>>> BRANCH (593c48 Set version to 3.3.8-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
