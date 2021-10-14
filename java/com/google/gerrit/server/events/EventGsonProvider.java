@@ -29,8 +29,13 @@ public class EventGsonProvider implements Provider<Gson> {
         .registerTypeAdapter(Event.class, new EventDeserializer())
         .registerTypeAdapter(Supplier.class, new SupplierSerializer())
         .registerTypeAdapter(Supplier.class, new SupplierDeserializer())
+<<<<<<< HEAD   (d4ec4e Upgrade JGit to 60b81c5a9280e44fa48d533a61f915382b2b9ce2)
         .registerTypeAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
         .registerTypeAdapterFactory(EntitiesAdapterFactory.create())
+=======
+        .registerTypeAdapter(Change.Key.class, new ChangeKeyAdapter())
+        .registerTypeHierarchyAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
+>>>>>>> BRANCH (593c48 Set version to 3.3.8-SNAPSHOT)
         .create();
   }
 }

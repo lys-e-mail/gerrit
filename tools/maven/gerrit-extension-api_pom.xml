@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (d4ec4e Upgrade JGit to 60b81c5a9280e44fa48d533a61f915382b2b9ce2)
   <version>3.4.2-SNAPSHOT</version>
+=======
+  <version>3.3.8-SNAPSHOT</version>
+>>>>>>> BRANCH (593c48 Set version to 3.3.8-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

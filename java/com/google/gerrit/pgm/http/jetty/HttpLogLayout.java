@@ -72,6 +72,7 @@ public final class HttpLogLayout extends Layout {
     dq_opt(buf, event, HttpLog.P_USER_AGENT);
 
     buf.append(' ');
+<<<<<<< HEAD   (d4ec4e Upgrade JGit to 60b81c5a9280e44fa48d533a61f915382b2b9ce2)
     opt(buf, event, HttpLog.P_CPU_TOTAL);
 
     buf.append(' ');
@@ -79,6 +80,9 @@ public final class HttpLogLayout extends Layout {
 
     buf.append(' ');
     opt(buf, event, HttpLog.P_MEMORY);
+=======
+    dq_opt(buf, event, HttpLog.P_COMMAND_STATUS);
+>>>>>>> BRANCH (593c48 Set version to 3.3.8-SNAPSHOT)
 
     buf.append('\n');
     return buf.toString();
