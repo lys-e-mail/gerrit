@@ -72,6 +72,7 @@ public final class HttpLogLayout extends Layout {
     dq_opt(buf, event, HttpLog.P_USER_AGENT);
 
     buf.append(' ');
+<<<<<<< HEAD   (37df6a Merge "Merge branch 'stable-3.3' into stable-3.4" into stabl)
     opt(buf, event, HttpLog.P_CPU_TOTAL);
 
     buf.append(' ');
@@ -79,6 +80,9 @@ public final class HttpLogLayout extends Layout {
 
     buf.append(' ');
     opt(buf, event, HttpLog.P_MEMORY);
+=======
+    dq_opt(buf, event, HttpLog.P_COMMAND_STATUS);
+>>>>>>> BRANCH (17936a Fix gr-tooltip test)
 
     buf.append('\n');
     return buf.toString();
