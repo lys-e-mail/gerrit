@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (37df6a Merge "Merge branch 'stable-3.3' into stable-3.4" into stabl)
   <version>3.4.2-SNAPSHOT</version>
+=======
+  <version>3.3.8-SNAPSHOT</version>
+>>>>>>> BRANCH (17936a Fix gr-tooltip test)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
