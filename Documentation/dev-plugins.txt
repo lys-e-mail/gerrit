@@ -809,6 +809,7 @@ public class SshModule extends AbstractModule {
 }
 ----
 
+<<<<<<< HEAD   (643796 Merge branch 'stable-3.3' into stable-3.4)
 To provide additional Guice bindings for options to a command in another classloader, bind a
 ModulesClassNamesProvider which provides the name of your Modules needed for your DynamicBean
 in the other classLoader.
@@ -834,6 +835,61 @@ static class MyOptionsModulesClassNamesProvider implements DynamicOptions.Module
   @Override
   public Iterable<String> getModulesClassNames()() {
     return "com.googlesource.gerrit.plugins.myplugin.MyOptionsModule";
+=======
+Plugins can receive a bean object for each of the gerrit ssh and the REST API
+commands by implementing BeanParseListener interface and registering it to a
+command class name in the plugin module's `configure()` method. The below
+example shows a plugin that always limits the number of projects returned
+by the ls-projects SSH command.
+
+[source, java]
+----
+protected static class PluginModule extends AbstractModule {
+  @Override
+  public void configure() {
+    bind(DynamicOptions.DynamicBean.class)
+        .annotatedWith(Exports.named(ListProjectsCommand.class))
+        .to(ListProjectsCommandBeanListener.class);
+  }
+
+  protected static class ListProjectsCommandBeanListener
+      implements DynamicOptions.BeanParseListener {
+    @Override
+    public void onBeanParseStart(String plugin, Object bean) {
+      ListProjectsCommand command = (ListProjectsCommand) bean;
+      command.impl.setLimit(1);
+    }
+
+    @Override
+    public void onBeanParseEnd(String plugin, Object bean) {}
+  }
+}
+----
+
+The below example shows a plugin that always limits the number of projects
+returned by the /projects/ REST API.
+
+[source, java]
+----
+protected static class PluginModule extends AbstractModule {
+  @Override
+  public void configure() {
+    bind(DynamicOptions.DynamicBean.class)
+        .annotatedWith(Exports.named(ListProjects.class))
+        .to(ListProjectsBeanListener.class);
+  }
+
+  protected static class ListProjectsBeanListener
+      implements DynamicOptions.BeanParseListener {
+    @Override
+    public void onBeanParseStart(String plugin, Object bean) {
+      ListProjects listProjects = (ListProjects) bean;
+      listProjects.setLimit(1);
+    }
+
+    @Override
+    public void onBeanParseEnd(String plugin, Object bean) {}
+>>>>>>> BRANCH (645714 Merge branch 'stable-3.2' into stable-3.3)
   }
 }
 ----
