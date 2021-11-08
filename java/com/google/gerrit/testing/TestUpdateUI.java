@@ -14,6 +14,7 @@
 
 package com.google.gerrit.testing;
 
+import com.google.gerrit.server.schema.Schema_159.DraftWorkflowMigrationStrategy;
 import com.google.gerrit.server.schema.UpdateUI;
 import java.util.Set;
 
@@ -38,4 +39,19 @@ public class TestUpdateUI implements UpdateUI {
   public boolean isBatch() {
     return true;
   }
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
+=======
+
+  @Override
+  public void pruneSchema(StatementExecutor e, List<String> pruneList) throws OrmException {
+    for (String sql : pruneList) {
+      e.execute(sql);
+    }
+  }
+
+  @Override
+  public DraftWorkflowMigrationStrategy getDraftMigrationStrategy() {
+    return DraftWorkflowMigrationStrategy.WORK_IN_PROGRESS;
+  }
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 }
