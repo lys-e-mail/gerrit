@@ -408,7 +408,11 @@ export function addShortcut(
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (18ec08 Merge "Refactor LabelsJson#permittedLabels")
     if (e.repeat && !shortcut.allowRepeat) return;
+=======
+    if (e.repeat) return;
+>>>>>>> BRANCH (678ae2 Merge branch 'stable-3.4' into stable-3.5)
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (eventMatchesShortcut(e, shortcut)) {
       listener(e);

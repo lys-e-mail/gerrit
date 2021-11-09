@@ -396,7 +396,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (18ec08 Merge "Refactor LabelsJson#permittedLabels")
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (678ae2 Merge branch 'stable-3.4' into stable-3.5)
       {patchNum},
       true
     );
