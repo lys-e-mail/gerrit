@@ -40,7 +40,13 @@ import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.plugins.JarScanner;
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
 import com.google.gerrit.server.schema.NoteDbSchemaUpdater;
+=======
+import com.google.gerrit.server.schema.ReviewDbFactory;
+import com.google.gerrit.server.schema.SchemaUpdater;
+import com.google.gerrit.server.schema.Schema_159.DraftWorkflowMigrationStrategy;
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 import com.google.gerrit.server.schema.UpdateUI;
 import com.google.gerrit.server.securestore.SecureStore;
 import com.google.gerrit.server.securestore.SecureStoreClassName;
@@ -106,6 +112,7 @@ public class BaseInit extends SiteProgram {
     init.flags.skipPlugins = skipPlugins();
     init.flags.deleteCaches = getDeleteCaches();
     init.flags.isNew = init.site.isNew;
+    init.flags.draftMigrationStrategy = getDraftMigrationStrategy();
 
     final SiteRun run;
     try {
@@ -378,10 +385,27 @@ public class BaseInit extends SiteProgram {
         return consoleUi.yesno(defaultValue, message);
       }
 
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
       @Override
       public void waitForUser() {
         consoleUi.waitForUser();
       }
+=======
+            @Override
+            public void pruneSchema(StatementExecutor e, List<String> prune) {
+              for (String p : prune) {
+                if (!pruneList.contains(p)) {
+                  pruneList.add(p);
+                }
+              }
+            }
+
+            @Override
+            public DraftWorkflowMigrationStrategy getDraftMigrationStrategy() {
+              return flags.draftMigrationStrategy;
+            }
+          });
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 
       @Override
       public String readString(String defaultValue, Set<String> allowedValues, String message) {
@@ -472,5 +496,9 @@ public class BaseInit extends SiteProgram {
 
   protected boolean getDeleteCaches() {
     return false;
+  }
+
+  protected DraftWorkflowMigrationStrategy getDraftMigrationStrategy() {
+    return DraftWorkflowMigrationStrategy.WORK_IN_PROGRESS;
   }
 }

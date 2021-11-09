@@ -14,6 +14,13 @@
 
 package com.google.gerrit.server.schema;
 
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
+=======
+import com.google.gerrit.server.schema.Schema_159.DraftWorkflowMigrationStrategy;
+import com.google.gwtorm.server.OrmException;
+import com.google.gwtorm.server.StatementExecutor;
+import java.util.List;
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 import java.util.Set;
 
 public interface UpdateUI {
@@ -34,4 +41,12 @@ public interface UpdateUI {
   String readString(String defaultValue, Set<String> allowedValues, String message);
 
   boolean isBatch();
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
+=======
+
+  void pruneSchema(StatementExecutor e, List<String> pruneList) throws OrmException;
+
+  /** Used for Schema_159 migration. */
+  DraftWorkflowMigrationStrategy getDraftMigrationStrategy();
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 }

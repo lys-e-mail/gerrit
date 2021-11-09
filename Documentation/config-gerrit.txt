@@ -2748,7 +2748,7 @@ by the JVM. If set to a negative value, defaults to a direct executor.
 [[index.batchThreads]]index.batchThreads::
 +
 Number of threads to use for indexing in background operations, such as
-online schema upgrades, and also for offline reindexing.
+online schema upgrades, and also the default for offline reindexing.
 +
 If not set or set to a zero, defaults to the number of logical CPUs as returned
 by the JVM. If set to a negative value, defaults to a direct executor.
@@ -2963,6 +2963,11 @@ link:https://lucene.apache.org/core/5_5_0/core/org/apache/lucene/index/Concurren
 Lucene documentation] for further details.
 +
 Defaults to true (throttling enabled).
+
+During offline reindexing, setting ramBufferSize greater than the size
+of index (size of specific index folder under <site_dir>/index) and
+maxBufferedDocs as -1 avoids unnecessary flushes and triggers only a
+single flush at the end of the process.
 
 Sample Lucene index configuration:
 ----
@@ -3554,7 +3559,23 @@ each process retrieves at once.
 +
 By default, 1.
 
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
 [[notedb.changes.sequenceBatchSize]]notedb.changes.sequenceBatchSize::
+=======
+[[notedb.onlineMigrationProjects]] notedb.onlineMigrationProjects::
++
+Limit the online migration from reviewDb to noteDb to a list of projects.
++
+This allows to experiment the migration to noteDb on a per-project basis
+for debugging problems and without having to interrupt the service on active
+projects.
++
+When not defined, all projects are migrated to noteDb.
++
+By default, undefined.
+
+[[notedb.onlineMigrationThreads]] notedb.onlineMigrationThreads::
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 +
 The next available change sequence number is stored as UTF-8 text in a
 blob pointed to by the `refs/sequences/changes` ref in the `All-Projects`
