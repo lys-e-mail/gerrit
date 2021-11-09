@@ -1,6 +1,10 @@
 load("//tools/bzl:maven_jar.bzl", "MAVEN_CENTRAL", "maven_jar")
 
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
 _JGIT_VERS = "5.3.9.202012012026-r"
+=======
+_JGIT_VERS = "5.1.16.202106041830-r"
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
 
 _DOC_VERS = _JGIT_VERS  # Set to _JGIT_VERS unless using a snapshot
 
@@ -40,25 +44,45 @@ def jgit_maven_repos():
         name = "jgit-lib",
         artifact = "org.eclipse.jgit:org.eclipse.jgit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
         sha1 = "b6d3af64d2538db1c25ee8cf9f2346fd8663321b",
+=======
+        sha1 = "1b32273b9b8326a14355374702799b6cd4a94050",
+        src_sha1 = "62a010fe8e0de9c4684348f3853da3c817257165",
+        unsign = True,
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
     )
     maven_jar(
         name = "jgit-servlet",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.http.server:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
         sha1 = "1f68350b98cbbd9a5219ad5827b3aa6c46a15dea",
+=======
+        sha1 = "f375f3c6cfe37096ee984d3a2f380817446ac5f0",
+        unsign = True,
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
     )
     maven_jar(
         name = "jgit-archive",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.archive:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
         sha1 = "7a4bf3ac728274129acf8c13c11b66199808eb20",
+=======
+        sha1 = "20378bb3138a9ab8d2e13036a2f3e4719caad7a2",
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
     )
     maven_jar(
         name = "jgit-junit",
         artifact = "org.eclipse.jgit:org.eclipse.jgit.junit:" + _JGIT_VERS,
         repository = _JGIT_REPO,
+<<<<<<< HEAD   (ac4c30 Fix DynamicOptions to invoke listeners registered to BeanPar)
         sha1 = "dd8a2b2cd0b65ee00c260d1a1e7ed33aed951c69",
+=======
+        sha1 = "9563231cf411841a78f9bb703782b0f0a716d420",
+        unsign = True,
+>>>>>>> BRANCH (2a3ff3 Merge branch 'stable-2.15' into stable-2.16)
     )
 
 def jgit_dep(name):
