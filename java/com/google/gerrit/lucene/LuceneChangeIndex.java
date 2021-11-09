@@ -59,6 +59,7 @@ import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.change.MergeabilityComputationBehavior;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.SitePaths;
+import com.google.gerrit.server.index.AutoFlush;
 import com.google.gerrit.server.index.IndexExecutor;
 import com.google.gerrit.server.index.IndexUtils;
 import com.google.gerrit.server.index.change.ChangeField;
@@ -179,7 +180,8 @@ public class LuceneChangeIndex implements ChangeIndex {
       SitePaths sitePaths,
       @IndexExecutor(INTERACTIVE) ListeningExecutorService executor,
       ChangeData.Factory changeDataFactory,
-      @Assisted Schema<ChangeData> schema)
+      @Assisted Schema<ChangeData> schema,
+      AutoFlush autoFlush)
       throws IOException {
     this.executor = executor;
     this.changeDataFactory = changeDataFactory;
@@ -202,36 +204,58 @@ public class LuceneChangeIndex implements ChangeIndex {
               sitePaths,
               new RAMDirectory(),
               "ramOpen",
+<<<<<<< HEAD   (db1319 Merge "PolyGerrit: replace event.path with event.composedPat)
               skipFields,
               openConfig,
               searcherFactory);
+=======
+              openConfig,
+              searcherFactory,
+              autoFlush);
+>>>>>>> BRANCH (52ee35 Merge branch 'stable-3.0' into stable-3.1)
       closedIndex =
           new ChangeSubIndex(
               schema,
               sitePaths,
               new RAMDirectory(),
               "ramClosed",
+<<<<<<< HEAD   (db1319 Merge "PolyGerrit: replace event.path with event.composedPat)
               skipFields,
               closedConfig,
               searcherFactory);
+=======
+              closedConfig,
+              searcherFactory,
+              autoFlush);
+>>>>>>> BRANCH (52ee35 Merge branch 'stable-3.0' into stable-3.1)
     } else {
       Path dir = LuceneVersionManager.getDir(sitePaths, CHANGES, schema);
       openIndex =
           new ChangeSubIndex(
+<<<<<<< HEAD   (db1319 Merge "PolyGerrit: replace event.path with event.composedPat)
               schema,
               sitePaths,
               dir.resolve(CHANGES_OPEN),
               skipFields,
               openConfig,
               searcherFactory);
+=======
+              schema, sitePaths, dir.resolve(CHANGES_OPEN), openConfig, searcherFactory, autoFlush);
+>>>>>>> BRANCH (52ee35 Merge branch 'stable-3.0' into stable-3.1)
       closedIndex =
           new ChangeSubIndex(
               schema,
               sitePaths,
               dir.resolve(CHANGES_CLOSED),
+<<<<<<< HEAD   (db1319 Merge "PolyGerrit: replace event.path with event.composedPat)
               skipFields,
               closedConfig,
               searcherFactory);
+=======
+              closedConfig,
+              searcherFactory,
+              autoFlush);
+>>>>>>> BRANCH (52ee35 Merge branch 'stable-3.0' into stable-3.1)
     }
 
     idField = this.schema.useLegacyNumericFields() ? LEGACY_ID : LEGACY_ID_STR;
