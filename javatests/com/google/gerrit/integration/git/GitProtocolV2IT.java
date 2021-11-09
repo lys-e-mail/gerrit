@@ -97,6 +97,11 @@ public class GitProtocolV2IT extends StandaloneSiteTest {
                   .group(SystemGroupBackend.REGISTERED_USERS))
           .update();
 
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
+=======
+      setProtocolV2(project);
+
+>>>>>>> BRANCH (9cf9b3 Merge branch 'stable-3.2' into stable-3.3)
       // Retrieve HTTP url
       String url = config.getString("gerrit", null, "canonicalweburl");
       String urlDestinationTemplate =
@@ -211,6 +216,11 @@ public class GitProtocolV2IT extends StandaloneSiteTest {
       Project.NameKey allRefsVisibleProject = Project.nameKey("all-refs-visible");
       gApi.projects().create(allRefsVisibleProject.get());
 
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
+=======
+      setProtocolV2(allRefsVisibleProject);
+
+>>>>>>> BRANCH (9cf9b3 Merge branch 'stable-3.2' into stable-3.3)
       // Set up project permission to allow reading all refs
       projectOperations
           .project(allRefsVisibleProject)
@@ -265,6 +275,11 @@ public class GitProtocolV2IT extends StandaloneSiteTest {
       Project.NameKey privateProject = Project.nameKey("private-project");
       gApi.projects().create(privateProject.get());
 
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
+=======
+      setProtocolV2(privateProject);
+
+>>>>>>> BRANCH (9cf9b3 Merge branch 'stable-3.2' into stable-3.3)
       // Disallow general read permissions for anonymous users
       projectOperations
           .project(allProjectsName)
@@ -330,6 +345,12 @@ public class GitProtocolV2IT extends StandaloneSiteTest {
                 java.nio.file.Files.readAllBytes(
                     sitePaths.data_dir.resolve(String.format("id_rsa_%s.pub", username))),
                 UTF_8));
+  }
+
+  private void setProtocolV2(Project.NameKey projectName) throws Exception {
+    execute(
+        ImmutableList.of("git", "config", "protocol.version", "2"),
+        sitePaths.site_path.resolve("git").resolve(projectName.get() + Constants.DOT_GIT).toFile());
   }
 
   private static void assertGitProtocolV2Refs(String commit, String out) {
