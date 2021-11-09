@@ -78,7 +78,12 @@ import com.google.gerrit.server.git.GarbageCollectionModule;
 import com.google.gerrit.server.git.GitRepositoryManagerModule;
 import com.google.gerrit.server.git.SearchingChangeCacheImpl.SearchingChangeCacheImplModule;
 import com.google.gerrit.server.git.SystemReaderInstaller;
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
 import com.google.gerrit.server.git.WorkQueue.WorkQueueModule;
+=======
+import com.google.gerrit.server.git.WorkQueue;
+import com.google.gerrit.server.index.AutoFlush;
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader.OnlineUpgraderModule;
 import com.google.gerrit.server.index.VersionManager;
@@ -364,7 +369,7 @@ public class WebAppInitializer extends GuiceServletContextListener implements Fi
 
   private Module createIndexModule() {
     if (indexType.isLucene()) {
-      return LuceneIndexModule.latestVersion(false);
+      return LuceneIndexModule.latestVersion(false, AutoFlush.ENABLED);
     } else if (indexType.isElasticsearch()) {
       return ElasticIndexModule.latestVersion(false);
     } else if (indexType.isFake()) {

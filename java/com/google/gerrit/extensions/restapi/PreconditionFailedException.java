@@ -25,9 +25,17 @@ public class PreconditionFailedException extends RestApiException {
 
   /**
    * @param msg message to return to the client describing the error.
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
    * @param cause cause of this exception.
    */
   public PreconditionFailedException(String msg, Throwable cause) {
     super(msg, cause);
+=======
+   * @cause original cause of the failed precondition.
+   */
+  public PreconditionFailedException(String msg, Throwable cause) {
+    super(msg);
+    initCause(cause);
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
   }
 }

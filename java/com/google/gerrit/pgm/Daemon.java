@@ -84,10 +84,17 @@ import com.google.gerrit.server.config.SysExecutorModule;
 import com.google.gerrit.server.events.EventBroker.EventBrokerModule;
 import com.google.gerrit.server.events.StreamEventsApiListener.StreamEventsApiListenerModule;
 import com.google.gerrit.server.git.GarbageCollectionModule;
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
 import com.google.gerrit.server.git.SearchingChangeCacheImpl.SearchingChangeCacheImplModule;
 import com.google.gerrit.server.git.WorkQueue.WorkQueueModule;
 import com.google.gerrit.server.group.PeriodicGroupIndexer.PeriodicGroupIndexerModule;
 import com.google.gerrit.server.index.AbstractIndexModule;
+=======
+import com.google.gerrit.server.git.SearchingChangeCacheImpl;
+import com.google.gerrit.server.git.WorkQueue;
+import com.google.gerrit.server.group.PeriodicGroupIndexer;
+import com.google.gerrit.server.index.AutoFlush;
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader.OnlineUpgraderModule;
 import com.google.gerrit.server.index.VersionManager;
@@ -534,7 +541,7 @@ public class Daemon extends SiteProgram {
       return indexModule;
     }
     if (indexType.isLucene()) {
-      return LuceneIndexModule.latestVersion(replica);
+      return LuceneIndexModule.latestVersion(replica, AutoFlush.ENABLED);
     }
     if (indexType.isElasticsearch()) {
       return ElasticIndexModule.latestVersion(replica);

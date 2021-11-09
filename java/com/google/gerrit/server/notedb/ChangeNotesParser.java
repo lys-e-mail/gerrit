@@ -985,9 +985,14 @@ class ChangeNotesParser {
         }
       } else {
         checkFooter(rec != null, FOOTER_SUBMITTED_WITH, line);
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
         if (line.startsWith("Rule-Name: ")) {
           String ruleName = line.split(": ")[1];
           rec.ruleName = ruleName;
+=======
+        if (line.startsWith("Rule-Name")) {
+          // This is just added for forward compatibility. Ignore this field.
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
           continue;
         }
         SubmitRecord.Label label = new SubmitRecord.Label();

@@ -56,9 +56,15 @@ import com.google.gerrit.pgm.Init;
 import com.google.gerrit.server.config.GerritRuntime;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.SitePath;
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
 import com.google.gerrit.server.experiments.ConfigExperimentFeatures.ConfigExperimentFeaturesModule;
 import com.google.gerrit.server.git.receive.AsyncReceiveCommits.AsyncReceiveCommitsModule;
 import com.google.gerrit.server.git.validators.CommitValidationListener;
+=======
+import com.google.gerrit.server.experiments.ConfigExperimentFeatures;
+import com.google.gerrit.server.git.receive.AsyncReceiveCommits;
+import com.google.gerrit.server.index.AutoFlush;
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.schema.JdbcAccountPatchReviewStore;
 import com.google.gerrit.server.ssh.NoSshModule;
 import com.google.gerrit.server.util.ReplicaUtil;
@@ -479,7 +485,13 @@ public class GerritServer implements AutoCloseable {
     // Elastic search is not supported in integration tests yet.
 
     daemon.setEnableHttpd(desc.httpd());
+<<<<<<< HEAD   (60b039 Set version to 3.5.0-SNAPSHOT)
     daemon.setInMemory(true);
+=======
+    daemon.setLuceneModule(
+        LuceneIndexModule.singleVersionAllLatest(
+            0, ReplicaUtil.isReplica(baseConfig), AutoFlush.ENABLED));
+>>>>>>> BRANCH (d60e1b Merge branch 'stable-3.3' into stable-3.4)
     daemon.setDatabaseForTesting(
         ImmutableList.of(
             new InMemoryTestingDatabaseModule(cfg, site, inMemoryRepoManager),
