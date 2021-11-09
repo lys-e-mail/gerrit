@@ -31,6 +31,7 @@ import com.google.gerrit.pgm.util.BatchProgramModule;
 import com.google.gerrit.pgm.util.SiteProgram;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.config.GerritServerConfig;
+import com.google.gerrit.server.index.AutoFlush;
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.change.ChangeSchemaDefinitions;
 import com.google.gerrit.server.plugins.PluginGuiceEnvironment;
@@ -52,8 +53,10 @@ import org.eclipse.jgit.util.io.NullOutputStream;
 import org.kohsuke.args4j.Option;
 
 public class Reindex extends SiteProgram {
-  @Option(name = "--threads", usage = "Number of threads to use for indexing")
-  private int threads = Runtime.getRuntime().availableProcessors();
+  @Option(
+      name = "--threads",
+      usage = "Number of threads to use for indexing. Default is index.batchThreads from config.")
+  private int threads = 0;
 
   @Option(
       name = "--changes-schema-version",
@@ -148,6 +151,7 @@ public class Reindex extends SiteProgram {
     boolean replica = ReplicaUtil.isReplica(globalConfig);
     List<Module> modules = new ArrayList<>();
     Module indexModule;
+<<<<<<< HEAD   (da4018 Merge branch 'stable-3.0' into stable-3.1)
     IndexType indexType = IndexModule.getIndexType(dbInjector);
     if (indexType.isLucene()) {
       indexModule = LuceneIndexModule.singleVersionWithExplicitVersions(versions, threads, replica);
@@ -156,6 +160,20 @@ public class Reindex extends SiteProgram {
           ElasticIndexModule.singleVersionWithExplicitVersions(versions, threads, replica);
     } else {
       throw new IllegalStateException("unsupported index.type = " + indexType);
+=======
+    switch (IndexModule.getIndexType(dbInjector)) {
+      case LUCENE:
+        indexModule =
+            LuceneIndexModule.singleVersionWithExplicitVersions(
+                versions, threads, slave, AutoFlush.DISABLED);
+        break;
+      case ELASTICSEARCH:
+        indexModule =
+            ElasticIndexModule.singleVersionWithExplicitVersions(versions, threads, slave);
+        break;
+      default:
+        throw new IllegalStateException("unsupported index.type");
+>>>>>>> BRANCH (1e2642 Merge branch 'stable-2.16' into stable-3.0)
     }
     modules.add(indexModule);
     modules.add(new BatchProgramModule());
