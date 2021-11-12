@@ -307,8 +307,12 @@ public class GetAccess implements RestReadView<ProjectResource> {
         }
         AccountGroup.UUID group = r.getGroup().getUUID();
         if (group != null) {
+<<<<<<< HEAD   (0ed64e Add missing "--migrate-draft-to" flag on init doc)
           pInfo.rules.put(group.get(), info);
           loadGroup(groups, group);
+=======
+          pInfo.rules.putIfAbsent(group.get(), info); // First entry for the group wins
+>>>>>>> BRANCH (22e0fd Merge branch 'stable-2.13' into stable-2.14)
         }
       }
       accessSectionInfo.permissions.put(p.getName(), pInfo);
