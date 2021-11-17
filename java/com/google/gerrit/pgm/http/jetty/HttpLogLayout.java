@@ -72,6 +72,7 @@ public final class HttpLogLayout extends Layout {
     dq_opt(buf, event, HttpLog.P_USER_AGENT);
 
     buf.append(' ');
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
     opt(buf, event, HttpLog.P_CPU_TOTAL);
 
     buf.append(' ');
@@ -79,6 +80,9 @@ public final class HttpLogLayout extends Layout {
 
     buf.append(' ');
     opt(buf, event, HttpLog.P_MEMORY);
+=======
+    dq_opt(buf, event, HttpLog.P_COMMAND_STATUS);
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
 
     buf.append('\n');
     return buf.toString();

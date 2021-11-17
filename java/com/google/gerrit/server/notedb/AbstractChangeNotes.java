@@ -122,10 +122,13 @@ public abstract class AbstractChangeNotes<T> {
     this.args = requireNonNull(args);
     this.changeId = requireNonNull(changeId);
     this.revision = metaSha1;
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
   }
 
   protected AbstractChangeNotes(Args args, Change.Id changeId) {
     this(args, changeId, null);
+=======
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
   }
 
   public Change.Id getChangeId() {
@@ -138,6 +141,15 @@ public abstract class AbstractChangeNotes<T> {
   }
 
   public T load() {
+    try (Repository repo = args.repoManager.openRepository(getProjectName())) {
+      load(repo);
+      return self();
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  public T load(Repository repo) {
     if (loaded) {
       return self();
     }
@@ -146,7 +158,6 @@ public abstract class AbstractChangeNotes<T> {
       throw new StorageException("Reading from NoteDb is disabled");
     }
     try (Timer0.Context timer = args.metrics.readLatency.start();
-        Repository repo = args.repoManager.openRepository(getProjectName());
         // Call openHandle even if reading is disabled, to trigger
         // auto-rebuilding before this object may get passed to a ChangeUpdate.
         LoadHandle handle = openHandle(repo, revision)) {
@@ -171,8 +182,12 @@ public abstract class AbstractChangeNotes<T> {
    * <p>Implementations may override this method to provide auto-rebuilding behavior.
    *
    * @param repo open repository.
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
    * @param id SHA1 of the entity to read from the repository. The SHA1 is not sanity checked and is
    *     assumed to be valid. If null, lookup SHA1 from the /meta ref.
+=======
+   * @param id version SHA1 of the change notes to load
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
    * @return handle for reading the entity.
    * @throws NoSuchChangeException change does not exist.
    * @throws IOException a repo-level error occurred.
@@ -182,7 +197,10 @@ public abstract class AbstractChangeNotes<T> {
     if (id == null) {
       id = readRef(repo);
     }
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
 
+=======
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
     return new LoadHandle(repo, id);
   }
 

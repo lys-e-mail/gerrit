@@ -240,6 +240,7 @@ interface QueryGroupsParams {
   [paramName: string]: string | undefined | null | number;
   s: string;
   n?: number;
+  p?: string;
 }
 
 interface QuerySuggestedReviewersParams {
@@ -1592,11 +1593,20 @@ export class GrRestApiInterface
 
   getSuggestedGroups(
     inputVal: string,
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
     n?: number
+=======
+    project?: RepoName,
+    n?: number,
+    errFn?: ErrorCallback
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
   ): Promise<GroupNameToGroupInfoMap | undefined> {
     const params: QueryGroupsParams = {s: inputVal};
     if (n) {
       params.n = n;
+    }
+    if (project) {
+      params.p = encodeURIComponent(project);
     }
     return this._restApiHelper.fetchJSON({
       url: '/groups/',

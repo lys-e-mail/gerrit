@@ -14,6 +14,8 @@
 
 package com.google.gerrit.pgm.http.jetty;
 
+import static com.google.gerrit.httpd.GitOverHttpServlet.GIT_COMMAND_STATUS_HEADER;
+
 import com.google.common.base.Strings;
 import com.google.gerrit.httpd.GetUserFilter;
 import com.google.gerrit.httpd.RequestMetricsFilter;
@@ -52,9 +54,13 @@ class HttpLog extends AbstractLifeCycle implements RequestLog {
   protected static final String P_LATENCY = "Latency";
   protected static final String P_REFERER = "Referer";
   protected static final String P_USER_AGENT = "User-Agent";
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
   protected static final String P_CPU_TOTAL = "Cpu-Total";
   protected static final String P_CPU_USER = "Cpu-User";
   protected static final String P_MEMORY = "Memory";
+=======
+  protected static final String P_COMMAND_STATUS = "Command-Status";
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
 
   private final AsyncAppender async;
 
@@ -117,6 +123,7 @@ class HttpLog extends AbstractLifeCycle implements RequestLog {
     set(event, P_LATENCY, System.currentTimeMillis() - req.getTimeStamp());
     set(event, P_REFERER, req.getHeader("Referer"));
     set(event, P_USER_AGENT, req.getHeader("User-Agent"));
+    set(event, P_COMMAND_STATUS, rsp.getHeader(GIT_COMMAND_STATUS_HEADER));
 
     RequestMetricsFilter.Context ctx =
         (RequestMetricsFilter.Context) req.getAttribute(RequestMetricsFilter.METRICS_CONTEXT);
