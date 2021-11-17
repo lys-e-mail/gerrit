@@ -29,8 +29,13 @@ public class EventGsonProvider implements Provider<Gson> {
         .registerTypeAdapter(Event.class, new EventDeserializer())
         .registerTypeAdapter(Supplier.class, new SupplierSerializer())
         .registerTypeAdapter(Supplier.class, new SupplierDeserializer())
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
         .registerTypeAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
         .registerTypeAdapterFactory(EntitiesAdapterFactory.create())
+=======
+        .registerTypeAdapter(Change.Key.class, new ChangeKeyAdapter())
+        .registerTypeHierarchyAdapter(Project.NameKey.class, new ProjectNameKeyAdapter())
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
         .create();
   }
 }

@@ -116,8 +116,13 @@ export class GrSmartSearch extends PolymerElement {
     if (expression.length === 0) {
       return Promise.resolve([]);
     }
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
     return this.restApiService
       .getSuggestedGroups(expression, MAX_AUTOCOMPLETE_RESULTS)
+=======
+    return this.$.restAPI
+      .getSuggestedGroups(expression, undefined, MAX_AUTOCOMPLETE_RESULTS)
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
       .then(groups => {
         if (!groups) {
           return [];

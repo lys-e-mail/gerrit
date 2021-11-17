@@ -38,6 +38,7 @@ import {
   ProjectAccessGroups,
   GroupId,
   GitRef,
+  RepoName,
 } from '../../../types/common';
 import {
   AutocompleteQuery,
@@ -96,6 +97,9 @@ export class GrPermission extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
+
+  @property({type: String})
+  repo?: RepoName;
 
   @property({type: Object})
   labels?: LabelNameToLabelTypeInfoMap;
@@ -319,8 +323,17 @@ export class GrPermission extends PolymerElement {
   }
 
   _getGroupSuggestions(): Promise<AutocompleteSuggestion[]> {
+<<<<<<< HEAD   (0b04e4 Don't retain body in RevWalk for Change meta reachability ch)
     return this.restApiService
       .getSuggestedGroups(this._groupFilter || '', MAX_AUTOCOMPLETE_RESULTS)
+=======
+    return this.$.restAPI
+      .getSuggestedGroups(
+        this._groupFilter || '',
+        this.repo,
+        MAX_AUTOCOMPLETE_RESULTS
+      )
+>>>>>>> BRANCH (e6e6a3 Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
       .then(response => {
         const groups: GroupSuggestion[] = [];
         for (const [name, value] of Object.entries(response ?? {})) {
