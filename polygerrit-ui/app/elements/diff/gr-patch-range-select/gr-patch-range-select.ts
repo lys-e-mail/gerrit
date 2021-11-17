@@ -396,7 +396,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (5684de Merge "Show vote value next to vote even if it's not the max)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (3cc483 Merge branch 'stable-3.4' into stable-3.5)
       {patchNum},
       true
     );

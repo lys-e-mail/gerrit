@@ -408,7 +408,11 @@ export function addShortcut(
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (5684de Merge "Show vote value next to vote even if it's not the max)
     if (e.repeat && !shortcut.allowRepeat) return;
+=======
+    if (e.repeat) return;
+>>>>>>> BRANCH (3cc483 Merge branch 'stable-3.4' into stable-3.5)
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (eventMatchesShortcut(e, shortcut)) {
       listener(e);

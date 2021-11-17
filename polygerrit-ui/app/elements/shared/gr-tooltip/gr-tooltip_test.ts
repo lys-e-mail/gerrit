@@ -24,10 +24,17 @@ const basicFixture = fixtureFromElement('gr-tooltip');
 
 suite('gr-tooltip tests', () => {
   let element: GrTooltip;
+<<<<<<< HEAD   (5684de Merge "Show vote value next to vote even if it's not the max)
 
+=======
+>>>>>>> BRANCH (3cc483 Merge branch 'stable-3.4' into stable-3.5)
   setup(async () => {
     element = basicFixture.instantiate() as GrTooltip;
+<<<<<<< HEAD   (5684de Merge "Show vote value next to vote even if it's not the max)
     await element.updateComplete;
+=======
+    await flush();
+>>>>>>> BRANCH (3cc483 Merge branch 'stable-3.4' into stable-3.5)
   });
 
   test('max-width is respected if set', async () => {
