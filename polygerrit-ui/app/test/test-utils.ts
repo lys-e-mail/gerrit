@@ -173,6 +173,7 @@ export function removeThemeStyles() {
   document.head.querySelector('#dark-theme')?.remove();
 }
 
+<<<<<<< HEAD   (d5f0b3 Add tracking for change and diff page re-renders)
 export async function waitQueryAndAssert<E extends Element = Element>(
   el: Element | null | undefined,
   selector: string
@@ -184,6 +185,8 @@ export async function waitQueryAndAssert<E extends Element = Element>(
   return queryAndAssert<E>(el, selector);
 }
 
+=======
+>>>>>>> BRANCH (7c031f Merge branch 'stable-3.4' into stable-3.5)
 export function waitUntil(
   predicate: () => boolean,
   message = 'The waitUntil() predicate is still false after 1000 ms.'

@@ -24,10 +24,17 @@ const basicFixture = fixtureFromElement('gr-tooltip');
 
 suite('gr-tooltip tests', () => {
   let element: GrTooltip;
+<<<<<<< HEAD   (d5f0b3 Add tracking for change and diff page re-renders)
 
+=======
+>>>>>>> BRANCH (7c031f Merge branch 'stable-3.4' into stable-3.5)
   setup(async () => {
     element = basicFixture.instantiate() as GrTooltip;
+<<<<<<< HEAD   (d5f0b3 Add tracking for change and diff page re-renders)
     await element.updateComplete;
+=======
+    await flush();
+>>>>>>> BRANCH (7c031f Merge branch 'stable-3.4' into stable-3.5)
   });
 
   test('max-width is respected if set', async () => {

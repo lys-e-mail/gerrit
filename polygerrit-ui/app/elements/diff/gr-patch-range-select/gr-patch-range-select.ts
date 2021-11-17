@@ -396,7 +396,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (d5f0b3 Add tracking for change and diff page re-renders)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (7c031f Merge branch 'stable-3.4' into stable-3.5)
       {patchNum},
       true
     );

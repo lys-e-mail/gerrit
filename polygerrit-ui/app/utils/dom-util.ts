@@ -408,7 +408,11 @@ export function addShortcut(
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (d5f0b3 Add tracking for change and diff page re-renders)
     if (e.repeat && !shortcut.allowRepeat) return;
+=======
+    if (e.repeat) return;
+>>>>>>> BRANCH (7c031f Merge branch 'stable-3.4' into stable-3.5)
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (eventMatchesShortcut(e, shortcut)) {
       listener(e);
