@@ -35,6 +35,17 @@ suite('gr-repo-plugin-config tests', () => {
     [{_key: 'testKey', info: 'testInfo'}]);
   });
 
+<<<<<<< HEAD   (5a82cb Set version to 3.5.0-SNAPSHOT)
+=======
+  test('_computeDisabled', () => {
+    assert.isFalse(element._computeDisabled(false, true));
+    assert.isTrue(element._computeDisabled(false, undefined));
+    assert.isTrue(element._computeDisabled(false, null));
+    assert.isTrue(element._computeDisabled(false, false));
+    assert.isTrue(element._computeDisabled(true, true));
+  });
+
+>>>>>>> BRANCH (76110d Merge branch 'stable-3.3' into stable-3.4)
   test('_handleChange', () => {
     const eventStub = sinon.stub(element, 'dispatchEvent');
     element.pluginData = {

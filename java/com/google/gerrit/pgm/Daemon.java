@@ -91,9 +91,16 @@ import com.google.gerrit.server.index.AbstractIndexModule;
 import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader.OnlineUpgraderModule;
 import com.google.gerrit.server.index.VersionManager;
+<<<<<<< HEAD   (5a82cb Set version to 3.5.0-SNAPSHOT)
 import com.google.gerrit.server.mail.SignedTokenEmailTokenVerifier.SignedTokenEmailTokenVerifierModule;
 import com.google.gerrit.server.mail.receive.MailReceiver.MailReceiverModule;
 import com.google.gerrit.server.mail.send.SmtpEmailSender.SmtpEmailSenderModule;
+=======
+import com.google.gerrit.server.index.options.AutoFlush;
+import com.google.gerrit.server.mail.SignedTokenEmailTokenVerifier;
+import com.google.gerrit.server.mail.receive.MailReceiver;
+import com.google.gerrit.server.mail.send.SmtpEmailSender;
+>>>>>>> BRANCH (76110d Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.mime.MimeUtil2Module;
 import com.google.gerrit.server.patch.DiffExecutorModule;
 import com.google.gerrit.server.permissions.DefaultPermissionBackendModule;
@@ -534,7 +541,7 @@ public class Daemon extends SiteProgram {
       return indexModule;
     }
     if (indexType.isLucene()) {
-      return LuceneIndexModule.latestVersion(replica);
+      return LuceneIndexModule.latestVersion(replica, AutoFlush.ENABLED);
     }
     if (indexType.isElasticsearch()) {
       return ElasticIndexModule.latestVersion(replica);

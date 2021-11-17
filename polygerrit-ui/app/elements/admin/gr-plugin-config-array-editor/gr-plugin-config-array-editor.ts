@@ -23,7 +23,6 @@ import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-plugin-config-array-editor_html';
 import {property, customElement} from '@polymer/decorators';
-import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {
   PluginConfigOptionsChangedEventDetail,
   ArrayPluginOption,
@@ -55,6 +54,7 @@ export class GrPluginConfigArrayEditor extends PolymerElement {
   @property({type: Object})
   pluginOption!: ArrayPluginOption;
 
+<<<<<<< HEAD   (5a82cb Set version to 3.5.0-SNAPSHOT)
   @property({type: Boolean, computed: '_computeDisabled(pluginOption.*)'})
   disabled!: boolean; // _computeDisabled never returns null
 
@@ -68,6 +68,10 @@ export class GrPluginConfigArrayEditor extends PolymerElement {
       record.base.info.editable
     );
   }
+=======
+  @property({type: Boolean, reflectToAttribute: true})
+  disabled = false;
+>>>>>>> BRANCH (76110d Merge branch 'stable-3.3' into stable-3.4)
 
   _handleAddTap(e: MouseEvent) {
     e.preventDefault();
