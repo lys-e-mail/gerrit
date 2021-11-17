@@ -88,6 +88,7 @@ export class GrRepoPluginConfig extends LitElement {
     ];
   }
 
+<<<<<<< HEAD   (5a82cb Set version to 3.5.0-SNAPSHOT)
   override render() {
     // Render can be called prior to pluginData being updated.
     const pluginConfigOptions = this.pluginData
@@ -113,6 +114,16 @@ export class GrRepoPluginConfig extends LitElement {
       `;
     } else {
       return html``;
+=======
+  @property({type: Boolean, reflectToAttribute: true})
+  disabled = false;
+
+  _computePluginConfigOptions(
+    dataRecord: PolymerDeepPropertyChange<PluginData, PluginData>
+  ): PluginOption[] {
+    if (!dataRecord || !dataRecord.base || !dataRecord.base.config) {
+      return [];
+>>>>>>> BRANCH (76110d Merge branch 'stable-3.3' into stable-3.4)
     }
   }
 
@@ -204,6 +215,34 @@ export class GrRepoPluginConfig extends LitElement {
     });
   }
 
+<<<<<<< HEAD   (5a82cb Set version to 3.5.0-SNAPSHOT)
+=======
+  _isArray(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.ARRAY;
+  }
+
+  _isBoolean(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.BOOLEAN;
+  }
+
+  _isList(type: ConfigParameterInfoType) {
+    return type === ConfigParameterInfoType.LIST;
+  }
+
+  _isString(type: ConfigParameterInfoType) {
+    // Treat numbers like strings for simplicity.
+    return (
+      type === ConfigParameterInfoType.STRING ||
+      type === ConfigParameterInfoType.INT ||
+      type === ConfigParameterInfoType.LONG
+    );
+  }
+
+  _computeDisabled(disabled: boolean, editable: boolean) {
+    return disabled || !editable;
+  }
+
+>>>>>>> BRANCH (76110d Merge branch 'stable-3.3' into stable-3.4)
   _computeChecked(value = 'false') {
     return JSON.parse(value) as boolean;
   }
