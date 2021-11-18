@@ -397,7 +397,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (40f372 Merge "Fix group suggesttions")
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (861623 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
       {patchNum},
       true
     );

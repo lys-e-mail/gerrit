@@ -1594,7 +1594,11 @@ export class GrRestApiInterface
       params.n = n;
     }
     if (project) {
+<<<<<<< HEAD   (40f372 Merge "Fix group suggesttions")
       params.p = project;
+=======
+      params.p = encodeURIComponent(project);
+>>>>>>> BRANCH (861623 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
     }
     return this._restApiHelper.fetchJSON({
       url: '/groups/',

@@ -173,6 +173,7 @@ export function removeThemeStyles() {
   document.head.querySelector('#dark-theme')?.remove();
 }
 
+<<<<<<< HEAD   (40f372 Merge "Fix group suggesttions")
 export async function waitQueryAndAssert<E extends Element = Element>(
   el: Element | null | undefined,
   selector: string
@@ -184,6 +185,8 @@ export async function waitQueryAndAssert<E extends Element = Element>(
   return queryAndAssert<E>(el, selector);
 }
 
+=======
+>>>>>>> BRANCH (861623 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
 export function waitUntil(
   predicate: () => boolean,
   message = 'The waitUntil() predicate is still false after 1000 ms.'

@@ -208,9 +208,13 @@ export class GrCommentThread extends PolymerElement {
 
   private readonly reporting = getAppContext().reportingService;
 
+<<<<<<< HEAD   (40f372 Merge "Fix group suggesttions")
   private readonly commentsService = getAppContext().commentsService;
 
   private readonly restApiService = getAppContext().restApiService;
+=======
+  private readonly commentsService = appContext.commentsService;
+>>>>>>> BRANCH (861623 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
 
   private readonly shortcuts = getAppContext().shortcutsService;
 

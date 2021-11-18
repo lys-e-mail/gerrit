@@ -408,7 +408,11 @@ export function addShortcut(
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (40f372 Merge "Fix group suggesttions")
     if (e.repeat && !shortcut.allowRepeat) return;
+=======
+    if (e.repeat) return;
+>>>>>>> BRANCH (861623 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (eventMatchesShortcut(e, shortcut)) {
       listener(e);
