@@ -164,8 +164,13 @@ public class PutConfig implements RestModifyView<ProjectResource, ConfigInput> {
       md.setMessage("Modified project settings\n");
       try {
         projectConfig.commit(md);
+<<<<<<< HEAD   (017801 Merge "doc: document how to get flat html doc files" into st)
         projectCache.evict(projectConfig.getProject());
         md.getRepository().setGitwebDescription(projectConfig.getProject().getDescription());
+=======
+        projectCache.evictAndReindex(projectConfig.getProject());
+        md.getRepository().setGitwebDescription(p.getDescription());
+>>>>>>> BRANCH (cf1429 Merge "Avoid lucene index deletes during offline reindexing")
       } catch (IOException e) {
         if (e.getCause() instanceof ConfigInvalidException) {
           throw new ResourceConflictException(

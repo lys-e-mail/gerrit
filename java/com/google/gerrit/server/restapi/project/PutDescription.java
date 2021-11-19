@@ -84,8 +84,13 @@ public class PutDescription implements RestModifyView<ProjectResource, Descripti
       md.setAuthor(user);
       md.setMessage(msg);
       config.commit(md);
+<<<<<<< HEAD   (017801 Merge "doc: document how to get flat html doc files" into st)
       cache.evict(resource.getProjectState().getProject());
       md.getRepository().setGitwebDescription(config.getProject().getDescription());
+=======
+      cache.evictAndReindex(resource.getProjectState().getProject());
+      md.getRepository().setGitwebDescription(project.getDescription());
+>>>>>>> BRANCH (cf1429 Merge "Avoid lucene index deletes during offline reindexing")
 
       return Strings.isNullOrEmpty(config.getProject().getDescription())
           ? Response.none()
