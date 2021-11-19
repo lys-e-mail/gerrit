@@ -153,12 +153,17 @@ public class GetAccess implements RestReadView<ProjectResource> {
       if (config.updateGroupNames(groupBackend)) {
         md.setMessage("Update group names\n");
         config.commit(md);
-        projectCache.evict(config.getProject());
+        projectCache.evictAndReindex(config.getProject());
         projectState = projectCache.get(projectName).orElseThrow(illegalState(projectName));
         perm = permissionBackend.currentUser().project(projectName);
       } else if (config.getRevision() != null
+<<<<<<< HEAD   (017801 Merge "doc: document how to get flat html doc files" into st)
           && !config.getRevision().equals(projectState.getConfig().getRevision().orElse(null))) {
         projectCache.evict(config.getProject());
+=======
+          && !config.getRevision().equals(projectState.getConfig().getRevision())) {
+        projectCache.evictAndReindex(config.getProject());
+>>>>>>> BRANCH (cf1429 Merge "Avoid lucene index deletes during offline reindexing")
         projectState = projectCache.get(projectName).orElseThrow(illegalState(projectName));
         perm = permissionBackend.currentUser().project(projectName);
       }
