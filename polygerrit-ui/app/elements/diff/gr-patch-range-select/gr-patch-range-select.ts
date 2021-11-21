@@ -397,7 +397,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
       {patchNum},
       true
     );

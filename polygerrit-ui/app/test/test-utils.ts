@@ -174,6 +174,7 @@ export function removeThemeStyles() {
   document.head.querySelector('#dark-theme')?.remove();
 }
 
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
 export async function waitQueryAndAssert<E extends Element = Element>(
   el: Element | null | undefined,
   selector: string
@@ -185,6 +186,8 @@ export async function waitQueryAndAssert<E extends Element = Element>(
   return queryAndAssert<E>(el, selector);
 }
 
+=======
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
 export function waitUntil(
   predicate: () => boolean,
   message = 'The waitUntil() predicate is still false after 1000 ms.'

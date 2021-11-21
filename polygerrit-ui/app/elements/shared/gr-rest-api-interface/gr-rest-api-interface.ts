@@ -1594,7 +1594,11 @@ export class GrRestApiInterface
       params.n = n;
     }
     if (project) {
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
       params.p = project;
+=======
+      params.p = encodeURIComponent(project);
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
     }
     return this._restApiHelper.fetchJSON({
       url: '/groups/',
