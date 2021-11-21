@@ -1,15 +1,13 @@
+<<<<<<< HEAD   (203787 Fix tests compilation)
+=======
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
-  <artifactId>gerrit-acceptance-framework</artifactId>
-<<<<<<< HEAD   (203787 Fix tests compilation)
-  <version>3.0.17-SNAPSHOT</version>
-=======
+  <artifactId>gerrit-plugin-gwtui</artifactId>
   <version>2.16.29-SNAPSHOT</version>
->>>>>>> BRANCH (caa2c7 Set version to 2.16.29-SNAPSHOT)
   <packaging>jar</packaging>
-  <name>Gerrit Code Review - Acceptance Test Framework</name>
-  <description>Framework for Gerrit's acceptance tests</description>
+  <name>Gerrit Code Review - Plugin GWT UI</name>
+  <description>Common Classes for Gerrit GWT UI Plugins</description>
   <url>https://www.gerritcodereview.com/</url>
 
   <licenses>
@@ -33,6 +31,9 @@
       <name>Ben Rohlfs</name>
     </developer>
     <developer>
+      <name>Dave Borowitz</name>
+    </developer>
+    <developer>
       <name>David Ostrovsky</name>
     </developer>
     <developer>
@@ -45,6 +46,9 @@
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
+      <name>Hugo Arès</name>
+    </developer>
+    <developer>
       <name>Luca Milanesio</name>
     </developer>
     <developer>
@@ -54,9 +58,6 @@
       <name>Martin Fick</name>
     </developer>
     <developer>
-      <name>Matthias Sohn</name>
-    </developer>
-    <developer>
       <name>Ole Rehmsen</name>
     </developer>
     <developer>
@@ -64,9 +65,6 @@
     </developer>
     <developer>
       <name>Saša Živkov</name>
-    </developer>
-    <developer>
-      <name>Sven Selberg</name>
     </developer>
   </developers>
 
@@ -85,3 +83,4 @@
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
+>>>>>>> BRANCH (caa2c7 Set version to 2.16.29-SNAPSHOT)
