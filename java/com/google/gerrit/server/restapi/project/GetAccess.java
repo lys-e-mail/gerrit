@@ -153,12 +153,17 @@ public class GetAccess implements RestReadView<ProjectResource> {
       if (config.updateGroupNames(groupBackend)) {
         md.setMessage("Update group names\n");
         config.commit(md);
-        projectCache.evict(config.getProject());
+        projectCache.evictAndReindex(config.getProject());
         projectState = projectCache.get(projectName).orElseThrow(illegalState(projectName));
         perm = permissionBackend.currentUser().project(projectName);
       } else if (config.getRevision() != null
+<<<<<<< HEAD   (5959eb Merge "Fix group suggestions" into stable-3.3)
           && !config.getRevision().equals(projectState.getConfig().getRevision().orElse(null))) {
         projectCache.evict(config.getProject());
+=======
+          && !config.getRevision().equals(projectState.getConfig().getRevision())) {
+        projectCache.evictAndReindex(config.getProject());
+>>>>>>> BRANCH (7e16d0 Merge branch 'stable-3.1' into stable-3.2)
         projectState = projectCache.get(projectName).orElseThrow(illegalState(projectName));
         perm = permissionBackend.currentUser().project(projectName);
       }
