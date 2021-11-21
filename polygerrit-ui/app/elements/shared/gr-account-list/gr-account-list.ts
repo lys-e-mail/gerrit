@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

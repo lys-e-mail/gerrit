@@ -208,9 +208,13 @@ export class GrCommentThread extends PolymerElement {
 
   private readonly reporting = getAppContext().reportingService;
 
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
   private readonly commentsService = getAppContext().commentsService;
 
   private readonly restApiService = getAppContext().restApiService;
+=======
+  private readonly commentsService = appContext.commentsService;
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
 
   private readonly shortcuts = getAppContext().shortcutsService;
 

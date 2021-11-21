@@ -408,7 +408,11 @@ export function addShortcut(
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (8a2831 Merge "Support watching test files for auto-testing")
     if (e.repeat && !shortcut.allowRepeat) return;
+=======
+    if (e.repeat) return;
+>>>>>>> BRANCH (7b0023 Merge changes from topic "externalId_online_migration" into )
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (eventMatchesShortcut(e, shortcut)) {
       listener(e);
