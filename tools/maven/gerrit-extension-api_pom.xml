@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (7d8239 Merge "Remove support for ElasticSearch indexes" into stable)
   <version>3.5.0-SNAPSHOT</version>
+=======
+  <version>3.4.3-SNAPSHOT</version>
+>>>>>>> BRANCH (d736a7 Set version to 3.4.3-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
