@@ -84,8 +84,13 @@ public class PutDescription implements RestModifyView<ProjectResource, Descripti
       md.setAuthor(user);
       md.setMessage(msg);
       config.commit(md);
+<<<<<<< HEAD   (5959eb Merge "Fix group suggestions" into stable-3.3)
       cache.evict(resource.getProjectState().getProject());
       md.getRepository().setGitwebDescription(config.getProject().getDescription());
+=======
+      cache.evictAndReindex(resource.getProjectState().getProject());
+      md.getRepository().setGitwebDescription(project.getDescription());
+>>>>>>> BRANCH (573411 Set version to 3.2.15-SNAPSHOT)
 
       return Strings.isNullOrEmpty(config.getProject().getDescription())
           ? Response.none()

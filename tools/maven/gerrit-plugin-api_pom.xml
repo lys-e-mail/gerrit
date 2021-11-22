@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (5959eb Merge "Fix group suggestions" into stable-3.3)
   <version>3.3.8-SNAPSHOT</version>
+=======
+  <version>3.2.15-SNAPSHOT</version>
+>>>>>>> BRANCH (573411 Set version to 3.2.15-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
