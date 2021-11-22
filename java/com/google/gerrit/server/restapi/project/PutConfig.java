@@ -164,8 +164,13 @@ public class PutConfig implements RestModifyView<ProjectResource, ConfigInput> {
       md.setMessage("Modified project settings\n");
       try {
         projectConfig.commit(md);
+<<<<<<< HEAD   (5959eb Merge "Fix group suggestions" into stable-3.3)
         projectCache.evict(projectConfig.getProject());
         md.getRepository().setGitwebDescription(projectConfig.getProject().getDescription());
+=======
+        projectCache.evictAndReindex(projectConfig.getProject());
+        md.getRepository().setGitwebDescription(p.getDescription());
+>>>>>>> BRANCH (573411 Set version to 3.2.15-SNAPSHOT)
       } catch (IOException e) {
         if (e.getCause() instanceof ConfigInvalidException) {
           throw new ResourceConflictException(
