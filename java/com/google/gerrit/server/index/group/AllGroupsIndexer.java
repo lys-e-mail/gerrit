@@ -30,6 +30,7 @@ import com.google.gerrit.server.account.GroupCache;
 import com.google.gerrit.server.group.db.Groups;
 import com.google.gerrit.server.group.db.GroupsNoteDbConsistencyChecker;
 import com.google.gerrit.server.index.IndexExecutor;
+import com.google.gerrit.server.index.options.IsFirstInsertForEntry;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
@@ -54,15 +55,18 @@ public class AllGroupsIndexer extends SiteIndexer<AccountGroup.UUID, InternalGro
   private final ListeningExecutorService executor;
   private final GroupCache groupCache;
   private final Groups groups;
+  private final IsFirstInsertForEntry isFirstInsertForEntry;
 
   @Inject
   AllGroupsIndexer(
       @IndexExecutor(BATCH) ListeningExecutorService executor,
       GroupCache groupCache,
-      Groups groups) {
+      Groups groups,
+      IsFirstInsertForEntry isFirstInsertForEntry) {
     this.executor = executor;
     this.groupCache = groupCache;
     this.groups = groups;
+    this.isFirstInsertForEntry = isFirstInsertForEntry;
   }
 
   @Override
@@ -96,9 +100,20 @@ public class AllGroupsIndexer extends SiteIndexer<AccountGroup.UUID, InternalGro
           executor.submit(
               () -> {
                 try {
+<<<<<<< HEAD   (137df1 Fix mismerge of I359578a)
                   InternalGroup internalGroup = reindexedGroups.get(uuid);
                   if (internalGroup != null) {
                     index.replace(internalGroup);
+=======
+                  groupCache.evict(uuid);
+                  Optional<InternalGroup> internalGroup = groupCache.get(uuid);
+                  if (internalGroup.isPresent()) {
+                    if (isFirstInsertForEntry.equals(isFirstInsertForEntry.YES)) {
+                      index.insert(internalGroup.get());
+                    } else {
+                      index.replace(internalGroup.get());
+                    }
+>>>>>>> BRANCH (8fac23 Set version to 3.3.9-SNAPSHOT)
                   } else {
                     index.delete(uuid);
 
