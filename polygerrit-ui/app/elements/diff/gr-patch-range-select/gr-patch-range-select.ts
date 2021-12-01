@@ -402,7 +402,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (02915b Merge "Submit Requirements - show new UI only when SR return)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
       {patchNum},
       true
     );

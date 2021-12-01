@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (02915b Merge "Submit Requirements - show new UI only when SR return)
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

@@ -534,8 +534,13 @@ export class ChangeComments {
     file: PatchSetFile | PatchNumOnly,
     ignorePatchsetLevelComments?: boolean
   ) {
+<<<<<<< HEAD   (02915b Merge "Submit Requirements - show new UI only when SR return)
     let comments: CommentInfo[] = [];
     let drafts: CommentInfo[] = [];
+=======
+    let comments: Comment[] = [];
+    let drafts: Comment[] = [];
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
 
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);
