@@ -469,6 +469,18 @@ export const htmlTemplate = html`
       content: '•';
       position: absolute;
     }
+<<<<<<< HEAD   (d29356 Update git submodules)
+=======
+    .special-char-warning {
+      /* spacing so elements don't collide */
+      padding-right: var(--spacing-m);
+    }
+    .special-char-warning:before {
+      color: var(--warning-foreground);
+      content: '!';
+      position: absolute;
+    }
+>>>>>>> BRANCH (783af2 Special char warning)
     /* Is defined after other background-colors, such that this
          rule wins in case of same specificity. */
     .trailing-whitespace,
