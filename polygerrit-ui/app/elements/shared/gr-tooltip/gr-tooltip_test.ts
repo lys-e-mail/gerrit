@@ -24,10 +24,17 @@ const basicFixture = fixtureFromElement('gr-tooltip');
 
 suite('gr-tooltip tests', () => {
   let element: GrTooltip;
+<<<<<<< HEAD   (7814e8 Update git submodules)
 
+=======
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
   setup(async () => {
     element = basicFixture.instantiate() as GrTooltip;
+<<<<<<< HEAD   (7814e8 Update git submodules)
     await element.updateComplete;
+=======
+    await flush();
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
   });
 
   test('max-width is respected if set', async () => {

@@ -534,8 +534,13 @@ export class ChangeComments {
     file: PatchSetFile | PatchNumOnly,
     ignorePatchsetLevelComments?: boolean
   ) {
+<<<<<<< HEAD   (7814e8 Update git submodules)
     let comments: CommentInfo[] = [];
     let drafts: CommentInfo[] = [];
+=======
+    let comments: Comment[] = [];
+    let drafts: Comment[] = [];
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
 
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);
