@@ -423,18 +423,33 @@ export function addShortcut(
   element: HTMLElement,
   shortcut: Binding,
   listener: (e: KeyboardEvent) => void,
+<<<<<<< HEAD   (7814e8 Update git submodules)
   options: ShortcutOptions = {
     shouldSuppress: false,
     doNotPrevent: false,
+=======
+  options: {
+    shouldSuppress: boolean;
+  } = {
+    shouldSuppress: false,
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (7814e8 Update git submodules)
     if (e.repeat && !shortcut.allowRepeat) return;
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (!eventMatchesShortcut(e, shortcut)) return;
     if (!options.doNotPrevent) e.preventDefault();
     if (!options.doNotPrevent) e.stopPropagation();
     listener(e);
+=======
+    if (e.repeat) return;
+    if (options.shouldSuppress && shouldSuppress(e)) return;
+    if (eventMatchesShortcut(e, shortcut)) {
+      listener(e);
+    }
+>>>>>>> BRANCH (cece05 Set version to 3.5.0-SNAPSHOT)
   };
   element.addEventListener('keydown', wrappedListener);
   return () => element.removeEventListener('keydown', wrappedListener);
