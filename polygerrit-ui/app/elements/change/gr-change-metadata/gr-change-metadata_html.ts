@@ -242,6 +242,27 @@ export const htmlTemplate = html`
         ></gr-account-chip>
       </span>
     </section>
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
+=======
+    <template is="dom-if" if="[[_isAssigneeEnabled(serverConfig)]]">
+      <section
+        class$="assignee [[_computeDisplayState(_showAllSections, change, _SECTION.ASSIGNEE)]]"
+      >
+        <span class="title">Assignee</span>
+        <span class="value">
+          <gr-account-list
+            id="assigneeValue"
+            placeholder="Set assignee..."
+            max-count="1"
+            accounts="{{_assignee}}"
+            readonly="[[_computeAssigneeReadOnly(_mutable, change)]]"
+            suggestions-provider="[[_getReviewerSuggestionsProvider(change)]]"
+          >
+          </gr-account-list>
+        </span>
+      </section>
+    </template>
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
     <section
       class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REVIEWERS)]]"
     >
