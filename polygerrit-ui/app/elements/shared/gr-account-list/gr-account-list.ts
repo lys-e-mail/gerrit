@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

@@ -229,6 +229,7 @@ export class GrCommentThread extends LitElement {
   @state()
   highlightRange?: CommentRange;
 
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
   /**
    * Reflects the *dirty* state of whether the thread is currently unresolved.
    * We are listening on the <gr-comment> of the draft, so we even know when the
@@ -244,6 +245,9 @@ export class GrCommentThread extends LitElement {
    */
   @state()
   saving = false;
+=======
+  private readonly commentsService = appContext.commentsService;
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
 
   private readonly commentsModel = getAppContext().commentsModel;
 
@@ -701,9 +705,15 @@ export class GrCommentThread extends LitElement {
     return undefined;
   }
 
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
   private getUrlForComment() {
     if (!this.repoName || !this.changeNum || this.isNewThread()) {
       return undefined;
+=======
+  _initLayers(disableTokenHighlighting: boolean) {
+    if (!disableTokenHighlighting) {
+      this.layers.push(new TokenHighlightLayer(this));
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
     }
     assertIsDefined(this.rootId, 'rootId of comment thread');
     return GerritNav.getUrlForComment(

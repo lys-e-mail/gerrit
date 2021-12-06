@@ -402,7 +402,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
       {patchNum},
       true
     );
