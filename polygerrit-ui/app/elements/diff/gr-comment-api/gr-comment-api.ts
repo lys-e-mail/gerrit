@@ -531,8 +531,13 @@ export class ChangeComments {
     file: PatchSetFile | PatchNumOnly,
     ignorePatchsetLevelComments?: boolean
   ) {
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
     let comments: CommentInfo[] = [];
     let drafts: CommentInfo[] = [];
+=======
+    let comments: Comment[] = [];
+    let drafts: Comment[] = [];
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
 
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
 // Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -161,3 +162,5 @@ public class ElasticQueryBuilder {
     }
   }
 }
+=======
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)

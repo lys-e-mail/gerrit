@@ -24,10 +24,17 @@ const basicFixture = fixtureFromElement('gr-tooltip');
 
 suite('gr-tooltip tests', () => {
   let element: GrTooltip;
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
 
+=======
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
   setup(async () => {
     element = basicFixture.instantiate() as GrTooltip;
+<<<<<<< HEAD   (6fe066 Evaluate the "is:submittable" operator based on submit requi)
     await element.updateComplete;
+=======
+    await flush();
+>>>>>>> BRANCH (fd7553 Set version to 3.5.1-SNAPSHOT)
   });
 
   test('max-width is respected if set', async () => {
