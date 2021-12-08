@@ -229,6 +229,7 @@ export class GrCommentThread extends LitElement {
   @state()
   highlightRange?: CommentRange;
 
+<<<<<<< HEAD   (ebce79 Submit Requirements - Show legacy requirements with flag on)
   /**
    * Reflects the *dirty* state of whether the thread is currently unresolved.
    * We are listening on the <gr-comment> of the draft, so we even know when the
@@ -244,6 +245,9 @@ export class GrCommentThread extends LitElement {
    */
   @state()
   saving = false;
+=======
+  private readonly commentsService = appContext.commentsService;
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
 
   private readonly commentsModel = getAppContext().commentsModel;
 
@@ -701,9 +705,15 @@ export class GrCommentThread extends LitElement {
     return undefined;
   }
 
+<<<<<<< HEAD   (ebce79 Submit Requirements - Show legacy requirements with flag on)
   private getUrlForComment() {
     if (!this.repoName || !this.changeNum || this.isNewThread()) {
       return undefined;
+=======
+  _initLayers(disableTokenHighlighting: boolean) {
+    if (!disableTokenHighlighting) {
+      this.layers.push(new TokenHighlightLayer(this));
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
     }
     assertIsDefined(this.rootId, 'rootId of comment thread');
     return GerritNav.getUrlForComment(

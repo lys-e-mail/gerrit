@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (ebce79 Submit Requirements - Show legacy requirements with flag on)
 // Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -161,3 +162,5 @@ public class ElasticQueryBuilder {
     }
   }
 }
+=======
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)

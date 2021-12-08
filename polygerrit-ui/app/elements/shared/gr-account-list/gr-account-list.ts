@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (ebce79 Submit Requirements - Show legacy requirements with flag on)
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

@@ -402,7 +402,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (ebce79 Submit Requirements - Show legacy requirements with flag on)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
       {patchNum},
       true
     );
