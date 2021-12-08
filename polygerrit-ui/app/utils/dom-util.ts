@@ -423,18 +423,33 @@ export function addShortcut(
   element: HTMLElement,
   shortcut: Binding,
   listener: (e: KeyboardEvent) => void,
+<<<<<<< HEAD   (50401a Merge "Convert gr-permission_test.js to typescript")
   options: ShortcutOptions = {
     shouldSuppress: false,
     doNotPrevent: false,
+=======
+  options: {
+    shouldSuppress: boolean;
+  } = {
+    shouldSuppress: false,
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (50401a Merge "Convert gr-permission_test.js to typescript")
     if (e.repeat && !shortcut.allowRepeat) return;
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (!eventMatchesShortcut(e, shortcut)) return;
     if (!options.doNotPrevent) e.preventDefault();
     if (!options.doNotPrevent) e.stopPropagation();
     listener(e);
+=======
+    if (e.repeat) return;
+    if (options.shouldSuppress && shouldSuppress(e)) return;
+    if (eventMatchesShortcut(e, shortcut)) {
+      listener(e);
+    }
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
   };
   element.addEventListener('keydown', wrappedListener);
   return () => element.removeEventListener('keydown', wrappedListener);

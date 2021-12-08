@@ -531,8 +531,13 @@ export class ChangeComments {
     file: PatchSetFile | PatchNumOnly,
     ignorePatchsetLevelComments?: boolean
   ) {
+<<<<<<< HEAD   (50401a Merge "Convert gr-permission_test.js to typescript")
     let comments: CommentInfo[] = [];
     let drafts: CommentInfo[] = [];
+=======
+    let comments: Comment[] = [];
+    let drafts: Comment[] = [];
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
 
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);

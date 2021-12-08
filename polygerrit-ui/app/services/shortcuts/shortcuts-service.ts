@@ -188,7 +188,14 @@ export class ShortcutsService implements Finalizable {
     return () => element.removeEventListener('keydown', wrappedListener);
   }
 
+<<<<<<< HEAD   (50401a Merge "Convert gr-permission_test.js to typescript")
   private reportTriggered(e: KeyboardEvent) {
+=======
+  shouldSuppress(e: KeyboardEvent) {
+    if (this.shortcutsDisabled) return true;
+    if (shouldSuppress(e)) return true;
+
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
     // eg: {key: "k:keydown", ..., from: "gr-diff-view"}
     let key = `${e.key}:${e.type}`;
     if (this.isInSpecificComboKeyMode(ComboKey.G)) key = 'g+' + key;

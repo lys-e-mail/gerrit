@@ -179,6 +179,7 @@ export function removeThemeStyles() {
   document.head.querySelector('#dark-theme')?.remove();
 }
 
+<<<<<<< HEAD   (50401a Merge "Convert gr-permission_test.js to typescript")
 export async function waitQueryAndAssert<E extends Element = Element>(
   el: Element | null | undefined,
   selector: string
@@ -190,6 +191,8 @@ export async function waitQueryAndAssert<E extends Element = Element>(
   return queryAndAssert<E>(el, selector);
 }
 
+=======
+>>>>>>> BRANCH (7b6ba9 Merge "Remove ES leftovers" into stable-3.5)
 export function waitUntil(
   predicate: () => boolean,
   message = 'The waitUntil() predicate is still false after 1000 ms.'
