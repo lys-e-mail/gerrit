@@ -469,6 +469,18 @@ export const htmlTemplate = html`
       content: '•';
       position: absolute;
     }
+<<<<<<< HEAD   (d29356 Update git submodules)
+=======
+    .special-char-warning {
+      /* spacing so elements don't collide */
+      padding-right: var(--spacing-m);
+    }
+    .special-char-warning:before {
+      color: var(--warning-foreground);
+      content: '!';
+      position: absolute;
+    }
+>>>>>>> BRANCH (d55deb Merge "Merge branch 'stable-3.2' into stable-3.3" into stabl)
     /* Is defined after other background-colors, such that this
          rule wins in case of same specificity. */
     .trailing-whitespace,
