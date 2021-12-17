@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (90d53d Merge "Add a dedicated RunStatus for SCHEDULED")
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

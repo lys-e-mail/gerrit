@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (90d53d Merge "Add a dedicated RunStatus for SCHEDULED")
 // Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -161,3 +162,5 @@ public class ElasticQueryBuilder {
     }
   }
 }
+=======
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
