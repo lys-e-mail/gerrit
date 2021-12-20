@@ -423,18 +423,33 @@ export function addShortcut(
   element: HTMLElement,
   shortcut: Binding,
   listener: (e: KeyboardEvent) => void,
+<<<<<<< HEAD   (fa2e23 Update JGit to 35713588f)
   options: ShortcutOptions = {
     shouldSuppress: false,
     doNotPrevent: false,
+=======
+  options: {
+    shouldSuppress: boolean;
+  } = {
+    shouldSuppress: false,
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
   }
 ) {
   const wrappedListener = (e: KeyboardEvent) => {
+<<<<<<< HEAD   (fa2e23 Update JGit to 35713588f)
     if (e.repeat && !shortcut.allowRepeat) return;
     if (options.shouldSuppress && shouldSuppress(e)) return;
     if (!eventMatchesShortcut(e, shortcut)) return;
     if (!options.doNotPrevent) e.preventDefault();
     if (!options.doNotPrevent) e.stopPropagation();
     listener(e);
+=======
+    if (e.repeat) return;
+    if (options.shouldSuppress && shouldSuppress(e)) return;
+    if (eventMatchesShortcut(e, shortcut)) {
+      listener(e);
+    }
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
   };
   element.addEventListener('keydown', wrappedListener);
   return () => element.removeEventListener('keydown', wrappedListener);

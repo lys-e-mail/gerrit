@@ -231,6 +231,7 @@ export class GrCommentThread extends LitElement {
   @state()
   highlightRange?: CommentRange;
 
+<<<<<<< HEAD   (fa2e23 Update JGit to 35713588f)
   /**
    * Reflects the *dirty* state of whether the thread is currently unresolved.
    * We are listening on the <gr-comment> of the draft, so we even know when the
@@ -246,6 +247,9 @@ export class GrCommentThread extends LitElement {
    */
   @state()
   saving = false;
+=======
+  private readonly commentsService = appContext.commentsService;
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
 
   // Private but used in tests.
   readonly getCommentsModel = resolve(this, commentsModelToken);
@@ -704,9 +708,15 @@ export class GrCommentThread extends LitElement {
     return undefined;
   }
 
+<<<<<<< HEAD   (fa2e23 Update JGit to 35713588f)
   private getUrlForComment() {
     if (!this.repoName || !this.changeNum || this.isNewThread()) {
       return undefined;
+=======
+  _initLayers(disableTokenHighlighting: boolean) {
+    if (!disableTokenHighlighting) {
+      this.layers.push(new TokenHighlightLayer(this));
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
     }
     assertIsDefined(this.rootId, 'rootId of comment thread');
     return GerritNav.getUrlForComment(
