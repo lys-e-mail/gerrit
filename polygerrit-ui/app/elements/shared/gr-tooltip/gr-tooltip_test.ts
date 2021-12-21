@@ -24,10 +24,17 @@ const basicFixture = fixtureFromElement('gr-tooltip');
 
 suite('gr-tooltip tests', () => {
   let element: GrTooltip;
+<<<<<<< HEAD   (beea83 Update JGit to 35713588f)
 
+=======
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
   setup(async () => {
     element = basicFixture.instantiate() as GrTooltip;
+<<<<<<< HEAD   (beea83 Update JGit to 35713588f)
     await element.updateComplete;
+=======
+    await flush();
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
   });
 
   test('max-width is respected if set', async () => {

@@ -169,6 +169,7 @@ export function removeThemeStyles() {
   document.head.querySelector('#dark-theme')?.remove();
 }
 
+<<<<<<< HEAD   (beea83 Update JGit to 35713588f)
 export async function waitQueryAndAssert<E extends Element = Element>(
   el: Element | null | undefined,
   selector: string
@@ -180,6 +181,8 @@ export async function waitQueryAndAssert<E extends Element = Element>(
   return queryAndAssert<E>(el, selector);
 }
 
+=======
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
 export function waitUntil(
   predicate: () => boolean,
   message = 'The waitUntil() predicate is still false after 1000 ms.'
