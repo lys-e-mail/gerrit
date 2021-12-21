@@ -188,7 +188,14 @@ export class ShortcutsService implements Finalizable {
     return () => element.removeEventListener('keydown', wrappedListener);
   }
 
+<<<<<<< HEAD   (db5a2f Convert gr-search-bar to lit)
   private reportTriggered(e: KeyboardEvent) {
+=======
+  shouldSuppress(e: KeyboardEvent) {
+    if (this.shortcutsDisabled) return true;
+    if (shouldSuppress(e)) return true;
+
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
     // eg: {key: "k:keydown", ..., from: "gr-diff-view"}
     let key = `${e.key}:${e.type}`;
     if (this.isInSpecificComboKeyMode(ComboKey.G)) key = 'g+' + key;

@@ -177,7 +177,11 @@ export class GrAccountList extends PolymerElement {
   @property({type: Object})
   _querySuggestions: (input: string) => Promise<SuggestionItem[]>;
 
+<<<<<<< HEAD   (db5a2f Convert gr-search-bar to lit)
   private readonly reporting = getAppContext().reportingService;
+=======
+  reporting: ReportingService;
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
 
   private pendingRemoval: Set<AccountInput> = new Set();
 

@@ -531,8 +531,13 @@ export class ChangeComments {
     file: PatchSetFile | PatchNumOnly,
     ignorePatchsetLevelComments?: boolean
   ) {
+<<<<<<< HEAD   (db5a2f Convert gr-search-bar to lit)
     let comments: CommentInfo[] = [];
     let drafts: CommentInfo[] = [];
+=======
+    let comments: Comment[] = [];
+    let drafts: Comment[] = [];
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
 
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);

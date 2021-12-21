@@ -404,7 +404,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (db5a2f Convert gr-search-bar to lit)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (20a119 Remove jackson-* libraries from Gerrit)
       {patchNum},
       true
     );
