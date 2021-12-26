@@ -404,7 +404,11 @@ export class GrPatchRangeSelect extends LitElement {
     );
     const commentThreadString = pluralize(commentThreadCount, 'comment');
 
+<<<<<<< HEAD   (566a65 Update git submodules)
     const unresolvedCount = this.changeComments.computeUnresolvedNum(
+=======
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+>>>>>>> BRANCH (b591c9 Merge branch 'stable-3.4' into 'stable-3.5')
       {patchNum},
       true
     );

@@ -52,6 +52,7 @@ public class TestLoggingActivator {
           .put("org.eclipse.jetty", Level.WARNING)
 
           // Silence non-critical messages from JGit.
+<<<<<<< HEAD   (566a65 Update git submodules)
           .put("org.eclipse.jgit.transport.PacketLineIn", Level.WARNING)
           .put("org.eclipse.jgit.transport.PacketLineOut", Level.WARNING)
           .put("org.eclipse.jgit.internal.transport.sshd", Level.WARNING)
@@ -66,6 +67,15 @@ public class TestLoggingActivator {
           // Silence non-critical messages from Docker for Elasticsearch query tests.
           .put("org.testcontainers", Level.WARNING)
           .put("com.github.dockerjava.core", Level.WARNING)
+=======
+          .put("org.eclipse.jgit.transport.PacketLineIn", Level.WARN)
+          .put("org.eclipse.jgit.transport.PacketLineOut", Level.WARN)
+          .put("org.eclipse.jgit.internal.transport.sshd", Level.WARN)
+          .put("org.eclipse.jgit.util.FileUtils", Level.WARN)
+          .put("org.eclipse.jgit.internal.storage.file.FileSnapshot", Level.WARN)
+          .put("org.eclipse.jgit.util.FS", Level.WARN)
+          .put("org.eclipse.jgit.util.SystemReader", Level.WARN)
+>>>>>>> BRANCH (b591c9 Merge branch 'stable-3.4' into 'stable-3.5')
           .build();
 
   private static Level getGerritLogLevel() {

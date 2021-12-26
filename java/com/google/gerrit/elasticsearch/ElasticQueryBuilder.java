@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (566a65 Update git submodules)
 // Copyright (C) 2014 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -161,3 +162,5 @@ public class ElasticQueryBuilder {
     }
   }
 }
+=======
+>>>>>>> BRANCH (b591c9 Merge branch 'stable-3.4' into 'stable-3.5')
