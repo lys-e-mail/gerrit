@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (b591c9 Merge branch 'stable-3.4' into 'stable-3.5')
   <version>3.5.1-SNAPSHOT</version>
+=======
+  <version>3.4.4-SNAPSHOT</version>
+>>>>>>> BRANCH (7affcb Bazel: Add no_rbe tag to test rules that cannot be run on RB)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
