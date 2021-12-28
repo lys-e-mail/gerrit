@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (b591c9 Merge branch 'stable-3.4' into 'stable-3.5')
   <version>3.5.1-SNAPSHOT</version>
+=======
+  <version>3.4.4-SNAPSHOT</version>
+>>>>>>> BRANCH (7affcb Bazel: Add no_rbe tag to test rules that cannot be run on RB)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
