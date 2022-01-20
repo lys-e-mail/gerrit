@@ -26,10 +26,14 @@ guice-servlet
 j2objc
 jimfs
 jruby
+<<<<<<< HEAD   (3a7525 Merge branch stable-3.4 into stable-3.5)
 lucene-analyzers-common
 lucene-core
 lucene-misc
 lucene-queryparser
+=======
+log4j
+>>>>>>> BRANCH (1f0148 Merge branch 'stable-3.3' into stable-3.4)
 mina-core
 nekohtml
 objenesis
