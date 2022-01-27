@@ -16,11 +16,12 @@
       "updated": "2022-01-27T09:23:35Z"
     },
     "gerritforge:polygerrit-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "RUNNING",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/02%252F329202%252F2/1/console",
+      "state": "FAILED",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-chrome-latest/8549/console",
       "started": "2022-01-27T09:25:14Z",
+      "finished": "2022-01-27T09:33:19Z",
       "created": "2022-01-27T09:23:37Z",
-      "updated": "2022-01-27T09:23:37Z"
+      "updated": "2022-01-27T09:31:41Z"
     },
     "gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "RUNNING",
