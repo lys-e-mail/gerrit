@@ -26,10 +26,14 @@ guice-servlet
 j2objc
 jimfs
 jruby
+<<<<<<< HEAD   (648147 Fix color in account dropdown)
 lucene-analyzers-common
 lucene-core
 lucene-misc
 lucene-queryparser
+=======
+log4j
+>>>>>>> BRANCH (52f279 Update jgit to 60b81c5a9280e44fa48d533a61f915382b2b9ce2)
 mina-core
 nekohtml
 objenesis
