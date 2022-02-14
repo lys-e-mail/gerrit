@@ -48,14 +48,26 @@ To check the installed version of Java, open a terminal window and run:
 
 `java -version`
 
-[[java-11]]
-==== Java 11 support
+<<<<<<< HEAD   (7b4bb2 Merge "Make sure to include eslint-plugins in BUILD for lint)
+=======
+[[java-8]]
+==== Java 8 support (deprecated)
 
-Java language level 11 is the default. To build Gerrit with Java 11 language
-level, run:
+Java 8 is a legacy Java release and support for Java 8 will be discontinued
+in future gerrit releases. To build Gerrit with Java 8 language level, run:
 
 ```
   $ bazel build :release
+```
+
+>>>>>>> BRANCH (df84f7 Merge branch 'stable-3.4' into stable-3.5)
+[[java-11]]
+==== Java 11 support
+
+To build Gerrit with Java 11 language level, run:
+
+```
+  $ bazel build --java_toolchain=//tools:error_prone_warnings_toolchain_java11 :release
 ```
 
 [[java-17]]

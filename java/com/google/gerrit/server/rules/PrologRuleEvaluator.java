@@ -400,7 +400,11 @@ public class PrologRuleEvaluator {
 
   private SubmitTypeRecord typeError(String err, Exception e) {
     if (opts.logErrors()) {
+<<<<<<< HEAD   (7b4bb2 Merge "Make sure to include eslint-plugins in BUILD for lint)
       logger.atSevere().withCause(e).log("%s", err);
+=======
+      logger.atSevere().withCause(e).log(err);
+>>>>>>> BRANCH (df84f7 Merge branch 'stable-3.4' into stable-3.5)
     }
     return SubmitTypeRecord.error(err);
   }

@@ -2,6 +2,7 @@ build --workspace_status_command="python3 ./tools/workspace_status.py"
 build --repository_cache=~/.gerritcodereview/bazel-cache/repository
 build --action_env=PATH
 build --disk_cache=~/.gerritcodereview/bazel-cache/cas
+<<<<<<< HEAD   (7b4bb2 Merge "Make sure to include eslint-plugins in BUILD for lint)
 
 # Builds using remotejdk_11, executes using remotejdk_11 or local_jdk
 build --java_language_version=11
@@ -26,6 +27,9 @@ build:remote17 --java_language_version=17
 build:remote17 --java_runtime_version=remotejdk_17
 build:remote17 --tool_java_language_version=17
 build:remote17 --tool_java_runtime_version=remotejdk_17
+=======
+build --java_toolchain=//tools:error_prone_warnings_toolchain
+>>>>>>> BRANCH (df84f7 Merge branch 'stable-3.4' into stable-3.5)
 
 # Enable strict_action_env flag to. For more information on this feature see
 # https://groups.google.com/forum/#!topic/bazel-discuss/_VmRfMyyHBk.
@@ -37,6 +41,11 @@ build --incompatible_strict_action_env
 build --announce_rc
 
 test --build_tests_only
+<<<<<<< HEAD   (7b4bb2 Merge "Make sure to include eslint-plugins in BUILD for lint)
 test --test_output=all
+=======
+test --test_output=errors
+test --java_toolchain=//tools:error_prone_warnings_toolchain
+>>>>>>> BRANCH (df84f7 Merge branch 'stable-3.4' into stable-3.5)
 
 import %workspace%/tools/remote-bazelrc
