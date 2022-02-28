@@ -36,6 +36,7 @@ import com.google.gerrit.extensions.registration.PrivateInternals_DynamicMapImpl
 import com.google.gerrit.extensions.registration.RegistrationHandle;
 import com.google.gerrit.extensions.webui.EditWebLink;
 import com.google.gerrit.extensions.webui.FileHistoryWebLink;
+import com.google.gerrit.extensions.webui.FileWebLink;
 import com.google.gerrit.extensions.webui.PatchSetWebLink;
 import com.google.gerrit.extensions.webui.ResolveConflictsWebLink;
 import com.google.gerrit.server.ExceptionHook;
@@ -79,8 +80,12 @@ public class ExtensionRegistry {
   private final DynamicSet<GitReferenceUpdatedListener> refUpdatedListeners;
   private final DynamicSet<FileHistoryWebLink> fileHistoryWebLinks;
   private final DynamicSet<PatchSetWebLink> patchSetWebLinks;
+<<<<<<< HEAD   (6311b3 plugins/gitiles: Bump to stable-3.5 branching point)
   private final DynamicSet<ResolveConflictsWebLink> resolveConflictsWebLinks;
   private final DynamicSet<EditWebLink> editWebLinks;
+=======
+  private final DynamicSet<FileWebLink> fileWebLinks;
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
   private final DynamicSet<RevisionCreatedListener> revisionCreatedListeners;
   private final DynamicSet<GroupBackend> groupBackends;
   private final DynamicSet<AccountActivationValidationListener>
@@ -117,8 +122,12 @@ public class ExtensionRegistry {
       DynamicSet<GitReferenceUpdatedListener> refUpdatedListeners,
       DynamicSet<FileHistoryWebLink> fileHistoryWebLinks,
       DynamicSet<PatchSetWebLink> patchSetWebLinks,
+<<<<<<< HEAD   (6311b3 plugins/gitiles: Bump to stable-3.5 branching point)
       DynamicSet<ResolveConflictsWebLink> resolveConflictsWebLinks,
       DynamicSet<EditWebLink> editWebLinks,
+=======
+      DynamicSet<FileWebLink> fileWebLinks,
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
       DynamicSet<RevisionCreatedListener> revisionCreatedListeners,
       DynamicSet<GroupBackend> groupBackends,
       DynamicSet<AccountActivationValidationListener> accountActivationValidationListeners,
@@ -151,8 +160,12 @@ public class ExtensionRegistry {
     this.refUpdatedListeners = refUpdatedListeners;
     this.fileHistoryWebLinks = fileHistoryWebLinks;
     this.patchSetWebLinks = patchSetWebLinks;
+<<<<<<< HEAD   (6311b3 plugins/gitiles: Bump to stable-3.5 branching point)
     this.editWebLinks = editWebLinks;
     this.resolveConflictsWebLinks = resolveConflictsWebLinks;
+=======
+    this.fileWebLinks = fileWebLinks;
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
     this.revisionCreatedListeners = revisionCreatedListeners;
     this.groupBackends = groupBackends;
     this.accountActivationValidationListeners = accountActivationValidationListeners;
@@ -256,12 +269,17 @@ public class ExtensionRegistry {
       return add(patchSetWebLinks, patchSetWebLink);
     }
 
+<<<<<<< HEAD   (6311b3 plugins/gitiles: Bump to stable-3.5 branching point)
     public Registration add(ResolveConflictsWebLink resolveConflictsWebLink) {
       return add(resolveConflictsWebLinks, resolveConflictsWebLink);
     }
 
     public Registration add(EditWebLink editWebLink) {
       return add(editWebLinks, editWebLink);
+=======
+    public Registration add(FileWebLink fileWebLink) {
+      return add(fileWebLinks, fileWebLink);
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
     }
 
     public Registration add(RevisionCreatedListener revisionCreatedListener) {

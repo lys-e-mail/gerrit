@@ -141,7 +141,8 @@ public class WebLinks {
    * Returns links for editing
    *
    * @param project Project name.
-   * @param revision SHA1 of revision.
+   * @param revision Name of the revision (e.g. branch or commit ID)
+   * @param hash SHA1 of revision.
    * @param file File name.
    */
   public ImmutableList<WebLinkInfo> getEditLinks(String project, String revision, String file) {
@@ -157,10 +158,11 @@ public class WebLinks {
    * @param revision SHA1 of revision.
    * @param file File name.
    */
-  public ImmutableList<WebLinkInfo> getFileLinks(String project, String revision, String file) {
+  public ImmutableList<WebLinkInfo> getFileLinks(
+      String project, String revision, String hash, String file) {
     return Patch.isMagic(file)
         ? ImmutableList.of()
-        : filterLinks(fileLinks, webLink -> webLink.getFileWebLink(project, revision, file));
+        : filterLinks(fileLinks, webLink -> webLink.getFileWebLink(project, revision, hash, file));
   }
 
   /**
