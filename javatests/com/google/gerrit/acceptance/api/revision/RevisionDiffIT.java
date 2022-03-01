@@ -49,9 +49,13 @@ import com.google.gerrit.extensions.common.FileInfo;
 import com.google.gerrit.extensions.common.WebLinkInfo;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.BinaryResult;
+<<<<<<< HEAD   (04e6db Update git submodules)
 import com.google.gerrit.extensions.webui.EditWebLink;
 import com.google.gerrit.server.patch.DiffOperations;
 import com.google.gerrit.server.patch.filediff.FileDiffOutput;
+=======
+import com.google.gerrit.extensions.webui.FileWebLink;
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
 import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -88,8 +92,15 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   private static final String FILE_CONTENT2 = "1st line\n2nd line\n3rd line\n";
 
   @Inject private ExtensionRegistry extensionRegistry;
+<<<<<<< HEAD   (04e6db Update git submodules)
   @Inject private DiffOperations diffOperations;
   @Inject private ProjectOperations projectOperations;
+=======
+
+  private boolean intraline;
+  private boolean useNewDiffCacheListFiles;
+  private boolean useNewDiffCacheGetDiff;
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
 
   private boolean intraline;
 
@@ -179,6 +190,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (04e6db Update git submodules)
   public void editWebLinkIncludedInDiff() throws Exception {
     try (Registration registration = newEditWebLink()) {
       String fileName = "a_new_file.txt";
@@ -192,6 +204,24 @@ public class RevisionDiffIT extends AbstractDaemonTest {
               .diff();
       assertThat(info.editWebLinks).hasSize(1);
       assertThat(info.editWebLinks.get(0).url).isEqualTo("http://edit/" + project + "/" + fileName);
+=======
+  public void gitwebFileWebLinkIncludedInDiff() throws Exception {
+    try (Registration registration = newGitwebFileWebLink()) {
+      String fileName = "foo.txt";
+      String fileContent = "bar\n";
+      PushOneCommit.Result result = createChange("Add a file", fileName, fileContent);
+      DiffInfo info =
+          gApi.changes()
+              .id(result.getChangeId())
+              .revision(result.getCommit().name())
+              .file(fileName)
+              .diff();
+      assertThat(info.metaB.webLinks).hasSize(1);
+      assertThat(info.metaB.webLinks.get(0).url)
+          .isEqualTo(
+              String.format(
+                  "http://gitweb/?p=%s;hb=%s;f=%s", project, result.getCommit().name(), fileName));
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
     }
   }
 
@@ -2952,6 +2982,7 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     assertThat(e).hasMessageThat().isEqualTo("edit not allowed as base");
   }
 
+<<<<<<< HEAD   (04e6db Update git submodules)
   private Registration newEditWebLink() {
     EditWebLink webLink =
         new EditWebLink() {
@@ -2962,6 +2993,21 @@ public class RevisionDiffIT extends AbstractDaemonTest {
           }
         };
     return extensionRegistry.newRegistration().add(webLink);
+=======
+  private Registration newGitwebFileWebLink() {
+    FileWebLink fileWebLink =
+        new FileWebLink() {
+          @Override
+          public WebLinkInfo getFileWebLink(
+              String projectName, String revision, String hash, String fileName) {
+            return new WebLinkInfo(
+                "name",
+                "imageURL",
+                String.format("http://gitweb/?p=%s;hb=%s;f=%s", projectName, hash, fileName));
+          }
+        };
+    return extensionRegistry.newRegistration().add(fileWebLink);
+>>>>>>> BRANCH (996d20 Merge branch 'stable-3.3' into stable-3.4)
   }
 
   private String updatedCommitMessage() {
