@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (7ac5c8 Update git submodules)
   <version>3.4.4-SNAPSHOT</version>
+=======
+  <version>3.3.11-SNAPSHOT</version>
+>>>>>>> BRANCH (7f63da Set version to 3.3.11-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
