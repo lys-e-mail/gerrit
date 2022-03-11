@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (80d908 Memoize compiled RefPattern in ProjectCache)
   <version>3.5.1-SNAPSHOT</version>
+=======
+  <version>3.4.4</version>
+>>>>>>> BRANCH (43385e Set version to 3.4.4)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
