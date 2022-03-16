@@ -399,6 +399,7 @@ public abstract class ChangeEmail extends NotificationEmail {
 
   @Override
   protected void add(RecipientType rt, Account.Id to) {
+<<<<<<< HEAD   (7ac5c8 Update git submodules)
     Optional<AccountState> accountState = args.accountCache.get(to);
     if (!accountState.isPresent()) {
       return;
@@ -408,6 +409,26 @@ public abstract class ChangeEmail extends NotificationEmail {
             == EmailStrategy.ATTENTION_SET_ONLY
         && !currentAttentionSet.contains(to)) {
       return;
+=======
+    addRecipient(rt, to, /* isWatcher= */ false);
+  }
+
+  /** This bypasses the EmailStrategy.ATTENTION_SET_ONLY strategy when adding the recipient. */
+  @Override
+  protected void addWatcher(RecipientType rt, Account.Id to) {
+    addRecipient(rt, to, /* isWatcher= */ true);
+  }
+
+  private void addRecipient(RecipientType rt, Account.Id to, boolean isWatcher) {
+    if (!isWatcher) {
+      Optional<AccountState> accountState = args.accountCache.get(to);
+      if (accountState.isPresent()
+          && accountState.get().generalPreferences().getEmailStrategy()
+              == EmailStrategy.ATTENTION_SET_ONLY
+          && !currentAttentionSet.contains(to)) {
+        return;
+      }
+>>>>>>> BRANCH (bf22fe Merge "Update reload4j to 1.2.19 and slf4j to 1.7.36" into s)
     }
     if (emailOnlyAuthors && !authors.contains(to)) {
       return;

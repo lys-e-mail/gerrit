@@ -27,12 +27,19 @@ guice-library
 guice-servlet
 httpasyncclient
 httpcore-nio
+impl-log4j
 j2objc
 jackson-annotations
 jackson-core
+<<<<<<< HEAD   (7ac5c8 Update git submodules)
 jimfs
+=======
+jcl-over-slf4j
+>>>>>>> BRANCH (bf22fe Merge "Update reload4j to 1.2.19 and slf4j to 1.7.36" into s)
 jna
 jruby
+log-api
+log-ext
 log4j
 mina-core
 nekohtml
