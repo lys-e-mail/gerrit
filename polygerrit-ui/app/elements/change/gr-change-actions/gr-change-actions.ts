@@ -556,9 +556,13 @@ export class GrChangeActions
   @property({type: Boolean})
   loggedIn = false;
 
+<<<<<<< HEAD   (c4669f Stop preloading Highlight.js)
   private readonly restApiService = getAppContext().restApiService;
 
   private readonly storage = getAppContext().storageService;
+=======
+  private readonly restApiService = appContext.restApiService;
+>>>>>>> BRANCH (a6e292 Merge branch 'stable-3.4' into stable-3.5)
 
   constructor() {
     super();
