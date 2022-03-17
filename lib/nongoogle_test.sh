@@ -23,9 +23,23 @@ guava
 guice-assistedinject
 guice-library
 guice-servlet
+<<<<<<< HEAD   (b83a15 Change visibility: prefer test instead of check)
+=======
+httpasyncclient
+httpcore-nio
+impl-log4j
+>>>>>>> BRANCH (19a6c8 Set version to 3.4.5-SNAPSHOT)
 j2objc
+<<<<<<< HEAD   (b83a15 Change visibility: prefer test instead of check)
+=======
+jackson-annotations
+jackson-core
+jcl-over-slf4j
+>>>>>>> BRANCH (19a6c8 Set version to 3.4.5-SNAPSHOT)
 jimfs
 jruby
+log-api
+log-ext
 log4j
 lucene-analyzers-common
 lucene-core
