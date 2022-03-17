@@ -464,8 +464,12 @@ public class CmdLineParser {
 
     MyParser(Object bean) {
       super(bean, ParserProperties.defaults().withAtSyntax(false));
+<<<<<<< HEAD   (c58b4c Merge branch 'stable-2.16' into stable-3.0)
       parseAdditionalOptions(bean, new HashSet<>());
       addOptionsWithMetRequirements();
+=======
+      parseAdditionalOptions("", bean, new HashSet<>());
+>>>>>>> BRANCH (37f56c Revert "CmdLineParser: Remove unused prefix argument")
       ensureOptionsInitialized();
     }
 
@@ -535,7 +539,7 @@ public class CmdLineParser {
       }
     }
 
-    private void parseAdditionalOptions(Object bean, Set<Object> parsedBeans) {
+    private void parseAdditionalOptions(String prefix, Object bean, Set<Object> parsedBeans) {
       for (Class<?> c = bean.getClass(); c != null; c = c.getSuperclass()) {
         for (Field f : c.getDeclaredFields()) {
           if (f.isAnnotationPresent(Options.class)) {
@@ -545,7 +549,8 @@ public class CmdLineParser {
             } catch (IllegalAccessException e) {
               throw new IllegalAnnotationError(e);
             }
-            parseWithPrefix(f.getAnnotation(Options.class).prefix(), additionalBean, parsedBeans);
+            parseWithPrefix(
+                prefix + f.getAnnotation(Options.class).prefix(), additionalBean, parsedBeans);
           }
         }
       }
