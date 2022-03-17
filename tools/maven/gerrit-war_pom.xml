@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (b83a15 Change visibility: prefer test instead of check)
   <version>3.5.1-SNAPSHOT</version>
+=======
+  <version>3.4.5-SNAPSHOT</version>
+>>>>>>> BRANCH (19a6c8 Set version to 3.4.5-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
