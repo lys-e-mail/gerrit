@@ -23,6 +23,12 @@ guava
 guice-assistedinject
 guice-library
 guice-servlet
+<<<<<<< HEAD   (b2a5a7 Merge branch 'stable-3.4' into stable-3.5)
+=======
+hamcrest
+httpasyncclient
+httpcore-nio
+>>>>>>> BRANCH (f22e34 Bump jgit submodule to stable-5.13)
 impl-log4j
 j2objc
 jcl-over-slf4j
