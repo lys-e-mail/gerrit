@@ -21,6 +21,13 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-download-commands/gr-download-commands';
 import '../../shared/gr-select/gr-select';
 import '../../shared/gr-textarea/gr-textarea';
+<<<<<<< HEAD   (73fece Merge "Add bulk vote flow")
+=======
+import '../../../styles/gr-font-styles';
+import '../../../styles/gr-form-styles';
+import '../../../styles/gr-subpage-styles';
+import '../../../styles/shared-styles';
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
 import '../gr-repo-plugin-config/gr-repo-plugin-config';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {
