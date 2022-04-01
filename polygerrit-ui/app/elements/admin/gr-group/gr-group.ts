@@ -15,11 +15,24 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD   (9aac9a Add property project_prefix)
+=======
+import '../../../styles/gr-font-styles';
+import '../../../styles/gr-form-styles';
+import '../../../styles/gr-subpage-styles';
+import '../../../styles/shared-styles';
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-copy-clipboard/gr-copy-clipboard';
 import '../../shared/gr-select/gr-select';
 import '../../shared/gr-textarea/gr-textarea';
+<<<<<<< HEAD   (9aac9a Add property project_prefix)
+=======
+import {PolymerElement} from '@polymer/polymer/polymer-element';
+import {htmlTemplate} from './gr-group_html';
+import {customElement, property, observe} from '@polymer/decorators';
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
 import {
   AutocompleteSuggestion,
   AutocompleteQuery,
