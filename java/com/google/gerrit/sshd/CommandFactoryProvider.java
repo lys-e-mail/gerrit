@@ -187,12 +187,15 @@ class CommandFactoryProvider implements Provider<CommandFactory>, LifecycleListe
                 @Override
                 public void onExit(int rc, String exitMessage, boolean closeImmediately) {
                   exit.onExit(translateExit(rc), exitMessage, closeImmediately);
+<<<<<<< HEAD   (9aac9a Add property project_prefix)
                   log(rc, exitMessage);
                 }
 
                 @Override
                 public void onExit(int rc, String exitMessage) {
                   exit.onExit(translateExit(rc), exitMessage);
+=======
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
                   log(rc, exitMessage);
                 }
 

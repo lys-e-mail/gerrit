@@ -556,9 +556,13 @@ export class GrChangeActions
   @property({type: Boolean})
   loggedIn = false;
 
+<<<<<<< HEAD   (9aac9a Add property project_prefix)
   private readonly restApiService = getAppContext().restApiService;
 
   private readonly storage = getAppContext().storageService;
+=======
+  private readonly restApiService = appContext.restApiService;
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
 
   constructor() {
     super();
