@@ -37,7 +37,29 @@ public class CreateChangeSender extends NewChangeSender {
   protected void init() throws EmailException {
     super.init();
 
+<<<<<<< HEAD   (9aac9a Add property project_prefix)
     includeWatchers(NotifyType.NEW_CHANGES, !change.isWorkInProgress() && !change.isPrivate());
+=======
+    try {
+      // Upgrade watching owners from CC and BCC to TO.
+      Watchers matching =
+          getWatchers(NotifyType.NEW_CHANGES, !change.isWorkInProgress() && !change.isPrivate());
+      // TODO(hiesel): Remove special handling for owners
+      StreamSupport.stream(matching.all().accounts.spliterator(), false)
+          .filter(this::isOwnerOfProjectOrBranch)
+          .forEach(acc -> addWatcher(RecipientType.TO, acc));
+      // Add everyone else. Owners added above will not be duplicated.
+      add(RecipientType.TO, matching.to);
+      add(RecipientType.CC, matching.cc);
+      add(RecipientType.BCC, matching.bcc);
+    } catch (StorageException err) {
+      // Just don't CC everyone. Better to send a partial message to those
+      // we already have queued up then to fail deliver entirely to people
+      // who have a lower interest in the change.
+      logger.atWarning().withCause(err).log("Cannot notify watchers for new change");
+    }
+
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
     includeWatchers(NotifyType.NEW_PATCHSETS, !change.isWorkInProgress() && !change.isPrivate());
   }
 }
