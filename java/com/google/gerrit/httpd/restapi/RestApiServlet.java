@@ -326,10 +326,17 @@ public class RestApiServlet extends HttpServlet {
     try (TraceContext traceContext = enableTracing(req, res)) {
       List<IdString> path = splitPath(req);
 
+<<<<<<< HEAD   (371f39 Merge branch 'stable-3.1' into stable-3.2)
       try (PerThreadCache ignored = PerThreadCache.create()) {
         RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
         globals.requestListeners.runEach(l -> l.onRequest(requestInfo));
 
+=======
+      RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
+      globals.requestListeners.runEach(l -> l.onRequest(requestInfo));
+
+      try (PerThreadCache ignored = PerThreadCache.create(req)) {
+>>>>>>> BRANCH (0e621c Merge branch 'stable-3.0' into stable-3.1)
         // It's important that the PerformanceLogContext is closed before the response is sent to
         // the client. Only this way it is ensured that the invocation of the PerformanceLogger
         // plugins happens before the client sees the response. This is needed for being able to
