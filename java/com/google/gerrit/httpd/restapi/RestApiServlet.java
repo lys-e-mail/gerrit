@@ -311,6 +311,7 @@ public class RestApiServlet extends HttpServlet {
     ViewData viewData = null;
 
     try (TraceContext traceContext = enableTracing(req, res)) {
+<<<<<<< HEAD   (604bac Merge branch 'stable-3.0' into stable-3.1)
       List<IdString> path = splitPath(req);
 
       RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
@@ -331,6 +332,13 @@ public class RestApiServlet extends HttpServlet {
           logger.atFinest().log(
               "Groups: %s",
               lazy(() -> globals.currentUser.get().getEffectiveGroups().getKnownGroups()));
+=======
+      try (PerThreadCache ignored = PerThreadCache.create(req)) {
+        logger.atFinest().log(
+            "Received REST request: %s %s (parameters: %s)",
+            req.getMethod(), req.getRequestURI(), getParameterNames(req));
+        logger.atFinest().log("Calling user: %s", globals.currentUser.get().getLoggableName());
+>>>>>>> BRANCH (338660 Merge branch 'stable-2.16' into stable-3.0)
 
           if (isCorsPreflight(req)) {
             doCorsPreflight(req, res);
