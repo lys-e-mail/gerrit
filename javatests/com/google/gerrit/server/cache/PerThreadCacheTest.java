@@ -15,9 +15,20 @@
 package com.google.gerrit.server.cache;
 
 import static com.google.common.truth.Truth.assertThat;
+<<<<<<< HEAD   (604bac Merge branch 'stable-3.0' into stable-3.1)
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+=======
+import static com.google.common.truth.Truth8.assertThat;
+>>>>>>> BRANCH (462bb1 Merge branch 'stable-2.16' into stable-3.0)
 
+<<<<<<< HEAD   (604bac Merge branch 'stable-3.0' into stable-3.1)
+=======
+import com.google.gerrit.testing.GerritBaseTests;
+import com.google.gerrit.util.http.testutil.FakeHttpServletRequest;
+>>>>>>> BRANCH (462bb1 Merge branch 'stable-2.16' into stable-3.0)
 import java.util.function.Supplier;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import org.junit.Test;
 
 public class PerThreadCacheTest {
@@ -39,7 +50,7 @@ public class PerThreadCacheTest {
 
   @Test
   public void endToEndCache() {
-    try (PerThreadCache ignored = PerThreadCache.create()) {
+    try (PerThreadCache ignored = PerThreadCache.create(null)) {
       PerThreadCache cache = PerThreadCache.get();
       PerThreadCache.Key<String> key1 = PerThreadCache.Key.create(String.class);
 
@@ -57,7 +68,7 @@ public class PerThreadCacheTest {
   @Test
   public void cleanUp() {
     PerThreadCache.Key<String> key = PerThreadCache.Key.create(String.class);
-    try (PerThreadCache ignored = PerThreadCache.create()) {
+    try (PerThreadCache ignored = PerThreadCache.create(null)) {
       PerThreadCache cache = PerThreadCache.get();
       String value1 = cache.get(key, () -> "value1");
       assertThat(value1).isEqualTo("value1");
@@ -65,7 +76,7 @@ public class PerThreadCacheTest {
 
     // Create a second cache and assert that it is not connected to the first one.
     // This ensures that the cleanup is actually working.
-    try (PerThreadCache ignored = PerThreadCache.create()) {
+    try (PerThreadCache ignored = PerThreadCache.create(null)) {
       PerThreadCache cache = PerThreadCache.get();
       String value1 = cache.get(key, () -> "value2");
       assertThat(value1).isEqualTo("value2");
@@ -74,16 +85,55 @@ public class PerThreadCacheTest {
 
   @Test
   public void doubleInstantiationFails() {
+<<<<<<< HEAD   (604bac Merge branch 'stable-3.0' into stable-3.1)
     try (PerThreadCache ignored = PerThreadCache.create()) {
       IllegalStateException thrown =
           assertThrows(IllegalStateException.class, () -> PerThreadCache.create());
       assertThat(thrown).hasMessageThat().contains("called create() twice on the same request");
+=======
+    try (PerThreadCache ignored = PerThreadCache.create(null)) {
+      exception.expect(IllegalStateException.class);
+      exception.expectMessage("called create() twice on the same request");
+      PerThreadCache.create(null);
+    }
+  }
+
+  @Test
+  public void isAssociatedWithHttpReadonlyRequest() {
+    HttpServletRequest getRequest = new FakeHttpServletRequest();
+    try (PerThreadCache cache = PerThreadCache.create(getRequest)) {
+      assertThat(cache.getHttpRequest()).hasValue(getRequest);
+      assertThat(cache.hasReadonlyRequest()).isTrue();
+    }
+  }
+
+  @Test
+  public void isAssociatedWithHttpWriteRequest() {
+    HttpServletRequest putRequest =
+        new HttpServletRequestWrapper(new FakeHttpServletRequest()) {
+          @Override
+          public String getMethod() {
+            return "PUT";
+          }
+        };
+    try (PerThreadCache cache = PerThreadCache.create(putRequest)) {
+      assertThat(cache.getHttpRequest()).hasValue(putRequest);
+      assertThat(cache.hasReadonlyRequest()).isFalse();
+    }
+  }
+
+  @Test
+  public void isNotAssociatedWithHttpRequest() {
+    try (PerThreadCache cache = PerThreadCache.create(null)) {
+      assertThat(cache.getHttpRequest()).isEmpty();
+      assertThat(cache.hasReadonlyRequest()).isFalse();
+>>>>>>> BRANCH (462bb1 Merge branch 'stable-2.16' into stable-3.0)
     }
   }
 
   @Test
   public void enforceMaxSize() {
-    try (PerThreadCache cache = PerThreadCache.create()) {
+    try (PerThreadCache cache = PerThreadCache.create(null)) {
       // Fill the cache
       for (int i = 0; i < 50; i++) {
         PerThreadCache.Key<String> key = PerThreadCache.Key.create(String.class, i);
