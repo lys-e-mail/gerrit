@@ -26,6 +26,12 @@ import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.index.Index;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
+=======
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.cache.PerThreadCache;
+>>>>>>> BRANCH (c22d28 Cache change /meta ref SHA1 for each change indexing task)
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.index.IndexExecutor;
 import com.google.gerrit.server.logging.TraceContext;
@@ -327,8 +333,15 @@ public class ChangeIndexer {
     @Override
     public Void callImpl() throws Exception {
       remove();
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
       ChangeData cd = changeDataFactory.create(project, id);
       index(cd);
+=======
+      try (PerThreadCache perThreadCache = PerThreadCache.createReadOnly()) {
+        ChangeData cd = newChangeData(db.get(), project, id);
+        index(cd);
+      }
+>>>>>>> BRANCH (c22d28 Cache change /meta ref SHA1 for each change indexing task)
       return null;
     }
 
