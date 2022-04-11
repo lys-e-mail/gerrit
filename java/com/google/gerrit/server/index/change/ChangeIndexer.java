@@ -26,6 +26,12 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.index.Index;
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
+=======
+import com.google.gerrit.reviewdb.client.Change;
+import com.google.gerrit.reviewdb.client.Project;
+import com.google.gerrit.server.cache.PerThreadCache;
+>>>>>>> BRANCH (822fcf Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.index.IndexExecutor;
 import com.google.gerrit.server.logging.Metadata;
@@ -359,6 +365,7 @@ public class ChangeIndexer {
     @Override
     public Void callImpl() throws Exception {
       remove();
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
       try {
         ChangeNotes changeNotes = notesFactory.createChecked(project, id);
         doIndex(changeDataFactory.create(changeNotes));
@@ -366,6 +373,13 @@ public class ChangeIndexer {
         doDelete(id);
       }
       return null;
+=======
+      try (PerThreadCache perThreadCache = PerThreadCache.createReadOnly()) {
+        ChangeData cd = changeDataFactory.create(project, id);
+        index(cd);
+        return null;
+      }
+>>>>>>> BRANCH (822fcf Merge branch 'stable-2.16' into stable-3.0)
     }
 
     @Override
