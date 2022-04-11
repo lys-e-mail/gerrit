@@ -556,9 +556,13 @@ export class GrChangeActions
   @property({type: Boolean})
   loggedIn = false;
 
+<<<<<<< HEAD   (663559 Merge "Fix threading issue in Diff cache")
   private readonly restApiService = getAppContext().restApiService;
 
   private readonly storage = getAppContext().storageService;
+=======
+  private readonly restApiService = appContext.restApiService;
+>>>>>>> BRANCH (13f6a2 Merge branch 'stable-3.4' into stable-3.5)
 
   constructor() {
     super();
