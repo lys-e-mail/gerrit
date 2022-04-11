@@ -361,9 +361,14 @@ public class RestApiServlet extends HttpServlet {
     try (TraceContext traceContext = enableTracing(req, res)) {
       String requestUri = requestUri(req);
 
+<<<<<<< HEAD   (605261 Merge branch 'stable-3.4' into stable-3.5)
       try (PerThreadCache ignored = PerThreadCache.create()) {
         List<IdString> path = splitPath(req);
         RequestInfo requestInfo = createRequestInfo(traceContext, requestUri, path);
+=======
+      try (PerThreadCache ignored = PerThreadCache.create(req)) {
+        RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
+>>>>>>> BRANCH (7d90f7 Merge branch 'stable-3.3' into stable-3.4)
         globals.requestListeners.runEach(l -> l.onRequest(requestInfo));
 
         // It's important that the PerformanceLogContext is closed before the response is sent to
