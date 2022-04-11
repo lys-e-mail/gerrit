@@ -81,14 +81,22 @@ public abstract class NotificationEmail extends OutgoingEmail {
   protected abstract Watchers getWatchers(NotifyType type, boolean includeWatchersFromNotifyConfig);
 
   /** Add users or email addresses to the TO, CC, or BCC list. */
+<<<<<<< HEAD   (663559 Merge "Fix threading issue in Diff cache")
   protected void add(RecipientType type, WatcherList watcherList) {
     for (Account.Id user : watcherList.accounts) {
       add(type, user);
+=======
+  protected void add(RecipientType type, Watchers.List list) {
+    for (Account.Id user : list.accounts) {
+      addWatcher(type, user);
+>>>>>>> BRANCH (605261 Merge branch 'stable-3.4' into stable-3.5)
     }
     for (Address addr : watcherList.emails) {
       add(type, addr);
     }
   }
+
+  protected abstract void addWatcher(RecipientType type, Account.Id to);
 
   public String getSshHost() {
     String host = Iterables.getFirst(args.sshAddresses, null);
