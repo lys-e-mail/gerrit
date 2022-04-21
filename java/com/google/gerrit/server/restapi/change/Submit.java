@@ -46,6 +46,8 @@ import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.ProjectUtil;
 import com.google.gerrit.server.account.AccountResolver;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
@@ -212,7 +214,18 @@ public class Submit
     try (MergeOp op = mergeOpProvider.get()) {
       Change updatedChange;
 
+<<<<<<< HEAD   (4b327b Merge branch 'stable-3.1' into stable-3.2)
       updatedChange = op.merge(change, submitter, true, input, false);
+=======
+      try (ReadonlyRequestWindow readonlyRequestWindow =
+          PerThreadCache.openReadonlyRequestWindow()) {
+        updatedChange = op.merge(change, submitter, true, input, false);
+      } catch (Exception e) {
+        Throwables.throwIfInstanceOf(e, RestApiException.class);
+        return Response.<Output>internalServerError(e).traceId(op.getTraceId().orElse(null));
+      }
+
+>>>>>>> BRANCH (d8bb03 Merge branch 'stable-3.0' into stable-3.1)
       if (updatedChange.isMerged()) {
         return Response.ok(new Output(updatedChange));
       }
