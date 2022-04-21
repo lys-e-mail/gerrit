@@ -381,6 +381,7 @@ public class CommitIT extends AbstractDaemonTest {
     assertThat(cherryPickResult._number).isEqualTo(existingDestChange._number);
     assertThat(cherryPickResult.cherryPickOfChange).isNull();
     assertThat(cherryPickResult.cherryPickOfPatchSet).isNull();
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
   }
 
   @Test
@@ -416,6 +417,8 @@ public class CommitIT extends AbstractDaemonTest {
                 existingDestChange._number,
                 destBranch,
                 project.get()));
+=======
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
   }
 
   @Test

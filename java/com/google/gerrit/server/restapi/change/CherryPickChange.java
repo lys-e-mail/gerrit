@@ -328,6 +328,87 @@ public class CherryPickChange {
                 input.parent - 1,
                 input.allowEmpty,
                 input.allowConflicts);
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
+=======
+
+        Change.Key changeKey;
+        final List<String> idList =
+            ChangeUtil.getChangeIdsFromFooter(cherryPickCommit, urlFormatter.get());
+        if (!idList.isEmpty()) {
+          final String idStr = idList.get(idList.size() - 1).trim();
+          changeKey = Change.key(idStr);
+        } else {
+          changeKey = Change.key("I" + generatedChangeId.name());
+        }
+
+        BranchNameKey newDest = BranchNameKey.create(project, destRef.getName());
+        List<ChangeData> destChanges =
+            queryProvider.get().setLimit(2).byBranchKey(newDest, changeKey);
+        if (destChanges.size() > 1) {
+          throw new InvalidChangeOperationException(
+              "Several changes with key "
+                  + changeKey
+                  + " reside on the same branch. "
+                  + "Cannot create a new patch set.");
+        }
+        try (BatchUpdate bu = batchUpdateFactory.create(project, identifiedUser, timestamp)) {
+          bu.setRepository(git, revWalk, oi);
+          bu.setNotify(resolveNotify(input));
+          Change.Id changeId;
+          String newTopic = null;
+          if (input.topic != null) {
+            newTopic = Strings.emptyToNull(input.topic.trim());
+          }
+          if (newTopic == null
+              && sourceChange != null
+              && !Strings.isNullOrEmpty(sourceChange.getTopic())) {
+            newTopic = sourceChange.getTopic() + "-" + newDest.shortName();
+          }
+          if (destChanges.size() == 1) {
+            // The change key exists on the destination branch. The cherry pick
+            // will be added as a new patch set. If "idForNewChange" is not null we must fail,
+            // since we are not expecting an already existing change.
+            if (idForNewChange != null) {
+              throw new InvalidChangeOperationException(
+                  String.format(
+                      "Expected that cherry-pick of commit %s with Change-Id %s to branch %s"
+                          + "in project %s creates a new change, but found existing change %d",
+                      sourceCommit.getName(),
+                      changeKey,
+                      dest.branch(),
+                      dest.project(),
+                      destChanges.get(0).getId().get()));
+            }
+            changeId =
+                insertPatchSet(
+                    bu,
+                    git,
+                    destChanges.get(0).notes(),
+                    cherryPickCommit,
+                    sourceChange,
+                    newTopic,
+                    workInProgress);
+          } else {
+            // Change key not found on destination branch. We can create a new
+            // change.
+            changeId =
+                createNewChange(
+                    bu,
+                    cherryPickCommit,
+                    dest.branch(),
+                    newTopic,
+                    project,
+                    sourceChange,
+                    sourceCommit,
+                    input,
+                    revertedChange,
+                    idForNewChange,
+                    workInProgress);
+          }
+          bu.execute();
+          return Result.create(changeId, cherryPickCommit.getFilesWithGitConflicts());
+        }
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
       } catch (MergeIdenticalTreeException | MergeConflictException e) {
         throw new IntegrationConflictException("Cherry pick failed: " + e.getMessage(), e);
       }

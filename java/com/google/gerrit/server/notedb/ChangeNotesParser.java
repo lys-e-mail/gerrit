@@ -160,7 +160,10 @@ class ChangeNotesParser {
   // We only set the value once, based on the latest update (the actual value or Optional.empty() if
   // the latest record unsets the field).
   private Optional<PatchSet.Id> cherryPickOf;
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
   private Timestamp mergedOn;
+=======
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
 
   ChangeNotesParser(
       Change.Id changeId,
@@ -264,8 +267,12 @@ class ChangeNotesParser {
         firstNonNull(hasReviewStarted, true),
         revertOf,
         cherryPickOf != null ? cherryPickOf.orElse(null) : null,
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
         updateCount,
         mergedOn);
+=======
+        updateCount);
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
   }
 
   private Map<PatchSet.Id, PatchSet> buildPatchSets() throws ConfigInvalidException {
@@ -1034,7 +1041,11 @@ class ChangeNotesParser {
    * @return {@link Optional} value of the parsed footer or {@code null} if the footer is missing in
    *     this commit.
    * @throws ConfigInvalidException if the footer value could not be parsed as a valid {@link
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
    *     com.google.gerrit.entities.PatchSet.Id}.
+=======
+   *     PatchSet.Id}.
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
    */
   @Nullable
   private Optional<PatchSet.Id> parseCherryPickOf(ChangeNotesCommit commit)
@@ -1053,6 +1064,7 @@ class ChangeNotesParser {
         throw new ConfigInvalidException("\"" + footer + "\" is not a valid patchset", e);
       }
     }
+<<<<<<< HEAD   (f22e34 Bump jgit submodule to stable-5.13)
   }
 
   /**
@@ -1070,6 +1082,8 @@ class ChangeNotesParser {
    */
   private Timestamp getCommitTimestamp(ChangeNotesCommit commit) {
     return new Timestamp(commit.getCommitterIdent().getWhen().getTime());
+=======
+>>>>>>> BRANCH (149484 Merge branch 'stable-3.2' into stable-3.3)
   }
 
   private void pruneReviewers() {
