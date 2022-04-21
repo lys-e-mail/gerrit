@@ -84,8 +84,13 @@ public abstract class ChangeEmail extends NotificationEmail {
   protected Set<Account.Id> authors;
   protected boolean emailOnlyAuthors;
 
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
   protected ChangeEmail(EmailArguments ea, String mc, ChangeData cd) {
     super(ea, mc, cd.change().getDest());
+=======
+  protected ChangeEmail(EmailArguments ea, String mc, ChangeData cd) throws OrmException {
+    super(ea, mc, cd);
+>>>>>>> BRANCH (e14bdf Set PerThreadCache as readonly when formatting change e-mail)
     changeData = cd;
     change = cd.change();
     emailOnlyAuthors = false;
