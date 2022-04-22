@@ -10,6 +10,11 @@ junit_tests(
         "//lib:junit",
         "//lib/truth",
         "//lib/truth:truth-java8-extension",
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
         "@servlet-api//jar",
+=======
+        "@jgit-lib//jar",
+        "@servlet-api-3_1//jar",
+>>>>>>> BRANCH (bccb5f Set PerThreadCache as readonly when formatting change e-mail)
     ],
 )
