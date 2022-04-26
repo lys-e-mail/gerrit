@@ -361,9 +361,14 @@ public class RestApiServlet extends HttpServlet {
     try (TraceContext traceContext = enableTracing(req, res)) {
       String requestUri = requestUri(req);
 
+<<<<<<< HEAD   (fc75a6 Fix threading issue in Diff cache)
       try (PerThreadCache ignored = PerThreadCache.create()) {
         List<IdString> path = splitPath(req);
         RequestInfo requestInfo = createRequestInfo(traceContext, requestUri, path);
+=======
+      try (PerThreadCache ignored = PerThreadCache.create(req)) {
+        RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
+>>>>>>> BRANCH (4b36e8 Merge branch 'stable-3.3' into stable-3.4)
         globals.requestListeners.runEach(l -> l.onRequest(requestInfo));
 
         // It's important that the PerformanceLogContext is closed before the response is sent to
