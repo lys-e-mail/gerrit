@@ -103,7 +103,11 @@ suite('gr-reply-dialog-it tests', () => {
 
     element.ccsList!.entry!.setText('test');
     MockInteractions.tap(queryAndAssert(element, 'gr-button.send'));
+<<<<<<< HEAD   (5455dd Merge changes I0b5b0b2d,I6f942ed0,Ie9c7e4bc)
     assert.isFalse(element.ccsList!.submitEntryText());
+=======
+    assert.isFalse(element.$.ccs.submitEntryText());
+>>>>>>> BRANCH (30b8a3 Merge "gr-change-metadata to lit" into stable-3.6)
     assert.isFalse(sendStub.called);
     flush();
 

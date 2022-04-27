@@ -1100,6 +1100,10 @@ public class PostReviewIT extends AbstractDaemonTest {
   private static void assertAttentionSet(
       ImmutableSet<AttentionSetUpdate> attentionSet, Account.Id... accounts) {
     assertThat(attentionSet.stream().map(AttentionSetUpdate::account).collect(Collectors.toList()))
+<<<<<<< HEAD   (5455dd Merge changes I0b5b0b2d,I6f942ed0,Ie9c7e4bc)
         .containsExactlyElementsIn(accounts);
+=======
+        .containsExactly(accounts);
+>>>>>>> BRANCH (30b8a3 Merge "gr-change-metadata to lit" into stable-3.6)
   }
 }

@@ -66,9 +66,14 @@ import {GrLabelScoreRow} from '../gr-label-score-row/gr-label-score-row';
 import {GrLabelScores} from '../gr-label-scores/gr-label-scores';
 import {GrThreadList} from '../gr-thread-list/gr-thread-list';
 import {GrAutocomplete} from '../../shared/gr-autocomplete/gr-autocomplete';
+<<<<<<< HEAD   (5455dd Merge changes I0b5b0b2d,I6f942ed0,Ie9c7e4bc)
 import {fixture, html} from '@open-wc/testing-helpers';
 import {accountKey} from '../../../utils/account-util';
 import {GrButton} from '../../shared/gr-button/gr-button';
+=======
+
+const basicFixture = fixtureFromElement('gr-reply-dialog');
+>>>>>>> BRANCH (30b8a3 Merge "gr-change-metadata to lit" into stable-3.6)
 
 function cloneableResponse(status: number, text: string) {
   return {

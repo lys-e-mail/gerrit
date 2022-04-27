@@ -59,6 +59,12 @@ const NOTHING_TO_SAVE = 'No changes to save.';
 const MAX_AUTOCOMPLETE_RESULTS = 50;
 
 declare global {
+<<<<<<< HEAD   (5455dd Merge changes I0b5b0b2d,I6f942ed0,Ie9c7e4bc)
+=======
+  interface HTMLElementEventMap {
+    'text-changed': CustomEvent<string>;
+  }
+>>>>>>> BRANCH (30b8a3 Merge "gr-change-metadata to lit" into stable-3.6)
   interface HTMLElementTagNameMap {
     'gr-repo-access': GrRepoAccess;
   }
