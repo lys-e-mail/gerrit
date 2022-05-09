@@ -34,6 +34,7 @@ suite('gr-textarea tests', () => {
 
   test('renders', () => {
     expect(element).shadowDom.to.equal(/* HTML */ `<div id="hiddenText"></div>
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       <span id="caratSpan"> </span>
       <gr-autocomplete-dropdown
         id="emojiSuggestions"
@@ -43,6 +44,17 @@ suite('gr-textarea tests', () => {
       </gr-autocomplete-dropdown>
       <iron-autogrow-textarea aria-disabled="false" id="textarea">
       </iron-autogrow-textarea> `);
+=======
+      <span id="caratSpan"></span>
+      <gr-autocomplete-dropdown
+        id="emojiSuggestions"
+        is-hidden=""
+      ></gr-autocomplete-dropdown>
+      <iron-autogrow-textarea
+        aria-disabled="false"
+        id="textarea"
+      ></iron-autogrow-textarea>`);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 
   test('monospace is set properly', () => {

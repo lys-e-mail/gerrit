@@ -410,7 +410,11 @@ export class GrAccountList extends LitElement {
   private handleInputKeydown(e: KeyboardEvent) {
     const target = e.target as GrAccountEntry;
     const entryInput = queryAndAssert<GrAutocomplete>(target, '#input');
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     const input = this.getOwnNativeInput(entryInput.input!);
+=======
+    const input = this.getOwnNativeInput(entryInput.$.input);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     if (
       input.selectionStart !== input.selectionEnd ||
       input.selectionStart !== 0

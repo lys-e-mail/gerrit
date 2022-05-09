@@ -148,6 +148,10 @@ suite('gr-autocomplete tests', () => {
     assert.isTrue(suggestionsEl().isHidden);
     assert.equal(suggestionsEl().cursor.index, -1);
     element.setFocus(true);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
+=======
+    element.text = 'blah';
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 
     element.text = 'blah';
     await element.updateComplete;
@@ -303,10 +307,16 @@ suite('gr-autocomplete tests', () => {
     focusOnInput();
     element.text = 'bla';
     assert.equal(element.focused, true);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await element.updateComplete;
     return promise.then(async () => {
       await waitUntil(() => element.suggestions.length > 0);
       assert.equal(element.suggestions.length, 1);
+=======
+    flush();
+    return promise.then(() => {
+      assert.equal(element._suggestions.length, 1);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
       assert.equal(queryStub.notCalled, false);
     });
   });
@@ -323,7 +333,11 @@ suite('gr-autocomplete tests', () => {
     element.query = queryStub;
     element.text = 'bla';
     assert.equal(element.focused, false);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await element.updateComplete;
+=======
+    flush();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     return promise.then(() => {
       assert.equal(element.suggestions.length, 0);
     });
@@ -398,18 +412,31 @@ suite('gr-autocomplete tests', () => {
     assert.isFalse(element.focused);
 
     element.tabComplete = true;
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await element.updateComplete;
     element.setFocus(true);
     await element.updateComplete;
+=======
+    element.setFocus(true);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     MockInteractions.pressAndReleaseKeyOn(inputEl(), 9, null, 'tab');
 
     await waitUntil(() => commitSpy.called);
     assert.isFalse(commitHandler.called);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
+=======
+    assert.isTrue(commitSpy.called);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     assert.isTrue(element.focused);
   });
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   test('focused flag properly triggered', async () => {
     await element.updateComplete;
+=======
+  test('focused flag properly triggered', () => {
+    flush();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     assert.isFalse(element.focused);
     const input = queryAndAssert<PaperInputElement>(
       element,
@@ -442,16 +469,28 @@ suite('gr-autocomplete tests', () => {
     assert.equal(suggestionsEl().verticalOffset, 30);
   });
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   test('focused flag shows/hides the suggestions', async () => {
+=======
+  test('focused flag shows/hides the suggestions', () => {
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     const openStub = sinon.stub(suggestionsEl(), 'open');
     const closedStub = sinon.stub(suggestionsEl(), 'close');
     element.suggestions = [{text: 'hello'}, {text: 'its me'}];
     assert.isFalse(openStub.called);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await waitUntil(() => closedStub.calledOnce);
     element.setFocus(true);
     await waitUntil(() => openStub.calledOnce);
     element.suggestions = [];
     await waitUntil(() => closedStub.calledTwice);
+=======
+    assert.isTrue(closedStub.calledOnce);
+    element.setFocus(true);
+    assert.isTrue(openStub.calledOnce);
+    element._suggestions = [];
+    assert.isTrue(closedStub.calledTwice);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     assert.isTrue(openStub.calledOnce);
   });
 
@@ -573,7 +612,11 @@ suite('gr-autocomplete tests', () => {
     });
 
     test('tab on suggestion, tabComplete = false', async () => {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       element.suggestions = [{name: 'sugar bombs'}];
+=======
+      element._suggestions = [{name: 'sugar bombs'}];
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
       element.setFocus(true);
       // When tabComplete is false, do not focus.
       element.tabComplete = false;
@@ -595,7 +638,11 @@ suite('gr-autocomplete tests', () => {
     });
 
     test('tab on suggestion, tabComplete = true', async () => {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       element.suggestions = [{name: 'sugar bombs'}];
+=======
+      element._suggestions = [{name: 'sugar bombs'}];
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
       element.setFocus(true);
       // When tabComplete is true, focus.
       element.tabComplete = true;
@@ -620,7 +667,15 @@ suite('gr-autocomplete tests', () => {
     test('tap on suggestion commits, does not call focus', async () => {
       focusSpy = sinon.spy(element, 'focus');
       element.setFocus(true);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       element.suggestions = [{name: 'first suggestion'}];
+=======
+      element._suggestions = [{name: 'first suggestion'}];
+      flush();
+      assert.isFalse(suggestionsEl().isHidden);
+      MockInteractions.tap(queryAndAssert(suggestionsEl(), 'li:first-child'));
+      flush();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 
       await element.updateComplete;
 

@@ -19,7 +19,11 @@ import '../../../test/common-test-setup-karma';
 import './gr-account-entry';
 import {GrAccountEntry} from './gr-account-entry';
 import {fixture, html} from '@open-wc/testing-helpers';
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
 import {queryAndAssert, waitUntil} from '../../../test/test-utils';
+=======
+import {queryAndAssert} from '../../../test/test-utils';
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 import {GrAutocomplete} from '../gr-autocomplete/gr-autocomplete';
 import {PaperInputElementExt} from '../../../types/types';
 
@@ -30,7 +34,10 @@ suite('gr-account-entry tests', () => {
     element = await fixture<GrAccountEntry>(html`
       <gr-account-entry></gr-account-entry>
     `);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await element.updateComplete;
+=======
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 
   test('account-text-changed fired when input text changed and allowAnyInput', async () => {
@@ -41,10 +48,17 @@ suite('gr-account-entry tests', () => {
     element.addEventListener('account-text-changed', changeStub);
     queryAndAssert<GrAutocomplete>(element, '#input').text = 'a';
     await element.updateComplete;
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await waitUntil(() => changeStub.calledOnce);
     queryAndAssert<GrAutocomplete>(element, '#input').text = 'ab';
     await element.updateComplete;
     await waitUntil(() => changeStub.calledTwice);
+=======
+    assert.isTrue(changeStub.calledOnce);
+    queryAndAssert<GrAutocomplete>(element, '#input').text = 'ab';
+    await element.updateComplete;
+    assert.isTrue(changeStub.calledTwice);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 
   test('account-text-changed not fired when input text changed without allowAnyInput', async () => {
@@ -58,6 +72,7 @@ suite('gr-account-entry tests', () => {
   });
 
   test('setText', async () => {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     // Stub on query, as that is called when _updateSuggestions proceeds.
     const suggestStub = sinon.stub(
       queryAndAssert<GrAutocomplete>(element, '#input'),
@@ -72,5 +87,21 @@ suite('gr-account-entry tests', () => {
       'test text'
     );
     assert.isFalse(suggestStub.called);
+=======
+    // Spy on query, as that is called when _updateSuggestions proceeds.
+    const suggestSpy = sinon.spy(
+      queryAndAssert<GrAutocomplete>(element, '#input'),
+      'query'
+    );
+    element.setText('test text');
+    await element.updateComplete;
+
+    const input = queryAndAssert<GrAutocomplete>(element, '#input');
+    assert.equal(
+      queryAndAssert<PaperInputElementExt>(input, '#input').value,
+      'test text'
+    );
+    assert.isFalse(suggestSpy.called);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 });
