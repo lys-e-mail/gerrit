@@ -201,7 +201,11 @@ export class GrConfirmRebaseDialog extends LitElement {
               id="parentInput"
               .query=${this.query}
               no-debounce
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
               .text=${this.text}
+=======
+              text=${this.text}
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
               @text-changed=${(e: ValueChangedEvent) =>
                 (this.text = e.detail.value)}
               @click=${this.handleEnterChangeNumberClick}

@@ -452,6 +452,7 @@ suite('gr-diff-cursor tests', () => {
           scrollBehaviorDuringMove = cursor.cursorManager.scrollMode;
         });
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     diffElement._diffChanged(createDiff());
     await new Promise(resolve => afterNextRender(diffElement, resolve));
     cursor.reInitCursor();
@@ -459,6 +460,21 @@ suite('gr-diff-cursor tests', () => {
     assert.isTrue(moveToChunkStub.called);
     assert.equal(scrollBehaviorDuringMove, 'never');
     assert.equal(cursor.cursorManager.scrollMode, 'keep-visible');
+=======
+    const promise = mockPromise();
+    function renderHandler() {
+      diffElement.removeEventListener('render', renderHandler);
+      cursor.reInitCursor();
+      assert.isFalse(moveToNumStub.called);
+      assert.isTrue(moveToChunkStub.called);
+      assert.equal(scrollBehaviorDuringMove, 'never');
+      assert.equal(cursor.cursorManager.scrollMode, 'keep-visible');
+      promise.resolve();
+    }
+    diffElement.addEventListener('render', renderHandler);
+    diffElement._diffChanged(createDiff());
+    await promise;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 
   test('initialLineNumber provided', async () => {
@@ -472,6 +488,7 @@ suite('gr-diff-cursor tests', () => {
     cursor.side = 'right';
 
     diffElement._diffChanged(createDiff());
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     await new Promise(resolve => afterNextRender(diffElement, resolve));
     cursor.reInitCursor();
     assert.isFalse(moveToChunkStub.called);
@@ -480,6 +497,9 @@ suite('gr-diff-cursor tests', () => {
     assert.equal(moveToNumStub.lastCall.args[1], 'right');
     assert.equal(scrollBehaviorDuringMove, 'keep-visible');
     assert.equal(cursor.cursorManager.scrollMode, 'keep-visible');
+=======
+    await promise;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   });
 
   test('getTargetDiffElement', () => {

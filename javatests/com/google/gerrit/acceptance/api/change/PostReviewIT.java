@@ -1100,6 +1100,10 @@ public class PostReviewIT extends AbstractDaemonTest {
   private static void assertAttentionSet(
       ImmutableSet<AttentionSetUpdate> attentionSet, Account.Id... accounts) {
     assertThat(attentionSet.stream().map(AttentionSetUpdate::account).collect(Collectors.toList()))
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         .containsExactlyElementsIn(accounts);
+=======
+        .containsExactly(accounts);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   }
 }

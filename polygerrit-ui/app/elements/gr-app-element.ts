@@ -87,6 +87,24 @@ interface ErrorInfo {
   moreInfo?: string;
 }
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
+=======
+export interface GrAppElement {
+  $: {
+    errorManager: GrErrorManager;
+    errorView: HTMLDivElement;
+    mainHeader: GrMainHeader;
+  };
+}
+
+type DomIf = PolymerElement & {
+  restamp: boolean;
+};
+
+// This avoids JSC_DYNAMIC_EXTENDS_WITHOUT_JSDOC closure compiler error.
+const base = KeyboardShortcutMixin(DIPolymerElement);
+
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 // TODO(TS): implement AppElement interface from gr-app-types.ts
 @customElement('gr-app-element')
 export class GrAppElement extends LitElement {
@@ -173,6 +191,8 @@ export class GrAppElement extends LitElement {
 
   // Triggers dom-if unsetting/setting restamp behaviour in lit
   @state() private invalidateDiffViewCache = false;
+
+  readonly router = new GrRouter();
 
   readonly router = new GrRouter();
 

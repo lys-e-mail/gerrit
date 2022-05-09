@@ -854,7 +854,11 @@ suite('gr-change-actions tests', () => {
       });
 
       test('works', async () => {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         element.handleCherrypickTap();
+=======
+        element._handleCherrypickTap();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         const action = {
           __key: 'cherrypick',
           __type: 'revision',
@@ -876,6 +880,7 @@ suite('gr-change-actions tests', () => {
         assert.equal(fireActionStub.callCount, 0); // Still needs a message.
 
         // Add attributes that are used to determine the message.
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         queryAndAssert<GrConfirmCherrypickDialog>(
           element,
           '#confirmCherrypick'
@@ -888,9 +893,18 @@ suite('gr-change-actions tests', () => {
           element,
           '#confirmCherrypick'
         ).commitNum = '123' as CommitId;
+=======
+        element.$.confirmCherrypick.commitMessage = 'foo message';
+        element.$.confirmCherrypick.changeStatus = ChangeStatus.NEW;
+        element.$.confirmCherrypick.commitNum = '123' as CommitId;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         await element.updateComplete;
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         element.handleCherrypickConfirm();
+=======
+        element._handleCherrypickConfirm();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         await element.updateComplete;
 
         const autogrowEl = queryAndAssert<IronAutogrowTextareaElement>(
@@ -916,7 +930,11 @@ suite('gr-change-actions tests', () => {
       });
 
       test('cherry pick even with conflicts', async () => {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         element.handleCherrypickTap();
+=======
+        element._handleCherrypickTap();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         const action = {
           __key: 'cherrypick',
           __type: 'revision',
@@ -933,6 +951,7 @@ suite('gr-change-actions tests', () => {
         ).branch = 'master' as BranchName;
 
         // Add attributes that are used to determine the message.
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         queryAndAssert<GrConfirmCherrypickDialog>(
           element,
           '#confirmCherrypick'
@@ -945,9 +964,18 @@ suite('gr-change-actions tests', () => {
           element,
           '#confirmCherrypick'
         ).commitNum = '123' as CommitId;
+=======
+        element.$.confirmCherrypick.commitMessage = 'foo message';
+        element.$.confirmCherrypick.changeStatus = ChangeStatus.NEW;
+        element.$.confirmCherrypick.commitNum = '123' as CommitId;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         await element.updateComplete;
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         element.handleCherrypickConflictConfirm();
+=======
+        element._handleCherrypickConflictConfirm();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         await element.updateComplete;
 
         assert.deepEqual(fireActionStub.lastCall.args, [
