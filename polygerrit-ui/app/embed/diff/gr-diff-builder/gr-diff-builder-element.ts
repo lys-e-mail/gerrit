@@ -62,12 +62,15 @@ const TRAILING_WHITESPACE_PATTERN = /\s+$/;
 const COMMIT_MSG_PATH = '/COMMIT_MSG';
 const COMMIT_MSG_LINE_LENGTH = 72;
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
 declare global {
   interface HTMLElementEventMap {
     'render-progress': CustomEvent<RenderProgressEventDetail>;
   }
 }
 
+=======
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 export function getLineNumberCellWidth(prefs: DiffPreferencesInfo) {
   return prefs.font_size * 4;
 }
@@ -291,6 +294,7 @@ export class GrDiffBuilderElement
 
     fireEvent(this, 'render-start');
     this._cancelableRenderPromise = util.makeCancelable(
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       this.processor
         .process(this.diff.content, isBinary)
         .then(() => {
@@ -298,6 +302,19 @@ export class GrDiffBuilderElement
             (this._builder as GrDiffBuilderImage).renderDiff();
           }
           afterNextRender(this, () => fireEvent(this, 'render-content'));
+=======
+      this.processor.process(this.diff.content, isBinary).then(() => {
+        if (this.isImageDiff) {
+          (this._builder as GrDiffBuilderImage).renderDiff();
+        }
+        fireEvent(this, 'render-content');
+      })
+    );
+    return (
+      this._cancelableRenderPromise
+        .finally(() => {
+          this._cancelableRenderPromise = null;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         })
         // Mocha testing does not like uncaught rejections, so we catch
         // the cancels which are expected and should not throw errors in
@@ -524,9 +541,13 @@ export class GrDiffBuilderElement
   addGroup(group: GrDiffGroup) {
     if (!this._builder) return;
     this._builder.addGroups([group]);
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     afterNextRender(this, () =>
       fire(this, 'render-progress', {linesRendered: group.lines.length})
     );
+=======
+    fireEvent(this, 'render-progress');
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   }
 
   _createIntralineLayer(): DiffLayer {

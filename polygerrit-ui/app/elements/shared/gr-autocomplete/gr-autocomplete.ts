@@ -168,8 +168,25 @@ export class GrAutocomplete extends LitElement {
   @property({type: Boolean, attribute: 'no-debounce'})
   noDebounce = false;
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   @property({type: Boolean, attribute: 'show-blue-focus-border'})
   showBlueFocusBorder = false;
+=======
+  @property({type: Array})
+  _suggestions: AutocompleteSuggestion[] = [];
+
+  @property({type: Array})
+  _suggestionEls = [];
+
+  @property({type: Number})
+  _index: number | null = null;
+
+  @property({type: Boolean})
+  _disableSuggestions = false;
+
+  // private but used in tests
+  focused = false;
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 
   /**
    * Invisible label for input element. This label is exposed to
@@ -396,10 +413,17 @@ export class GrAutocomplete extends LitElement {
     this.disableSuggestions = false;
   }
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   onInputFocus() {
     this.setFocus(true);
     this.updateSuggestions();
     this.input?.classList.remove('warnUncommitted');
+=======
+  _onInputFocus() {
+    this.setFocus(true);
+    this._updateSuggestions(this.text, this.threshold, this.noDebounce);
+    this.$.input.classList.remove('warnUncommitted');
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     // Needed so that --paper-input-container-input updated style is applied.
     this.requestUpdate();
   }
@@ -476,7 +500,20 @@ export class GrAutocomplete extends LitElement {
   setFocus(focused: boolean) {
     if (focused === this.focused) return;
     this.focused = focused;
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
     this.updateDropdownVisibility();
+=======
+    this._maybeOpenDropdown(this._suggestions);
+  }
+
+  @observe('_suggestions')
+  _maybeOpenDropdown(suggestions: AutocompleteSuggestion[]) {
+    if (suggestions.length > 0 && this.focused) {
+      this.$.suggestions.open();
+      return;
+    }
+    this.$.suggestions.close();
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   }
 
   updateDropdownVisibility() {
@@ -497,7 +534,11 @@ export class GrAutocomplete extends LitElement {
   /**
    * handleKeydown used for key handling in the this.input?.
    */
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   handleKeydown(e: KeyboardEvent) {
+=======
+  _handleKeydown(e: KeyboardEvent) {
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     this.setFocus(true);
     switch (e.keyCode) {
       case 38: // Up

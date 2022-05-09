@@ -24,7 +24,10 @@ import {sharedStyles} from '../../../styles/shared-styles';
 import {LitElement, PropertyValues, html, css} from 'lit';
 import {customElement, property, query, state} from 'lit/decorators';
 import {BindValueChangeEvent} from '../../../types/events';
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
 import {SuggestedReviewerInfo} from '../../../types/common';
+=======
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 
 /**
  * gr-account-entry is an element for entering account
@@ -58,8 +61,12 @@ export class GrAccountEntry extends LitElement {
   placeholder = '';
 
   @property({type: Object})
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   querySuggestions: AutocompleteQuery<SuggestedReviewerInfo> = () =>
     Promise.resolve([]);
+=======
+  querySuggestions: AutocompleteQuery = () => Promise.resolve([]);
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 
   @state() private inputText = '';
 
@@ -83,10 +90,17 @@ export class GrAccountEntry extends LitElement {
         .borderless=${this.borderless}
         .placeholder=${this.placeholder}
         .query=${this.querySuggestions}
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         allow-non-suggested-values=${this.allowAnyInput}
         @commit=${this.handleInputCommit}
         clear-on-commit
         warn-uncommitted
+=======
+        .allowNonSuggestedValues=${this.allowAnyInput}
+        @commit=${this.handleInputCommit}
+        clear-on-commit=""
+        warn-uncommitted=""
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
         .text=${this.inputText}
         .verticalOffset=${24}
         @text-changed=${this.handleTextChanged}

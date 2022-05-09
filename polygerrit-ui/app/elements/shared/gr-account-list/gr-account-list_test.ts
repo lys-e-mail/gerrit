@@ -31,13 +31,21 @@ import {
   SuggestedReviewerInfo,
   Suggestion,
 } from '../../../types/common';
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
 import {queryAll, queryAndAssert, waitUntil} from '../../../test/test-utils';
+=======
+import {queryAll, queryAndAssert} from '../../../test/test-utils';
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 import {ReviewerSuggestionsProvider} from '../../../scripts/gr-reviewer-suggestions-provider/gr-reviewer-suggestions-provider';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions';
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
 import {
   AutocompleteSuggestion,
   GrAutocomplete,
 } from '../gr-autocomplete/gr-autocomplete';
+=======
+import {GrAutocomplete} from '../gr-autocomplete/gr-autocomplete';
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
 import {GrAccountEntry} from '../gr-account-entry/gr-account-entry';
 
 const basicFixture = fixtureFromElement('gr-account-list');
@@ -472,7 +480,11 @@ suite('gr-account-list tests', () => {
         queryAndAssert<GrAccountEntry>(element, '#entry'),
         '#input'
       );
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
       sinon.stub(input, 'updateSuggestions');
+=======
+      sinon.stub(input, '_updateSuggestions');
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
       sinon.stub(element, 'computeRemovable').returns(true);
       await element.updateComplete;
       // Next line is a workaround for Firefox not moving cursor

@@ -59,6 +59,12 @@ const NOTHING_TO_SAVE = 'No changes to save.';
 const MAX_AUTOCOMPLETE_RESULTS = 50;
 
 declare global {
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
+=======
+  interface HTMLElementEventMap {
+    'text-changed': CustomEvent<string>;
+  }
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
   interface HTMLElementTagNameMap {
     'gr-repo-access': GrRepoAccess;
   }
@@ -623,7 +629,11 @@ export class GrRepoAccess extends LitElement {
     return addRemoveObj;
   }
 
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
   private handleCreateSection() {
+=======
+  private async handleCreateSection() {
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
     if (!this.local) return;
     let newRef = 'refs/for/*';
     // Avoid using an already used key for the placeholder, since it

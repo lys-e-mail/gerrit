@@ -357,7 +357,10 @@ export class GrReplyDialog extends LitElement {
         background-color: var(--dialog-background-color);
         display: block;
         max-height: 90vh;
+<<<<<<< HEAD   (c5e580 Merge "ReplaceOp: Skip new patch set email when change kind )
         --label-score-padding-left: var(--spacing-xl);
+=======
+>>>>>>> BRANCH (c1bafc Revert "Remove unused impl-log4j library")
       }
       :host([disabled]) {
         pointer-events: none;
