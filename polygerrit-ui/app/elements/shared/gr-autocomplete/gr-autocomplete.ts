@@ -359,6 +359,7 @@ export class GrAutocomplete extends LitElement {
     this.text = '';
   }
 
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
   handleItemSelect(e: CustomEvent) {
     if (e.detail.trigger === 'click') {
       this.selected = e.detail.selected;
@@ -377,8 +378,36 @@ export class GrAutocomplete extends LitElement {
         this.focus();
       } else {
         this.setFocus(false);
+=======
+  _handleItemSelect(e: CustomEvent) {
+    if (e.detail.trigger === 'click') {
+      this._selected = e.detail.selected;
+      this._commit();
+      e.stopPropagation();
+      e.preventDefault();
+    } else if (e.detail.trigger === 'enter') {
+      this._handleInputCommit();
+      e.stopPropagation();
+      e.preventDefault();
+    } else if (e.detail.trigger === 'tab') {
+      if (this.tabComplete) {
+        this._handleInputCommit(true);
+        e.stopPropagation();
+        e.preventDefault();
+        this.focus();
+      } else {
+        this._focused = false;
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
       }
     }
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
+=======
+  }
+
+  get _inputElement() {
+    // Polymer2: this.$ can be undefined when this is first evaluated.
+    return this.$ && this.$.input;
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
   }
 
   /**
@@ -494,7 +523,11 @@ export class GrAutocomplete extends LitElement {
   }
 
   /**
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
    * handleKeydown used for key handling in the this.input?.
+=======
+   * _handleKeydown used for key handling in the this.$.input.
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
    */
   handleKeydown(e: KeyboardEvent) {
     this.setFocus(true);

@@ -573,8 +573,13 @@ suite('gr-autocomplete tests', () => {
     });
 
     test('tab on suggestion, tabComplete = false', async () => {
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
       element.suggestions = [{name: 'sugar bombs'}];
       element.setFocus(true);
+=======
+      element._suggestions = [{name: 'sugar bombs'}];
+      element._focused = true;
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
       // When tabComplete is false, do not focus.
       element.tabComplete = false;
       focusSpy = sinon.spy(element, 'focus');
@@ -589,14 +594,23 @@ suite('gr-autocomplete tests', () => {
         null,
         'Tab'
       );
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
       await element.updateComplete;
+=======
+      await flush();
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
       assert.isFalse(commitSpy.called);
       assert.isFalse(element.focused);
     });
 
     test('tab on suggestion, tabComplete = true', async () => {
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
       element.suggestions = [{name: 'sugar bombs'}];
       element.setFocus(true);
+=======
+      element._suggestions = [{name: 'sugar bombs'}];
+      element._focused = true;
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
       // When tabComplete is true, focus.
       element.tabComplete = true;
       focusSpy = sinon.spy(element, 'focus');
@@ -611,7 +625,11 @@ suite('gr-autocomplete tests', () => {
         null,
         'Tab'
       );
+<<<<<<< HEAD   (40477c Merge "Allow plugins to access their own resources" into sta)
       await element.updateComplete;
+=======
+      await flush();
+>>>>>>> BRANCH (062c24 Merge "Merge branch 'stable-3.4' into stable-3.5" into stabl)
 
       assert.isTrue(commitSpy.called);
       assert.isTrue(element.focused);
