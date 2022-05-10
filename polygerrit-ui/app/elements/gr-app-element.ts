@@ -367,7 +367,11 @@ export class GrAppElement extends LitElement {
         id="mainHeader"
         .searchQuery=${(this.params as AppElementSearchParam)?.query}
         @mobile-search=${this.mobileSearchToggle}
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
         @show-keyboard-shortcuts=${this.showKeyboardShortcuts}
+=======
+        @show-keyboard-shortcuts=${this.handleShowKeyboardShortcuts}
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
         .mobileSearchHidden=${!this.mobileSearch}
         .loginUrl=${this.loginUrl}
         ?aria-hidden=${this.footerHeaderAriaHidden}
@@ -640,8 +644,13 @@ export class GrAppElement extends LitElement {
       await this.updateComplete;
       assertIsDefined(this.registrationOverlay, 'registrationOverlay');
       assertIsDefined(this.registrationDialog, 'registrationDialog');
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
       await this.registrationOverlay.open();
       await this.registrationDialog.loadData().then(() => {
+=======
+      this.registrationOverlay.open();
+      this.registrationDialog.loadData().then(() => {
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
         this.registrationOverlay!.refit();
       });
     }
@@ -751,18 +760,42 @@ export class GrAppElement extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
   private async showKeyboardShortcuts() {
+=======
+  private async handleShowKeyboardShortcuts() {
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
     this.loadKeyboardShortcutsDialog = true;
     await this.updateComplete;
     assertIsDefined(this.keyboardShortcuts, 'keyboardShortcuts');
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
+=======
+    this.keyboardShortcuts.open();
+  }
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
 
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
+=======
+  private async showKeyboardShortcuts() {
+    // same shortcut should close the dialog if pressed again
+    // when dialog is open
+    this.loadKeyboardShortcutsDialog = true;
+    await this.updateComplete;
+    if (!this.keyboardShortcuts) return;
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
     if (this.keyboardShortcuts.opened) {
       this.keyboardShortcuts.cancel();
       return;
     }
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
     this.footerHeaderAriaHidden = true;
     this.mainAriaHidden = true;
     await this.keyboardShortcuts.open();
+=======
+    this.keyboardShortcuts.open();
+    this.footerHeaderAriaHidden = true;
+    this.mainAriaHidden = true;
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
   }
 
   private handleKeyboardShortcutDialogClose() {

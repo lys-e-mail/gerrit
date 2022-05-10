@@ -283,7 +283,11 @@ export class GrAutocomplete extends LitElement {
       changedProperties.has('suggestions') ||
       changedProperties.has('focused')
     ) {
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
       this.updateDropdownVisibility();
+=======
+      this.maybeOpenDropdown();
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
     }
     if (changedProperties.has('text')) {
       fire(this, 'text-changed', {value: this.text});
@@ -475,10 +479,18 @@ export class GrAutocomplete extends LitElement {
   setFocus(focused: boolean) {
     if (focused === this.focused) return;
     this.focused = focused;
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
     this.updateDropdownVisibility();
+=======
+    this.maybeOpenDropdown();
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
   }
 
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
   updateDropdownVisibility() {
+=======
+  maybeOpenDropdown() {
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
     if (this.suggestions.length > 0 && this.focused) {
       this.suggestionsDropdown?.open();
       return;
@@ -628,7 +640,11 @@ export class GrAutocomplete extends LitElement {
         if (dataSet) {
           const index = Number(dataSet['index']!);
           if (isNaN(index)) return;
+<<<<<<< HEAD   (cf5382 Merge "Resolve TODO(TS) in GrEndpointDecorator")
           await this.setText(this.suggestions[index]?.name || '');
+=======
+          this.setText(this.suggestions[index]?.name || '');
+>>>>>>> BRANCH (794d12 Reintroduce impl-log4j library to test deps)
         }
       } else {
         this.clear();
