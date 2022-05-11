@@ -34,7 +34,10 @@ import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.UseTimezone;
 import com.google.gerrit.acceptance.VerifyNoPiiInChangeNotes;
+<<<<<<< HEAD   (fca60e Merge "Fix link color in formatted text")
 import com.google.gerrit.acceptance.config.GerritConfig;
+=======
+>>>>>>> BRANCH (d090ce Make DefaultRefFilter harder to misuse)
 import com.google.gerrit.acceptance.testsuite.change.IndexOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate;
