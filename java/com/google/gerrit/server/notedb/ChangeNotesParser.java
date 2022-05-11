@@ -937,6 +937,7 @@ class ChangeNotesParser {
     PersonIdent accountIdent =
         RawParseUtils.parsePersonIdent(parsedPatchSetApproval.accountIdent().get());
 
+<<<<<<< HEAD   (d090ce Make DefaultRefFilter harder to misuse)
     checkFooter(accountIdent != null, FOOTER_COPIED_LABEL, parsedPatchSetApproval.footerLine());
     Account.Id accountId = parseIdent(accountIdent);
 
@@ -945,6 +946,37 @@ class ChangeNotesParser {
       PersonIdent realIdent =
           RawParseUtils.parsePersonIdent(parsedPatchSetApproval.realAccountIdent().get());
       checkFooter(realIdent != null, FOOTER_COPIED_LABEL, parsedPatchSetApproval.footerLine());
+=======
+    Account.Id accountId, realAccountId = null;
+    String labelVoteStr;
+    String tag = null;
+    int tagStart = line.indexOf(":\"");
+    // UUID introduced in https://gerrit-review.googlesource.com/c/gerrit/+/324937
+    // Only parsed for backward compatibility
+    // Footer has the following format in this case:
+    // Copied-Label: <LABEL>=VOTE <Gerrit Account>,<Gerrit Real Account> :"<TAG>"
+    int uuidStart = line.indexOf(", ");
+    // Wired tag that contains uuid delimiter. The uuid is actually not present.
+    if (tagStart != -1 && uuidStart > tagStart) {
+      uuidStart = -1;
+    }
+    int identitiesStart = line.indexOf(' ', uuidStart != -1 ? uuidStart + 2 : 0);
+    // The first account is the accountId, and second (if applicable) is the realAccountId.
+    try {
+      labelVoteStr = line.substring(0, uuidStart != -1 ? uuidStart : identitiesStart);
+    } catch (StringIndexOutOfBoundsException ex) {
+      throw new ConfigInvalidException(ex.getMessage(), ex);
+    }
+    String[] identities =
+        line.substring(identitiesStart + 1, tagStart == -1 ? line.length() : tagStart).split(",");
+    PersonIdent ident = RawParseUtils.parsePersonIdent(identities[0]);
+    checkFooter(ident != null, FOOTER_COPIED_LABEL, line);
+    accountId = parseIdent(ident);
+
+    if (identities.length > 1) {
+      PersonIdent realIdent = RawParseUtils.parsePersonIdent(identities[1]);
+      checkFooter(realIdent != null, FOOTER_COPIED_LABEL, line);
+>>>>>>> BRANCH (15688f Merge "Make PatchSetApproval UUID parsing forwards compatibl)
       realAccountId = parseIdent(realIdent);
     }
 
@@ -998,8 +1030,44 @@ class ChangeNotesParser {
       Instant ts,
       ParsedPatchSetApproval parsedPatchSetApproval)
       throws ConfigInvalidException {
+<<<<<<< HEAD   (d090ce Make DefaultRefFilter harder to misuse)
 
     Account.Id approverId = parseApprover(committerId, parsedPatchSetApproval);
+=======
+    // There are potentially 3 accounts involved here:
+    //  1. The account from the commit, which is the effective IdentifiedUser
+    //     that produced the update.
+    //  2. The account in the label footer itself, which is used during submit
+    //     to copy other users' labels to a new patch set.
+    //  3. The account in the Real-user footer, indicating that the whole
+    //     update operation was executed by this user on behalf of the effective
+    //     user.
+    Account.Id effectiveAccountId;
+    String labelVoteStr;
+    // UUID introduced in https://gerrit-review.googlesource.com/c/gerrit/+/324937
+    // Only parsed for backward compatibility
+    // Footer has the following format in this case: Label: <LABEL>=VOTE, <UUID> <Gerrit Account>
+    int uuidStart = line.indexOf(", ");
+    int reviewerStart = line.indexOf(' ', uuidStart != -1 ? uuidStart + 2 : 0);
+    if (uuidStart != -1) {
+      labelVoteStr = line.substring(0, uuidStart);
+    } else if (reviewerStart != -1) {
+      labelVoteStr = line.substring(0, reviewerStart);
+    } else {
+      labelVoteStr = line;
+    }
+    if (reviewerStart > 0) {
+      // Account in the label line (2) becomes the effective ID of the
+      // approval. If there is a real user (3) different from the commit user
+      // (2), we actually don't store that anywhere in this case; it's more
+      // important to record that the real user (3) actually initiated submit.
+      PersonIdent ident = RawParseUtils.parsePersonIdent(line.substring(reviewerStart + 1));
+      checkFooter(ident != null, FOOTER_LABEL, line);
+      effectiveAccountId = parseIdent(ident);
+    } else {
+      effectiveAccountId = committerId;
+    }
+>>>>>>> BRANCH (15688f Merge "Make PatchSetApproval UUID parsing forwards compatibl)
 
     LabelVote l;
     try {
