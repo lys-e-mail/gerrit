@@ -402,10 +402,15 @@ export class GrAccessSection extends LitElement {
   computePermissionName(
     permission: PermissionArrayItem<EditablePermissionInfo>
   ): string | undefined {
+<<<<<<< HEAD   (38dcf4 gr-change-actions-js-api: Remove outdated TODOs)
     if (this.section?.id === GLOBAL_NAME) {
       return this.capabilities?.[permission.id].name;
+=======
+    if (name === GLOBAL_NAME) {
+      return capabilities?.[permission.id]?.name;
+>>>>>>> BRANCH (508663 Merge "gr-access-section: Fix exception when unknown name is)
     } else if (AccessPermissions[permission.id]) {
-      return AccessPermissions[permission.id].name;
+      return AccessPermissions[permission.id]?.name;
     } else if (permission.value.label) {
       let behalfOf = '';
       if (permission.id.startsWith('labelAs-')) {
