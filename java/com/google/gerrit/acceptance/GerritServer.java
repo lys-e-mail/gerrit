@@ -45,7 +45,11 @@ import com.google.gerrit.server.config.GerritRuntime;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.SitePath;
 import com.google.gerrit.server.git.receive.AsyncReceiveCommits;
+<<<<<<< HEAD   (ac9277 Revert "Cache change /meta ref SHA1 for each REST API reques)
 import com.google.gerrit.server.index.options.AutoFlush;
+=======
+import com.google.gerrit.server.index.AutoFlush;
+>>>>>>> BRANCH (973413 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.server.schema.JdbcAccountPatchReviewStore;
 import com.google.gerrit.server.ssh.NoSshModule;
 import com.google.gerrit.server.util.ReplicaUtil;
