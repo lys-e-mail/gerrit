@@ -25,7 +25,10 @@ import com.google.gerrit.extensions.api.changes.RecipientType;
 import com.google.gerrit.mail.Address;
 import com.google.gerrit.mail.MailHeader;
 import com.google.gerrit.server.account.ProjectWatches.NotifyType;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.mail.send.ProjectWatch.Watchers;
+import com.google.gerrit.server.query.change.ChangeData;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,9 +38,17 @@ public abstract class NotificationEmail extends OutgoingEmail {
 
   protected BranchNameKey branch;
 
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
   protected NotificationEmail(EmailArguments args, String messageClass, BranchNameKey branch) {
     super(args, messageClass);
     this.branch = branch;
+=======
+  protected NotificationEmail(EmailArguments ea, String mc, ChangeData cd) {
+    super(ea, mc);
+    try (ReadonlyRequestWindow window = PerThreadCache.openReadonlyRequestWindow()) {
+      this.branch = cd.change().getDest();
+    }
+>>>>>>> BRANCH (e53caf Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @Override
