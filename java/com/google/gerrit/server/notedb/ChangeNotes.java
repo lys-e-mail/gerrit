@@ -133,7 +133,35 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
 
     public ChangeNotes create(Project.NameKey project, Change.Id changeId) {
       checkArgument(project != null, "project is required");
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
       return new ChangeNotes(args, newChange(project, changeId), true, null).load();
+=======
+      Change change = readOneReviewDbChange(db, changeId);
+
+      if (change == null) {
+        if (args.migration.readChanges()) {
+          return newNoteDbOnlyChange(project, changeId);
+        }
+        throw new NoSuchChangeException(changeId);
+      }
+      checkArgument(
+          change.getProject().equals(project),
+          "passed project %s when creating ChangeNotes for %s, but actual project is %s",
+          project,
+          changeId,
+          change.getProject());
+      return change;
+    }
+
+    public ChangeNotes create(ReviewDb db, Project.NameKey project, Change.Id changeId)
+        throws OrmException {
+      return new ChangeNotes(args, loadChangeFromDb(db, project, changeId)).load();
+    }
+
+    public ChangeNotes createWithAutoRebuildingDisabled(
+        ReviewDb db, Project.NameKey project, Change.Id changeId) throws OrmException {
+      return new ChangeNotes(args, loadChangeFromDb(db, project, changeId), true, false).load();
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
     }
 
     /**
@@ -147,12 +175,23 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
       return new ChangeNotes(args, change, true, null);
     }
 
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
     public ChangeNotes createForBatchUpdate(Change change, boolean shouldExist) {
       return new ChangeNotes(args, change, shouldExist, null).load();
+=======
+    public ChangeNotes createForBatchUpdate(Change change, boolean shouldExist)
+        throws OrmException {
+      return new ChangeNotes(args, change, shouldExist, false).load();
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
     }
 
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
     public ChangeNotes create(Change change, RefCache refs) {
       return new ChangeNotes(args, change, true, refs).load();
+=======
+    public ChangeNotes createWithAutoRebuildingDisabled(Change change) throws OrmException {
+      return new ChangeNotes(args, change, true, false).load();
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
     }
 
     public List<ChangeNotes> create(Collection<Change.Id> changeIds) {
@@ -303,7 +342,6 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
   }
 
   private final boolean shouldExist;
-  private final RefCache refs;
 
   private Change change;
   private ChangeNotesState state;
@@ -322,11 +360,19 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
   private ImmutableSet<Comment.Key> commentKeys;
 
   @VisibleForTesting
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
   public ChangeNotes(Args args, Change change, boolean shouldExist, @Nullable RefCache refs) {
     super(args, change.getId());
+=======
+  public ChangeNotes(Args args, Change change) {
+    this(args, change, true, true);
+  }
+
+  private ChangeNotes(Args args, Change change, boolean shouldExist, boolean autoRebuild) {
+    super(args, change.getId(), PrimaryStorage.of(change), autoRebuild);
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
     this.change = new Change(change);
     this.shouldExist = shouldExist;
-    this.refs = refs;
   }
 
   public Change getChange() {
@@ -534,10 +580,113 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
 
   @Override
   protected ObjectId readRef(Repository repo) throws IOException {
-    Optional<RefCache> refsCache =
-        Optional.ofNullable(refs).map(Optional::of).orElse(RepoRefCache.getOptional(repo));
+    Optional<RefCache> refsCache = RepoRefCache.getOptional(repo);
     return refsCache.isPresent()
         ? refsCache.get().get(getRefName()).orElse(null)
         : super.readRef(repo);
   }
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
+=======
+
+  @Override
+  protected LoadHandle openHandle(Repository repo) throws NoSuchChangeException, IOException {
+    if (autoRebuild) {
+      NoteDbChangeState state = NoteDbChangeState.parse(change);
+      if (args.migration.disableChangeReviewDb()) {
+        checkState(
+            state != null,
+            "shouldn't have null NoteDbChangeState when ReviewDb disabled: %s",
+            change);
+      }
+      ObjectId id = readRef(repo);
+      if (id == null) {
+        // Meta ref doesn't exist in NoteDb.
+
+        if (state == null) {
+          // Either ReviewDb change is being newly created, or it exists in ReviewDb but has not yet
+          // been rebuilt for the first time, e.g. because we just turned on write-only mode. In
+          // both cases, we don't want to auto-rebuild, just proceed with an empty ChangeNotes.
+          return super.openHandle(repo, id);
+        } else if (shouldExist && state.getPrimaryStorage() == PrimaryStorage.NOTE_DB) {
+          throw new NoSuchChangeException(getChangeId());
+        }
+
+        // ReviewDb claims NoteDb state exists, but meta ref isn't present: fall through and
+        // auto-rebuild if necessary.
+      }
+      RefCache refs;
+      RepoRefCache newRefCache = null;
+      Optional<RefCache> cachedRefCache = RepoRefCache.getOptional(repo);
+
+      if (cachedRefCache.isPresent()) {
+        refs = cachedRefCache.get();
+      } else {
+        newRefCache = new RepoRefCache(repo);
+        refs = newRefCache;
+      }
+
+      try {
+        if (!NoteDbChangeState.isChangeUpToDate(state, refs, getChangeId())) {
+          return rebuildAndOpen(repo, id);
+        }
+      } finally {
+        if (newRefCache != null) {
+          newRefCache.close();
+        }
+      }
+    }
+    return super.openHandle(repo);
+  }
+
+  private LoadHandle rebuildAndOpen(Repository repo, ObjectId oldId) throws IOException {
+    Timer1.Context timer = args.metrics.autoRebuildLatency.start(CHANGES);
+    try {
+      Change.Id cid = getChangeId();
+      ReviewDb db = args.db.get();
+      ChangeRebuilder rebuilder = args.rebuilder.get();
+      NoteDbUpdateManager.Result r;
+      try (NoteDbUpdateManager manager = rebuilder.stage(db, cid)) {
+        if (manager == null) {
+          return super.openHandle(repo, oldId); // May be null in tests.
+        }
+        manager.setRefLogMessage("Auto-rebuilding change");
+        r = manager.stageAndApplyDelta(change);
+        try {
+          rebuilder.execute(db, cid, manager);
+          repo.scanForRepoChanges();
+        } catch (OrmException | IOException e) {
+          // Rebuilding failed. Most likely cause is contention on one or more
+          // change refs; there are other types of errors that can happen during
+          // rebuilding, but generally speaking they should happen during stage(),
+          // not execute(). Assume that some other worker is going to successfully
+          // store the rebuilt state, which is deterministic given an input
+          // ChangeBundle.
+          //
+          // Parse notes from the staged result so we can return something useful
+          // to the caller instead of throwing.
+          logger.atFine().log("Rebuilding change %s failed: %s", getChangeId(), e.getMessage());
+          args.metrics.autoRebuildFailureCount.increment(CHANGES);
+          rebuildResult = requireNonNull(r);
+          requireNonNull(r.newState());
+          requireNonNull(r.staged());
+          requireNonNull(r.staged().changeObjects());
+          return LoadHandle.create(
+              ChangeNotesCommit.newStagedRevWalk(repo, r.staged().changeObjects()),
+              r.newState().getChangeMetaId());
+        }
+      }
+      return LoadHandle.create(ChangeNotesCommit.newRevWalk(repo), r.newState().getChangeMetaId());
+    } catch (NoSuchChangeException e) {
+      return super.openHandle(repo, oldId);
+    } catch (OrmException e) {
+      throw new IOException(e);
+    } finally {
+      logger.atFine().log(
+          "Rebuilt change %s in project %s in %s ms",
+          getChangeId(),
+          getProjectName(),
+          TimeUnit.MILLISECONDS.convert(timer.stop(), TimeUnit.NANOSECONDS));
+    }
+  }
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
 }

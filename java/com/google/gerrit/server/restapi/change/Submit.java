@@ -43,6 +43,8 @@ import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.ProjectUtil;
 import com.google.gerrit.server.account.AccountResolver;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
@@ -206,7 +208,19 @@ public class Submit
     }
 
     try (MergeOp op = mergeOpProvider.get()) {
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
       op.merge(change, submitter, true, input, false);
+=======
+      ReviewDb db = dbProvider.get();
+      op.merge(db, change, submitter, true, input, false);
+      try (ReadonlyRequestWindow readonlyRequestWindow =
+          PerThreadCache.openReadonlyRequestWindow()) {
+        change =
+            changeNotesFactory.createChecked(db, change.getProject(), change.getId()).getChange();
+      } catch (NoSuchChangeException e) {
+        throw new ResourceConflictException("change is deleted", e);
+      }
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
     }
 
     // Read the ChangeNotes only after MergeOp is fully done (including MergeOp#close) to be sure

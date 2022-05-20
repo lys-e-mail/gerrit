@@ -25,7 +25,12 @@ import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.PatchSet;
 import com.google.gerrit.server.GpgException;
 import com.google.gerrit.server.account.AccountState;
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.change.NotifyResolver;
+=======
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
 import com.google.gerrit.server.patch.PatchListNotAvailableException;
 import com.google.gerrit.server.patch.PatchListObjectTooLargeException;
 import com.google.gerrit.server.permissions.PermissionBackendException;
@@ -74,6 +79,7 @@ public class RevisionCreated {
       return;
     }
     try {
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
       Event event =
           new Event(
               util.changeInfo(change),
@@ -81,6 +87,18 @@ public class RevisionCreated {
               util.accountInfo(uploader),
               when,
               notify.handling());
+=======
+      Event event;
+      try (ReadonlyRequestWindow window = PerThreadCache.openReadonlyRequestWindow()) {
+        event =
+            new Event(
+                util.changeInfo(change),
+                util.revisionInfo(change.getProject(), patchSet),
+                util.accountInfo(uploader),
+                when,
+                notify);
+      }
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
       listeners.runEach(l -> l.onRevisionCreated(event));
     } catch (PatchListObjectTooLargeException e) {
       logger.atWarning().log("Couldn't fire event: %s", e.getMessage());
