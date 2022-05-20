@@ -87,6 +87,8 @@ import com.google.gerrit.server.ReviewerStatusUpdate;
 import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.account.AccountInfoComparator;
 import com.google.gerrit.server.account.AccountLoader;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.TrackingFooters;
 import com.google.gerrit.server.index.change.ChangeField;
@@ -483,8 +485,14 @@ public class ChangeJson {
 
   private ChangeInfo toChangeInfo(ChangeData cd, Optional<PatchSet.Id> limitToPsId)
       throws PatchListNotAvailableException, GpgException, PermissionBackendException, IOException {
+<<<<<<< HEAD   (ac9277 Revert "Cache change /meta ref SHA1 for each REST API reques)
     try (Timer0.Context ignored = metrics.toChangeInfoLatency.start()) {
       return toChangeInfoImpl(cd, limitToPsId);
+=======
+    try (Timer0.Context ignored = metrics.toChangeInfoLatency.start();
+        ReadonlyRequestWindow window = PerThreadCache.openReadonlyRequestWindow()) {
+      return toChangeInfoImpl(cd, limitToPsId, changeInfoSupplier);
+>>>>>>> BRANCH (973413 Merge branch 'stable-3.0' into stable-3.1)
     }
   }
 
