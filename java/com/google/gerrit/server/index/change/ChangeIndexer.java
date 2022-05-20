@@ -26,6 +26,12 @@ import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.index.Index;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
+=======
+import com.google.gerrit.reviewdb.server.ReviewDb;
+import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.cache.PerThreadCache;
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.index.IndexExecutor;
 import com.google.gerrit.server.logging.TraceContext;
@@ -327,8 +333,15 @@ public class ChangeIndexer {
     @Override
     public Void callImpl() throws Exception {
       remove();
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
       ChangeData cd = changeDataFactory.create(project, id);
       index(cd);
+=======
+      try (PerThreadCache perThreadCache = PerThreadCache.createReadOnly()) {
+        ChangeData cd = newChangeData(db.get(), project, id);
+        index(cd);
+      }
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
       return null;
     }
 
@@ -441,4 +454,29 @@ public class ChangeIndexer {
     }
     return false;
   }
+<<<<<<< HEAD   (462bb1 Merge branch 'stable-2.16' into stable-3.0)
+=======
+
+  // Avoid auto-rebuilding when reindexing if reading is disabled. This just
+  // increases contention on the meta ref from a background indexing thread
+  // with little benefit. The next actual write to the entity may still incur a
+  // less-contentious rebuild.
+  private ChangeData newChangeData(ReviewDb db, Change change) throws OrmException {
+    if (!notesMigration.readChanges()) {
+      ChangeNotes notes = changeNotesFactory.createWithAutoRebuildingDisabled(change);
+      return changeDataFactory.create(db, notes);
+    }
+    return changeDataFactory.create(db, change);
+  }
+
+  private ChangeData newChangeData(ReviewDb db, Project.NameKey project, Change.Id changeId)
+      throws OrmException {
+    if (!notesMigration.readChanges()) {
+      ChangeNotes notes =
+          changeNotesFactory.createWithAutoRebuildingDisabled(db, project, changeId);
+      return changeDataFactory.create(db, notes);
+    }
+    return changeDataFactory.create(db, project, changeId);
+  }
+>>>>>>> BRANCH (500346 Set PerThreadCache as readonly after creating a new patch-se)
 }
