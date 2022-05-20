@@ -20,11 +20,15 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.Sets;
 import com.google.common.flogger.FluentLogger;
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.UserIdentity;
 import com.google.gerrit.exceptions.EmailException;
+=======
+>>>>>>> BRANCH (e53caf Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.common.Nullable;
+import com.google.gerrit.exceptions.EmailException;
 import com.google.gerrit.extensions.api.changes.RecipientType;
 import com.google.gerrit.extensions.client.GeneralPreferencesInfo;
 import com.google.gerrit.extensions.client.GeneralPreferencesInfo.EmailFormat;
@@ -33,6 +37,8 @@ import com.google.gerrit.mail.EmailHeader;
 import com.google.gerrit.mail.EmailHeader.AddressList;
 import com.google.gerrit.mail.MailHeader;
 import com.google.gerrit.server.account.AccountState;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.validators.OutgoingEmailValidationListener;
@@ -94,6 +100,7 @@ public abstract class OutgoingEmail {
    * @throws EmailException
    */
   public void send() throws EmailException {
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
     if (!args.emailSender.isEnabled()) {
       // Server has explicitly disabled email sending.
       //
@@ -157,75 +164,143 @@ public abstract class OutgoingEmail {
           logger.atFine().log("Not sending '%s': No SMTP recipients", messageClass);
           return;
         }
+=======
+    try (ReadonlyRequestWindow window = PerThreadCache.openReadonlyRequestWindow()) {
+      if (!args.emailSender.isEnabled()) {
+        // Server has explicitly disabled email sending.
+        //
+        logger.atFine().log(
+            "Not sending '%s': Email sending is disabled by server config", messageClass);
+        return;
+>>>>>>> BRANCH (e53caf Merge branch 'stable-2.16' into stable-3.0)
       }
 
-      // Set Reply-To only if it hasn't been set by a child class
-      // Reply-To will already be populated for the message types where Gerrit supports
-      // inbound email replies.
-      if (!headers.containsKey(FieldName.REPLY_TO)) {
-        StringJoiner j = new StringJoiner(", ");
+      if (!notify.shouldNotify()) {
+        logger.atFine().log("Not sending '%s': Notify handling is NONE", messageClass);
+        return;
+      }
+
+      init();
+      if (useHtml()) {
+        appendHtml(soyHtmlTemplate("HeaderHtml"));
+      }
+      format();
+      appendText(textTemplate("Footer"));
+      if (useHtml()) {
+        appendHtml(soyHtmlTemplate("FooterHtml"));
+      }
+
+      Set<Address> smtpRcptToPlaintextOnly = new HashSet<>();
+      if (shouldSendMessage()) {
         if (fromId != null) {
-          Address address = toAddress(fromId);
-          if (address != null) {
-            j.add(address.getEmail());
+          Optional<AccountState> fromUser = args.accountCache.get(fromId);
+          if (fromUser.isPresent()) {
+            GeneralPreferencesInfo senderPrefs = fromUser.get().getGeneralPreferences();
+            if (senderPrefs != null && senderPrefs.getEmailStrategy() == CC_ON_OWN_COMMENTS) {
+              // If we are impersonating a user, make sure they receive a CC of
+              // this message so they can always review and audit what we sent
+              // on their behalf to others.
+              //
+              add(RecipientType.CC, fromId);
+            } else if (!notify.accounts().containsValue(fromId) && rcptTo.remove(fromId)) {
+              // If they don't want a copy, but we queued one up anyway,
+              // drop them from the recipient lists.
+              //
+              removeUser(fromUser.get().getAccount());
+            }
           }
         }
-        smtpRcptTo.stream().forEach(a -> j.add(a.getEmail()));
-        smtpRcptToPlaintextOnly.stream().forEach(a -> j.add(a.getEmail()));
-        setHeader(FieldName.REPLY_TO, j.toString());
-      }
-
-      String textPart = textBody.toString();
-      OutgoingEmailValidationListener.Args va = new OutgoingEmailValidationListener.Args();
-      va.messageClass = messageClass;
-      va.smtpFromAddress = smtpFromAddress;
-      va.smtpRcptTo = smtpRcptTo;
-      va.headers = headers;
-      va.body = textPart;
-
-      if (useHtml()) {
-        va.htmlBody = htmlBody.toString();
-      } else {
-        va.htmlBody = null;
-      }
-
-      for (OutgoingEmailValidationListener validator : args.outgoingEmailValidationListeners) {
-        try {
-          validator.validateOutgoingEmail(va);
-        } catch (ValidationException e) {
-          logger.atFine().log(
-              "Not sending '%s': Rejected by outgoing email validator: %s",
-              messageClass, e.getMessage());
-          return;
+        // Check the preferences of all recipients. If any user has disabled
+        // his email notifications then drop him from recipients' list.
+        // In addition, check if users only want to receive plaintext email.
+        for (Account.Id id : rcptTo) {
+          Optional<AccountState> thisUser = args.accountCache.get(id);
+          if (thisUser.isPresent()) {
+            Account thisUserAccount = thisUser.get().getAccount();
+            GeneralPreferencesInfo prefs = thisUser.get().getGeneralPreferences();
+            if (prefs == null || prefs.getEmailStrategy() == DISABLED) {
+              removeUser(thisUserAccount);
+            } else if (useHtml() && prefs.getEmailFormat() == EmailFormat.PLAINTEXT) {
+              removeUser(thisUserAccount);
+              smtpRcptToPlaintextOnly.add(
+                  new Address(thisUserAccount.getFullName(), thisUserAccount.getPreferredEmail()));
+            }
+          }
+          if (smtpRcptTo.isEmpty() && smtpRcptToPlaintextOnly.isEmpty()) {
+            logger.atFine().log("Not sending '%s': No SMTP recipients", messageClass);
+            return;
+          }
         }
-      }
 
-      Set<Address> intersection = Sets.intersection(va.smtpRcptTo, smtpRcptToPlaintextOnly);
-      if (!intersection.isEmpty()) {
-        logger.atSevere().log("Email '%s' will be sent twice to %s", messageClass, intersection);
-      }
-
-      if (!va.smtpRcptTo.isEmpty()) {
-        // Send multipart message
-        logger.atFine().log("Sending multipart '%s'", messageClass);
-        args.emailSender.send(va.smtpFromAddress, va.smtpRcptTo, va.headers, va.body, va.htmlBody);
-      }
-
-      if (!smtpRcptToPlaintextOnly.isEmpty()) {
-        logger.atFine().log("Sending plaintext '%s'", messageClass);
-        // Send plaintext message
-        Map<String, EmailHeader> shallowCopy = new HashMap<>();
-        shallowCopy.putAll(headers);
-        // Remove To and Cc
-        shallowCopy.remove(FieldName.TO);
-        shallowCopy.remove(FieldName.CC);
-        for (Address a : smtpRcptToPlaintextOnly) {
-          // Add new To
-          EmailHeader.AddressList to = new EmailHeader.AddressList();
-          to.add(a);
-          shallowCopy.put(FieldName.TO, to);
+        // Set Reply-To only if it hasn't been set by a child class
+        // Reply-To will already be populated for the message types where Gerrit supports
+        // inbound email replies.
+        if (!headers.containsKey(FieldName.REPLY_TO)) {
+          StringJoiner j = new StringJoiner(", ");
+          if (fromId != null) {
+            Address address = toAddress(fromId);
+            if (address != null) {
+              j.add(address.getEmail());
+            }
+          }
+          smtpRcptTo.stream().forEach(a -> j.add(a.getEmail()));
+          smtpRcptToPlaintextOnly.stream().forEach(a -> j.add(a.getEmail()));
+          setHeader(FieldName.REPLY_TO, j.toString());
         }
-        args.emailSender.send(va.smtpFromAddress, smtpRcptToPlaintextOnly, shallowCopy, va.body);
+
+        String textPart = textBody.toString();
+        OutgoingEmailValidationListener.Args va = new OutgoingEmailValidationListener.Args();
+        va.messageClass = messageClass;
+        va.smtpFromAddress = smtpFromAddress;
+        va.smtpRcptTo = smtpRcptTo;
+        va.headers = headers;
+        va.body = textPart;
+
+        if (useHtml()) {
+          va.htmlBody = htmlBody.toString();
+        } else {
+          va.htmlBody = null;
+        }
+
+        for (OutgoingEmailValidationListener validator : args.outgoingEmailValidationListeners) {
+          try {
+            validator.validateOutgoingEmail(va);
+          } catch (ValidationException e) {
+            logger.atFine().log(
+                "Not sending '%s': Rejected by outgoing email validator: %s",
+                messageClass, e.getMessage());
+            return;
+          }
+        }
+
+        Set<Address> intersection = Sets.intersection(va.smtpRcptTo, smtpRcptToPlaintextOnly);
+        if (!intersection.isEmpty()) {
+          logger.atSevere().log("Email '%s' will be sent twice to %s", messageClass, intersection);
+        }
+
+        if (!va.smtpRcptTo.isEmpty()) {
+          // Send multipart message
+          logger.atFine().log("Sending multipart '%s'", messageClass);
+          args.emailSender.send(
+              va.smtpFromAddress, va.smtpRcptTo, va.headers, va.body, va.htmlBody);
+        }
+
+        if (!smtpRcptToPlaintextOnly.isEmpty()) {
+          logger.atFine().log("Sending plaintext '%s'", messageClass);
+          // Send plaintext message
+          Map<String, EmailHeader> shallowCopy = new HashMap<>();
+          shallowCopy.putAll(headers);
+          // Remove To and Cc
+          shallowCopy.remove(FieldName.TO);
+          shallowCopy.remove(FieldName.CC);
+          for (Address a : smtpRcptToPlaintextOnly) {
+            // Add new To
+            EmailHeader.AddressList to = new EmailHeader.AddressList();
+            to.add(a);
+            shallowCopy.put(FieldName.TO, to);
+          }
+          args.emailSender.send(va.smtpFromAddress, smtpRcptToPlaintextOnly, shallowCopy, va.body);
+        }
       }
     }
   }
