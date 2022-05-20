@@ -46,6 +46,8 @@ import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.ProjectUtil;
 import com.google.gerrit.server.account.AccountResolver;
+import com.google.gerrit.server.cache.PerThreadCache;
+import com.google.gerrit.server.cache.PerThreadCache.ReadonlyRequestWindow;
 import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.RevisionResource;
@@ -207,12 +209,22 @@ public class Submit
     try (MergeOp op = mergeOpProvider.get()) {
       Change updatedChange;
 
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
       try {
         updatedChange = op.merge(change, submitter, true, input, false);
       } catch (Exception e) {
         Throwables.throwIfInstanceOf(e, RestApiException.class);
         return Response.<Output>internalServerError(e).traceId(op.getTraceId().orElse(null));
       }
+=======
+    // Read the ChangeNotes only after MergeOp is fully done (including MergeOp#close) to be sure
+    // to have the correct state of the repo.
+    try (ReadonlyRequestWindow readonlyRequestWindow = PerThreadCache.openReadonlyRequestWindow()) {
+      change = changeNotesFactory.createChecked(change.getProject(), change.getId()).getChange();
+    } catch (NoSuchChangeException e) {
+      throw new ResourceConflictException("change is deleted", e);
+    }
+>>>>>>> BRANCH (e53caf Merge branch 'stable-2.16' into stable-3.0)
 
       if (updatedChange.isMerged()) {
         return Response.ok(new Output(updatedChange));
