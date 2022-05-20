@@ -84,11 +84,19 @@ public abstract class ChangeEmail extends NotificationEmail {
   protected Set<Account.Id> authors;
   protected boolean emailOnlyAuthors;
 
+<<<<<<< HEAD   (132cc9 Merge branch 'stable-3.0' into stable-3.1)
   protected ChangeEmail(EmailArguments args, String messageClass, ChangeData changeData) {
     super(args, messageClass, changeData.change().getDest());
     this.changeData = changeData;
     this.change = changeData.change();
     this.emailOnlyAuthors = false;
+=======
+  protected ChangeEmail(EmailArguments ea, String mc, ChangeData cd) {
+    super(ea, mc, cd);
+    changeData = cd;
+    change = cd.change();
+    emailOnlyAuthors = false;
+>>>>>>> BRANCH (e53caf Merge branch 'stable-2.16' into stable-3.0)
   }
 
   @Override
