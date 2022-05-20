@@ -315,7 +315,6 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
   }
 
   private final boolean shouldExist;
-  private final RefCache refs;
 
   private Change change;
   private ChangeNotesState state;
@@ -338,7 +337,6 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     super(args, change.getId());
     this.change = new Change(change);
     this.shouldExist = shouldExist;
-    this.refs = refs;
   }
 
   public Change getChange() {
@@ -576,6 +574,13 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
 
   @Override
   protected ObjectId readRef(Repository repo) throws IOException {
+<<<<<<< HEAD   (ac9277 Revert "Cache change /meta ref SHA1 for each REST API reques)
     return refs != null ? refs.get(getRefName()).orElse(null) : super.readRef(repo);
+=======
+    Optional<RefCache> refsCache = RepoRefCache.getOptional(repo);
+    return refsCache.isPresent()
+        ? refsCache.get().get(getRefName()).orElse(null)
+        : super.readRef(repo);
+>>>>>>> BRANCH (973413 Merge branch 'stable-3.0' into stable-3.1)
   }
 }
