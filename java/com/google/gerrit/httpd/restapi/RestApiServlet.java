@@ -361,8 +361,12 @@ public class RestApiServlet extends HttpServlet {
     try (TraceContext traceContext = enableTracing(req, res)) {
       String requestUri = requestUri(req);
 
+<<<<<<< HEAD   (508663 Merge "gr-access-section: Fix exception when unknown name is)
       try (PerThreadCache ignored = PerThreadCache.create(req)) {
         List<IdString> path = splitPath(req);
+=======
+      try (PerThreadCache ignored = PerThreadCache.create()) {
+>>>>>>> BRANCH (71c5ca Merge branch 'stable-3.3' into stable-3.4)
         RequestInfo requestInfo = createRequestInfo(traceContext, requestUri(req), path);
         globals.requestListeners.runEach(l -> l.onRequest(requestInfo));
 
