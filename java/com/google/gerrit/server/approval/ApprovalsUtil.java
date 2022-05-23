@@ -20,11 +20,14 @@ import static com.google.gerrit.server.notedb.ReviewerStateInternal.REVIEWER;
 import static com.google.gerrit.server.project.ProjectCache.illegalState;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.Change;
@@ -339,6 +342,7 @@ public class ApprovalsUtil {
     return notes.load().getApprovals();
   }
 
+<<<<<<< HEAD   (5a0288 Fix typo in InheritedBooleanInfoConfiguredValue enum)
   /**
    * This method should only be used when we want to dynamically compute the approvals. Generally,
    * the copied approvals are available in {@link ChangeNotes}. However, if the patch-set is just
@@ -348,6 +352,63 @@ public class ApprovalsUtil {
    * ChangeUpdate} object.
    */
   public void persistCopiedApprovals(
+=======
+  public Iterable<PatchSetApproval> byPatchSet(
+      ChangeNotes notes, PatchSet.Id psId, @Nullable RevWalk rw, @Nullable Config repoConfig) {
+    return approvalInference.forPatchSet(notes, psId, rw, repoConfig);
+  }
+
+  public Iterable<PatchSetApproval> byPatchSet(ChangeNotes notes, PatchSet patchSet) {
+    return approvalInference.forPatchSet(notes, patchSet, /* rw= */ null, /* repoConfig= */ null);
+  }
+
+  /**
+   * This method should only be used when we want to dynamically compute the approvals. Generally,
+   * the copied approvals are available in {@link ChangeNotes}. However, if the patch-set is just
+   * being created, we need to dynamically compute the approvals so that we can persist them in
+   * storage. The {@link RevWalk} and {@link Config} objects that are being used to create the new
+   * patch-set are required for this method. Here we also add those votes to the provided {@link
+   * ChangeUpdate} object.
+   */
+  public void persistCopiedApprovals(
+      ChangeNotes notes,
+      PatchSet patchSet,
+      RevWalk revWalk,
+      Config repoConfig,
+      ChangeUpdate changeUpdate) {
+    Set<PatchSetApproval> current =
+        ImmutableSet.copyOf(notes.getApprovalsWithCopied().get(notes.getCurrentPatchSet().id()));
+    Set<PatchSetApproval> inferred =
+        ImmutableSet.copyOf(approvalInference.forPatchSet(notes, patchSet, revWalk, repoConfig));
+
+    // Exempt granted timestamp from comparisson, otherwise, we would persist the copied
+    // labels every time this method is called.
+    Table<LabelId, Account.Id, Short> approvalTable = HashBasedTable.create();
+    for (PatchSetApproval psa : current) {
+      Account.Id id = psa.accountId();
+      approvalTable.put(psa.labelId(), id, psa.value());
+    }
+
+    for (PatchSetApproval psa : inferred) {
+      if (psa.value() != 0) {
+        if (approvalTable.contains(psa.labelId(), psa.accountId())) {
+          Short v = approvalTable.get(psa.labelId(), psa.accountId());
+          if (v.shortValue() != psa.value()) {
+            changeUpdate.putCopiedApproval(psa);
+          }
+        } else {
+          changeUpdate.putCopiedApproval(psa);
+        }
+      }
+    }
+  }
+
+  public Iterable<PatchSetApproval> byPatchSet(ChangeNotes notes, PatchSet.Id psId) {
+    return approvalCache.get(notes, psId);
+  }
+
+  public Iterable<PatchSetApproval> byPatchSetUser(
+>>>>>>> BRANCH (2b42c8 Do not try to copy labels with value == 0)
       ChangeNotes notes,
       PatchSet patchSet,
       RevWalk revWalk,
