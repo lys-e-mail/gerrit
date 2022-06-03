@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (25bfda Support per-project enableSignedPush in computePushCertifica)
   <version>3.4.6-SNAPSHOT</version>
+=======
+  <version>3.3.12-SNAPSHOT</version>
+>>>>>>> BRANCH (598b67 Cache ProjectControl instances in SSH queries)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
