@@ -131,6 +131,23 @@ export enum MergeStrategy {
   THEIRS = 'theirs',
 }
 
+<<<<<<< HEAD   (171003 Fix to render legacy change messages correctly)
+=======
+/*
+ * Enum for possible configured value in InheritedBooleanInfo.
+ * https://gerrit-review.googlesource.com/Documentation/rest-api-projects.html#inherited-boolean-info
+ */
+export enum InheritedBooleanInfoConfiguredValue {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
+  INHERIT = 'INHERIT',
+}
+
+export enum AccountTag {
+  SERVICE_USER = 'SERVICE_USER',
+}
+
+>>>>>>> BRANCH (f7b8b1 Merge branch 'stable-3.3' into stable-3.4)
 /**
  * Enum for possible PermissionRuleInfo actions
  * https://gerrit-review.googlesource.com/Documentation/rest-api-access.html#permission-info
