@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (171003 Fix to render legacy change messages correctly)
   <version>3.5.3-SNAPSHOT</version>
+=======
+  <version>3.4.6-SNAPSHOT</version>
+>>>>>>> BRANCH (6d2da1 Merge "Apply the match operator to filter projects" into sta)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
