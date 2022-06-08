@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (171003 Fix to render legacy change messages correctly)
   <version>3.5.3-SNAPSHOT</version>
+=======
+  <version>3.4.6-SNAPSHOT</version>
+>>>>>>> BRANCH (844404 Merge branch 'stable-3.3' into stable-3.4)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
