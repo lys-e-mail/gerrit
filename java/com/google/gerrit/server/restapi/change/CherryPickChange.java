@@ -49,6 +49,7 @@ import com.google.gerrit.server.git.CodeReviewCommit.CodeReviewRevWalk;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.GroupCollector;
 import com.google.gerrit.server.git.MergeUtil;
+import com.google.gerrit.server.git.MergeUtilFactory;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 import com.google.gerrit.server.notedb.Sequences;
@@ -69,11 +70,11 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -103,12 +104,12 @@ public class CherryPickChange {
   private final Sequences seq;
   private final Provider<InternalChangeQuery> queryProvider;
   private final GitRepositoryManager gitManager;
-  private final TimeZone serverTimeZone;
+  private final ZoneId serverZoneId;
   private final Provider<IdentifiedUser> user;
   private final ChangeInserter.Factory changeInserterFactory;
   private final PatchSetInserter.Factory patchSetInserterFactory;
   private final SetCherryPickOp.Factory setCherryPickOfFactory;
-  private final MergeUtil.Factory mergeUtilFactory;
+  private final MergeUtilFactory mergeUtilFactory;
   private final ChangeNotes.Factory changeNotesFactory;
   private final ProjectCache projectCache;
   private final ApprovalsUtil approvalsUtil;
@@ -125,7 +126,7 @@ public class CherryPickChange {
       ChangeInserter.Factory changeInserterFactory,
       PatchSetInserter.Factory patchSetInserterFactory,
       SetCherryPickOp.Factory setCherryPickOfFactory,
-      MergeUtil.Factory mergeUtilFactory,
+      MergeUtilFactory mergeUtilFactory,
       ChangeNotes.Factory changeNotesFactory,
       ProjectCache projectCache,
       ApprovalsUtil approvalsUtil,
@@ -134,7 +135,7 @@ public class CherryPickChange {
     this.seq = seq;
     this.queryProvider = queryProvider;
     this.gitManager = gitManager;
-    this.serverTimeZone = myIdent.getTimeZone();
+    this.serverZoneId = myIdent.getZoneId();
     this.user = user;
     this.changeInserterFactory = changeInserterFactory;
     this.patchSetInserterFactory = patchSetInserterFactory;
@@ -306,7 +307,7 @@ public class CherryPickChange {
       CodeReviewCommit cherryPickCommit;
       ProjectState projectState =
           projectCache.get(dest.project()).orElseThrow(noSuchProject(dest.project()));
-      PersonIdent committerIdent = identifiedUser.newCommitterIdent(timestamp, serverTimeZone);
+      PersonIdent committerIdent = identifiedUser.newCommitterIdent(timestamp, serverZoneId);
 
       try {
         MergeUtil mergeUtil;
