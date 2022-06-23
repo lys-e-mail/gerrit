@@ -537,4 +537,112 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
         ? refsCache.get().get(getRefName()).orElse(null)
         : super.readRef(repo);
   }
+<<<<<<< HEAD   (e53caf Merge branch 'stable-2.16' into stable-3.0)
+=======
+
+  @Override
+  protected LoadHandle openHandle(Repository repo) throws NoSuchChangeException, IOException {
+    if (autoRebuild) {
+      NoteDbChangeState state = NoteDbChangeState.parse(change);
+      if (args.migration.disableChangeReviewDb()) {
+        checkState(
+            state != null,
+            "shouldn't have null NoteDbChangeState when ReviewDb disabled: %s",
+            change);
+      }
+      ObjectId id = readRef(repo);
+      if (id == null) {
+        // Meta ref doesn't exist in NoteDb.
+
+        if (state == null) {
+          // Either ReviewDb change is being newly created, or it exists in ReviewDb but has not yet
+          // been rebuilt for the first time, e.g. because we just turned on write-only mode. In
+          // both cases, we don't want to auto-rebuild, just proceed with an empty ChangeNotes.
+          return super.openHandle(repo, id);
+        } else if (shouldExist && state.getPrimaryStorage() == PrimaryStorage.NOTE_DB) {
+          throw new NoSuchChangeException(getChangeId());
+        }
+
+        // ReviewDb claims NoteDb state exists, but meta ref isn't present: fall through and
+        // auto-rebuild if necessary.
+      }
+      RefCache refs;
+      RepoRefCache newRefCache = null;
+      Optional<RefCache> cachedRefCache = RepoRefCache.getOptional(repo);
+
+      if (cachedRefCache.isPresent()) {
+        refs = cachedRefCache.get();
+      } else {
+        newRefCache = new RepoRefCache(repo);
+        refs = newRefCache;
+      }
+
+      boolean changeUpToDate = true;
+      try {
+        changeUpToDate = NoteDbChangeState.isChangeUpToDate(state, refs, getChangeId());
+      } finally {
+        if (newRefCache != null) {
+          // RepoRefCache needs to be closed for preventing caching before
+          // any potential mutation happens with rebuildAndOpen()
+          newRefCache.close();
+        }
+      }
+      if (!changeUpToDate) {
+        return rebuildAndOpen(repo, id);
+      }
+    }
+    return super.openHandle(repo);
+  }
+
+  private LoadHandle rebuildAndOpen(Repository repo, ObjectId oldId) throws IOException {
+    Timer1.Context timer = args.metrics.autoRebuildLatency.start(CHANGES);
+    try {
+      Change.Id cid = getChangeId();
+      ReviewDb db = args.db.get();
+      ChangeRebuilder rebuilder = args.rebuilder.get();
+      NoteDbUpdateManager.Result r;
+      try (NoteDbUpdateManager manager = rebuilder.stage(db, cid)) {
+        if (manager == null) {
+          return super.openHandle(repo, oldId); // May be null in tests.
+        }
+        manager.setRefLogMessage("Auto-rebuilding change");
+        r = manager.stageAndApplyDelta(change);
+        try {
+          rebuilder.execute(db, cid, manager);
+          repo.scanForRepoChanges();
+        } catch (OrmException | IOException e) {
+          // Rebuilding failed. Most likely cause is contention on one or more
+          // change refs; there are other types of errors that can happen during
+          // rebuilding, but generally speaking they should happen during stage(),
+          // not execute(). Assume that some other worker is going to successfully
+          // store the rebuilt state, which is deterministic given an input
+          // ChangeBundle.
+          //
+          // Parse notes from the staged result so we can return something useful
+          // to the caller instead of throwing.
+          logger.atFine().log("Rebuilding change %s failed: %s", getChangeId(), e.getMessage());
+          args.metrics.autoRebuildFailureCount.increment(CHANGES);
+          rebuildResult = requireNonNull(r);
+          requireNonNull(r.newState());
+          requireNonNull(r.staged());
+          requireNonNull(r.staged().changeObjects());
+          return LoadHandle.create(
+              ChangeNotesCommit.newStagedRevWalk(repo, r.staged().changeObjects()),
+              r.newState().getChangeMetaId());
+        }
+      }
+      return LoadHandle.create(ChangeNotesCommit.newRevWalk(repo), r.newState().getChangeMetaId());
+    } catch (NoSuchChangeException e) {
+      return super.openHandle(repo, oldId);
+    } catch (OrmException e) {
+      throw new IOException(e);
+    } finally {
+      logger.atFine().log(
+          "Rebuilt change %s in project %s in %s ms",
+          getChangeId(),
+          getProjectName(),
+          TimeUnit.MILLISECONDS.convert(timer.stop(), TimeUnit.NANOSECONDS));
+    }
+  }
+>>>>>>> BRANCH (f38eb6 Allow async receive-commits to have a thread-local cache)
 }
