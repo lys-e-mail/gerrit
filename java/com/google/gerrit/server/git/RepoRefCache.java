@@ -58,4 +58,59 @@ public class RepoRefCache implements RefCache {
   public void close() {
     repo.close();
   }
+<<<<<<< HEAD   (9f49a8 Merge branch 'stable-3.1' into stable-3.2)
+=======
+
+  /** TODO: DO NOT MERGE into stable-3.2 onwards. */
+  @VisibleForTesting
+  void checkStaleness() {
+    List<String> staleRefs = staleRefs();
+    if (staleRefs.size() > 0) {
+      throw new IllegalStateException(
+          "Repository "
+              + repo
+              + " had modifications on refs "
+              + staleRefs
+              + " during a readonly window");
+    }
+  }
+
+  private List<String> staleRefs() {
+    return ids.entrySet().stream()
+        .filter(this::isStale)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+  }
+
+  private boolean isStale(Map.Entry<String, Optional<ObjectId>> refEntry) {
+    String refName = refEntry.getKey();
+    Optional<ObjectId> id = ids.get(refName);
+    if (id == null) {
+      return false;
+    }
+
+    try {
+      Optional<ObjectId> diskId =
+          Optional.ofNullable(refdb.exactRef(refName)).map(Ref::getObjectId);
+      boolean isStale = !diskId.equals(id);
+      if (isStale) {
+        log.atSevere().log(
+            "Repository "
+                + repo
+                + " has a stale ref "
+                + refName
+                + " (cache="
+                + id
+                + ", disk="
+                + diskId
+                + ")");
+      }
+      return isStale;
+    } catch (IOException e) {
+      log.atSevere().withCause(e).log(
+          "Unable to check if ref={} from repository={} is stale", refName, repo);
+      return true;
+    }
+  }
+>>>>>>> BRANCH (b4b04d Merge branch 'stable-3.0' into stable-3.1)
 }
