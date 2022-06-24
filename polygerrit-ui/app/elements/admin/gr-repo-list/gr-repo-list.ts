@@ -232,7 +232,23 @@ export class GrRepoList extends LitElement {
   private async getCreateRepoCapability() {
     const account = await this.restApiService.getAccount();
 
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
     if (!account) return;
+=======
+  _getRepos(filter: string, reposPerPage: number, offset?: number) {
+    this._repos = [];
+    return this.restApiService
+      .getRepos(filter, reposPerPage, offset)
+      .then(repos => {
+        // Late response.
+        if (filter !== this._filter || !repos) {
+          return;
+        }
+        this._repos = repos;
+        this._loading = false;
+      });
+  }
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
 
     const accountCapabilities =
       await this.restApiService.getAccountCapabilities(['createProject']);
