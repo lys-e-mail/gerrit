@@ -264,6 +264,7 @@ export class GrCreateChangeDialog extends LitElement {
       });
   }
 
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
   // private but used in test
   formatPrivateByDefaultBoolean() {
     const config = this.privateByDefault;
@@ -277,6 +278,26 @@ export class GrCreateChangeDialog extends LitElement {
         return !!config.inherited_value;
       default:
         return false;
+=======
+  _formatBooleanString(config?: InheritedBooleanInfo) {
+    if (
+      config &&
+      config.configured_value === InheritedBooleanInfoConfiguredValue.TRUE
+    ) {
+      return true;
+    } else if (
+      config &&
+      config.configured_value === InheritedBooleanInfoConfiguredValue.FALSE
+    ) {
+      return false;
+    } else if (
+      config &&
+      config.configured_value === InheritedBooleanInfoConfiguredValue.INHERIT
+    ) {
+      return !!(config && config.inherited_value);
+    } else {
+      return false;
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
     }
   }
 }
