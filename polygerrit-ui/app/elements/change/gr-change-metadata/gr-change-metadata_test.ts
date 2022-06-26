@@ -32,11 +32,17 @@ import {
   createCommit,
   createRevision,
   createAccountDetailWithId,
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
+=======
+  createChangeConfig,
+  createConfig,
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
 } from '../../../test/test-data-generators';
 import {
   ChangeStatus,
   SubmitType,
   GpgKeyInfoStatus,
+  InheritedBooleanInfoConfiguredValue,
 } from '../../../constants/constants';
 import {
   EmailAddress,
@@ -494,6 +500,13 @@ suite('gr-change-metadata tests', () => {
         labels: {},
         mergeable: true,
       };
+      element.repoConfig = {
+        ...createConfig(),
+        enable_signed_push: {
+          configured_value: 'TRUE' as InheritedBooleanInfoConfiguredValue,
+          value: true,
+        },
+      };
     });
 
     test('Push Certificate Validation test BAD', () => {
@@ -504,9 +517,17 @@ suite('gr-change-metadata tests', () => {
           problems: ['No public keys found for key ID E5E20E52'],
         },
       };
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
       element.change = change;
       element.serverConfig = serverConfig;
       const result = element.computePushCertificateValidation();
+=======
+      const result = element._computePushCertificateValidation(
+        serverConfig,
+        change,
+        element.repoConfig
+      );
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
       assert.equal(
         result?.message,
         'Push certificate is invalid:\n' +
@@ -523,9 +544,17 @@ suite('gr-change-metadata tests', () => {
           status: GpgKeyInfoStatus.TRUSTED,
         },
       };
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
       element.change = change;
       element.serverConfig = serverConfig;
       const result = element.computePushCertificateValidation();
+=======
+      const result = element._computePushCertificateValidation(
+        serverConfig,
+        change,
+        element.repoConfig
+      );
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
       assert.equal(
         result?.message,
         'Push certificate is valid and key is trusted'
@@ -535,16 +564,60 @@ suite('gr-change-metadata tests', () => {
     });
 
     test('Push Certificate Validation is missing test', () => {
+<<<<<<< HEAD   (27cf2a Update lit for plugins)
       change!.revisions.rev1 = createRevision(1);
       element.change = change;
       element.serverConfig = serverConfig;
       const result = element.computePushCertificateValidation();
+=======
+      change!.revisions.rev1! = createRevision(1);
+      const result = element._computePushCertificateValidation(
+        serverConfig,
+        change,
+        element.repoConfig
+      );
+>>>>>>> BRANCH (51474c Merge branch 'stable-3.4' into stable-3.5)
       assert.equal(
         result?.message,
         'This patch set was created without a push certificate'
       );
       assert.equal(result?.icon, 'gr-icons:help');
       assert.equal(result?.class, 'help');
+    });
+
+    test('_computePushCertificateValidation returns undefined', () => {
+      delete serverConfig!.receive!.enable_signed_push;
+      const result = element._computePushCertificateValidation(
+        serverConfig,
+        change,
+        element.repoConfig
+      );
+      assert.isUndefined(result);
+    });
+
+    test('isEnabledSignedPushOnRepo', () => {
+      change!.revisions.rev1!.push_certificate = {
+        certificate: 'Push certificate',
+        key: {
+          status: GpgKeyInfoStatus.TRUSTED,
+        },
+      };
+      element.change = change;
+      element.serverConfig = serverConfig;
+      element.repoConfig!.enable_signed_push!.configured_value =
+        InheritedBooleanInfoConfiguredValue.INHERIT;
+      element.repoConfig!.enable_signed_push!.inherited_value = true;
+      assert.isTrue(element.isEnabledSignedPushOnRepo(element.repoConfig));
+
+      element.repoConfig!.enable_signed_push!.inherited_value = false;
+      assert.isFalse(element.isEnabledSignedPushOnRepo(element.repoConfig));
+
+      element.repoConfig!.enable_signed_push!.configured_value =
+        InheritedBooleanInfoConfiguredValue.TRUE;
+      assert.isTrue(element.isEnabledSignedPushOnRepo(element.repoConfig));
+
+      element.repoConfig = undefined;
+      assert.isFalse(element.isEnabledSignedPushOnRepo(element.repoConfig));
     });
   });
 
