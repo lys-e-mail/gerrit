@@ -2117,12 +2117,21 @@ export class GrChangeView extends LitElement {
     if (this.params.basePatchNum === undefined)
       this.params.basePatchNum = PARENT;
 
+<<<<<<< HEAD   (f7a2e1 Merge "Add a test to enforce invariants for schema upgrade")
     const patchChanged = this.hasPatchRangeChanged(this.params);
     let patchNumChanged = this.hasPatchNumChanged(this.params);
 
     this.patchRange = {
       patchNum: this.params.patchNum,
       basePatchNum: this.params.basePatchNum,
+=======
+    const patchChanged = this.hasPatchRangeChanged(value);
+    let patchNumChanged = this.hasPatchNumChanged(value);
+
+    this._patchRange = {
+      patchNum: value.patchNum,
+      basePatchNum: value.basePatchNum,
+>>>>>>> BRANCH (a63871 Merge branch 'stable-3.5' into stable-3.6)
     };
     this.scrollCommentId = this.params.commentId;
 

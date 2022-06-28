@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD   (f7a2e1 Merge "Add a test to enforce invariants for schema upgrade")
   "name": "gerrit-plugin-dependencies",
   "description": "Gerrit Code Review - frontend plugin dependencies, each plugin may depend on a subset of these",
   "browser": true,
@@ -11,3 +12,17 @@
   "license": "Apache-2.0",
   "private": true
 }
+=======
+    "name": "gerrit-plugin-dependencies",
+    "description": "Gerrit Code Review - frontend plugin dependencies, each plugin may depend on a subset of these",
+    "browser": true,
+    "dependencies": {
+        "@gerritcodereview/typescript-api": "3.4.4",
+        "@polymer/decorators": "^3.0.0",
+        "@polymer/polymer": "^3.4.1",
+        "lit": "^2.2.3"
+    },
+    "license": "Apache-2.0",
+    "private": true
+}
+>>>>>>> BRANCH (a63871 Merge branch 'stable-3.5' into stable-3.6)
