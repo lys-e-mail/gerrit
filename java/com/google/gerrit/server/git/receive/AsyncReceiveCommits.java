@@ -35,7 +35,11 @@ import com.google.gerrit.metrics.Histogram1;
 import com.google.gerrit.metrics.MetricMaker;
 import com.google.gerrit.metrics.Timer1;
 import com.google.gerrit.server.IdentifiedUser;
+<<<<<<< HEAD   (9f49a8 Merge branch 'stable-3.1' into stable-3.2)
 import com.google.gerrit.server.PublishCommentsOp;
+=======
+import com.google.gerrit.server.cache.PerThreadCache;
+>>>>>>> BRANCH (3e91c0 Merge branch 'stable-3.0' into stable-3.1)
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.ConfigUtil;
 import com.google.gerrit.server.config.GerritServerConfig;
@@ -142,12 +146,71 @@ public class AsyncReceiveCommits {
             messageSender.sendBytes(what);
           }
 
+<<<<<<< HEAD   (9f49a8 Merge branch 'stable-3.1' into stable-3.2)
           @Override
           public void flush() {
             messageSender.flush();
           }
         },
         "Processing changes");
+=======
+    @Override
+    public void run() {
+      String oldName = Thread.currentThread().getName();
+      Thread.currentThread().setName(oldName + "-for-" + name);
+      try (PerThreadCache threadLocalCache = PerThreadCache.create(null)) {
+        receiveCommits.processCommands(commands, progress);
+      } finally {
+        Thread.currentThread().setName(oldName);
+      }
+    }
+
+    @Override
+    public Project.NameKey getProjectNameKey() {
+      return receiveCommits.getProject().getNameKey();
+    }
+
+    @Override
+    public String getRemoteName() {
+      return null;
+    }
+
+    @Override
+    public boolean hasCustomizedPrint() {
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return "receive-commits";
+    }
+
+    void sendMessages() {
+      receiveCommits.sendMessages();
+    }
+
+    private class MessageSenderOutputStream extends OutputStream {
+      @Override
+      public void write(int b) {
+        receiveCommits.getMessageSender().sendBytes(new byte[] {(byte) b});
+      }
+
+      @Override
+      public void write(byte[] what, int off, int len) {
+        receiveCommits.getMessageSender().sendBytes(what, off, len);
+      }
+
+      @Override
+      public void write(byte[] what) {
+        receiveCommits.getMessageSender().sendBytes(what);
+      }
+
+      @Override
+      public void flush() {
+        receiveCommits.getMessageSender().flush();
+      }
+    }
+>>>>>>> BRANCH (3e91c0 Merge branch 'stable-3.0' into stable-3.1)
   }
 
   private enum PushType {
