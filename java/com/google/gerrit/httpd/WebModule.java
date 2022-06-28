@@ -28,8 +28,12 @@ import com.google.gerrit.server.config.AuthConfig;
 import com.google.gerrit.server.config.GerritOptions;
 import com.google.gerrit.server.config.GerritRequestModule;
 import com.google.gerrit.server.config.GitwebCgiConfig;
+<<<<<<< HEAD   (eddd7b Bump java_language_level in .bazelproject)
 import com.google.gerrit.server.git.receive.AsyncReceiveCommits.AsyncReceiveCommitsModule;
 import com.google.gerrit.server.util.GuiceRequestScopePropagator;
+=======
+import com.google.gerrit.server.git.receive.AsyncReceiveCommits;
+>>>>>>> BRANCH (61db02 Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.util.RequestScopePropagator;
 import com.google.inject.Inject;
 import com.google.inject.ProvisionException;
