@@ -118,6 +118,8 @@ import {assertIsDefined, queryAll} from '../../../utils/common-util';
 const ERR_BRANCH_EMPTY = 'The destination branch can’t be empty.';
 const ERR_COMMIT_EMPTY = 'The commit message can’t be empty.';
 const ERR_REVISION_ACTIONS = 'Couldn’t load revision actions.';
+const CHERRYPICK_IN_PROGRESS = 'Cherry-pick in progress...';
+const CHERRYPICK_COMPLETED = 'Cherry-pick completed';
 
 export enum LabelStatus {
   /**
@@ -1633,7 +1635,12 @@ export class GrChangeActions
     }
     this.overlay.close();
     el.hidden = true;
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
     this.fireAction(
+=======
+    fireAlert(this, CHERRYPICK_IN_PROGRESS);
+    this._fireAction(
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
       '/cherrypick',
       assertUIActionInfo(this.revisionActions.cherrypick),
       true,
@@ -1866,9 +1873,18 @@ export class GrChangeActions
         }
         case RevisionActions.CHERRYPICK: {
           const cherrypickChangeInfo: ChangeInfo = obj as unknown as ChangeInfo;
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
           this.waitForChangeReachable(cherrypickChangeInfo._number).then(() => {
             GerritNav.navigateToChange(cherrypickChangeInfo);
           });
+=======
+          this._waitForChangeReachable(cherrypickChangeInfo._number).then(
+            () => {
+              fireAlert(this, CHERRYPICK_COMPLETED);
+              GerritNav.navigateToChange(cherrypickChangeInfo);
+            }
+          );
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
           break;
         }
         case ChangeActions.DELETE:

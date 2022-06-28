@@ -1222,9 +1222,61 @@ export class GrDiffView extends base {
       });
   }
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   private async waitUntilCommentsLoaded() {
     await until(this.connected$, c => c);
     await until(this.getCommentsModel().commentsLoading$, isFalse);
+=======
+  _changeViewStateChanged(changeViewState: Partial<ChangeViewState>) {
+    if (changeViewState.diffMode === null) {
+      // If screen size is small, always default to unified view.
+      this.restApiService.getPreferences().then(prefs => {
+        if (prefs) {
+          this.set('changeViewState.diffMode', prefs.default_diff_view);
+        }
+      });
+    }
+  }
+
+  @observe('_loggedIn', '_path', '_prefs', '_reviewedFiles', '_patchRange')
+  _setReviewedObserver(
+    _loggedIn?: boolean,
+    path?: string,
+    prefs?: DiffPreferencesInfo,
+    reviewedFiles?: Set<string>,
+    patchRange?: PatchRange
+  ) {
+    if (_loggedIn === undefined) return;
+    if (prefs === undefined) return;
+    if (path === undefined) return;
+    if (reviewedFiles === undefined) return;
+    if (patchRange === undefined) return;
+    if (!_loggedIn) return;
+    if (prefs.manual_review) {
+      // Checkbox state needs to be set explicitly only when manual_review
+      // is specified.
+      this.$.reviewed.checked = this._getReviewedStatus(path);
+    } else {
+      this._setReviewed(true);
+    }
+  }
+
+  @observe('_loggedIn', '_changeNum', '_patchRange')
+  getReviewedFiles(
+    _loggedIn?: boolean,
+    _changeNum?: NumericChangeId,
+    patchRange?: PatchRange
+  ) {
+    if (_loggedIn === undefined) return;
+    if (_changeNum === undefined) return;
+    if (patchRange === undefined) return;
+
+    if (!_loggedIn) {
+      return;
+    }
+
+    this._getReviewedFiles(this._changeNum, patchRange.patchNum);
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
   }
 
   /**

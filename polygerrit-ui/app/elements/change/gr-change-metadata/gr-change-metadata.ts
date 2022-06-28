@@ -37,6 +37,7 @@ import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {
   ChangeStatus,
   GpgKeyInfoStatus,
+  InheritedBooleanInfoConfiguredValue,
   SubmitType,
 } from '../../../constants/constants';
 import {changeIsOpen, isOwner} from '../../../utils/change-util';
@@ -48,6 +49,11 @@ import {
   ChangeInfo,
   CommitId,
   CommitInfo,
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
+=======
+  ConfigInfo,
+  ElementPropertyDeepChange,
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
   GpgKeyInfo,
   Hashtag,
   isAccount,
@@ -163,8 +169,17 @@ export class GrChangeMetadata extends LitElement {
 
   @state() private pushCertificateValidation?: PushCertificateValidationInfo;
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   // private but used in test
   @state() settingTopic = false;
+=======
+  @property({
+    type: Object,
+    computed:
+      '_computePushCertificateValidation(serverConfig, change, repoConfig)',
+  })
+  _pushCertificateValidation?: PushCertificateValidationInfo;
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
 
   // private but used in test
   @state() currentParents: ParentCommitInfo[] = [];
@@ -349,6 +364,7 @@ export class GrChangeMetadata extends LitElement {
     </section> `;
   }
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   private renderUpdated() {
     return html`<section class=${this.computeDisplayState(Metadata.UPDATED)}>
       <span class="title">
@@ -368,6 +384,12 @@ export class GrChangeMetadata extends LitElement {
       </span>
     </section>`;
   }
+=======
+  @property({type: Object})
+  repoConfig?: ConfigInfo;
+
+  restApiService = appContext.restApiService;
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
 
   private renderOwner() {
     const change = this.change!;
@@ -881,13 +903,29 @@ export class GrChangeMetadata extends LitElement {
    *
    * @return object representing data for the push validation.
    */
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   computePushCertificateValidation():
     | PushCertificateValidationInfo
     | undefined {
     if (!this.change || !this.serverConfig?.receive?.enable_signed_push)
       return undefined;
+=======
+  _computePushCertificateValidation(
+    serverConfig?: ServerInfo,
+    change?: ParsedChangeInfo,
+    repoConfig?: ConfigInfo
+  ): PushCertificateValidationInfo | undefined {
+    if (!change || !serverConfig?.receive?.enable_signed_push) return undefined;
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
     const rev = this.change.revisions[this.change.current_revision];
+=======
+    if (!this.isEnabledSignedPushOnRepo(repoConfig)) {
+      return undefined;
+    }
+    const rev = change.revisions[change.current_revision];
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
     if (!rev.push_certificate?.key) {
       return {
         class: 'help',
@@ -930,7 +968,25 @@ export class GrChangeMetadata extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   private problems(msg: string, key: GpgKeyInfo) {
+=======
+  // private but used in test
+  isEnabledSignedPushOnRepo(repoConfig?: ConfigInfo) {
+    if (!repoConfig?.enable_signed_push) return false;
+
+    const enableSignedPush = repoConfig.enable_signed_push;
+    return (
+      (enableSignedPush.configured_value ===
+        InheritedBooleanInfoConfiguredValue.INHERIT &&
+        enableSignedPush.inherited_value) ||
+      enableSignedPush.configured_value ===
+        InheritedBooleanInfoConfiguredValue.TRUE
+    );
+  }
+
+  _problems(msg: string, key: GpgKeyInfo) {
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
     if (!key?.problems || key.problems.length === 0) {
       return msg;
     }

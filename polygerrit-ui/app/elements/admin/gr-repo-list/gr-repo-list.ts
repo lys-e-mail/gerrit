@@ -232,7 +232,23 @@ export class GrRepoList extends LitElement {
   private async getCreateRepoCapability() {
     const account = await this.restApiService.getAccount();
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
     if (!account) return;
+=======
+  _getRepos(filter: string, reposPerPage: number, offset?: number) {
+    this._repos = [];
+    return this.restApiService
+      .getRepos(filter, reposPerPage, offset)
+      .then(repos => {
+        // Late response.
+        if (filter !== this._filter || !repos) {
+          return;
+        }
+        this._repos = repos;
+        this._loading = false;
+      });
+  }
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
 
     const accountCapabilities =
       await this.restApiService.getAccountCapabilities(['createProject']);

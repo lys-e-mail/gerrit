@@ -36,6 +36,7 @@ import {
   PatchSetNum,
   AccountInfo,
   BasePatchSetNum,
+  LabelNameToInfoMap,
 } from '../../../types/common';
 import {
   ChangeMessage,
@@ -133,7 +134,41 @@ export class GrMessage extends LitElement {
   @state()
   private isDeletingChangeMsg = false;
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   private readonly restApiService = getAppContext().restApiService;
+=======
+  @property({type: Boolean, computed: '_computeExpanded(message.expanded)'})
+  _expanded = false;
+
+  @property({
+    type: String,
+    computed:
+      '_computeMessageContentExpanded(_expanded, message.message,' +
+      ' message.accounts_in_message,' +
+      ' message.tag,' +
+      ' change.labels)',
+  })
+  _messageContentExpanded = '';
+
+  @property({
+    type: String,
+    computed:
+      '_computeMessageContentCollapsed(message.message,' +
+      ' message.accounts_in_message,' +
+      ' message.tag,' +
+      ' commentThreads,' +
+      ' change.labels)',
+  })
+  _messageContentCollapsed = '';
+
+  @property({
+    type: String,
+    computed: '_computeCommentCountText(commentThreads)',
+  })
+  _commentCountText = '';
+
+  private readonly restApiService = appContext.restApiService;
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
 
   constructor() {
     super();
@@ -515,8 +550,37 @@ export class GrMessage extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   // Private but used in tests.
   patchsetCommentSummary() {
+=======
+  _computeCommentCountText(commentThreads?: CommentThread[]) {
+    if (!commentThreads?.length) {
+      return undefined;
+    }
+
+    return pluralize(commentThreads.length, 'comment');
+  }
+
+  _computeMessageContentExpanded(
+    expanded: boolean,
+    content?: string,
+    accountsInMessage?: AccountInfo[],
+    tag?: ReviewInputTag,
+    labels?: LabelNameToInfoMap
+  ) {
+    if (!expanded) return '';
+    return this._computeMessageContent(
+      true,
+      content,
+      accountsInMessage,
+      tag,
+      labels
+    );
+  }
+
+  _patchsetCommentSummary(commentThreads: CommentThread[] = []) {
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
     const id = this.message?.id;
     if (!id) return '';
     const patchsetThreads = (this.commentThreads ?? []).filter(
@@ -540,7 +604,31 @@ export class GrMessage extends LitElement {
     return '';
   }
 
+<<<<<<< HEAD   (3ab03c Fix publish script for @gerritcodereview/typescript-api)
   private showViewDiffButton() {
+=======
+  _computeMessageContentCollapsed(
+    content?: string,
+    accountsInMessage?: AccountInfo[],
+    tag?: ReviewInputTag,
+    commentThreads?: CommentThread[],
+    labels?: LabelNameToInfoMap
+  ) {
+    // Content is under text-overflow, so it's always shorten
+    const shortenedContent = content?.substring(0, 1000);
+    const summary = this._computeMessageContent(
+      false,
+      shortenedContent,
+      accountsInMessage,
+      tag,
+      labels
+    );
+    if (summary || !commentThreads) return summary;
+    return this._patchsetCommentSummary(commentThreads);
+  }
+
+  _showViewDiffButton(message?: ChangeMessage) {
+>>>>>>> BRANCH (f51305 Merge branch 'stable-3.4' into stable-3.5)
     return (
       this.isNewPatchsetTag(this.message?.tag) ||
       this.isMergePatchset(this.message)
@@ -594,7 +682,8 @@ export class GrMessage extends LitElement {
     isExpanded: boolean,
     content?: string,
     accountsInMessage?: AccountInfo[],
-    tag?: ReviewInputTag
+    tag?: ReviewInputTag,
+    labels?: LabelNameToInfoMap
   ) {
     if (!content) return '';
     const isNewPatchSet = this.isNewPatchsetTag(tag);
@@ -614,8 +703,24 @@ export class GrMessage extends LitElement {
       if (line.startsWith('(') && line.endsWith(' comments)')) {
         return false;
       }
-      if (!isNewPatchSet && line.match(PATCH_SET_PREFIX_PATTERN)) {
-        return false;
+      if (!isNewPatchSet && labels) {
+        // Legacy change messages may contain the 'Patch Set' prefix
+        // and a message(not containing label scores) on the same line.
+        // To handle them correctly, only filter out lines which contain
+        // the 'Patch Set' prefix and label scores.
+        const match = line.match(PATCH_SET_PREFIX_PATTERN);
+        if (match && match[1]) {
+          const message = match[1].split(' ');
+          if (
+            message
+              .map(s => s.match(LABEL_TITLE_SCORE_PATTERN))
+              .filter(
+                ms => ms && ms.length === 4 && hasOwnProperty(labels, ms[2])
+              ).length === message.length
+          ) {
+            return false;
+          }
+        }
       }
       return true;
     });
@@ -630,7 +735,7 @@ export class GrMessage extends LitElement {
       // Only make this replacement if the line starts with Patch Set, since if
       // it starts with "Uploaded patch set" (e.g for votes) we want to keep the
       // "Uploaded patch set".
-      if (isNewPatchSet && line.startsWith('Patch Set')) {
+      if (line.startsWith('Patch Set')) {
         line = line.replace(PATCH_SET_PREFIX_PATTERN, '$1');
       }
       return line;
