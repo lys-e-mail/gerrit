@@ -33,6 +33,11 @@ import com.google.gerrit.metrics.Timer1;
 import com.google.gerrit.reviewdb.client.Change;
 import com.google.gerrit.reviewdb.client.Project;
 import com.google.gerrit.server.IdentifiedUser;
+<<<<<<< HEAD   (e53caf Merge branch 'stable-2.16' into stable-3.0)
+=======
+import com.google.gerrit.server.UsedAt;
+import com.google.gerrit.server.cache.PerThreadCache;
+>>>>>>> BRANCH (f38eb6 Allow async receive-commits to have a thread-local cache)
 import com.google.gerrit.server.config.ConfigUtil;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.ReceiveCommitsExecutor;
@@ -132,12 +137,17 @@ public class AsyncReceiveCommits implements PreReceiveHook {
 
     @Override
     public void run() {
+<<<<<<< HEAD   (e53caf Merge branch 'stable-2.16' into stable-3.0)
       String oldName = Thread.currentThread().getName();
       Thread.currentThread().setName(oldName + "-for-" + name);
       try {
         receiveCommits.processCommands(commands, progress);
       } finally {
         Thread.currentThread().setName(oldName);
+=======
+      try (PerThreadCache threadLocalCache = PerThreadCache.create(null)) {
+        receiveCommits.processCommands(commands, progress);
+>>>>>>> BRANCH (f38eb6 Allow async receive-commits to have a thread-local cache)
       }
     }
 
