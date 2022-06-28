@@ -3277,9 +3277,15 @@ class ReceiveCommits {
                   rw.markUninteresting(rw.parseCommit(cmd.getOldId()));
                 }
 
+<<<<<<< HEAD   (973413 Merge branch 'stable-3.0' into stable-3.1)
                 ListMultimap<ObjectId, Ref> byCommit = changeRefsById();
                 Map<Change.Key, ChangeNotes> byKey = null;
                 List<ReplaceRequest> replaceAndClose = new ArrayList<>();
+=======
+              ListMultimap<ObjectId, Ref> byCommit = changeRefsById();
+              Map<Change.Key, ChangeData> changeDataByKey = null;
+              List<ReplaceRequest> replaceAndClose = new ArrayList<>();
+>>>>>>> BRANCH (2b9d3a Merge branch 'stable-2.16' into stable-3.0)
 
                 int existingPatchSets = 0;
                 int newPatchSets = 0;
@@ -3319,12 +3325,19 @@ class ReceiveCommits {
                   }
                 }
 
+<<<<<<< HEAD   (973413 Merge branch 'stable-3.0' into stable-3.1)
                 for (ReplaceRequest req : replaceAndClose) {
                   Change.Id id = req.notes.getChangeId();
                   if (!req.validateNewPatchSetForAutoClose()) {
                     logger.atFine().log("Not closing %s because validation failed", id);
                     continue;
+=======
+                for (String changeId : c.getFooterLines(CHANGE_ID)) {
+                  if (changeDataByKey == null) {
+                    changeDataByKey = executeIndexQuery(() -> openChangesByKeyByBranch(branch));
+>>>>>>> BRANCH (2b9d3a Merge branch 'stable-2.16' into stable-3.0)
                   }
+<<<<<<< HEAD   (973413 Merge branch 'stable-3.0' into stable-3.1)
                   req.addOps(bu, null);
                   bu.addOp(id, setPrivateOpFactory.create(false, null));
                   bu.addOp(
@@ -3335,6 +3348,20 @@ class ReceiveCommits {
                           .setPatchSetProvider(req.replaceOp::getPatchSet));
                   bu.addOp(id, new ChangeProgressOp(progress));
                   ids.add(id);
+=======
+
+                  ChangeData onto = changeDataByKey.get(new Change.Key(changeId.trim()));
+                  if (onto != null) {
+                    newPatchSets++;
+                    // Hold onto this until we're done with the walk, as the call to
+                    // req.validate below calls isMergedInto which resets the walk.
+                    ChangeNotes ontoNotes = onto.notes();
+                    ReplaceRequest req = new ReplaceRequest(ontoNotes.getChangeId(), c, cmd, false);
+                    req.notes = ontoNotes;
+                    replaceAndClose.add(req);
+                    continue COMMIT;
+                  }
+>>>>>>> BRANCH (2b9d3a Merge branch 'stable-2.16' into stable-3.0)
                 }
 
                 logger.atFine().log(
@@ -3384,6 +3411,7 @@ class ReceiveCommits {
     }
   }
 
+<<<<<<< HEAD   (973413 Merge branch 'stable-3.0' into stable-3.1)
   private Map<Change.Key, ChangeNotes> openChangesByKeyByBranch(BranchNameKey branch) {
     try (TraceTimer traceTimer =
         newTimer("openChangesByKeyByBranch", Metadata.builder().branchName(branch.branch()))) {
@@ -3394,6 +3422,18 @@ class ReceiveCommits {
         } catch (NoSuchChangeException e) {
           // Ignore deleted change
         }
+=======
+  private Map<Change.Key, ChangeData> openChangesByKeyByBranch(Branch.NameKey branch) {
+    Map<Change.Key, ChangeData> r = new HashMap<>();
+    for (ChangeData cd : queryProvider.get().byBranchOpen(branch)) {
+      try {
+        // ChangeData is not materialised into a ChangeNotes for avoiding
+        // to load a potentially large number of changes meta-data into memory
+        // which would cause unnecessary disk I/O, CPU and heap utilisation.
+        r.put(cd.change().getKey(), cd);
+      } catch (NoSuchChangeException e) {
+        // Ignore deleted change
+>>>>>>> BRANCH (2b9d3a Merge branch 'stable-2.16' into stable-3.0)
       }
       return r;
     }
