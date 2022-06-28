@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (4e2556 Merge "gr-label-info: remove use of polymer.dom" into stable)
   <version>3.6.2-SNAPSHOT</version>
+=======
+  <version>3.5.3-SNAPSHOT</version>
+>>>>>>> BRANCH (b93a29 Merge branch 'stable-3.4' into stable-3.5)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
