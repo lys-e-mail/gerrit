@@ -16,6 +16,24 @@
       "message": "@Prudhvi can you please have a look at [1] on how contributors should deal with security issues? Thanks for your understanding. Luca.\n\n[1] https://gerrit-documentation.storage.googleapis.com/Documentation/3.6.1/dev-processes.html#security-issues",
       "revId": "d81e0cdc3a6f30857fc0456fcdb649954080ba35",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90841ee1_6cccee66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1096442
+      },
+      "writtenOn": "2022-07-01T09:56:40Z",
+      "side": 1,
+      "message": "Hi Luca, Sorry I was not aware. Should I be removing or hiding this change somehow?",
+      "parentUuid": "e81d7ef2_69cd48df",
+      "revId": "d81e0cdc3a6f30857fc0456fcdb649954080ba35",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
