@@ -42,7 +42,10 @@ public @interface UsedAt {
     PLUGIN_SERVICEUSER,
     PLUGIN_HIGH_AVAILABILITY,
     PLUGIN_MULTI_SITE,
+<<<<<<< HEAD   (d38be5 Merge branch 'stable-3.2' into stable-3.3)
     PLUGIN_WEBSESSION_FLATFILE,
+=======
+>>>>>>> BRANCH (db31bc Detect DelegateRepository in GarbageCollection operation)
     PLUGINS_ALL, // Use this project if a method/type is generally made available to all plugins.
   }
 

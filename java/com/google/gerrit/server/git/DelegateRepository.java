@@ -15,7 +15,10 @@
 package com.google.gerrit.server.git;
 
 import com.google.gerrit.common.UsedAt;
+<<<<<<< HEAD   (d38be5 Merge branch 'stable-3.2' into stable-3.3)
 import java.io.File;
+=======
+>>>>>>> BRANCH (db31bc Detect DelegateRepository in GarbageCollection operation)
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
