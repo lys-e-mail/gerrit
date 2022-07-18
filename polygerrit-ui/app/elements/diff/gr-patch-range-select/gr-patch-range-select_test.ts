@@ -423,6 +423,7 @@ suite('gr-patch-range-select tests', () => {
 
   test('handlePatchChange', async () => {
     element.availablePatches = [
+<<<<<<< HEAD   (c19774 Merge "Only show avatar if a valid url is returned")
       {num: EDIT, sha: '1'} as PatchSet,
       {num: 3, sha: '2'} as PatchSet,
       {num: 2, sha: '3'} as PatchSet,
@@ -437,6 +438,22 @@ suite('gr-patch-range-select tests', () => {
     element.revisionInfo = getInfo(element.revisions);
     element.patchNum = 1 as PatchSetNumber;
     element.basePatchNum = PARENT;
+=======
+      {num: 'edit', sha: '1'} as PatchSet,
+      {num: 3, sha: '2'} as PatchSet,
+      {num: 2, sha: '3'} as PatchSet,
+      {num: 1, sha: '4'} as PatchSet,
+    ];
+    element.revisions = [
+      createRevision(2),
+      createRevision(3),
+      createRevision(1),
+      createRevision(4),
+    ];
+    element.revisionInfo = getInfo(element.revisions);
+    element.patchNum = 1 as PatchSetNum;
+    element.basePatchNum = 'PARENT' as BasePatchSetNum;
+>>>>>>> BRANCH (ea8218 Merge branch 'stable-3.5' into stable-3.6)
     await element.updateComplete;
 
     const stub = stubReporting('reportInteraction');

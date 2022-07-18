@@ -15,6 +15,7 @@
 package com.google.gerrit.extensions.common;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Result of evaluating a single submit requirement expression. This API entity is populated from
@@ -49,6 +50,7 @@ public class SubmitRequirementExpressionInfo {
    */
   public String errorMessage;
 
+<<<<<<< HEAD   (c19774 Merge "Only show avatar if a valid url is returned")
   /**
    * Values in this enum should match with values in {@link
    * com.google.gerrit.entities.SubmitRequirementExpressionResult.Status}.
@@ -65,5 +67,26 @@ public class SubmitRequirementExpressionInfo {
 
     /** Expression was not evaluated. */
     NOT_EVALUATED
+=======
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof SubmitRequirementExpressionInfo)) {
+      return false;
+    }
+    SubmitRequirementExpressionInfo that = (SubmitRequirementExpressionInfo) o;
+    return fulfilled == that.fulfilled
+        && Objects.equals(expression, that.expression)
+        && Objects.equals(passingAtoms, that.passingAtoms)
+        && Objects.equals(failingAtoms, that.failingAtoms)
+        && Objects.equals(errorMessage, that.errorMessage);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(expression, fulfilled, passingAtoms, failingAtoms, errorMessage);
+>>>>>>> BRANCH (ea8218 Merge branch 'stable-3.5' into stable-3.6)
   }
 }
