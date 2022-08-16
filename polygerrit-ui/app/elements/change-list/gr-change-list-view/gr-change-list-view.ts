@@ -35,11 +35,14 @@ import {ChangeListViewState} from '../../../types/types';
 import {fire, fireTitleChange} from '../../../utils/event-util';
 import {getAppContext} from '../../../services/app-context';
 import {GerritView} from '../../../services/router/router-model';
+<<<<<<< HEAD   (ea8218 Merge branch 'stable-3.5' into stable-3.6)
 import {RELOAD_DASHBOARD_INTERVAL_MS} from '../../../constants/constants';
 import {sharedStyles} from '../../../styles/shared-styles';
 import {LitElement, PropertyValues, html, css} from 'lit';
 import {customElement, property, state, query} from 'lit/decorators';
 import {ValueChangedEvent} from '../../../types/events';
+=======
+>>>>>>> BRANCH (494cb4 Merge branch 'stable-3.4' into stable-3.5)
 
 const LOOKUP_QUERY_PATTERNS: RegExp[] = [
   /^\s*i?[0-9a-f]{7,40}\s*$/i, // CHANGE_ID
@@ -102,8 +105,6 @@ export class GrChangeListView extends LitElement {
   private readonly restApiService = getAppContext().restApiService;
 
   private reporting = getAppContext().reportingService;
-
-  private lastVisibleTimestampMs = 0;
 
   constructor() {
     super();
