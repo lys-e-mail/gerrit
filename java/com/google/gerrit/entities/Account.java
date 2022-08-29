@@ -143,6 +143,16 @@ public abstract class Account {
    */
   public abstract boolean inactive();
 
+  /**
+   * True if this user is hidden. This can be configured by the user and affects how they are
+   * returned from Rest API. I.e. if hidden, their personal details (Full name, email address), are
+   * not returned by the Rest endpoints.
+   *
+   * <p>If not configured in {@link com.google.gerrit.server.account.AccountConfig}, the property
+   * defaults to false.
+   */
+  public abstract Boolean isHidden();
+
   /** The user-settable status of this account (e.g. busy, OOO, available) */
   @Nullable
   public abstract String status();
@@ -160,6 +170,7 @@ public abstract class Account {
   public static Account.Builder builder(Account.Id newId, Instant registeredOn) {
     return new AutoValue_Account.Builder()
         .setInactive(false)
+        .setIsHidden(false)
         .setId(newId)
         .setRegisteredOn(registeredOn);
   }
@@ -252,6 +263,10 @@ public abstract class Account {
     public abstract boolean inactive();
 
     public abstract Builder setInactive(boolean inactive);
+
+    public abstract Builder setIsHidden(boolean value);
+
+    public abstract Boolean isHidden();
 
     public Builder setActive(boolean active) {
       return setInactive(!active);

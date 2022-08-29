@@ -103,16 +103,19 @@ public abstract class CachedAccountDetails {
       Cache.AccountDetailsProto.Builder serialized = Cache.AccountDetailsProto.newBuilder();
       // We don't care about the difference of empty strings and null in the Account entity.
       Account account = cachedAccountDetails.account();
-      Cache.AccountProto.Builder accountProto =
+      Cache.AccountProto accountProto =
           Cache.AccountProto.newBuilder()
               .setId(account.id().get())
               .setRegisteredOn(account.registeredOn().toEpochMilli())
               .setInactive(account.inactive())
+              .setIsHidden(account.isHidden())
               .setFullName(Strings.nullToEmpty(account.fullName()))
               .setDisplayName(Strings.nullToEmpty(account.displayName()))
               .setPreferredEmail(Strings.nullToEmpty(account.preferredEmail()))
               .setStatus(Strings.nullToEmpty(account.status()))
-              .setMetaId(Strings.nullToEmpty(account.metaId()));
+              .setMetaId(Strings.nullToEmpty(account.metaId()))
+              .build();
+
       serialized.setAccount(accountProto);
 
       for (Map.Entry<ProjectWatches.ProjectWatchKey, ImmutableSet<NotifyConfig.NotifyType>> watch :
@@ -146,6 +149,7 @@ public abstract class CachedAccountDetails {
               .setFullName(Strings.emptyToNull(proto.getAccount().getFullName()))
               .setDisplayName(Strings.emptyToNull(proto.getAccount().getDisplayName()))
               .setPreferredEmail(Strings.emptyToNull(proto.getAccount().getPreferredEmail()))
+              .setIsHidden(proto.getAccount().getIsHidden())
               .setInactive(proto.getAccount().getInactive())
               .setStatus(Strings.emptyToNull(proto.getAccount().getStatus()))
               .setMetaId(Strings.emptyToNull(proto.getAccount().getMetaId()))

@@ -32,6 +32,9 @@ import static com.google.gerrit.gpg.testing.TestKeys.validKeyWithExpiration;
 import static com.google.gerrit.gpg.testing.TestKeys.validKeyWithSecondUserId;
 import static com.google.gerrit.gpg.testing.TestKeys.validKeyWithoutExpiration;
 import static com.google.gerrit.server.StarredChangesUtil.DEFAULT_LABEL;
+import static com.google.gerrit.server.account.AccountProperties.ACCOUNT;
+import static com.google.gerrit.server.account.AccountProperties.ACCOUNT_CONFIG;
+import static com.google.gerrit.server.account.AccountProperties.KEY_HIDDEN;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_GPGKEY;
 import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
@@ -124,6 +127,7 @@ import com.google.gerrit.gpg.testing.TestKey;
 import com.google.gerrit.httpd.CacheBasedWebSession;
 import com.google.gerrit.server.ExceptionHook;
 import com.google.gerrit.server.ServerInitiated;
+import com.google.gerrit.server.account.AccountConfigFactory;
 import com.google.gerrit.server.account.AccountProperties;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.account.AccountsUpdate;
@@ -150,6 +154,7 @@ import com.google.gerrit.server.validators.AccountActivationValidationListener;
 import com.google.gerrit.server.validators.ValidationException;
 import com.google.gerrit.testing.ConfigSuite;
 import com.google.gerrit.testing.FakeEmailSender.Message;
+import com.google.gerrit.testing.ReadVersionedMetaData;
 import com.google.gerrit.truth.NullAwareCorrespondence;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -234,6 +239,7 @@ public class AccountIT extends AbstractDaemonTest {
   @Inject private PluginSetContext<ExceptionHook> exceptionHooks;
   @Inject private ExternalIdKeyFactory externalIdKeyFactory;
   @Inject private ExternalIdFactory externalIdFactory;
+  @Inject private AccountConfigFactory accountConfigFactory;
   @Inject private AuthConfig authConfig;
 
   @Inject protected Emails emails;
@@ -503,16 +509,16 @@ public class AccountIT extends AbstractDaemonTest {
       assertThat(timestampDiffMs).isAtMost(SECONDS.toMillis(1));
 
       // Check the 'account.config' file.
-      try (TreeWalk tw = TreeWalk.forPath(or, AccountProperties.ACCOUNT_CONFIG, c.getTree())) {
+      try (TreeWalk tw = TreeWalk.forPath(or, ACCOUNT_CONFIG, c.getTree())) {
         if (name != null || status != null) {
           assertThat(tw).isNotNull();
           Config cfg = new Config();
           cfg.fromText(new String(or.open(tw.getObjectId(0), OBJ_BLOB).getBytes(), UTF_8));
           assertThat(cfg)
-              .stringValue(AccountProperties.ACCOUNT, null, AccountProperties.KEY_FULL_NAME)
+              .stringValue(ACCOUNT, null, AccountProperties.KEY_FULL_NAME)
               .isEqualTo(name);
           assertThat(cfg)
-              .stringValue(AccountProperties.ACCOUNT, null, AccountProperties.KEY_STATUS)
+              .stringValue(ACCOUNT, null, AccountProperties.KEY_STATUS)
               .isEqualTo(status);
         } else {
           // No account properties were set, hence an 'account.config' file was not created.
@@ -2047,6 +2053,92 @@ public class AccountIT extends AbstractDaemonTest {
     assertThat(updatedAccount.metaId()).isEqualTo(getMetaId(accountId));
   }
 
+  @Test
+  public void setHidden() throws Exception {
+    assertThat(accounts.get(admin.id()).get().account().isHidden()).isFalse();
+    Optional<AccountState> accountState =
+        accountsUpdateProvider.get().update("Set hidden", admin.id(), u -> u.setHidden(true));
+    assertThat(accountState).isPresent();
+    Account account = accountState.get().account();
+    assertThat(account.isHidden()).isTrue();
+
+    assertThat(readHiddenProperty(admin.id())).isEqualTo("true");
+  }
+
+  @Test
+  @GerritConfig(name = "auth.defaultNewAccountHidden", value = "true")
+  public void unsetHidden() throws Exception {
+    assertThat(accounts.get(admin.id()).get().account().isHidden()).isTrue();
+    Optional<AccountState> accountState =
+        accountsUpdateProvider.get().update("Unset Hidden", admin.id(), u -> u.setHidden(false));
+    assertThat(accountState).isPresent();
+    Account account = accountState.get().account();
+    assertThat(account.isHidden()).isFalse();
+
+    assertThat(readHiddenProperty(admin.id())).isEqualTo("false");
+  }
+
+  @Test
+  @GerritConfig(name = "auth.defaultNewAccountHidden", value = "true")
+  public void createNewAccount_withAccountHiddenByDefault() throws Exception {
+    AccountsUpdate au = accountsUpdateProvider.get();
+    Account.Id accountId = Account.id(seq.nextAccountId());
+    AccountState accountState = au.insert("Create Test Account", accountId, u -> {});
+    assertThat(accountState.account().isHidden()).isTrue();
+    assertThat(readHiddenProperty(accountId)).isEqualTo("true");
+  }
+
+  @Test
+  @GerritConfig(name = "auth.defaultNewAccountHidden", value = "false")
+  public void createNewAccount_withAccountNotHiddenByDefault() throws Exception {
+    AccountsUpdate au = accountsUpdateProvider.get();
+    Account.Id accountId = Account.id(seq.nextAccountId());
+    AccountState accountState = au.insert("Create Test Account", accountId, u -> {});
+    assertThat(accountState.account().isHidden()).isFalse();
+    assertThat(readHiddenProperty(accountId)).isEqualTo("false");
+
+    // The property is not set on the account updates.
+    accountState =
+        accountsUpdateProvider
+            .get()
+            .update("Set status", admin.id(), u -> u.setStatus("Unrelevant update"))
+            .get();
+    assertThat(accountState.account().isHidden()).isFalse();
+    assertThat(readHiddenProperty(accountId)).isEqualTo("false");
+  }
+
+  @Test
+  public void createNewAccount_withAccountHiddenByDefaultNotSet() throws Exception {
+    AccountsUpdate au = accountsUpdateProvider.get();
+    Account.Id accountId = Account.id(seq.nextAccountId());
+    AccountState accountState = au.insert("Create Test Account", accountId, u -> {});
+    assertThat(accountState.account().isHidden()).isFalse();
+    assertThat(readHiddenProperty(accountId)).isNull();
+
+    // The property is not set on the account updates, even though it defaults to false when missing
+    // in the config.
+    accountState =
+        accountsUpdateProvider
+            .get()
+            .update("Set status", admin.id(), u -> u.setStatus("Unrelevant update"))
+            .get();
+    assertThat(accountState.account().isHidden()).isFalse();
+    assertThat(readHiddenProperty(accountId)).isNull();
+  }
+
+  private Config readAccountConfig(Account.Id accountId) throws Exception {
+    try (Repository allUsersRepo = repoManager.openRepository(allUsers)) {
+      return new ReadVersionedMetaData(
+              allUsers, allUsersRepo, RefNames.refsUsers(accountId), ACCOUNT_CONFIG)
+          .getConfig();
+    }
+  }
+
+  private String readHiddenProperty(Account.Id accountId) throws Exception {
+    Config config = readAccountConfig(accountId);
+    return config.getString(ACCOUNT, null, KEY_HIDDEN);
+  }
+
   private EmailInput newEmailInput(String email, boolean noConfirmation) {
     EmailInput input = new EmailInput();
     input.email = email;
@@ -2166,6 +2258,7 @@ public class AccountIT extends AbstractDaemonTest {
                 null,
                 exceptionHooks,
                 r -> r.withBlockStrategy(noSleepBlockStrategy)),
+            accountConfigFactory,
             extIdNotesFactory,
             ident,
             ident,
@@ -2224,6 +2317,7 @@ public class AccountIT extends AbstractDaemonTest {
                 r ->
                     r.withStopStrategy(StopStrategies.stopAfterAttempt(status.size()))
                         .withBlockStrategy(noSleepBlockStrategy)),
+            accountConfigFactory,
             extIdNotesFactory,
             ident,
             ident,
@@ -2282,6 +2376,7 @@ public class AccountIT extends AbstractDaemonTest {
                 null,
                 exceptionHooks,
                 r -> r.withBlockStrategy(noSleepBlockStrategy)),
+            accountConfigFactory,
             extIdNotesFactory,
             ident,
             ident,
@@ -2357,6 +2452,7 @@ public class AccountIT extends AbstractDaemonTest {
                 null,
                 exceptionHooks,
                 r -> r.withBlockStrategy(noSleepBlockStrategy)),
+            accountConfigFactory,
             extIdNotesFactory,
             ident,
             ident,

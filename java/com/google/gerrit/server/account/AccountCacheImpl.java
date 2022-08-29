@@ -168,6 +168,7 @@ public class AccountCacheImpl implements AccountCache {
   private AccountState missing(Account.Id accountId) {
     Account.Builder account = Account.builder(accountId, TimeUtil.now());
     account.setActive(false);
+    account.setIsHidden(true);
     return AccountState.forAccount(account.build());
   }
 
@@ -175,11 +176,16 @@ public class AccountCacheImpl implements AccountCache {
   static class Loader extends CacheLoader<CachedAccountDetails.Key, CachedAccountDetails> {
     private final GitRepositoryManager repoManager;
     private final AllUsersName allUsersName;
+    private final AccountConfigFactory accountConfigFactory;
 
     @Inject
-    Loader(GitRepositoryManager repoManager, AllUsersName allUsersName) {
+    Loader(
+        GitRepositoryManager repoManager,
+        AllUsersName allUsersName,
+        AccountConfigFactory accountConfigFactory) {
       this.repoManager = repoManager;
       this.allUsersName = allUsersName;
+      this.accountConfigFactory = accountConfigFactory;
     }
 
     @Override
@@ -188,7 +194,8 @@ public class AccountCacheImpl implements AccountCache {
               TraceContext.newTimer(
                   "Loading account", Metadata.builder().accountId(key.accountId().get()).build());
           Repository repo = repoManager.openRepository(allUsersName)) {
-        AccountConfig cfg = new AccountConfig(key.accountId(), allUsersName, repo).load(key.id());
+        AccountConfig cfg =
+            accountConfigFactory.create(key.accountId(), allUsersName, repo).load(key.id());
         Account account =
             cfg.getLoadedAccount()
                 .orElseThrow(() -> new AccountNotFoundException(key.accountId() + " not found"));

@@ -18,6 +18,7 @@ import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_MAI
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_USERNAME;
 import static com.google.gerrit.server.account.externalids.ExternalId.SCHEME_UUID;
 
+import com.google.gerrit.entities.Account;
 import com.google.gerrit.extensions.client.AuthType;
 import com.google.gerrit.extensions.client.GitBasicAuthPolicy;
 import com.google.gerrit.server.account.externalids.ExternalId;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jgit.lib.Config;
 
@@ -66,6 +68,8 @@ public class AuthConfig {
   private final boolean allowRegisterNewEmail;
   private final boolean userNameCaseInsensitive;
   private final boolean userNameCaseInsensitiveMigrationMode;
+  private final Optional<Boolean> defaultNewAccountHidden;
+
   private GitBasicAuthPolicy gitBasicAuthPolicy;
 
   @Inject
@@ -100,6 +104,12 @@ public class AuthConfig {
     userNameCaseInsensitive = cfg.getBoolean("auth", "userNameCaseInsensitive", false);
     userNameCaseInsensitiveMigrationMode =
         cfg.getBoolean("auth", "userNameCaseInsensitiveMigrationMode", false);
+    if (cfg.getString("auth", null, "defaultNewAccountHidden") != null) {
+      defaultNewAccountHidden =
+          Optional.of(cfg.getBoolean("auth", "defaultNewAccountHidden", false));
+    } else {
+      defaultNewAccountHidden = Optional.empty();
+    }
 
     if (gitBasicAuthPolicy == GitBasicAuthPolicy.HTTP_LDAP
         && authType != AuthType.LDAP
@@ -245,6 +255,16 @@ public class AuthConfig {
   /** Whether user name should be matched case insenitive */
   public boolean isUserNameCaseInsensitive() {
     return userNameCaseInsensitive;
+  }
+
+  /**
+   * The default value for {@link Account#isHidden()} for the new accounts.
+   *
+   * <p>If not set, the {@link com.google.gerrit.server.account.AccountProperties#KEY_HIDDEN} is not
+   * written to the config on account creation.
+   */
+  public Optional<Boolean> getDefaultNewAccountHidden() {
+    return defaultNewAccountHidden;
   }
 
   /** Whether user name case insensitive migration is in progress */
