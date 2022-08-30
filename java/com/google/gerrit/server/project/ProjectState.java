@@ -269,8 +269,17 @@ public class ProjectState {
     if (localAccessSections != null) {
       return localAccessSections;
     }
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
     List<SectionMatcher> sm = new ArrayList<>(cachedConfig.getAccessSections().values().size());
     for (AccessSection section : cachedConfig.getAccessSections().values()) {
+=======
+    ImmutableList<AccessSection> fromConfig =
+        cachedConfig.getAccessSections().values().stream()
+            .sorted(comparing(AccessSection::getName))
+            .collect(toImmutableList());
+    List<SectionMatcher> sm = new ArrayList<>(fromConfig.size());
+    for (AccessSection section : fromConfig) {
+>>>>>>> BRANCH (f84e51 Provide configuration to paginate index queries with increas)
       SectionMatcher matcher = SectionMatcher.wrap(getNameKey(), section);
       if (matcher != null) {
         sm.add(matcher);
