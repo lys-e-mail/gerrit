@@ -2126,6 +2126,85 @@ public class AccountIT extends AbstractDaemonTest {
     assertThat(readHiddenProperty(accountId)).isNull();
   }
 
+  @Test
+  public void setIsHidden_allowedOnOwnAccount() throws Exception {
+    requestScopeOperations.setApiUser(user.id());
+    Account.Id id = user.id();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+
+    gApi.accounts().id(id.get()).setIsHidden(true);
+
+    assertThat(readHiddenProperty(id)).isEqualTo("true");
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isTrue();
+
+    gApi.accounts().id(id.get()).setIsHidden(false);
+
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+    assertThat(readHiddenProperty(id)).isEqualTo("false");
+  }
+
+  @Test
+  public void setIsHidden_withoutModifyAccount_notAllowed() throws Exception {
+    requestScopeOperations.setApiUser(user.id());
+    Account.Id id = admin.id();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+
+    assertThrows(AuthException.class, () -> gApi.accounts().id(id.get()).setIsHidden(true));
+
+    assertThat(readHiddenProperty(id)).isNull();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+
+    assertThrows(AuthException.class, () -> gApi.accounts().id(id.get()).setIsHidden(false));
+
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+    assertThat(readHiddenProperty(id)).isNull();
+  }
+
+  @Test
+  public void setIsHidden_forOtherAccount_withModifyAccount_allowed() throws Exception {
+    projectOperations
+        .allProjectsForUpdate()
+        .add(allowCapability(GlobalCapability.MODIFY_ACCOUNT).group(REGISTERED_USERS))
+        .update();
+    requestScopeOperations.setApiUser(user.id());
+    Account.Id id = admin.id();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+
+    gApi.accounts().id(id.get()).setIsHidden(true);
+
+    assertThat(readHiddenProperty(id)).isEqualTo("true");
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isTrue();
+
+    gApi.accounts().id(id.get()).setIsHidden(false);
+
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+    assertThat(readHiddenProperty(id)).isEqualTo("false");
+  }
+
+  @Test
+  @GerritConfig(name = "auth.defaultNewAccountHidden", value = "true")
+  public void unhideHiddenByDefault() throws Exception {
+    Account.Id id = admin.id();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isTrue();
+
+    gApi.accounts().id(id.get()).setIsHidden(false);
+
+    assertThat(readHiddenProperty(id)).isEqualTo("false");
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+  }
+
+  @Test
+  @GerritConfig(name = "auth.defaultNewAccountHidden", value = "false")
+  public void hideUnHiddenByDefault() throws Exception {
+    Account.Id id = admin.id();
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isNull();
+
+    gApi.accounts().id(id.get()).setIsHidden(true);
+
+    assertThat(readHiddenProperty(id)).isEqualTo("true");
+    assertThat(gApi.accounts().id(id.get()).get().isHidden).isTrue();
+  }
+
   private Config readAccountConfig(Account.Id accountId) throws Exception {
     try (Repository allUsersRepo = repoManager.openRepository(allUsers)) {
       return new ReadVersionedMetaData(

@@ -46,11 +46,13 @@ import com.google.gerrit.server.restapi.account.CreateEmail;
 import com.google.gerrit.server.restapi.account.DeleteActive;
 import com.google.gerrit.server.restapi.account.DeleteEmail;
 import com.google.gerrit.server.restapi.account.DeleteExternalIds;
+import com.google.gerrit.server.restapi.account.DeleteIsHidden;
 import com.google.gerrit.server.restapi.account.DeleteSshKey;
 import com.google.gerrit.server.restapi.account.GetEmails;
 import com.google.gerrit.server.restapi.account.GetSshKeys;
 import com.google.gerrit.server.restapi.account.PutActive;
 import com.google.gerrit.server.restapi.account.PutHttpPassword;
+import com.google.gerrit.server.restapi.account.PutIsHidden;
 import com.google.gerrit.server.restapi.account.PutName;
 import com.google.gerrit.server.restapi.account.PutPreferred;
 import com.google.gerrit.sshd.CommandMetaData;
@@ -88,6 +90,12 @@ final class SetAccountCommand extends SshCommand {
 
   @Option(name = "--inactive", usage = "set account's state to inactive")
   private boolean inactive;
+
+  @Option(name = "--hidden", usage = "set account's state to hidden")
+  private boolean hidden;
+
+  @Option(name = "--unhidden", usage = "set account's state to unhidden")
+  private boolean unhidden;
 
   @Option(name = "--add-email", metaVar = "EMAIL", usage = "email addresses to add to the account")
   private List<String> addEmails = new ArrayList<>();
@@ -151,6 +159,10 @@ final class SetAccountCommand extends SshCommand {
 
   @Inject private DeleteActive deleteActive;
 
+  @Inject private PutIsHidden putIsHidden;
+
+  @Inject private DeleteIsHidden deleteIsHidden;
+
   @Inject private AddSshKey addSshKey;
 
   @Inject private GetSshKeys getSshKeys;
@@ -192,6 +204,16 @@ final class SetAccountCommand extends SshCommand {
       }
       if (active && inactive) {
         throw die("--active and --inactive options are mutually exclusive.");
+      }
+    }
+
+    if (hidden || unhidden) {
+      if (!canModifyAccount) {
+        throw die(
+            "--hidden and --unhidden require 'modify account' or 'administrate server' capabilities.");
+      }
+      if (hidden && unhidden) {
+        throw die("--hidden and --unhidden options are mutually exclusive.");
       }
     }
 
@@ -270,6 +292,11 @@ final class SetAccountCommand extends SshCommand {
         } catch (ResourceNotFoundException e) {
           // user is already inactive
         }
+      }
+      if (hidden) {
+        putIsHidden.apply(rsrc, null);
+      } else if (unhidden) {
+        deleteIsHidden.apply(rsrc, null);
       }
 
       addSshKeys = readSshKey(addSshKeys);
