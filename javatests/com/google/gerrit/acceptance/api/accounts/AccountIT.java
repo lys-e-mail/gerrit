@@ -2126,6 +2126,18 @@ public class AccountIT extends AbstractDaemonTest {
     assertThat(readHiddenProperty(accountId)).isNull();
   }
 
+  @Test
+  public void setIsHidden() throws Exception {
+    // Restrict to modify account
+    int id = admin.id().get();
+    assertThat(gApi.accounts().id(id).get().isHidden).isNull();
+    assertThat(gApi.accounts().id(id).getActive()).isTrue();
+    gApi.accounts().id(id).setIsHidden(true);
+    assertThat(gApi.accounts().id(id).get().isHidden).isTrue();
+    gApi.accounts().id(id).setIsHidden(false);
+    assertThat(gApi.accounts().id(id).get().isHidden).isNull();
+  }
+
   private Config readAccountConfig(Account.Id accountId) throws Exception {
     try (Repository allUsersRepo = repoManager.openRepository(allUsers)) {
       return new ReadVersionedMetaData(
