@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe2de0d7_ddbf25f4",
+        "filename": "java/com/google/gerrit/extensions/api/accounts/AccountApi.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2022-09-12T08:21:21Z",
+      "side": 1,
+      "message": "nit: let\u0027s follow the same pattern for naming as \"active\", i.e. setHidden/getHidden + all related classes/methods",
+      "range": {
+        "startLine": 43,
+        "startChar": 7,
+        "endLine": 43,
+        "endChar": 18
+      },
+      "revId": "d212b42c879b895436d39b174cb39ae303b83094",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df6d4655_bdc4814b",
+        "filename": "java/com/google/gerrit/extensions/api/accounts/AccountApi.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2022-09-12T08:21:21Z",
+      "side": 1,
+      "message": "Should we have getHidden + GET method? (similar to getActive)",
+      "range": {
+        "startLine": 43,
+        "startChar": 7,
+        "endLine": 43,
+        "endChar": 18
+      },
+      "revId": "d212b42c879b895436d39b174cb39ae303b83094",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de94e9e4_4d762fe8",
+        "filename": "java/com/google/gerrit/server/account/SetIsHiddenFlag.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2022-09-12T08:21:21Z",
+      "side": 1,
+      "message": "The SetInactiveFlag doesn\u0027t have this check. Could you please add a comment which explains why this check is required here/not required in SetInactiveFlag.",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 5
+      },
+      "revId": "d212b42c879b895436d39b174cb39ae303b83094",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
