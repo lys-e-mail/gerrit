@@ -211,11 +211,15 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
 
     public ProjectConfig create(Project.NameKey projectName) {
       return new ProjectConfig(
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
           projectName,
           projectName.equals(allProjectsName)
               ? allProjectsConfigProvider.get(allProjectsName)
               : Optional.empty(),
           allProjectsName);
+=======
+          projectName, getBaseConfig(sitePaths, allProjects, projectName), allProjects);
+>>>>>>> BRANCH (b4b73b Paginate no-limit queries)
     }
 
     public ProjectConfig read(MetaDataUpdate update) throws IOException, ConfigInvalidException {
@@ -240,7 +244,11 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     }
   }
 
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
   private final Optional<StoredConfig> baseConfig;
+=======
+  private final StoredConfig baseConfig;
+>>>>>>> BRANCH (b4b73b Paginate no-limit queries)
   private final AllProjectsName allProjectsName;
 
   private Project project;
@@ -370,7 +378,11 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
 
   private ProjectConfig(
       Project.NameKey projectName,
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
       Optional<StoredConfig> baseConfig,
+=======
+      @Nullable StoredConfig baseConfig,
+>>>>>>> BRANCH (b4b73b Paginate no-limit queries)
       AllProjectsName allProjectsName) {
     this.projectName = projectName;
     this.baseConfig = baseConfig;

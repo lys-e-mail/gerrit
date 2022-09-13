@@ -269,8 +269,17 @@ public class ProjectState {
     if (localAccessSections != null) {
       return localAccessSections;
     }
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
     List<SectionMatcher> sm = new ArrayList<>(cachedConfig.getAccessSections().values().size());
     for (AccessSection section : cachedConfig.getAccessSections().values()) {
+=======
+    ImmutableList<AccessSection> fromConfig =
+        cachedConfig.getAccessSections().values().stream()
+            .sorted(comparing(AccessSection::getName))
+            .collect(toImmutableList());
+    List<SectionMatcher> sm = new ArrayList<>(fromConfig.size());
+    for (AccessSection section : fromConfig) {
+>>>>>>> BRANCH (b4b73b Paginate no-limit queries)
       SectionMatcher matcher = SectionMatcher.wrap(getNameKey(), section);
       if (matcher != null) {
         sm.add(matcher);
