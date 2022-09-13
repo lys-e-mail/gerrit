@@ -56,6 +56,17 @@ class InitIndex implements InitStep {
         new IndexType(
             index.select("Type", "type", IndexType.getDefault(), IndexType.getKnownTypes()));
 
+<<<<<<< HEAD   (7ee6cd Documentation: remove obsolete reference to bug)
+=======
+    if (type.isElasticsearch()) {
+      Section elasticsearch = sections.get("elasticsearch", null);
+      elasticsearch.string("Index Prefix", "prefix", "gerrit_");
+      elasticsearch.string("Server", "server", "http://localhost:9200");
+      index.string("Result window size", "maxLimit", "10000");
+      index.string("Result page size", "maxPageSize", "10000");
+    }
+
+>>>>>>> BRANCH (0cc855 Paginate no-limit queries)
     if ((site.isNew || isEmptySite()) && type.isLucene()) {
       for (SchemaDefinitions<?> def : IndexModule.ALL_SCHEMA_DEFS) {
         IndexUtils.setReady(site, def.getName(), def.getLatest().getVersion(), true);
