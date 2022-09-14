@@ -41,9 +41,8 @@ public class ChangeIsVisibleToPredicate extends IsVisibleToPredicate<ChangeData>
   }
 
   protected final CurrentUser user;
-  protected final PermissionBackend permissionBackend;
   protected final ProjectCache projectCache;
-  private final Provider<AnonymousUser> anonymousUserProvider;
+  private final PermissionBackend.WithUser withUser;
 
   @Inject
   public ChangeIsVisibleToPredicate(
@@ -53,9 +52,14 @@ public class ChangeIsVisibleToPredicate extends IsVisibleToPredicate<ChangeData>
       @Assisted CurrentUser user) {
     super(ChangeQueryBuilder.FIELD_VISIBLETO, IndexUtils.describe(user));
     this.user = user;
-    this.permissionBackend = permissionBackend;
     this.projectCache = projectCache;
-    this.anonymousUserProvider = anonymousUserProvider;
+    withUser =
+        user.isIdentifiedUser()
+            ? permissionBackend.absentUser(user.getAccountId())
+            : permissionBackend.user(
+                Optional.of(user)
+                    .filter(u -> u instanceof GroupBackedUser || u instanceof InternalUser)
+                    .orElseGet(anonymousUserProvider::get));
   }
 
   @Override
@@ -74,10 +78,11 @@ public class ChangeIsVisibleToPredicate extends IsVisibleToPredicate<ChangeData>
       return false;
     }
     if (!projectState.get().statePermitsRead()) {
-      logger.atFine().log("Filter out change %s of non-reabable project %s", cd, cd.project());
+      logger.atFine().log("Filter out change %s of non-readable project %s", cd, cd.project());
       return false;
     }
 
+<<<<<<< HEAD   (eb0d8b Fix autocomplete for notification in settings)
     PermissionBackend.WithUser withUser =
         user.isIdentifiedUser()
             ? permissionBackend.absentUser(user.getAccountId())
@@ -86,6 +91,8 @@ public class ChangeIsVisibleToPredicate extends IsVisibleToPredicate<ChangeData>
                     .filter(u -> u instanceof GroupBackedUser || u instanceof InternalUser)
                     .orElseGet(anonymousUserProvider::get));
 
+=======
+>>>>>>> BRANCH (068990 Improve test coverage for no-limit query pagination)
     try {
       if (!withUser.change(cd).test(ChangePermission.READ)) {
         logger.atFine().log("Filter out non-visisble change: %s", cd);
