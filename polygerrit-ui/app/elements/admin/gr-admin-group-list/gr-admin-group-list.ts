@@ -17,7 +17,11 @@ import {SHOWN_ITEMS_COUNT} from '../../../constants/constants';
 import {tableStyles} from '../../../styles/gr-table-styles';
 import {sharedStyles} from '../../../styles/shared-styles';
 import {LitElement, PropertyValues, css, html} from 'lit';
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
 import {customElement, query, property, state} from 'lit/decorators.js';
+=======
+import {customElement, query, property, state} from 'lit/decorators';
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 import {assertIsDefined} from '../../../utils/common-util';
 import {AdminViewState} from '../../../models/views/admin';
 

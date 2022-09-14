@@ -984,8 +984,19 @@ export class GrDiff extends LitElement implements GrDiffApi {
 
   override connectedCallback() {
     super.connectedCallback();
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
     if (this.loggedIn) {
       this.addSelectionListeners();
+=======
+    this._observeNodes();
+    this.isAttached = true;
+    if (this.diff !== undefined) {
+      // This is not ideal as we lose the caching effect when going between
+      // change-view and the first diff-view.
+      // However, this is currently broken because we never fire the event
+      // 'render' when not actually re-rendering.
+      this._debounceRenderDiffTable();
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     }
   }
 

@@ -315,6 +315,13 @@ export class GrDiffCursor implements GrDiffCursorApi {
     this._updateStops();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
+=======
+  handleDiffUpdate() {
+    this.reInitCursor();
+  }
+
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
   private boundHandleDiffLoadingChanged = () => {
     this._updateStops();
   };
