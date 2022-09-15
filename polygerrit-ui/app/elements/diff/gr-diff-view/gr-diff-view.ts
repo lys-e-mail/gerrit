@@ -82,7 +82,11 @@ import {
   getPatchRangeForCommentUrl,
   isInBaseOfPatchRange,
 } from '../../../utils/comment-util';
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
 import {AppElementParams} from '../../gr-app-types';
+=======
+import {AppElementDiffViewParam, AppElementParams} from '../../gr-app-types';
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 import {
   EventType,
   OpenFixPreviewEvent,
@@ -222,8 +226,141 @@ export class GrDiffView extends LitElement {
   // Use path getter/setter.
   _path?: string;
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   get path() {
     return this._path;
+=======
+  @property({type: Number, computed: '_computeFileNum(_path, _formattedFiles)'})
+  _fileNum?: number;
+
+  @property({type: Boolean})
+  _loggedIn = false;
+
+  @property({type: Boolean})
+  _loading = true;
+
+  @property({type: Object})
+  _prefs?: DiffPreferencesInfo;
+
+  @property({type: Object})
+  _projectConfig?: ConfigInfo;
+
+  @property({type: Object})
+  _serverConfig?: ServerInfo;
+
+  @property({type: Object})
+  _userPrefs?: PreferencesInfo;
+
+  @property({type: Boolean})
+  _isImageDiff?: boolean;
+
+  @property({type: Object})
+  _editWeblinks?: GeneratedWebLink[];
+
+  @property({type: Object})
+  _filesWeblinks?: FilesWebLinks;
+
+  @property({type: Object})
+  _commentMap?: CommentMap;
+
+  @property({
+    type: Object,
+    computed: '_computeCommentSkips(_commentMap, _fileList, _path)',
+  })
+  _commentSkips?: CommentSkips;
+
+  @property({type: Boolean, computed: '_computeEditMode(_patchRange.*)'})
+  _editMode?: boolean;
+
+  @property({type: Boolean})
+  _isBlameLoaded?: boolean;
+
+  @property({type: Boolean})
+  _isBlameLoading = false;
+
+  @property({
+    type: Array,
+    computed: '_computeAllPatchSets(_change, _change.revisions.*)',
+  })
+  _allPatchSets?: PatchSet[] = [];
+
+  @property({type: Object, computed: '_getRevisionInfo(_change)'})
+  _revisionInfo?: RevisionInfoObj;
+
+  @property({type: Number})
+  _focusLineNum?: number;
+
+  /** Called in disconnectedCallback. */
+  private cleanups: (() => void)[] = [];
+
+  private reviewedFiles = new Set<string>();
+
+  override keyboardShortcuts(): ShortcutListener[] {
+    return [
+      listen(Shortcut.LEFT_PANE, _ => this.cursor?.moveLeft()),
+      listen(Shortcut.RIGHT_PANE, _ => this.cursor?.moveRight()),
+      listen(Shortcut.NEXT_LINE, _ => this._handleNextLine()),
+      listen(Shortcut.PREV_LINE, _ => this._handlePrevLine()),
+      listen(Shortcut.VISIBLE_LINE, _ => this.cursor?.moveToVisibleArea()),
+      listen(Shortcut.NEXT_FILE_WITH_COMMENTS, _ =>
+        this._moveToNextFileWithComment()
+      ),
+      listen(Shortcut.PREV_FILE_WITH_COMMENTS, _ =>
+        this._moveToPreviousFileWithComment()
+      ),
+      listen(Shortcut.NEW_COMMENT, _ => this._handleNewComment()),
+      listen(Shortcut.SAVE_COMMENT, _ => {}),
+      listen(Shortcut.NEXT_FILE, _ => this._handleNextFile()),
+      listen(Shortcut.PREV_FILE, _ => this._handlePrevFile()),
+      listen(Shortcut.NEXT_CHUNK, _ => this._handleNextChunk()),
+      listen(Shortcut.PREV_CHUNK, _ => this._handlePrevChunk()),
+      listen(Shortcut.NEXT_COMMENT_THREAD, _ =>
+        this._handleNextCommentThread()
+      ),
+      listen(Shortcut.PREV_COMMENT_THREAD, _ =>
+        this._handlePrevCommentThread()
+      ),
+      listen(Shortcut.OPEN_REPLY_DIALOG, _ => this._handleOpenReplyDialog()),
+      listen(Shortcut.TOGGLE_LEFT_PANE, _ => this._handleToggleLeftPane()),
+      listen(Shortcut.OPEN_DOWNLOAD_DIALOG, _ =>
+        this._handleOpenDownloadDialog()
+      ),
+      listen(Shortcut.UP_TO_CHANGE, _ => this._handleUpToChange()),
+      listen(Shortcut.OPEN_DIFF_PREFS, _ => this._handleCommaKey()),
+      listen(Shortcut.TOGGLE_DIFF_MODE, _ => this._handleToggleDiffMode()),
+      listen(Shortcut.TOGGLE_FILE_REVIEWED, e => {
+        if (this._throttledToggleFileReviewed) {
+          this._throttledToggleFileReviewed(e);
+        }
+      }),
+      listen(Shortcut.TOGGLE_ALL_DIFF_CONTEXT, _ =>
+        this._handleToggleAllDiffContext()
+      ),
+      listen(Shortcut.NEXT_UNREVIEWED_FILE, _ =>
+        this._handleNextUnreviewedFile()
+      ),
+      listen(Shortcut.TOGGLE_BLAME, _ => this._handleToggleBlame()),
+      listen(Shortcut.TOGGLE_HIDE_ALL_COMMENT_THREADS, _ =>
+        this._handleToggleHideAllCommentThreads()
+      ),
+      listen(Shortcut.OPEN_FILE_LIST, _ => this._handleOpenFileList()),
+      listen(Shortcut.DIFF_AGAINST_BASE, _ => this._handleDiffAgainstBase()),
+      listen(Shortcut.DIFF_AGAINST_LATEST, _ =>
+        this._handleDiffAgainstLatest()
+      ),
+      listen(Shortcut.DIFF_BASE_AGAINST_LEFT, _ =>
+        this._handleDiffBaseAgainstLeft()
+      ),
+      listen(Shortcut.DIFF_RIGHT_AGAINST_LATEST, _ =>
+        this._handleDiffRightAgainstLatest()
+      ),
+      listen(Shortcut.DIFF_BASE_AGAINST_LATEST, _ =>
+        this._handleDiffBaseAgainstLatest()
+      ),
+      listen(Shortcut.EXPAND_ALL_COMMENT_THREADS, _ => {}), // docOnly
+      listen(Shortcut.COLLAPSE_ALL_COMMENT_THREADS, _ => {}), // docOnly
+    ];
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
   }
 
   set path(path: string | undefined) {
@@ -310,8 +447,14 @@ export class GrDiffView extends LitElement {
 
   private throttledToggleFileReviewed?: (e: KeyboardEvent) => void;
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   @state()
   cursor?: GrDiffCursor;
+=======
+  private cursor?: GrDiffCursor;
+
+  private subscriptions: Subscription[] = [];
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 
   private connected$ = new BehaviorSubject(false);
 
@@ -489,10 +632,28 @@ export class GrDiffView extends LitElement {
         this.setReviewedStatus(patchNum!, diffPrefs);
       }
     );
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
     subscribe(
       this,
       () => this.getChangeModel().diffPath$,
       path => (this.path = path)
+=======
+    this.subscriptions.push(
+      this.getChangeModel().diffPath$.subscribe(path => (this._path = path))
+    );
+    this.addEventListener('open-fix-preview', e => this._onOpenFixPreview(e));
+    this.cursor = new GrDiffCursor();
+    this.cursor.replaceDiffs([this.$.diffHost]);
+    this._onRenderHandler = (_: Event) => {
+      this.cursor?.reInitCursor();
+    };
+    this.$.diffHost.addEventListener('render', this._onRenderHandler);
+    this.cleanups.push(
+      addGlobalShortcut(
+        {key: Key.ESC},
+        _ => (this.$.diffHost.displayLine = false)
+      )
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     );
   }
 
@@ -695,6 +856,19 @@ export class GrDiffView extends LitElement {
 
   override disconnectedCallback() {
     this.cursor?.dispose();
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
+=======
+    if (this._onRenderHandler) {
+      this.$.diffHost.removeEventListener('render', this._onRenderHandler);
+      this._onRenderHandler = undefined;
+    }
+    for (const cleanup of this.cleanups) cleanup();
+    this.cleanups = [];
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.connected$.next(false);
     super.disconnectedCallback();
   }
@@ -1098,9 +1272,14 @@ export class GrDiffView extends LitElement {
     this.setReviewed(!this.reviewed.checked);
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handlePrevLine() {
     assertIsDefined(this.diffHost, 'diffHost');
     this.diffHost.displayLine = true;
+=======
+  _handlePrevLine() {
+    this.$.diffHost.displayLine = true;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.cursor?.moveUp();
   }
 
@@ -1109,8 +1288,14 @@ export class GrDiffView extends LitElement {
     this.applyFixDialog.open(e);
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private onIsBlameLoadedChanged(e: ValueChangedEvent<boolean>) {
     this.isBlameLoaded = e.detail.value;
+=======
+  _handleNextLine() {
+    this.$.diffHost.displayLine = true;
+    this.cursor?.moveDown();
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
   }
 
   private onDiffChanged(e: ValueChangedEvent<DiffInfo>) {
@@ -1197,14 +1382,22 @@ export class GrDiffView extends LitElement {
     this.navToFile(this.files.sortedFileList, 1);
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleNextChunk() {
+=======
+  _handleNextChunk() {
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     const result = this.cursor?.moveToNextChunk();
     if (result === CursorMoveResult.CLIPPED && this.cursor?.isAtEnd()) {
       this.showToastAndNavigateFile('next', 'n');
     }
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleNextCommentThread() {
+=======
+  _handleNextCommentThread() {
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     const result = this.cursor?.moveToNextCommentThread();
     if (result === CursorMoveResult.CLIPPED) {
       this.navigateToNextFileWithCommentThread();
@@ -1249,14 +1442,22 @@ export class GrDiffView extends LitElement {
     this.navToFile(unreviewedFiles, direction === 'next' ? 1 : -1);
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handlePrevChunk() {
+=======
+  _handlePrevChunk() {
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.cursor?.moveToPreviousChunk();
     if (this.cursor?.isAtStart()) {
       this.showToastAndNavigateFile('previous', 'p');
     }
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handlePrevCommentThread() {
+=======
+  _handlePrevCommentThread() {
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.cursor?.moveToPreviousCommentThread();
   }
 

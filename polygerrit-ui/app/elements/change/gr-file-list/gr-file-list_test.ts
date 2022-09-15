@@ -36,10 +36,14 @@ import {
   createParsedChange,
   createRevision,
 } from '../../../test/test-data-generators';
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
 import {
   createDefaultDiffPrefs,
   DiffViewMode,
 } from '../../../constants/constants';
+=======
+import {createDefaultDiffPrefs} from '../../../constants/constants';
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 import {
   assertIsDefined,
   queryAll,
@@ -1401,9 +1405,19 @@ suite('gr-file-list tests', () => {
       assert.equal(collapseStub.lastCall.args[0].length, 1);
     });
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
     test('expandAllDiffs and collapseAllDiffs', async () => {
       const collapseStub = sinon.stub(element, 'clearCollapsedDiffs');
       assertIsDefined(element.diffCursor);
+=======
+    test('expandAllDiffs and collapseAllDiffs', () => {
+      const collapseStub = sinon.stub(element, '_clearCollapsedDiffs');
+      assertIsDefined(element.diffCursor);
+      const cursorUpdateStub = sinon.stub(
+        element.diffCursor,
+        'handleDiffUpdate'
+      );
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
       const reInitStub = sinon.stub(element.diffCursor, 'reInitAndUpdateStops');
 
       const path = 'path/to/my/file.txt';
@@ -2025,8 +2039,13 @@ suite('gr-file-list tests', () => {
       }
 
       assertIsDefined(element.diffCursor);
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
       element.updateDiffCursor();
       element.diffCursor.reInitCursor();
+=======
+      element._updateDiffCursor();
+      element.diffCursor.handleDiffUpdate();
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
       return diffs;
     }
 
@@ -2202,7 +2221,11 @@ suite('gr-file-list tests', () => {
       let fileRows: NodeListOf<HTMLDivElement>;
 
       setup(() => {
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
         sinon.stub(element, 'renderInOrder').returns(Promise.resolve());
+=======
+        sinon.stub(element, '_renderInOrder').returns(Promise.resolve());
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
         assertIsDefined(element.diffCursor);
         nextCommentStub = sinon.stub(
           element.diffCursor,

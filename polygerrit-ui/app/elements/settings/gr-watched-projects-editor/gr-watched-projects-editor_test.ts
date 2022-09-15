@@ -11,9 +11,15 @@ import {ProjectWatchInfo} from '../../../types/common';
 import {queryAndAssert} from '../../../test/test-utils';
 import {IronInputElement} from '@polymer/iron-input';
 import {assertIsDefined} from '../../../utils/common-util';
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
 import {fixture, html, assert} from '@open-wc/testing';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrAutocomplete} from '../../shared/gr-autocomplete/gr-autocomplete';
+=======
+import {GrAutocomplete} from '../../shared/gr-autocomplete/gr-autocomplete';
+
+const basicFixture = fixtureFromElement('gr-watched-projects-editor');
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 
 suite('gr-watched-projects-editor tests', () => {
   let element: GrWatchedProjectsEditor;

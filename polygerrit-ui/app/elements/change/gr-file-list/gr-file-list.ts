@@ -307,6 +307,7 @@ export class GrFileList extends LitElement {
 
   // private but used in test
   diffCursor?: GrDiffCursor;
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
 
   static override get styles() {
     return [
@@ -633,6 +634,8 @@ export class GrFileList extends LitElement {
       `,
     ];
   }
+=======
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
 
   constructor() {
     super();
@@ -858,11 +861,27 @@ export class GrFileList extends LitElement {
           this.reporting.error(new Error('dynamic header/content mismatch'));
         }
       });
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
+=======
+    this.cleanups.push(
+      addGlobalShortcut({key: Key.ESC}, _ => this._handleEscKey()),
+      addShortcut(this, {key: Key.ENTER}, _ => this.handleOpenFile(), {
+        shouldSuppress: true,
+      })
+    );
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor = new GrDiffCursor();
     this.diffCursor.replaceDiffs(this.diffs);
   }
 
   override disconnectedCallback() {
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
+=======
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.dispose();
     this.fileCursor.unsetCursor();
     this.cancelDiffs();
@@ -1728,7 +1747,16 @@ export class GrFileList extends LitElement {
   }
 
   collapseAllDiffs() {
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
     this.expandedFiles = [];
+=======
+    this._expandedFiles = [];
+    this.filesExpanded = this._computeExpandedFiles(
+      this._expandedFiles.length,
+      this._files.length
+    );
+    this.diffCursor?.handleDiffUpdate();
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
   }
 
   /**
@@ -1922,13 +1950,23 @@ export class GrFileList extends LitElement {
     return fileData;
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleLeftPane() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handleLeftPane() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveLeft();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleRightPane() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handleRightPane() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveRight();
   }
 
@@ -1950,7 +1988,11 @@ export class GrFileList extends LitElement {
     e.stopPropagation();
     if (this.filesExpanded === FilesExpandedState.ALL) {
       this.diffCursor?.moveDown();
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
       this.displayLine = true;
+=======
+      this._displayLine = true;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     } else {
       this.fileCursor.next({circular: true});
       this.selectedIndex = this.fileCursor.index;
@@ -1970,7 +2012,11 @@ export class GrFileList extends LitElement {
     e.stopPropagation();
     if (this.filesExpanded === FilesExpandedState.ALL) {
       this.diffCursor?.moveUp();
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
       this.displayLine = true;
+=======
+      this._displayLine = true;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     } else {
       this.fileCursor.previous({circular: true});
       this.selectedIndex = this.fileCursor.index;
@@ -1991,23 +2037,43 @@ export class GrFileList extends LitElement {
     this.openSelectedFile();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleNextChunk() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handleNextChunk() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveToNextChunk();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handleNextComment() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handleNextComment() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveToNextCommentThread();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handlePrevChunk() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handlePrevChunk() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveToPreviousChunk();
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   private handlePrevComment() {
     if (this.noDiffsExpanded()) return;
+=======
+  _handlePrevComment() {
+    if (this._noDiffsExpanded()) return;
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.moveToPreviousCommentThread();
   }
 
@@ -2032,8 +2098,12 @@ export class GrFileList extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
   // Private but used in tests.
   openCursorFile() {
+=======
+  _openCursorFile() {
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     const diff = this.diffCursor?.getTargetDiffElement();
     if (!this.change || !diff || !this.patchRange || !diff.path) {
       throw new Error('change, diff and patchRange must be all set and valid');
@@ -2308,7 +2378,12 @@ export class GrFileList extends LitElement {
     if (newFiles.length) {
       await this.renderInOrder(newFiles, this.diffs);
     }
+<<<<<<< HEAD   (35afcb Merge "Put set topic button next to input")
     this.updateDiffCursor();
+=======
+
+    this._updateDiffCursor();
+>>>>>>> BRANCH (fe27b5 Merge branch 'stable-3.5' into stable-3.6)
     this.diffCursor?.reInitAndUpdateStops();
   }
 
