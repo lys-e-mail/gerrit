@@ -195,8 +195,11 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Inject protected ProjectCache projectCache;
   @Inject protected MetaDataUpdate.Server metaDataUpdateFactory;
   @Inject protected IdentifiedUser.GenericFactory identifiedUserFactory;
+<<<<<<< HEAD   (e42e1d Update git submodules)
   @Inject protected AuthRequest.Factory authRequestFactory;
   @Inject protected ExternalIdFactory externalIdFactory;
+=======
+>>>>>>> BRANCH (9160e8 Paginate internal change index queries)
   @Inject protected ProjectOperations projectOperations;
 
   @Inject private ProjectConfig.Factory projectConfigFactory;
