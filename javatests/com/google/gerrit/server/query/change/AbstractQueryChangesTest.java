@@ -195,8 +195,11 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Inject protected ProjectCache projectCache;
   @Inject protected MetaDataUpdate.Server metaDataUpdateFactory;
   @Inject protected IdentifiedUser.GenericFactory identifiedUserFactory;
+<<<<<<< HEAD   (e42e1d Update git submodules)
   @Inject protected AuthRequest.Factory authRequestFactory;
   @Inject protected ExternalIdFactory externalIdFactory;
+=======
+>>>>>>> BRANCH (dbd58a Merge "Don't depend on predicate order as they get sorted ba)
   @Inject protected ProjectOperations projectOperations;
 
   @Inject private ProjectConfig.Factory projectConfigFactory;
