@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
   <version>3.5.4-SNAPSHOT</version>
+=======
+  <version>3.4.7-SNAPSHOT</version>
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

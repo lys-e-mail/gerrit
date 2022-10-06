@@ -17,13 +17,27 @@ package com.google.gerrit.server.rules;
 import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.extensions.registration.DynamicSet;
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
 import com.google.gerrit.server.rules.RulesCache.RulesCacheModule;
+=======
+import org.eclipse.jgit.lib.Config;
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
 
 public class PrologModule extends FactoryModule {
+  protected final Config config;
+
+  public PrologModule(Config config) {
+    this.config = config;
+  }
+
   @Override
   protected void configure() {
     install(new EnvironmentModule());
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
     install(new RulesCacheModule());
+=======
+    install(new RulesCache.Module(config));
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
     bind(PrologEnvironment.Args.class);
     factory(PrologRuleEvaluator.Factory.class);
 

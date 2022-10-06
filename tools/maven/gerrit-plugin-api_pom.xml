@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
   <version>3.5.4-SNAPSHOT</version>
+=======
+  <version>3.4.7-SNAPSHOT</version>
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>

@@ -17,6 +17,7 @@ package com.google.gerrit.server.rules;
 import static com.googlecode.prolog_cafe.lang.PrologMachineCopy.save;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.entities.Project;
@@ -72,12 +73,30 @@ import org.eclipse.jgit.util.RawParseUtils;
  */
 @Singleton
 public class RulesCache {
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
   public static class RulesCacheModule extends CacheModule {
+=======
+  public static class Module extends CacheModule {
+    protected final Config config;
+
+    public Module(Config config) {
+      this.config = config;
+    }
+
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
     @Override
     protected void configure() {
-      cache(RulesCache.CACHE_NAME, ObjectId.class, PrologMachineCopy.class)
-          // This cache is auxiliary to the project cache, so size it the same.
-          .configKey(ProjectCacheImpl.CACHE_NAME);
+      if (has(ProjectCacheImpl.CACHE_NAME, "memoryLimit")) {
+        // As this cache is auxiliary to the project cache, so size it the same when available
+        cache(RulesCache.CACHE_NAME, ObjectId.class, PrologMachineCopy.class)
+            .maximumWeight(config.getLong("cache", ProjectCacheImpl.CACHE_NAME, "memoryLimit", 0));
+      } else {
+        cache(RulesCache.CACHE_NAME, ObjectId.class, PrologMachineCopy.class);
+      }
+    }
+
+    private boolean has(String name, String var) {
+      return !Strings.isNullOrEmpty(config.getString("cache", name, var));
     }
   }
 

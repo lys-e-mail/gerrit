@@ -278,9 +278,15 @@ public class GerritGlobalModule extends FactoryModule {
     install(new GroupDbModule());
     install(new GroupModule());
     install(new NoteDbModule());
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
     install(new PrologModule());
     install(new DefaultSubmitRuleModule());
     install(new IgnoreSelfApprovalRuleModule());
+=======
+    install(new PrologModule(cfg));
+    install(new DefaultSubmitRule.Module());
+    install(new IgnoreSelfApprovalRule.Module());
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
     install(new ReceiveCommitsModule());
     install(new SshAddressesModule());
     install(new FileInfoJsonModule());

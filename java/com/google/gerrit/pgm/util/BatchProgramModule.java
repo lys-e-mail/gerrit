@@ -56,6 +56,7 @@ import com.google.gerrit.server.config.DefaultPreferencesCacheImpl;
 import com.google.gerrit.server.config.DefaultUrlFormatter.DefaultUrlFormatterModule;
 import com.google.gerrit.server.config.EnablePeerIPInReflogRecord;
 import com.google.gerrit.server.config.EnablePeerIPInReflogRecordProvider;
+import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.GitReceivePackGroups;
 import com.google.gerrit.server.config.GitUploadPackGroups;
 import com.google.gerrit.server.config.SysExecutorModule;
@@ -93,6 +94,7 @@ import com.google.gerrit.server.rules.PrologModule;
 import com.google.gerrit.server.rules.SubmitRule;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
@@ -100,6 +102,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.jgit.lib.Config;
 
 /** Module for programs that perform batch operations on a site. */
 public class BatchProgramModule extends FactoryModule {
@@ -202,9 +205,15 @@ public class BatchProgramModule extends FactoryModule {
     // Submit rules
     DynamicSet.setOf(binder(), SubmitRule.class);
     factory(SubmitRuleEvaluator.Factory.class);
+<<<<<<< HEAD   (39b78f Merge "Improve test coverage for internal change query pagin)
     modules.add(new PrologModule());
     modules.add(new DefaultSubmitRuleModule());
     modules.add(new IgnoreSelfApprovalRuleModule());
+=======
+    modules.add(new PrologModule(getConfig()));
+    modules.add(new DefaultSubmitRule.Module());
+    modules.add(new IgnoreSelfApprovalRule.Module());
+>>>>>>> BRANCH (5b5efd Merge "prolog_rules cache: only use memoryLimit from cache.p)
 
     bind(ChangeJson.Factory.class).toProvider(Providers.of(null));
     bind(EventUtil.class).toProvider(Providers.of(null));
@@ -218,5 +227,9 @@ public class BatchProgramModule extends FactoryModule {
             LibModuleLoader.loadModules(parentInjector, LibModuleType.SYS_BATCH_MODULE_TYPE))
         .stream()
         .forEach(this::install);
+  }
+
+  protected Config getConfig() {
+    return parentInjector.getInstance(Key.get(Config.class, GerritServerConfig.class));
   }
 }
