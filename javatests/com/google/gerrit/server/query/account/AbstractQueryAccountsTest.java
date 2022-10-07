@@ -630,7 +630,15 @@ public abstract class AbstractQueryAccountsTest extends GerritServerTests {
             .getSearchIndex()
             .getRaw(
                 Account.id(userInfo._accountId),
+<<<<<<< HEAD   (b3a5b8 Revert "Ensure that quoted messages show up in the reply com)
                 QueryOptions.create(IndexConfig.createDefault(), 0, 1, schema.getStoredFields()));
+=======
+                QueryOptions.create(
+                    IndexConfig.fromConfig(config).build(),
+                    0,
+                    1,
+                    schema.getStoredFields().keySet()));
+>>>>>>> BRANCH (7ae8d6 Set version to 3.6.2)
 
     assertThat(rawFields).isPresent();
     if (schema.hasField(AccountField.ID_FIELD_SPEC)) {

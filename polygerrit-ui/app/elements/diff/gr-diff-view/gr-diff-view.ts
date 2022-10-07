@@ -1640,8 +1640,12 @@ export class GrDiffView extends LitElement {
       // Make sure to re-initialize the cursor because this is typically
       // done on the 'render' event which doesn't fire in this path as
       // rerendering is avoided.
+<<<<<<< HEAD   (b3a5b8 Revert "Ensure that quoted messages show up in the reply com)
       this.reInitCursor();
       this.diffHost?.initLayers();
+=======
+      this.cursor?.reInitCursor();
+>>>>>>> BRANCH (7ae8d6 Set version to 3.6.2)
       return;
     }
 

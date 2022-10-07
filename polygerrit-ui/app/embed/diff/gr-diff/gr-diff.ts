@@ -984,9 +984,14 @@ export class GrDiff extends LitElement implements GrDiffApi {
 
   override connectedCallback() {
     super.connectedCallback();
+<<<<<<< HEAD   (b3a5b8 Revert "Ensure that quoted messages show up in the reply com)
     if (this.loggedIn) {
       this.addSelectionListeners();
     }
+=======
+    this._observeNodes();
+    this.isAttached = true;
+>>>>>>> BRANCH (7ae8d6 Set version to 3.6.2)
   }
 
   override disconnectedCallback() {
