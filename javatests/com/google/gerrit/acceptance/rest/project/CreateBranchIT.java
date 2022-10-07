@@ -30,8 +30,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.ExtensionRegistry;
+<<<<<<< HEAD   (4286bb Merge "Truncate commit message stored in FIELD_MESSAGE_EXACT)
 import com.google.gerrit.acceptance.ExtensionRegistry.Registration;
+=======
+import com.google.gerrit.acceptance.PushOneCommit;
+>>>>>>> BRANCH (d3556b Merge branch 'stable-3.4' into stable-3.5)
 import com.google.gerrit.acceptance.RestResponse;
+import com.google.gerrit.acceptance.TestAccount;
+import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.Account;
@@ -67,6 +73,7 @@ import org.junit.Test;
 public class CreateBranchIT extends AbstractDaemonTest {
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
+  @Inject private GroupOperations groupOperations;
   @Inject private ExtensionRegistry extensionRegistry;
 
   private BranchNameKey testBranch;
@@ -417,6 +424,7 @@ public class CreateBranchIT extends AbstractDaemonTest {
   }
 
   @Test
+<<<<<<< HEAD   (4286bb Merge "Truncate commit message stored in FIELD_MESSAGE_EXACT)
   public void createBranchViaRestApiFailsIfCommitIsInvalid() throws Exception {
     BranchInput input = new BranchInput();
     input.ref = "new";
@@ -495,6 +503,49 @@ public class CreateBranchIT extends AbstractDaemonTest {
       assertThat(testRefOperationValidationListener.refReceivedEvent.pushOptions)
           .containsExactly("key", "value");
     }
+=======
+  public void createBranchRevisionVisibility() throws Exception {
+    AccountGroup.UUID privilegedGroupUuid =
+        groupOperations.newGroup().name(name("privilegedGroup")).create();
+    TestAccount privilegedUser =
+        accountCreator.create(
+            "privilegedUser", "privilegedUser@example.com", "privilegedUser", null);
+    groupOperations.group(privilegedGroupUuid).forUpdate().addMember(privilegedUser.id()).update();
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(block(Permission.READ).ref("refs/heads/secret/*").group(REGISTERED_USERS))
+        .add(allow(Permission.READ).ref("refs/heads/secret/*").group(privilegedGroupUuid))
+        .add(allow(Permission.READ).ref("refs/heads/*").group(REGISTERED_USERS))
+        .add(allow(Permission.CREATE).ref("refs/heads/*").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH).ref("refs/heads/*").group(REGISTERED_USERS))
+        .update();
+    PushOneCommit push =
+        pushFactory.create(admin.newIdent(), testRepo, "Configure", "file.txt", "contents");
+    PushOneCommit.Result result = push.to("refs/heads/secret/main");
+    result.assertOkStatus();
+    RevCommit secretCommit = result.getCommit();
+    requestScopeOperations.setApiUser(privilegedUser.id());
+    BranchInfo info = gApi.projects().name(project.get()).branch("refs/heads/secret/main").get();
+    assertThat(info.revision).isEqualTo(secretCommit.name());
+    TestAccount unprivileged =
+        accountCreator.create("unprivileged", "unprivileged@example.com", "unprivileged", null);
+    requestScopeOperations.setApiUser(unprivileged.id());
+    assertThrows(
+        ResourceNotFoundException.class,
+        () -> gApi.projects().name(project.get()).branch("refs/heads/secret/main").get());
+    BranchInput branchInput = new BranchInput();
+    branchInput.ref = "public";
+    branchInput.revision = secretCommit.name();
+    assertThrows(
+        AuthException.class,
+        () -> gApi.projects().name(project.get()).branch(branchInput.ref).create(branchInput));
+
+    branchInput.revision = "refs/heads/secret/main";
+    assertThrows(
+        AuthException.class,
+        () -> gApi.projects().name(project.get()).branch(branchInput.ref).create(branchInput));
+>>>>>>> BRANCH (d3556b Merge branch 'stable-3.4' into stable-3.5)
   }
 
   private void blockCreateReference() throws Exception {
