@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (4286bb Merge "Truncate commit message stored in FIELD_MESSAGE_EXACT)
   <version>3.6.2-SNAPSHOT</version>
+=======
+  <version>3.5.4-SNAPSHOT</version>
+>>>>>>> BRANCH (d3556b Merge branch 'stable-3.4' into stable-3.5)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
