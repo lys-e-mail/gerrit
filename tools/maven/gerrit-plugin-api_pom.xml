@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (b3a5b8 Revert "Ensure that quoted messages show up in the reply com)
   <version>3.7.0-SNAPSHOT</version>
+=======
+  <version>3.6.2</version>
+>>>>>>> BRANCH (7ae8d6 Set version to 3.6.2)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
