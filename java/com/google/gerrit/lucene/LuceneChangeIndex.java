@@ -38,6 +38,7 @@ import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.converter.ChangeProtoConverter;
 import com.google.gerrit.entities.converter.ProtoConverter;
 import com.google.gerrit.exceptions.StorageException;
+import com.google.gerrit.index.PaginationType;
 import com.google.gerrit.index.QueryOptions;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.index.SchemaFieldDefs.SchemaField;
@@ -310,6 +311,7 @@ public class LuceneChangeIndex implements ChangeIndex {
     private final QueryOptions opts;
     private final Sort sort;
     private final Function<Document, FieldBundle> rawDocumentMapper;
+    private final boolean isSearchAfterPagination;
 
     private QuerySource(
         List<ChangeSubIndex> indexes,
@@ -324,6 +326,8 @@ public class LuceneChangeIndex implements ChangeIndex {
       this.opts = opts;
       this.sort = sort;
       this.rawDocumentMapper = rawDocumentMapper;
+      this.isSearchAfterPagination =
+          opts.config().paginationType().equals(PaginationType.SEARCH_AFTER);
     }
 
     @Override
@@ -410,10 +414,12 @@ public class LuceneChangeIndex implements ChangeIndex {
         if (Integer.MAX_VALUE - opts.pageSize() < opts.start()) {
           realPageSize = Integer.MAX_VALUE;
         }
-        TopFieldDocs[] hits = new TopFieldDocs[indexes.size()];
+        List<TopFieldDocs> hits = new ArrayList<>();
+        int searchAfterHitsCount = 0;
         for (int i = 0; i < indexes.size(); i++) {
           ChangeSubIndex subIndex = indexes.get(i);
           searchers[i] = subIndex.acquire();
+<<<<<<< HEAD   (3a0369 Merge "Migrate part of ChangeIndex FieldDefs to the new form)
           if (opts.searchAfter() != null
               && opts.searchAfter() instanceof HashMap
               && ((HashMap<?, ?>) opts.searchAfter()).get(subIndex) instanceof ScoreDoc) {
@@ -425,13 +431,31 @@ public class LuceneChangeIndex implements ChangeIndex {
                     sort,
                     /* doDocScores= */ false,
                     /* doMaxScore= */ false);
+=======
+          if (isSearchAfterPagination) {
+            ScoreDoc searchAfter = getSearchAfter(subIndex);
+            int maxRemainingHits = realPageSize - searchAfterHitsCount;
+            if (maxRemainingHits > 0) {
+              TopFieldDocs subIndexHits =
+                  searchers[i].searchAfter(
+                      searchAfter,
+                      query,
+                      maxRemainingHits,
+                      sort,
+                      /* doDocScores= */ false,
+                      /* doMaxScore= */ false);
+              searchAfterHitsCount += subIndexHits.scoreDocs.length;
+              hits.add(subIndexHits);
+              searchAfterBySubIndex.put(
+                  subIndex, Iterables.getLast(Arrays.asList(subIndexHits.scoreDocs), searchAfter));
+            }
+>>>>>>> BRANCH (74bf13 Set version to 3.7.0-rc1)
           } else {
-            hits[i] = searchers[i].search(query, realPageSize, sort);
+            hits.add(searchers[i].search(query, realPageSize, sort));
           }
-          searchAfterBySubIndex.put(
-              subIndex, Iterables.getLast(Arrays.asList(hits[i].scoreDocs), null));
         }
-        TopDocs docs = TopDocs.merge(sort, realPageSize, hits);
+        TopDocs docs =
+            TopDocs.merge(sort, realPageSize, hits.stream().toArray(TopFieldDocs[]::new));
 
         List<Document> result = new ArrayList<>(docs.scoreDocs.length);
         for (int i = opts.start(); i < docs.scoreDocs.length; i++) {
@@ -450,6 +474,23 @@ public class LuceneChangeIndex implements ChangeIndex {
           }
         }
       }
+    }
+
+    /**
+     * Returns null for the first page or when pagination type is not {@link
+     * PaginationType#SEARCH_AFTER search-after}, otherwise returns the last doc from previous
+     * search on the given change sub-index.
+     *
+     * @param subIndex change sub-index
+     * @return the score doc that can be used to page result sets
+     */
+    private ScoreDoc getSearchAfter(ChangeSubIndex subIndex) {
+      if (isSearchAfterPagination
+          && opts.searchAfter() != null
+          && opts.searchAfter() instanceof Map) {
+        return ((Map<ChangeSubIndex, ScoreDoc>) opts.searchAfter()).get(subIndex);
+      }
+      return null;
     }
   }
 
