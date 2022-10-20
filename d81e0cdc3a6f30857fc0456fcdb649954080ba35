@@ -87,6 +87,24 @@
       "message": "Can this now be abandoned?",
       "revId": "d81e0cdc3a6f30857fc0456fcdb649954080ba35",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5048fb8d_f2c74a23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1096442
+      },
+      "writtenOn": "2022-10-20T04:12:41Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "e3c8048b_6addce73",
+      "revId": "d81e0cdc3a6f30857fc0456fcdb649954080ba35",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
