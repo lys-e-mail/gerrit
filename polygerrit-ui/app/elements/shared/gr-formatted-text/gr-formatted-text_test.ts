@@ -29,11 +29,139 @@ suite('gr-formatted-text tests', () => {
   let element: GrFormattedText;
   let configModel: ConfigModel;
 
+<<<<<<< HEAD   (e0f47a Lookup existing changes by exact Change-Id string in Receive)
   async function setCommentLinks(commentlinks: CommentLinks) {
     configModel.updateRepoConfig({...createConfig(), commentlinks});
     await waitUntilObserved(
       configModel.repoCommentLinks$,
       links => links === commentlinks
+=======
+  function assertSpan(actual: InlineItem, expected: InlineItem) {
+    assert.equal(actual.type, expected.type);
+    assert.equal(actual.text, expected.text);
+    switch (actual.type) {
+      case 'link':
+        assert.equal(actual.url, (expected as LinkSpan).url);
+        break;
+    }
+  }
+
+  function assertTextBlock(block: Block, spans: InlineItem[]) {
+    assert.equal(block.type, 'paragraph');
+    const paragraph = block as Paragraph;
+    assert.equal(paragraph.spans.length, spans.length);
+    for (let i = 0; i < paragraph.spans.length; ++i) {
+      assertSpan(paragraph.spans[i], spans[i]);
+    }
+  }
+
+  function assertPreBlock(block: Block, text: string) {
+    assert.equal(block.type, 'pre');
+    const preBlock = block as PreBlock;
+    assert.equal(preBlock.text, text);
+  }
+
+  function assertCodeBlock(block: Block, text: string) {
+    assert.equal(block.type, 'code');
+    const preBlock = block as CodeBlock;
+    assert.equal(preBlock.text, text);
+  }
+
+  function assertSimpleTextBlock(block: Block, text: string) {
+    assertTextBlock(block, [{type: 'text', text}]);
+  }
+
+  function assertListBlock(block: Block, items: ListItem[]) {
+    assert.equal(block.type, 'list');
+    const listBlock = block as ListBlock;
+    assert.deepEqual(listBlock.items, items);
+  }
+
+  function assertQuoteBlock(block: Block): QuoteBlock {
+    assert.equal(block.type, 'quote');
+    return block as QuoteBlock;
+  }
+
+  setup(() => {
+    element = basicFixture.instantiate();
+  });
+
+  test('parse empty', () => {
+    assert.lengthOf(element._computeBlocks(''), 0);
+  });
+
+  for (const text of [
+    'Para1',
+    'Para 1\nStill para 1',
+    'Para 1\n\nPara 2\n\nPara 3',
+  ]) {
+    test('parse simple', () => {
+      const comment = {type: 'text', text} as TextSpan;
+      const result = element._computeBlocks(text);
+      assert.lengthOf(result, 1);
+      assertTextBlock(result[0], [comment]);
+    });
+  }
+
+  test('parse link', () => {
+    const comment = '[text](url)';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    assertTextBlock(result[0], [{type: 'link', text: 'text', url: 'url'}]);
+  });
+
+  test('link with javascript protocol does not set href', () => {
+    const comment = '[text](javascript:alert`1`)';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    assertTextBlock(result[0], [{type: 'link', text: 'text', url: ''}]);
+  });
+
+  test('link with whitespace and javascript protocol does not set href', () => {
+    const comment = '[text](   javascript:alert`1`)';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    assertTextBlock(result[0], [{type: 'link', text: 'text', url: ''}]);
+  });
+
+  test('parse inline code', () => {
+    const comment = 'text `code`';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    assertTextBlock(result[0], [
+      {type: 'text', text: 'text '},
+      {type: 'code', text: 'code'},
+    ]);
+  });
+
+  test('parse quote', () => {
+    const comment = '> Quote text';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    const quoteBlock = assertQuoteBlock(result[0]);
+    assert.lengthOf(quoteBlock.blocks, 1);
+    assertSimpleTextBlock(quoteBlock.blocks[0], 'Quote text');
+  });
+
+  test('parse quote lead space', () => {
+    const comment = ' > Quote text';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    const quoteBlock = assertQuoteBlock(result[0]);
+    assert.lengthOf(quoteBlock.blocks, 1);
+    assertSimpleTextBlock(quoteBlock.blocks[0], 'Quote text');
+  });
+
+  test('parse multiline quote', () => {
+    const comment = '> Quote line 1\n> Quote line 2\n > Quote line 3\n';
+    const result = element._computeBlocks(comment);
+    assert.lengthOf(result, 1);
+    const quoteBlock = assertQuoteBlock(result[0]);
+    assert.lengthOf(quoteBlock.blocks, 1);
+    assertSimpleTextBlock(
+      quoteBlock.blocks[0],
+      'Quote line 1\nQuote line 2\nQuote line 3'
+>>>>>>> BRANCH (28e062 Merge branch 'stable-3.5' into stable-3.6)
     );
   }
 
