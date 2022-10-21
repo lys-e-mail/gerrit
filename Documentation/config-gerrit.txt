@@ -1193,6 +1193,7 @@ performance improvements by reducing the number of refs in the repo.
 +
 Default is true.
 
+<<<<<<< HEAD   (5f156a Merge branch 'stable-2.16' into stable-3.0)
 [[change.disablePrivateChanges]]change.disablePrivateChanges::
 +
 If set to true, users are not allowed to create private changes.
@@ -1251,6 +1252,15 @@ the robot comment. Common unit suffixes of 'k', 'm', or 'g' are supported.
 Zero or negative values allow robot comments of unlimited size.
 +
 The default limit is 1024kB.
+=======
+[[change.maxSubmittableAtOnce]]change.maxSubmittableAtOnce::
++
+Maximum number of changes that can be chained together in the same repository
+to be submitted at once.
++
+Default is 32767.
+
+>>>>>>> BRANCH (eb9031 Limit the number of changes that can be submitted together)
 
 [[change.showAssigneeInChangesTable]]change.showAssigneeInChangesTable::
 +
