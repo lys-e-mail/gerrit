@@ -1498,6 +1498,7 @@ screen if `API_REF_UPDATED_AND_CHANGE_REINDEX` value is set.
 
 Default is `NEVER`.
 
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
 [[change.conflictsPredicateEnabled]]change.conflictsPredicateEnabled::
 
 +
@@ -1510,6 +1511,14 @@ See also implications on rendering of conflict changes section in configuration
 section:link:#change.mergeabilityComputationBehavior[change.mergeabilityComputationBehavior].
 
 Default is true.
+=======
+[[change.maxSubmittableAtOnce]]change.maxSubmittableAtOnce::
++
+Maximum number of changes that can be chained together in the same repository
+to be submitted at once.
++
+Default is 32767.
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
 
 [[change.move]]change.move::
 +
