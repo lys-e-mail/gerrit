@@ -1215,6 +1215,7 @@ in change tables and user dashboards.
 +
 By default 500.
 
+<<<<<<< HEAD   (4604bd Merge branch 'stable-3.0' into stable-3.1)
 [[change.maxUpdates]]change.maxUpdates::
 +
 Maximum number of updates to a change. Counts only updates to the main NoteDb
@@ -1233,6 +1234,14 @@ The following operations are allowed even when a change is at the limit:
 * Fix with link:rest-api-changes.html#fix-input[`expect_merged_as`]
 +
 By default 1000.
+=======
+[[change.maxSubmittableAtOnce]]change.maxSubmittableAtOnce::
++
+Maximum number of changes that can be chained together in the same repository
+to be submitted at once.
++
+Default is 32767.
+>>>>>>> BRANCH (b20005 Merge branch 'stable-2.16' into stable-3.0)
 
 [[change.move]]change.move::
 +
