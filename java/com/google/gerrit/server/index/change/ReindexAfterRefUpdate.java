@@ -90,12 +90,19 @@ public class ReindexAfterRefUpdate implements GitBatchRefUpdateListener {
     if (allUsersName.get().equals(event.getProjectName())) {
       for (UpdatedRef ref : event.getUpdatedRefs()) {
         if (!RefNames.REFS_CONFIG.equals(ref.getRefName())) {
+<<<<<<< HEAD   (e0f47a Lookup existing changes by exact Change-Id string in Receive)
           if (ref.getRefName().startsWith(RefNames.REFS_STARRED_CHANGES)) {
             break;
           }
           Account.Id accountId = Account.Id.fromRef(ref.getRefName());
           if (accountId != null) {
             indexer.get().index(accountId);
+=======
+          Account.Id accountId = Account.Id.fromRef(ref.getRefName());
+          if (accountId != null && !ref.getRefName().startsWith(RefNames.REFS_STARRED_CHANGES)) {
+            indexer.get().index(accountId);
+            break;
+>>>>>>> BRANCH (28e062 Merge branch 'stable-3.5' into stable-3.6)
           }
         }
       }
