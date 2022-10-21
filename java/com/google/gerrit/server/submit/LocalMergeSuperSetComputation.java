@@ -30,6 +30,13 @@ import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.client.SubmitType;
 import com.google.gerrit.extensions.registration.DynamicItem;
 import com.google.gerrit.server.CurrentUser;
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
+=======
+import com.google.gerrit.server.config.GerritServerConfig;
+import com.google.gerrit.server.permissions.ChangePermission;
+import com.google.gerrit.server.permissions.PermissionBackend;
+import com.google.gerrit.server.permissions.PermissionBackendException;
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
 import com.google.gerrit.server.project.NoSuchProjectException;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangeIsVisibleToPredicate;
@@ -48,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
@@ -59,7 +67,13 @@ import org.eclipse.jgit.revwalk.RevSort;
 public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
   public static class LocalMergeSuperSetComputationModule extends AbstractModule {
+=======
+  public static final int MAX_SUBMITTABLE_CHANGES_AT_ONCE_DEFAULT = 1024;
+
+  public static class Module extends AbstractModule {
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
     @Override
     protected void configure() {
       DynamicItem.bind(binder(), MergeSuperSetComputation.class)
@@ -83,15 +97,27 @@ public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
   private final Map<QueryKey, ImmutableList<ChangeData>> queryCache;
   private final Map<BranchNameKey, Optional<RevCommit>> heads;
   private final ChangeIsVisibleToPredicate.Factory changeIsVisibleToPredicateFactory;
+  private final int maxSubmittableChangesAtOnce;
 
   @Inject
   LocalMergeSuperSetComputation(
       Provider<InternalChangeQuery> queryProvider,
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
       ChangeIsVisibleToPredicate.Factory changeIsVisibleToPredicateFactory) {
+=======
+      ProjectCache projectCache,
+      ChangeIsVisibleToPredicate.Factory changeIsVisibleToPredicateFactory,
+      @GerritServerConfig Config gerritConfig) {
+    this.projectCache = projectCache;
+    this.permissionBackend = permissionBackend;
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
     this.queryProvider = queryProvider;
     this.queryCache = new HashMap<>();
     this.heads = new HashMap<>();
     this.changeIsVisibleToPredicateFactory = changeIsVisibleToPredicateFactory;
+    this.maxSubmittableChangesAtOnce =
+        gerritConfig.getInt(
+            "change", "maxSubmittableAtOnce", MAX_SUBMITTABLE_CHANGES_AT_ONCE_DEFAULT);
   }
 
   @Override
@@ -130,9 +156,16 @@ public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
       }
 
       Set<String> visibleHashes =
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
           walkChangesByHashes(visibleCommits, Collections.emptySet(), or, branchNameKey);
       Set<String> nonVisibleHashes =
           walkChangesByHashes(nonVisibleCommits, visibleHashes, or, branchNameKey);
+=======
+          walkChangesByHashes(
+              visibleCommits, Collections.emptySet(), or, b, maxSubmittableChangesAtOnce);
+      Set<String> nonVisibleHashes =
+          walkChangesByHashes(nonVisibleCommits, visibleHashes, or, b, maxSubmittableChangesAtOnce);
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
 
       ChangeSet partialSet =
           byCommitsOnBranchNotMerged(or, branchNameKey, visibleHashes, nonVisibleHashes, user);
@@ -214,9 +247,18 @@ public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
     return result;
   }
 
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
   @UsedAt(UsedAt.Project.GOOGLE)
   public Set<String> walkChangesByHashes(
       Collection<RevCommit> sourceCommits, Set<String> ignoreHashes, OpenRepo or, BranchNameKey b)
+=======
+  private Set<String> walkChangesByHashes(
+      Collection<RevCommit> sourceCommits,
+      Set<String> ignoreHashes,
+      OpenRepo or,
+      BranchNameKey b,
+      int limit)
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
       throws IOException {
     Set<String> destHashes = new HashSet<>();
     or.rw.reset();
@@ -226,7 +268,11 @@ public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
       if (ignoreHashes.contains(name)) {
         continue;
       }
-      destHashes.add(name);
+      if (destHashes.size() < limit) {
+        destHashes.add(name);
+      } else {
+        break;
+      }
       or.rw.markStart(c);
     }
     for (RevCommit c : or.rw) {
@@ -234,7 +280,11 @@ public class LocalMergeSuperSetComputation implements MergeSuperSetComputation {
       if (ignoreHashes.contains(name)) {
         continue;
       }
-      destHashes.add(name);
+      if (destHashes.size() < limit) {
+        destHashes.add(name);
+      } else {
+        break;
+      }
     }
 
     return destHashes;

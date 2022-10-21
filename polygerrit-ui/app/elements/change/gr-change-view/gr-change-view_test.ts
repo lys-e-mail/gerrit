@@ -1519,7 +1519,109 @@ suite('gr-change-view tests', () => {
     assert.equal(putStub.lastCall.args[1], '\n\n\n\n\n\n\n\n');
   });
 
+<<<<<<< HEAD   (cff305 Merge "Limit index query results in ChangeNotes#createChecke)
   test('topic is coalesced to null', async () => {
+=======
+  test('_computeChangeIdCommitMessageError', () => {
+    let commitMessage = 'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483';
+    let change: ChangeInfo = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      null
+    );
+
+    change = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      'mismatch'
+    );
+
+    commitMessage = 'This is the greatest change.';
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      'missing'
+    );
+  });
+
+  test('multiple change Ids in commit message picks last', () => {
+    const commitMessage = [
+      'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282484',
+      'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483',
+    ].join('\n');
+    let change: ChangeInfo = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      null
+    );
+    change = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      'mismatch'
+    );
+  });
+
+  test('does not count change Id that starts mid line', () => {
+    const commitMessage = [
+      'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282484',
+      'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483',
+    ].join(' and ');
+    let change: ChangeInfo = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      null
+    );
+    change = {
+      ...createChangeViewChange(),
+      change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
+    };
+    assert.equal(
+      element._computeChangeIdCommitMessageError(commitMessage, change),
+      'mismatch'
+    );
+  });
+
+  test('_computeTitleAttributeWarning', () => {
+    let changeIdCommitMessageError = 'missing';
+    assert.equal(
+      element._computeTitleAttributeWarning(changeIdCommitMessageError),
+      'No Change-Id in commit message'
+    );
+
+    changeIdCommitMessageError = 'mismatch';
+    assert.equal(
+      element._computeTitleAttributeWarning(changeIdCommitMessageError),
+      'Change-Id mismatch'
+    );
+  });
+
+  test('_computeChangeIdClass', () => {
+    let changeIdCommitMessageError = 'missing';
+    assert.equal(element._computeChangeIdClass(changeIdCommitMessageError), '');
+
+    changeIdCommitMessageError = 'mismatch';
+    assert.equal(
+      element._computeChangeIdClass(changeIdCommitMessageError),
+      'warning'
+    );
+  });
+
+  test('topic is coalesced to null', done => {
+>>>>>>> BRANCH (9ea482 Merge branch 'stable-3.3' into stable-3.4)
     sinon.stub(element, '_changeChanged');
     stubRestApi('getChangeDetail').returns(
       Promise.resolve({
