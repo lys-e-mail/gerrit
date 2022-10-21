@@ -1305,6 +1305,7 @@ The following operations are allowed even when a change is at the limit:
 
 By default 1000.
 
+<<<<<<< HEAD   (09d666 GitwebServlet: Retrieve git path from FileRepository)
 [[change.mergeabilityComputationBehavior]]change.mergeabilityComputationBehavior::
 +
 This setting determines when Gerrit computes if a change is mergeable or not.
@@ -1332,6 +1333,14 @@ This config can have the following states:
   link:rest-api-changes.html#change-info[ChangeInfo].
 
 Default is `REF_UPDATED_AND_CHANGE_REINDEX`.
+=======
+[[change.maxSubmittableAtOnce]]change.maxSubmittableAtOnce::
++
+Maximum number of changes that can be chained together in the same repository
+to be submitted at once.
++
+Default is 32767.
+>>>>>>> BRANCH (e551f7 Merge branch 'stable-3.0' into stable-3.1)
 
 [[change.move]]change.move::
 +
