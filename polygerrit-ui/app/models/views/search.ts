@@ -19,7 +19,11 @@ import {GerritView} from '../../services/router/router-model';
 import {select} from '../../utils/observable-util';
 import {addQuotesWhen} from '../../utils/string-util';
 import {encodeURL, getBaseUrl} from '../../utils/url-util';
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
 import {define, Provider} from '../dependency';
+=======
+import {define} from '../dependency';
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 import {Model} from '../model';
 import {UserModel} from '../user/user-model';
 import {ViewState} from './base';

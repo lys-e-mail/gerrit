@@ -34,7 +34,10 @@ import {assert} from '../../../utils/common-util';
 import {resolve} from '../../../models/dependency';
 import {createChangeUrl} from '../../../models/views/change';
 import {GrDialog} from '../../shared/gr-dialog/gr-dialog';
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
 import {userModelToken} from '../../../models/user/user-model';
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 
 interface FilePreview {
   filepath: string;

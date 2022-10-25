@@ -287,6 +287,7 @@ suite('change model tests', () => {
   // And the missing `replay` led to a bug that was hard to find. That is why
   // we are testing this explicitly here.
   test('basePatchNum$ selector', async () => {
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
     // Let's first wait for the selector to emit. Then we can test the replay
     // below.
     await waitUntilObserved(changeModel.basePatchNum$, x => x === PARENT);
@@ -302,6 +303,17 @@ suite('change model tests', () => {
     testResolver(routerModelToken).updateState({
       basePatchNum: 1 as PatchSetNumber,
     });
+=======
+    const spy = sinon.spy();
+    changeModel.basePatchNum$.subscribe(spy);
+
+    // test replay
+    assert.equal(spy.callCount, 1);
+    assert.equal(spy.lastCall.firstArg, PARENT);
+
+    // test update
+    changeModel.routerModel.updateState({basePatchNum: 1 as PatchSetNumber});
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     assert.equal(spy.callCount, 2);
     assert.equal(spy.lastCall.firstArg, 1 as PatchSetNumber);
 

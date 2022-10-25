@@ -17,7 +17,11 @@ import {createChangeUrl, ChangeViewState} from './change';
 const STATE: ChangeViewState = {
   view: GerritView.CHANGE,
   changeNum: 1234 as NumericChangeId,
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
   repo: 'test' as RepoName,
+=======
+  project: 'test' as RepoName,
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 };
 
 suite('change view state tests', () => {

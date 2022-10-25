@@ -107,6 +107,7 @@ suite('checks-model tests', () => {
     assert.equal(model.changeNum, testChange._number);
   });
 
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
   test('fetch throttle', async () => {
     const clock = sinon.useFakeTimers();
     let change: ParsedChangeInfo | undefined = undefined;
@@ -149,6 +150,35 @@ suite('checks-model tests', () => {
     clock.tick(600);
     // emits at 'trailing' of throttle interval
     assert.equal(fetchSpy.callCount, 3);
+=======
+  test('reload throttle', async () => {
+    const clock = sinon.useFakeTimers();
+    let change: ParsedChangeInfo | undefined = undefined;
+    model.changeModel.change$.subscribe(c => (change = c));
+    const provider = createProvider();
+    const fetchSpy = sinon.spy(provider, 'fetch');
+
+    model.register({
+      pluginName: 'test-plugin',
+      provider,
+      config: CONFIG_POLLING_NONE,
+    });
+    await waitUntil(() => change === undefined);
+
+    const testChange = createParsedChange();
+    model.changeModel.updateStateChange(testChange);
+    await waitUntil(() => change === testChange);
+    clock.tick(1);
+    assert.equal(fetchSpy.callCount, 1);
+
+    // The second reload call will be processed, but only after a 1s throttle.
+    model.reload('test-plugin');
+    clock.tick(100);
+    assert.equal(fetchSpy.callCount, 1);
+    // 2000 ms is greater than the 1000 ms throttle time.
+    clock.tick(2000);
+    assert.equal(fetchSpy.callCount, 2);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
   });
 
   test('triggerAction', async () => {
@@ -282,6 +312,7 @@ suite('checks-model tests', () => {
   test('polls for changes', async () => {
     const clock = sinon.useFakeTimers();
     let change: ParsedChangeInfo | undefined = undefined;
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
     testResolver(changeModelToken).change$.subscribe(c => (change = c));
     const provider = createProvider();
     const fetchSpy = sinon.spy(provider, 'fetch');
@@ -324,6 +355,49 @@ suite('checks-model tests', () => {
     testResolver(changeModelToken).updateStateChange(testChange);
     await waitUntil(() => change === testChange);
     clock.tick(600); // need to wait for 500ms throttle
+=======
+    model.changeModel.change$.subscribe(c => (change = c));
+    const provider = createProvider();
+    const fetchSpy = sinon.spy(provider, 'fetch');
+
+    model.register({
+      pluginName: 'test-plugin',
+      provider,
+      config: CONFIG_POLLING_5S,
+    });
+    await waitUntil(() => change === undefined);
+    clock.tick(1);
+    const testChange = createParsedChange();
+    model.changeModel.updateStateChange(testChange);
+    await waitUntil(() => change === testChange);
+    await waitUntilCalled(fetchSpy, 'fetch');
+    clock.tick(1);
+    const pollCount = fetchSpy.callCount;
+
+    // polling should continue while we wait
+    clock.tick(CONFIG_POLLING_5S.fetchPollingIntervalSeconds * 1000 * 2);
+
+    assert.isTrue(fetchSpy.callCount > pollCount);
+  });
+
+  test('does not poll when config specifies 0 seconds', async () => {
+    const clock = sinon.useFakeTimers();
+    let change: ParsedChangeInfo | undefined = undefined;
+    model.changeModel.change$.subscribe(c => (change = c));
+    const provider = createProvider();
+    const fetchSpy = sinon.spy(provider, 'fetch');
+
+    model.register({
+      pluginName: 'test-plugin',
+      provider,
+      config: CONFIG_POLLING_NONE,
+    });
+    await waitUntil(() => change === undefined);
+    clock.tick(1);
+    const testChange = createParsedChange();
+    model.changeModel.updateStateChange(testChange);
+    await waitUntil(() => change === testChange);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     await waitUntilCalled(fetchSpy, 'fetch');
     clock.tick(1);
     const pollCount = fetchSpy.callCount;

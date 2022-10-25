@@ -43,8 +43,13 @@ export function createEditUrl(state: Omit<EditViewState, 'view'>): string {
     suffix += state.lineNum;
   }
 
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
   if (state.repo) {
     const encodedProject = encodeURL(state.repo, true);
+=======
+  if (state.project) {
+    const encodedProject = encodeURL(state.project, true);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     return `${getBaseUrl()}/c/${encodedProject}/+/${state.changeNum}${suffix}`;
   } else {
     return `${getBaseUrl()}/c/${state.changeNum}${suffix}`;

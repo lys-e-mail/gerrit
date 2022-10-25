@@ -159,9 +159,15 @@ suite('change service tests', () => {
     };
     stubRestApi('getAccountDetails').returns(Promise.resolve(account));
     const model = new CommentsModel(
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
       testResolver(routerModelToken),
       testResolver(changeModelToken),
       testResolver(accountsModelToken),
+=======
+      getAppContext().routerModel,
+      testResolver(changeModelToken),
+      getAppContext().accountsModel,
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
       getAppContext().restApiService,
       getAppContext().reportingService
     );

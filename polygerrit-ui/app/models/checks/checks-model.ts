@@ -750,7 +750,13 @@ export class ChecksModel extends Model<ChecksState> {
         patchset === ChecksPatchset.LATEST
           ? this.changeModel.latestPatchNum$
           : this.checksSelectedPatchsetNumber$,
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
         this.reloadSubjects[pluginName],
+=======
+        this.reloadSubjects[pluginName].pipe(
+          throttleTime(1000, undefined, {trailing: true, leading: true})
+        ),
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
         pollIntervalMs === 0 ? from([0]) : timer(0, pollIntervalMs),
         this.documentVisibilityChange$,
       ])

@@ -317,6 +317,7 @@ export class GrRouter implements Finalizable, NavigationService {
         if (this.view !== GerritView.CHANGE) return;
         const browserUrl = new URL(window.location.toString());
         const stateUrl = new URL(createChangeUrl(state), browserUrl);
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
 
         // Keeping the hash and certain parameters are stop-gap solution. We
         // should find better ways of maintaining an overall consistent URL
@@ -326,6 +327,9 @@ export class GrRouter implements Finalizable, NavigationService {
           if (p[0] === 'experiment') stateUrl.searchParams.append(p[0], p[1]);
         }
 
+=======
+        stateUrl.hash = browserUrl.hash;
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
         if (browserUrl.toString() !== stateUrl.toString()) {
           page.replace(
             stateUrl.toString(),
@@ -354,6 +358,13 @@ export class GrRouter implements Finalizable, NavigationService {
   }
 
   setState(state: AppElementParams) {
+    if (
+      'project' in state &&
+      state.project !== undefined &&
+      'changeNum' in state
+    )
+      this.restApiService.setInProjectLookup(state.changeNum, state.project);
+
     this.routerModel.setState({
       view: state.view,
       changeNum: 'changeNum' in state ? state.changeNum : undefined,
