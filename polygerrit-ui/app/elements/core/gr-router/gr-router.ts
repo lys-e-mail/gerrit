@@ -344,6 +344,7 @@ export class GrRouter implements Finalizable, NavigationService {
     this.startRouter();
   }
 
+<<<<<<< HEAD   (caca56 Set version to 3.7.0-SNAPSHOT)
   setState(state: AppElementParams) {
     this.routerModel.setState({
       view: state.view,
@@ -351,6 +352,20 @@ export class GrRouter implements Finalizable, NavigationService {
       patchNum: 'patchNum' in state ? state.patchNum ?? undefined : undefined,
       basePatchNum:
         'basePatchNum' in state ? state.basePatchNum ?? undefined : undefined,
+=======
+  setParams(params: AppElementParams | GenerateUrlParameters) {
+    if (
+      'project' in params &&
+      params.project !== undefined &&
+      'changeNum' in params
+    )
+      this.restApiService.setInProjectLookup(params.changeNum, params.project);
+
+    this.routerModel.updateState({
+      view: params.view,
+      changeNum: 'changeNum' in params ? params.changeNum : undefined,
+      patchNum: 'patchNum' in params ? params.patchNum ?? undefined : undefined,
+>>>>>>> BRANCH (79da1c Initialise the project name / change number eagerly in gr-ro)
     });
     this.appElement().params = state;
   }
