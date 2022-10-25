@@ -514,12 +514,15 @@ export class GrAdminView extends LitElement {
     } finally {
       this.reloading = false;
     }
+<<<<<<< HEAD   (caca56 Set version to 3.7.0-SNAPSHOT)
   }
 
   private getDetailView() {
     if (this.view === GerritView.REPO) return this.repoViewState?.detail;
     if (this.view === GerritView.GROUP) return this.groupViewState?.detail;
     return undefined;
+=======
+>>>>>>> BRANCH (aeef02 Don't navigate on subsection change while reloading.)
   }
 
   private computeSelectValue() {
@@ -551,7 +554,11 @@ export class GrAdminView extends LitElement {
     if (this.selectedIsCurrentPage(selected)) return;
     if (selected.url === undefined) return;
     if (this.reloading) return;
+<<<<<<< HEAD   (caca56 Set version to 3.7.0-SNAPSHOT)
     this.getNavigation().setUrl(selected.url);
+=======
+    GerritNav.navigateToRelativeUrl(selected.url);
+>>>>>>> BRANCH (aeef02 Don't navigate on subsection change while reloading.)
   }
 
   isAdminView(): boolean {
