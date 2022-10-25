@@ -843,6 +843,7 @@ export class GrFileList extends LitElement {
         'change-view-file-list-summary'
       );
 
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
       if (
         this.dynamicHeaderEndpoints.length !==
         this.dynamicContentEndpoints.length
@@ -871,6 +872,36 @@ export class GrFileList extends LitElement {
         );
       }
     });
+=======
+        if (
+          this.dynamicHeaderEndpoints.length !==
+          this.dynamicContentEndpoints.length
+        ) {
+          this.reporting.error(
+            'Plugin change-view-file-list',
+            new Error('dynamic header/content mismatch')
+          );
+        }
+        if (
+          this.dynamicPrependedHeaderEndpoints.length !==
+          this.dynamicPrependedContentEndpoints.length
+        ) {
+          this.reporting.error(
+            'Plugin change-view-file-list',
+            new Error('dynamic prepend header/content mismatch')
+          );
+        }
+        if (
+          this.dynamicHeaderEndpoints.length !==
+          this.dynamicSummaryEndpoints.length
+        ) {
+          this.reporting.error(
+            'Plugin change-view-file-list',
+            new Error('dynamic header/summary mismatch')
+          );
+        }
+      });
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     this.diffCursor = new GrDiffCursor();
     this.diffCursor.replaceDiffs(this.diffs);
   }

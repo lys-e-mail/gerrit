@@ -19,7 +19,10 @@ import {ReportingService} from './gr-reporting/gr-reporting';
 export enum ServiceWorkerMessageType {
   TRIGGER_NOTIFICATIONS = 'TRIGGER_NOTIFICATIONS',
   USER_PREFERENCE_CHANGE = 'USER_PREFERENCE_CHANGE',
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
   REPORTING = 'REPORTING',
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 }
 
 export const TRIGGER_NOTIFICATION_UPDATES_MS = 5 * 60 * 1000;
@@ -91,6 +94,21 @@ export class ServiceWorkerInstaller {
         });
       }
     };
+  }
+
+  areNotificationsEnabled() {
+    // Push Notification developer can have notification enabled even if they
+    // are disabled for this.account.
+    if (
+      !this.flagsService.isEnabled(
+        KnownExperimentId.PUSH_NOTIFICATIONS_DEVELOPER
+      ) &&
+      !areNotificationsEnabled(this.account)
+    ) {
+      return false;
+    }
+
+    return this.allowBrowserNotificationsPreference;
   }
 
   areNotificationsEnabled() {

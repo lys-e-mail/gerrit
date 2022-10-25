@@ -63,7 +63,10 @@ import {subscribe} from '../../lit/subscription-controller';
 import {resolve} from '../../../models/dependency';
 import {settingsViewModelToken} from '../../../models/views/settings';
 import {areNotificationsEnabled} from '../../../utils/worker-util';
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
 import {userModelToken} from '../../../models/user/user-model';
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 
 const GERRIT_DOCS_BASE_URL =
   'https://gerrit-review.googlesource.com/' + 'Documentation';
@@ -221,6 +224,7 @@ export class GrSettingsView extends LitElement {
     );
     subscribe(
       this,
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
       () => this.getUserModel().account$,
       acc => {
         this.account = acc;
@@ -229,6 +233,16 @@ export class GrSettingsView extends LitElement {
     subscribe(
       this,
       () => this.getUserModel().preferences$,
+=======
+      () => this.userModel.account$,
+      acc => {
+        this.account = acc;
+      }
+    );
+    subscribe(
+      this,
+      () => this.userModel.preferences$,
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
       prefs => {
         if (!prefs) {
           throw new Error('getPreferences returned undefined');

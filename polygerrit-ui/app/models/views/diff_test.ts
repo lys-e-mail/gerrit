@@ -29,7 +29,11 @@ suite('diff view state tests', () => {
     assert.equal(createDiffUrl(params).substring(0, 5), '/base');
     window.CANONICAL_PATH = undefined;
 
+<<<<<<< HEAD   (ff92bd Merge "Simple refactor: Remove an unused method param from `)
     params.repo = 'test' as RepoName;
+=======
+    params.project = 'test' as RepoName;
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     assert.equal(createDiffUrl(params), '/c/test/+/42/12/x%252By/path.cpp');
 
     params.basePatchNum = 6 as BasePatchSetNum;
