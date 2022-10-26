@@ -74,8 +74,11 @@ import {Interaction} from '../../../constants/reporting';
 import {HtmlPatched} from '../../../utils/lit-util';
 import {createDiffUrl} from '../../../models/views/diff';
 import {createChangeUrl} from '../../../models/views/change';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 import {userModelToken} from '../../../models/user/user-model';
 import {highlightServiceToken} from '../../../services/highlight/highlight-service';
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 
 declare global {
   interface HTMLElementEventMap {
@@ -794,7 +797,11 @@ export class GrCommentThread extends LitElement {
     } else {
       url = createDiffUrl({
         changeNum: this.changeNum,
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
         repo: this.repoName,
+=======
+        project: this.repoName,
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
         commentId: comment.id,
       });
     }

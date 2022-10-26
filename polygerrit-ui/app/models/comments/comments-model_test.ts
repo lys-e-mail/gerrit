@@ -159,9 +159,15 @@ suite('change service tests', () => {
     };
     stubRestApi('getAccountDetails').returns(Promise.resolve(account));
     const model = new CommentsModel(
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
       testResolver(routerModelToken),
       testResolver(changeModelToken),
       testResolver(accountsModelToken),
+=======
+      getAppContext().routerModel,
+      testResolver(changeModelToken),
+      getAppContext().accountsModel,
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
       getAppContext().restApiService,
       getAppContext().reportingService
     );

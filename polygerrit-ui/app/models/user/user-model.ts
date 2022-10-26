@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {from, of, Observable} from 'rxjs';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 import {filter, switchMap} from 'rxjs/operators';
+=======
+import {switchMap} from 'rxjs/operators';
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 import {
   DiffPreferencesInfo as DiffPreferencesInfoAPI,
   DiffViewMode,
@@ -123,11 +127,14 @@ export class UserModel extends Model<UserState> {
     preference => preference.theme
   );
 
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
   readonly preferenceChangesPerPage$: Observable<number> = select(
     this.preferences$,
     preference => preference.changes_per_page
   );
 
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
   constructor(readonly restApiService: RestApiService) {
     super({
       accountLoaded: false,

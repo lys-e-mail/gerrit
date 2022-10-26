@@ -144,8 +144,13 @@ export function createChangeUrl(
   if (state.messageHash) {
     suffix += state.messageHash;
   }
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
   if (state.repo) {
     const encodedProject = encodeURL(state.repo, true);
+=======
+  if (state.project) {
+    const encodedProject = encodeURL(state.project, true);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     return `${getBaseUrl()}/c/${encodedProject}/+/${state.changeNum}${suffix}`;
   } else {
     return `${getBaseUrl()}/c/${state.changeNum}${suffix}`;

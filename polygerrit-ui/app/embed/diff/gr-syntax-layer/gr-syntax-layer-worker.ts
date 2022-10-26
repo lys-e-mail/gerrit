@@ -279,7 +279,11 @@ export class GrSyntaxLayerWorker implements DiffLayer {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (!err.isCanceled)
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
         this.getReportingService().error('Diff Syntax Layer', err as Error);
+=======
+        this.reportingService.error('Diff Syntax Layer', err as Error);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
       // One source of "error" can promise cancelation.
       this.leftRanges = [];
       this.rightRanges = [];

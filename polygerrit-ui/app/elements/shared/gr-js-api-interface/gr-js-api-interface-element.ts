@@ -76,8 +76,27 @@ export class GrJsApiInterface implements JsApiService, Finalizable {
     }
   }
 
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
   async handleShowChange(detail: ShowChangeDetail) {
     await this.waitForPluginsToLoad();
+=======
+  // TODO(TS): The HISTORY event and its handler seem unused.
+  _handleHistory(detail: {path: string}) {
+    for (const cb of this._getEventCallbacks(EventType.HISTORY)) {
+      try {
+        cb(detail.path);
+      } catch (err: unknown) {
+        this.reporting.error(
+          'GrJsApiInterface',
+          new Error('handleHistory callback error'),
+          err
+        );
+      }
+    }
+  }
+
+  _handleShowChange(detail: ShowChangeDetail) {
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     // Note (issue 8221) Shallow clone the change object and add a mergeable
     // getter with deprecation warning. This makes the change detail appear as
     // though SKIP_MERGEABLE was not set, so that plugins that expect it can
@@ -154,8 +173,27 @@ export class GrJsApiInterface implements JsApiService, Finalizable {
     }
   }
 
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
   async handleLabelChange(detail: {change?: ParsedChangeInfo}) {
     await this.waitForPluginsToLoad();
+=======
+  // TODO(TS): The COMMENT event and its handler seem unused.
+  _handleComment(detail: {node: Node}) {
+    for (const cb of this._getEventCallbacks(EventType.COMMENT)) {
+      try {
+        cb(detail.node);
+      } catch (err: unknown) {
+        this.reporting.error(
+          'GrJsApiInterface',
+          new Error('comment callback error'),
+          err
+        );
+      }
+    }
+  }
+
+  _handleLabelChange(detail: {change: ChangeInfo}) {
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     for (const cb of this._getEventCallbacks(EventType.LABEL_CHANGE)) {
       try {
         cb(detail.change);
@@ -163,6 +201,23 @@ export class GrJsApiInterface implements JsApiService, Finalizable {
         this.reporting.error(
           'GrJsApiInterface',
           new Error('labelChange callback error'),
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
+=======
+          err
+        );
+      }
+    }
+  }
+
+  _handleHighlightjsLoaded(detail: {hljs: HighlightJS}) {
+    for (const cb of this._getEventCallbacks(EventType.HIGHLIGHTJS_LOADED)) {
+      try {
+        cb(detail.hljs);
+      } catch (err: unknown) {
+        this.reporting.error(
+          'GrJsApiInterface',
+          new Error('HighlightjsLoaded callback error'),
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
           err
         );
       }

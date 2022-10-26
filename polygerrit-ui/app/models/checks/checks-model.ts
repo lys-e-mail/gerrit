@@ -750,7 +750,13 @@ export class ChecksModel extends Model<ChecksState> {
         patchset === ChecksPatchset.LATEST
           ? this.changeModel.latestPatchNum$
           : this.checksSelectedPatchsetNumber$,
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
         this.reloadSubjects[pluginName],
+=======
+        this.reloadSubjects[pluginName].pipe(
+          throttleTime(1000, undefined, {trailing: true, leading: true})
+        ),
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
         pollIntervalMs === 0 ? from([0]) : timer(0, pollIntervalMs),
         this.documentVisibilityChange$,
       ])

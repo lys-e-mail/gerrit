@@ -29,7 +29,11 @@ suite('diff view state tests', () => {
     assert.equal(createDiffUrl(params).substring(0, 5), '/base');
     window.CANONICAL_PATH = undefined;
 
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
     params.repo = 'test' as RepoName;
+=======
+    params.project = 'test' as RepoName;
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     assert.equal(createDiffUrl(params), '/c/test/+/42/12/x%252By/path.cpp');
 
     params.basePatchNum = 6 as BasePatchSetNum;

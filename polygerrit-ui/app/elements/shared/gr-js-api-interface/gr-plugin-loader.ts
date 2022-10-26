@@ -175,7 +175,11 @@ export class PluginLoader implements Gerrit, Finalizable {
       try {
         url = new URL(url);
       } catch (e: unknown) {
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
         this.reportingService.error(
+=======
+        this._getReporting().error(
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
           'GrPluginLoader',
           new Error('url parse error'),
           e
@@ -236,7 +240,11 @@ export class PluginLoader implements Gerrit, Finalizable {
       if (e instanceof Error) {
         this.failToLoad(`${e.name}: ${e.message}`, src);
       } else {
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
         this.reportingService.error(
+=======
+        this._getReporting().error(
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
           'GrPluginLoader',
           new Error('plugin callback error'),
           e

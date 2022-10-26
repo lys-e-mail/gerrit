@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {Observable} from 'rxjs';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
+=======
+import {Finalizable} from '../registry';
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 import {
   NumericChangeId,
   RevisionPatchSetNum,
@@ -11,7 +15,10 @@ import {
 } from '../../types/common';
 import {Model} from '../../models/model';
 import {select} from '../../utils/observable-util';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 import {define} from '../../models/dependency';
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 
 export enum GerritView {
   ADMIN = 'admin',
@@ -36,8 +43,12 @@ export interface RouterState {
   basePatchNum?: BasePatchSetNum;
 }
 
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 export const routerModelToken = define<RouterModel>('router-model');
 export class RouterModel extends Model<RouterState> {
+=======
+export class RouterModel extends Model<RouterState> implements Finalizable {
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
   readonly routerView$: Observable<GerritView | undefined> = select(
     this.state$,
     state => state.view

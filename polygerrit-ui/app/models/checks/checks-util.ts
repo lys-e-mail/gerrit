@@ -17,7 +17,11 @@ import {
 import {PatchSetNumber} from '../../api/rest-api';
 import {FixSuggestionInfo, FixReplacementInfo} from '../../types/common';
 import {OpenFixPreviewEventDetail} from '../../types/events';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 import {isDefined} from '../../types/types';
+=======
+import {notUndefined} from '../../types/types';
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 import {PROVIDED_FIX_ID} from '../../utils/comment-util';
 import {assert, assertNever} from '../../utils/common-util';
 import {fire} from '../../utils/event-util';
@@ -94,7 +98,11 @@ export function createFixAction(
   if (!result?.fixes) return;
   const fixSuggestions = result.fixes
     .map(f => rectifyFix(f, result?.checkName))
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
     .filter(isDefined);
+=======
+    .filter(notUndefined);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
   if (fixSuggestions.length === 0) return;
   const eventDetail: OpenFixPreviewEventDetail = {
     patchNum: result.patchset as PatchSetNumber,
@@ -116,7 +124,11 @@ export function rectifyFix(
   if (!fix?.replacements) return undefined;
   const replacements = fix.replacements
     .map(rectifyReplacement)
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
     .filter(isDefined);
+=======
+    .filter(notUndefined);
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
   if (replacements.length === 0) return undefined;
 
   return {

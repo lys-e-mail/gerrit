@@ -30,8 +30,11 @@ import {fixture, html, waitUntil, assert} from '@open-wc/testing';
 import {GrButton} from '../gr-button/gr-button';
 import {SpecialFilePath} from '../../../constants/constants';
 import {GrIcon} from '../gr-icon/gr-icon';
+<<<<<<< HEAD   (9f3627 Merge changes I2cbc6c31,I8792650f)
 import {commentsModelToken} from '../../../models/comments/comments-model';
 import {testResolver} from '../../../test/common-test-setup';
+=======
+>>>>>>> BRANCH (8ab81b Merge branch 'stable-3.6' into stable-3.7)
 
 const c1 = {
   author: {name: 'Kermit'},
