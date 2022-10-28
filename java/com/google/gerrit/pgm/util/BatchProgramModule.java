@@ -29,6 +29,7 @@ import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.extensions.restapi.RestView;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.InternalUser;
 import com.google.gerrit.server.LibModuleLoader;
 import com.google.gerrit.server.LibModuleType;
 import com.google.gerrit.server.ModuleOverloader;
@@ -153,8 +154,14 @@ public class BatchProgramModule extends FactoryModule {
         .in(SINGLETON);
     bind(Realm.class).to(FakeRealm.class);
     bind(IdentifiedUser.class).toProvider(Providers.of(null));
+<<<<<<< HEAD   (8ab81b Merge branch 'stable-3.6' into stable-3.7)
     bind(EmailNewPatchSet.Factory.class).toProvider(Providers.of(null));
     bind(CurrentUser.class).to(IdentifiedUser.class);
+=======
+    bind(ReplacePatchSetSender.Factory.class).toProvider(Providers.of(null));
+    bind(CurrentUser.class).to(InternalUser.class);
+    factory(MergeUtil.Factory.class);
+>>>>>>> BRANCH (d1c6b5 Merge branch 'stable-3.5' into stable-3.6)
     factory(PatchSetInserter.Factory.class);
     factory(RebaseChangeOp.Factory.class);
 
