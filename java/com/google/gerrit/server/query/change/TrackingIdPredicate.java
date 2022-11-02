@@ -1,4 +1,6 @@
-// Copyright (C) 2016 The Android Open Source Project
+<<<<<<< HEAD   (a9f258 Merge branch 'stable-3.4' into stable-3.5)
+=======
+// Copyright (C) 2010 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,41 +16,27 @@
 
 package com.google.gerrit.server.query.change;
 
-import com.google.gerrit.entities.Account;
 import com.google.gerrit.index.query.HasCardinality;
-import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.index.change.ChangeField;
 
-public class StarPredicate extends ChangeIndexPredicate implements HasCardinality {
-  protected final Account.Id accountId;
-  protected final String label;
-
-  public StarPredicate(Account.Id accountId, String label) {
-    super(ChangeField.STAR, StarredChangesUtil.StarField.create(accountId, label).toString());
-    this.accountId = accountId;
-    this.label = label;
+public class TrackingIdPredicate extends ChangeIndexPredicate implements HasCardinality {
+  public TrackingIdPredicate(String trackingId) {
+    super(ChangeField.TR, trackingId);
   }
 
   @Override
   public boolean match(ChangeData cd) {
-    return cd.stars().get(accountId).contains(label);
+    return cd.trackingFooters().containsValue(getValue());
   }
 
   @Override
-<<<<<<< HEAD   (a9f258 Merge branch 'stable-3.4' into stable-3.5)
-=======
   public int getCost() {
     return 1;
   }
 
   @Override
   public int getCardinality() {
-    return 10;
-  }
-
-  @Override
->>>>>>> BRANCH (731a0e Add AndCardinalPredicate and OrCardinalPredicate)
-  public String toString() {
-    return ChangeQueryBuilder.FIELD_STAR + ":" + label;
+    return 5;
   }
 }
+>>>>>>> BRANCH (731a0e Add AndCardinalPredicate and OrCardinalPredicate)
