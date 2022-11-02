@@ -17,11 +17,12 @@ package com.google.gerrit.server.query.change;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gerrit.entities.Account;
+import com.google.gerrit.index.query.HasCardinality;
 import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.server.index.change.ChangeField;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 
-public class ReviewerPredicate extends ChangeIndexPredicate {
+public class ReviewerPredicate extends ChangeIndexPredicate implements HasCardinality {
   protected static Predicate<ChangeData> forState(Account.Id id, ReviewerStateInternal state) {
     checkArgument(state != ReviewerStateInternal.REMOVED, "can't query by removed reviewer");
     return new ReviewerPredicate(state, id);
@@ -52,4 +53,17 @@ public class ReviewerPredicate extends ChangeIndexPredicate {
   public boolean match(ChangeData cd) {
     return cd.reviewers().asTable().get(state, id) != null;
   }
+<<<<<<< HEAD   (a9f258 Merge branch 'stable-3.4' into stable-3.5)
+=======
+
+  @Override
+  public int getCost() {
+    return 1;
+  }
+
+  @Override
+  public int getCardinality() {
+    return 5000;
+  }
+>>>>>>> BRANCH (731a0e Add AndCardinalPredicate and OrCardinalPredicate)
 }

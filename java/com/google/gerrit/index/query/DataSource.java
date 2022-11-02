@@ -14,11 +14,16 @@
 
 package com.google.gerrit.index.query;
 
+<<<<<<< HEAD   (a9f258 Merge branch 'stable-3.4' into stable-3.5)
 public interface DataSource<T> {
   /** Returns an estimate of the number of results from {@link #read()}. */
   int getCardinality();
 
   /** Returns read from the database and return the results. */
+=======
+public interface DataSource<T> extends HasCardinality {
+  /** @return read from the database and return the results. */
+>>>>>>> BRANCH (731a0e Add AndCardinalPredicate and OrCardinalPredicate)
   ResultSet<T> read();
 
   /** Returns read from the database and return the raw results. */
