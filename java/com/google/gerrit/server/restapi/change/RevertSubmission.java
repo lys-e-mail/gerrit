@@ -306,7 +306,7 @@ public class RevertSubmission
       if (cherryPickInput.base.equals(changeNotes.getCurrentPatchSet().commitId().getName())) {
         // This is the code in case this is the first revert of this project + branch, and the
         // revert would be on top of the change being reverted.
-        craeteNormalRevert(revertInput, changeNotes, timestamp);
+        createNormalRevert(revertInput, changeNotes, timestamp);
       } else {
         createCherryPickedRevert(revertInput, project, changeNotes, timestamp);
       }
@@ -345,8 +345,13 @@ public class RevertSubmission
     }
   }
 
+<<<<<<< HEAD   (da1676 Fix Flogger issues flagged by error prone)
   private void craeteNormalRevert(
       RevertInput revertInput, ChangeNotes changeNotes, Instant timestamp)
+=======
+  private void createNormalRevert(
+      RevertInput revertInput, ChangeNotes changeNotes, Timestamp timestamp)
+>>>>>>> BRANCH (ca31f2 Merge branch 'stable-3.4' into stable-3.5)
       throws IOException, RestApiException, UpdateException, ConfigInvalidException {
 
     Change.Id revertId =
