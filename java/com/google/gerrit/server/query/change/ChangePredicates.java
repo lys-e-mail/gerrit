@@ -58,7 +58,7 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Change.Id}.
    */
   public static Predicate<ChangeData> revertOf(Change.Id revertOf) {
-    return new ChangeIndexPredicate(ChangeField.REVERT_OF, revertOf.toString());
+    return new ChangeIndexCardinalPredicate(ChangeField.REVERT_OF, revertOf.toString(), 1);
   }
 
   /**
@@ -81,7 +81,15 @@ public class ChangePredicates {
    * Returns a predicate that matches changes where the provided {@link
    * com.google.gerrit.entities.Account.Id} has a pending draft comment.
    */
+<<<<<<< HEAD   (95d54f Re-establish the vertical spacing in the repository commands)
   public static Predicate<ChangeData> draftBy(CommentsUtil commentsUtil, Account.Id id) {
+=======
+  public static Predicate<ChangeData> draftBy(
+      boolean computeFromAllUsersRepository, CommentsUtil commentsUtil, Account.Id id) {
+    if (!computeFromAllUsersRepository) {
+      return new ChangeIndexCardinalPredicate(ChangeField.DRAFTBY, id.toString(), 20);
+    }
+>>>>>>> BRANCH (badc80 Merge branch 'stable-3.5' into stable-3.6)
     Set<Predicate<ChangeData>> changeIdPredicates =
         commentsUtil.getChangesWithDrafts(id).stream()
             .map(ChangePredicates::idStr)
@@ -126,9 +134,21 @@ public class ChangePredicates {
    * Returns a predicate that matches the change with the provided {@link
    * com.google.gerrit.entities.Change.Id}.
    */
+<<<<<<< HEAD   (95d54f Re-establish the vertical spacing in the repository commands)
+=======
+  public static Predicate<ChangeData> id(Change.Id id) {
+    return new ChangeIndexCardinalPredicate(
+        ChangeField.LEGACY_ID, ChangeQueryBuilder.FIELD_CHANGE, id.toString(), 1);
+  }
+
+  /**
+   * Returns a predicate that matches the change with the provided {@link
+   * com.google.gerrit.entities.Change.Id}.
+   */
+>>>>>>> BRANCH (badc80 Merge branch 'stable-3.5' into stable-3.6)
   public static Predicate<ChangeData> idStr(Change.Id id) {
-    return new ChangeIndexPredicate(
-        ChangeField.LEGACY_ID_STR, ChangeQueryBuilder.FIELD_CHANGE, id.toString());
+    return new ChangeIndexCardinalPredicate(
+        ChangeField.LEGACY_ID_STR, ChangeQueryBuilder.FIELD_CHANGE, id.toString(), 1);
   }
 
   /**
@@ -136,7 +156,7 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Account.Id}.
    */
   public static Predicate<ChangeData> owner(Account.Id id) {
-    return new ChangeIndexPredicate(ChangeField.OWNER, id.toString());
+    return new ChangeIndexCardinalPredicate(ChangeField.OWNER, id.toString(), 5000);
   }
 
   /**
@@ -170,12 +190,12 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Project.NameKey}.
    */
   public static Predicate<ChangeData> project(Project.NameKey id) {
-    return new ChangeIndexPredicate(ChangeField.PROJECT, id.get());
+    return new ChangeIndexCardinalPredicate(ChangeField.PROJECT, id.get(), 1_000_000);
   }
 
   /** Returns a predicate that matches changes targeted at the provided {@code refName}. */
   public static Predicate<ChangeData> ref(String refName) {
-    return new ChangeIndexPredicate(ChangeField.REF, refName);
+    return new ChangeIndexCardinalPredicate(ChangeField.REF, refName, 10_000);
   }
 
   /** Returns a predicate that matches changes in the provided {@code topic}. */
@@ -268,7 +288,7 @@ public class ChangePredicates {
 
   /** Returns a predicate that matches changes with the provided {@code trackingId}. */
   public static Predicate<ChangeData> trackingId(String trackingId) {
-    return new ChangeIndexPredicate(ChangeField.TR, trackingId);
+    return new ChangeIndexCardinalPredicate(ChangeField.TR, trackingId, 5);
   }
 
   /** Returns a predicate that matches changes authored by the provided {@code exactAuthor}. */
@@ -300,7 +320,7 @@ public class ChangePredicates {
 
   /** Returns a predicate that matches changes whose ID starts with the provided {@code id}. */
   public static Predicate<ChangeData> idPrefix(String id) {
-    return new ChangeIndexPredicate(ChangeField.ID, id);
+    return new ChangeIndexCardinalPredicate(ChangeField.ID, id, 5);
   }
 
   /**
@@ -317,9 +337,9 @@ public class ChangePredicates {
    */
   public static Predicate<ChangeData> commitPrefix(String commitId) {
     if (commitId.length() == ObjectIds.STR_LEN) {
-      return new ChangeIndexPredicate(ChangeField.EXACT_COMMIT, commitId);
+      return new ChangeIndexCardinalPredicate(ChangeField.EXACT_COMMIT, commitId, 5);
     }
-    return new ChangeIndexPredicate(ChangeField.COMMIT, commitId);
+    return new ChangeIndexCardinalPredicate(ChangeField.COMMIT, commitId, 5);
   }
 
   /**
