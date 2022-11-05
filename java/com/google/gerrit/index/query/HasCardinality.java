@@ -1,4 +1,4 @@
-// Copyright (C) 2014 The Android Open Source Project
+// Copyright (C) 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,7 @@
 
 package com.google.gerrit.index.query;
 
-<<<<<<< HEAD   (da1676 Fix Flogger issues flagged by error prone)
-public interface DataSource<T> {
-  /** Returns an estimate of the number of results from {@link #read()}. */
+public interface HasCardinality {
+  /** Returns an estimate of the number of results a source can return. */
   int getCardinality();
-
-  /** Returns read from the index and return the results. */
-=======
-public interface DataSource<T> extends HasCardinality {
-  /** Returns read from the database and return the results. */
->>>>>>> BRANCH (ca31f2 Merge branch 'stable-3.4' into stable-3.5)
-  ResultSet<T> read();
-
-  /** Returns read from the index and return the raw results. */
-  ResultSet<FieldBundle> readRaw();
 }
