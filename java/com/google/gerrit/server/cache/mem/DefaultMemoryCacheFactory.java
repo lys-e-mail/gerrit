@@ -54,15 +54,81 @@ class DefaultMemoryCacheFactory implements MemoryCacheFactory {
   }
 
   @Override
+<<<<<<< HEAD   (3ad761 Bump replication plugin to master)
   public <K, V> LoadingCache<K, V> build(CacheDef<K, V> def, CacheLoader<K, V> loader) {
     return CaffeinatedGuava.build(create(def), loader);
+=======
+  public <K, V> LoadingCache<K, V> build(
+      CacheDef<K, V> def, CacheLoader<K, V> loader, CacheBackend backend) {
+    return cacheMaximumWeight(def) == 0
+        ? new PassthroughLoadingCache<>(loader)
+        : (backend.isLegacyBackend()
+            ? createLegacy(def).build(loader)
+            : CaffeinatedGuava.build(create(def), loader));
+  }
+
+  @SuppressWarnings("unchecked")
+  private <K, V> CacheBuilder<K, V> createLegacy(CacheDef<K, V> def) {
+    CacheBuilder<K, V> builder = newLegacyCacheBuilder();
+    builder.recordStats();
+    builder.maximumWeight(cacheMaximumWeight(def));
+
+    builder = builder.removalListener(forwardingRemovalListenerFactory.create(def.name()));
+
+    com.google.common.cache.Weigher<K, V> weigher = def.weigher();
+    if (weigher == null) {
+      weigher = unitWeight();
+    }
+    builder.weigher(weigher);
+
+    Duration expireAfterWrite = def.expireAfterWrite();
+    if (has(def.configKey(), "maxAge")) {
+      builder.expireAfterWrite(
+          ConfigUtil.getTimeUnit(
+              cfg, "cache", def.configKey(), "maxAge", toSeconds(expireAfterWrite), SECONDS),
+          SECONDS);
+    } else if (expireAfterWrite != null) {
+      builder.expireAfterWrite(expireAfterWrite.toNanos(), NANOSECONDS);
+    }
+
+    Duration expireAfterAccess = def.expireFromMemoryAfterAccess();
+    if (has(def.configKey(), "expireFromMemoryAfterAccess")) {
+      builder.expireAfterAccess(
+          ConfigUtil.getTimeUnit(
+              cfg,
+              "cache",
+              def.configKey(),
+              "expireFromMemoryAfterAccess",
+              toSeconds(expireAfterAccess),
+              SECONDS),
+          SECONDS);
+    } else if (expireAfterAccess != null) {
+      builder.expireAfterAccess(expireAfterAccess.toNanos(), NANOSECONDS);
+    }
+
+    Duration refreshAfterWrite = def.refreshAfterWrite();
+    if (has(def.configKey(), "refreshAfterWrite")) {
+      builder.refreshAfterWrite(
+          ConfigUtil.getTimeUnit(
+              cfg,
+              "cache",
+              def.configKey(),
+              "refreshAfterWrite",
+              toSeconds(refreshAfterWrite),
+              SECONDS),
+          SECONDS);
+    } else if (refreshAfterWrite != null) {
+      builder.refreshAfterWrite(refreshAfterWrite.toNanos(), NANOSECONDS);
+    }
+
+    return builder;
+>>>>>>> BRANCH (04975d Set version to 3.5.5-SNAPSHOT)
   }
 
   private <K, V> Caffeine<K, V> create(CacheDef<K, V> def) {
     Caffeine<K, V> builder = newCacheBuilder();
     builder.recordStats();
-    builder.maximumWeight(
-        cfg.getLong("cache", def.configKey(), "memoryLimit", def.maximumWeight()));
+    builder.maximumWeight(cacheMaximumWeight(def));
     builder = builder.removalListener(newRemovalListener(def.name()));
     builder.weigher(newWeigher(def.weigher()));
 
@@ -107,6 +173,10 @@ class DefaultMemoryCacheFactory implements MemoryCacheFactory {
     }
 
     return builder;
+  }
+
+  private <K, V> long cacheMaximumWeight(CacheDef<K, V> def) {
+    return cfg.getLong("cache", def.configKey(), "memoryLimit", def.maximumWeight());
   }
 
   private static long toSeconds(@Nullable Duration duration) {
