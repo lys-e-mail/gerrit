@@ -58,7 +58,7 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Change.Id}.
    */
   public static Predicate<ChangeData> revertOf(Change.Id revertOf) {
-    return new ChangeIndexPredicate(ChangeField.REVERT_OF, revertOf.toString());
+    return new ChangeIndexCardinalPredicate(ChangeField.REVERT_OF, revertOf.toString(), 1);
   }
 
   /**
@@ -127,8 +127,8 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Change.Id}.
    */
   public static Predicate<ChangeData> idStr(Change.Id id) {
-    return new ChangeIndexPredicate(
-        ChangeField.LEGACY_ID_STR, ChangeQueryBuilder.FIELD_CHANGE, id.toString());
+    return new ChangeIndexCardinalPredicate(
+        ChangeField.LEGACY_ID_STR, ChangeQueryBuilder.FIELD_CHANGE, id.toString(), 1);
   }
 
   /**
@@ -136,7 +136,11 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Account.Id}.
    */
   public static Predicate<ChangeData> owner(Account.Id id) {
+<<<<<<< HEAD   (2a6001 Update git submodules)
     return new ChangeIndexPredicate(ChangeField.OWNER_SPEC, id.toString());
+=======
+    return new ChangeIndexCardinalPredicate(ChangeField.OWNER, id.toString(), 5000);
+>>>>>>> BRANCH (701b20 Merge branch 'stable-3.6' into stable-3.7)
   }
 
   /**
@@ -170,12 +174,20 @@ public class ChangePredicates {
    * com.google.gerrit.entities.Project.NameKey}.
    */
   public static Predicate<ChangeData> project(Project.NameKey id) {
+<<<<<<< HEAD   (2a6001 Update git submodules)
     return new ChangeIndexPredicate(ChangeField.PROJECT_SPEC, id.get());
+=======
+    return new ChangeIndexCardinalPredicate(ChangeField.PROJECT, id.get(), 1_000_000);
+>>>>>>> BRANCH (701b20 Merge branch 'stable-3.6' into stable-3.7)
   }
 
   /** Returns a predicate that matches changes targeted at the provided {@code refName}. */
   public static Predicate<ChangeData> ref(String refName) {
+<<<<<<< HEAD   (2a6001 Update git submodules)
     return new ChangeIndexPredicate(ChangeField.REF_SPEC, refName);
+=======
+    return new ChangeIndexCardinalPredicate(ChangeField.REF, refName, 10_000);
+>>>>>>> BRANCH (701b20 Merge branch 'stable-3.6' into stable-3.7)
   }
 
   /** Returns a predicate that matches changes in the provided {@code topic}. */
@@ -268,7 +280,7 @@ public class ChangePredicates {
 
   /** Returns a predicate that matches changes with the provided {@code trackingId}. */
   public static Predicate<ChangeData> trackingId(String trackingId) {
-    return new ChangeIndexPredicate(ChangeField.TR, trackingId);
+    return new ChangeIndexCardinalPredicate(ChangeField.TR, trackingId, 5);
   }
 
   /** Returns a predicate that matches changes authored by the provided {@code exactAuthor}. */
@@ -302,7 +314,7 @@ public class ChangePredicates {
 
   /** Returns a predicate that matches changes whose ID starts with the provided {@code id}. */
   public static Predicate<ChangeData> idPrefix(String id) {
-    return new ChangeIndexPredicate(ChangeField.ID, id);
+    return new ChangeIndexCardinalPredicate(ChangeField.ID, id, 5);
   }
 
   /**
@@ -319,9 +331,9 @@ public class ChangePredicates {
    */
   public static Predicate<ChangeData> commitPrefix(String commitId) {
     if (commitId.length() == ObjectIds.STR_LEN) {
-      return new ChangeIndexPredicate(ChangeField.EXACT_COMMIT, commitId);
+      return new ChangeIndexCardinalPredicate(ChangeField.EXACT_COMMIT, commitId, 5);
     }
-    return new ChangeIndexPredicate(ChangeField.COMMIT, commitId);
+    return new ChangeIndexCardinalPredicate(ChangeField.COMMIT, commitId, 5);
   }
 
   /**
