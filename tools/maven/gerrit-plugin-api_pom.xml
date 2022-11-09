@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (3ad761 Bump replication plugin to master)
   <version>3.6.3-SNAPSHOT</version>
+=======
+  <version>3.5.5-SNAPSHOT</version>
+>>>>>>> BRANCH (04975d Set version to 3.5.5-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
