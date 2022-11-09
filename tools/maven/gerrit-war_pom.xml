@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (640b6e Replace "UTF-8" String with StandardCharsets.UTF_8)
   <version>3.7.0-SNAPSHOT</version>
+=======
+  <version>3.6.4-SNAPSHOT</version>
+>>>>>>> BRANCH (c763ea Set version to 3.6.4-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
