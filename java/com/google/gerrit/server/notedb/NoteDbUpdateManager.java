@@ -310,6 +310,12 @@ public class NoteDbUpdateManager implements AutoCloseable {
     }
   }
 
+  public BatchRefUpdate prepare() throws IOException {
+    checkNotExecuted();
+    stage();
+    return prepare(changeRepo, false, pushCert);
+  }
+
   @Nullable
   public BatchRefUpdate execute() throws IOException {
     return execute(false);
@@ -357,6 +363,7 @@ public class NoteDbUpdateManager implements AutoCloseable {
     }
   }
 
+<<<<<<< HEAD   (640b6e Replace "UTF-8" String with StandardCharsets.UTF_8)
   public ImmutableListMultimap<ProjectChangeKey, AttentionSetUpdate> attentionSetUpdates() {
     return this.changeUpdates.values().stream()
         .collect(
@@ -366,6 +373,9 @@ public class NoteDbUpdateManager implements AutoCloseable {
   }
 
   private BatchRefUpdate execute(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+=======
+  private BatchRefUpdate prepare(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+>>>>>>> BRANCH (c763ea Set version to 3.6.4-SNAPSHOT)
       throws IOException {
     if (or == null || or.cmds.isEmpty()) {
       return null;
@@ -394,7 +404,13 @@ public class NoteDbUpdateManager implements AutoCloseable {
       bru = listener.beforeUpdateRefs(bru);
     }
 
-    if (!dryrun) {
+    return bru;
+  }
+
+  private BatchRefUpdate execute(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+      throws IOException {
+    BatchRefUpdate bru = prepare(or, dryrun, pushCert);
+    if (bru != null && !dryrun) {
       RefUpdateUtil.executeChecked(bru, or.rw);
     }
     return bru;
