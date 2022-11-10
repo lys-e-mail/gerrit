@@ -310,6 +310,12 @@ public class NoteDbUpdateManager implements AutoCloseable {
     }
   }
 
+  public BatchRefUpdate prepare() throws IOException {
+    checkNotExecuted();
+    stage();
+    return prepare(changeRepo, false, pushCert);
+  }
+
   @Nullable
   public BatchRefUpdate execute() throws IOException {
     return execute(false);
@@ -365,8 +371,12 @@ public class NoteDbUpdateManager implements AutoCloseable {
                 cu -> cu.getAttentionSetUpdates().stream()));
   }
 
+<<<<<<< HEAD   (d1379c Remove useless curly braces around statements in AllProjects)
   @Nullable
   private BatchRefUpdate execute(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+=======
+  private BatchRefUpdate prepare(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+>>>>>>> BRANCH (ea06f0 Merge "RBE: Update toolchain with bazel-toolchains 5.1.2 rel)
       throws IOException {
     if (or == null || or.cmds.isEmpty()) {
       return null;
@@ -395,7 +405,13 @@ public class NoteDbUpdateManager implements AutoCloseable {
       bru = listener.beforeUpdateRefs(bru);
     }
 
-    if (!dryrun) {
+    return bru;
+  }
+
+  private BatchRefUpdate execute(OpenRepo or, boolean dryrun, @Nullable PushCertificate pushCert)
+      throws IOException {
+    BatchRefUpdate bru = prepare(or, dryrun, pushCert);
+    if (bru != null && !dryrun) {
       RefUpdateUtil.executeChecked(bru, or.rw);
     }
     return bru;
