@@ -95,7 +95,11 @@ public class IsWatchedByPredicate extends AndPredicate<ChangeData> {
     if (user.isIdentifiedUser()) {
       return user.asIdentifiedUser().state().getProjectWatches().keySet();
     }
+<<<<<<< HEAD   (9a0822 Merge branch 'stable-2.16' into stable-3.0)
     return Collections.emptySet();
+=======
+    return Collections.<ProjectWatchKey>emptySet();
+>>>>>>> BRANCH (fdc57a Predicate: Add safety check against not(any()))
   }
 
   @Override

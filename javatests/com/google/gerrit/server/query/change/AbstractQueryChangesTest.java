@@ -3177,6 +3177,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+<<<<<<< HEAD   (9a0822 Merge branch 'stable-2.16' into stable-3.0)
   public void selfFailsForAnonymousUser() throws Exception {
     for (String query : ImmutableList.of("assignee:self", "starredby:self", "is:starred")) {
       assertQuery(query);
@@ -3215,6 +3216,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+=======
+>>>>>>> BRANCH (fdc57a Predicate: Add safety check against not(any()))
   public void none() throws Exception {
     TestRepository<Repo> repo = createProject("repo");
     Change change = insert(repo, newChange(repo));
