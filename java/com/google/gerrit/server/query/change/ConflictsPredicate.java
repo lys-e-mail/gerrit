@@ -14,8 +14,11 @@
 
 package com.google.gerrit.server.query.change;
 
+<<<<<<< HEAD   (9a0822 Merge branch 'stable-2.16' into stable-3.0)
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.flogger.LazyArgs.lazy;
+=======
+>>>>>>> BRANCH (8a5d23 Predicate: Add safety check against not(any()))
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 import com.google.common.flogger.FluentLogger;
@@ -61,7 +64,11 @@ public class ConflictsPredicate {
     try {
       cd = args.changeDataFactory.create(c);
       files = cd.currentFilePaths();
+<<<<<<< HEAD   (9a0822 Merge branch 'stable-2.16' into stable-3.0)
     } catch (StorageException e) {
+=======
+    } catch (IOException e) {
+>>>>>>> BRANCH (8a5d23 Predicate: Add safety check against not(any()))
       warnWithOccasionalStackTrace(
           e,
           "Error constructing conflicts predicates for change %s in %s",
