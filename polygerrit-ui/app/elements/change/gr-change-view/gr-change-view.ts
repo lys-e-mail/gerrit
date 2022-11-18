@@ -539,9 +539,14 @@ export class GrChangeView extends LitElement {
 
   readonly restApiService = getAppContext().restApiService;
 
+<<<<<<< HEAD   (77d59a Merge "Fix off-by-one error when computing number of project)
   private readonly getPluginLoader = resolve(this, pluginLoaderToken);
 
   private readonly getUserModel = resolve(this, userModelToken);
+=======
+  // Private but used in tests.
+  readonly userModel = getAppContext().userModel;
+>>>>>>> BRANCH (d62c2d Merge branch 'stable-3.6' into stable-3.7)
 
   private readonly getChangeModel = resolve(this, changeModelToken);
 

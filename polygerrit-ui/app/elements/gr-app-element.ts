@@ -52,7 +52,11 @@ import {
   RpcLogEvent,
   TitleChangeEventDetail,
 } from '../types/events';
+<<<<<<< HEAD   (77d59a Merge "Fix off-by-one error when computing number of project)
 import {GerritView, routerModelToken} from '../services/router/router-model';
+=======
+import {GerritView} from '../services/router/router-model';
+>>>>>>> BRANCH (d62c2d Merge branch 'stable-3.6' into stable-3.7)
 import {LifeCycle} from '../constants/reporting';
 import {fireIronAnnounce} from '../utils/event-util';
 import {resolve} from '../models/dependency';
