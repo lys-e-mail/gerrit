@@ -92,8 +92,13 @@ public class Init extends BaseInit {
   @Option(name = "--skip-download", usage = "Don't download given library")
   private List<String> skippedDownloads;
 
+<<<<<<< HEAD   (35b42a Merge "Remove eTag from RevisionResource, subject to experim)
   @Option(name = "--reindex-threads", usage = "Number of threads to use for reindex after init")
   private int reindexThreads = 1;
+=======
+  @Option(name = "--show-cache-stats", usage = "Show cache statistics at the end")
+  private boolean showCacheStats;
+>>>>>>> BRANCH (020759 Merge branch 'stable-3.2' into stable-3.3)
 
   @Inject Browser browser;
 
@@ -167,7 +172,7 @@ public class Init extends BaseInit {
           indicesToReindex.add(schemaDef.getName());
         }
       }
-      reindex(indicesToReindex, run.flags.isNew);
+      reindex(indicesToReindex);
     }
     start(run);
   }
@@ -280,7 +285,7 @@ public class Init extends BaseInit {
     }
   }
 
-  private void reindex(List<String> indices, boolean isNewSite) throws Exception {
+  private void reindex(List<String> indices) throws Exception {
     if (indices.isEmpty()) {
       return;
     }
@@ -291,8 +296,8 @@ public class Init extends BaseInit {
       reindexArgs.add("--index");
       reindexArgs.add(index);
     }
-    if (isNewSite) {
-      reindexArgs.add("--disable-cache-stats");
+    if (showCacheStats) {
+      reindexArgs.add("--show-cache-stats");
     }
 
     getConsoleUI()
