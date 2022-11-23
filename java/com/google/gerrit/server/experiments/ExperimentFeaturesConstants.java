@@ -25,6 +25,7 @@ public class ExperimentFeaturesConstants {
   public static String GERRIT_BACKEND_REQUEST_FEATURE_REMOVE_REVISION_ETAG =
       "GerritBackendRequestFeature__remove_revision_etag";
 
+<<<<<<< HEAD   (ded224 Merge branch 'stable-3.4' into stable-3.5)
   /** Enable storing submit requirements in NoteDb when the change is merged. */
   public static final String GERRIT_BACKEND_REQUEST_FEATURE_STORE_SUBMIT_REQUIREMENTS_ON_MERGE =
       "GerritBackendRequestFeature__store_submit_requirements_on_merge";
@@ -45,6 +46,8 @@ public class ExperimentFeaturesConstants {
       GERRIT_BACKEND_REQUEST_FEATURE_ENABLE_SUBMIT_REQUIREMENTS_BACKFILLING_ON_DASHBOARD =
           "GerritBackendRequestFeature__enable_submit_requirements_backfilling_on_dashboard";
 
+=======
+>>>>>>> BRANCH (b8374f Merge 'stable-3.3' into stable-3.4)
   /** Features, enabled by default in the current release. */
   public static final ImmutableSet<String> DEFAULT_ENABLED_FEATURES =
       ImmutableSet.of(UI_FEATURE_PATCHSET_COMMENTS);

@@ -271,8 +271,11 @@ public class RestApiServlet extends HttpServlet {
     final Injector injector;
     final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
     final ExperimentFeatures experimentFeatures;
+<<<<<<< HEAD   (ded224 Merge branch 'stable-3.4' into stable-3.5)
     final DeadlineChecker.Factory deadlineCheckerFactory;
     final CancellationMetrics cancellationMetrics;
+=======
+>>>>>>> BRANCH (b8374f Merge 'stable-3.3' into stable-3.4)
 
     @Inject
     Globals(
@@ -291,9 +294,13 @@ public class RestApiServlet extends HttpServlet {
         PluginSetContext<ExceptionHook> exceptionHooks,
         Injector injector,
         DynamicMap<DynamicOptions.DynamicBean> dynamicBeans,
+<<<<<<< HEAD   (ded224 Merge branch 'stable-3.4' into stable-3.5)
         ExperimentFeatures experimentFeatures,
         DeadlineChecker.Factory deadlineCheckerFactory,
         CancellationMetrics cancellationMetrics) {
+=======
+        ExperimentFeatures experimentFeatures) {
+>>>>>>> BRANCH (b8374f Merge 'stable-3.3' into stable-3.4)
       this.currentUser = currentUser;
       this.webSession = webSession;
       this.paramParser = paramParser;
@@ -311,8 +318,11 @@ public class RestApiServlet extends HttpServlet {
       this.injector = injector;
       this.dynamicBeans = dynamicBeans;
       this.experimentFeatures = experimentFeatures;
+<<<<<<< HEAD   (ded224 Merge branch 'stable-3.4' into stable-3.5)
       this.deadlineCheckerFactory = deadlineCheckerFactory;
       this.cancellationMetrics = cancellationMetrics;
+=======
+>>>>>>> BRANCH (b8374f Merge 'stable-3.3' into stable-3.4)
     }
 
     private static Pattern makeAllowOrigin(Config cfg) {
