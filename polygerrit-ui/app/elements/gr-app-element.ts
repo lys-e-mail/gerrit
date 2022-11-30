@@ -174,8 +174,13 @@ export class GrAppElement extends LitElement {
     this.addEventListener(EventType.DIALOG_CHANGE, e => {
       this.handleDialogChange(e as CustomEvent<DialogChangeEventDetail>);
     });
+<<<<<<< HEAD   (3412ca Fix background color for copy link dialog button)
     document.addEventListener(EventType.LOCATION_CHANGE, () =>
       this.handleLocationChange()
+=======
+    document.addEventListener(EventType.LOCATION_CHANGE, e =>
+      this.handleLocationChange(e)
+>>>>>>> BRANCH (80d6be Fix file list not being reset on force reload of change scre)
     );
     this.addEventListener(EventType.RECREATE_CHANGE_VIEW, () =>
       this.handleRecreateView()

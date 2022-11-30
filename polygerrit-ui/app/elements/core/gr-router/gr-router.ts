@@ -577,7 +577,21 @@ export class GrRouter implements Finalizable, NavigationService {
       // Fire asynchronously so that the URL is changed by the time the event
       // is processed.
       setTimeout(() => {
+<<<<<<< HEAD   (3412ca Fix background color for copy link dialog button)
         this.dispatchLocationChangeEvent();
+=======
+        const detail: LocationChangeEventDetail = {
+          hash: window.location.hash,
+          pathname: window.location.pathname,
+        };
+        document.dispatchEvent(
+          new CustomEvent('location-change', {
+            detail,
+            composed: true,
+            bubbles: true,
+          })
+        );
+>>>>>>> BRANCH (80d6be Fix file list not being reset on force reload of change scre)
       }, 1);
       next();
     });
