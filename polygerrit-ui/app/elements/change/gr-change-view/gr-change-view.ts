@@ -2250,8 +2250,19 @@ export class GrChangeView extends LitElement {
     // 1. We want to avoid code such as `this.initialLoadComplete = false` that
     //    is only relevant for the initial load of a change.
     // 2. We have to somehow trigger the change-model reloading. Otherwise
+<<<<<<< HEAD   (3412ca Fix background color for copy link dialog button)
     //    this.change is not updated.
     if (this.changeNum) {
+=======
+    //    this._change is not updated.
+    if (this._changeNum) {
+      if (!this._patchRange?.patchNum) {
+        this._patchRange = {
+          basePatchNum: ParentPatchSetNum,
+          patchNum: computeLatestPatchNum(this._allPatchSets),
+        };
+      }
+>>>>>>> BRANCH (80d6be Fix file list not being reset on force reload of change scre)
       fireReload(this);
       return;
     }
