@@ -85,6 +85,7 @@ import com.google.gerrit.server.index.VersionManager;
 import com.google.gerrit.server.index.options.AutoFlush;
 import com.google.gerrit.server.mail.SignedTokenEmailTokenVerifier.SignedTokenEmailTokenVerifierModule;
 import com.google.gerrit.server.mail.receive.MailReceiver.MailReceiverModule;
+import com.google.gerrit.server.mail.send.InMemoryEmailTaskDispatcher.Listener.EmailTaskDispatcherModule;
 import com.google.gerrit.server.mail.send.SmtpEmailSender.SmtpEmailSenderModule;
 import com.google.gerrit.server.mime.MimeUtil2Module;
 import com.google.gerrit.server.patch.DiffExecutorModule;
@@ -315,6 +316,7 @@ public class WebAppInitializer extends GuiceServletContextListener implements Fi
     modules.add(new DefaultMemoryCacheModule());
     modules.add(new H2CacheModule());
     modules.add(cfgInjector.getInstance(MailReceiverModule.class));
+    modules.add(cfgInjector.getInstance(EmailTaskDispatcherModule.class));
     modules.add(new SmtpEmailSenderModule());
     modules.add(new SignedTokenEmailTokenVerifierModule());
     modules.add(new LocalMergeSuperSetComputationModule());
