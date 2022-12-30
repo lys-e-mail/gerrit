@@ -92,6 +92,7 @@ import com.google.gerrit.server.index.IndexModule;
 import com.google.gerrit.server.index.OnlineUpgrader.OnlineUpgraderModule;
 import com.google.gerrit.server.index.VersionManager;
 import com.google.gerrit.server.index.options.AutoFlush;
+import com.google.gerrit.server.mail.EmailTaskHandler.EmailTaskHandlerModule;
 import com.google.gerrit.server.mail.SignedTokenEmailTokenVerifier.SignedTokenEmailTokenVerifierModule;
 import com.google.gerrit.server.mail.receive.MailReceiver.MailReceiverModule;
 import com.google.gerrit.server.mail.send.SmtpEmailSender.SmtpEmailSenderModule;
@@ -454,6 +455,7 @@ public class Daemon extends SiteProgram {
     modules.add(new DefaultMemoryCacheModule());
     modules.add(new H2CacheModule());
     modules.add(cfgInjector.getInstance(MailReceiverModule.class));
+    modules.add(cfgInjector.getInstance(EmailTaskHandlerModule.class));
     if (emailModule != null) {
       modules.add(emailModule);
     } else {
