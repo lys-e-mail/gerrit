@@ -26,6 +26,7 @@ import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.extensions.events.ChangeAbandoned;
 import com.google.gerrit.server.mail.send.AbandonedSender;
+import com.google.gerrit.server.mail.send.EmailTaskDispatcher;
 import com.google.gerrit.server.mail.send.MessageIdGenerator;
 import com.google.gerrit.server.mail.send.ReplyToChangeSender;
 import com.google.gerrit.server.notedb.ChangeUpdate;
@@ -43,6 +44,7 @@ public class AbandonOp implements BatchUpdateOp {
   private final PatchSetUtil psUtil;
   private final ChangeAbandoned changeAbandoned;
   private final MessageIdGenerator messageIdGenerator;
+  private final EmailTaskDispatcher emailTaskDispatcher;
 
   private final String msgTxt;
   private final AccountState accountState;
@@ -63,6 +65,7 @@ public class AbandonOp implements BatchUpdateOp {
       PatchSetUtil psUtil,
       ChangeAbandoned changeAbandoned,
       MessageIdGenerator messageIdGenerator,
+      EmailTaskDispatcher emailDispatcher,
       @Assisted @Nullable AccountState accountState,
       @Assisted @Nullable String msgTxt) {
     this.abandonedSenderFactory = abandonedSenderFactory;
@@ -70,6 +73,7 @@ public class AbandonOp implements BatchUpdateOp {
     this.psUtil = psUtil;
     this.changeAbandoned = changeAbandoned;
     this.messageIdGenerator = messageIdGenerator;
+    this.emailTaskDispatcher = emailDispatcher;
 
     this.accountState = accountState;
     this.msgTxt = Strings.nullToEmpty(msgTxt);
@@ -121,6 +125,7 @@ public class AbandonOp implements BatchUpdateOp {
       emailSender.setMessageId(
           messageIdGenerator.fromChangeUpdate(ctx.getRepoView(), patchSet.id()));
       emailSender.send();
+      emailTaskDispatcher.dispatch();
     } catch (Exception e) {
       logger.atSevere().withCause(e).log("Cannot email update for change %s", change.getId());
     }

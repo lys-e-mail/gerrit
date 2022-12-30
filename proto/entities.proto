@@ -160,3 +160,41 @@ message ObjectId {
   // Hex string representation of the ID.
   optional string name = 1;
 }
+
+message GerritEmailEventProto {
+  required Project_NameKey project = 1;
+  required Change_Id change_id = 2;
+  required PatchSet_Id patchset_id = 3;
+  optional ObjectId meta_id = 4;
+  required EventType event_type = 5;
+
+  optional string message = 6;
+  optional Account_Id from = 8;
+  optional string message_id = 9;
+
+  enum EventType {
+    ABANDON = 0;
+  }
+
+  enum NotifyHandling {
+    ALL = 0;
+    OWNER_REVIEWERS = 1;
+    OWNER = 2;
+    NONE = 3;
+  }
+}
+
+message Notify_Input {
+  repeated Notify_Entry notify_entry = 1;
+
+  message Notify_Entry {
+    required Account_Id account = 1;
+    required Recipient_Type recipient_type = 2;
+  }
+}
+
+enum Recipient_Type {
+  TO = 0;
+  CC = 1;
+  BCC = 2;
+}
