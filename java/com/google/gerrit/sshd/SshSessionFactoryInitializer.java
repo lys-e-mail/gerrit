@@ -14,6 +14,13 @@
 
 package com.google.gerrit.sshd;
 
+<<<<<<< HEAD   (861838 Bump bazel version)
+=======
+import static com.google.gerrit.server.config.SshClientImplementation.APACHE;
+
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+>>>>>>> BRANCH (64b4a1 Merge branch 'stable-3.4' into stable-3.5)
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.sshd.DefaultProxyDataFactory;
 import org.eclipse.jgit.transport.sshd.JGitKeyCache;
@@ -21,11 +28,26 @@ import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 import org.eclipse.jgit.util.FS;
 
 public class SshSessionFactoryInitializer {
+<<<<<<< HEAD   (861838 Bump bazel version)
   public static void init() {
     SshdSessionFactory factory =
         new SshdSessionFactory(new JGitKeyCache(), new DefaultProxyDataFactory());
     factory.setHomeDirectory(FS.DETECTED.userHome());
     SshSessionFactory.setInstance(factory);
+=======
+  public static void init(Config config) {
+    switch (config.getEnum("ssh", null, "clientImplementation", APACHE)) {
+      case APACHE:
+        SshdSessionFactory factory =
+            new SshdSessionFactory(new JGitKeyCache(), new DefaultProxyDataFactory());
+        factory.setHomeDirectory(FS.DETECTED.userHome());
+        SshSessionFactory.setInstance(factory);
+        break;
+
+      case JSCH:
+        SshSessionFactory.setInstance(new JschConfigSessionFactory());
+    }
+>>>>>>> BRANCH (64b4a1 Merge branch 'stable-3.4' into stable-3.5)
   }
 
   private SshSessionFactoryInitializer() {}
