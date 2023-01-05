@@ -183,9 +183,12 @@ public class ChangeUpdate extends AbstractChangeUpdate {
   private DeleteChangeMessageRewriter deleteChangeMessageRewriter;
   private List<SubmitRequirementResult> submitRequirementResults;
 
+<<<<<<< HEAD   (91184f Wrap #mobileSearch in a div)
   private ImmutableList.Builder<AttentionSetUpdate> attentionSetUpdatesBuilder =
       ImmutableList.builder();
 
+=======
+>>>>>>> BRANCH (cc83ff Merge branch 'stable-3.5' into stable-3.6)
   @SuppressWarnings("UnusedMethod")
   @AssistedInject
   private ChangeUpdate(
