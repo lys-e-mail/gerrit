@@ -174,8 +174,13 @@ export class GrAppElement extends LitElement {
     this.addEventListener(EventType.DIALOG_CHANGE, e => {
       this.handleDialogChange(e as CustomEvent<DialogChangeEventDetail>);
     });
+<<<<<<< HEAD   (91184f Wrap #mobileSearch in a div)
     document.addEventListener(EventType.LOCATION_CHANGE, () =>
       this.handleLocationChange()
+=======
+    document.addEventListener(EventType.LOCATION_CHANGE, e =>
+      this.handleLocationChange(e)
+>>>>>>> BRANCH (cc83ff Merge branch 'stable-3.5' into stable-3.6)
     );
     this.addEventListener(EventType.RECREATE_CHANGE_VIEW, () =>
       this.handleRecreateView()

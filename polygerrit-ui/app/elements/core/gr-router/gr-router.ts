@@ -577,7 +577,21 @@ export class GrRouter implements Finalizable, NavigationService {
       // Fire asynchronously so that the URL is changed by the time the event
       // is processed.
       setTimeout(() => {
+<<<<<<< HEAD   (91184f Wrap #mobileSearch in a div)
         this.dispatchLocationChangeEvent();
+=======
+        const detail: LocationChangeEventDetail = {
+          hash: window.location.hash,
+          pathname: window.location.pathname,
+        };
+        document.dispatchEvent(
+          new CustomEvent('location-change', {
+            detail,
+            composed: true,
+            bubbles: true,
+          })
+        );
+>>>>>>> BRANCH (cc83ff Merge branch 'stable-3.5' into stable-3.6)
       }, 1);
       next();
     });
