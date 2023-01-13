@@ -35,7 +35,16 @@ class GerritIndexWriterConfig {
   private long commitWithinMs;
   private final CustomMappingAnalyzer analyzer;
 
+  private final String name;
+  private final Config cfg;
+
+  public GerritIndexWriterConfig createNew() {
+    return new GerritIndexWriterConfig(cfg, name);
+  }
+
   GerritIndexWriterConfig(Config cfg, String name) {
+    this.name = name;
+    this.cfg = cfg;
     analyzer =
         new CustomMappingAnalyzer(
             new StandardAnalyzer(CharArraySet.EMPTY_SET), CUSTOM_CHAR_MAPPING);
