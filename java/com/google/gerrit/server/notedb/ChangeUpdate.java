@@ -183,9 +183,12 @@ public class ChangeUpdate extends AbstractChangeUpdate {
   private DeleteChangeMessageRewriter deleteChangeMessageRewriter;
   private List<SubmitRequirementResult> submitRequirementResults;
 
+<<<<<<< HEAD   (c016cc Merge "Merge branch 'stable-3.6' into stable-3.7" into stabl)
   private ImmutableList.Builder<AttentionSetUpdate> attentionSetUpdatesBuilder =
       ImmutableList.builder();
 
+=======
+>>>>>>> BRANCH (0dee51 Merge branch 'stable-3.5' into stable-3.6)
   @SuppressWarnings("UnusedMethod")
   @AssistedInject
   private ChangeUpdate(
