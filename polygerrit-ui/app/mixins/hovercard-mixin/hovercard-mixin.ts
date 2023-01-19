@@ -561,6 +561,10 @@ export const HovercardMixin = <T extends Constructor<LitElement>>(
         if (this._isInsideViewport()) return;
       }
       this.updatePositionTo(this.position);
+<<<<<<< HEAD   (eb3662 Merge "Migrate label fns to SRs: Adapt logic for 'branch' la)
+=======
+      console.warn('Could not find a visible position for the hovercard.');
+>>>>>>> BRANCH (402e62 Merge branch 'stable-3.6' into stable-3.7)
     }
 
     _isInsideViewport() {
