@@ -90,7 +90,11 @@ declare global {
     'server-error': ServerErrorEvent;
     'show-alert': ShowAlertEvent;
     'show-error': ShowErrorEvent;
+<<<<<<< HEAD   (eb3662 Merge "Migrate label fns to SRs: Adapt logic for 'branch' la)
     'auth-error': AuthErrorEvent;
+=======
+    'location-change': LocationChangeEvent;
+>>>>>>> BRANCH (402e62 Merge branch 'stable-3.6' into stable-3.7)
   }
 }
 
