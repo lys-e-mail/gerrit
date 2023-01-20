@@ -268,7 +268,14 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
 
     @Override
     public String toString() {
+<<<<<<< HEAD   (eb3662 Merge "Migrate label fns to SRs: Adapt logic for 'branch' la)
       return "Index project slice " + projectSlice;
+=======
+      if (slices == 1) {
+        return "Index all changes of project " + project.get();
+      }
+      return "Index changes slice " + slice + "/" + slices + " of project " + project.get();
+>>>>>>> BRANCH (402e62 Merge branch 'stable-3.6' into stable-3.7)
     }
   }
 
