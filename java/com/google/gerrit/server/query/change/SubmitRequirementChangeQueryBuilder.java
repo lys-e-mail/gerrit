@@ -22,11 +22,13 @@ import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.server.query.FileEditsPredicate;
 import com.google.gerrit.server.query.FileEditsPredicate.FileEditsArgs;
 import com.google.inject.Inject;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 
 /**
  * A query builder for submit requirement expressions that includes all {@link ChangeQueryBuilder}
@@ -57,6 +59,8 @@ public class SubmitRequirementChangeQueryBuilder extends ChangeQueryBuilder {
 
   private final FileEditsPredicate.Factory fileEditsPredicateFactory;
 
+  private boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
+
   @Inject
   SubmitRequirementChangeQueryBuilder(
       Arguments args,
@@ -67,6 +71,14 @@ public class SubmitRequirementChangeQueryBuilder extends ChangeQueryBuilder {
     this.distinctVotersPredicateFactory = distinctVotersPredicateFactory;
     this.fileEditsPredicateFactory = fileEditsPredicateFactory;
     this.hasSubmoduleUpdateFactory = hasSubmoduleUpdateFactory;
+  }
+
+  public SubmitRequirementChangeQueryBuilder
+      setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+          boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored) {
+    this.ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored =
+        ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
+    return this;
   }
 
   @Override
@@ -117,6 +129,20 @@ public class SubmitRequirementChangeQueryBuilder extends ChangeQueryBuilder {
       }
     }
     return super.has(value);
+  }
+
+  @Override
+  public Predicate<ChangeData> label(String name)
+      throws QueryParseException, IOException, ConfigInvalidException {
+    Predicate<ChangeData> predicate = super.label(name);
+    for (Predicate<ChangeData> childPredicate : predicate.getChildren()) {
+      if (childPredicate instanceof MagicLabelPredicate) {
+        ((MagicLabelPredicate) childPredicate)
+            .setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+                ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored);
+      }
+    }
+    return predicate;
   }
 
   @Operator

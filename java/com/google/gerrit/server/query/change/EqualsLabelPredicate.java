@@ -53,6 +53,8 @@ public class EqualsLabelPredicate extends ChangeIndexPostFilterPredicate {
 
   protected final AccountGroup.UUID group;
 
+  private boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
+
   public EqualsLabelPredicate(
       LabelPredicate.Args args,
       String label,
@@ -68,6 +70,13 @@ public class EqualsLabelPredicate extends ChangeIndexPostFilterPredicate {
     this.label = label;
     this.expVal = expVal;
     this.account = account;
+  }
+
+  public EqualsLabelPredicate setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+      boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored) {
+    this.ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored =
+        ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
+    return this;
   }
 
   @Override
@@ -152,7 +161,9 @@ public class EqualsLabelPredicate extends ChangeIndexPostFilterPredicate {
 
       // case when account in query = non_uploader
       if (account.equals(ChangeQueryBuilder.NON_UPLOADER_ACCOUNT_ID)
-          && cd.currentPatchSet().uploader().equals(approver)) {
+          && (ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored
+              ? cd.currentPatchSet().realUploader().equals(approver)
+              : cd.currentPatchSet().uploader().equals(approver))) {
         return false;
       }
     }

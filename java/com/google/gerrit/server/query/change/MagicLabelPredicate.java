@@ -33,6 +33,8 @@ public class MagicLabelPredicate extends ChangeIndexPredicate {
   private final Account.Id account;
   @Nullable private final Integer count;
 
+  private boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
+
   public MagicLabelPredicate(
       LabelPredicate.Args args,
       MagicLabelVote magicLabelVote,
@@ -46,6 +48,12 @@ public class MagicLabelPredicate extends ChangeIndexPredicate {
     this.args = args;
     this.magicLabelVote = magicLabelVote;
     this.count = count;
+  }
+
+  public void setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+      boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored) {
+    this.ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored =
+        ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored;
   }
 
   @Override
@@ -96,7 +104,9 @@ public class MagicLabelPredicate extends ChangeIndexPredicate {
   }
 
   private EqualsLabelPredicate numericPredicate(String label, short value) {
-    return new EqualsLabelPredicate(args, label, value, account, count);
+    return new EqualsLabelPredicate(args, label, value, account, count)
+        .setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+            ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored);
   }
 
   @Nullable

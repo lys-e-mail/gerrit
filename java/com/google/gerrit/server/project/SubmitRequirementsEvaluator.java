@@ -38,6 +38,12 @@ public interface SubmitRequirementsEvaluator {
   SubmitRequirementExpressionResult evaluateExpression(
       SubmitRequirementExpression expression, ChangeData changeData);
 
+  /** Evaluate a {@link SubmitRequirementExpression} using change data. */
+  SubmitRequirementExpressionResult evaluateExpression(
+      SubmitRequirementExpression expression,
+      ChangeData changeData,
+      boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored);
+
   /**
    * Validate a {@link SubmitRequirementExpression}. Callers who wish to validate submit
    * requirements upon creation or update should use this method.

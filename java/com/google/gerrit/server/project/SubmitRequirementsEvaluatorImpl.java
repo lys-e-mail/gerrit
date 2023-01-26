@@ -150,8 +150,24 @@ public class SubmitRequirementsEvaluatorImpl implements SubmitRequirementsEvalua
   @Override
   public SubmitRequirementExpressionResult evaluateExpression(
       SubmitRequirementExpression expression, ChangeData changeData) {
+    return evaluateExpression(
+        expression,
+        changeData,
+        /* ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored= */ false);
+  }
+
+  @Override
+  public SubmitRequirementExpressionResult evaluateExpression(
+      SubmitRequirementExpression expression,
+      ChangeData changeData,
+      boolean ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored) {
     try {
-      Predicate<ChangeData> predicate = queryBuilder.get().parse(expression.expressionString());
+      Predicate<ChangeData> predicate =
+          queryBuilder
+              .get()
+              .setIgnoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored(
+                  ignoreApprovalsOfRealUploaderIfApprovalsOfUploaderAreIgnored)
+              .parse(expression.expressionString());
       PredicateResult predicateResult = evaluatePredicateTree(predicate, changeData);
       return SubmitRequirementExpressionResult.create(expression, predicateResult);
     } catch (QueryParseException | SubmitRequirementEvaluationException e) {
