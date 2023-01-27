@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "857514d9_fe25e718",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2023-01-27T09:25:29Z",
+      "side": 1,
+      "message": "This is an alternative implementation for https://gerrit-review.git.corp.google.com/c/gerrit/+/356814, but not sure if it\u0027s better.",
+      "revId": "b7221007a21222a4db02c15aad94616e208f4eb1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
