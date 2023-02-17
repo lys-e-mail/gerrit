@@ -30,6 +30,7 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
+import com.google.gerrit.entities.Workspace;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
 import com.google.gerrit.extensions.api.accounts.AccountInput;
@@ -408,6 +409,21 @@ public class CreateChange
               rw.parseCommit(
                   CommitUtil.createCommitWithTree(
                       oi, author, committer, mergeTip, commitMessage, treeId));
+        } else if (input.workspaceInput != null) {
+          // "upstream" : create a commit by copying data from a workspace.
+          Workspace.Id wsId =
+              Workspace.id(
+                  user.get().asIdentifiedUser().getAccountId(),
+                  Project.nameKey(input.workspaceInput.project),
+                  input.workspaceInput.workspaceName);
+
+          try (Repository ws = gitManager.openWorkspace(wsId);
+              RevWalk wsRw = new RevWalk(ws)) {
+            RevCommit commit = wsRw.parseCommit(ObjectId.fromString(input.workspaceInput.sha1));
+
+            // Copy over commit. Patrick is a lazy person, so don't both with tree now
+            c = rw.parseCommit(oi.insert(1, commit.getRawBuffer()));
+          }
         } else {
           // create an empty commit.
           c = createEmptyCommit(oi, rw, author, committer, mergeTip, commitMessage);

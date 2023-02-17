@@ -20,6 +20,9 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.UseLocalDisk;
 import com.google.gerrit.entities.Workspace;
+import com.google.gerrit.extensions.api.changes.WorkspaceInput;
+import com.google.gerrit.extensions.common.ChangeInfo;
+import com.google.gerrit.extensions.common.ChangeInput;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.CommitBuilder;
@@ -40,7 +43,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
 
     // Insert user commit
     ObjectId userCommit = null;
-    Workspace.Id wsId = Workspace.id(user.id(), project, "workspace-1");
+    Workspace.Id wsId = Workspace.id(admin.id(), project, "workspace-1");
     try (Repository ws = repoManager.openWorkspace(wsId)) {
       assertThat(ws.getObjectDatabase().has(commitInMainline)).isTrue();
 
@@ -50,7 +53,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
       cb.setParentId(ws.getRefDatabase().exactRef("HEAD").getObjectId());
       cb.setTreeId(ObjectId.zeroId());
       cb.setCommitter(ident);
-      cb.setMessage("Workspace Update");
+      cb.setMessage("Workspace Update\n\n\nChange-Id: I30c8ff9e8a0f158e3000edd1d7a724b59b7840a7");
       ObjectInserter ins = ws.getObjectDatabase().newInserter();
       userCommit = ins.insert(cb);
       ins.flush();
@@ -59,7 +62,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
       RevWalk rw = new RevWalk(ws);
 
       assertThat(ws.getObjectDatabase().has(userCommit)).isTrue();
-      assertThat(rw.parseCommit(userCommit).getShortMessage()).isEqualTo("Workspace Update");
+      assertThat(rw.parseCommit(userCommit).getShortMessage()).startsWith("Workspace Update");
     }
 
     // Not present in main repo
@@ -78,7 +81,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
     // API TESTs
 
     Set<String> refsFromApi =
-        gApi.workspaces().id(wsId.project().get(), user.id().get(), "workspace-1").branches().get()
+        gApi.workspaces().id(wsId.project().get(), admin.id().get(), "workspace-1").branches().get()
             .stream()
             .map(r -> r.ref)
             .collect(Collectors.toSet());
@@ -87,10 +90,25 @@ public class WorkspaceIT extends AbstractDaemonTest {
     // Get commit SHA for WS commit in rest API
     assertThat(
             gApi.workspaces()
-                .id(wsId.project().get(), user.id().get(), "workspace-1")
+                .id(wsId.project().get(), admin.id().get(), "workspace-1")
                 .commit(userCommit.getName())
                 .get()
                 .message)
-        .isEqualTo("Workspace Update");
+        .startsWith("Workspace Update");
+
+    // Create change
+    ChangeInput ci = new ChangeInput();
+    ci.project = wsId.project().get();
+    ci.branch = "master";
+    ci.subject = "unused";
+    ci.workspaceInput = new WorkspaceInput(wsId.project().get(), wsId.name(), userCommit.getName());
+    ChangeInfo info = gApi.changes().create(ci).get();
+    assertThat(info.subject).startsWith("Workspace Update");
+
+    // Now commit is present in main repo
+    try (Repository mainline = repoManager.openRepository(project)) {
+      assertThat(mainline.getObjectDatabase().has(commitInMainline)).isTrue();
+      assertThat(mainline.getObjectDatabase().has(userCommit)).isTrue();
+    }
   }
 }

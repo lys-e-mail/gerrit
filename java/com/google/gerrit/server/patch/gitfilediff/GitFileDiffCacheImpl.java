@@ -283,7 +283,7 @@ public class GitFileDiffCacheImpl implements GitFileDiffCache {
       List<DiffEntry> diffEntries =
           diffFormatter.scan(
               diffOptions.oldTree().equals(ObjectId.zeroId()) ? null : diffOptions.oldTree(),
-              diffOptions.newTree());
+              diffOptions.newTree().equals(ObjectId.zeroId()) ? null : diffOptions.newTree());
 
       return diffEntries.stream()
           .filter(d -> filePathsSet.contains(extractPath(d)))
