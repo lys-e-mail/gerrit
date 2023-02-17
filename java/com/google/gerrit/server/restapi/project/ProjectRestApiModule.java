@@ -23,6 +23,7 @@ import static com.google.gerrit.server.project.LabelResource.LABEL_KIND;
 import static com.google.gerrit.server.project.ProjectResource.PROJECT_KIND;
 import static com.google.gerrit.server.project.SubmitRequirementResource.SUBMIT_REQUIREMENT_KIND;
 import static com.google.gerrit.server.project.TagResource.TAG_KIND;
+import static com.google.gerrit.server.project.WorkspaceResource.WORKSPACE_KIND;
 
 import com.google.gerrit.extensions.registration.DynamicMap;
 import com.google.gerrit.extensions.registration.DynamicSet;
@@ -37,9 +38,11 @@ public class ProjectRestApiModule extends RestApiModule {
   @Override
   protected void configure() {
     bind(ProjectsCollection.class);
+    bind(WorkspacesCollection.class);
     bind(DashboardsCollection.class);
 
     DynamicMap.mapOf(binder(), PROJECT_KIND);
+    DynamicMap.mapOf(binder(), WORKSPACE_KIND);
     DynamicMap.mapOf(binder(), CHILD_PROJECT_KIND);
     DynamicMap.mapOf(binder(), BRANCH_KIND);
     DynamicMap.mapOf(binder(), DASHBOARD_KIND);
@@ -111,6 +114,9 @@ public class ProjectRestApiModule extends RestApiModule {
     get(COMMIT_KIND).to(GetCommit.class);
     get(COMMIT_KIND, "in").to(CommitIncludedIn.class);
     child(COMMIT_KIND, "files").to(FilesInCommitCollection.class);
+
+    // Will need to create a ProjectOrWorkspace_KIND; Guice doesn't like inheritance
+    // child(WORKSPACE_KIND, "commits").to(CommitsCollection.class);
 
     child(PROJECT_KIND, "tags").to(TagsCollection.class);
     create(TAG_KIND).to(CreateTag.class);

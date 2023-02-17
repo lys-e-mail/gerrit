@@ -33,6 +33,7 @@ import com.google.gerrit.server.project.CommitResource;
 import com.google.gerrit.server.project.ProjectResource;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.gerrit.server.project.Reachable;
+import com.google.gerrit.server.project.WorkspaceResource;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangePredicates;
 import com.google.gerrit.server.update.RetryHelper;
@@ -92,7 +93,10 @@ public class CommitsCollection implements ChildCollection<ProjectResource, Commi
       throw new ResourceNotFoundException(id, e);
     }
 
-    try (Repository repo = repoManager.openRepository(parent.getNameKey());
+    try (Repository repo =
+            parent instanceof WorkspaceResource
+                ? repoManager.openWorkspace(((WorkspaceResource) parent).getWorkspace())
+                : repoManager.openRepository(parent.getNameKey());
         RevWalk rw = new RevWalk(repo)) {
       RevCommit commit = rw.parseCommit(objectId);
       if (!canRead(parent.getProjectState(), repo, commit)) {
@@ -120,11 +124,19 @@ public class CommitsCollection implements ChildCollection<ProjectResource, Commi
    * the given branch.
    */
   public boolean canRead(ProjectState state, Repository repo, RevCommit commit, Ref ref) {
+    if (repoManager.isWorkspace(repo)) {
+      return true;
+    }
+
     return reachable.fromRefs(state.getNameKey(), repo, commit, ImmutableList.of(ref));
   }
 
   /** Returns true if {@code commit} is visible to the caller. */
   public boolean canRead(ProjectState state, Repository repo, RevCommit commit) throws IOException {
+    if (repoManager.isWorkspace(repo)) {
+      return true;
+    }
+
     Project.NameKey project = state.getNameKey();
     if (indexes.getSearchIndex() == null) {
       // No index in slaves, fall back to scanning refs. We must inspect change refs too

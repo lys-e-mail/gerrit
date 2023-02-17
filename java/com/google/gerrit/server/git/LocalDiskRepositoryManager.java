@@ -44,7 +44,6 @@ import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectDatabase;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
@@ -188,14 +187,21 @@ public class LocalDiskRepositoryManager implements GitRepositoryManager {
       throws RepositoryNotFoundException, IOException {
     try {
       FileRepository mainline = (FileRepository) openRepository(workspace.project());
-      File file = getBasePath(workspace.project()).resolve(workspace.accountId().get() + "/" + workspace.name() + ".git").toFile();
+      File file =
+          getBasePath(workspace.project())
+              .resolve("workspace-" + workspace.accountId().get() + "/" + workspace.name() + ".git")
+              .toFile();
       file.mkdirs();
-      file.toPath().resolve("objects").toFile().mkdir(); // hack - should be created by internals of FileRepo
+      file.toPath()
+          .resolve("objects")
+          .toFile()
+          .mkdir(); // hack - should be created by internals of FileRepo
       // Open a FileRepo with mainline object storage as alternate
       FileRepositoryBuilder repoBuilder =
           new FileRepositoryBuilder()
               .setGitDir(file)
-              .addAlternateObjectDirectory(mainline.getObjectsDirectory()).setup();
+              .addAlternateObjectDirectory(mainline.getObjectsDirectory())
+              .setup();
       FileRepository workspaceRepo = new FileRepository(repoBuilder);
       return new DelegateRepository(workspaceRepo) {
         @Override
@@ -213,6 +219,12 @@ public class LocalDiskRepositoryManager implements GitRepositoryManager {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public boolean isWorkspace(Repository repo) {
+    // Hack
+    return repo instanceof DelegateRepository;
   }
 
   @Override

@@ -4,9 +4,11 @@ import com.google.auto.value.AutoValue;
 
 public class Workspace {
   @AutoValue
-  public static abstract class Id {
+  public abstract static class Id {
     public abstract Account.Id accountId();
+
     public abstract Project.NameKey project();
+
     public abstract String name();
   }
 
@@ -14,5 +16,5 @@ public class Workspace {
     return new AutoValue_Workspace_Id(accountId, project, workspaceName);
   }
 
-  private Workspace(){}
+  private Workspace() {}
 }

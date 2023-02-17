@@ -20,12 +20,15 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.UseLocalDisk;
 import com.google.gerrit.entities.Workspace;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.Test;
 
 @NoHttpd
@@ -44,7 +47,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
       CommitBuilder cb = new CommitBuilder();
       PersonIdent ident = serverIdent.get();
       cb.setAuthor(ident);
-      cb.setParentId(ObjectId.zeroId());
+      cb.setParentId(ws.getRefDatabase().exactRef("HEAD").getObjectId());
       cb.setTreeId(ObjectId.zeroId());
       cb.setCommitter(ident);
       cb.setMessage("Workspace Update");
@@ -53,7 +56,10 @@ public class WorkspaceIT extends AbstractDaemonTest {
       ins.flush();
       ins.close();
 
+      RevWalk rw = new RevWalk(ws);
+
       assertThat(ws.getObjectDatabase().has(userCommit)).isTrue();
+      assertThat(rw.parseCommit(userCommit).getShortMessage()).isEqualTo("Workspace Update");
     }
 
     // Not present in main repo
@@ -68,5 +74,23 @@ public class WorkspaceIT extends AbstractDaemonTest {
       // Upstream ref database is available
       assertThat(ws.getRefDatabase().exactRef("refs/origin/heads/master")).isNotNull();
     }
+
+    // API TESTs
+
+    Set<String> refsFromApi =
+        gApi.workspaces().id(wsId.project().get(), user.id().get(), "workspace-1").branches().get()
+            .stream()
+            .map(r -> r.ref)
+            .collect(Collectors.toSet());
+    assertThat(refsFromApi).contains("refs/origin/heads/master");
+
+    // Get commit SHA for WS commit in rest API
+    assertThat(
+            gApi.workspaces()
+                .id(wsId.project().get(), user.id().get(), "workspace-1")
+                .commit(userCommit.getName())
+                .get()
+                .message)
+        .isEqualTo("Workspace Update");
   }
 }

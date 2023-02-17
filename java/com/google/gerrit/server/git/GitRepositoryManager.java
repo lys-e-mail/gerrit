@@ -64,6 +64,10 @@ public interface GitRepositoryManager {
     throw new UnsupportedOperationException("");
   }
 
+  default boolean isWorkspace(Repository repo) {
+    return false;
+  }
+
   /**
    * Create (and open) a repository by name.
    *

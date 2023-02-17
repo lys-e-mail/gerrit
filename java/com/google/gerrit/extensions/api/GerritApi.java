@@ -20,6 +20,7 @@ import com.google.gerrit.extensions.api.config.Config;
 import com.google.gerrit.extensions.api.groups.Groups;
 import com.google.gerrit.extensions.api.plugins.Plugins;
 import com.google.gerrit.extensions.api.projects.Projects;
+import com.google.gerrit.extensions.api.projects.Workspaces;
 import com.google.gerrit.extensions.restapi.NotImplementedException;
 
 public interface GerritApi {
@@ -32,6 +33,8 @@ public interface GerritApi {
   Groups groups();
 
   Projects projects();
+
+  Workspaces workspaces();
 
   Plugins plugins();
 
@@ -62,6 +65,11 @@ public interface GerritApi {
 
     @Override
     public Projects projects() {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Workspaces workspaces() {
       throw new NotImplementedException();
     }
 

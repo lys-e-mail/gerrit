@@ -21,6 +21,7 @@ import com.google.gerrit.server.api.changes.ChangesModule;
 import com.google.gerrit.server.api.config.ConfigModule;
 import com.google.gerrit.server.api.groups.GroupsModule;
 import com.google.gerrit.server.api.projects.ProjectsModule;
+import com.google.gerrit.server.api.projects.WorkspacesModule;
 
 public class GerritApiModule extends FactoryModule {
   @Override
@@ -32,5 +33,6 @@ public class GerritApiModule extends FactoryModule {
     install(new ConfigModule());
     install(new GroupsModule());
     install(new ProjectsModule());
+    install(new WorkspacesModule());
   }
 }

@@ -79,11 +79,17 @@ public class MainlineReadOnlyRefDatabase extends DelegateRefDatabase {
   }
 
   private static String toMainlineName(String refName) {
-    return "refs/" + refName.substring("refs/origin/".length());
+    if (refName.startsWith("refs/origin/")) {
+      return "refs/" + refName.substring("refs/origin/".length());
+    }
+    return refName;
   }
 
   private static String fromMainlineName(String refName) {
-    return "refs/origin/" + refName.substring("refs/".length());
+    if (refName.startsWith("refs/")) {
+      return "refs/origin/" + refName.substring("refs/".length());
+    }
+    return refName;
   }
 
   @Nullable
