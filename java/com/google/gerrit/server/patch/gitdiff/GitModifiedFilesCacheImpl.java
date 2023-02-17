@@ -135,7 +135,9 @@ public class GitModifiedFilesCacheImpl implements GitModifiedFilesCache {
         df.getRenameDetector().setSkipContentRenamesForBinaryFiles(true);
         // The scan method only returns the file paths that are different. Callers may choose to
         // format these paths themselves.
-        return df.scan(key.aTree().equals(ObjectId.zeroId()) ? null : key.aTree(), key.bTree());
+        return df.scan(
+            key.aTree().equals(ObjectId.zeroId()) ? null : key.aTree(),
+            key.bTree().equals(ObjectId.zeroId()) ? null : key.bTree());
       }
     }
 

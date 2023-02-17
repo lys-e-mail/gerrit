@@ -30,6 +30,7 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
+import com.google.gerrit.entities.Workspace;
 import com.google.gerrit.exceptions.InvalidMergeStrategyException;
 import com.google.gerrit.exceptions.MergeWithConflictsNotSupportedException;
 import com.google.gerrit.extensions.api.accounts.AccountInput;
@@ -90,15 +91,21 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.NoMergeBaseException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectDatabase;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -107,7 +114,9 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.util.ChangeIdUtil;
 
 @Singleton
@@ -408,6 +417,54 @@ public class CreateChange
               rw.parseCommit(
                   CommitUtil.createCommitWithTree(
                       oi, author, committer, mergeTip, commitMessage, treeId));
+        } else if (input.workspaceInput != null) {
+          // "upstream" : create a commit by copying data from a workspace.
+          Workspace.Id wsId =
+              Workspace.id(
+                  user.get().asIdentifiedUser().getAccountId(),
+                  Project.nameKey(input.workspaceInput.project),
+                  input.workspaceInput.workspaceName);
+
+          try (Repository ws = gitManager.openWorkspace(wsId);
+              RevWalk wsRw = new RevWalk(ws)) {
+            RevCommit commit = wsRw.parseCommit(ObjectId.fromString(input.workspaceInput.sha1));
+
+            List<RevCommit> commitsToCopy = new ArrayList<>();
+            commitsToCopy.add(commit);
+
+            ObjectReader destReader = git.getObjectDatabase().newReader();
+            ObjectReader srcReader = ws.newObjectReader();
+
+            while (!commitsToCopy.isEmpty()) {
+              RevCommit nextC = wsRw.parseCommit(commitsToCopy.remove(0));
+              if (!destReader.has(nextC)) {
+                for (RevCommit p : nextC.getParents()) {
+                  commitsToCopy.add(wsRw.parseCommit(p));
+                }
+                // Copy Tree and blobs
+                List<RevTree> treesToCopy = new ArrayList<>();
+                treesToCopy.add(nextC.getTree());
+                while (!treesToCopy.isEmpty()) {
+                  RevTree nextT = treesToCopy.remove(0);
+                  if (nextT.toObjectId().equals(ObjectId.zeroId())) {
+                    continue;
+                  }
+                  CanonicalTreeParser tp = new CanonicalTreeParser();
+                  tp.reset(srcReader, nextT);
+                  while ((tp = tp.next()) != null) {
+                    if (tp.getEntryFileMode() == FileMode.TREE ) {
+                      treesToCopy.add(rw.parseTree(tp.getEntryObjectId()));
+                    }
+                    if (tp.getEntryFileMode() != FileMode.TREE && !destReader.has(nextC)) {
+                      oi.insert(Constants.OBJ_BLOB, srcReader.open(tp.getEntryObjectId()).getBytes());
+                    }
+                  }
+                }
+                oi.insert(1, srcReader.open(nextC).getBytes());
+              }
+            }
+            c = rw.parseCommit(commit);
+          }
         } else {
           // create an empty commit.
           c = createEmptyCommit(oi, rw, author, committer, mergeTip, commitMessage);

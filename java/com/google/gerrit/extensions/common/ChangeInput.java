@@ -19,6 +19,7 @@ import com.google.gerrit.extensions.api.changes.ApplyPatchInput;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.api.changes.NotifyInfo;
 import com.google.gerrit.extensions.api.changes.RecipientType;
+import com.google.gerrit.extensions.api.changes.WorkspaceInput;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class ChangeInput {
   public Map<String, String> validationOptions;
   public MergeInput merge;
   public ApplyPatchInput patch;
+  public WorkspaceInput workspaceInput;
 
   public AccountInput author;
 
