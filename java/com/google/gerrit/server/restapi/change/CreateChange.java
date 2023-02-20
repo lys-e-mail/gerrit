@@ -92,12 +92,9 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -105,7 +102,6 @@ import org.eclipse.jgit.errors.NoMergeBaseException;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectDatabase;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -452,11 +448,12 @@ public class CreateChange
                   CanonicalTreeParser tp = new CanonicalTreeParser();
                   tp.reset(srcReader, nextT);
                   while ((tp = tp.next()) != null) {
-                    if (tp.getEntryFileMode() == FileMode.TREE ) {
+                    if (tp.getEntryFileMode() == FileMode.TREE) {
                       treesToCopy.add(rw.parseTree(tp.getEntryObjectId()));
                     }
                     if (tp.getEntryFileMode() != FileMode.TREE && !destReader.has(nextC)) {
-                      oi.insert(Constants.OBJ_BLOB, srcReader.open(tp.getEntryObjectId()).getBytes());
+                      oi.insert(
+                          Constants.OBJ_BLOB, srcReader.open(tp.getEntryObjectId()).getBytes());
                     }
                   }
                 }

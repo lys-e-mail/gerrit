@@ -25,10 +25,13 @@ import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.ChangeInput;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
+import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -71,7 +74,7 @@ public class WorkspaceIT extends AbstractDaemonTest {
       assertThat(mainline.getObjectDatabase().has(userCommit)).isFalse();
     }
 
-    // Present in main repo
+    // Present in ws repo
     try (Repository ws = repoManager.openWorkspace(wsId)) {
       assertThat(ws.getObjectDatabase().has(userCommit)).isTrue();
       // Upstream ref database is available
@@ -109,6 +112,29 @@ public class WorkspaceIT extends AbstractDaemonTest {
     try (Repository mainline = repoManager.openRepository(project)) {
       assertThat(mainline.getObjectDatabase().has(commitInMainline)).isTrue();
       assertThat(mainline.getObjectDatabase().has(userCommit)).isTrue();
+    }
+
+    TestRepository<InMemoryRepository> localWorkspace = cloneProject(wsId);
+    localWorkspace.git().fetch().setRemote("origin").setRefSpecs("refs/origin/heads/master").call();
+    Ref originMaster =
+        localWorkspace.git().lsRemote().call().stream()
+            .filter(r -> r.getName().equals("refs/origin/heads/master"))
+            .findAny()
+            .get();
+    RevCommit localCommit =
+        localWorkspace.amend(originMaster.getObjectId()).add("test", "foo").create();
+    localWorkspace.git().push().add(localCommit.getName() + ":refs/heads/foo").call();
+
+    // pushed commit not in main
+    try (Repository mainline = repoManager.openRepository(project)) {
+      assertThat(mainline.getObjectDatabase().has(commitInMainline)).isTrue();
+      assertThat(mainline.getObjectDatabase().has(localCommit)).isFalse();
+    }
+
+    // Present in ws repo
+    try (Repository ws = repoManager.openWorkspace(wsId)) {
+      assertThat(ws.getObjectDatabase().has(commitInMainline)).isTrue();
+      assertThat(ws.getObjectDatabase().has(localCommit)).isTrue();
     }
   }
 }

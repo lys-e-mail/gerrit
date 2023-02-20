@@ -207,7 +207,8 @@ public class LocalDiskRepositoryManager implements GitRepositoryManager {
         @Override
         public RefDatabase getRefDatabase() {
           // Hack in lieu of "alternates" for RefDatabase
-          return new MainlineReadOnlyRefDatabase(mainline);
+          return new WorkspaceRefDatabase(
+              workspaceRepo.getRefDatabase(), new MainlineReadOnlyRefDatabase(mainline));
         }
 
         @Override

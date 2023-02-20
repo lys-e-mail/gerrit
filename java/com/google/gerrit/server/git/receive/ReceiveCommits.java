@@ -139,6 +139,7 @@ import com.google.gerrit.server.edit.ChangeEdit;
 import com.google.gerrit.server.edit.ChangeEditUtil;
 import com.google.gerrit.server.git.BanCommit;
 import com.google.gerrit.server.git.ChangeReportFormatter;
+import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.GroupCollector;
 import com.google.gerrit.server.git.MergedByPushOp;
 import com.google.gerrit.server.git.MultiProgressMonitor;
@@ -421,6 +422,7 @@ class ReceiveCommits {
   private final PermissionBackend.ForProject permissions;
   private final Project project;
   private final Repository repo;
+  private final GitRepositoryManager repoManager;
 
   // Collections populated during processing.
   private final List<UpdateGroupsRequest> updateGroups;
@@ -449,6 +451,7 @@ class ReceiveCommits {
 
   @Inject
   ReceiveCommits(
+      GitRepositoryManager repoManager,
       AccountResolver accountResolver,
       AllProjectsName allProjectsName,
       BatchUpdate.Factory batchUpdateFactory,
@@ -505,6 +508,7 @@ class ReceiveCommits {
       @Nullable @Assisted MessageSender messageSender)
       throws IOException {
     // Injected fields.
+    this.repoManager = repoManager;
     this.accountResolver = accountResolver;
     this.allProjectsName = allProjectsName;
     this.batchUpdateFactory = batchUpdateFactory;
@@ -3427,7 +3431,9 @@ class ReceiveCommits {
           if (!receivePackRefCache.patchSetIdsFromObjectId(c).isEmpty()) {
             continue;
           }
-
+          if (repoManager.isWorkspace(repo)) {
+            return;
+          }
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
                   repo,

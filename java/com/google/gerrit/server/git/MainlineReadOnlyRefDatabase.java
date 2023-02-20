@@ -45,27 +45,27 @@ public class MainlineReadOnlyRefDatabase extends DelegateRefDatabase {
 
   @Override
   public boolean isNameConflicting(String name) {
-    throw new UnsupportedOperationException("PermissionAwareReadOnlyRefDatabase is read-only");
+    throw new UnsupportedOperationException("MainlineReadOnlyRefDatabase is read-only");
   }
 
   @Override
   public Collection<String> getConflictingNames(String name) throws IOException {
-    throw new UnsupportedOperationException("PermissionAwareReadOnlyRefDatabase is read-only");
+    throw new UnsupportedOperationException("MainlineReadOnlyRefDatabase is read-only");
   }
 
   @Override
   public RefUpdate newUpdate(String name, boolean detach) {
-    throw new UnsupportedOperationException("PermissionAwareReadOnlyRefDatabase is read-only");
+    throw new UnsupportedOperationException("MainlineReadOnlyRefDatabase is read-only");
   }
 
   @Override
   public RefRename newRename(String fromName, String toName) {
-    throw new UnsupportedOperationException("PermissionAwareReadOnlyRefDatabase is read-only");
+    throw new UnsupportedOperationException("MainlineReadOnlyRefDatabase is read-only");
   }
 
   @Override
   public BatchRefUpdate newBatchUpdate() {
-    throw new UnsupportedOperationException("PermissionAwareReadOnlyRefDatabase is read-only");
+    throw new UnsupportedOperationException("MainlineReadOnlyRefDatabase is read-only");
   }
 
   @Nullable

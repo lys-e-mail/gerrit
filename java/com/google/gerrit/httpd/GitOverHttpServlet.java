@@ -17,7 +17,9 @@ package com.google.gerrit.httpd;
 import static org.eclipse.jgit.http.server.GitSmartHttpTools.sendError;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -25,6 +27,7 @@ import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.Capable;
 import com.google.gerrit.entities.Project;
+import com.google.gerrit.entities.Workspace;
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.server.AccessPath;
@@ -63,6 +66,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -309,6 +313,26 @@ public class GitOverHttpServlet extends GitServlet {
 
       CurrentUser user = userProvider.get();
       user.setAccessPath(AccessPath.GIT);
+      if (projectName.contains("~")) {
+        // This is a workspace
+        List<String> ws = ImmutableList.copyOf(Splitter.on("~").split(projectName));
+        Workspace.Id wsId =
+            Workspace.id(
+                user.asIdentifiedUser().getAccountId(), Project.nameKey(ws.get(0)), ws.get(1));
+        try {
+          ProjectState state =
+              projectCache
+                  .get(wsId.project())
+                  .orElseThrow(() -> new RepositoryNotFoundException(wsId.project().get()));
+          if (!state.statePermitsRead()) {
+            throw new RepositoryNotFoundException(wsId.project().get());
+          }
+          req.setAttribute(ATT_STATE, state);
+          return manager.openWorkspace(wsId);
+        } catch (IOException err) {
+          throw new ServiceMayNotContinueException(projectName + " unavailable", err);
+        }
+      }
 
       try {
         Project.NameKey nameKey = Project.nameKey(projectName);
@@ -343,6 +367,7 @@ public class GitOverHttpServlet extends GitServlet {
     private final DynamicSet<PostUploadHook> postUploadHooks;
     private final PluginSetContext<UploadPackInitializer> uploadPackInitializers;
     private final PermissionBackend permissionBackend;
+    private final GitRepositoryManager gitRepositoryManager;
 
     @Inject
     UploadFactory(
@@ -350,21 +375,26 @@ public class GitOverHttpServlet extends GitServlet {
         DynamicSet<PreUploadHook> preUploadHooks,
         DynamicSet<PostUploadHook> postUploadHooks,
         PluginSetContext<UploadPackInitializer> uploadPackInitializers,
-        PermissionBackend permissionBackend) {
+        PermissionBackend permissionBackend,
+        GitRepositoryManager gitRepositoryManager) {
       this.config = tc;
       this.preUploadHooks = preUploadHooks;
       this.postUploadHooks = postUploadHooks;
       this.uploadPackInitializers = uploadPackInitializers;
       this.permissionBackend = permissionBackend;
+      this.gitRepositoryManager = gitRepositoryManager;
     }
 
     @Override
     public UploadPack create(HttpServletRequest req, Repository repo) {
+
       ProjectState state = (ProjectState) req.getAttribute(ATT_STATE);
       UploadPack up =
           new UploadPack(
-              PermissionAwareRepositoryManager.wrap(
-                  repo, permissionBackend.currentUser().project(state.getNameKey())));
+              gitRepositoryManager.isWorkspace(repo)
+                  ? repo
+                  : PermissionAwareRepositoryManager.wrap(
+                      repo, permissionBackend.currentUser().project(state.getNameKey())));
       up.setPackConfig(config.getPackConfig());
       up.setTimeout(config.getTimeout());
       up.setPreUploadHook(PreUploadHookChain.newChain(Lists.newArrayList(preUploadHooks)));

@@ -78,6 +78,7 @@ import com.google.gerrit.entities.PermissionRule.Action;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.entities.SubmitRequirement;
+import com.google.gerrit.entities.Workspace;
 import com.google.gerrit.extensions.api.GerritApi;
 import com.google.gerrit.extensions.api.changes.ChangeApi;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
@@ -660,9 +661,18 @@ public abstract class AbstractDaemonTest {
     return cloneProject(p, admin);
   }
 
+  protected TestRepository<InMemoryRepository> cloneProject(Workspace.Id ws) throws Exception {
+    return cloneProject(ws, admin);
+  }
+
   protected TestRepository<InMemoryRepository> cloneProject(
       Project.NameKey p, TestAccount testAccount) throws Exception {
     return GitUtil.cloneProject(p, registerRepoConnection(p, testAccount));
+  }
+
+  protected TestRepository<InMemoryRepository> cloneProject(
+      Workspace.Id ws, TestAccount testAccount) throws Exception {
+    return GitUtil.cloneProject(ws.project(), registerRepoConnection(ws, testAccount));
   }
 
   /**
@@ -675,6 +685,15 @@ public abstract class AbstractDaemonTest {
     InProcessProtocol.Context ctx =
         new InProcessProtocol.Context(identifiedUserFactory, testAccount.id(), p);
     Repository repo = repoManager.openRepository(p);
+    toClose.add(repo);
+    return inProcessProtocol.register(ctx, repo).toString();
+  }
+
+  protected String registerRepoConnection(Workspace.Id ws, TestAccount testAccount)
+      throws Exception {
+    InProcessProtocol.Context ctx =
+        new InProcessProtocol.Context(identifiedUserFactory, testAccount.id(), ws.project());
+    Repository repo = repoManager.openWorkspace(ws);
     toClose.add(repo);
     return inProcessProtocol.register(ctx, repo).toString();
   }

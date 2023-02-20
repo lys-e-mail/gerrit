@@ -14,4 +14,47 @@
 
 package com.google.gerrit.acceptance.git;
 
-public class GitOverHttpServletIT extends AbstractGitOverHttpServlet {}
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.acceptance.GitUtil.assertPushOk;
+import static com.google.gerrit.acceptance.GitUtil.pushHead;
+
+import com.google.gerrit.acceptance.GitUtil;
+import com.google.gerrit.acceptance.TestProjectInput;
+import com.google.gerrit.acceptance.UseLocalDisk;
+import com.google.gerrit.entities.Project;
+import com.google.gerrit.entities.Workspace;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.PushResult;
+import org.junit.Test;
+
+@UseLocalDisk
+public class GitOverHttpServletIT extends AbstractGitOverHttpServlet {
+
+  @Test
+  @TestProjectInput(createEmptyCommit = false)
+  public void workspace() throws Exception {
+    testRepo =
+        GitUtil.cloneProject(
+            Project.nameKey(project.get() + "~ws1"),
+            admin.getHttpUrl(server) + "/" + project.get() + "~ws1");
+
+    RevCommit c = testRepo.commit().message("Initial commit22").insertChangeId().create();
+    //    String id = GitUtil.getChangeId(testRepo, c).get();
+    testRepo.reset(c);
+
+    String r = "refs/heads/foo-master";
+    PushResult pr = pushHead(testRepo, r, false);
+    assertPushOk(pr, r);
+
+    // contained in ws
+    try (Repository repo = repoManager.openWorkspace(Workspace.id(admin.id(), project, "ws1"))) {
+      assertThat(repo.getObjectDatabase().has(c)).isTrue();
+    }
+
+    // not contained in repo
+    try (Repository repo = repoManager.openRepository(project)) {
+      assertThat(repo.getObjectDatabase().has(c)).isFalse();
+    }
+  }
+}
