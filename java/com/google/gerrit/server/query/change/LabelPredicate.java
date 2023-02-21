@@ -23,6 +23,7 @@ import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.RangeUtil;
 import com.google.gerrit.index.query.RangeUtil.Range;
 import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.util.LabelVote;
@@ -42,8 +43,12 @@ public class LabelPredicate extends OrPredicate<ChangeData> {
     protected final String value;
     protected final Set<Account.Id> accounts;
     protected final AccountGroup.UUID group;
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
     protected final Integer count;
     protected final PredicateArgs.Operator countOp;
+=======
+    protected final GroupBackend groupBackend;
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
 
     protected Args(
         ProjectCache projectCache,
@@ -52,16 +57,24 @@ public class LabelPredicate extends OrPredicate<ChangeData> {
         String value,
         Set<Account.Id> accounts,
         AccountGroup.UUID group,
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
         @Nullable Integer count,
         @Nullable PredicateArgs.Operator countOp) {
+=======
+        GroupBackend groupBackend) {
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
       this.projectCache = projectCache;
       this.permissionBackend = permissionBackend;
       this.userFactory = userFactory;
       this.value = value;
       this.accounts = accounts;
       this.group = group;
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
       this.count = count;
       this.countOp = countOp;
+=======
+      this.groupBackend = groupBackend;
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     }
   }
 
@@ -95,8 +108,12 @@ public class LabelPredicate extends OrPredicate<ChangeData> {
                 value,
                 accounts,
                 group,
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
                 count,
                 countOp)));
+=======
+                a.groupBackend)));
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     this.value = value;
   }
 
@@ -178,26 +195,62 @@ public class LabelPredicate extends OrPredicate<ChangeData> {
     return not(or(r));
   }
 
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
   protected static Predicate<ChangeData> equalsLabelPredicate(
       Args args, String label, int expVal, @Nullable Integer count) {
+=======
+  protected static Predicate<ChangeData> equalsLabelPredicate(Args args, String label, int expVal) {
+    if (args.groupBackend.isOrContainsExternalGroup(args.group)) {
+      // We can only get members of internal groups and negating an index search that doesn't
+      // include the external group information leads to incorrect query results. Use a
+      // PostFilterPredicate in this case instead.
+      return new EqualsLabelPredicates.PostFilterEqualsLabelPredicate(args, label, expVal);
+    }
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     if (args.accounts == null || args.accounts.isEmpty()) {
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
       return new EqualsLabelPredicate(args, label, expVal, null, count);
+=======
+      return new EqualsLabelPredicates.IndexEqualsLabelPredicate(args, label, expVal);
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     }
     List<Predicate<ChangeData>> r = new ArrayList<>();
     for (Account.Id a : args.accounts) {
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
       r.add(new EqualsLabelPredicate(args, label, expVal, a, count));
+=======
+      r.add(new EqualsLabelPredicates.IndexEqualsLabelPredicate(args, label, expVal, a));
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     }
     return or(r);
   }
 
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
   protected static Predicate<ChangeData> magicLabelPredicate(
       Args args, MagicLabelVote mlv, @Nullable Integer count) {
+=======
+  protected static Predicate<ChangeData> magicLabelPredicate(Args args, MagicLabelVote mlv) {
+    if (args.groupBackend.isOrContainsExternalGroup(args.group)) {
+      // We can only get members of internal groups and negating an index search that doesn't
+      // include the external group information leads to incorrect query results. Use a
+      // PostFilterPredicate in this case instead.
+      return new MagicLabelPredicates.PostFilterMagicLabelPredicate(args, mlv);
+    }
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     if (args.accounts == null || args.accounts.isEmpty()) {
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
       return new MagicLabelPredicate(args, mlv, /* account= */ null, count);
+=======
+      return new MagicLabelPredicates.IndexMagicLabelPredicate(args, mlv);
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     }
     List<Predicate<ChangeData>> r = new ArrayList<>();
     for (Account.Id a : args.accounts) {
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
       r.add(new MagicLabelPredicate(args, mlv, a, count));
+=======
+      r.add(new MagicLabelPredicates.IndexMagicLabelPredicate(args, mlv, a));
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
     }
     return or(r);
   }

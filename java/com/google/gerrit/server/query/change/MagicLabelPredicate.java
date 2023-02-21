@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
 // Copyright (C) 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -112,3 +113,5 @@ public class MagicLabelPredicate extends ChangeIndexPredicate {
     return null;
   }
 }
+=======
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (0dee51 Merge branch 'stable-3.5' into stable-3.6)
 // Copyright (C) 2013 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,3 +186,5 @@ public class EqualsLabelPredicate extends ChangeIndexPostFilterPredicate {
     return 1 + (group == null ? 0 : 1);
   }
 }
+=======
+>>>>>>> BRANCH (f978e3 Set version to 3.5.6-SNAPSHOT)
