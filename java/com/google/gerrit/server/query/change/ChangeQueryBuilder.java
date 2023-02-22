@@ -35,7 +35,6 @@ import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.Address;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
-import com.google.gerrit.entities.GroupDescription;
 import com.google.gerrit.entities.GroupReference;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
@@ -1275,15 +1274,15 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
 
   @Operator
   public Predicate<ChangeData> ownerin(String group) throws QueryParseException, IOException {
-    GroupReference g = GroupBackends.findBestSuggestion(args.groupBackend, group);
-    if (g == null) {
-      throw error("Group " + group + " not found");
-    }
-
+    GroupReference g = parseGroup(group);
     AccountGroup.UUID groupId = g.getUUID();
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     GroupDescription.Basic groupDescription = args.groupBackend.get(groupId);
     if (!(groupDescription instanceof GroupDescription.Internal)
         || containsExernalSubGroups((GroupDescription.Internal) groupDescription)) {
+=======
+    if (args.groupBackend.isOrContainsExternalGroup(groupId)) {
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
       return new OwnerinPredicate(args.userFactory, groupId);
     }
 
@@ -1299,15 +1298,15 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   public Predicate<ChangeData> uploaderin(String group) throws QueryParseException, IOException {
     checkOperatorAvailable(ChangeField.UPLOADER_SPEC, "uploaderin");
 
-    GroupReference g = GroupBackends.findBestSuggestion(args.groupBackend, group);
-    if (g == null) {
-      throw error("Group " + group + " not found");
-    }
-
+    GroupReference g = parseGroup(group);
     AccountGroup.UUID groupId = g.getUUID();
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     GroupDescription.Basic groupDescription = args.groupBackend.get(groupId);
     if (!(groupDescription instanceof GroupDescription.Internal)
         || containsExernalSubGroups((GroupDescription.Internal) groupDescription)) {
+=======
+    if (args.groupBackend.isOrContainsExternalGroup(groupId)) {
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
       return new UploaderinPredicate(args.userFactory, groupId);
     }
 
@@ -1354,10 +1353,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
 
   @Operator
   public Predicate<ChangeData> reviewerin(String group) throws QueryParseException {
-    GroupReference g = GroupBackends.findBestSuggestion(args.groupBackend, group);
-    if (g == null) {
-      throw error("Group " + group + " not found");
-    }
+    GroupReference g = parseGroup(group);
     return new ReviewerinPredicate(args.userFactory, g.getUUID());
   }
 

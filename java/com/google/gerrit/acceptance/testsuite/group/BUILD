@@ -14,7 +14,10 @@ java_library(
         "//java/com/google/gerrit/exceptions",
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/server",
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
         "//java/com/google/gerrit/testing:test-ref-update-context",
+=======
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
         "//lib:guava",
         "//lib:jgit",
         "//lib:jgit-junit",

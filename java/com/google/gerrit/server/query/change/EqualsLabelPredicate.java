@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
 // Copyright (C) 2013 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -219,3 +220,5 @@ public class EqualsLabelPredicate extends ChangeIndexPostFilterPredicate {
     return 1 + (group == null ? 0 : 1);
   }
 }
+=======
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
