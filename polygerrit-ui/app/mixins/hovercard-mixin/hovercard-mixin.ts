@@ -561,6 +561,10 @@ export const HovercardMixin = <T extends Constructor<LitElement>>(
         if (this._isInsideViewport()) return;
       }
       this.updatePositionTo(this.position);
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
+=======
+      console.warn('Could not find a visible position for the hovercard.');
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
     }
 
     _isInsideViewport() {

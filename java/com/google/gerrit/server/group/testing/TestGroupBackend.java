@@ -103,9 +103,13 @@ public class TestGroupBackend implements GroupBackend {
     memberships.put(user, membership);
   }
 
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
   /**
    * Remove a the memberships of the given user. No-op if the user does not have any memberships.
    */
+=======
+  /** Remove the memberships of the given user. No-op if the user does not have any memberships. */
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
   public void removeMembershipsOf(Account.Id user) {
     memberships.remove(user);
   }
