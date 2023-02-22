@@ -268,7 +268,14 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
 
     @Override
     public String toString() {
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
       return "Index project slice " + projectSlice;
+=======
+      if (slices == 1) {
+        return "Index all changes of project " + project.get();
+      }
+      return "Index changes slice " + slice + "/" + slices + " of project " + project.get();
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
     }
   }
 

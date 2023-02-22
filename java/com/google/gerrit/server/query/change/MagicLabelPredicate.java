@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
 // Copyright (C) 2021 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,3 +123,5 @@ public class MagicLabelPredicate extends ChangeIndexPredicate {
     return null;
   }
 }
+=======
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)

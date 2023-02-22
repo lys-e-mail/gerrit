@@ -196,6 +196,10 @@ export class ChangeModel extends Model<ChangeState> {
     computeLatestPatchNumWithEdit(patchsets)
   );
 
+  public readonly latestPatchNumWithEdit$ = select(this.change$, change =>
+    computeLatestPatchNumWithEdit(computeAllPatchSets(change))
+  );
+
   /**
    * Emits the current patchset number. If the route does not define the current
    * patchset num, then this selector waits for the change to be defined and

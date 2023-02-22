@@ -70,7 +70,11 @@ declare global {
     'server-error': ServerErrorEvent;
     'show-alert': ShowAlertEvent;
     'show-error': ShowErrorEvent;
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     'auth-error': AuthErrorEvent;
+=======
+    'location-change': LocationChangeEvent;
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
   }
 }
 

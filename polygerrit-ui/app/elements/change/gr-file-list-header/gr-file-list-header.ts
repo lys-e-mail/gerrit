@@ -39,9 +39,13 @@ import {resolve} from '../../../models/dependency';
 import {subscribe} from '../../lit/subscription-controller';
 import {configModelToken} from '../../../models/config/config-model';
 import {createChangeUrl} from '../../../models/views/change';
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
 import {userModelToken} from '../../../models/user/user-model';
 import {changeModelToken} from '../../../models/change/change-model';
 import {PatchRangeChangeEvent} from '../../diff/gr-patch-range-select/gr-patch-range-select';
+=======
+import {changeModelToken} from '../../../models/change/change-model';
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
 
 @customElement('gr-file-list-header')
 export class GrFileListHeader extends LitElement {
@@ -71,6 +75,10 @@ export class GrFileListHeader extends LitElement {
 
   @property({type: String})
   filesExpanded?: FilesExpandedState;
+
+  @state() patchNum?: PatchSetNum;
+
+  @state() basePatchNum?: BasePatchSetNum;
 
   @state() patchNum?: PatchSetNum;
 
