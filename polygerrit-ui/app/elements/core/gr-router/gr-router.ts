@@ -555,8 +555,25 @@ export class GrRouter implements Finalizable, NavigationService {
       hash: window.location.hash,
       pathname: window.location.pathname,
     };
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     fire(document, 'location-change', detail);
   }
+=======
+    document.dispatchEvent(
+      new CustomEvent('location-change', {
+        detail,
+        composed: true,
+        bubbles: true,
+      })
+    );
+  }
+
+  startRouter() {
+    const base = getBaseUrl();
+    if (base) {
+      page.base(base);
+    }
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
 
   _testOnly_startRouter() {
     this.startRouter({dispatch: false, base: getBaseUrl()});

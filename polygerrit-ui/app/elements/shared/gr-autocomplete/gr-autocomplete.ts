@@ -448,6 +448,7 @@ export class GrAutocomplete extends LitElement {
       return;
     }
 
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     const queryId = GrAutocomplete.getNextQueryId();
     this.activeQueryId = queryId;
     this.setQueryStatus({
@@ -460,6 +461,24 @@ export class GrAutocomplete extends LitElement {
       DEBOUNCE_WAIT_MS
     );
   }
+=======
+    const requestText = this.text;
+    const update = () => {
+      query(this.text).then(suggestions => {
+        if (requestText !== this.text) {
+          // Late response.
+          return;
+        }
+        for (const suggestion of suggestions) {
+          suggestion.text = suggestion?.name ?? '';
+        }
+        this.suggestions = suggestions;
+        if (this.index === -1) {
+          this.value = '';
+        }
+      });
+    };
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
 
   private createUpdateTask(
     queryId: number,

@@ -183,7 +183,11 @@ export class GrAppElement extends LitElement {
     this.addEventListener('dialog-change', e => {
       this.handleDialogChange(e as CustomEvent<DialogChangeEventDetail>);
     });
+<<<<<<< HEAD   (e3cc02 Merge "Fix focus styling for context control buttons")
     document.addEventListener('location-change', () =>
+=======
+    document.addEventListener(EventType.LOCATION_CHANGE, () =>
+>>>>>>> BRANCH (b7e9dc Merge branch 'stable-3.6' into stable-3.7)
       this.handleLocationChange()
     );
     document.addEventListener('gr-rpc-log', e => this.handleRpcLog(e));
