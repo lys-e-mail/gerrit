@@ -55,6 +55,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.sshd.common.SshException;
+import org.apache.sshd.common.channel.exception.SshChannelClosedException;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -499,6 +500,7 @@ public abstract class BaseCommand implements Command {
             throw new UnloggedFailure(1, e.getMessage() + " no such change");
           }
 
+<<<<<<< HEAD   (c317d0 Remove documentation of removed option download.maxBundleSiz)
           out.flush();
           err.flush();
         } catch (Throwable e) {
@@ -512,6 +514,13 @@ public abstract class BaseCommand implements Command {
           } catch (Exception e2) {
             // Ignored
           }
+=======
+          flushIgnoreSCCE(out);
+          flushIgnoreSCCE(err);
+        } catch (Throwable e) {
+          flushIgnoreException(out);
+          flushIgnoreException(err);
+>>>>>>> BRANCH (bf1ab9 TaskThunk#run: ignore SshChannelClosedException)
           rc = handleError(e);
         } finally {
           try {
@@ -521,6 +530,22 @@ public abstract class BaseCommand implements Command {
             thisThread.setName(thisName);
           }
         }
+      }
+    }
+
+    private void flushIgnoreSCCE(OutputStream os) throws IOException {
+      try {
+        os.flush();
+      } catch (SshChannelClosedException e) {
+        // Ignore - command implementation flushed stream already
+      }
+    }
+
+    private void flushIgnoreException(OutputStream os) {
+      try {
+        os.flush();
+      } catch (Exception e) {
+        // Ignore
       }
     }
 
