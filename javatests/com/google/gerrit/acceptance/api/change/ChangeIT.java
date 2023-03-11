@@ -151,8 +151,12 @@ import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.IndexedChangeQuery;
 import com.google.gerrit.server.project.testing.Util;
+<<<<<<< HEAD   (cc18d9 Merge branch 'stable-2.16' into stable-3.0)
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangeQueryBuilder.ChangeOperatorFactory;
+=======
+import com.google.gerrit.server.restapi.change.GetChange;
+>>>>>>> BRANCH (190b29 Merge "Align the change.maxSubmittableAtOnce default in docu)
 import com.google.gerrit.server.restapi.change.PostReview;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.gerrit.server.update.BatchUpdateOp;
@@ -174,6 +178,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
@@ -201,8 +207,11 @@ public class ChangeIT extends AbstractDaemonTest {
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
 
+  @Inject private GetChange getChange;
+
   private ChangeIndexedCounter changeIndexedCounter;
   private RegistrationHandle changeIndexedCounterHandle;
+  private static final int TEST_TIMEOUT_SEC = 10;
 
   @Before
   public void setTimeForTesting() {
@@ -1725,6 +1734,43 @@ public class ChangeIT extends AbstractDaemonTest {
     accountOperations.account(user.id()).forUpdate().status("new status").update();
     rsrc = parseResource(r);
     assertThat(rsrc.getETag()).isNotEqualTo(oldETag);
+  }
+
+  @Test
+  public void reindexChangeWithStatusVariationModifiesETag() throws Exception {
+    PushOneCommit.Result r = createChange();
+    ChangeResource rsrc = parseResource(r);
+
+    String initialETag = rsrc.getETag();
+
+    gApi.changes().id(r.getChangeId()).current().review(ReviewInput.approve());
+    rsrc = parseResource(r);
+
+    CountDownLatch reindexed = new CountDownLatch(1);
+    final int currentId = rsrc.getChange().getId().get();
+    RegistrationHandle handle =
+        changeIndexedListeners.add(
+            "gerrit",
+            new ChangeIndexedListener() {
+              @Override
+              public void onChangeIndexed(String projectName, int id) {
+                if (id == currentId) {
+                  reindexed.countDown();
+                }
+              }
+
+              @Override
+              public void onChangeDeleted(int id) {}
+            });
+    try {
+      indexer.index(db, rsrc.getChange());
+      reindexed.await(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+    } finally {
+      handle.remove();
+    }
+
+    String etagAfterApprove = rsrc.getETag();
+    assertThat(etagAfterApprove).isNotEqualTo(initialETag);
   }
 
   @Test
