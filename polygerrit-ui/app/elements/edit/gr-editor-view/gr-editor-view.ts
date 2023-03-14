@@ -64,7 +64,11 @@ export class GrEditorView extends LitElement {
    * @event show-alert
    */
 
+<<<<<<< HEAD   (37224c Merge "groups_bysubgroups: Batch loading values")
   @state() viewState?: ChangeViewState;
+=======
+  @state() viewState?: EditViewState;
+>>>>>>> BRANCH (b9d8db Merge branch 'stable-3.6' into stable-3.7)
 
   // private but used in test
   @state() change?: ParsedChangeInfo;
@@ -88,8 +92,11 @@ export class GrEditorView extends LitElement {
 
   // private but used in test
   @state() latestPatchsetNumber?: RevisionPatchSetNum;
+<<<<<<< HEAD   (37224c Merge "groups_bysubgroups: Batch loading values")
 
   @state() private darkMode = false;
+=======
+>>>>>>> BRANCH (b9d8db Merge branch 'stable-3.6' into stable-3.7)
 
   private readonly restApiService = getAppContext().restApiService;
 

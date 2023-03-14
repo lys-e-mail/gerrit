@@ -669,9 +669,14 @@ public class BatchUpdate implements AutoCloseable {
 
   private void fireAttentionSetUpdateEvents(Map<Change.Id, ChangeData> changeDatas) {
     for (ProjectChangeKey key : attentionSetUpdates.keySet()) {
+<<<<<<< HEAD   (37224c Merge "groups_bysubgroups: Batch loading values")
       ChangeData change =
           changeDatas.computeIfAbsent(
               key.changeId(), id -> changeDataFactory.create(key.projectName(), key.changeId()));
+=======
+      ChangeData change = ctx.getChangeData(key.projectName(), key.changeId());
+      AccountState account = getAccount().orElse(null);
+>>>>>>> BRANCH (b9d8db Merge branch 'stable-3.6' into stable-3.7)
       for (AttentionSetUpdate update : attentionSetUpdates.get(key)) {
         attentionSetObserver.fire(
             change, accountCache.getEvenIfMissing(update.account()), update, when);
