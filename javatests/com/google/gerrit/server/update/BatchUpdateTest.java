@@ -38,9 +38,14 @@ import com.google.gerrit.extensions.events.AttentionSetListener;
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.server.CurrentUser;
+<<<<<<< HEAD   (37224c Merge "groups_bysubgroups: Batch loading values")
 import com.google.gerrit.server.IdentifiedUser;
+=======
+import com.google.gerrit.server.InternalUser;
+>>>>>>> BRANCH (cce541 Merge branch 'stable-3.6' into stable-3.7)
 import com.google.gerrit.server.account.AccountManager;
 import com.google.gerrit.server.account.AuthRequest;
+import com.google.gerrit.server.change.AbandonOp;
 import com.google.gerrit.server.change.AddReviewersOp;
 import com.google.gerrit.server.change.ChangeInserter;
 import com.google.gerrit.server.change.PatchSetInserter;
@@ -102,7 +107,12 @@ public class BatchUpdateTest {
   @Inject private DynamicSet<AttentionSetListener> attentionSetListeners;
   @Inject private AccountManager accountManager;
   @Inject private AuthRequest.Factory authRequestFactory;
+<<<<<<< HEAD   (37224c Merge "groups_bysubgroups: Batch loading values")
   @Inject private IdentifiedUser.GenericFactory userFactory;
+=======
+  @Inject private InternalUser.Factory internalUserFactory;
+  @Inject private AbandonOp.Factory abandonOpFactory;
+>>>>>>> BRANCH (cce541 Merge branch 'stable-3.6' into stable-3.7)
 
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
@@ -149,6 +159,40 @@ public class BatchUpdateTest {
     }
     assertThat(repo.getRepository().exactRef("refs/heads/master").getObjectId())
         .isEqualTo(branchCommit.getId());
+  }
+
+  @Test
+  public void batchUpdateThatChangeAttentionSetAsInternalUser() throws Exception {
+    Change.Id id = createChangeWithUpdates(1);
+    attentionSetListeners.add("test", attentionSetListener);
+
+    Account.Id reviewer =
+        accountManager.authenticate(authRequestFactory.createForUser("user")).getAccountId();
+
+    try (BatchUpdate bu = batchUpdateFactory.create(project, user.get(), TimeUtil.now())) {
+      bu.addOp(
+          id,
+          addReviewersOpFactory.create(
+              ImmutableSet.of(reviewer), ImmutableList.of(), ReviewerState.REVIEWER, false));
+      bu.execute();
+    }
+
+    try (BatchUpdate bu =
+        batchUpdateFactory.create(project, internalUserFactory.create(), TimeUtil.now())) {
+      bu.addOp(id, abandonOpFactory.create(null, "test abandon"));
+      bu.execute();
+    }
+
+    verify(attentionSetListener, times(2)).onAttentionSetChanged(attentionSetEventCaptor.capture());
+    AttentionSetListener.Event event = attentionSetEventCaptor.getAllValues().get(0);
+    assertThat(event.getChange()._number).isEqualTo(id.get());
+    assertThat(event.usersAdded()).containsExactly(reviewer.get());
+    assertThat(event.usersRemoved()).isEmpty();
+
+    event = attentionSetEventCaptor.getAllValues().get(1);
+    assertThat(event.getChange()._number).isEqualTo(id.get());
+    assertThat(event.usersAdded()).isEmpty();
+    assertThat(event.usersRemoved()).containsExactly(reviewer.get());
   }
 
   @Test
