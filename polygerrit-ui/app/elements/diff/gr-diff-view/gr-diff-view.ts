@@ -58,10 +58,27 @@ import {
 import {GrDiffCursor} from '../../../embed/diff/gr-diff-cursor/gr-diff-cursor';
 import {CommentSide, DiffViewMode, Side} from '../../../constants/constants';
 import {GrApplyFixDialog} from '../gr-apply-fix-dialog/gr-apply-fix-dialog';
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
 import {OpenFixPreviewEvent, ValueChangedEvent} from '../../../types/events';
 import {fireAlert, fire, fireTitleChange} from '../../../utils/event-util';
 import {assertIsDefined, queryAndAssert} from '../../../utils/common-util';
 import {toggleClass, whenVisible} from '../../../utils/dom-util';
+=======
+import {
+  CommentMap,
+  getPatchRangeForCommentUrl,
+  isInBaseOfPatchRange,
+} from '../../../utils/comment-util';
+import {
+  EventType,
+  OpenFixPreviewEvent,
+  ValueChangedEvent,
+} from '../../../types/events';
+import {fireAlert, fireEvent, fireTitleChange} from '../../../utils/event-util';
+import {GerritView} from '../../../services/router/router-model';
+import {assertIsDefined} from '../../../utils/common-util';
+import {Key, toggleClass} from '../../../utils/dom-util';
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 import {CursorMoveResult} from '../../../api/core';
 import {throttleWrap} from '../../../utils/async-util';
 import {filter, take, switchMap} from 'rxjs/operators';

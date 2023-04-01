@@ -194,11 +194,14 @@ export class ChangeModel extends Model<ChangeState> {
 
   public readonly latestPatchNumWithEdit$ = select(this.patchsets$, patchsets =>
     computeLatestPatchNumWithEdit(patchsets)
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   );
 
   public readonly latestUploader$ = select(
     this.change$,
     change => change?.revisions[change.current_revision]?.uploader
+=======
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
   );
 
   /**

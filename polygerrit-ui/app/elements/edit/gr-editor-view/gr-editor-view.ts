@@ -512,9 +512,17 @@ export class GrEditorView extends LitElement {
         )
         .then(() => {
           assertIsDefined(this.change, 'change');
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
           // TODO: `forceReload: true` does not seem to work as expected: The patchset is not
           // updated. Thus we are also calling `fireReload()` here. That can probably be
           // cleaned up once the change-view was migrated to fully relying on the change model.
+=======
+          // TODO: `forceReload: true` does not seem to work as expected:
+          // The patchset is not updated.
+          // Thus we are also calling `fireReload()` here.
+          // That can probably be cleaned up once the change-view was migrated
+          // to fully relying on the change model.
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
           fireReload(this);
           this.getNavigation().setUrl(
             createChangeUrl({change: this.change, forceReload: true})
