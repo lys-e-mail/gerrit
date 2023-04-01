@@ -565,7 +565,11 @@ export class GrChangeView extends LitElement {
 
   /** Simply reflects the router-model value. */
   // visible for testing
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   viewModelPatchNum?: RevisionPatchSetNum;
+=======
+  routerPatchNum?: RevisionPatchSetNum;
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 
   private readonly shortcutsController = new ShortcutController(this);
 
@@ -2097,7 +2101,11 @@ export class GrChangeView extends LitElement {
         // existing diff is not requested. See Issue 125270 for more details.
         this.fileList?.resetFileState();
         this.fileList?.collapseAllDiffs();
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
         this.reloadPatchNumDependentResources();
+=======
+        this.reloadPatchNumDependentResources(patchNumChanged);
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
       }
 
       // If there is no change in patchset or changeNum, such as when user goes
@@ -3156,7 +3164,11 @@ export class GrChangeView extends LitElement {
     this.getNavigation().setUrl(
       createChangeUrl({
         change: this.change,
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
         patchNum: this.viewModelPatchNum,
+=======
+        patchNum: this.routerPatchNum,
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
         edit: true,
         forceReload: true,
       })

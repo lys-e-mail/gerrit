@@ -75,9 +75,29 @@ export class GrJsApiInterface implements JsApiService, Finalizable {
     }
   }
 
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   async handleShowChange(detail: ShowChangeDetail) {
     if (!detail.change) return;
     await this.waitForPluginsToLoad();
+=======
+  // TODO(TS): The HISTORY event and its handler seem unused.
+  _handleHistory(detail: {path: string}) {
+    for (const cb of this._getEventCallbacks(EventType.HISTORY)) {
+      try {
+        cb(detail.path);
+      } catch (err: unknown) {
+        this.reporting.error(
+          'GrJsApiInterface',
+          new Error('handleHistory callback error'),
+          err
+        );
+      }
+    }
+  }
+
+  _handleShowChange(detail: ShowChangeDetail) {
+    if (!detail.change) return;
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
     // Note (issue 8221) Shallow clone the change object and add a mergeable
     // getter with deprecation warning. This makes the change detail appear as
     // though SKIP_MERGEABLE was not set, so that plugins that expect it can
