@@ -70,8 +70,11 @@ export class GrFileListHeader extends LitElement {
   @property({type: String})
   filesExpanded?: FilesExpandedState;
 
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   @state() latestPatchNum?: PatchSetNumber;
 
+=======
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
   @state() patchNum?: PatchSetNum;
 
   @state() basePatchNum?: BasePatchSetNum;

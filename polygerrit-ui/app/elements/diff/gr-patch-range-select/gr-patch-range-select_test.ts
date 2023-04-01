@@ -9,7 +9,11 @@ import './gr-patch-range-select';
 import {GrPatchRangeSelect} from './gr-patch-range-select';
 import {RevisionInfo as RevisionInfoClass} from '../../shared/revision-info/revision-info';
 import {ChangeComments} from '../gr-comment-api/gr-comment-api';
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
 import {queryAll, stubReporting} from '../../../test/test-utils';
+=======
+import {stubReporting} from '../../../test/test-utils';
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 import {
   BasePatchSetNum,
   EDIT,
@@ -30,6 +34,10 @@ import {
   createParsedChange,
   createRevision,
   createRevisions,
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
+=======
+  TEST_NUMERIC_CHANGE_ID,
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 } from '../../../test/test-data-generators';
 import {PatchSet} from '../../../utils/patch-set-util';
 import {
@@ -42,6 +50,10 @@ import {fixture, html, assert} from '@open-wc/testing';
 import {testResolver} from '../../../test/common-test-setup';
 import {changeViewModelToken} from '../../../models/views/change';
 import {changeModelToken} from '../../../models/change/change-model';
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
+=======
+import {GerritView} from '../../../services/router/router-model';
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 
 type RevIdToRevisionInfo = {
   [revisionId: string]: RevisionInfo | EditRevisionInfo;
@@ -65,6 +77,14 @@ suite('gr-patch-range-select tests', () => {
       html`<gr-patch-range-select></gr-patch-range-select>`
     );
 
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
+=======
+    element.routerModel.setState({
+      changeNum: TEST_NUMERIC_CHANGE_ID,
+      view: GerritView.CHANGE,
+      patchNum: 1 as RevisionPatchSetNum,
+    });
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
     const viewModel = testResolver(changeViewModelToken);
     viewModel.setState({
       ...createChangeViewState(),

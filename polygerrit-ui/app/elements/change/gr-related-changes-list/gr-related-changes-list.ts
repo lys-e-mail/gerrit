@@ -54,13 +54,22 @@ export enum Section {
 
 @customElement('gr-related-changes-list')
 export class GrRelatedChangesList extends LitElement {
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
+=======
+  @property({type: Object})
+  change?: ParsedChangeInfo;
+
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
   @property({type: Boolean})
   mergeable?: boolean;
 
   @state()
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   change?: ParsedChangeInfo;
 
   @state()
+=======
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
   latestPatchNum?: PatchSetNumber;
 
   @state()
@@ -89,11 +98,14 @@ export class GrRelatedChangesList extends LitElement {
     super();
     subscribe(
       this,
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
       () => this.getChangeModel().change$,
       x => (this.change = x)
     );
     subscribe(
       this,
+=======
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
       () => this.getChangeModel().latestPatchNum$,
       x => (this.latestPatchNum = x)
     );

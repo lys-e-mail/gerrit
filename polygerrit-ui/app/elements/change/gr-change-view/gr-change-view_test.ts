@@ -2187,7 +2187,11 @@ suite('gr-change-view tests', () => {
       const newChange = {...element.change};
       newChange.revisions.rev2 = createRevision(2);
       element.change = newChange;
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
       element.viewModelPatchNum = 1 as RevisionPatchSetNum;
+=======
+      element.routerPatchNum = 1 as RevisionPatchSetNum;
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
       await element.updateComplete;
 
       fireEdit();

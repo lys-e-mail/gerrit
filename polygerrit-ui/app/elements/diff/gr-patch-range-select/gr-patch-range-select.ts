@@ -45,10 +45,15 @@ import {subscribe} from '../../lit/subscription-controller';
 import {commentsModelToken} from '../../../models/comments/comments-model';
 import {resolve} from '../../../models/dependency';
 import {ValueChangedEvent} from '../../../types/events';
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
 import {changeModelToken} from '../../../models/change/change-model';
 import {changeViewModelToken} from '../../../models/views/change';
 import {fireNoBubbleNoCompose} from '../../../utils/event-util';
 import {KnownExperimentId} from '../../../services/flags/flags';
+=======
+import {GeneratedWebLink} from '../../../utils/weblink-util';
+import {changeModelToken} from '../../../models/change/change-model';
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 
 // Maximum length for patch set descriptions.
 const PATCH_DESC_MAX_LENGTH = 500;
@@ -125,15 +130,24 @@ export class GrPatchRangeSelect extends LitElement {
 
   private readonly getChangeModel = resolve(this, changeModelToken);
 
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
   private readonly getViewModel = resolve(this, changeViewModelToken);
 
   private readonly flagsService = getAppContext().flagsService;
+=======
+  // Private but used in tests.
+  readonly routerModel = getAppContext().routerModel;
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
 
   constructor() {
     super();
     subscribe(
       this,
+<<<<<<< HEAD   (d1d18e Merge "Bump JGit to 5ae8d28")
       () => this.getViewModel().changeNum$,
+=======
+      () => this.routerModel.routerChangeNum$,
+>>>>>>> BRANCH (eedb76 Merge branch 'stable-3.6' into stable-3.7)
       x => (this.changeNum = x)
     );
     subscribe(
