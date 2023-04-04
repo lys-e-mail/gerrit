@@ -24,6 +24,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+<<<<<<< HEAD   (b08e75 Fix the search by query in the project filter)
+=======
+import java.util.ArrayList;
+>>>>>>> BRANCH (4f12dc Set uninteresting branches based on project configuration)
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
