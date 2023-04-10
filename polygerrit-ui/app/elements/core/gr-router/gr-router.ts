@@ -341,7 +341,10 @@ export class GrRouter implements Finalizable, NavigationService {
       subscription.unsubscribe();
     }
     this.subscriptions = [];
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     this.page.stop();
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
   }
 
   start() {
@@ -1206,7 +1209,7 @@ export class GrRouter implements Finalizable, NavigationService {
   }
 
   handleQueryRoute(ctx: PageContext) {
-    const state: SearchViewState = {
+    const state: Partial<SearchViewState> = {
       view: GerritView.SEARCH,
       query: ctx.params[0],
       offset: ctx.params[2] || '0',
@@ -1221,11 +1224,15 @@ export class GrRouter implements Finalizable, NavigationService {
     // TODO(pcc): This will need to indicate that this was a change ID query if
     // standard queries gain the ability to search places like commit messages
     // for change IDs.
-    const state: SearchViewState = {
+    const state: Partial<SearchViewState> = {
       view: GerritView.SEARCH,
       query: ctx.params[0],
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       offset: '0',
       loading: false,
+=======
+      offset: undefined,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
     };
     // Note that router model view must be updated before view models.
     this.setState(state as AppElementParams);

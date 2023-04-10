@@ -26,7 +26,11 @@ import {DiffPreferencesInfo} from '../../types/diff';
 import {select} from '../../utils/observable-util';
 import {define} from '../dependency';
 import {Model} from '../model';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {isDefined} from '../../types/types';
+=======
+import {notUndefined} from '../../types/types';
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
 export interface UserState {
   /**
@@ -56,9 +60,13 @@ export interface UserState {
   capabilities?: AccountCapabilityInfo;
 }
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 export const userModelToken = define<UserModel>('user-model');
 
 export class UserModel extends Model<UserState> {
+=======
+export class UserModel extends Model<UserState> implements Finalizable {
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
   /**
    * Note that the initially emitted `undefined` value can mean "not loaded
    * the account into object yet" or "user is not logged in". Consider using
@@ -101,17 +109,29 @@ export class UserModel extends Model<UserState> {
   readonly preferences$: Observable<PreferencesInfo> = select(
     this.state$,
     userState => userState.preferences
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   ).pipe(filter(isDefined));
+=======
+  ).pipe(filter(notUndefined));
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
   readonly diffPreferences$: Observable<DiffPreferencesInfo> = select(
     this.state$,
     userState => userState.diffPreferences
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   ).pipe(filter(isDefined));
+=======
+  ).pipe(filter(notUndefined));
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
   readonly editPreferences$: Observable<EditPreferencesInfo> = select(
     this.state$,
     userState => userState.editPreferences
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   ).pipe(filter(isDefined));
+=======
+  ).pipe(filter(notUndefined));
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
   readonly preferenceDiffViewMode$: Observable<DiffViewMode> = select(
     this.preferences$,

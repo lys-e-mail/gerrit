@@ -378,6 +378,7 @@ suite('gr-router tests', () => {
       await checkRedirect('/c/repo/ /42#foo', '/c/repo/+/42#foo');
     });
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     test('QUERY', async () => {
       // QUERY: /^\/q\/(.+?)(,(\d+))?$/,
       await checkUrlToState('/q/asdf', {
@@ -386,6 +387,23 @@ suite('gr-router tests', () => {
       });
       await checkUrlToState('/q/project:foo/bar/baz', {
         ...createSearchViewState(),
+=======
+    test('handleQueryRoute', () => {
+      const ctx: PageContext = {
+        ...createPageContext(),
+        params: {0: 'project:foo/bar/baz'},
+      };
+      assertctxToParams(ctx, 'handleQueryRoute', {
+        view: GerritView.SEARCH,
+        query: 'project:foo/bar/baz',
+        offset: undefined,
+      } as AppElementParams);
+
+      ctx.params[1] = '123';
+      ctx.params[2] = '123';
+      assertctxToParams(ctx, 'handleQueryRoute', {
+        view: GerritView.SEARCH,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         query: 'project:foo/bar/baz',
       });
       await checkUrlToState('/q/asdf,123', {
@@ -401,7 +419,7 @@ suite('gr-router tests', () => {
         ...createSearchViewState(),
         query: 'asdf,qwer',
         offset: '123',
-      });
+      } as AppElementParams);
     });
 
     test('QUERY_LEGACY_SUFFIX', async () => {
@@ -414,7 +432,8 @@ suite('gr-router tests', () => {
       await checkUrlToState('/id/I0123456789abcdef0123456789abcdef01234567', {
         ...createSearchViewState(),
         query: 'I0123456789abcdef0123456789abcdef01234567',
-      });
+        offset: undefined,
+      } as AppElementParams);
     });
 
     test('REGISTER', async () => {
