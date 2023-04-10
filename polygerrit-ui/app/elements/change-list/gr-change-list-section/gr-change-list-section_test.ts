@@ -198,7 +198,11 @@ suite('gr-change-list section', () => {
         ],
         emptyStateSlotName: 'test',
       };
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       userModel.setAccount({
+=======
+      element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         ...createAccountWithEmail('abc@def.com'),
         registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
       });
@@ -244,7 +248,11 @@ suite('gr-change-list section', () => {
         ],
         emptyStateSlotName: 'test',
       };
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       userModel.setAccount({
+=======
+      element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         ...createAccountWithEmail('abc@def.com'),
         registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
       });
@@ -304,7 +312,11 @@ suite('gr-change-list section', () => {
       ],
       emptyStateSlotName: 'test',
     };
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     userModel.setAccount(undefined);
+=======
+    element.userModel.setAccount(undefined);
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
     await element.updateComplete;
     const rows = queryAll(element, 'gr-change-list-item');
     assert.lengthOf(rows, 2);

@@ -34,7 +34,10 @@ import {fixture, assert} from '@open-wc/testing';
 import {html} from 'lit';
 import {testResolver} from '../../../test/common-test-setup';
 import {Timestamp} from '../../../api/rest-api';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {UserModel, userModelToken} from '../../../models/user/user-model';
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
 suite('gr-change-list basic tests', () => {
   let element: GrChangeList;
@@ -296,7 +299,11 @@ suite('gr-change-list basic tests', () => {
   });
 
   test('toggle checkbox keyboard shortcut', async () => {
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     userModel.setAccount({
+=======
+    element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       ...createAccountWithEmail('abc@def.com'),
       registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
     });
@@ -554,7 +561,11 @@ suite('gr-change-list basic tests', () => {
       ],
     };
     element.config = createServerInfo();
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     userModel.setAccount(undefined);
+=======
+    element.userModel.setAccount(undefined);
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
     await element.updateComplete;
     const section = query<GrChangeListSection>(
       element,
@@ -568,7 +579,11 @@ suite('gr-change-list basic tests', () => {
     assert.isNotOk(query(query(section, 'gr-change-list-item'), '.star'));
     assert.isNotOk(query(query(section, 'gr-change-list-item'), '.number'));
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     userModel.setAccount({
+=======
+    element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       ...createAccountWithEmail('abc@def.com'),
       registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
     });

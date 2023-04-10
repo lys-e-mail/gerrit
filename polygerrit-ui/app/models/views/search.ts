@@ -16,9 +16,14 @@ import {RepoName, BranchName, TopicName, ChangeInfo} from '../../api/rest-api';
 import {NavigationService} from '../../elements/core/gr-navigation/gr-navigation';
 import {RestApiService} from '../../services/gr-rest-api/gr-rest-api';
 import {GerritView} from '../../services/router/router-model';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {accountKey} from '../../utils/account-util';
 import {select} from '../../utils/observable-util';
 import {escapeAndWrapSearchOperatorValue} from '../../utils/string-util';
+=======
+import {select} from '../../utils/observable-util';
+import {addQuotesWhen} from '../../utils/string-util';
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 import {encodeURL, getBaseUrl} from '../../utils/url-util';
 import {define, Provider} from '../dependency';
 import {Model} from '../model';
@@ -65,6 +70,7 @@ export interface SearchViewState extends ViewState {
 
   /**
    * The search results for the current query.
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
    * `undefined` must be allowed here, because updating state with a partial
    * state without `changes` must be possible without overwriting existing
    * changes.
@@ -72,6 +78,10 @@ export interface SearchViewState extends ViewState {
    * really "view" state. View state must directly correlate to the URL.
    */
   changes?: ChangeInfo[];
+=======
+   */
+  changes: ChangeInfo[];
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 }
 
 export interface SearchUrlOptions {
@@ -169,11 +179,16 @@ export class SearchViewModel extends Model<SearchViewState | undefined> {
     ([query, changes]) => {
       if (changes.length === 0) return undefined;
       if (!USER_QUERY_PATTERN.test(query)) return undefined;
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       const ownerKey = accountKey(changes[0].owner);
       if (changes.some(change => accountKey(change.owner) !== ownerKey)) {
         return undefined;
       }
       return ownerKey;
+=======
+      const owner = changes[0].owner;
+      return owner?._account_id ?? owner?.email;
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
     }
   );
 

@@ -107,7 +107,11 @@ suite('gr-change-list-item tests', () => {
     test('bulk actions checkboxes', async () => {
       element.change = {...createChange(), _number: 1 as NumericChangeId};
       bulkActionsModel.sync([element.change]);
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       userModel.setAccount({
+=======
+      element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         ...createAccountWithEmail('abc@def.com'),
         registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
       });
@@ -140,7 +144,11 @@ suite('gr-change-list-item tests', () => {
       element.globalIndex = 5;
       element.change = {...createChange(), _number: 1 as NumericChangeId};
       bulkActionsModel.sync([element.change]);
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       userModel.setAccount({
+=======
+      element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         ...createAccountWithEmail('abc@def.com'),
         registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
       });
@@ -157,7 +165,11 @@ suite('gr-change-list-item tests', () => {
     });
 
     test('checkbox state updates with model updates', async () => {
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       userModel.setAccount({
+=======
+      element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
         ...createAccountWithEmail('abc@def.com'),
         registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
       });
@@ -376,10 +388,14 @@ suite('gr-change-list-item tests', () => {
   });
 
   test('renders', async () => {
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     const change = createChange();
     bulkActionsModel.sync([change]);
     bulkActionsModel.addSelectedChangeNum(change._number);
     userModel.setAccount({
+=======
+    element.userModel.setAccount({
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       ...createAccountWithEmail('abc@def.com'),
       registered_on: '2015-03-12 18:32:08.000000000' as Timestamp,
     });
