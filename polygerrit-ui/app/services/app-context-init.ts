@@ -58,6 +58,7 @@ import {GroupViewModel, groupViewModelToken} from '../models/views/group';
 import {PluginViewModel, pluginViewModelToken} from '../models/views/plugin';
 import {RepoViewModel, repoViewModelToken} from '../models/views/repo';
 import {SearchViewModel, searchViewModelToken} from '../models/views/search';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {navigationToken} from '../elements/core/gr-navigation/gr-navigation';
 import {
   PluginLoader,
@@ -68,6 +69,12 @@ import {
   ServiceWorkerInstaller,
   serviceWorkerInstallerToken,
 } from './service-worker-installer';
+=======
+import {
+  NavigationService,
+  navigationToken,
+} from '../elements/core/gr-navigation/gr-navigation';
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
 /**
  * The AppContext lazy initializator for all services
@@ -97,6 +104,7 @@ export type Creator<T> = () => T & Finalizable;
 // change-model in change-model_test.ts because it creates one in the test
 // after setting up stubs.
 export function createAppDependencies(
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   appContext: AppContext,
   resolver: <T>(token: DependencyToken<T>) => T
 ): Map<DependencyToken<unknown>, Creator<unknown>> {
@@ -220,4 +228,106 @@ export function createAppDependencies(
         ),
     ],
   ]);
+=======
+  appContext: AppContext
+): Map<DependencyToken<unknown>, Finalizable> {
+  const dependencies = new Map<DependencyToken<unknown>, Finalizable>();
+  const browserModel = new BrowserModel(appContext.userModel);
+  dependencies.set(browserModelToken, browserModel);
+
+  const adminViewModel = new AdminViewModel();
+  dependencies.set(adminViewModelToken, adminViewModel);
+  const agreementViewModel = new AgreementViewModel();
+  dependencies.set(agreementViewModelToken, agreementViewModel);
+  const changeViewModel = new ChangeViewModel();
+  dependencies.set(changeViewModelToken, changeViewModel);
+  const dashboardViewModel = new DashboardViewModel();
+  dependencies.set(dashboardViewModelToken, dashboardViewModel);
+  const diffViewModel = new DiffViewModel();
+  dependencies.set(diffViewModelToken, diffViewModel);
+  const documentationViewModel = new DocumentationViewModel();
+  dependencies.set(documentationViewModelToken, documentationViewModel);
+  const editViewModel = new EditViewModel();
+  dependencies.set(editViewModelToken, editViewModel);
+  const groupViewModel = new GroupViewModel();
+  dependencies.set(groupViewModelToken, groupViewModel);
+  const pluginViewModel = new PluginViewModel();
+  dependencies.set(pluginViewModelToken, pluginViewModel);
+  const repoViewModel = new RepoViewModel();
+  dependencies.set(repoViewModelToken, repoViewModel);
+  const searchViewModel = new SearchViewModel(
+    appContext.restApiService,
+    appContext.userModel,
+    () => dependencies.get(navigationToken) as unknown as NavigationService
+  );
+  dependencies.set(searchViewModelToken, searchViewModel);
+  const settingsViewModel = new SettingsViewModel();
+  dependencies.set(settingsViewModelToken, settingsViewModel);
+
+  const router = new GrRouter(
+    appContext.reportingService,
+    appContext.routerModel,
+    appContext.restApiService,
+    adminViewModel,
+    agreementViewModel,
+    changeViewModel,
+    dashboardViewModel,
+    diffViewModel,
+    documentationViewModel,
+    editViewModel,
+    groupViewModel,
+    pluginViewModel,
+    repoViewModel,
+    searchViewModel,
+    settingsViewModel
+  );
+  dependencies.set(routerToken, router);
+  dependencies.set(navigationToken, router);
+
+  const changeModel = new ChangeModel(
+    appContext.routerModel,
+    appContext.restApiService,
+    appContext.userModel
+  );
+  dependencies.set(changeModelToken, changeModel);
+
+  const accountsModel = new AccountsModel(appContext.restApiService);
+
+  const commentsModel = new CommentsModel(
+    appContext.routerModel,
+    changeModel,
+    accountsModel,
+    appContext.restApiService,
+    appContext.reportingService
+  );
+  dependencies.set(commentsModelToken, commentsModel);
+
+  const filesModel = new FilesModel(
+    changeModel,
+    commentsModel,
+    appContext.restApiService
+  );
+  dependencies.set(filesModelToken, filesModel);
+
+  const configModel = new ConfigModel(changeModel, appContext.restApiService);
+  dependencies.set(configModelToken, configModel);
+
+  const checksModel = new ChecksModel(
+    appContext.routerModel,
+    changeViewModel,
+    changeModel,
+    appContext.reportingService,
+    appContext.pluginsModel
+  );
+
+  dependencies.set(checksModelToken, checksModel);
+
+  const shortcutsService = new ShortcutsService(
+    appContext.userModel,
+    appContext.reportingService
+  );
+  dependencies.set(shortcutsServiceToken, shortcutsService);
+
+  return dependencies;
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 }

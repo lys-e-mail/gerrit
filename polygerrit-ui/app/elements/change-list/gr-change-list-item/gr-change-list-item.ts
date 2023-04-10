@@ -115,16 +115,27 @@ export class GrChangeListItem extends LitElement {
 
   @state() private dynamicCellEndpoints?: string[];
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   private readonly reporting = getAppContext().reportingService;
 
   private readonly getPluginLoader = resolve(this, pluginLoaderToken);
+=======
+  // Private but used in test.
+  reporting: ReportingService = getAppContext().reportingService;
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
+
+  // Private but used in test.
+  userModel = getAppContext().userModel;
 
   private readonly getBulkActionsModel = resolve(this, bulkActionsModelToken);
 
   private readonly getNavigation = resolve(this, navigationToken);
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   private readonly getUserModel = resolve(this, userModelToken);
 
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
   @state() private isLoggedIn = false;
 
   constructor() {
@@ -138,7 +149,11 @@ export class GrChangeListItem extends LitElement {
     );
     subscribe(
       this,
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       () => this.getUserModel().loggedIn$,
+=======
+      () => this.userModel.loggedIn$,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       isLoggedIn => (this.isLoggedIn = isLoggedIn)
     );
   }

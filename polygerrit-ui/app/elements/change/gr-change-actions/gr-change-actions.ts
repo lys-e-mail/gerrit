@@ -105,11 +105,14 @@ import {Interaction} from '../../../constants/reporting';
 import {rootUrl} from '../../../utils/url-util';
 import {createSearchUrl} from '../../../models/views/search';
 import {createChangeUrl} from '../../../models/views/change';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {storageServiceToken} from '../../../services/storage/gr-storage_impl';
 import {ShowRevisionActionsDetail} from '../../shared/gr-js-api-interface/gr-js-api-types';
 import {whenVisible} from '../../../utils/dom-util';
 import {pluginLoaderToken} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {modalStyles} from '../../../styles/gr-modal-styles';
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 import {subscribe} from '../../lit/subscription-controller';
 
 const ERR_BRANCH_EMPTY = 'The destination branch can’t be empty.';
@@ -533,6 +536,11 @@ export class GrChangeActions
 
   constructor() {
     super();
+    subscribe(
+      this,
+      () => this.getChangeModel().latestPatchNum$,
+      x => (this.latestPatchNum = x)
+    );
     subscribe(
       this,
       () => this.getChangeModel().latestPatchNum$,

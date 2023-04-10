@@ -17,8 +17,22 @@ import {
   Timestamp,
 } from './common';
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== undefined && x !== null;
+=======
+export function notUndefined<T>(x: T): x is NonNullable<T> {
+  return x !== undefined && x !== null;
+}
+
+export interface FixIronA11yAnnouncer extends IronA11yAnnouncer {
+  requestAvailability(): void;
+}
+
+export interface CommitRange {
+  baseCommit: CommitId;
+  commit: CommitId;
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 }
 
 export type {CoverageRange} from '../api/diff';

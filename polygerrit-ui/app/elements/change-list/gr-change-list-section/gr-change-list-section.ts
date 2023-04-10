@@ -21,7 +21,10 @@ import {
   BulkActionsModel,
 } from '../../../models/bulk-actions/bulk-actions-model';
 import {createSearchUrl} from '../../../models/views/search';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {userModelToken} from '../../../models/user/user-model';
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 import {subscribe} from '../../lit/subscription-controller';
 import {classMap} from 'lit/directives/class-map.js';
 
@@ -102,7 +105,12 @@ export class GrChangeListSection extends LitElement {
     getAppContext().restApiService
   );
 
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
   private readonly getUserModel = resolve(this, userModelToken);
+=======
+  // Private but used in test.
+  userModel = getAppContext().userModel;
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
   private isLoggedIn = false;
 
@@ -160,7 +168,11 @@ export class GrChangeListSection extends LitElement {
     );
     subscribe(
       this,
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       () => this.getUserModel().loggedIn$,
+=======
+      () => this.userModel.loggedIn$,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       isLoggedIn => (this.isLoggedIn = isLoggedIn)
     );
   }

@@ -6,6 +6,10 @@
 import '../gr-change-list/gr-change-list';
 import '../gr-repo-header/gr-repo-header';
 import '../gr-user-header/gr-user-header';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
+=======
+import {page} from '../../../utils/page-wrapper-utils';
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 import {
   AccountDetailInfo,
   AccountId,
@@ -26,8 +30,11 @@ import {
 } from '../../../models/views/search';
 import {resolve} from '../../../models/dependency';
 import {subscribe} from '../../lit/subscription-controller';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {userModelToken} from '../../../models/user/user-model';
 import {navigationToken} from '../../core/gr-navigation/gr-navigation';
+=======
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 
 const LIMIT_OPERATOR_PATTERN = /\blimit:(\d+)/i;
 
@@ -81,8 +88,6 @@ export class GrChangeListView extends LitElement {
 
   private readonly getViewModel = resolve(this, searchViewModelToken);
 
-  private readonly getNavigation = resolve(this, navigationToken);
-
   constructor() {
     super();
     this.addEventListener('next-page', () => this.handleNextPage());
@@ -92,6 +97,34 @@ export class GrChangeListView extends LitElement {
       this,
       () => this.getViewModel().query$,
       x => (this.query = x)
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
+=======
+    );
+    subscribe(
+      this,
+      () => this.getViewModel().offsetNumber$,
+      x => (this.offset = x)
+    );
+    subscribe(
+      this,
+      () => this.getViewModel().loading$,
+      x => (this.loading = x)
+    );
+    subscribe(
+      this,
+      () => this.getViewModel().changes$,
+      x => (this.changes = x)
+    );
+    subscribe(
+      this,
+      () => this.getViewModel().userId$,
+      x => (this.userId = x)
+    );
+    subscribe(
+      this,
+      () => this.getViewModel().repo$,
+      x => (this.repo = x)
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
     );
     subscribe(
       this,
@@ -130,12 +163,20 @@ export class GrChangeListView extends LitElement {
     );
     subscribe(
       this,
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       () => this.getUserModel().preferenceChangesPerPage$,
+=======
+      () => this.userModel.preferenceChangesPerPage$,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       x => (this.changesPerPage = x)
     );
     subscribe(
       this,
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
       () => this.getUserModel().preferences$,
+=======
+      () => this.userModel.preferences$,
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       x => (this.preferences = x)
     );
   }
@@ -289,7 +330,11 @@ export class GrChangeListView extends LitElement {
   // private but used in test
   handlePreviousPage() {
     if (!this.prevArrow || !this.changesPerPage) return;
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     this.getNavigation().setUrl(this.computeNavLink(-1));
+=======
+    page.show(this.computeNavLink(-1));
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
   }
 
   // private but used in test

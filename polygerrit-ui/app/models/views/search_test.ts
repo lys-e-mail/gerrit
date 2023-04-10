@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import {assert} from '@open-wc/testing';
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
 import {SinonStubbedMember} from 'sinon';
 import {
   AccountId,
@@ -17,6 +18,18 @@ import {
   NavigationService,
   navigationToken,
 } from '../../elements/core/gr-navigation/gr-navigation';
+=======
+import {SinonStub} from 'sinon';
+import {
+  AccountId,
+  BranchName,
+  EmailAddress,
+  NumericChangeId,
+  RepoName,
+  TopicName,
+} from '../../api/rest-api';
+import {navigationToken} from '../../elements/core/gr-navigation/gr-navigation';
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
 import '../../test/common-test-setup';
 import {testResolver} from '../../test/common-test-setup';
 import {createChange} from '../../test/test-data-generators';
@@ -81,6 +94,7 @@ suite('search view state tests', () => {
   });
 
   suite('query based navigation', () => {
+<<<<<<< HEAD   (baef2e Limit index query results in Move Change REST API)
     let replaceUrlStub: SinonStubbedMember<NavigationService['replaceUrl']>;
     let model: SearchViewModel;
 
@@ -180,6 +194,100 @@ suite('search view state tests', () => {
         changes: [
           {...createChange(), owner: {email: 'foo@bar' as EmailAddress}},
         ],
+=======
+    let replaceUrlStub: SinonStub;
+    let model: SearchViewModel;
+
+    setup(() => {
+      model = testResolver(searchViewModelToken);
+      replaceUrlStub = sinon.stub(testResolver(navigationToken), 'replaceUrl');
+    });
+
+    teardown(() => {
+      model.finalize();
+    });
+
+    test('Searching for a change ID redirects to change', async () => {
+      const change = {...createChange(), _number: 1 as NumericChangeId};
+
+      model.redirectSingleResult(CHANGE_ID, [change]);
+
+      assert.isTrue(replaceUrlStub.called);
+      assert.equal(replaceUrlStub.lastCall.firstArg, '/c/test-project/+/1');
+    });
+
+    test('Searching for a change num redirects to change', async () => {
+      const change = {...createChange(), _number: 1 as NumericChangeId};
+
+      model.redirectSingleResult('1', [change]);
+
+      assert.isTrue(replaceUrlStub.called);
+      assert.equal(replaceUrlStub.lastCall.firstArg, '/c/test-project/+/1');
+    });
+
+    test('Commit hash redirects to change', async () => {
+      const change = {...createChange(), _number: 1 as NumericChangeId};
+
+      model.redirectSingleResult(COMMIT_HASH, [change]);
+
+      assert.isTrue(replaceUrlStub.called);
+      assert.equal(replaceUrlStub.lastCall.firstArg, '/c/test-project/+/1');
+    });
+
+    test('No results: no redirect', async () => {
+      model.redirectSingleResult(CHANGE_ID, []);
+
+      assert.isFalse(replaceUrlStub.called);
+    });
+
+    test('More than 1 result: no redirect', async () => {
+      const change1 = {...createChange(), _number: 1 as NumericChangeId};
+      const change2 = {...createChange(), _number: 2 as NumericChangeId};
+
+      model.redirectSingleResult(CHANGE_ID, [change1, change2]);
+
+      assert.isFalse(replaceUrlStub.called);
+    });
+  });
+
+  suite('selectors', () => {
+    let model: SearchViewModel;
+    let userId: AccountId | EmailAddress | undefined;
+    let repo: RepoName | undefined;
+
+    setup(() => {
+      model = testResolver(searchViewModelToken);
+      model.userId$.subscribe(x => (userId = x));
+      model.repo$.subscribe(x => (repo = x));
+    });
+
+    teardown(() => {
+      model.finalize();
+    });
+
+    test('userId', async () => {
+      assert.isUndefined(userId);
+
+      model.updateState({
+        query: 'owner: foo@bar',
+        changes: [
+          {...createChange(), owner: {email: 'foo@bar' as EmailAddress}},
+        ],
+      });
+      assert.equal(userId, 'foo@bar' as EmailAddress);
+
+      model.updateState({
+        query: 'foo bar baz',
+        changes: [
+          {...createChange(), owner: {email: 'foo@bar' as EmailAddress}},
+        ],
+      });
+      assert.isUndefined(userId);
+
+      model.updateState({
+        query: 'owner: foo@bar',
+        changes: [{...createChange(), owner: {}}],
+>>>>>>> BRANCH (0a4ddc gr-change-actions: use change-model for latestPatchNum)
       });
       assert.isUndefined(userId);
     });
