@@ -237,6 +237,11 @@ export class GrFileListHeader extends LitElement {
     if (!this.change || !this.diffPrefs) {
       return;
     }
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
+=======
+    const editModeClass = this.computeEditModeClass(this.editMode);
+    const patchInfoClass = this.computePatchInfoClass();
+>>>>>>> BRANCH (0d0941 Merge branch 'stable-3.6' into stable-3.7)
     const expandedClass = this.computeExpandedClass(this.filesExpanded);
     return html`
       <div
@@ -410,7 +415,24 @@ export class GrFileListHeader extends LitElement {
   private handleDownloadTap(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
     fireNoBubbleNoCompose(this, 'open-download-dialog', {});
+=======
+    this.dispatchEvent(
+      new CustomEvent('open-download-dialog', {bubbles: false})
+    );
+  }
+
+  private computeEditModeClass(editMode?: boolean) {
+    return editMode ? 'editMode' : '';
+  }
+
+  computePatchInfoClass() {
+    if (this.patchNum === this.latestPatchNum) {
+      return '';
+    }
+    return 'patchInfoOldPatchSet';
+>>>>>>> BRANCH (0d0941 Merge branch 'stable-3.6' into stable-3.7)
   }
 
   private createTitle(shortcutName: Shortcut, section: ShortcutSection) {

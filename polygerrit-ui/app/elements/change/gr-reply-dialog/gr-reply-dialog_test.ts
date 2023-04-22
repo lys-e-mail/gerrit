@@ -95,7 +95,10 @@ suite('gr-reply-dialog tests', () => {
   let element: GrReplyDialog;
   let changeNum: NumericChangeId;
   let latestPatchNum: PatchSetNumber;
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
   let commentsModel: CommentsModel;
+=======
+>>>>>>> BRANCH (0d0941 Merge branch 'stable-3.6' into stable-3.7)
 
   let lastId = 1;
   const makeAccount = function () {

@@ -244,6 +244,7 @@ suite('gr-file-list-header tests', () => {
     assert.equal(setUrlStub.lastCall.firstArg, '/c/test-project/+/42/1..3');
   });
 
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
   test('class is applied to file list on old patch set', async () => {
     element.latestPatchNum = 4 as PatchSetNumber;
 
@@ -258,6 +259,19 @@ suite('gr-file-list-header tests', () => {
     element.patchNum = 4 as PatchSetNumber;
     await element.updateComplete;
     assert.isFalse(Boolean(query(element, '.patchInfoOldPatchSet')));
+=======
+  test('class is applied to file list on old patch set', () => {
+    element.latestPatchNum = 4 as PatchSetNumber;
+
+    element.patchNum = 1 as PatchSetNumber;
+    assert.equal(element.computePatchInfoClass(), 'patchInfoOldPatchSet');
+
+    element.patchNum = 2 as PatchSetNumber;
+    assert.equal(element.computePatchInfoClass(), 'patchInfoOldPatchSet');
+
+    element.patchNum = 4 as PatchSetNumber;
+    assert.equal(element.computePatchInfoClass(), '');
+>>>>>>> BRANCH (0d0941 Merge branch 'stable-3.6' into stable-3.7)
   });
 
   suite('editMode behavior', () => {
