@@ -34,7 +34,11 @@ import '../../checks/gr-checks-tab';
 import {ChangeStarToggleStarDetail} from '../../shared/gr-change-star/gr-change-star';
 import {GrEditConstants} from '../../edit/gr-edit-constants';
 import {pluralize} from '../../../utils/string-util';
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
 import {whenVisible} from '../../../utils/dom-util';
+=======
+import {querySelectorAll, whenVisible} from '../../../utils/dom-util';
+>>>>>>> BRANCH (686fb6 Merge branch 'stable-3.6' into stable-3.7)
 import {navigationToken} from '../../core/gr-navigation/gr-navigation';
 import {RevisionInfo as RevisionInfoClass} from '../../shared/revision-info/revision-info';
 import {
