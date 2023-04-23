@@ -213,6 +213,8 @@ export class GrReplyDialog extends LitElement {
 
   @state() latestPatchNum?: PatchSetNumber;
 
+  @state() latestPatchNum?: PatchSetNumber;
+
   @state() serverConfig?: ServerInfo;
 
   @state()
@@ -349,8 +351,11 @@ export class GrReplyDialog extends LitElement {
 
   private readonly getAccountsModel = resolve(this, accountsModelToken);
 
+<<<<<<< HEAD   (1626b4 Merge "gr-change-view: Call reload event with clear patchset)
   private readonly getUserModel = resolve(this, userModelToken);
 
+=======
+>>>>>>> BRANCH (686fb6 Merge branch 'stable-3.6' into stable-3.7)
   storeTask?: DelayedTask;
 
   private isLoggedIn = false;
