@@ -222,7 +222,16 @@ public class GetServerInfo implements RestReadView<ConfigResource> {
         toBoolean(this.config.getBoolean("change", null, "disablePrivateChanges", false));
     info.mergeabilityComputationBehavior =
         MergeabilityComputationBehavior.fromConfig(config).name();
+<<<<<<< HEAD   (9978b9 Merge branch 'stable-3.7' into stable-3.8)
     info.enableRobotComments = toBoolean(config.getBoolean("change", "enableRobotComments", true));
+=======
+    info.enableAttentionSet =
+        toBoolean(this.config.getBoolean("change", null, "enableAttentionSet", true));
+    info.enableAssignee =
+        toBoolean(this.config.getBoolean("change", null, "enableAssignee", false));
+    info.conflictsPredicateEnabled =
+        toBoolean(config.getBoolean("change", "conflictsPredicateEnabled", true));
+>>>>>>> BRANCH (b6a5d7 Merge branch 'stable-3.6' into stable-3.7)
     return info;
   }
 
