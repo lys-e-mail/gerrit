@@ -38,7 +38,10 @@ import {highlightServiceToken} from '../../../services/highlight/highlight-servi
 import {anyLineTooLong} from '../../../embed/diff/gr-diff/gr-diff-utils';
 import {fireReload} from '../../../utils/event-util';
 import {when} from 'lit/directives/when.js';
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
 import {Timing} from '../../../constants/reporting';
+=======
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
 
 interface FilePreview {
   filepath: string;
@@ -257,9 +260,13 @@ export class GrApplyFixDialog extends LitElement {
 
   private renderWarning(message: string) {
     if (!message) return nothing;
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
     return html`<span class="info"
       ><gr-icon icon="info"></gr-icon>${message}</span
     >`;
+=======
+    return html`<span><gr-icon icon="info"></gr-icon>${message}</span>`;
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
   }
 
   /**
@@ -279,9 +286,15 @@ export class GrApplyFixDialog extends LitElement {
   private async showSelectedFixSuggestion(fixSuggestion: FixSuggestionInfo) {
     this.currentFix = fixSuggestion;
     this.loading = true;
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
     this.reporting.time(Timing.PREVIEW_FIX_LOAD);
+=======
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
     await this.fetchFixPreview(fixSuggestion);
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
     this.reporting.timeEnd(Timing.PREVIEW_FIX_LOAD);
+=======
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
     this.loading = false;
   }
 

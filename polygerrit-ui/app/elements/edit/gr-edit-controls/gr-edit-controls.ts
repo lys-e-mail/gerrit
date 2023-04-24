@@ -474,7 +474,11 @@ export class GrEditControls extends LitElement {
           return;
         }
         this.closeDialog(dialog);
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
         this.getChangeModel().navigateToChangeResetReload();
+=======
+        fireReload(this, true);
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
       });
   };
 
@@ -492,7 +496,11 @@ export class GrEditControls extends LitElement {
           return;
         }
         this.closeDialog(dialog);
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
         this.getChangeModel().navigateToChangeResetReload();
+=======
+        fireReload(this, true);
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
       });
   };
 

@@ -109,9 +109,15 @@ public abstract class ChangeEmail extends OutgoingEmail {
   private boolean emailOnlyAuthors;
   private boolean emailOnlyAttentionSetIfEnabled;
   // Watchers ignore attention set rules.
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
   private Set<Account.Id> watcherAccounts = new HashSet<>();
   // Watcher can only be an email if it's specified in notify section of ProjectConfig.
   private Set<Address> watcherEmails = new HashSet<>();
+=======
+  protected Set<Account.Id> watcherAccounts = new HashSet<>();
+  // Watcher can only be an email if it's specified in notify section of ProjectConfig.
+  protected Set<Address> watcherEmails = new HashSet<>();
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
 
   protected ChangeEmail(EmailArguments args, String messageClass, ChangeData changeData) {
     super(args, messageClass);

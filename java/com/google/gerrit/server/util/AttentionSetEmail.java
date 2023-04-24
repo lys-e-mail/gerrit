@@ -88,10 +88,15 @@ public class AttentionSetEmail {
     this.asyncSender =
         new AsyncSender(
             requestContext,
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
             attentionSetChangeEmailFactories,
             ctx.getUser(),
             ctx.getProject(),
             attentionSetChange,
+=======
+            ctx.getUser(),
+            sender,
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
             messageId,
             ctx.getNotify(change.getId()),
             attentionUserId,
@@ -112,10 +117,15 @@ public class AttentionSetEmail {
    */
   private static class AsyncSender implements Runnable, RequestContext {
     private final ThreadLocalRequestContext requestContext;
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
     private final AttentionSetChangeEmailFactories attentionSetChangeEmailFactories;
     private final CurrentUser user;
     private final AttentionSetChange attentionSetChange;
     private final Project.NameKey projectId;
+=======
+    private final CurrentUser user;
+    private final AttentionSetSender sender;
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
     private final MessageIdGenerator.MessageId messageId;
     private final NotifyResolver.Result notify;
     private final Account.Id attentionUserId;
@@ -124,10 +134,15 @@ public class AttentionSetEmail {
 
     AsyncSender(
         ThreadLocalRequestContext requestContext,
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
         AttentionSetChangeEmailFactories attentionSetChangeEmailFactories,
         CurrentUser user,
         Project.NameKey projectId,
         AttentionSetChange attentionSetChange,
+=======
+        CurrentUser user,
+        AttentionSetSender sender,
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
         MessageIdGenerator.MessageId messageId,
         NotifyResolver.Result notify,
         Account.Id attentionUserId,

@@ -34,13 +34,22 @@ import '../../checks/gr-checks-tab';
 import {ChangeStarToggleStarDetail} from '../../shared/gr-change-star/gr-change-star';
 import {GrEditConstants} from '../../edit/gr-edit-constants';
 import {pluralize} from '../../../utils/string-util';
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
 import {untilRendered, whenVisible} from '../../../utils/dom-util';
+=======
+import {whenVisible} from '../../../utils/dom-util';
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
 import {navigationToken} from '../../core/gr-navigation/gr-navigation';
 import {ChangeStatus, Tab, DiffViewMode} from '../../../constants/constants';
 import {getAppContext} from '../../../services/app-context';
 import {
   computeAllPatchSets,
   computeLatestPatchNum,
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
+=======
+  findEdit,
+  findEditParentRevision,
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
   PatchSet,
 } from '../../../utils/patch-set-util';
 import {
@@ -1589,12 +1598,20 @@ export class GrChangeView extends LitElement {
   override updated() {
     const tabs = [...queryAll<HTMLElement>(this.tabs!, 'paper-tab')];
     const tabIndex = tabs.findIndex(t => t.dataset['name'] === this.activeTab);
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
 
     if (tabIndex !== -1 && this.tabs!.selected !== tabIndex) {
       this.tabs!.selected = tabIndex;
     }
     this.reportChangeDisplayed();
     this.reportFullyLoaded();
+=======
+    assert(tabIndex !== -1, `tab ${this.activeTab} not found`);
+
+    if (this.tabs!.selected !== tabIndex) {
+      this.tabs!.selected = tabIndex;
+    }
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
   }
 
   private readonly handleScroll = () => {
@@ -1710,7 +1727,11 @@ export class GrChangeView extends LitElement {
         }
 
         this.editingCommitMessage = false;
+<<<<<<< HEAD   (a15a95 Merge changes from topic "change-view-model")
         this.getChangeModel().navigateToChangeResetReload();
+=======
+        fireReload(this, true);
+>>>>>>> BRANCH (785334 Merge branch 'stable-3.7' into stable-3.8)
       })
       .catch(() => {
         assertIsDefined(this.commitMessageEditor);
