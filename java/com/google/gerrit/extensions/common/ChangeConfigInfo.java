@@ -21,5 +21,11 @@ public class ChangeConfigInfo {
   public int updateDelay;
   public Boolean submitWholeTopic;
   public String mergeabilityComputationBehavior;
+<<<<<<< HEAD   (9c7adf Set version to 3.8.0-SNAPSHOT)
   public Boolean enableRobotComments;
+=======
+  public Boolean enableAttentionSet;
+  public Boolean enableAssignee;
+  public Boolean conflictsPredicateEnabled;
+>>>>>>> BRANCH (eeb3a1 Merge "Merge branch 'stable-3.6' into stable-3.7" into stabl)
 }
