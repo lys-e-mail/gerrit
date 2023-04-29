@@ -335,7 +335,14 @@ export class GrChangeView extends LitElement {
   @state()
   private updateCheckTimerHandle?: number | null;
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
   @state() editMode = false;
+=======
+  // Private but used in tests.
+  getEditMode(): boolean {
+    return !!this.viewState?.edit || this.patchNum === EDIT;
+  }
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
 
   isSubmitEnabled(): boolean {
     return !!(
@@ -661,11 +668,14 @@ export class GrChangeView extends LitElement {
     );
     subscribe(
       this,
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
       () => this.getChangeModel().editMode$,
       editMode => (this.editMode = editMode)
     );
     subscribe(
       this,
+=======
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
       () => this.getChangeModel().patchNum$,
       patchNum => (this.patchNum = patchNum)
     );
@@ -1282,6 +1292,7 @@ export class GrChangeView extends LitElement {
   }
 
   private renderCommitActions() {
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
     return html`
       <div class="commitActions">
         <gr-change-actions
@@ -1294,6 +1305,29 @@ export class GrChangeView extends LitElement {
         ></gr-change-actions>
       </div>
     `;
+=======
+    return html` <div class="commitActions">
+      <!-- always show gr-change-actions regardless if logged in or not -->
+      <gr-change-actions
+        id="actions"
+        .change=${this.change}
+        .disableEdit=${false}
+        .account=${this.account}
+        .changeNum=${this.changeNum}
+        .changeStatus=${this.change?.status}
+        .commitNum=${this.revision?.commit?.commit}
+        .commitMessage=${this.latestCommitMessage}
+        .editMode=${this.getEditMode()}
+        .privateByDefault=${this.projectConfig?.private_by_default}
+        .loggedIn=${this.loggedIn}
+        @edit-tap=${() => this.handleEditTap()}
+        @stop-edit-tap=${() => this.handleStopEditTap()}
+        @download-tap=${() => this.handleOpenDownloadDialog()}
+        @included-tap=${() => this.handleOpenIncludedInDialog()}
+        @revision-actions-changed=${this.handleRevisionActionsChanged}
+      ></gr-change-actions>
+    </div>`;
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
   }
 
   private renderChangeInfo() {
@@ -1307,6 +1341,15 @@ export class GrChangeView extends LitElement {
       <div class="changeInfo-column changeMetadata">
         <gr-change-metadata
           id="metadata"
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
+=======
+          .change=${this.change}
+          .revertedChange=${this.revertingChange}
+          .account=${this.account}
+          .revision=${this.revision}
+          .commitInfo=${this.revision?.commit}
+          .serverConfig=${this.serverConfig}
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
           .parentIsCurrent=${this.isParentCurrent()}
           @show-reply-dialog=${this.handleShowReplyDialog}
         >
@@ -1936,7 +1979,11 @@ export class GrChangeView extends LitElement {
       change: this.change,
       patchNum: this.patchNum,
       basePatchNum: this.basePatchNum,
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
       edit: this.editMode,
+=======
+      edit: this.getEditMode(),
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
       messageHash: hash,
     });
     history.replaceState(null, '', url);

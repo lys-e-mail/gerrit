@@ -552,7 +552,10 @@ export class GrAppElement extends LitElement {
     if (!this.params) return nothing;
     const pluginViewState = this.params as PluginViewState;
     const pluginScreenName = this.computePluginScreenName();
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
 
+=======
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
     return keyed(
       pluginScreenName,
       html`

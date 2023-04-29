@@ -388,6 +388,13 @@ export class GrChangeActions
     RevisionActions.SUBMIT,
   ];
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
+=======
+  @property({type: Boolean})
+  disableEdit = false;
+
+  // private but used in test
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
   @state() _hideQuickApproveAction = false;
 
   @state() account?: AccountInfo;
@@ -396,7 +403,12 @@ export class GrChangeActions
 
   @state() changeStatus?: ChangeStatus;
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
   @state() commitNum?: CommitId;
+=======
+  @property({type: String})
+  commitNum?: CommitId;
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
 
   @state() latestPatchNum?: PatchSetNumber;
 
