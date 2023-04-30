@@ -14,21 +14,18 @@ TESTING_SRC = [
     "account/externalids/testing/ExternalIdTestUtil.java",
 ]
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
 PROJECT_UTIL_SRC = [
     "ProjectUtil.java",
 ]
 
 PROLOG_SRC = ["rules/prolog/*.java"]
 
+=======
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
 java_library(
     name = "constants",
     srcs = CONSTANTS_SRC,
-    visibility = ["//visibility:public"],
-)
-
-java_library(
-    name = "project_util",
-    srcs = PROJECT_UTIL_SRC,
     visibility = ["//visibility:public"],
 )
 
@@ -42,15 +39,18 @@ java_library(
     name = "server",
     srcs = glob(
         ["**/*.java"],
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
         exclude = CONSTANTS_SRC + GERRIT_GLOBAL_MODULE_SRC + TESTING_SRC +
                   PROJECT_UTIL_SRC + PROLOG_SRC,
+=======
+        exclude = CONSTANTS_SRC + GERRIT_GLOBAL_MODULE_SRC + TESTING_SRC,
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
     ),
     resource_strip_prefix = "resources",
     resources = ["//resources/com/google/gerrit/server"],
     visibility = ["//visibility:public"],
     deps = [
         ":constants",
-        ":project_util",
         "//java/com/google/gerrit/common:annotations",
         "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/entities",

@@ -124,9 +124,25 @@ interface PushCertificateValidationInfo {
 export class GrChangeMetadata extends LitElement {
   @query('#webLinks') webLinks?: HTMLElement;
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
   // TODO: Convert to @state. That requires the change model to keep track of
   // current revision actions. Then we can also get rid of the
   // `revision-actions-changed` event.
+=======
+  @property({type: Object}) change?: ParsedChangeInfo;
+
+  @property({type: Object}) revertedChange?: ChangeInfo;
+
+  @property({type: Object}) account?: AccountDetailInfo;
+
+  @property({type: Object}) revision?: RevisionInfo | EditRevisionInfo;
+
+  // TODO: Just use `revision.commit` instead.
+  @property({type: Object}) commitInfo?: CommitInfoWithRequiredCommit;
+
+  @property({type: Object}) serverConfig?: ServerInfo;
+
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
   @property({type: Boolean}) parentIsCurrent?: boolean;
 
   @state() change?: ParsedChangeInfo;

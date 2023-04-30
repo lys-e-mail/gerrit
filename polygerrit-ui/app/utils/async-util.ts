@@ -339,6 +339,7 @@ export function makeCancelable<T>(promise: Promise<T>) {
   return wrappedPromise;
 }
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
 export interface MockPromise<T> extends Promise<T> {
   resolve: (value?: T) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -395,5 +396,63 @@ export async function waitUntil(
       sleep *= 2;
     };
     waiter();
+=======
+export async function waitUntil(
+  predicate: (() => boolean) | (() => Promise<boolean>),
+  message = 'The waitUntil() predicate is still false after 1000 ms.',
+  timeout_ms = 1000
+): Promise<void> {
+  if (await predicate()) return Promise.resolve();
+  const start = Date.now();
+  let sleep = 10;
+  const error = new Error(message);
+  return new Promise((resolve, reject) => {
+    const waiter = async () => {
+      if (await predicate()) {
+        resolve();
+        return;
+      }
+      if (Date.now() - start >= timeout_ms) {
+        reject(error);
+        return;
+      }
+      setTimeout(waiter, sleep);
+      sleep *= 2;
+    };
+    waiter();
+  });
+}
+
+export interface MockPromise<T> extends Promise<T> {
+  resolve: (value?: T) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reject: (reason?: any) => void;
+}
+
+export function mockPromise<T = unknown>(): MockPromise<T> {
+  let res: (value?: T) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let rej: (reason?: any) => void;
+  const promise: MockPromise<T> = new Promise<T | undefined>(
+    (resolve, reject) => {
+      res = resolve;
+      rej = reject;
+    }
+  ) as MockPromise<T>;
+  promise.resolve = res!;
+  promise.reject = rej!;
+  return promise;
+}
+
+// MockPromise is the established name in tests, and we don't want to rename
+// that in 50 files. But "Mock" is a bit misleading and definitely not a great
+// fit for non-test code. So let's also export under a different name.
+export type InteractivePromise<T> = MockPromise<T>;
+export const interactivePromise = mockPromise;
+
+export function timeoutPromise(timeoutMs: number): Promise<void> {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, timeoutMs);
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
   });
 }

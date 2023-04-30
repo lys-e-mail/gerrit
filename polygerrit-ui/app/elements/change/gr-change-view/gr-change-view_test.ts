@@ -1341,6 +1341,41 @@ suite('gr-change-view tests', () => {
     assert.equal(scrollStub.lastCall.args[0], 'TEST');
   });
 
+<<<<<<< HEAD   (2d11d3 Add loading spin for comments)
+=======
+  test('computeEditMode', async () => {
+    const callCompute = async (viewState: ChangeViewState) => {
+      element.viewState = viewState;
+      element.patchNum = viewState.patchNum;
+      element.basePatchNum = viewState.basePatchNum ?? PARENT;
+      await element.updateComplete;
+      return element.getEditMode();
+    };
+    assert.isTrue(
+      await callCompute({
+        ...createChangeViewState(),
+        edit: true,
+        basePatchNum: PARENT,
+        patchNum: 1 as RevisionPatchSetNum,
+      })
+    );
+    assert.isFalse(
+      await callCompute({
+        ...createChangeViewState(),
+        basePatchNum: PARENT,
+        patchNum: 1 as RevisionPatchSetNum,
+      })
+    );
+    assert.isTrue(
+      await callCompute({
+        ...createChangeViewState(),
+        basePatchNum: 1 as BasePatchSetNum,
+        patchNum: EDIT,
+      })
+    );
+  });
+
+>>>>>>> BRANCH (7cfd89 Merge branch 'stable-3.7' into stable-3.8)
   test('file-action-tap handling', async () => {
     element.patchNum = 1 as RevisionPatchSetNum;
     element.change = {
