@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (0ef6ab Merge "Log external ID differential cache loader failure" in)
   <version>3.6.5-SNAPSHOT</version>
+=======
+  <version>3.5.7-SNAPSHOT</version>
+>>>>>>> BRANCH (ce03e2 Set version to 3.5.7-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
