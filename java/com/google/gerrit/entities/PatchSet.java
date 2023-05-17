@@ -23,7 +23,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.InlineMe;
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
 import java.time.Instant;
+=======
+import java.sql.Timestamp;
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jgit.lib.ObjectId;
