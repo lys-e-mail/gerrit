@@ -139,7 +139,11 @@ def declare_nongoogle_deps():
         sha1 = "9bc20b94d3ac42489cf6ce1e42509c86f6f861a1",
     )
 
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
     FLOGGER_VERS = "0.7.4"
+=======
+    FLOGGER_VERS = "0.6"
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
 
     maven_jar(
         name = "flogger",

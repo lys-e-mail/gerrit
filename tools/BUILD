@@ -1,6 +1,9 @@
 load(
     "@bazel_tools//tools/jdk:default_java_toolchain.bzl",
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
     "NONPREBUILT_TOOLCHAIN_CONFIGURATION",
+=======
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
     "default_java_toolchain",
 )
 load("@rules_java//java:defs.bzl", "java_package_configuration")
@@ -9,7 +12,10 @@ exports_files(["nongoogle.bzl"])
 
 default_java_toolchain(
     name = "error_prone_warnings_toolchain_java11",
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
     configuration = NONPREBUILT_TOOLCHAIN_CONFIGURATION,
+=======
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
     package_configuration = [
         ":error_prone",
     ],
@@ -154,11 +160,12 @@ java_package_configuration(
         "-Xep:FloatCast:ERROR",
         "-Xep:FloatingPointAssertionWithinEpsilon:ERROR",
         "-Xep:FloatingPointLiteralPrecision:ERROR",
-        "-Xep:FloggerArgumentToString:ERROR",
+        "-Xep:FloggerArgumentToString:WARN",
         "-Xep:FloggerFormatString:ERROR",
+        "-Xep:FloggerLogString:WARN",
         "-Xep:FloggerLogVarargs:ERROR",
         "-Xep:FloggerSplitLogStatement:ERROR",
-        "-Xep:FloggerStringConcatenation:ERROR",
+        "-Xep:FloggerStringConcatenation:WARN",
         "-Xep:ForOverride:ERROR",
         "-Xep:FormatString:ERROR",
         "-Xep:FormatStringAnnotation:ERROR",
@@ -241,7 +248,11 @@ java_package_configuration(
         "-Xep:JavaPeriodGetDays:ERROR",
         "-Xep:JavaTimeDefaultTimeZone:ERROR",
         "-Xep:JavaUtilDate:WARN",
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
         "-Xep:JdkObsolete:ERROR",
+=======
+        # "-Xep:JdkObsolete:WARN",
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
         "-Xep:JodaConstructors:ERROR",
         "-Xep:JodaDateTimeConstants:ERROR",
         "-Xep:JodaDurationWithMillis:ERROR",
@@ -350,7 +361,7 @@ java_package_configuration(
         "-Xep:RestrictedApiChecker:ERROR",
         "-Xep:RethrowReflectiveOperationExceptionAsLinkageError:ERROR",
         "-Xep:ReturnFromVoid:ERROR",
-        "-Xep:ReturnValueIgnored:ERROR",
+        "-Xep:ReturnValueIgnored:WARN",
         "-Xep:RxReturnValueIgnored:ERROR",
         "-Xep:SameNameButDifferent:ERROR",
         "-Xep:SelfAssignment:ERROR",
