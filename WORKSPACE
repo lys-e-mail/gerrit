@@ -184,6 +184,258 @@ http_file(
 
 declare_nongoogle_deps()
 
+<<<<<<< HEAD   (e3a2b6 Set version to 3.6.6-SNAPSHOT)
+=======
+maven_jar(
+    name = "mime-util",
+    artifact = "eu.medsea.mimeutil:mime-util:2.1.3",
+    attach_source = False,
+    sha1 = "0c9cfae15c74f62491d4f28def0dff1dabe52a47",
+)
+
+PROLOG_VERS = "1.4.4"
+
+PROLOG_REPO = GERRIT
+
+maven_jar(
+    name = "prolog-runtime",
+    artifact = "com.googlecode.prolog-cafe:prolog-runtime:" + PROLOG_VERS,
+    attach_source = False,
+    repository = PROLOG_REPO,
+    sha1 = "e9a364f4233481cce63239e8e68a6190c8f58acd",
+)
+
+maven_jar(
+    name = "prolog-compiler",
+    artifact = "com.googlecode.prolog-cafe:prolog-compiler:" + PROLOG_VERS,
+    attach_source = False,
+    repository = PROLOG_REPO,
+    sha1 = "570295026f6aa7b905e423d107cb2e081eecdc04",
+)
+
+maven_jar(
+    name = "prolog-io",
+    artifact = "com.googlecode.prolog-cafe:prolog-io:" + PROLOG_VERS,
+    attach_source = False,
+    repository = PROLOG_REPO,
+    sha1 = "1f25c4e27d22bdbc31481ee0c962a2a2853e4428",
+)
+
+maven_jar(
+    name = "cafeteria",
+    artifact = "com.googlecode.prolog-cafe:prolog-cafeteria:" + PROLOG_VERS,
+    attach_source = False,
+    repository = PROLOG_REPO,
+    sha1 = "0e6c2deeaf5054815a561cbd663566fd59b56c6c",
+)
+
+maven_jar(
+    name = "guava-retrying",
+    artifact = "com.github.rholder:guava-retrying:2.0.0",
+    sha1 = "974bc0a04a11cc4806f7c20a34703bd23c34e7f4",
+)
+
+maven_jar(
+    name = "jsr305",
+    artifact = "com.google.code.findbugs:jsr305:3.0.1",
+    sha1 = "f7be08ec23c21485b9b5a1cf1654c2ec8c58168d",
+)
+
+GITILES_VERS = "0.4-1"
+
+GITILES_REPO = GERRIT
+
+maven_jar(
+    name = "blame-cache",
+    artifact = "com.google.gitiles:blame-cache:" + GITILES_VERS,
+    attach_source = False,
+    repository = GITILES_REPO,
+    sha1 = "0df80c6b8822147e1f116fd7804b8a0de544f402",
+)
+
+maven_jar(
+    name = "gitiles-servlet",
+    artifact = "com.google.gitiles:gitiles-servlet:" + GITILES_VERS,
+    repository = GITILES_REPO,
+    sha1 = "60870897d22b840e65623fd024eabd9cc9706ebe",
+)
+
+# prettify must match the version used in Gitiles
+maven_jar(
+    name = "prettify",
+    artifact = "com.github.twalcari:java-prettify:1.2.2",
+    sha1 = "b8ba1c1eb8b2e45cfd465d01218c6060e887572e",
+)
+
+maven_jar(
+    name = "html-types",
+    artifact = "com.google.common.html.types:types:1.0.8",
+    sha1 = "9e9cf7bc4b2a60efeb5f5581fe46d17c068e0777",
+)
+
+maven_jar(
+    name = "icu4j",
+    artifact = "com.ibm.icu:icu4j:57.1",
+    sha1 = "198ea005f41219f038f4291f0b0e9f3259730e92",
+)
+
+# When updating Bouncy Castle, also update it in bazlets.
+BC_VERS = "1.72"
+
+maven_jar(
+    name = "bcprov",
+    artifact = "org.bouncycastle:bcprov-jdk18on:" + BC_VERS,
+    sha1 = "d8dc62c28a3497d29c93fee3e71c00b27dff41b4",
+)
+
+maven_jar(
+    name = "bcpg",
+    artifact = "org.bouncycastle:bcpg-jdk18on:" + BC_VERS,
+    sha1 = "1a36a1740d07869161f6f0d01fae8d72dd1d8320",
+)
+
+maven_jar(
+    name = "bcpkix",
+    artifact = "org.bouncycastle:bcpkix-jdk18on:" + BC_VERS,
+    sha1 = "bb3fdb5162ccd5085e8d7e57fada4d8eaa571f5a",
+)
+
+maven_jar(
+    name = "bcutil",
+    artifact = "org.bouncycastle:bcutil-jdk18on:" + BC_VERS,
+    sha1 = "41f19a69ada3b06fa48781120d8bebe1ba955c77",
+)
+
+maven_jar(
+    name = "h2",
+    artifact = "com.h2database:h2:1.3.176",
+    sha1 = "fd369423346b2f1525c413e33f8cf95b09c92cbd",
+)
+
+HTTPCOMP_VERS = "4.5.2"
+
+maven_jar(
+    name = "fluent-hc",
+    artifact = "org.apache.httpcomponents:fluent-hc:" + HTTPCOMP_VERS,
+    sha1 = "7bfdfa49de6d720ad3c8cedb6a5238eec564dfed",
+)
+
+maven_jar(
+    name = "httpclient",
+    artifact = "org.apache.httpcomponents:httpclient:" + HTTPCOMP_VERS,
+    sha1 = "733db77aa8d9b2d68015189df76ab06304406e50",
+)
+
+maven_jar(
+    name = "httpcore",
+    artifact = "org.apache.httpcomponents:httpcore:4.4.4",
+    sha1 = "b31526a230871fbe285fbcbe2813f9c0839ae9b0",
+)
+
+# Test-only dependencies below.
+
+maven_jar(
+    name = "junit",
+    artifact = "junit:junit:4.12",
+    sha1 = "2973d150c0dc1fefe998f834810d68f278ea58ec",
+)
+
+maven_jar(
+    name = "diffutils",
+    artifact = "com.googlecode.java-diff-utils:diffutils:1.3.0",
+    sha1 = "7e060dd5b19431e6d198e91ff670644372f60fbd",
+)
+
+JETTY_VERS = "9.4.36.v20210114"
+
+maven_jar(
+    name = "jetty-servlet",
+    artifact = "org.eclipse.jetty:jetty-servlet:" + JETTY_VERS,
+    sha1 = "b189e52a5ee55ae172e4e99e29c5c314f5daf4b9",
+)
+
+maven_jar(
+    name = "jetty-security",
+    artifact = "org.eclipse.jetty:jetty-security:" + JETTY_VERS,
+    sha1 = "42030d6ed7dfc0f75818cde0adcf738efc477574",
+)
+
+maven_jar(
+    name = "jetty-server",
+    artifact = "org.eclipse.jetty:jetty-server:" + JETTY_VERS,
+    sha1 = "88a7d342974aadca658e7386e8d0fcc5c0788f41",
+)
+
+maven_jar(
+    name = "jetty-jmx",
+    artifact = "org.eclipse.jetty:jetty-jmx:" + JETTY_VERS,
+    sha1 = "bb3847eabe085832aeaedd30e872b40931632e54",
+)
+
+maven_jar(
+    name = "jetty-http",
+    artifact = "org.eclipse.jetty:jetty-http:" + JETTY_VERS,
+    sha1 = "1eee89a55e04ff94df0f85d95200fc48acb43d86",
+)
+
+maven_jar(
+    name = "jetty-io",
+    artifact = "org.eclipse.jetty:jetty-io:" + JETTY_VERS,
+    sha1 = "84a8faf9031eb45a5a2ddb7681e22c483d81ab3a",
+)
+
+maven_jar(
+    name = "jetty-util",
+    artifact = "org.eclipse.jetty:jetty-util:" + JETTY_VERS,
+    sha1 = "925257fbcca6b501a25252c7447dbedb021f7404",
+)
+
+maven_jar(
+    name = "jetty-util-ajax",
+    artifact = "org.eclipse.jetty:jetty-util-ajax:" + JETTY_VERS,
+    sha1 = "2f478130c21787073facb64d7242e06f94980c60",
+    src_sha1 = "7153d7ca38878d971fd90992c303bb7719ba7a21",
+)
+
+maven_jar(
+    name = "asciidoctor",
+    artifact = "org.asciidoctor:asciidoctorj:1.5.7",
+    sha1 = "8e8c1d8fc6144405700dd8df3b177f2801ac5987",
+)
+
+maven_jar(
+    name = "javax-activation",
+    artifact = "javax.activation:activation:1.1.1",
+    sha1 = "485de3a253e23f645037828c07f1d7f1af40763a",
+)
+
+maven_jar(
+    name = "mockito",
+    artifact = "org.mockito:mockito-core:3.3.3",
+    sha1 = "4878395d4e63173f3825e17e5e0690e8054445f1",
+)
+
+BYTE_BUDDY_VERSION = "1.10.7"
+
+maven_jar(
+    name = "bytebuddy",
+    artifact = "net.bytebuddy:byte-buddy:" + BYTE_BUDDY_VERSION,
+    sha1 = "1eefb7dd1b032b33c773ca0a17d5cc9e6b56ea1a",
+)
+
+maven_jar(
+    name = "bytebuddy-agent",
+    artifact = "net.bytebuddy:byte-buddy-agent:" + BYTE_BUDDY_VERSION,
+    sha1 = "c472fad33f617228601172682aa64f8b78508045",
+)
+
+maven_jar(
+    name = "objenesis",
+    artifact = "org.objenesis:objenesis:3.0.1",
+    sha1 = "11cfac598df9dc48bb9ed9357ed04212694b7808",
+)
+
+>>>>>>> BRANCH (9dd9f3 Merge "Fix parsing legacy labels for users with comma" into )
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
