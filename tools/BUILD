@@ -157,11 +157,12 @@ java_package_configuration(
         "-Xep:FloatCast:ERROR",
         "-Xep:FloatingPointAssertionWithinEpsilon:ERROR",
         "-Xep:FloatingPointLiteralPrecision:ERROR",
-        "-Xep:FloggerArgumentToString:ERROR",
+        "-Xep:FloggerArgumentToString:WARN",
         "-Xep:FloggerFormatString:ERROR",
+        "-Xep:FloggerLogString:WARN",
         "-Xep:FloggerLogVarargs:ERROR",
         "-Xep:FloggerSplitLogStatement:ERROR",
-        "-Xep:FloggerStringConcatenation:ERROR",
+        "-Xep:FloggerStringConcatenation:WARN",
         "-Xep:ForOverride:ERROR",
         "-Xep:FormatString:ERROR",
         "-Xep:FormatStringAnnotation:ERROR",
@@ -244,8 +245,13 @@ java_package_configuration(
         "-Xep:JavaLocalTimeGetNano:ERROR",
         "-Xep:JavaPeriodGetDays:ERROR",
         "-Xep:JavaTimeDefaultTimeZone:ERROR",
+<<<<<<< HEAD   (756fc2 Set version to 3.8.0-SNAPSHOT)
         "-Xep:JavaUtilDate:ERROR",
         "-Xep:JdkObsolete:ERROR",
+=======
+        "-Xep:JavaUtilDate:WARN",
+        # "-Xep:JdkObsolete:WARN",
+>>>>>>> BRANCH (837668 Merge branch 'stable-3.6' into stable-3.7)
         "-Xep:JodaConstructors:ERROR",
         "-Xep:JodaDateTimeConstants:ERROR",
         "-Xep:JodaDurationWithMillis:ERROR",
@@ -354,8 +360,12 @@ java_package_configuration(
         "-Xep:RestrictedApiChecker:ERROR",
         "-Xep:RethrowReflectiveOperationExceptionAsLinkageError:ERROR",
         "-Xep:ReturnFromVoid:ERROR",
+<<<<<<< HEAD   (756fc2 Set version to 3.8.0-SNAPSHOT)
         "-Xep:ReturnMissingNullable:ERROR",
         "-Xep:ReturnValueIgnored:ERROR",
+=======
+        "-Xep:ReturnValueIgnored:WARN",
+>>>>>>> BRANCH (837668 Merge branch 'stable-3.6' into stable-3.7)
         "-Xep:RxReturnValueIgnored:ERROR",
         "-Xep:SameNameButDifferent:ERROR",
         "-Xep:SelfAssignment:ERROR",
