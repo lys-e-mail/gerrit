@@ -222,7 +222,11 @@ suite('change model tests', () => {
     });
   });
 
+<<<<<<< HEAD   (92e373 Merge "Move computation of key locations into diff model")
   test('fireShowChange from overview', async () => {
+=======
+  test('fireShowChange', async () => {
+>>>>>>> BRANCH (d07705 Set version to 3.8.0)
     await waitForLoadingStatus(LoadingStatus.NOT_LOADED);
     const pluginLoader = testResolver(pluginLoaderToken);
     const jsApiService = pluginLoader.jsApiService;

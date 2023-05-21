@@ -418,11 +418,24 @@ export class ChangeModel extends Model<ChangeState> {
     ])
       .pipe(
         filter(
+<<<<<<< HEAD   (92e373 Merge "Move computation of key locations into diff model")
           ([change, basePatchNum, patchNum, mergeable]) =>
             !!change && !!basePatchNum && !!patchNum && mergeable !== undefined
+=======
+          ([childView, change, basePatchNum, patchNum, mergeable]) =>
+            childView === ChangeChildView.OVERVIEW &&
+            !!change &&
+            !!basePatchNum &&
+            !!patchNum &&
+            mergeable !== undefined
+>>>>>>> BRANCH (d07705 Set version to 3.8.0)
         )
       )
+<<<<<<< HEAD   (92e373 Merge "Move computation of key locations into diff model")
       .subscribe(([change, basePatchNum, patchNum, mergeable]) => {
+=======
+      .subscribe(([_, change, basePatchNum, patchNum, mergeable]) => {
+>>>>>>> BRANCH (d07705 Set version to 3.8.0)
         this.pluginLoader.jsApiService.handleShowChange({
           change,
           basePatchNum,
