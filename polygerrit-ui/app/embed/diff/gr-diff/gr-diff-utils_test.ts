@@ -9,12 +9,17 @@ import {
   createElementDiff,
   formatText,
   createTabWrapper,
+<<<<<<< HEAD   (92e373 Merge "Move computation of key locations into diff model")
   getRange,
   computeKeyLocations,
   GrDiffCommentThread,
   toCommentThreadModel,
   compareComments,
   GrDiffThreadElement,
+=======
+  isFileUnchanged,
+  getRange,
+>>>>>>> BRANCH (d07705 Set version to 3.8.0)
 } from './gr-diff-utils';
 import {FILE, LOST, Side} from '../../../api/diff';
 
@@ -329,5 +334,21 @@ suite('gr-diff-utils tests', () => {
         commentsOrdered
       );
     });
+  });
+
+  test('getRange returns undefined with start_line = 0', () => {
+    const range = {
+      start_line: 0,
+      end_line: 12,
+      start_character: 0,
+      end_character: 0,
+    };
+    const threadEl = document.createElement('div');
+    threadEl.className = 'comment-thread';
+    threadEl.setAttribute('diff-side', 'right');
+    threadEl.setAttribute('line-num', '1');
+    threadEl.setAttribute('range', JSON.stringify(range));
+    threadEl.setAttribute('slot', 'right-1');
+    assert.isUndefined(getRange(threadEl));
   });
 });
