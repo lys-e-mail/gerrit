@@ -496,7 +496,12 @@ export class GrDiffGroup {
     // untilRendered() promise.
     if (
       this.skip !== undefined ||
+<<<<<<< HEAD   (92e373 Merge "Move computation of key locations into diff model")
       typeof lineNumber !== 'number' ||
+=======
+      lineNumber === 'LOST' ||
+      lineNumber === 'FILE' ||
+>>>>>>> BRANCH (d07705 Set version to 3.8.0)
       this.type === GrDiffGroupType.CONTEXT_CONTROL
     ) {
       return Promise.resolve();
