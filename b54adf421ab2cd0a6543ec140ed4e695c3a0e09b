@@ -9,11 +9,12 @@
       "updated": "2023-06-09T20:04:18Z"
     },
     "gerritforge:notedb-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "RUNNING",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/15%252F376515%252F2/1/console",
+      "state": "SUCCESSFUL",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-chrome-latest/33455/console",
       "started": "2023-06-09T20:00:17Z",
+      "finished": "2023-06-09T20:07:25Z",
       "created": "2023-06-09T20:00:18Z",
-      "updated": "2023-06-09T20:00:18Z"
+      "updated": "2023-06-09T20:07:25Z"
     },
     "gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "FAILED",
