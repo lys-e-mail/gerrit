@@ -91,10 +91,13 @@ import org.junit.runner.RunWith;
 @Ignore
 @RunWith(ConfigSuite.class)
 public abstract class AbstractChangeNotesTest {
+<<<<<<< HEAD   (92feb4 Merge changes I1ec32044,Iaa61ece9 into stable-3.7)
   protected static final String LOCAL_SERVER_ID = "gerrit";
   protected static final String FQ_USER_IDENT =
       "Gerrit User 1000000 \\u003c1000000@" + LOCAL_SERVER_ID;
 
+=======
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   private static final ZoneId ZONE_ID = ZoneId.of("America/Los_Angeles");
 
   @ConfigSuite.Parameter public Config testConfig;
@@ -128,8 +131,11 @@ public abstract class AbstractChangeNotesTest {
   protected Injector injector;
   private String systemTimeZone;
 
+<<<<<<< HEAD   (92feb4 Merge changes I1ec32044,Iaa61ece9 into stable-3.7)
   @Inject protected ChangeNotes.Factory changeNotesFactory;
 
+=======
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   @Before
   public void setUpTestEnvironment() throws Exception {
     setupTestPrerequisites();

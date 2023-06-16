@@ -64,7 +64,11 @@ public class AbstractGroupTest {
     repoManager = new InMemoryRepositoryManager();
     allUsersRepo = repoManager.createRepository(allUsersName);
     serverAccountId = Account.id(SERVER_ACCOUNT_NUMBER);
+<<<<<<< HEAD   (92feb4 Merge changes I1ec32044,Iaa61ece9 into stable-3.7)
     serverIdent = new PersonIdent(SERVER_ID, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+=======
+    serverIdent = new PersonIdent(SERVER_NAME, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
     userId = Account.id(USER_ACCOUNT_NUMBER);
     userIdent = newPersonIdent(userId, serverIdent);
   }
@@ -109,7 +113,11 @@ public class AbstractGroupTest {
   }
 
   protected static PersonIdent newPersonIdent() {
+<<<<<<< HEAD   (92feb4 Merge changes I1ec32044,Iaa61ece9 into stable-3.7)
     return new PersonIdent(SERVER_ID, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+=======
+    return new PersonIdent(SERVER_NAME, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   }
 
   protected static PersonIdent newPersonIdent(Account.Id id, PersonIdent ident) {

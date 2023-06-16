@@ -434,7 +434,10 @@ public class BatchUpdate implements AutoCloseable {
     this.project = project;
     this.user = user;
     this.when = when;
+<<<<<<< HEAD   (92feb4 Merge changes I1ec32044,Iaa61ece9 into stable-3.7)
     this.attentionSetObserver = attentionSetObserver;
+=======
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
     zoneId = serverIdent.getZoneId();
   }
 
