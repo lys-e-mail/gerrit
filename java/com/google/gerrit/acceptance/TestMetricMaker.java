@@ -14,8 +14,12 @@
 
 package com.google.gerrit.acceptance;
 
+<<<<<<< HEAD   (189a2f Update git submodules)
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+=======
+import com.google.gerrit.common.UsedAt;
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
 import com.google.gerrit.metrics.Counter0;
 import com.google.gerrit.metrics.Counter1;
 import com.google.gerrit.metrics.Counter2;
@@ -23,17 +27,32 @@ import com.google.gerrit.metrics.Counter3;
 import com.google.gerrit.metrics.Description;
 import com.google.gerrit.metrics.DisabledMetricMaker;
 import com.google.gerrit.metrics.Field;
+<<<<<<< HEAD   (189a2f Update git submodules)
+=======
+import com.google.gerrit.metrics.Timer1;
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
 import com.google.inject.Singleton;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 /**
  * {@link com.google.gerrit.metrics.MetricMaker} to be bound in tests.
  *
+<<<<<<< HEAD   (189a2f Update git submodules)
  * <p>Records how often counter metrics are invoked. Metrics of other types are not recorded.
+=======
+ * <p>Records how often {@link Counter0} and {@link Timer1} metrics are invoked. Metrics for other
+ * types are not recorded.
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
  *
+<<<<<<< HEAD   (189a2f Update git submodules)
  * <p>Allows test to check how much a counter metrics is increased by an operation.
+=======
+ * <p>Allows test to check how much a {@link Counter0} and {@link Timer1} metric is increased by an
+ * operation.
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
  *
  * <p>Example:
  *
@@ -54,18 +73,42 @@ import org.apache.commons.lang3.mutable.MutableLong;
  */
 @Singleton
 public class TestMetricMaker extends DisabledMetricMaker {
+<<<<<<< HEAD   (189a2f Update git submodules)
   private final ConcurrentHashMap<CounterKey, MutableLong> counts = new ConcurrentHashMap<>();
+=======
+  private final ConcurrentHashMap<String, MutableLong> counts = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, MutableLong> timers = new ConcurrentHashMap<>();
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
 
+<<<<<<< HEAD   (189a2f Update git submodules)
   public long getCount(String counterName, Object... fieldValues) {
     return get(CounterKey.create(counterName, fieldValues)).longValue();
+=======
+  public long getCount(String counter0Name) {
+    return getCounterValue(counter0Name).longValue();
+  }
+
+  public long getTimer(String timerName) {
+    return getTimerValue(timerName).longValue();
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
   }
 
   public void reset() {
     counts.clear();
+    timers.clear();
   }
 
+<<<<<<< HEAD   (189a2f Update git submodules)
   private MutableLong get(CounterKey counterKey) {
     return counts.computeIfAbsent(counterKey, key -> new MutableLong(0));
+=======
+  private MutableLong getCounterValue(String counter0Name) {
+    return counts.computeIfAbsent(counter0Name, name -> new MutableLong(0));
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
+  }
+
+  private MutableLong getTimerValue(String timerName) {
+    return counts.computeIfAbsent(timerName, name -> new MutableLong(0));
   }
 
   @Override
@@ -73,7 +116,25 @@ public class TestMetricMaker extends DisabledMetricMaker {
     return new Counter0() {
       @Override
       public void incrementBy(long value) {
+<<<<<<< HEAD   (189a2f Update git submodules)
         get(CounterKey.create(name)).add(value);
+=======
+        getCounterValue(name).add(value);
+      }
+
+      @Override
+      public void remove() {}
+    };
+  }
+
+  @Override
+  @UsedAt(UsedAt.Project.PLUGIN_PULL_REPLICATION)
+  public <F1> Timer1<F1> newTimer(String name, Description desc, Field<F1> field1) {
+    return new Timer1<>(name, field1) {
+      @Override
+      protected void doRecord(F1 field1, long value, TimeUnit unit) {
+        getTimerValue(name).add(value);
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
       }
 
       @Override

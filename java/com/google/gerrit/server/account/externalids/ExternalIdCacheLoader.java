@@ -272,7 +272,11 @@ public class ExternalIdCacheLoader {
         }
       }
     }
+<<<<<<< HEAD   (189a2f Update git submodules)
     return AllExternalIds.create(
+=======
+    return new AutoValue_AllExternalIds(
+>>>>>>> BRANCH (51700b Merge branch 'stable-3.6' into stable-3.7)
         ImmutableMap.<ExternalId.Key, ExternalId>builder().putAll(byKeyMutableMap).build(),
         byAccount.build(),
         byEmail.build());
