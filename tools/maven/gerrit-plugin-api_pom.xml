@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
   <version>3.7.4-SNAPSHOT</version>
+=======
+  <version>3.6.6-SNAPSHOT</version>
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>

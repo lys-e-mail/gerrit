@@ -43,7 +43,11 @@ public @interface UsedAt {
     PLUGIN_DELETE_PROJECT,
     PLUGIN_HIGH_AVAILABILITY,
     PLUGIN_MULTI_SITE,
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
     PLUGIN_SERVICEUSER,
+=======
+    PLUGIN_PULL_REPLICATION,
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
     PLUGIN_WEBSESSION_FLATFILE,
     MODULE_GIT_REFS_FILTER
   }

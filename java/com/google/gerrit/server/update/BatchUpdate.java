@@ -434,7 +434,10 @@ public class BatchUpdate implements AutoCloseable {
     this.project = project;
     this.user = user;
     this.when = when;
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
     this.attentionSetObserver = attentionSetObserver;
+=======
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
     zoneId = serverIdent.getZoneId();
   }
 
