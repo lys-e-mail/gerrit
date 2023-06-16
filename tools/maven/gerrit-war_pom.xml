@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
   <version>3.7.4-SNAPSHOT</version>
+=======
+  <version>3.6.6-SNAPSHOT</version>
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>

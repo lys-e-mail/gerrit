@@ -64,7 +64,11 @@ public class AbstractGroupTest {
     repoManager = new InMemoryRepositoryManager();
     allUsersRepo = repoManager.createRepository(allUsersName);
     serverAccountId = Account.id(SERVER_ACCOUNT_NUMBER);
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
     serverIdent = new PersonIdent(SERVER_ID, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+=======
+    serverIdent = new PersonIdent(SERVER_NAME, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
     userId = Account.id(USER_ACCOUNT_NUMBER);
     userIdent = newPersonIdent(userId, serverIdent);
   }
@@ -109,7 +113,11 @@ public class AbstractGroupTest {
   }
 
   protected static PersonIdent newPersonIdent() {
+<<<<<<< HEAD   (d21284 Merge "Clarify imported changes are not searchable by `chang)
     return new PersonIdent(SERVER_ID, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+=======
+    return new PersonIdent(SERVER_NAME, SERVER_EMAIL, TimeUtil.now(), ZONE_ID);
+>>>>>>> BRANCH (25c60c Fix JdkObsolete: Use new methods from PersonIdent to avoid D)
   }
 
   protected static PersonIdent newPersonIdent(Account.Id id, PersonIdent ident) {
