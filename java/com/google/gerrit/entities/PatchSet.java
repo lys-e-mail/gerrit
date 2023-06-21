@@ -23,7 +23,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.InlineMe;
+<<<<<<< HEAD   (416593 Update links to issue tracker in Gerrit documentation)
 import java.time.Instant;
+=======
+import java.sql.Timestamp;
+>>>>>>> BRANCH (0f4018 ChangeNotes.scanChangeIds: Return metaId with ChangeIds)
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jgit.lib.ObjectId;
