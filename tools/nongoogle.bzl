@@ -139,7 +139,11 @@ def declare_nongoogle_deps():
         sha1 = "9bc20b94d3ac42489cf6ce1e42509c86f6f861a1",
     )
 
+<<<<<<< HEAD   (416593 Update links to issue tracker in Gerrit documentation)
     FLOGGER_VERS = "0.7.4"
+=======
+    FLOGGER_VERS = "0.6"
+>>>>>>> BRANCH (0f4018 ChangeNotes.scanChangeIds: Return metaId with ChangeIds)
 
     maven_jar(
         name = "flogger",
