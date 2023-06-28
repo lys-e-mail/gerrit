@@ -448,6 +448,22 @@ export class GrDiffHost extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (04da8f Merge changes I2016e5c2,Ida6f7b3c)
+=======
+  protected override updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties);
+    // This needs to happen in updated() because it has to happen post-render as
+    // this method calls getThreadEls which inspects the DOM. Also <gr-diff>
+    // only starts observing nodes (for thread element changes) after rendering
+    // is done.
+    // Change in layers will likely cause gr-diff to update. Since we add
+    // threads manually we need to call threadsChanged in this case as well.
+    if (changedProperties.has('threads') || changedProperties.has('layers')) {
+      this.threadsChanged(this.threads);
+    }
+  }
+
+>>>>>>> BRANCH (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
   async waitForReloadToRender(): Promise<void> {
     await this.updateComplete;
     if (this.reloadPromise) {
