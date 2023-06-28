@@ -16,9 +16,12 @@ import {
   ReviewerInput,
   ServerInfo,
   UserId,
+<<<<<<< HEAD   (03a937 Revert "Fix GetRelated if multiple changes exist for the sam)
   Suggestion,
   isReviewerAccountSuggestion,
   isReviewerGroupSuggestion,
+=======
+>>>>>>> BRANCH (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
   SuggestedReviewerAccountInfo,
   SuggestedReviewerGroupInfo,
 } from '../types/common';

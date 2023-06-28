@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (03a937 Revert "Fix GetRelated if multiple changes exist for the sam)
   <version>3.9.0-SNAPSHOT</version>
+=======
+  <version>3.8.1-SNAPSHOT</version>
+>>>>>>> BRANCH (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
@@ -104,7 +108,7 @@
   </mailingLists>
 
   <issueManagement>
-    <url>https://bugs.chromium.org/p/gerrit/issues/list</url>
+    <url>https://issues.gerritcodereview.com/issues?q=is:open</url>
     <system>Gerrit Issue Tracker</system>
   </issueManagement>
 </project>
