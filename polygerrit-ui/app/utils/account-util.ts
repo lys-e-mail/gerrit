@@ -16,9 +16,12 @@ import {
   ReviewerInput,
   ServerInfo,
   UserId,
+<<<<<<< HEAD   (04da8f Merge changes I2016e5c2,Ida6f7b3c)
   Suggestion,
   isReviewerAccountSuggestion,
   isReviewerGroupSuggestion,
+=======
+>>>>>>> BRANCH (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
   SuggestedReviewerAccountInfo,
   SuggestedReviewerGroupInfo,
 } from '../types/common';
