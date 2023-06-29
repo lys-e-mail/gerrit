@@ -34,6 +34,10 @@
     "@types/resize-observer-browser": "^0.1.5",
     "@webcomponents/shadycss": "^1.10.2",
     "@webcomponents/webcomponentsjs": "^1.3.3",
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
+=======
+    "codemirror-minified": "^5.65.0",
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
     "highlight.js": "^11.5.0",
     "highlightjs-closure-templates": "https://github.com/highlightjs/highlightjs-closure-templates",
     "highlightjs-structured-text": "https://github.com/highlightjs/highlightjs-structured-text",

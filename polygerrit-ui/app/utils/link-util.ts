@@ -33,6 +33,11 @@ function getRewriteResultsFromConfig(
     commentLinkInfo =>
       commentLinkInfo.enabled !== false && commentLinkInfo.link !== undefined
   );
+  // Always linkify URLs starting with https?://
+  enabledRewrites.push({
+    match: '(https?://\\S+[\\w/])',
+    link: '$1',
+  });
   return enabledRewrites.flatMap(rewrite => {
     const regexp = new RegExp(rewrite.match, 'g');
     const partialResults: RewriteResult[] = [];
@@ -112,6 +117,7 @@ function getReplacementText(
   matchedText: string,
   rewrite: CommentLinkInfo
 ): string {
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
   const replacementHref = rewrite.link.startsWith('/')
     ? `${getBaseUrl()}${rewrite.link}`
     : rewrite.link;
@@ -125,6 +131,27 @@ function getReplacementText(
       rewrite.suffix
     )
   );
+=======
+  if (rewrite.link !== undefined) {
+    const replacementHref = rewrite.link.startsWith('/')
+      ? `${getBaseUrl()}${rewrite.link}`
+      : rewrite.link;
+    const regexp = new RegExp(rewrite.match, 'g');
+    return matchedText.replace(
+      regexp,
+      createLinkTemplate(
+        replacementHref,
+        rewrite.text ?? '$&',
+        rewrite.prefix,
+        rewrite.suffix
+      )
+    );
+  } else if (rewrite.html !== undefined) {
+    return matchedText.replace(new RegExp(rewrite.match, 'g'), rewrite.html);
+  } else {
+    throw new Error('commentLinkInfo is not a link or html rewrite');
+  }
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
 }
 
 function createLinkTemplate(
