@@ -12,6 +12,17 @@ suite('link-util tests', () => {
   }
 
   suite('link rewrites', () => {
+    test('default linking', () => {
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('http://www.google.com', {}),
+        link('http://www.google.com', 'http://www.google.com')
+      );
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('https://www.google.com', {}),
+        link('https://www.google.com', 'https://www.google.com')
+      );
+    });
+
     test('without text', () => {
       assert.equal(
         linkifyUrlsAndApplyRewrite('foo', {
@@ -63,6 +74,59 @@ suite('link-util tests', () => {
         `${link('foo', 'foo.gov')} ${link('foo', 'foo.gov')}`
       );
     });
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
+=======
+  });
+
+  suite('html rewrites', () => {
+    test('basic case', () => {
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('foo', {
+          foo: {
+            match: '(foo)',
+            html: '<div>$1</div>',
+          },
+        }),
+        '<div>foo</div>'
+      );
+    });
+
+    test('only inserts', () => {
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('foo', {
+          foo: {
+            match: 'foo',
+            html: 'foo bar',
+          },
+        }),
+        'foo bar'
+      );
+    });
+
+    test('only deletes', () => {
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('foo bar baz', {
+          bar: {
+            match: 'bar',
+            html: '',
+          },
+        }),
+        'foo  baz'
+      );
+    });
+
+    test('multiple matches', () => {
+      assert.equal(
+        linkifyUrlsAndApplyRewrite('foo foo', {
+          foo: {
+            match: '(foo)',
+            html: '<div>$1</div>',
+          },
+        }),
+        '<div>foo</div> <div>foo</div>'
+      );
+    });
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
   });
 
   test('for overlapping rewrites prefer the latest ending', () => {
