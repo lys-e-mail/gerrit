@@ -152,7 +152,12 @@ suite('gr-formatted-text tests', () => {
       element.content = `
         text with plain link: http://google.com
         text with config link: LinkRewriteMe
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
         text with complex link: A Link 12`;
+=======
+        text with complex link: A Link 12
+        text with config html: HTMLRewriteMe`;
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
       await element.updateComplete;
 
       assert.shadowDom.equal(
@@ -346,7 +351,12 @@ suite('gr-formatted-text tests', () => {
         \n##### h5-heading
         \n###### h6-heading
         \n# heading with plain link: http://google.com
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
         \n# heading with config link: LinkRewriteMe`;
+=======
+        \n# heading with config link: LinkRewriteMe
+        \n# heading with config html: HTMLRewriteMe`;
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
       await element.updateComplete;
 
       assert.shadowDom.equal(
@@ -524,7 +534,12 @@ suite('gr-formatted-text tests', () => {
     test('renders block quotes with links and rewrites', async () => {
       element.content = `> block quote
         \n> block quote with plain link: http://google.com
+<<<<<<< HEAD   (a6e832 Merge branch 'stable-3.7' into 'stable-3.8')
         \n> block quote with config link: LinkRewriteMe`;
+=======
+        \n> block quote with config link: LinkRewriteMe
+        \n> block quote with config html: HTMLRewriteMe`;
+>>>>>>> BRANCH (61228a Merge branch 'stable-3.6' into stable-3.7)
       await element.updateComplete;
 
       assert.shadowDom.equal(
