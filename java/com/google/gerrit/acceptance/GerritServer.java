@@ -424,6 +424,7 @@ public class GerritServer implements AutoCloseable {
       daemon.addAdditionalSshModuleForTesting(testSshModule);
     }
     daemon.setEnableSshd(desc.useSsh());
+<<<<<<< HEAD   (cc4114 Set version to 3.6.7-SNAPSHOT)
     daemon.addAdditionalSysModuleForTesting(
         new AbstractModule() {
           @Override
@@ -450,6 +451,11 @@ public class GerritServer implements AutoCloseable {
             bind(TestTicker.class).toInstance(testTicker);
           }
         });
+=======
+    daemon.setEnableHttpd(desc.httpd());
+    daemon.setReplica(
+        ReplicaUtil.isReplica(baseConfig) || ReplicaUtil.isReplica(desc.buildConfig(baseConfig)));
+>>>>>>> BRANCH (26fb85 Merge branch 'stable-3.4' into stable-3.5)
 
     if (desc.memory()) {
       checkArgument(additionalArgs.length == 0, "cannot pass args to in-memory server");
@@ -466,7 +472,6 @@ public class GerritServer implements AutoCloseable {
       @Nullable InMemoryRepositoryManager inMemoryRepoManager)
       throws Exception {
     Config cfg = desc.buildConfig(baseConfig);
-    daemon.setReplica(ReplicaUtil.isReplica(baseConfig) || ReplicaUtil.isReplica(cfg));
     mergeTestConfig(cfg);
     // Set the log4j configuration to an invalid one to prevent system logs
     // from getting configured and creating log files.
@@ -478,6 +483,7 @@ public class GerritServer implements AutoCloseable {
     cfg.setString("gitweb", null, "cgi", "");
     cfg.setString(
         "accountPatchReviewDb", null, "url", JdbcAccountPatchReviewStore.TEST_IN_MEMORY_URL);
+<<<<<<< HEAD   (cc4114 Set version to 3.6.7-SNAPSHOT)
 
     String configuredIndexBackend = cfg.getString("index", null, "type");
     IndexType indexType;
@@ -501,6 +507,11 @@ public class GerritServer implements AutoCloseable {
 
     daemon.setEnableHttpd(desc.httpd());
     daemon.setInMemory(true);
+=======
+    daemon.setLuceneModule(
+        LuceneIndexModule.singleVersionAllLatest(
+            0, ReplicaUtil.isReplica(baseConfig), AutoFlush.ENABLED));
+>>>>>>> BRANCH (26fb85 Merge branch 'stable-3.4' into stable-3.5)
     daemon.setDatabaseForTesting(
         ImmutableList.of(
             new InMemoryTestingDatabaseModule(cfg, site, inMemoryRepoManager),
@@ -742,5 +753,9 @@ public class GerritServer implements AutoCloseable {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this).addValue(desc).toString();
+  }
+
+  public boolean isReplica() {
+    return daemon.isReplica();
   }
 }
