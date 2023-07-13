@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (f170d4 Remove CURRENT_ACTIONS from change request (bulk actions))
   <version>3.8.1-SNAPSHOT</version>
+=======
+  <version>3.7.5-SNAPSHOT</version>
+>>>>>>> BRANCH (8f7ae8 Set version to 3.7.5-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>
