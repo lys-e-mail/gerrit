@@ -1275,3 +1275,13 @@ export function isBase64FileContent(
 
 // The URL encoded UUID of the comment
 export type UrlEncodedCommentId = BrandType<string, '_urlEncodedCommentId'>;
+
+export declare interface MLSuggestion {
+  path: string;
+  comment_uuid: string;
+  replacements: MLSuggestionReplacement[];
+}
+
+export declare interface MLSuggestionReplacement {
+  new_content: string;
+}

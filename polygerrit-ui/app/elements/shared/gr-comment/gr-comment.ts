@@ -786,7 +786,8 @@ export class GrComment extends LitElement {
     return html`
       <div class="rightActions">
         ${this.renderDiscardButton()} ${this.renderEditButton()}
-        ${this.renderGenerateSuggestEditButton()} ${this.renderCancelButton()}
+        ${this.renderGenerateSuggestEditButton()} ${this.renderNewMLButton()}
+        ${this.renderMLButton()} ${this.renderCancelButton()}
         ${this.renderSaveButton()} ${this.renderCopyLinkIcon()}
       </div>
     `;
@@ -832,6 +833,53 @@ export class GrComment extends LitElement {
     return html`<gr-button link class="action edit" @click=${this.edit}
       >Edit</gr-button
     >`;
+  }
+
+  private renderNewMLButton() {
+    return html`
+      <gr-button link class="action cancel" @click=${this.newml}
+        >New ML</gr-button
+      >
+    `;
+  }
+
+  private renderMLButton() {
+    return html`
+      <gr-button link class="action cancel" @click=${this.ml}>ML</gr-button>
+    `;
+  }
+
+  private async ml() {
+    const suggestions = await this.restApiService.machine_suggested_edit(
+      this.changeNum,
+      this.comment?.patch_set,
+      this.comments?.[0].id
+    );
+    // we need comment.id of parent
+
+    if (!suggestions?.[0].replacements?.[0]) return;
+    this.messageText += `${USER_SUGGESTION_START_PATTERN}${suggestions[0].replacements
+      .map(r => r.new_content)
+      .join('\n')}${'\n```'}`;
+  }
+
+  private async newml() {
+    const suggestions = await this.restApiService.machine_suggested_code(
+      this.changeNum,
+      this.comment?.patch_set,
+      {
+        prompt: this.messageText,
+        filepath: this.comments?.[0].path ?? '',
+        range: this.comments?.[0].range,
+        lineNbr: this.comments?.[0].line,
+      }
+    );
+    // we need comment.id of parent
+
+    if (!suggestions?.[0].replacements?.[0]) return;
+    this.messageText += `${USER_SUGGESTION_START_PATTERN}${suggestions[0].replacements
+      .map(r => r.new_content)
+      .join('\n')}${'\n```'}`;
   }
 
   private renderCancelButton() {
