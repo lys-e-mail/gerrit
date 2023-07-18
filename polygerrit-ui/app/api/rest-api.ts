@@ -1229,3 +1229,13 @@ export function isBase64FileContent(
 ): res is Base64FileContent {
   return (res as Base64FileContent).ok;
 }
+
+export declare interface MLSuggestion {
+  path: string;
+  comment_uuid: string;
+  replacements: MLSuggestionReplacement[];
+}
+
+export declare interface MLSuggestionReplacement {
+  new_content: string;
+}
