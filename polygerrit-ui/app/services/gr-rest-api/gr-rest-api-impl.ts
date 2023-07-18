@@ -146,6 +146,7 @@ import {addDraftProp} from '../../utils/comment-util';
 import {BaseScheduler, Scheduler} from '../scheduler/scheduler';
 import {MaxInFlightScheduler} from '../scheduler/max-in-flight-scheduler';
 import {escapeAndWrapSearchOperatorValue} from '../../utils/string-util';
+import {CommentRange, MLSuggestion} from '../../api/rest-api';
 
 const MAX_PROJECT_RESULTS = 25;
 export const PROBE_PATH = '/Documentation/index.html';
@@ -757,6 +758,44 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
       url: '/accounts/self/external.ids',
       reportUrlAsIs: true,
     }) as Promise<AccountExternalIdInfo[] | undefined>;
+  }
+
+  machine_suggested_edit(
+    changeNum?: NumericChangeId,
+    revisionId?: RevisionId,
+    commentId?: UrlEncodedCommentId
+  ) {
+    changeNum = changeNum ?? (375726 as NumericChangeId);
+    revisionId = revisionId ?? (1 as RevisionId);
+    commentId = commentId ?? ('4ccb8e79_ed1094e6' as UrlEncodedCommentId);
+    return this._restApiHelper.fetchJSON({
+      url: `/changes/${changeNum}/revisions/${revisionId}/comments/${commentId}/machine_suggested_edit`,
+      reportUrlAsIs: true,
+    }) as Promise<MLSuggestion[] | undefined>;
+  }
+
+  machine_suggested_code(
+    changeNum?: NumericChangeId,
+    revisionId?: PatchSetNum,
+    body?: {
+      prompt: string;
+      filepath: string;
+      range?: CommentRange;
+      lineNbr?: Number;
+    }
+  ): Promise<MLSuggestion[] | undefined> {
+    changeNum = changeNum ?? (375726 as NumericChangeId);
+    revisionId = revisionId ?? (1 as PatchSetNum);
+    return this._getChangeURLAndSend({
+      method: HttpMethod.POST,
+      changeNum,
+      patchNum: revisionId,
+      endpoint: '/machine_suggested_code',
+      reportEndpointAsId: true,
+      headers: {Accept: 'application/json'},
+      parseResponse: true,
+      body,
+    }) as unknown as Promise<MLSuggestion[] | undefined>;
   }
 
   deleteAccount() {
