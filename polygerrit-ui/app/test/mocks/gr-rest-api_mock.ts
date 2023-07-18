@@ -77,6 +77,7 @@ import {
   createDefaultPreferences,
 } from '../../constants/constants';
 import {ParsedChangeInfo} from '../../types/types';
+import {MLSuggestion} from '../../api/rest-api';
 
 export const grRestApiMock: RestApiService = {
   addAccountEmail(): Promise<Response> {
@@ -117,6 +118,12 @@ export const grRestApiMock: RestApiService = {
   },
   createRepoTag(): Promise<Response> {
     return Promise.resolve(new Response());
+  },
+  machine_suggested_edit(): Promise<MLSuggestion[] | undefined> {
+    throw new Error('machine_suggested_edit() not implemented by RestApiMock.');
+  },
+  machine_suggested_code(): Promise<MLSuggestion[] | undefined> {
+    throw new Error('machine_suggested_code() not implemented by RestApiMock.');
   },
   deleteAccount(): Promise<Response> {
     return Promise.resolve(new Response());
