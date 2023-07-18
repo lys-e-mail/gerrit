@@ -82,6 +82,7 @@ import {
   DOCS_BASE_PATH,
   PROBE_PATH,
 } from '../../services/gr-rest-api/gr-rest-api-impl';
+import { MLSuggestion } from '../../api/rest-api';
 
 export const grRestApiMock: RestApiService = {
   addAccountEmail(): Promise<Response> {
@@ -122,6 +123,9 @@ export const grRestApiMock: RestApiService = {
   },
   createRepoTag(): Promise<Response> {
     return Promise.resolve(new Response());
+  },
+  machine_suggested_edit(): Promise<MLSuggestion[] | undefined> {
+    throw new Error('machine_suggested_edit() not implemented by RestApiMock.');
   },
   deleteAccount(): Promise<Response> {
     return Promise.resolve(new Response());

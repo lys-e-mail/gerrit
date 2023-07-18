@@ -99,6 +99,7 @@ import {
 } from '../../types/diff';
 import {ParsedChangeInfo} from '../../types/types';
 import {ErrorCallback} from '../../api/rest';
+import {MLSuggestion} from '../../api/rest-api';
 
 export type CancelConditionCallback = () => boolean;
 
@@ -230,6 +231,11 @@ export interface RestApiService extends Finalizable {
   getAccountSSHKeys(): Promise<SshKeyInfo[] | undefined>;
   deleteAccountSSHKey(key: string): void;
   addAccountSSHKey(key: string): Promise<SshKeyInfo>;
+  machine_suggested_edit(
+    changeNum?: NumericChangeId,
+    revisionId?: RevisionId,
+    commentId?: UrlEncodedCommentId
+  ): Promise<MLSuggestion[] | undefined>;
 
   createRepoBranch(
     name: RepoName,
