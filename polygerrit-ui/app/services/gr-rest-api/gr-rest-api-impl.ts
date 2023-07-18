@@ -146,6 +146,7 @@ import {addDraftProp} from '../../utils/comment-util';
 import {BaseScheduler, Scheduler} from '../scheduler/scheduler';
 import {MaxInFlightScheduler} from '../scheduler/max-in-flight-scheduler';
 import {escapeAndWrapSearchOperatorValue} from '../../utils/string-util';
+import {MLSuggestion} from '../../api/rest-api';
 
 const MAX_PROJECT_RESULTS = 25;
 export const PROBE_PATH = '/Documentation/index.html';
@@ -757,6 +758,17 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
       url: '/accounts/self/external.ids',
       reportUrlAsIs: true,
     }) as Promise<AccountExternalIdInfo[] | undefined>;
+  }
+
+  // changes/375726/revisions/1/comments/4ccb8e79_ed1094e6/machine_suggested_edit
+  machine_suggested_edit() {
+    const changeNum = 375726;
+    const revisions = 1;
+    const commentId = '4ccb8e79_ed1094e6';
+    return this._restApiHelper.fetchJSON({
+      url: `/changes/${changeNum}/revisions/${revisions}/comments/${commentId}/machine_suggested_edit`,
+      reportUrlAsIs: true,
+    }) as Promise<MLSuggestion[] | undefined>;
   }
 
   deleteAccount() {

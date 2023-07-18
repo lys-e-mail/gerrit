@@ -767,8 +767,8 @@ export class GrComment extends LitElement {
     return html`
       <div class="rightActions">
         ${this.renderDiscardButton()} ${this.renderEditButton()}
-        ${this.renderCancelButton()} ${this.renderSaveButton()}
-        ${this.renderCopyLinkIcon()}
+        ${this.renderMLButton()} ${this.renderCancelButton()}
+        ${this.renderSaveButton()} ${this.renderCopyLinkIcon()}
       </div>
     `;
   }
@@ -813,6 +813,20 @@ export class GrComment extends LitElement {
     return html`<gr-button link class="action edit" @click=${this.edit}
       >Edit</gr-button
     >`;
+  }
+
+  private renderMLButton() {
+    return html`
+      <gr-button link class="action cancel" @click=${this.ml}>ML</gr-button>
+    `;
+  }
+
+  private async ml() {
+    const suggestions = await this.restApiService.machine_suggested_edit();
+    if (!suggestions?.[0].replacements?.[0]) return;
+    this.messageText += `${USER_SUGGESTION_START_PATTERN}${
+      suggestions[0].replacements[0].new_content
+    }${'\n```'}`;
   }
 
   private renderCancelButton() {
