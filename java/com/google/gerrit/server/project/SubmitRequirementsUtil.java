@@ -65,6 +65,10 @@ public class SubmitRequirementsUtil {
                           + "w.r.t. change submittability.")
                   .setRate()
                   .setUnit("count"),
+<<<<<<< HEAD   (8f7ae8 Set version to 3.7.5-SNAPSHOT)
+=======
+              Field.ofProjectName("project").build(),
+>>>>>>> BRANCH (b113b1 Update plugin-manager submodule to ba74d4969)
               Field.ofString("sr_name", Metadata.Builder::submitRequirementName)
                   .description("Submit requirement name")
                   .build());
@@ -78,6 +82,10 @@ public class SubmitRequirementsUtil {
                           + "w.r.t. change submittability.")
                   .setRate()
                   .setUnit("count"),
+<<<<<<< HEAD   (8f7ae8 Set version to 3.7.5-SNAPSHOT)
+=======
+              Field.ofProjectName("project").build(),
+>>>>>>> BRANCH (b113b1 Update plugin-manager submodule to ba74d4969)
               Field.ofString("sr_name", Metadata.Builder::submitRequirementName)
                   .description("Submit requirement name")
                   .build());
@@ -89,6 +97,10 @@ public class SubmitRequirementsUtil {
                           + "but not a project config requirement with the same name for a change.")
                   .setRate()
                   .setUnit("count"),
+<<<<<<< HEAD   (8f7ae8 Set version to 3.7.5-SNAPSHOT)
+=======
+              Field.ofProjectName("project").build(),
+>>>>>>> BRANCH (b113b1 Update plugin-manager submodule to ba74d4969)
               Field.ofString("sr_name", Metadata.Builder::submitRequirementName)
                   .description("Submit requirement name")
                   .build());
@@ -100,6 +112,10 @@ public class SubmitRequirementsUtil {
                           + "result but not a legacy requirement with the same name for a change.")
                   .setRate()
                   .setUnit("count"),
+<<<<<<< HEAD   (8f7ae8 Set version to 3.7.5-SNAPSHOT)
+=======
+              Field.ofProjectName("project").build(),
+>>>>>>> BRANCH (b113b1 Update plugin-manager submodule to ba74d4969)
               Field.ofString("sr_name", Metadata.Builder::submitRequirementName)
                   .description("Submit requirement name")
                   .build());
