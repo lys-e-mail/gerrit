@@ -85,6 +85,8 @@ export class GrAdminView extends LitElement {
   @state()
   repoViewState?: RepoViewState;
 
+  @state() canDeleteCapability = false;
+
   @state() private breadcrumbParentName?: string;
 
   // private but used in test
@@ -161,6 +163,7 @@ export class GrAdminView extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
+    this.getCanDeleteCapability();
     this.reload();
   }
 
@@ -356,6 +359,7 @@ export class GrAdminView extends LitElement {
       <div class="main breadcrumbs">
         <gr-group
           .groupId=${this.groupViewState?.groupId}
+          .canDelete=${this.canDeleteCapability}
           @name-changed=${(e: CustomEvent<GroupNameChangedDetail>) => {
             this.updateGroupName(e);
           }}
@@ -600,6 +604,19 @@ export class GrAdminView extends LitElement {
   // private but used in test
   computeLinkURL(link?: NavLink | SubsectionInterface) {
     return link?.url || '';
+  }
+
+  private getCanDeleteCapability() {
+    return this.restApiService.getAccount().then(account => {
+      if (!account) return;
+      return this.restApiService
+        .getAccountCapabilities(['deleteGroup'])
+        .then(capabilities => {
+          if (capabilities?.deleteGroup) {
+            this.canDeleteCapability = true;
+          }
+        });
+    });
   }
 
   private computeSelectedClass(
