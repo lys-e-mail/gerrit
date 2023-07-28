@@ -3333,6 +3333,14 @@ For example, if the limit of previous query was 500, pageSizeMultiplier is
 configured to 5 and maxPageSize to 2000, the next query will have a limit of
 2000 (instead of 2500).
 +
+<<<<<<< HEAD   (4f883c Merge "Add tests for BucketedCallback" into stable-3.6)
+=======
+When `index.type` is set to `ELASTICSEARCH`, this value should not exceed
+the `index.max_result_window` value configured on the Elasticsearch
+server. If a value is not configured during site initialization, defaults to
+10000, which is the default value of `index.max_result_window` in Elasticsearch.
++
+>>>>>>> BRANCH (32685c Merge branch 'stable-3.4' into stable-3.5)
 _Note: ignored when paginationType is `NONE`_
 +
 Defaults to no limit.
