@@ -28,8 +28,14 @@ import './plugins/gr-plugin-host/gr-plugin-host';
 import './settings/gr-cla-view/gr-cla-view';
 import './settings/gr-registration-dialog/gr-registration-dialog';
 import './settings/gr-settings-view/gr-settings-view';
+<<<<<<< HEAD   (56c0b3 Merge branch 'stable-3.6' into stable-3.7)
 import {getBaseUrl} from '../utils/url-util';
 import {navigationToken} from './core/gr-navigation/gr-navigation';
+=======
+import {loginUrl} from '../utils/url-util';
+import {Shortcut} from '../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
+import {GerritNav} from './core/gr-navigation/gr-navigation';
+>>>>>>> BRANCH (b2fc76 Merge "loginUrl and loginText are hardcoded in the UI" into )
 import {getAppContext} from '../services/app-context';
 import {routerToken} from './core/gr-router/gr-router';
 import {AccountDetailInfo} from '../types/common';
@@ -120,8 +126,6 @@ export class GrAppElement extends LitElement {
   @state() private settingsUrl?: string;
 
   @state() private mobileSearch = false;
-
-  @state() private loginUrl = '/login';
 
   @state() private loadRegistrationDialog = false;
 
@@ -235,7 +239,6 @@ export class GrAppElement extends LitElement {
     const resizeObserver = this.getBrowserModel().observeWidth();
     resizeObserver.observe(this);
 
-    this.updateLoginUrl();
     this.reporting.appStarted();
     this.getRouter().start();
 
@@ -349,7 +352,8 @@ export class GrAppElement extends LitElement {
         @mobile-search=${this.mobileSearchToggle}
         @show-keyboard-shortcuts=${this.showKeyboardShortcuts}
         .mobileSearchHidden=${!this.mobileSearch}
-        .loginUrl=${this.loginUrl}
+        .loginUrl=${loginUrl(this.serverConfig?.auth)}
+        .loginText=${this.serverConfig?.auth.login_text ?? 'Sign in'}
         ?aria-hidden=${this.footerHeaderAriaHidden}
       >
       </gr-main-header>
@@ -387,7 +391,8 @@ export class GrAppElement extends LitElement {
       <gr-endpoint-decorator name="plugin-overlay"></gr-endpoint-decorator>
       <gr-error-manager
         id="errorManager"
-        .loginUrl=${this.loginUrl}
+        .loginUrl=${loginUrl(this.serverConfig?.auth)}
+        .loginText=${this.serverConfig?.auth.login_text ?? 'Sign in'}
       ></gr-error-manager>
       <gr-plugin-host id="plugins"></gr-plugin-host>
       <gr-external-style
@@ -636,33 +641,19 @@ export class GrAppElement extends LitElement {
     }
   }
 
+<<<<<<< HEAD   (56c0b3 Merge branch 'stable-3.6' into stable-3.7)
   private handleLocationChange() {
     this.updateLoginUrl();
-  }
-
-  private updateLoginUrl() {
-    const baseUrl = getBaseUrl();
-    if (baseUrl) {
-      // Strip the canonical path from the path since needing canonical in
-      // the path is unneeded and breaks the url.
-      this.loginUrl =
-        baseUrl +
-        '/login/' +
-        encodeURIComponent(
-          '/' +
-            window.location.pathname.substring(baseUrl.length) +
-            window.location.search +
-            window.location.hash
-        );
-    } else {
-      this.loginUrl =
-        '/login/' +
-        encodeURIComponent(
-          window.location.pathname +
-            window.location.search +
-            window.location.hash
-        );
+=======
+  private handleLocationChange(e: LocationChangeEvent) {
+    this.requestUpdate();
+    const hash = e.detail.hash.substring(1);
+    let pathname = e.detail.pathname;
+    if (pathname.startsWith('/c/') && Number(hash) > 0) {
+      pathname += '@' + hash;
     }
+    this.path = pathname;
+>>>>>>> BRANCH (b2fc76 Merge "loginUrl and loginText are hardcoded in the UI" into )
   }
 
   // private but used in test

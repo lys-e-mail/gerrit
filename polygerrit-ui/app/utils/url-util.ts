@@ -1,3 +1,10 @@
+<<<<<<< HEAD   (56c0b3 Merge branch 'stable-3.6' into stable-3.7)
+=======
+import {AuthInfo, ServerInfo} from '../types/common';
+import {RestApiService} from '../services/gr-rest-api/gr-rest-api';
+import {AuthType} from '../api/rest-api';
+
+>>>>>>> BRANCH (b2fc76 Merge "loginUrl and loginText are hardcoded in the UI" into )
 /**
  * @license
  * Copyright 2020 Google LLC
@@ -43,6 +50,41 @@ export function getPatchRangeExpression(params: PatchRangeParams) {
     range = `${params.basePatchNum}..${range}`;
   }
   return range;
+}
+
+/**
+ * Return the url to use for login. If the server configuration
+ * contains the `loginUrl` in the `auth` section then that custom url
+ * will be used, defaults to `/login` otherwise.
+ *
+ * @param authConfig the auth section of gerrit configuration if defined
+ */
+export function loginUrl(authConfig: AuthInfo | undefined): string {
+  const baseUrl = getBaseUrl();
+  const customLoginUrl = authConfig?.login_url;
+  const authType = authConfig?.auth_type;
+  if (
+    customLoginUrl &&
+    (authType === AuthType.HTTP || authType === AuthType.HTTP_LDAP)
+  ) {
+    return customLoginUrl.startsWith('http')
+      ? customLoginUrl
+      : baseUrl + sanitizeRelativeUrl(customLoginUrl);
+  } else {
+    // Strip the canonical path from the path since needing canonical in
+    // the path is unneeded and breaks the url.
+    const defaultUrl = `${baseUrl}/login/`;
+    const postFix = encodeURIComponent(
+      window.location.pathname.substring(baseUrl.length) +
+        window.location.search +
+        window.location.hash
+    );
+    return defaultUrl + postFix;
+  }
+}
+
+function sanitizeRelativeUrl(relativeUrl: string): string {
+  return relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`;
 }
 
 export function prependOrigin(path: string): string {
