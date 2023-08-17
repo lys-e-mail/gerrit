@@ -27,12 +27,20 @@ import './plugins/gr-plugin-host/gr-plugin-host';
 import './settings/gr-cla-view/gr-cla-view';
 import './settings/gr-registration-dialog/gr-registration-dialog';
 import './settings/gr-settings-view/gr-settings-view';
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
 import './core/gr-notifications-prompt/gr-notifications-prompt';
 import {loginUrl} from '../utils/url-util';
+=======
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
 import {navigationToken} from './core/gr-navigation/gr-navigation';
+import {loginUrl} from '../utils/url-util';
 import {getAppContext} from '../services/app-context';
 import {routerToken} from './core/gr-router/gr-router';
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
 import {AccountDetailInfo, NumericChangeId, ServerInfo} from '../types/common';
+=======
+import {AccountDetailInfo, ServerInfo} from '../types/common';
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
 import {
   constructServerErrorMsg,
   GrErrorManager,
@@ -56,6 +64,7 @@ import {LifeCycle} from '../constants/reporting';
 import {fireIronAnnounce} from '../utils/event-util';
 import {resolve} from '../models/dependency';
 import {browserModelToken} from '../models/browser/browser-model';
+import {configModelToken} from '../models/config/config-model';
 import {sharedStyles} from '../styles/shared-styles';
 import {LitElement, PropertyValues, html, css, nothing} from 'lit';
 import {customElement, property, query, state} from 'lit/decorators.js';
@@ -117,6 +126,8 @@ export class GrAppElement extends LitElement {
 
   @state() private account?: AccountDetailInfo;
 
+  @state() private serverConfig?: ServerInfo;
+
   @state() private version?: string;
 
   @state() private view?: GerritView;
@@ -175,6 +186,8 @@ export class GrAppElement extends LitElement {
 
   private readonly getConfigModel = resolve(this, configModelToken);
 
+  private readonly getConfigModel = resolve(this, configModelToken);
+
   constructor() {
     super();
 
@@ -187,8 +200,21 @@ export class GrAppElement extends LitElement {
     this.addEventListener('dialog-change', e => {
       this.handleDialogChange(e as CustomEvent<DialogChangeEventDetail>);
     });
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
     document.addEventListener('location-change', () => this.requestUpdate());
     document.addEventListener('gr-rpc-log', e => this.handleRpcLog(e));
+=======
+    document.addEventListener(EventType.LOCATION_CHANGE, () =>
+      this.requestUpdate()
+    );
+    this.addEventListener(EventType.RECREATE_CHANGE_VIEW, () =>
+      this.handleRecreateView()
+    );
+    this.addEventListener(EventType.RECREATE_DIFF_VIEW, () =>
+      this.handleRecreateView()
+    );
+    document.addEventListener(EventType.GR_RPC_LOG, e => this.handleRpcLog(e));
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
     this.shortcuts.addAbstract(Shortcut.OPEN_SHORTCUT_HELP_DIALOG, () =>
       this.showKeyboardShortcuts()
     );
@@ -230,7 +256,11 @@ export class GrAppElement extends LitElement {
 
     subscribe(
       this,
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
       () => this.getUserModel().preferenceTheme$,
+=======
+      () => this.userModel.preferenceTheme$,
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
       theme => {
         this.theme = theme;
         this.applyTheme();
@@ -377,7 +407,21 @@ export class GrAppElement extends LitElement {
     return html`
       <gr-css-mixins></gr-css-mixins>
       <gr-endpoint-decorator name="banner"></gr-endpoint-decorator>
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
       ${this.renderHeader()}
+=======
+      <gr-main-header
+        id="mainHeader"
+        .searchQuery=${(this.params as SearchViewState)?.query}
+        @mobile-search=${this.mobileSearchToggle}
+        @show-keyboard-shortcuts=${this.showKeyboardShortcuts}
+        .mobileSearchHidden=${!this.mobileSearch}
+        .loginUrl=${loginUrl(this.serverConfig?.auth)}
+        .loginText=${this.serverConfig?.auth.login_text ?? 'Sign in'}
+        ?aria-hidden=${this.footerHeaderAriaHidden}
+      >
+      </gr-main-header>
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
       <main ?aria-hidden=${this.mainAriaHidden}>
         ${this.renderMobileSearch()} ${this.renderChangeListView()}
         ${this.renderDashboardView()}
@@ -452,6 +496,25 @@ export class GrAppElement extends LitElement {
           <gr-endpoint-decorator name="footer-right"></gr-endpoint-decorator>
         </div>
       </footer>
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
+=======
+      ${this.renderKeyboardShortcutsDialog()} ${this.renderRegistrationDialog()}
+      <gr-endpoint-decorator name="plugin-overlay"></gr-endpoint-decorator>
+      <gr-error-manager
+        id="errorManager"
+        .loginUrl=${loginUrl(this.serverConfig?.auth)}
+        .loginText=${this.serverConfig?.auth.login_text ?? 'Sign in'}
+      ></gr-error-manager>
+      <gr-plugin-host id="plugins"></gr-plugin-host>
+      <gr-external-style
+        id="externalStyleForAll"
+        name="app-theme"
+      ></gr-external-style>
+      <gr-external-style
+        id="externalStyleForTheme"
+        name=${this.themeEndpoint}
+      ></gr-external-style>
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
     `;
   }
 
