@@ -3,8 +3,25 @@
  * Copyright 2020 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
 import {AuthType, BasePatchSetNum, RevisionPatchSetNum} from '../api/rest-api';
+=======
+import {
+  AuthType,
+  BasePatchSetNum,
+  RevisionPatchSetNum,
+  ServerInfo,
+} from '../api/rest-api';
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
 import '../test/common-test-setup';
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
+=======
+import {
+  createAuth,
+  createGerritInfo,
+  createServerInfo,
+} from '../test/test-data-generators';
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
 import {
   encodeURL,
   getBaseUrl,
@@ -15,6 +32,12 @@ import {
   toPath,
   toPathname,
   toSearchParams,
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
+=======
+  getPatchRangeExpression,
+  PatchRangeParams,
+  loginUrl,
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
 } from './url-util';
 import {assert} from '@open-wc/testing';
 import {createAuth} from '../test/test-data-generators';
@@ -39,6 +62,7 @@ suite('url-util tests', () => {
 
   suite('loginUrl tests', () => {
     const authConfig = createAuth();
+<<<<<<< HEAD   (cfb981 loginUrl and loginText are hardcoded in the UI)
 
     test('default url if auth.loginUrl is not defined', () => {
       const current = encodeURIComponent(
@@ -46,6 +70,55 @@ suite('url-util tests', () => {
       );
       assert.deepEqual(loginUrl(undefined), '/login/' + current);
       assert.deepEqual(loginUrl(authConfig), '/login/' + current);
+=======
+    const customLoginUrl = '/custom';
+
+    test('default url if auth.loginUrl is not defined', () => {
+      const current = encodeURIComponent(
+        window.location.pathname + window.location.search + window.location.hash
+      );
+      assert.deepEqual(loginUrl(undefined), '/login/' + current);
+      assert.deepEqual(loginUrl(authConfig), '/login/' + current);
+    });
+
+    test('default url if auth type is not HTTP or HTTP_LDAP', () => {
+      const defaultUrl =
+        '/login/' +
+        encodeURIComponent(
+          window.location.pathname +
+            window.location.search +
+            window.location.hash
+        );
+
+      authConfig.login_url = customLoginUrl;
+      authConfig.auth_type = AuthType.LDAP;
+      assert.deepEqual(loginUrl(authConfig), defaultUrl);
+      authConfig.auth_type = AuthType.OPENID_SSO;
+      assert.deepEqual(loginUrl(authConfig), defaultUrl);
+      authConfig.auth_type = AuthType.OAUTH;
+      assert.deepEqual(loginUrl(authConfig), defaultUrl);
+    });
+
+    test('use auth.loginUrl when defined', () => {
+      authConfig.login_url = customLoginUrl;
+      authConfig.auth_type = AuthType.HTTP;
+      assert.deepEqual(loginUrl(authConfig), customLoginUrl);
+      authConfig.auth_type = AuthType.HTTP_LDAP;
+      assert.deepEqual(loginUrl(authConfig), customLoginUrl);
+    });
+
+    test('auth.loginUrl is sanitized when defined as a relative url', () => {
+      authConfig.login_url = 'custom';
+      authConfig.auth_type = AuthType.HTTP;
+      assert.deepEqual(loginUrl(authConfig), '/custom');
+    });
+  });
+
+  suite('getDocsBaseUrl tests', () => {
+    setup(() => {
+      _testOnly_clearDocsBaseUrlCache();
+      appContext = getAppContext();
+>>>>>>> BRANCH (bd1384 Merge branch 'stable-3.6' into stable-3.7)
     });
 
     test('default url if auth type is not HTTP or HTTP_LDAP', () => {
