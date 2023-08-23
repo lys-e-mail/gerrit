@@ -16,11 +16,16 @@ import {
   createServerInfo,
 } from '../test/test-data-generators';
 import {GrAppElement} from './gr-app-element';
+<<<<<<< HEAD   (602ff8 Fix search result page not showing query)
 import {GrRouter, routerToken} from './core/gr-router/gr-router';
 import {resolve} from '../models/dependency';
 import {removeRequestDependencyListener} from '../test/common-test-setup';
 import {ReactiveElement} from 'lit';
 
+=======
+import {GrRouter} from './core/gr-router/gr-router';
+import {ReactiveElement} from 'lit';
+>>>>>>> BRANCH (c097fc Merge branch 'stable-3.6' into stable-3.7)
 suite('gr-app callback tests', () => {
   const requestUpdateStub = sinon.stub(
     ReactiveElement.prototype,
@@ -30,11 +35,13 @@ suite('gr-app callback tests', () => {
     GrRouter.prototype,
     <any>'dispatchLocationChangeEvent'
   );
-
   setup(async () => {
     await fixture<GrApp>(html`<gr-app id="app"></gr-app>`);
   });
+<<<<<<< HEAD   (602ff8 Fix search result page not showing query)
 
+=======
+>>>>>>> BRANCH (c097fc Merge branch 'stable-3.6' into stable-3.7)
   test("requestUpdate in reactive-element is called after dispatching 'location-change' event in gr-router", () => {
     dispatchLocationChangeEventSpy();
     assert.isTrue(requestUpdateStub.calledOnce);
