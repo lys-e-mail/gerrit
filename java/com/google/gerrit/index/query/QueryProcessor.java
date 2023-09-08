@@ -92,6 +92,7 @@ public abstract class QueryProcessor<T> {
   private boolean enforceVisibility = true;
   private int userProvidedLimit;
   private boolean isNoLimit;
+  private boolean allowFaultyResults;
   private Set<String> requestedFields;
 
   protected QueryProcessor(
@@ -160,6 +161,11 @@ public abstract class QueryProcessor<T> {
 
   public QueryProcessor<T> setNoLimit(boolean isNoLimit) {
     this.isNoLimit = isNoLimit;
+    return this;
+  }
+
+  public QueryProcessor<T> setAllowFaultyResults(boolean allowFaultyResults) {
+    this.allowFaultyResults = allowFaultyResults;
     return this;
   }
 
@@ -271,6 +277,7 @@ public abstract class QueryProcessor<T> {
                 // ask for one more result from the query.
                 // NOTE: This is consistent to the behaviour before the introduction of pagination.`
                 Ints.saturatedCast((long) limit + 1),
+                allowFaultyResults,
                 getRequestedFields());
         logger.atFine().log("Query options: %s", opts);
         // Apply index-specific rewrite first
@@ -358,6 +365,7 @@ public abstract class QueryProcessor<T> {
       int pageSize,
       int pageSizeMultiplier,
       int limit,
+      boolean allowFaultyResults,
       Set<String> requestedFields) {
     return QueryOptions.create(
         indexConfig, start, pageSize, pageSizeMultiplier, limit, requestedFields);

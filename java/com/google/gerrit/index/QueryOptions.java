@@ -47,10 +47,33 @@ public abstract class QueryOptions {
   public static QueryOptions create(
       IndexConfig config,
       int start,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      boolean allowFaultyResults,
+      Set<String> fields) {
+    return create(config, start, null, pageSize, pageSizeMultiplier, limit, allowFaultyResults, fields);
+  }
+
+  public static QueryOptions create(
+      IndexConfig config,
+      int start,
       Object searchAfter,
       int pageSize,
       int pageSizeMultiplier,
       int limit,
+      Set<String> fields) {
+    return create(config, start, searchAfter, pageSize, pageSizeMultiplier, limit, false, fields);
+  }
+
+  public static QueryOptions create(
+      IndexConfig config,
+      int start,
+      Object searchAfter,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      boolean allowFaultyResults,
       Set<String> fields) {
     checkArgument(start >= 0, "start must be nonnegative: %s", start);
     checkArgument(limit > 0, "limit must be positive: %s", limit);
@@ -64,6 +87,7 @@ public abstract class QueryOptions {
         pageSize,
         pageSizeMultiplier,
         limit,
+        allowFaultyResults,
         ImmutableSet.copyOf(fields));
   }
 
@@ -77,7 +101,7 @@ public abstract class QueryOptions {
         Math.min(
             Math.min(Ints.saturatedCast((long) pageSize() + start()), config().maxPageSize()),
             backendLimit);
-    return create(config(), 0, null, pageSize, pageSizeMultiplier(), limit, fields());
+    return create(config(), 0, null, pageSize, pageSizeMultiplier(), limit, allowFaultyResults(), fields());
   }
 
   public abstract IndexConfig config();
@@ -92,29 +116,30 @@ public abstract class QueryOptions {
   public abstract int pageSizeMultiplier();
 
   public abstract int limit();
+  public abstract boolean allowFaultyResults();
 
   public abstract ImmutableSet<String> fields();
 
   public QueryOptions withPageSize(int pageSize) {
     return create(
-        config(), start(), searchAfter(), pageSize, pageSizeMultiplier(), limit(), fields());
+        config(), start(), searchAfter(), pageSize, pageSizeMultiplier(), limit(), allowFaultyResults(), fields());
   }
 
   public QueryOptions withLimit(int newLimit) {
     return create(
-        config(), start(), searchAfter(), pageSize(), pageSizeMultiplier(), newLimit, fields());
+        config(), start(), searchAfter(), pageSize(), pageSizeMultiplier(), newLimit, allowFaultyResults(), fields());
   }
 
   public QueryOptions withStart(int newStart) {
     return create(
-        config(), newStart, searchAfter(), pageSize(), pageSizeMultiplier(), limit(), fields());
+        config(), newStart, searchAfter(), pageSize(), pageSizeMultiplier(), limit(), allowFaultyResults(), fields());
   }
 
   public QueryOptions withSearchAfter(Object newSearchAfter) {
     // Index search-after APIs don't use 'start', so set it to 0 to be safe. ElasticSearch for
     // example, expects it to be 0 when using search-after APIs.
     return create(
-            config(), start(), newSearchAfter, pageSize(), pageSizeMultiplier(), limit(), fields())
+            config(), start(), newSearchAfter, pageSize(), pageSizeMultiplier(), limit(), allowFaultyResults(), fields())
         .withStart(0);
   }
 
@@ -126,6 +151,7 @@ public abstract class QueryOptions {
         pageSize(),
         pageSizeMultiplier(),
         limit(),
+        allowFaultyResults(),
         filter.apply(this));
   }
 }

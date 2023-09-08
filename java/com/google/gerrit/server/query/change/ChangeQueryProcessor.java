@@ -115,9 +115,10 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
       int pageSize,
       int pageSizeMultiplier,
       int limit,
+      boolean allowFaultyResults,
       Set<String> requestedFields) {
     return IndexedChangeQuery.createOptions(
-        indexConfig, start, pageSize, pageSizeMultiplier, limit, requestedFields);
+        indexConfig, start, pageSize, pageSizeMultiplier, limit, allowFaultyResults, requestedFields);
   }
 
   @Override

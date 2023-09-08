@@ -60,6 +60,7 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
   private Integer start;
   private Boolean noLimit;
   private Boolean skipVisibility;
+  private Boolean allowFaultyResults;
 
   @Option(
       name = "--query",
@@ -110,6 +111,13 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
       permissionBackend.user(user).check(GlobalPermission.ADMINISTRATE_SERVER);
     }
     skipVisibility = on;
+  }
+
+  @Option(
+      name = "--allow-faulty-results",
+      usage = "Return partial results")
+  public void setAllowFaultyResults(boolean flag) {
+    this.allowFaultyResults = flag;
   }
 
   @Override
@@ -180,6 +188,9 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
     }
     if (skipVisibility != null) {
       queryProcessor.enforceVisibility(!skipVisibility);
+    }
+    if (allowFaultyResults != null) {
+      queryProcessor.setAllowFaultyResults(allowFaultyResults);
     }
     dynamicBeans.forEach((p, b) -> queryProcessor.setDynamicBean(p, b));
 
