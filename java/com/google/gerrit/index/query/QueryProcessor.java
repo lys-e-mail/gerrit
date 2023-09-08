@@ -91,7 +91,12 @@ public abstract class QueryProcessor<T> {
   private boolean enforceVisibility = true;
   private int userProvidedLimit;
   private boolean isNoLimit;
+<<<<<<< PATCH SET (3ef9bf in-progress)
+  private boolean allowFaultyResults;
+||||||| BASE
+=======
   private boolean allowIncompleteResults;
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   private Set<String> requestedFields;
 
   protected QueryProcessor(
@@ -171,6 +176,14 @@ public abstract class QueryProcessor<T> {
     return this;
   }
 
+<<<<<<< PATCH SET (3ef9bf in-progress)
+  public QueryProcessor<T> setAllowFaultyResults(boolean allowFaultyResults) {
+    this.allowFaultyResults = allowFaultyResults;
+    return this;
+  }
+
+||||||| BASE
+=======
   @CanIgnoreReturnValue
   public QueryProcessor<T> setAllowIncompleteResults(boolean allowIncompleteResults) {
     this.allowIncompleteResults = allowIncompleteResults;
@@ -178,6 +191,7 @@ public abstract class QueryProcessor<T> {
   }
 
   @CanIgnoreReturnValue
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   public QueryProcessor<T> setRequestedFields(Set<String> fields) {
     requestedFields = fields;
     return this;
@@ -283,8 +297,15 @@ public abstract class QueryProcessor<T> {
                 // max for this user. The only way to see if there are more entities is to
                 // ask for one more result from the query.
                 // NOTE: This is consistent to the behaviour before the introduction of pagination.`
+<<<<<<< PATCH SET (3ef9bf in-progress)
+                Ints.saturatedCast((long) limit + 1),
+                allowFaultyResults,
+||||||| BASE
+                Ints.saturatedCast((long) limit + 1),
+=======
                 limit == getBackendSupportedLimit() ? limit : Ints.saturatedCast((long) limit + 1),
                 allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
                 getRequestedFields());
         logger.atFine().log("Query options: %s", opts);
         // Apply index-specific rewrite first
@@ -374,7 +395,12 @@ public abstract class QueryProcessor<T> {
       int pageSize,
       int pageSizeMultiplier,
       int limit,
+<<<<<<< PATCH SET (3ef9bf in-progress)
+      boolean allowFaultyResults,
+||||||| BASE
+=======
       boolean allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
       Set<String> requestedFields) {
     return QueryOptions.create(
         indexConfig,

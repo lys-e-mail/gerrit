@@ -122,9 +122,19 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
       int pageSize,
       int pageSizeMultiplier,
       int limit,
+<<<<<<< PATCH SET (3ef9bf in-progress)
+      boolean allowFaultyResults,
+||||||| BASE
+=======
       boolean allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
       Set<String> requestedFields) {
     return IndexedChangeQuery.createOptions(
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        indexConfig, start, pageSize, pageSizeMultiplier, limit, allowFaultyResults, requestedFields);
+||||||| BASE
+        indexConfig, start, pageSize, pageSizeMultiplier, limit, requestedFields);
+=======
         indexConfig,
         start,
         pageSize,
@@ -132,6 +142,7 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
         limit,
         allowIncompleteResults,
         requestedFields);
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   @Override

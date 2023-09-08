@@ -61,7 +61,12 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
   private Integer start;
   private Boolean noLimit;
   private Boolean skipVisibility;
+<<<<<<< PATCH SET (3ef9bf in-progress)
+  private Boolean allowFaultyResults;
+||||||| BASE
+=======
   private Boolean allowIncompleteResults;
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
 
   @Option(
       name = "--query",
@@ -114,9 +119,18 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
     skipVisibility = on;
   }
 
+<<<<<<< PATCH SET (3ef9bf in-progress)
+  @Option(
+      name = "--allow-faulty-results",
+      usage = "Return partial results")
+  public void setAllowFaultyResults(boolean flag) {
+    this.allowFaultyResults = flag;
+||||||| BASE
+=======
   @Option(name = "--allow-incomplete-results", usage = "Return partial results")
   public void setAllowIncompleteResults(boolean allowIncompleteResults) {
     this.allowIncompleteResults = allowIncompleteResults;
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   @Override
@@ -203,8 +217,14 @@ public class QueryChanges implements RestReadView<TopLevelResource>, DynamicOpti
     if (skipVisibility != null) {
       queryProcessor.enforceVisibility(!skipVisibility);
     }
+<<<<<<< PATCH SET (3ef9bf in-progress)
+    if (allowFaultyResults != null) {
+      queryProcessor.setAllowFaultyResults(allowFaultyResults);
+||||||| BASE
+=======
     if (allowIncompleteResults != null) {
       queryProcessor.setAllowIncompleteResults(allowIncompleteResults);
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
     }
     dynamicBeans.forEach((p, b) -> queryProcessor.setDynamicBean(p, b));
 

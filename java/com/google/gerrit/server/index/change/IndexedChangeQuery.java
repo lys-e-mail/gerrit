@@ -64,6 +64,19 @@ public class IndexedChangeQuery extends IndexedQuery<Change.Id, ChangeData>
       int pageSizeMultiplier,
       int limit,
       Set<String> fields) {
+<<<<<<< PATCH SET (3ef9bf in-progress)
+    return createOptions(config, start, pageSize, pageSizeMultiplier, limit, false, fields);
+  }
+
+  public static QueryOptions createOptions(
+      IndexConfig config,
+      int start,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      boolean allowFaultyResults,
+||||||| BASE
+=======
     return createOptions(
         config,
         start,
@@ -81,17 +94,24 @@ public class IndexedChangeQuery extends IndexedQuery<Change.Id, ChangeData>
       int pageSizeMultiplier,
       int limit,
       boolean allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
       Set<String> fields) {
     // Always include project and change id since both are needed to load the change from NoteDb.
     if (!fields.contains(CHANGE_SPEC.getName())
         && !(fields.contains(PROJECT_SPEC.getName())
-            && fields.contains(NUMERIC_ID_STR_SPEC.getName()))) {
+        && fields.contains(NUMERIC_ID_STR_SPEC.getName()))) {
       fields = new HashSet<>(fields);
       fields.add(PROJECT_SPEC.getName());
       fields.add(NUMERIC_ID_STR_SPEC.getName());
     }
+<<<<<<< PATCH SET (3ef9bf in-progress)
+    return QueryOptions.create(config, start, pageSize, pageSizeMultiplier, limit, allowFaultyResults, fields);
+||||||| BASE
+    return QueryOptions.create(config, start, pageSize, pageSizeMultiplier, limit, fields);
+=======
     return QueryOptions.create(
         config, start, pageSize, pageSizeMultiplier, limit, allowIncompleteResults, fields);
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   @VisibleForTesting

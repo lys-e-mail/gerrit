@@ -47,11 +47,36 @@ public abstract class QueryOptions {
   public static QueryOptions create(
       IndexConfig config,
       int start,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      boolean allowFaultyResults,
+      Set<String> fields) {
+    return create(config, start, null, pageSize, pageSizeMultiplier, limit, allowFaultyResults, fields);
+  }
+
+  public static QueryOptions create(
+      IndexConfig config,
+      int start,
       Object searchAfter,
       int pageSize,
       int pageSizeMultiplier,
       int limit,
       Set<String> fields) {
+<<<<<<< PATCH SET (3ef9bf in-progress)
+    return create(config, start, searchAfter, pageSize, pageSizeMultiplier, limit, false, fields);
+  }
+
+  public static QueryOptions create(
+      IndexConfig config,
+      int start,
+      Object searchAfter,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      boolean allowFaultyResults,
+||||||| BASE
+=======
     return create(
         config,
         start,
@@ -83,6 +108,7 @@ public abstract class QueryOptions {
       int pageSizeMultiplier,
       int limit,
       boolean allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
       Set<String> fields) {
     checkArgument(start >= 0, "start must be nonnegative: %s", start);
     checkArgument(limit > 0, "limit must be positive: %s", limit);
@@ -96,7 +122,12 @@ public abstract class QueryOptions {
         pageSize,
         pageSizeMultiplier,
         limit,
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        allowFaultyResults,
+||||||| BASE
+=======
         allowIncompleteResults,
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
         ImmutableSet.copyOf(fields));
   }
 
@@ -110,6 +141,11 @@ public abstract class QueryOptions {
         Math.min(
             Math.min(Ints.saturatedCast((long) pageSize() + start()), config().maxPageSize()),
             backendLimit);
+<<<<<<< PATCH SET (3ef9bf in-progress)
+    return create(config(), 0, null, pageSize, pageSizeMultiplier(), limit, allowFaultyResults(), fields());
+||||||| BASE
+    return create(config(), 0, null, pageSize, pageSizeMultiplier(), limit, fields());
+=======
     return create(
         config(),
         0,
@@ -119,6 +155,7 @@ public abstract class QueryOptions {
         limit,
         allowIncompleteResults(),
         fields());
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   public abstract IndexConfig config();
@@ -133,6 +170,7 @@ public abstract class QueryOptions {
   public abstract int pageSizeMultiplier();
 
   public abstract int limit();
+  public abstract boolean allowFaultyResults();
 
   /**
    * When set to true, entities that fail to get parsed from the index are replaced with a canonical
@@ -144,6 +182,11 @@ public abstract class QueryOptions {
 
   public QueryOptions withPageSize(int pageSize) {
     return create(
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        config(), start(), searchAfter(), pageSize, pageSizeMultiplier(), limit(), allowFaultyResults(), fields());
+||||||| BASE
+        config(), start(), searchAfter(), pageSize, pageSizeMultiplier(), limit(), fields());
+=======
         config(),
         start(),
         searchAfter(),
@@ -152,10 +195,16 @@ public abstract class QueryOptions {
         limit(),
         allowIncompleteResults(),
         fields());
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   public QueryOptions withLimit(int newLimit) {
     return create(
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        config(), start(), searchAfter(), pageSize(), pageSizeMultiplier(), newLimit, allowFaultyResults(), fields());
+||||||| BASE
+        config(), start(), searchAfter(), pageSize(), pageSizeMultiplier(), newLimit, fields());
+=======
         config(),
         start(),
         searchAfter(),
@@ -164,10 +213,16 @@ public abstract class QueryOptions {
         newLimit,
         allowIncompleteResults(),
         fields());
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   public QueryOptions withStart(int newStart) {
     return create(
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        config(), newStart, searchAfter(), pageSize(), pageSizeMultiplier(), limit(), allowFaultyResults(), fields());
+||||||| BASE
+        config(), newStart, searchAfter(), pageSize(), pageSizeMultiplier(), limit(), fields());
+=======
         config(),
         newStart,
         searchAfter(),
@@ -176,12 +231,18 @@ public abstract class QueryOptions {
         limit(),
         allowIncompleteResults(),
         fields());
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
   }
 
   public QueryOptions withSearchAfter(Object newSearchAfter) {
     // Index search-after APIs don't use 'start', so set it to 0 to be safe. ElasticSearch for
     // example, expects it to be 0 when using search-after APIs.
     return create(
+<<<<<<< PATCH SET (3ef9bf in-progress)
+            config(), start(), newSearchAfter, pageSize(), pageSizeMultiplier(), limit(), allowFaultyResults(), fields())
+||||||| BASE
+            config(), start(), newSearchAfter, pageSize(), pageSizeMultiplier(), limit(), fields())
+=======
             config(),
             start(),
             newSearchAfter,
@@ -190,6 +251,7 @@ public abstract class QueryOptions {
             limit(),
             allowIncompleteResults(),
             fields())
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
         .withStart(0);
   }
 
@@ -201,7 +263,12 @@ public abstract class QueryOptions {
         pageSize(),
         pageSizeMultiplier(),
         limit(),
+<<<<<<< PATCH SET (3ef9bf in-progress)
+        allowFaultyResults(),
+||||||| BASE
+=======
         allowIncompleteResults(),
+>>>>>>> BASE      (8dbf82 Remove unnecessary boxing for AutoValue classes)
         filter.apply(this));
   }
 
