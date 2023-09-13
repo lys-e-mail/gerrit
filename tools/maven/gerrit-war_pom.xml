@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (c097fc Merge branch 'stable-3.6' into stable-3.7)
   <version>3.7.5-SNAPSHOT</version>
+=======
+  <version>3.6.8-SNAPSHOT</version>
+>>>>>>> BRANCH (2563e0 Set version to 3.6.8-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
