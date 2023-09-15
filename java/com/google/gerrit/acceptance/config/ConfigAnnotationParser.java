@@ -47,7 +47,20 @@ public class ConfigAnnotationParser {
     return cfg;
   }
 
+<<<<<<< HEAD   (18265c Set version to 3.8.3-SNAPSHOT)
   @Nullable
+=======
+  public static void parse(GerritSystemProperties annotation) {
+    for (GerritSystemProperty prop : annotation.value()) {
+      parse(prop);
+    }
+  }
+
+  public static void parse(GerritSystemProperty annotation) {
+    System.setProperty(annotation.name(), annotation.value());
+  }
+
+>>>>>>> BRANCH (aad795 Merge "Allow to set gerrit.instanceID from java system prope)
   public static Map<String, Config> parse(GlobalPluginConfigs annotation) {
     if (annotation == null || annotation.value().length < 1) {
       return null;
