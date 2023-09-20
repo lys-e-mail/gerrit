@@ -40,12 +40,16 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
-import com.google.inject.util.Providers;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+<<<<<<< HEAD   (f8a6f6 Merge branch 'stable-3.5' into stable-3.6)
 import java.util.stream.Stream;
+=======
+import org.eclipse.jgit.lib.Repository;
+>>>>>>> BRANCH (addbe1 Add in memory change data cache by project)
 
 /**
  * Cache based on an index query of the most recent changes. The number of cached items depends on
@@ -55,35 +59,22 @@ import java.util.stream.Stream;
  * fraction of all changes. These are the changes that were modified last.
  */
 @Singleton
-public class SearchingChangeCacheImpl implements GitReferenceUpdatedListener {
+public class SearchingChangeCacheImpl
+    implements ChangesByProjectCache, GitReferenceUpdatedListener {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   static final String ID_CACHE = "changes";
 
   public static class SearchingChangeCacheImplModule extends CacheModule {
-    private final boolean slave;
-
-    public SearchingChangeCacheImplModule() {
-      this(false);
-    }
-
-    public SearchingChangeCacheImplModule(boolean slave) {
-      this.slave = slave;
-    }
-
     @Override
     protected void configure() {
-      if (slave) {
-        bind(SearchingChangeCacheImpl.class).toProvider(Providers.of(null));
-      } else {
-        cache(ID_CACHE, Project.NameKey.class, new TypeLiteral<List<CachedChange>>() {})
-            .maximumWeight(0)
-            .loader(Loader.class);
+      cache(ID_CACHE, Project.NameKey.class, new TypeLiteral<List<CachedChange>>() {})
+          .maximumWeight(0)
+          .loader(Loader.class);
 
-        bind(SearchingChangeCacheImpl.class);
-        DynamicSet.bind(binder(), GitReferenceUpdatedListener.class)
-            .to(SearchingChangeCacheImpl.class);
-      }
+      bind(ChangesByProjectCache.class).to(SearchingChangeCacheImpl.class);
+      DynamicSet.bind(binder(), GitReferenceUpdatedListener.class)
+          .to(SearchingChangeCacheImpl.class);
     }
   }
 
@@ -117,10 +108,20 @@ public class SearchingChangeCacheImpl implements GitReferenceUpdatedListener {
    * Additional stored fields are not loaded from the index.
    *
    * @param project project to read.
+<<<<<<< HEAD   (f8a6f6 Merge branch 'stable-3.5' into stable-3.6)
    * @return stream of known changes; empty if no changes.
+=======
+   * @param repo repository for the project to read.
+   * @return Collection of known changes; empty if no changes.
+>>>>>>> BRANCH (addbe1 Add in memory change data cache by project)
    */
+<<<<<<< HEAD   (f8a6f6 Merge branch 'stable-3.5' into stable-3.6)
   public Stream<ChangeData> getChangeData(Project.NameKey project) {
     List<CachedChange> cached;
+=======
+  @Override
+  public Collection<ChangeData> getChangeDatas(Project.NameKey project, Repository unusedrepo) {
+>>>>>>> BRANCH (addbe1 Add in memory change data cache by project)
     try {
       cached = cache.get(project);
     } catch (ExecutionException e) {
