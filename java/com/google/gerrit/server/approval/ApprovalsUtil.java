@@ -339,6 +339,22 @@ public class ApprovalsUtil {
     return notes.load().getApprovals();
   }
 
+<<<<<<< HEAD   (f6d2e4 Reword Eclipse dev guide about plugins test dependencyies)
+=======
+  public ListMultimap<PatchSet.Id, PatchSetApproval> byChangeWithCopied(ChangeNotes notes) {
+    return notes.load().getApprovalsWithCopied();
+  }
+
+  public Iterable<PatchSetApproval> byPatchSet(
+      ChangeNotes notes, PatchSet.Id psId, @Nullable RevWalk rw, @Nullable Config repoConfig) {
+    return approvalInference.forPatchSet(notes, psId, rw, repoConfig);
+  }
+
+  public Iterable<PatchSetApproval> byPatchSet(ChangeNotes notes, PatchSet patchSet) {
+    return approvalInference.forPatchSet(notes, patchSet, /* rw= */ null, /* repoConfig= */ null);
+  }
+
+>>>>>>> BRANCH (40715f Merge "Retry SSH set-reviewers cmd on lock failures" into st)
   /**
    * This method should only be used when we want to dynamically compute the approvals. Generally,
    * the copied approvals are available in {@link ChangeNotes}. However, if the patch-set is just
