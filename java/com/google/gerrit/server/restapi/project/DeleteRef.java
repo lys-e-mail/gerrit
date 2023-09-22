@@ -116,6 +116,7 @@ public class DeleteRef {
           .ref(ref)
           .check(RefPermission.DELETE);
 
+<<<<<<< HEAD   (f8f50c Merge "Remove property drilling for `gr-smart-search`" into )
       try (Repository repository = repoManager.openRepository(projectState.getNameKey())) {
         RefUpdate.Result result;
         RefUpdate u = repository.updateRef(ref);
@@ -128,6 +129,23 @@ public class DeleteRef {
             u,
             /* pushOptions */ ImmutableListMultimap.of());
         result = u.delete();
+=======
+    try (Repository repository = repoManager.openRepository(projectState.getNameKey())) {
+      Ref refObj = repository.exactRef(ref);
+      if (refObj == null) {
+        throw new ResourceConflictException(String.format("ref %s doesn't exist", ref));
+      }
+      RefUpdate u = repository.updateRef(ref);
+      u.setExpectedOldObjectId(refObj.getObjectId());
+      u.setNewObjectId(ObjectId.zeroId());
+      u.setForceUpdate(true);
+      refDeletionValidator.validateRefOperation(
+          projectState.getName(),
+          identifiedUser.get(),
+          u,
+          /* pushOptions */ ImmutableListMultimap.of());
+      RefUpdate.Result result = u.delete();
+>>>>>>> BRANCH (11574a Merge branch 'stable-3.6' into stable-3.7)
 
         switch (result) {
           case NEW:
