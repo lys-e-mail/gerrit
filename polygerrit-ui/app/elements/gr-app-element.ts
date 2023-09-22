@@ -64,6 +64,10 @@ import './gr-css-mixins';
 import {isDarkTheme, prefersDarkColorScheme} from '../utils/theme-util';
 import {AppTheme} from '../constants/constants';
 import {subscribe} from './lit/subscription-controller';
+<<<<<<< HEAD   (927a53 Merge "Transform AccountUpdate interface into class")
+=======
+import {PluginViewState} from '../models/views/plugin';
+>>>>>>> BRANCH (a6decd Merge branch 'stable-3.7' into stable-3.8)
 import {createSearchUrl} from '../models/views/search';
 import {createSettingsUrl} from '../models/views/settings';
 import {createDashboardUrl} from '../models/views/dashboard';
