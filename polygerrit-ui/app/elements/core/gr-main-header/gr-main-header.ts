@@ -181,6 +181,38 @@ export class GrMainHeader extends LitElement {
   override connectedCallback() {
     super.connectedCallback();
     this.loadAccount();
+<<<<<<< HEAD   (fdb835 Merge "Revert "Add support to cherry-pick using secondary em)
+=======
+
+    this.subscriptions.push(
+      this.getUserModel()
+        .preferences$.pipe(
+          map(preferences => preferences?.my ?? []),
+          distinctUntilChanged()
+        )
+        .subscribe(items => {
+          this.userLinks = items.map(this.createHeaderLink);
+        })
+    );
+    this.subscriptions.push(
+      this.getConfigModel().serverConfig$.subscribe(config => {
+        if (!config) return;
+        this.retrieveFeedbackURL(config);
+        this.retrieveRegisterURL(config);
+        this.restApiService.getDocsBaseUrl(config).then(docBaseUrl => {
+          this.docBaseUrl = docBaseUrl;
+        });
+      })
+    );
+  }
+
+  override disconnectedCallback() {
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
+    super.disconnectedCallback();
+>>>>>>> BRANCH (643633 Merge branch 'stable-3.7' into stable-3.8)
   }
 
   static override get styles() {

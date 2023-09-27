@@ -64,6 +64,10 @@ import './gr-css-mixins';
 import {isDarkTheme, prefersDarkColorScheme} from '../utils/theme-util';
 import {AppTheme} from '../constants/constants';
 import {subscribe} from './lit/subscription-controller';
+<<<<<<< HEAD   (fdb835 Merge "Revert "Add support to cherry-pick using secondary em)
+=======
+import {PluginViewState} from '../models/views/plugin';
+>>>>>>> BRANCH (643633 Merge branch 'stable-3.7' into stable-3.8)
 import {createSearchUrl} from '../models/views/search';
 import {createSettingsUrl} from '../models/views/settings';
 import {createDashboardUrl} from '../models/views/dashboard';
