@@ -62,7 +62,10 @@ import {assert} from '@open-wc/testing';
 import {AuthService} from '../gr-auth/gr-auth';
 import {GrAuthMock} from '../gr-auth/gr-auth_mock';
 import {getBaseUrl} from '../../utils/url-util';
+<<<<<<< HEAD   (7d61b8 Revert change to UrlModule in change I622c48491)
 import {FlagsServiceImplementation} from '../flags/flags_impl';
+=======
+>>>>>>> BRANCH (6d2643 Merge branch 'stable-3.7' into stable-3.8)
 
 const EXPECTED_QUERY_OPTIONS = listChangesOptionsToHex(
   ListChangesOption.CHANGE_ACTIONS,
@@ -565,6 +568,29 @@ suite('gr-rest-api-service-impl tests', () => {
     assert.equal(sendStub.lastCall.args[0].method, HttpMethod.PUT);
     assert.equal(sendStub.lastCall.args[0].url, '/config/server/email.confirm');
     assert.deepEqual(sendStub.lastCall.args[0].body, {token: 'foo'});
+  });
+
+  test('setPreferredAccountEmail', async () => {
+    const email1 = 'email1@example.com';
+    const email2 = 'email2@example.com';
+    const encodedEmail = encodeURIComponent(email2);
+    const sendStub = sinon.stub(element._restApiHelper, 'send').resolves();
+    element._cache.set('/accounts/self/emails', [
+      {email: email1, preferred: true},
+      {email: email2, preferred: false},
+    ]);
+
+    await element.setPreferredAccountEmail(email2);
+    assert.isTrue(sendStub.calledOnce);
+    assert.equal(sendStub.lastCall.args[0].method, HttpMethod.PUT);
+    assert.equal(
+      sendStub.lastCall.args[0].url,
+      `/accounts/self/emails/${encodedEmail}/preferred`
+    );
+    assert.deepEqual(element._cache.get('/accounts/self/emails'), [
+      {email: email1, preferred: false},
+      {email: email2, preferred: true},
+    ]);
   });
 
   test('setAccountStatus', async () => {
@@ -1169,17 +1195,29 @@ suite('gr-rest-api-service-impl tests', () => {
     const repo = 'test-repo' as RepoName;
 
     test('getChange fails to yield a project', async () => {
+<<<<<<< HEAD   (7d61b8 Revert change to UrlModule in change I622c48491)
       const promise = mockPromise<undefined>();
       sinon.stub(element, 'getChange').returns(promise);
 
       const projectLookup = element.getFromProjectLookup(changeNum);
       promise.resolve(undefined);
+=======
+      const promise = mockPromise<null>();
+      sinon.stub(element, 'getChange').returns(promise);
+
+      const projectLookup = element.getFromProjectLookup(changeNum);
+      promise.resolve(null);
+>>>>>>> BRANCH (6d2643 Merge branch 'stable-3.7' into stable-3.8)
 
       assert.isUndefined(await projectLookup);
     });
 
     test('getChange succeeds with project', async () => {
+<<<<<<< HEAD   (7d61b8 Revert change to UrlModule in change I622c48491)
       const promise = mockPromise<undefined | ChangeInfo>();
+=======
+      const promise = mockPromise<null | ChangeInfo>();
+>>>>>>> BRANCH (6d2643 Merge branch 'stable-3.7' into stable-3.8)
       sinon.stub(element, 'getChange').returns(promise);
 
       const projectLookup = element.getFromProjectLookup(changeNum);
@@ -1190,12 +1228,21 @@ suite('gr-rest-api-service-impl tests', () => {
     });
 
     test('getChange fails, but a setInProjectLookup() call is used as fallback', async () => {
+<<<<<<< HEAD   (7d61b8 Revert change to UrlModule in change I622c48491)
       const promise = mockPromise<undefined>();
       sinon.stub(element, 'getChange').returns(promise);
 
       const projectLookup = element.getFromProjectLookup(changeNum);
       element.setInProjectLookup(changeNum, repo);
       promise.resolve(undefined);
+=======
+      const promise = mockPromise<null>();
+      sinon.stub(element, 'getChange').returns(promise);
+
+      const projectLookup = element.getFromProjectLookup(changeNum);
+      element.setInProjectLookup(changeNum, repo);
+      promise.resolve(null);
+>>>>>>> BRANCH (6d2643 Merge branch 'stable-3.7' into stable-3.8)
 
       assert.equal(await projectLookup, repo);
     });
