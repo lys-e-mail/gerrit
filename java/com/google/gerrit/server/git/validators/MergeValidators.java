@@ -373,7 +373,12 @@ public class MergeValidators {
       // might get corrupted. Thus don't allow merges into All-Users group refs
       // which updates group files (i.e., group.config, members and subgroups).
       // But it is still useful to allow users to update files apart from group
+<<<<<<< HEAD   (4eab14 Introduce Cross-Plugin communication docs)
       // files. For example, users can upload named destinations into group refs.
+=======
+      // files. For example, users can maintain task config in group refs which
+      // allows users to collaborate and review changes on group specific task configs.
+>>>>>>> BRANCH (7bdee4 Merge branch 'stable-3.7' into stable-3.8)
       ChangeData cd =
           changeDataFactory.create(destProject.getProject().getNameKey(), patchSetId.changeId());
       try {
