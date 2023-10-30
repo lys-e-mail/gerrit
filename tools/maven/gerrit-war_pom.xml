@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (bb6b2b Merge "Fix: do not restore votes after reviewer is deleted a)
   <version>3.10.0-SNAPSHOT</version>
+=======
+  <version>3.9.0-SNAPSHOT</version>
+>>>>>>> BRANCH (ea3417 Revert "ListProjectImpl: Delegate to QueryProjects if match )
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
