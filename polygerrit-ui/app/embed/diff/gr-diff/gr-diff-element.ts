@@ -359,9 +359,15 @@ export class GrDiffElement extends LitElement {
 
   public renderBinaryDiff() {
     return html`
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
       <tbody class="binary-diff">
         <tr>
           <td colspan=${this.columnCount}>
+=======
+      <tbody class="gr-diff binary-diff">
+        <tr class="gr-diff">
+          <td colspan=${this.columnCount} class="gr-diff">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
             <span>Difference in binary files</span>
           </td>
         </tr>
@@ -389,10 +395,50 @@ export class GrDiffElement extends LitElement {
     );
     return html`
       <colgroup>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
         ${when(this.columns.blame, () => html`<col class="blame" />`)}
+=======
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         ${when(
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
           this.columns.leftNumber,
           () => html`<col class="left" width=${lineNumberWidth} />`
+=======
+          this.columns.blame,
+          () => html`<col class=${diffClasses('blame')} />`
+        )}
+        ${when(
+          this.columns.leftNumber,
+          () =>
+            html`<col
+              class=${diffClasses(Side.LEFT)}
+              width=${lineNumberWidth}
+            />`
+        )}
+        ${when(
+          this.columns.leftSign,
+          () => html`<col class=${diffClasses(Side.LEFT, 'sign')} />`
+        )}
+        ${when(
+          this.columns.leftContent,
+          () => html`<col class=${diffClasses(Side.LEFT)} />`
+        )}
+        ${when(
+          this.columns.rightNumber,
+          () =>
+            html`<col
+              class=${diffClasses(Side.RIGHT)}
+              width=${lineNumberWidth}
+            />`
+        )}
+        ${when(
+          this.columns.rightSign,
+          () => html`<col class=${diffClasses(Side.RIGHT, 'sign')} />`
+        )}
+        ${when(
+          this.columns.rightContent,
+          () => html`<col class=${diffClasses(Side.RIGHT)} />`
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         )}
         ${when(this.columns.leftSign, () => html`<col class="left sign" />`)}
         ${when(this.columns.leftContent, () => html`<col class="left" />`)}

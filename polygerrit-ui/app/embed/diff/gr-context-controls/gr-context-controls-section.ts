@@ -94,12 +94,26 @@ export class GrContextControlsSection extends LitElement {
       >
         ${when(
           this.columns.blame,
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
           () => html`<td class="blame" data-line-number="0"></td>`
+=======
+          () =>
+            html`<td class=${diffClasses('blame')} data-line-number="0"></td>`
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         )}
         ${when(
           this.columns.leftNumber,
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
           () => html`<td class="contextLineNum"></td>`
+=======
+          () => html`<td class=${diffClasses('contextLineNum')}></td>`
         )}
+        ${when(
+          this.columns.leftSign,
+          () => html`<td class=${diffClasses('sign')}></td>`
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
+        )}
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
         ${when(this.columns.leftSign, () => html`<td class="sign"></td>`)}
         ${when(this.columns.leftContent, () => html`<td></td>`)}
         ${when(
@@ -108,6 +122,24 @@ export class GrContextControlsSection extends LitElement {
         )}
         ${when(this.columns.rightSign, () => html`<td class="sign"></td>`)}
         ${when(this.columns.rightContent, () => html`<td></td>`)}
+=======
+        ${when(
+          this.columns.leftContent,
+          () => html`<td class=${diffClasses()}></td>`
+        )}
+        ${when(
+          this.columns.rightNumber,
+          () => html`<td class=${diffClasses('contextLineNum')}></td>`
+        )}
+        ${when(
+          this.columns.rightSign,
+          () => html`<td class=${diffClasses('sign')}></td>`
+        )}
+        ${when(
+          this.columns.rightContent,
+          () => html`<td class=${diffClasses()}></td>`
+        )}
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
       </tr>
     `;
   }
@@ -122,10 +154,19 @@ export class GrContextControlsSection extends LitElement {
     if (this.columns.blame) colspan--;
     const showConfig = getShowConfig(this.showAbove, this.showBelow);
     return html`
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
       <tr class=${['dividerRow', `show-${showConfig}`].join(' ')}>
+=======
+      <tr class=${diffClasses('dividerRow', `show-${showConfig}`)}>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         ${when(
           this.columns.blame,
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
           () => html`<td class="blame" data-line-number="0"></td>`
+=======
+          () =>
+            html`<td class=${diffClasses('blame')} data-line-number="0"></td>`
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         )}
         <td class="dividerCell" colspan=${colspan}>
           <gr-context-controls

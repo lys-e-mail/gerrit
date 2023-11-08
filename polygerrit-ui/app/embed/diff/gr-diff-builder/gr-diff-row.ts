@@ -101,8 +101,11 @@ export class GrDiffRow extends LitElement {
 
   @state() columns: ColumnsToShow = NO_COLUMNS;
 
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
   @state() blameInfo?: BlameInfo;
 
+=======
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
   /**
    * Keeps track of whether diff layers have already been applied to the diff
    * row. That happens after the DOM has been created in the `updated()`
@@ -153,6 +156,7 @@ export class GrDiffRow extends LitElement {
       () => this.getDiffModel().columnsToShow$,
       columnsToShow => (this.columns = columnsToShow)
     );
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
     subscribe(
       this,
       () => this.getDiffModel().blameInfo$,
@@ -161,6 +165,8 @@ export class GrDiffRow extends LitElement {
         this.blameInfo = findBlame(blameInfos, line);
       }
     );
+=======
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
   }
 
   override willUpdate(changedProperties: PropertyValues) {

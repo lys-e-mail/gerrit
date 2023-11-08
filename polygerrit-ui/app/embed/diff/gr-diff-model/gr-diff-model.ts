@@ -124,6 +124,7 @@ export class DiffModel extends Model<DiffState> {
   );
 
   readonly columnsToShow$: Observable<ColumnsToShow> = select(
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
     combineLatest([this.blameInfo$, this.renderPrefs$]),
     ([blameInfo, renderPrefs]) => {
       const hideLeft = !!renderPrefs.hide_left_side;
@@ -132,6 +133,17 @@ export class DiffModel extends Model<DiffState> {
 
       return {
         blame: blameInfo.length > 0,
+=======
+    this.renderPrefs$,
+    renderPrefs => {
+      const hideLeft = !!renderPrefs.hide_left_side;
+      const showSign = !!renderPrefs.show_sign_col;
+      const unified = renderPrefs.view_mode === DiffViewMode.UNIFIED;
+
+      return {
+        // TODO: Do not always render the blame column. Move this into renderPrefs.
+        blame: true,
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         // Hiding the left side in unified diff mode does not make a lot of sense and is not supported.
         leftNumber: !hideLeft || unified,
         leftSign: !hideLeft && showSign && !unified,
