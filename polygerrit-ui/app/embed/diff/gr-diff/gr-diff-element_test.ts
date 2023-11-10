@@ -60,10 +60,18 @@ suite('gr-diff-element tests', () => {
           <div class="diffContainer sideBySide">
             <table id="diffTable">
               <colgroup>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                 <col class="left" width="48" />
                 <col class="left" />
                 <col class="right" width="48" />
                 <col class="right" />
+=======
+                <col class="blame gr-diff" />
+                <col class="gr-diff left" width="48" />
+                <col class="gr-diff left" />
+                <col class="gr-diff right" width="48" />
+                <col class="gr-diff right" />
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
               </colgroup>
             </table>
           </div>
@@ -85,9 +93,16 @@ suite('gr-diff-element tests', () => {
           <div class="diffContainer unified">
             <table id="diffTable">
               <colgroup>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                 <col class="left" width="48" />
                 <col class="right" width="48" />
                 <col class="right" />
+=======
+                <col class="blame gr-diff" />
+                <col class="gr-diff left" width="48" />
+                <col class="gr-diff right" width="48" />
+                <col class="gr-diff right" />
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
               </colgroup>
               <tbody class="both section">
                 <tr
@@ -1274,10 +1289,18 @@ suite('gr-diff-element tests', () => {
           <div class="diffContainer sideBySide">
             <table id="diffTable">
               <colgroup>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                 <col class="left" width="48" />
                 <col class="left" />
                 <col class="right" width="48" />
                 <col class="right" />
+=======
+                <col class="blame gr-diff" />
+                <col class="gr-diff left" width="48" />
+                <col class="gr-diff left" />
+                <col class="gr-diff right" width="48" />
+                <col class="gr-diff right" />
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
               </colgroup>
               <tbody class="both section">
                 <tr
@@ -1287,10 +1310,22 @@ suite('gr-diff-element tests', () => {
                   right-type="both"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="left lineNum" data-value="LOST"></td>
                   <td class="both content left lost no-intraline-info"></td>
                   <td class="lineNum right" data-value="LOST"></td>
                   <td class="both content lost no-intraline-info right"></td>
+=======
+                  <td class="blame gr-diff" data-line-number="LOST"></td>
+                  <td class="gr-diff left lineNum" data-value="LOST"></td>
+                  <td
+                    class="both content gr-diff left lost no-intraline-info"
+                  ></td>
+                  <td class="gr-diff lineNum right" data-value="LOST"></td>
+                  <td
+                    class="both content gr-diff lost no-intraline-info right"
+                  ></td>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                 </tr>
               </tbody>
               <tbody class="both section">
@@ -1312,8 +1347,15 @@ suite('gr-diff-element tests', () => {
                       FILE
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content file left no-intraline-info"></td>
                   <td class="lineNum right" data-value="FILE">
+=======
+                  <td
+                    class="both content file gr-diff left no-intraline-info"
+                  ></td>
+                  <td class="gr-diff lineNum right" data-value="FILE">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <button
                       aria-label="Add file comment"
                       class="lineNumButton right"
@@ -1324,7 +1366,13 @@ suite('gr-diff-element tests', () => {
                       FILE
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content file no-intraline-info right"></td>
+=======
+                  <td
+                    class="both content file gr-diff no-intraline-info right"
+                  ></td>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                 </tr>
               </tbody>
               <tbody class="both section">
@@ -1346,7 +1394,11 @@ suite('gr-diff-element tests', () => {
                       1
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1364,7 +1416,11 @@ suite('gr-diff-element tests', () => {
                       1
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1390,7 +1446,11 @@ suite('gr-diff-element tests', () => {
                       2
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1408,7 +1468,11 @@ suite('gr-diff-element tests', () => {
                       2
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1434,7 +1498,11 @@ suite('gr-diff-element tests', () => {
                       3
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1452,7 +1520,11 @@ suite('gr-diff-element tests', () => {
                       3
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1478,7 +1550,11 @@ suite('gr-diff-element tests', () => {
                       4
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1496,7 +1572,11 @@ suite('gr-diff-element tests', () => {
                       4
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1513,9 +1593,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="5">
                     <button
@@ -1528,7 +1615,11 @@ suite('gr-diff-element tests', () => {
                       5
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1543,9 +1634,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="6">
                     <button
@@ -1558,7 +1656,11 @@ suite('gr-diff-element tests', () => {
                       6
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1573,9 +1675,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="7">
                     <button
@@ -1588,7 +1697,11 @@ suite('gr-diff-element tests', () => {
                       7
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1616,7 +1729,11 @@ suite('gr-diff-element tests', () => {
                       5
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1634,7 +1751,11 @@ suite('gr-diff-element tests', () => {
                       8
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1660,7 +1781,11 @@ suite('gr-diff-element tests', () => {
                       6
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1678,7 +1803,11 @@ suite('gr-diff-element tests', () => {
                       9
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1704,7 +1833,11 @@ suite('gr-diff-element tests', () => {
                       7
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1722,7 +1855,11 @@ suite('gr-diff-element tests', () => {
                       10
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1748,7 +1885,11 @@ suite('gr-diff-element tests', () => {
                       8
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1766,7 +1907,11 @@ suite('gr-diff-element tests', () => {
                       11
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1792,7 +1937,11 @@ suite('gr-diff-element tests', () => {
                       9
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1810,7 +1959,11 @@ suite('gr-diff-element tests', () => {
                       12
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -1838,16 +1991,26 @@ suite('gr-diff-element tests', () => {
                       10
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
                       id="left-content-10"
                     ></div>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum right"></td>
                   <td class="blank no-intraline-info right">
                     <div class="contentText" data-side="right"></div>
+=======
+                  <td class="blankLineNum gr-diff right"></td>
+                  <td class="blank gr-diff no-intraline-info right">
+                    <div class="contentText gr-diff" data-side="right"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                 </tr>
                 <tr
@@ -1868,16 +2031,26 @@ suite('gr-diff-element tests', () => {
                       11
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
                       id="left-content-11"
                     ></div>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum right"></td>
                   <td class="blank no-intraline-info right">
                     <div class="contentText" data-side="right"></div>
+=======
+                  <td class="blankLineNum gr-diff right"></td>
+                  <td class="blank gr-diff no-intraline-info right">
+                    <div class="contentText gr-diff" data-side="right"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                 </tr>
                 <tr
@@ -1898,16 +2071,26 @@ suite('gr-diff-element tests', () => {
                       12
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
                       id="left-content-12"
                     ></div>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum right"></td>
                   <td class="blank no-intraline-info right">
                     <div class="contentText" data-side="right"></div>
+=======
+                  <td class="blankLineNum gr-diff right"></td>
+                  <td class="blank gr-diff no-intraline-info right">
+                    <div class="contentText gr-diff" data-side="right"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                 </tr>
                 <tr
@@ -1928,16 +2111,26 @@ suite('gr-diff-element tests', () => {
                       13
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
                       id="left-content-13"
                     ></div>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum right"></td>
                   <td class="blank no-intraline-info right">
                     <div class="contentText" data-side="right"></div>
+=======
+                  <td class="blankLineNum gr-diff right"></td>
+                  <td class="blank gr-diff no-intraline-info right">
+                    <div class="contentText gr-diff" data-side="right"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                 </tr>
               </tbody>
@@ -1960,7 +2153,11 @@ suite('gr-diff-element tests', () => {
                       14
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -1978,7 +2175,11 @@ suite('gr-diff-element tests', () => {
                       13
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2004,7 +2205,11 @@ suite('gr-diff-element tests', () => {
                       15
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left no-intraline-info remove">
+=======
+                  <td class="content gr-diff left no-intraline-info remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2022,7 +2227,11 @@ suite('gr-diff-element tests', () => {
                       14
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2050,7 +2259,11 @@ suite('gr-diff-element tests', () => {
                       16
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="content left remove">
+=======
+                  <td class="content gr-diff left remove">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2068,7 +2281,11 @@ suite('gr-diff-element tests', () => {
                       15
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content right">
+=======
+                  <td class="add content gr-diff right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2096,7 +2313,11 @@ suite('gr-diff-element tests', () => {
                       17
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2114,7 +2335,11 @@ suite('gr-diff-element tests', () => {
                       16
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2140,7 +2365,11 @@ suite('gr-diff-element tests', () => {
                       18
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2158,7 +2387,11 @@ suite('gr-diff-element tests', () => {
                       17
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2184,7 +2417,11 @@ suite('gr-diff-element tests', () => {
                       19
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2202,7 +2439,11 @@ suite('gr-diff-element tests', () => {
                       18
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2217,13 +2458,27 @@ suite('gr-diff-element tests', () => {
                   left-type="contextControl"
                   right-type="contextControl"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="contextLineNum"></td>
                   <td></td>
                   <td class="contextLineNum"></td>
                   <td></td>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="contextLineNum gr-diff"></td>
+                  <td class="gr-diff"></td>
+                  <td class="contextLineNum gr-diff"></td>
+                  <td class="gr-diff"></td>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                 </tr>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                 <tr class="dividerRow show-both">
                   <td class="dividerCell" colspan="4">
+=======
+                <tr class="dividerRow gr-diff show-both">
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="dividerCell gr-diff" colspan="4">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <gr-context-controls
                       showconfig="both"
                     ></gr-context-controls>
@@ -2234,10 +2489,18 @@ suite('gr-diff-element tests', () => {
                   left-type="contextControl"
                   right-type="contextControl"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="contextLineNum"></td>
                   <td></td>
                   <td class="contextLineNum"></td>
                   <td></td>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="contextLineNum gr-diff"></td>
+                  <td class="gr-diff"></td>
+                  <td class="contextLineNum gr-diff"></td>
+                  <td class="gr-diff"></td>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                 </tr>
               </tbody>
               <tbody class="both section">
@@ -2259,7 +2522,11 @@ suite('gr-diff-element tests', () => {
                       38
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2277,7 +2544,11 @@ suite('gr-diff-element tests', () => {
                       37
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2303,7 +2574,11 @@ suite('gr-diff-element tests', () => {
                       39
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2321,7 +2596,11 @@ suite('gr-diff-element tests', () => {
                       38
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2347,7 +2626,11 @@ suite('gr-diff-element tests', () => {
                       40
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2365,7 +2648,11 @@ suite('gr-diff-element tests', () => {
                       39
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2382,9 +2669,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="40">
                     <button
@@ -2397,7 +2691,11 @@ suite('gr-diff-element tests', () => {
                       40
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2412,9 +2710,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="41">
                     <button
@@ -2427,7 +2732,11 @@ suite('gr-diff-element tests', () => {
                       41
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2442,9 +2751,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="42">
                     <button
@@ -2457,7 +2773,11 @@ suite('gr-diff-element tests', () => {
                       42
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2472,9 +2792,16 @@ suite('gr-diff-element tests', () => {
                   right-type="add"
                   tabindex="-1"
                 >
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="blankLineNum left"></td>
                   <td class="blank left no-intraline-info">
                     <div class="contentText" data-side="left"></div>
+=======
+                  <td class="blame gr-diff" data-line-number="0"></td>
+                  <td class="blankLineNum gr-diff left"></td>
+                  <td class="blank gr-diff left no-intraline-info">
+                    <div class="contentText gr-diff" data-side="left"></div>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </td>
                   <td class="lineNum right" data-value="43">
                     <button
@@ -2487,7 +2814,11 @@ suite('gr-diff-element tests', () => {
                       43
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="add content no-intraline-info right">
+=======
+                  <td class="add content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2515,7 +2846,11 @@ suite('gr-diff-element tests', () => {
                       41
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2533,7 +2868,11 @@ suite('gr-diff-element tests', () => {
                       44
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2559,7 +2898,11 @@ suite('gr-diff-element tests', () => {
                       42
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2577,7 +2920,11 @@ suite('gr-diff-element tests', () => {
                       45
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2603,7 +2950,11 @@ suite('gr-diff-element tests', () => {
                       43
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2621,7 +2972,11 @@ suite('gr-diff-element tests', () => {
                       46
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2647,7 +3002,11 @@ suite('gr-diff-element tests', () => {
                       44
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2665,7 +3024,11 @@ suite('gr-diff-element tests', () => {
                       47
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2691,7 +3054,11 @@ suite('gr-diff-element tests', () => {
                       45
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content left no-intraline-info">
+=======
+                  <td class="both content gr-diff left no-intraline-info">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="left"
@@ -2709,7 +3076,11 @@ suite('gr-diff-element tests', () => {
                       48
                     </button>
                   </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <td class="both content no-intraline-info right">
+=======
+                  <td class="both content gr-diff no-intraline-info right">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                     <div
                       class="contentText"
                       data-side="right"
@@ -2764,10 +3135,18 @@ suite('gr-diff-element tests', () => {
               <gr-diff-row class="left-FILE right-FILE"> </gr-diff-row>
               <table id="diffTable">
                 <colgroup>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                   <col class="left" width="48" />
                   <col class="left" />
                   <col class="right" width="48" />
                   <col class="right" />
+=======
+                  <col class="blame gr-diff" />
+                  <col class="gr-diff left" width="48" />
+                  <col class="gr-diff left" />
+                  <col class="gr-diff right" width="48" />
+                  <col class="gr-diff right" />
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                 </colgroup>
                 <tbody class="both section">
                   <tr
@@ -2788,8 +3167,15 @@ suite('gr-diff-element tests', () => {
                         FILE
                       </button>
                     </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                     <td class="both content file left no-intraline-info"></td>
                     <td class="lineNum right" data-value="FILE">
+=======
+                    <td
+                      class="both content file gr-diff left no-intraline-info"
+                    ></td>
+                    <td class="gr-diff lineNum right" data-value="FILE">
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                       <button
                         aria-label="Add file comment"
                         class="lineNumButton right"
@@ -2800,7 +3186,13 @@ suite('gr-diff-element tests', () => {
                         FILE
                       </button>
                     </td>
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
                     <td class="both content file no-intraline-info right"></td>
+=======
+                    <td
+                      class="both content file gr-diff no-intraline-info right"
+                    ></td>
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
                   </tr>
                 </tbody>
                 <tbody class="binary-diff">

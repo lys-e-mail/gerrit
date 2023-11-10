@@ -508,6 +508,18 @@ export class GrDiff extends LitElement implements GrDiffApi {
     return !!this.highlights.selectedRange;
   }
 
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
+=======
+  private blameChanged() {
+    this.setBlame(this.blame ?? []);
+    if (this.blame) {
+      this.classList.add('showBlame');
+    } else {
+      this.classList.remove('showBlame');
+    }
+  }
+
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
   // Private but used in tests.
   selectLine(el: Element) {
     const lineNumber = Number(el.getAttribute('data-value'));

@@ -6,7 +6,11 @@
 import {css} from 'lit';
 
 export const grDiffStyles = css`
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
   :host(.disable-context-control-buttons) gr-diff-section tbody.section {
+=======
+  :host(.disable-context-control-buttons) .section {
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
     border-right: none;
   }
   :host {
@@ -555,7 +559,15 @@ export const grDiffStyles = css`
     color: var(--blue-700);
   }
 
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
   gr-diff-row td.blame {
+=======
+  col.blame {
+    display: none;
+  }
+  td.blame {
+    display: none;
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
     padding: 0 var(--spacing-m);
     white-space: pre;
   }

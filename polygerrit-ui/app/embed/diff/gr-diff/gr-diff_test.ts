@@ -190,6 +190,7 @@ suite('gr-diff tests', () => {
       element.renderPrefs = {hide_left_side: true};
       await element.updateComplete;
       let cols = queryAll(element, 'col');
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
       assert.equal(cols.length, 2);
 
       diffModel.updateState({renderPrefs: {hide_left_side: false}});
@@ -197,6 +198,15 @@ suite('gr-diff tests', () => {
       await element.updateComplete;
       cols = queryAll(element, 'col');
       assert.equal(cols.length, 4);
+=======
+      assert.equal(cols.length, 3);
+
+      diffModel.updateState({renderPrefs: {hide_left_side: false}});
+      element.renderPrefs = {hide_left_side: false};
+      await element.updateComplete;
+      cols = queryAll(element, 'col');
+      assert.equal(cols.length, 5);
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
     });
 
     suite('getCursorStops', () => {

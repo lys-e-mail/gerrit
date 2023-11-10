@@ -224,7 +224,11 @@ export class GrDiffSection extends LitElement {
   private renderMoveControls() {
     if (!this.group?.moveDetails) return;
     const movedIn = this.group.adds.length > 0;
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
     const plainCell = html`<td></td>`;
+=======
+    const plainCell = html`<td class=${diffClasses()}></td>`;
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
     const moveCell = html`
       <td class="moveHeader">
         <gr-range-header icon="move_item">
@@ -236,6 +240,7 @@ export class GrDiffSection extends LitElement {
       <tr class=${['moveControls', movedIn ? 'movedIn' : 'movedOut'].join(' ')}>
         ${when(this.columns.blame, () => html`<td class="blame"></td>`)}
         ${when(
+<<<<<<< HEAD   (bbf8ff Merge "UX: "Your Turn" -> "Your turn"")
           this.columns.leftNumber,
           () => html`<td class="moveControlsLineNumCol"></td>`
         )}
@@ -248,6 +253,30 @@ export class GrDiffSection extends LitElement {
           () => html`<td class="moveControlsLineNumCol"></td>`
         )}
         ${when(this.columns.rightSign, () => html`<td class="sign"></td>`)}
+=======
+          this.columns.blame,
+          () => html`<td class=${diffClasses('blame')}></td>`
+        )}
+        ${when(
+          this.columns.leftNumber,
+          () => html`<td class=${diffClasses('moveControlsLineNumCol')}></td>`
+        )}
+        ${when(
+          this.columns.leftSign,
+          () => html`<td class=${diffClasses('sign')}></td>`
+        )}
+        ${when(this.columns.leftContent, () =>
+          movedIn ? plainCell : moveCell
+        )}
+        ${when(
+          this.columns.rightNumber,
+          () => html`<td class=${diffClasses('moveControlsLineNumCol')}></td>`
+        )}
+        ${when(
+          this.columns.rightSign,
+          () => html`<td class=${diffClasses('sign')}></td>`
+        )}
+>>>>>>> BRANCH (94bc9a ChangeJson: Log caller when current revision is unexpectedly)
         ${when(this.columns.rightContent, () =>
           movedIn || this.isUnifiedDiff() ? moveCell : plainCell
         )}
