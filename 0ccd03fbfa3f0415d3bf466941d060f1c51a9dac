@@ -16,6 +16,24 @@
       "message": "Thanks!",
       "revId": "0ccd03fbfa3f0415d3bf466941d060f1c51a9dac",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b034befe_ea92e7d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2023-11-14T13:30:22Z",
+      "side": 1,
+      "message": "\u003e Code-Review +2\n\nJust to clarify. We do not want to submit this change since it contains the content of an internal file (hence a private change). It\u0027s just meant for us to be able to debug this.",
+      "parentUuid": "7db6ee6f_58f21037",
+      "revId": "0ccd03fbfa3f0415d3bf466941d060f1c51a9dac",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
