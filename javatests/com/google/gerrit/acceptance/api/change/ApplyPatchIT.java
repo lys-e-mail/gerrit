@@ -27,6 +27,7 @@ import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.eclipse.jgit.lib.Constants.HEAD;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
@@ -58,6 +59,10 @@ import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -80,10 +85,55 @@ public class ApplyPatchIT extends AbstractDaemonTest {
           + "+Second added line\n"
           + "\\ No newline at end of file\n";
 
+  private static final String FILE_DIFF =
+      "diff a/core/api/current.txt b/core/api/current.txt\n"
+          + "--- a/core/api/current.txt\n"
+          + "+++ b/core/api/current.txt\n"
+          + "@@ -33573,6 +33573,7 @@\n"
+          + "     field public static final String DISALLOW_BLUETOOTH_SHARING = \"no_bluetooth_sharing\";\n"
+          + "     field public static final String DISALLOW_CAMERA_TOGGLE = \"disallow_camera_toggle\";\n"
+          + "     field public static final String DISALLOW_CELLULAR_2G = \"no_cellular_2g\";\n"
+          + "+    field @FlaggedApi(\"android.os.disallow_cellular_null_ciphers_restriction\") public static final String DISALLOW_CELLULAR_NULL_CIPHERS = \"no_cellular_null_ciphers\";\n"
+          + "     field public static final String DISALLOW_CHANGE_WIFI_STATE = \"no_change_wifi_state\";\n"
+          + "     field public static final String DISALLOW_CONFIG_BLUETOOTH = \"no_config_bluetooth\";\n"
+          + "     field public static final String DISALLOW_CONFIG_BRIGHTNESS = \"no_config_brightness\";";
+
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private ChangeOperations changeOperations;
   @Inject private AccountOperations accountOperations;
+
+  @Test
+  public void b309500446() throws Exception {
+    InputStream inputStream = getClass().getResourceAsStream("current.txt");
+    String oldContent = readFromInputStream(inputStream);
+    int oldLineCount = countLines(oldContent);
+    initBaseWithFile("core/api/current.txt", oldContent);
+
+    // Apply a patch that adds 1 line.
+    ApplyPatchPatchSetInput in = buildInput(FILE_DIFF);
+    ChangeInfo result = applyPatch(in);
+
+    String newContent =
+        gApi.changes().id(result.id).current().file("core/api/current.txt").content().asString();
+    int newLineCount = countLines(newContent);
+    assertThat(newLineCount).isEqualTo(oldLineCount + 1);
+  }
+
+  private static int countLines(String str) {
+    return Splitter.onPattern("\r\n|\r|\n").splitToList(str).size();
+  }
+
+  private String readFromInputStream(InputStream inputStream) throws IOException {
+    StringBuilder resultStringBuilder = new StringBuilder();
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, UTF_8))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        resultStringBuilder.append(line).append("\n");
+      }
+    }
+    return resultStringBuilder.toString();
+  }
 
   @Test
   public void applyAddedFilePatch_success() throws Exception {
