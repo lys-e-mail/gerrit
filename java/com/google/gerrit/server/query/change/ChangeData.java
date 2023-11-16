@@ -75,7 +75,11 @@ import com.google.gerrit.server.change.CommentThreads;
 import com.google.gerrit.server.change.MergeabilityCache;
 import com.google.gerrit.server.change.PureRevert;
 import com.google.gerrit.server.config.AllUsersName;
+<<<<<<< HEAD   (44eb38 Merge branch 'stable-3.6' into stable-3.7)
 import com.google.gerrit.server.config.GerritServerId;
+=======
+import com.google.gerrit.server.config.SkipCurrentRulesEvaluationOnClosedChanges;
+>>>>>>> BRANCH (c38f0c Make gr-comment-thread test reliable in stable-3.6)
 import com.google.gerrit.server.config.TrackingFooters;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.MergeUtilFactory;
@@ -313,6 +317,7 @@ public class ChangeData {
       @Nullable ChangeNotes changeNotes) {
     ChangeData cd =
         new ChangeData(
+<<<<<<< HEAD   (44eb38 Merge branch 'stable-3.6' into stable-3.7)
             null,
             null,
             null,
@@ -336,6 +341,10 @@ public class ChangeData {
             id,
             null,
             changeNotes);
+=======
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, false, project, id, null, null);
+>>>>>>> BRANCH (c38f0c Make gr-comment-thread test reliable in stable-3.6)
     cd.currentPatchSet =
         PatchSet.builder()
             .id(PatchSet.id(id, currentPatchSetId))
@@ -364,6 +373,7 @@ public class ChangeData {
   private final SubmitRequirementsEvaluator submitRequirementsEvaluator;
   private final SubmitRequirementsUtil submitRequirementsUtil;
   private final SubmitRuleEvaluator.Factory submitRuleEvaluatorFactory;
+  private final boolean skipCurrentRulesEvaluationOnClosedChanges;
 
   // Required assisted injected fields.
   private final Project.NameKey project;
@@ -454,8 +464,12 @@ public class ChangeData {
       SubmitRequirementsEvaluator submitRequirementsEvaluator,
       SubmitRequirementsUtil submitRequirementsUtil,
       SubmitRuleEvaluator.Factory submitRuleEvaluatorFactory,
+<<<<<<< HEAD   (44eb38 Merge branch 'stable-3.6' into stable-3.7)
       @GerritServerId String gerritServerId,
       ChangeNumberVirtualIdAlgorithm virtualIdFunc,
+=======
+      @SkipCurrentRulesEvaluationOnClosedChanges Boolean skipCurrentRulesEvaluationOnClosedChange,
+>>>>>>> BRANCH (c38f0c Make gr-comment-thread test reliable in stable-3.6)
       @Assisted Project.NameKey project,
       @Assisted Change.Id id,
       @Assisted @Nullable Change change,
@@ -477,6 +491,7 @@ public class ChangeData {
     this.submitRequirementsEvaluator = submitRequirementsEvaluator;
     this.submitRequirementsUtil = submitRequirementsUtil;
     this.submitRuleEvaluatorFactory = submitRuleEvaluatorFactory;
+    this.skipCurrentRulesEvaluationOnClosedChanges = skipCurrentRulesEvaluationOnClosedChange;
 
     this.project = project;
     this.legacyId = id;
@@ -1150,6 +1165,9 @@ public class ChangeData {
             "Tried to load SubmitRecords for change fetched from index %s: %d",
             project(), getId().get());
         return Collections.emptyList();
+      }
+      if (skipCurrentRulesEvaluationOnClosedChanges && change().isClosed()) {
+        return notes().getSubmitRecords();
       }
       records = submitRuleEvaluatorFactory.create(options).evaluate(this);
       submitRecords.put(options, records);
