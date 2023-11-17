@@ -121,6 +121,7 @@ public class SubmitRuleEvaluator {
         throw new StorageException("Change not found");
       }
 
+<<<<<<< HEAD   (8f91b0 Fix JDK 11/17 build gerrit release commands)
       ProjectState projectState =
           projectCache
               .get(cd.project())
@@ -130,6 +131,8 @@ public class SubmitRuleEvaluator {
                           "Unable to find project while evaluating submit rule",
                           new NoSuchProjectException(cd.project())));
 
+=======
+>>>>>>> BRANCH (0a1a05 Merge branch 'stable-3.7' into stable-3.8)
       if (cd.change().isClosed()
           && (!opts.recomputeOnClosedChanges() || OnlineReindexMode.isActive())) {
         return cd.notes().getSubmitRecords().stream()
@@ -144,6 +147,15 @@ public class SubmitRuleEvaluator {
                 })
             .collect(toImmutableList());
       }
+
+      ProjectState projectState =
+          projectCache
+              .get(cd.project())
+              .orElseThrow(
+                  () ->
+                      new IllegalStateException(
+                          "Unable to find project while evaluating submit rule",
+                          new NoSuchProjectException(cd.project())));
 
       // We evaluate all the plugin-defined evaluators,
       // and then we collect the results in one list.
