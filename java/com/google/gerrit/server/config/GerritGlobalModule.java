@@ -293,7 +293,11 @@ public class GerritGlobalModule extends FactoryModule {
     install(ThreadLocalRequestContext.module());
     install(new ApprovalModule());
     install(new MailSoySauceModule());
+<<<<<<< HEAD   (8f91b0 Fix JDK 11/17 build gerrit release commands)
     install(new VersionInfoModule());
+=======
+    install(new SkipCurrentRulesEvaluationOnClosedChangesModule());
+>>>>>>> BRANCH (0a1a05 Merge branch 'stable-3.7' into stable-3.8)
 
     factory(CapabilityCollection.Factory.class);
     factory(ChangeData.AssistedFactory.class);

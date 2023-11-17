@@ -60,7 +60,11 @@ To check the installed version of Java, open a terminal window and run:
 To build Gerrit with Java 11 language level, run:
 
 ```
+<<<<<<< HEAD   (8f91b0 Fix JDK 11/17 build gerrit release commands)
   $ bazelisk build --config=java11 :release
+=======
+  $ bazel build :release
+>>>>>>> BRANCH (0a1a05 Merge branch 'stable-3.7' into stable-3.8)
 ```
 
 [[java-17]]
