@@ -108,7 +108,29 @@ export class GrFormattedText extends LitElement {
     subscribe(
       this,
       () => this.getConfigModel().repoCommentLinks$,
+<<<<<<< HEAD   (076a25 Merge branch 'stable-3.6' into stable-3.7)
       repoCommentLinks => (this.repoCommentLinks = repoCommentLinks)
+||||||| BASE
+      repoCommentLinks => {
+        this.repoCommentLinks = repoCommentLinks;
+        // Always linkify URLs starting with https?://
+        this.repoCommentLinks['ALWAYS_LINK_HTTP'] = {
+          match: '(https?://\\S+[\\w/~-])',
+          link: '$1',
+          enabled: true,
+        };
+      }
+=======
+      repoCommentLinks => {
+        this.repoCommentLinks = repoCommentLinks;
+        // Always linkify URLs starting with https?://
+        this.repoCommentLinks['ALWAYS_LINK_HTTP'] = {
+          match: '(https?://((?!&(gt|lt|amp|quot|apos);)\\S)+[\\w/~-])',
+          link: '$1',
+          enabled: true,
+        };
+      }
+>>>>>>> CHANGE (774198 Clarify that comment links work on html-escaped text.)
     );
   }
 
