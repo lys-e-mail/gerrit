@@ -30,6 +30,7 @@ import com.google.gerrit.server.ChangeUtil;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
+import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.change.ChangeKindCache;
 import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.change.PatchSetInserter;
@@ -72,6 +73,7 @@ public class ChangeEditUtil {
   private final Provider<CurrentUser> userProvider;
   private final ChangeKindCache changeKindCache;
   private final PatchSetUtil psUtil;
+  private final GitReferenceUpdated gitRefUpdated;
 
   private final GitReferenceUpdated gitReferenceUpdated;
 
@@ -83,14 +85,22 @@ public class ChangeEditUtil {
       Provider<CurrentUser> userProvider,
       ChangeKindCache changeKindCache,
       PatchSetUtil psUtil,
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
       GitReferenceUpdated gitReferenceUpdated) {
+=======
+      GitReferenceUpdated gitRefUpdated) {
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
     this.gitManager = gitManager;
     this.patchSetInserterFactory = patchSetInserterFactory;
     this.indexer = indexer;
     this.userProvider = userProvider;
     this.changeKindCache = changeKindCache;
     this.psUtil = psUtil;
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
     this.gitReferenceUpdated = gitReferenceUpdated;
+=======
+    this.gitRefUpdated = gitRefUpdated;
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
   }
 
   /**
@@ -247,6 +257,7 @@ public class ChangeEditUtil {
   }
 
   private void deleteRef(Repository repo, ChangeEdit edit) throws IOException {
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
     try (RefUpdateContext ctx = RefUpdateContext.open(CHANGE_MODIFICATION)) {
       String refName = edit.getRefName();
       RefUpdate ru = repo.updateRef(refName, true);
@@ -275,6 +286,33 @@ public class ChangeEditUtil {
           edit.getChange().getProject(),
           ru,
           /* updater= */ userProvider.get().asIdentifiedUser().state());
+=======
+    AccountState userAccountState = userProvider.get().asIdentifiedUser().state();
+    String refName = edit.getRefName();
+    RefUpdate ru = repo.updateRef(refName, true);
+    ru.setExpectedOldObjectId(edit.getEditCommit());
+    ru.setForceUpdate(true);
+    RefUpdate.Result result = ru.delete();
+    switch (result) {
+      case FORCED:
+      case NEW:
+        gitRefUpdated.fire(edit.getChange().getProject(), ru, userAccountState);
+        break;
+      case NO_CHANGE:
+        break;
+      case LOCK_FAILURE:
+        throw new LockFailureException(String.format("Failed to delete ref %s", refName), ru);
+      case FAST_FORWARD:
+      case IO_FAILURE:
+      case NOT_ATTEMPTED:
+      case REJECTED:
+      case REJECTED_CURRENT_BRANCH:
+      case RENAMED:
+      case REJECTED_MISSING_OBJECT:
+      case REJECTED_OTHER_REASON:
+      default:
+        throw new IOException(String.format("Failed to delete ref %s: %s", refName, result));
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
     }
   }
 
