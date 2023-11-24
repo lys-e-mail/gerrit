@@ -37,7 +37,10 @@ import com.google.gerrit.server.GerritPersonIdent;
 import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.PatchSetUtil;
 import com.google.gerrit.server.account.AccountState;
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
 import com.google.gerrit.server.config.UrlFormatter;
+=======
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
 import com.google.gerrit.server.edit.tree.ChangeFileContentModification;
 import com.google.gerrit.server.edit.tree.DeleteFileModification;
 import com.google.gerrit.server.edit.tree.RenameFileModification;
@@ -116,16 +119,25 @@ public class ChangeEditModifier {
       ChangeEditUtil changeEditUtil,
       PatchSetUtil patchSetUtil,
       ProjectCache projectCache,
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
       GitReferenceUpdated gitReferenceUpdated,
       DynamicItem<UrlFormatter> urlFormatter) {
+=======
+      GitReferenceUpdated gitRefUpdated) {
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
     this.currentUser = currentUser;
     this.permissionBackend = permissionBackend;
     this.zoneId = gerritIdent.getZoneId();
     this.changeEditUtil = changeEditUtil;
     this.patchSetUtil = patchSetUtil;
     this.projectCache = projectCache;
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
     noteDbEdits = new NoteDbEdits(gitReferenceUpdated, zoneId, indexer, currentUser);
     this.urlFormatter = urlFormatter;
+=======
+
+    noteDbEdits = new NoteDbEdits(zoneId, indexer, currentUser, gitRefUpdated);
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
   }
 
   /**
@@ -741,17 +753,32 @@ public class ChangeEditModifier {
     private final ZoneId zoneId;
     private final ChangeIndexer indexer;
     private final Provider<CurrentUser> currentUser;
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
     private final GitReferenceUpdated gitReferenceUpdated;
+=======
+    private final GitReferenceUpdated gitRefUpdated;
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
 
     NoteDbEdits(
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
         GitReferenceUpdated gitReferenceUpdated,
         ZoneId zoneId,
         ChangeIndexer indexer,
         Provider<CurrentUser> currentUser) {
+=======
+        ZoneId zoneId,
+        ChangeIndexer indexer,
+        Provider<CurrentUser> currentUser,
+        GitReferenceUpdated gitRefUpdated) {
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
       this.zoneId = zoneId;
       this.indexer = indexer;
       this.currentUser = currentUser;
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
       this.gitReferenceUpdated = gitReferenceUpdated;
+=======
+      this.gitRefUpdated = gitRefUpdated;
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
     }
 
     ChangeEdit createEdit(
@@ -811,6 +838,7 @@ public class ChangeEditModifier {
         ObjectId targetObjectId,
         Instant timestamp)
         throws IOException {
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
       try (RefUpdateContext ctx = RefUpdateContext.open(CHANGE_MODIFICATION)) {
         RefUpdate ru = repository.updateRef(refName);
         ru.setExpectedOldObjectId(currentObjectId);
@@ -827,8 +855,29 @@ public class ChangeEditModifier {
           if (res != RefUpdate.Result.NEW && res != RefUpdate.Result.FORCED) {
             throw new IOException(message);
           }
+=======
+      AccountState userAccountState = currentUser.get().asIdentifiedUser().state();
+      RefUpdate ru = repository.updateRef(refName);
+      ru.setExpectedOldObjectId(currentObjectId);
+      ru.setNewObjectId(targetObjectId);
+      ru.setRefLogIdent(getRefLogIdent(timestamp));
+      ru.setRefLogMessage("inline edit (amend)", false);
+      ru.setForceUpdate(true);
+      try (RevWalk revWalk = new RevWalk(repository)) {
+        RefUpdate.Result res = ru.update(revWalk);
+        String message = "cannot update " + ru.getName() + " in " + projectName + ": " + res;
+        if (res == RefUpdate.Result.LOCK_FAILURE) {
+          throw new LockFailureException(message, ru);
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
         }
+<<<<<<< HEAD   (fa9e6d Merge branch 'stable-3.7' into stable-3.8)
         gitReferenceUpdated.fire(projectName, ru, getUpdater());
+=======
+        if (res != RefUpdate.Result.NEW && res != RefUpdate.Result.FORCED) {
+          throw new IOException(message);
+        }
+        gitRefUpdated.fire(projectName, ru, userAccountState);
+>>>>>>> BRANCH (1435bc Set version to 3.7.7-SNAPSHOT)
       }
     }
 
