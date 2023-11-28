@@ -17,7 +17,6 @@ import {
   LineSelectedEventDetail,
   RenderPreferences,
   Side,
-  SyntaxBlock,
 } from '../../../api/diff';
 import {define} from '../../../models/dependency';
 import {Model} from '../../../models/base/model';
@@ -38,8 +37,8 @@ import {
 } from '../gr-diff-processor/gr-diff-processor';
 import {GrDiffGroup, GrDiffGroupType} from '../gr-diff/gr-diff-group';
 import {assert} from '../../../utils/common-util';
-import {countLines, isImageDiff} from '../../../utils/diff-util';
-import {BlameInfo, ImageInfo} from '../../../types/common';
+import {isImageDiff} from '../../../utils/diff-util';
+import {ImageInfo} from '../../../types/common';
 import {fire} from '../../../utils/event-util';
 import {CommentRange} from '../../../api/rest-api';
 
@@ -57,7 +56,6 @@ export interface DiffState {
   showFullContext: FullContext;
   errorMessage?: string;
   layers: DiffLayer[];
-  blameInfo: BlameInfo[];
 }
 
 export interface ColumnsToShow {
@@ -88,15 +86,6 @@ export class DiffModel extends Model<DiffState> {
     diffState => diffState.diff!
   );
 
-  readonly syntaxTreeRight$: Observable<SyntaxBlock[] | undefined> = select(
-    this.diff$,
-    diff => diff.meta_b?.syntax_tree
-  );
-
-  readonly lineCountLeft$: Observable<number> = select(this.diff$, diff =>
-    countLines(diff, Side.LEFT)
-  );
-
   readonly baseImage$: Observable<ImageInfo | undefined> = select(
     this.state$,
     diffState => diffState.baseImage
@@ -112,11 +101,6 @@ export class DiffModel extends Model<DiffState> {
     diffState => diffState.path
   );
 
-  readonly blameInfo$: Observable<BlameInfo[]> = select(
-    this.state$,
-    diffState => diffState.blameInfo
-  );
-
   readonly renderPrefs$: Observable<RenderPreferences> = select(
     this.state$,
     diffState => diffState.renderPrefs
@@ -128,14 +112,15 @@ export class DiffModel extends Model<DiffState> {
   );
 
   readonly columnsToShow$: Observable<ColumnsToShow> = select(
-    combineLatest([this.blameInfo$, this.renderPrefs$]),
-    ([blameInfo, renderPrefs]) => {
+    this.renderPrefs$,
+    renderPrefs => {
       const hideLeft = !!renderPrefs.hide_left_side;
       const showSign = !!renderPrefs.show_sign_col;
       const unified = renderPrefs.view_mode === DiffViewMode.UNIFIED;
 
       return {
-        blame: blameInfo.length > 0,
+        // TODO: Do not always render the blame column. Move this into renderPrefs.
+        blame: true,
         // Hiding the left side in unified diff mode does not make a lot of sense and is not supported.
         leftNumber: !hideLeft || unified,
         leftSign: !hideLeft && showSign && !unified,
@@ -226,7 +211,6 @@ export class DiffModel extends Model<DiffState> {
       groups: [],
       showFullContext: FullContext.UNDECIDED,
       layers: [],
-      blameInfo: [],
     });
     this.subscriptions = [this.processDiff()];
   }

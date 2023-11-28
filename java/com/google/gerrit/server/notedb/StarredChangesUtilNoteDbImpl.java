@@ -19,7 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toSet;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.flogger.FluentLogger;
 import com.google.common.primitives.Ints;
@@ -31,8 +31,7 @@ import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.git.GitUpdateFailureException;
 import com.google.gerrit.git.LockFailureException;
 import com.google.gerrit.server.GerritPersonIdent;
-import com.google.gerrit.server.StarredChangesReader;
-import com.google.gerrit.server.StarredChangesWriter;
+import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
 import com.google.gerrit.server.git.GitRepositoryManager;
@@ -63,7 +62,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.ReceiveCommand;
 
 @Singleton
-public class StarredChangesUtilNoteDbImpl implements StarredChangesReader, StarredChangesWriter {
+public class StarredChangesUtilNoteDbImpl implements StarredChangesUtil {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
   private static final String DEFAULT_STAR_LABEL = "star";
 
@@ -177,13 +176,13 @@ public class StarredChangesUtilNoteDbImpl implements StarredChangesReader, Starr
   }
 
   @Override
-  public ImmutableList<Account.Id> byChange(Change.Id changeId) {
+  public ImmutableMap<Account.Id, Ref> byChange(Change.Id changeId) {
     try (Repository repo = repoManager.openRepository(allUsers)) {
-      ImmutableList.Builder<Account.Id> builder = ImmutableList.builder();
+      ImmutableMap.Builder<Account.Id, Ref> builder = ImmutableMap.builder();
       for (Account.Id accountId : getStars(repo, changeId)) {
         Optional<Ref> starRef = getStarRef(repo, RefNames.refsStarredChanges(changeId, accountId));
         if (starRef.isPresent()) {
-          builder.add(accountId);
+          builder.put(accountId, starRef.get());
         }
       }
       return builder.build();
