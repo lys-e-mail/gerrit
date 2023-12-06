@@ -19,16 +19,16 @@ import '../../../test/common-test-setup-karma.js';
 import './gr-diff-view.js';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
 import {ChangeStatus} from '../../../constants/constants.js';
-import {TestKeyboardShortcutBinder} from '../../../test/test-utils.js';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util.js';
+import {TestKeyboardShortcutBinder, stubRestApi} from '../../../test/test-utils.js';
 import {Shortcut} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin.js';
-import {_testOnly_findCommentById} from '../gr-comment-api/gr-comment-api.js';
-import {appContext} from '../../../services/app-context.js';
-import {GerritView} from '../../core/gr-navigation/gr-navigation.js';
+import {ChangeComments, _testOnly_findCommentById, _testOnly_getCommentsForPath} from '../gr-comment-api/gr-comment-api.js';
+import {GerritView} from '../../../services/router/router-model.js';
 import {
   createChange,
   createRevisions,
+  createComment,
 } from '../../../test/test-data-generators.js';
+import {EditPatchSetNum} from '../../../types/common.js';
 
 const basicFixture = fixtureFromElement('gr-diff-view');
 
@@ -62,7 +62,7 @@ suite('gr-diff-view tests', () => {
       kb.bindShortcut(Shortcut.OPEN_DIFF_PREFS, ',');
       kb.bindShortcut(Shortcut.TOGGLE_DIFF_MODE, 'm');
       kb.bindShortcut(Shortcut.TOGGLE_FILE_REVIEWED, 'r');
-      kb.bindShortcut(Shortcut.EXPAND_ALL_DIFF_CONTEXT, 'shift+x');
+      kb.bindShortcut(Shortcut.TOGGLE_ALL_DIFF_CONTEXT, 'shift+x');
       kb.bindShortcut(Shortcut.EXPAND_ALL_COMMENT_THREADS, 'e');
       kb.bindShortcut(Shortcut.TOGGLE_HIDE_ALL_COMMENT_THREADS, 'h');
       kb.bindShortcut(Shortcut.COLLAPSE_ALL_COMMENT_THREADS, 'shift+e');
@@ -88,41 +88,24 @@ suite('gr-diff-view tests', () => {
       };
     }
 
+    let getDiffChangeDetailStub;
+    let getReviewedFilesStub;
     setup(async () => {
       clock = sinon.useFakeTimers();
-      sinon.stub(appContext.flagsService, 'isEnabled').returns(true);
-      stub('gr-rest-api-interface', {
-        getConfig() {
-          return Promise.resolve({change: {}});
-        },
-        getLoggedIn() {
-          return Promise.resolve(false);
-        },
-        getProjectConfig() {
-          return Promise.resolve({});
-        },
-        getDiffChangeDetail() {
-          return Promise.resolve({});
-        },
-        getChangeFiles() {
-          return Promise.resolve({});
-        },
-        saveFileReviewed() {
-          return Promise.resolve();
-        },
-        getDiffComments() {
-          return Promise.resolve({});
-        },
-        getDiffRobotComments() {
-          return Promise.resolve({});
-        },
-        getDiffDrafts() {
-          return Promise.resolve({});
-        },
-        getReviewedFiles() {
-          return Promise.resolve([]);
-        },
-      });
+      stubRestApi('getConfig').returns(Promise.resolve({change: {}}));
+      stubRestApi('getLoggedIn').returns(Promise.resolve(false));
+      stubRestApi('getProjectConfig').returns(Promise.resolve({}));
+      getDiffChangeDetailStub = stubRestApi('getDiffChangeDetail').returns(
+          Promise.resolve({}));
+      stubRestApi('getChangeFiles').returns(Promise.resolve({}));
+      stubRestApi('saveFileReviewed').returns(Promise.resolve());
+      stubRestApi('getDiffComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
+      stubRestApi('getPortedComments').returns(Promise.resolve({}));
+      getReviewedFilesStub = stubRestApi('getReviewedFiles').returns(
+          Promise.resolve([]));
+
       element = basicFixture.instantiate();
       element._changeNum = '42';
       element._path = 'some/path.txt';
@@ -135,24 +118,27 @@ suite('gr-diff-view tests', () => {
       sinon.stub(element.$.commentAPI, 'loadAll').returns(Promise.resolve({
         _comments: {'/COMMIT_MSG': [
           {
+            ...createComment(),
             id: 'c1',
             line: 10,
             patch_set: 2,
-            __commentSide: 'left',
             path: '/COMMIT_MSG',
           }, {
+            ...createComment(),
             id: 'c3',
             line: 10,
             patch_set: 'PARENT',
-            __commentSide: 'left',
             path: '/COMMIT_MSG',
           },
         ]},
         computeCommentThreadCount: () => {},
+        computeCommentsString: () => '',
         computeUnresolvedNum: () => {},
         getPaths: () => {},
-        getCommentsBySideForPath: () => {},
+        getThreadsBySideForFile: () => [],
+        getCommentsForPath: _testOnly_getCommentsForPath,
         findCommentById: _testOnly_findCommentById,
+
       }));
       await element._loadComments();
       await flush();
@@ -176,43 +162,51 @@ suite('gr-diff-view tests', () => {
         basePatchNum: 1,
         path: '/COMMIT_MSG',
       };
+      element._path = '/COMMIT_MSG';
+      element._patchRange = {};
       return element._paramsChanged.returnValues[0].then(() => {
         assert.isTrue(element.reporting.diffViewDisplayed.calledOnce);
       });
     });
 
-    test('comment route', () => {
-      const initLineOfInterestAndCursorStub =
+    suite('comment route', () => {
+      let initLineOfInterestAndCursorStub; let getUrlStub; let replaceStateStub;
+      setup(() => {
+        initLineOfInterestAndCursorStub =
         sinon.stub(element, '_initLineOfInterestAndCursor');
-      sinon.stub(element, '_getFiles');
-      sinon.stub(element.reporting, 'diffViewDisplayed');
-      sinon.stub(element.$.diffHost, 'reload').returns(Promise.resolve());
-      sinon.spy(element, '_paramsChanged');
-      sinon.stub(element, '_getChangeDetail').returns(Promise.resolve({
-        ...createChange(),
-        revisions: createRevisions(11),
-      }));
-      element.params = {
-        view: GerritNav.View.DIFF,
-        changeNum: '42',
-        commentLink: true,
-        commentId: 'c1',
-      };
-      sinon.stub(element.$.diffHost, '_commentsChanged');
-      sinon.stub(element, '_getCommentsForPath').returns({
-        left: [{id: 'c1', __commentSide: 'left', line: 10}],
-        right: [{id: 'c2', __commentSide: 'right', line: 11}],
+        getUrlStub = sinon.stub(GerritNav, 'getUrlForDiffById');
+        replaceStateStub = sinon.stub(history, 'replaceState');
+        sinon.stub(element, '_getFiles');
+        sinon.stub(element.reporting, 'diffViewDisplayed');
+        sinon.stub(element.$.diffHost, 'reload').returns(Promise.resolve());
+        sinon.spy(element, '_paramsChanged');
+        sinon.stub(element, '_getChangeDetail').returns(Promise.resolve({
+          ...createChange(),
+          revisions: createRevisions(11),
+        }));
       });
-      element._change = {
-        ...createChange(),
-        revisions: createRevisions(11),
-      };
-      return element._paramsChanged.returnValues[0].then(() => {
-        assert.isTrue(initLineOfInterestAndCursorStub.
-            calledWithExactly(true));
-        assert.equal(element._focusLineNum, 10);
-        assert.equal(element._patchRange.patchNum, 11);
-        assert.equal(element._patchRange.basePatchNum, 2);
+
+      test('comment url resolves to comment.patch_set vs latest', () => {
+        element.params = {
+          view: GerritNav.View.DIFF,
+          changeNum: '42',
+          commentLink: true,
+          commentId: 'c1',
+        };
+        element._change = {
+          ...createChange(),
+          revisions: createRevisions(11),
+        };
+        return element._paramsChanged.returnValues[0].then(() => {
+          assert.isTrue(initLineOfInterestAndCursorStub.
+              calledWithExactly(true));
+          assert.equal(element._focusLineNum, 10);
+          assert.equal(element._patchRange.patchNum, 11);
+          assert.equal(element._patchRange.basePatchNum, 2);
+          assert.isTrue(replaceStateStub.called);
+          assert.isTrue(getUrlStub.calledWithExactly('42', 'test-project',
+              '/COMMIT_MSG', 11, 2, 10, true));
+        });
       });
     });
 
@@ -232,6 +226,8 @@ suite('gr-diff-view tests', () => {
         basePatchNum: 1,
         path: '/COMMIT_MSG',
       };
+      element._path = '/COMMIT_MSG';
+      element._patchRange = {};
       return element._paramsChanged.returnValues[0].then(() => {
         assert.isTrue(element._isBlameLoaded);
         assert.isTrue(element._loadBlame.calledOnce);
@@ -257,7 +253,6 @@ suite('gr-diff-view tests', () => {
             commentLink: true,
             commentId: 'c1',
           };
-          sinon.stub(element.$.diffHost, '_commentsChanged');
           element._change = {
             ...createChange(),
             revisions: createRevisions(11),
@@ -287,7 +282,6 @@ suite('gr-diff-view tests', () => {
             commentLink: true,
             commentId: 'c3',
           };
-          sinon.stub(element.$.diffHost, '_commentsChanged');
           element._change = {
             ...createChange(),
             revisions: createRevisions(11),
@@ -333,13 +327,11 @@ suite('gr-diff-view tests', () => {
       sinon.stub(element, '_loadBlame');
       sinon.stub(element.$.diffHost, 'reload').returns(Promise.resolve());
       sinon.spy(element, '_paramsChanged');
-      element.$.restAPI.getDiffChangeDetail.restore();
-      sinon.stub(element.$.restAPI, 'getDiffChangeDetail')
-          .returns(
-              Promise.resolve({
-                ...createChange(),
-                revisions: createRevisions(11),
-              }));
+      getDiffChangeDetailStub.returns(
+          Promise.resolve({
+            ...createChange(),
+            revisions: createRevisions(11),
+          }));
       element._patchRange = {
         patchNum: 2,
         basePatchNum: 1,
@@ -473,11 +465,53 @@ suite('gr-diff-view tests', () => {
       assert.equal(element._setReviewed.lastCall.args[0], true);
     });
 
-    test('shift+x shortcut expands all diff context', () => {
-      const expandStub = sinon.stub(element.$.diffHost, 'expandAllContext');
+    test('moveToNextCommentThread navigates to next file', () => {
+      const diffNavStub = sinon.stub(GerritNav, 'navigateToDiff');
+      const diffChangeStub = sinon.stub(element, '_navigateToChange');
+      sinon.stub(element.$.cursor, 'isAtEnd').returns(true);
+      element._changeNum = '42';
+      const comment = {
+        'wheatley.md': [{
+          ...createComment(),
+          patch_set: 10,
+          line: 21,
+        }],
+      };
+      element._changeComments = new ChangeComments(comment);
+      element._patchRange = {
+        basePatchNum: PARENT,
+        patchNum: 10,
+      };
+      element._change = {
+        _number: 42,
+        revisions: {
+          a: {_number: 10, commit: {parents: []}},
+        },
+      };
+      element._files = getFilesFromFileList(
+          ['chell.go', 'glados.txt', 'wheatley.md']);
+      element._path = 'glados.txt';
+      element.changeViewState.selectedFileIndex = 1;
+      element._loggedIn = true;
+
+      MockInteractions.pressAndReleaseKeyOn(element, 78, 'shift', 'n');
+      flush();
+      assert.isTrue(diffNavStub.calledWithExactly(
+          element._change, 'wheatley.md', 10, PARENT, 21));
+
+      element._path = 'wheatley.md'; // navigated to next file
+
+      MockInteractions.pressAndReleaseKeyOn(element, 78, 'shift', 'n');
+      flush();
+
+      assert.isTrue(diffChangeStub.called);
+    });
+
+    test('shift+x shortcut toggles all diff context', () => {
+      const toggleStub = sinon.stub(element.$.diffHost, 'toggleAllContext');
       MockInteractions.pressAndReleaseKeyOn(element, 88, 'shift', 'x');
       flush();
-      assert.isTrue(expandStub.called);
+      assert.isTrue(toggleStub.called);
     });
 
     test('diff against base', () => {
@@ -589,6 +623,76 @@ suite('gr-diff-view tests', () => {
       assert.isNotOk(args[3]);
     });
 
+    test('A fires an error event when not logged in', done => {
+      const changeNavStub = sinon.stub(GerritNav, 'navigateToChange');
+      sinon.stub(element, '_getLoggedIn').returns(Promise.resolve(false));
+      const loggedInErrorSpy = sinon.spy();
+      element.addEventListener('show-auth-required', loggedInErrorSpy);
+      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
+      flush(() => {
+        assert.isTrue(changeNavStub.notCalled, 'The `a` keyboard shortcut ' +
+          'should only work when the user is logged in.');
+        assert.isNull(window.sessionStorage.getItem(
+            'changeView.showReplyDialog'));
+        assert.isTrue(loggedInErrorSpy.called);
+        done();
+      });
+    });
+
+    test('A navigates to change with logged in', done => {
+      element._changeNum = '42';
+      element._patchRange = {
+        basePatchNum: 5,
+        patchNum: 10,
+      };
+      element._change = {
+        _number: 42,
+        revisions: {
+          a: {_number: 10, commit: {parents: []}},
+          b: {_number: 5, commit: {parents: []}},
+        },
+      };
+      const changeNavStub = sinon.stub(GerritNav, 'navigateToChange');
+      sinon.stub(element, '_getLoggedIn').returns(Promise.resolve(true));
+      const loggedInErrorSpy = sinon.spy();
+      element.addEventListener('show-auth-required', loggedInErrorSpy);
+      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
+      flush(() => {
+        assert.isTrue(element.changeViewState.showReplyDialog);
+        assert(changeNavStub.lastCall.calledWithExactly(element._change, 10,
+            5), 'Should navigate to /c/42/5..10');
+        assert.isFalse(loggedInErrorSpy.called);
+        done();
+      });
+    });
+
+    test('A navigates to change with old patch number with logged in', done => {
+      element._changeNum = '42';
+      element._patchRange = {
+        basePatchNum: PARENT,
+        patchNum: 1,
+      };
+      element._change = {
+        _number: 42,
+        revisions: {
+          a: {_number: 1, commit: {parents: []}},
+          b: {_number: 2, commit: {parents: []}},
+        },
+      };
+      const changeNavStub = sinon.stub(GerritNav, 'navigateToChange');
+      sinon.stub(element, '_getLoggedIn').returns(Promise.resolve(true));
+      const loggedInErrorSpy = sinon.spy();
+      element.addEventListener('show-auth-required', loggedInErrorSpy);
+      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
+      flush(() => {
+        assert.isTrue(element.changeViewState.showReplyDialog);
+        assert(changeNavStub.lastCall.calledWithExactly(element._change, 1,
+            PARENT), 'Should navigate to /c/42/1');
+        assert.isFalse(loggedInErrorSpy.called);
+        done();
+      });
+    });
+
     test('keyboard shortcuts with patch range', () => {
       element._changeNum = '42';
       element._patchRange = {
@@ -609,19 +713,6 @@ suite('gr-diff-view tests', () => {
       const diffNavStub = sinon.stub(GerritNav, 'navigateToDiff');
       const changeNavStub = sinon.stub(GerritNav, 'navigateToChange');
 
-      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
-      assert.isTrue(changeNavStub.notCalled, 'The `a` keyboard shortcut ' +
-          'should only work when the user is logged in.');
-      assert.isNull(window.sessionStorage.getItem(
-          'changeView.showReplyDialog'));
-
-      element._loggedIn = true;
-      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
-      assert.isTrue(element.changeViewState.showReplyDialog);
-
-      assert(changeNavStub.lastCall.calledWithExactly(element._change, 10,
-          5), 'Should navigate to /c/42/5..10');
-
       MockInteractions.pressAndReleaseKeyOn(element, 85, null, 'u');
       assert(changeNavStub.lastCall.calledWithExactly(element._change, 10,
           5), 'Should navigate to /c/42/5..10');
@@ -629,14 +720,14 @@ suite('gr-diff-view tests', () => {
       MockInteractions.pressAndReleaseKeyOn(element, 221, null, ']');
       assert.isTrue(element._loading);
       assert(diffNavStub.lastCall.calledWithExactly(element._change,
-          'wheatley.md', 10, 5),
+          'wheatley.md', 10, 5, undefined),
       'Should navigate to /c/42/5..10/wheatley.md');
       element._path = 'wheatley.md';
 
       MockInteractions.pressAndReleaseKeyOn(element, 219, null, '[');
       assert.isTrue(element._loading);
       assert(diffNavStub.lastCall.calledWithExactly(element._change,
-          'glados.txt', 10, 5),
+          'glados.txt', 10, 5, undefined),
       'Should navigate to /c/42/5..10/glados.txt');
       element._path = 'glados.txt';
 
@@ -646,7 +737,8 @@ suite('gr-diff-view tests', () => {
           element._change,
           'chell.go',
           10,
-          5),
+          5,
+          undefined),
       'Should navigate to /c/42/5..10/chell.go');
       element._path = 'chell.go';
 
@@ -681,32 +773,19 @@ suite('gr-diff-view tests', () => {
       const diffNavStub = sinon.stub(GerritNav, 'navigateToDiff');
       const changeNavStub = sinon.stub(GerritNav, 'navigateToChange');
 
-      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
-      assert.isTrue(changeNavStub.notCalled, 'The `a` keyboard shortcut ' +
-          'should only work when the user is logged in.');
-      assert.isNull(window.sessionStorage.getItem(
-          'changeView.showReplyDialog'));
-
-      element._loggedIn = true;
-      MockInteractions.pressAndReleaseKeyOn(element, 65, null, 'a');
-      assert.isTrue(element.changeViewState.showReplyDialog);
-
-      assert(changeNavStub.lastCall.calledWithExactly(element._change, 1,
-          PARENT), 'Should navigate to /c/42/1');
-
       MockInteractions.pressAndReleaseKeyOn(element, 85, null, 'u');
       assert(changeNavStub.lastCall.calledWithExactly(element._change, 1,
           PARENT), 'Should navigate to /c/42/1');
 
       MockInteractions.pressAndReleaseKeyOn(element, 221, null, ']');
       assert(diffNavStub.lastCall.calledWithExactly(element._change,
-          'wheatley.md', 1, PARENT),
+          'wheatley.md', 1, PARENT, undefined),
       'Should navigate to /c/42/1/wheatley.md');
       element._path = 'wheatley.md';
 
       MockInteractions.pressAndReleaseKeyOn(element, 219, null, '[');
       assert(diffNavStub.lastCall.calledWithExactly(element._change,
-          'glados.txt', 1, PARENT),
+          'glados.txt', 1, PARENT, undefined),
       'Should navigate to /c/42/1/glados.txt');
       element._path = 'glados.txt';
 
@@ -715,7 +794,8 @@ suite('gr-diff-view tests', () => {
           element._change,
           'chell.go',
           1,
-          PARENT), 'Should navigate to /c/42/1/chell.go');
+          PARENT,
+          undefined), 'Should navigate to /c/42/1/chell.go');
       element._path = 'chell.go';
 
       changeNavStub.reset();
@@ -820,10 +900,7 @@ suite('gr-diff-view tests', () => {
     }
 
     test('edit visible only when logged and status NEW', async () => {
-      for (const changeStatus in ChangeStatus) {
-        if (!ChangeStatus.hasOwnProperty(changeStatus)) {
-          continue;
-        }
+      for (const changeStatus of Object.keys(ChangeStatus)) {
         assert.isFalse(await isEditVisibile({loggedIn: false, changeStatus}),
             `loggedIn: false, changeStatus: ${changeStatus}`);
 
@@ -900,44 +977,6 @@ suite('gr-diff-view tests', () => {
       assert.isTrue(overlayOpenStub.called);
     });
 
-    test('_computeCommentString', done => {
-      const path = '/test';
-      element.$.commentAPI.loadAll().then(comments => {
-        const commentThreadCountStub =
-            sinon.stub(comments, 'computeCommentThreadCount');
-        const unresolvedCountStub =
-            sinon.stub(comments, 'computeUnresolvedNum');
-        commentThreadCountStub.withArgs({patchNum: 1, path}).returns(0);
-        commentThreadCountStub.withArgs({patchNum: 2, path}).returns(1);
-        commentThreadCountStub.withArgs({patchNum: 3, path}).returns(2);
-        commentThreadCountStub.withArgs({patchNum: 4, path}).returns(0);
-        unresolvedCountStub.withArgs({patchNum: 1, path}).returns(1);
-        unresolvedCountStub.withArgs({patchNum: 2, path}).returns(0);
-        unresolvedCountStub.withArgs({patchNum: 3, path}).returns(2);
-        unresolvedCountStub.withArgs({patchNum: 4, path}).returns(0);
-
-        assert.equal(element._computeCommentString(comments, 1, path, {}),
-            '1 unresolved');
-        assert.equal(
-            element._computeCommentString(comments, 2, path, {status: 'M'}),
-            '1 comment');
-        assert.equal(
-            element._computeCommentString(comments, 2, path, {status: 'U'}),
-            'no changes, 1 comment');
-        assert.equal(
-            element._computeCommentString(comments, 3, path, {status: 'A'}),
-            '2 comments, 2 unresolved');
-        assert.equal(
-            element._computeCommentString(
-                comments, 4, path, {status: 'M'}
-            ), '');
-        assert.equal(
-            element._computeCommentString(comments, 4, path, {status: 'U'}),
-            'no changes');
-        done();
-      });
-    });
-
     suite('url params', () => {
       setup(() => {
         sinon.stub(element, '_getFiles');
@@ -957,9 +996,6 @@ suite('gr-diff-view tests', () => {
           basePatchNum: PARENT,
           patchNum: 10,
         };
-        // computeCommentThreadCount is an empty function hence stubbing
-        // function that depends on it's return value
-        sinon.stub(element, '_computeCommentString').returns('');
         element._change = {_number: 42};
         element._files = getFilesFromFileList(
             ['chell.go', 'glados.txt', 'wheatley.md',
@@ -971,28 +1007,43 @@ suite('gr-diff-view tests', () => {
             mobileText: 'chell.go',
             value: 'chell.go',
             bottomText: '',
+            file: {
+              __path: 'chell.go',
+            },
           }, {
             text: 'glados.txt',
             mobileText: 'glados.txt',
             value: 'glados.txt',
             bottomText: '',
+            file: {
+              __path: 'glados.txt',
+            },
           }, {
             text: 'wheatley.md',
             mobileText: 'wheatley.md',
             value: 'wheatley.md',
             bottomText: '',
+            file: {
+              __path: 'wheatley.md',
+            },
           },
           {
             text: 'Commit message',
             mobileText: 'Commit message',
             value: '/COMMIT_MSG',
             bottomText: '',
+            file: {
+              __path: '/COMMIT_MSG',
+            },
           },
           {
             text: 'Merge list',
             mobileText: 'Merge list',
             value: '/MERGE_LIST',
             bottomText: '',
+            file: {
+              __path: '/MERGE_LIST',
+            },
           },
         ];
 
@@ -1027,10 +1078,10 @@ suite('gr-diff-view tests', () => {
         assert.equal(linkEls[0].getAttribute('href'),
             '42-glados.txt-10-PARENT');
         assert.equal(linkEls[1].getAttribute('href'), '42-undefined-undefined');
-        assert.isFalse(linkEls[2].hasAttribute('href'));
+        assert.equal(linkEls[2].getAttribute('href'), '42-undefined-undefined');
         element._path = 'chell.go';
         flush();
-        assert.isFalse(linkEls[0].hasAttribute('href'));
+        assert.equal(linkEls[0].getAttribute('href'), '42-undefined-undefined');
         assert.equal(linkEls[1].getAttribute('href'), '42-undefined-undefined');
         assert.equal(linkEls[2].getAttribute('href'),
             '42-glados.txt-10-PARENT');
@@ -1068,10 +1119,11 @@ suite('gr-diff-view tests', () => {
         flush();
         assert.equal(linkEls[0].getAttribute('href'), '42-glados.txt-10-5');
         assert.equal(linkEls[1].getAttribute('href'), '42-10-5');
-        assert.isFalse(linkEls[2].hasAttribute('href'));
+        assert.equal(linkEls[2].getAttribute('href'), '42-10-5');
         element._path = 'chell.go';
         flush();
-        assert.isFalse(linkEls[0].hasAttribute('href'));
+        assert.equal(linkEls[0].getAttribute('href'),
+            '42-10-5');
         assert.equal(linkEls[1].getAttribute('href'), '42-10-5');
         assert.equal(linkEls[2].getAttribute('href'), '42-glados.txt-10-5');
       });
@@ -1175,7 +1227,7 @@ suite('gr-diff-view tests', () => {
     test('file review status with edit loaded', () => {
       const saveReviewedStub = sinon.stub(element, '_saveReviewedState');
 
-      element._patchRange = {patchNum: SPECIAL_PATCH_SET_NUM.EDIT};
+      element._patchRange = {patchNum: EditPatchSetNum};
       flush();
 
       assert.isTrue(element._editMode);
@@ -1232,7 +1284,7 @@ suite('gr-diff-view tests', () => {
       const prefsPromise = new Promise(resolve => {
         resolvePrefs = resolve;
       });
-      sinon.stub(element.$.restAPI, 'getPreferences')
+      stubRestApi('getPreferences')
           .callsFake(() => prefsPromise);
 
       // Attach a new gr-diff-view so we can intercept the preferences fetch.
@@ -1449,7 +1501,6 @@ suite('gr-diff-view tests', () => {
         await flush();
       });
       test('empty', () => {
-        sinon.stub(element, '_getCommentsForPath');
         sinon.stub(element, '_getPaths').returns(new Map());
         element._initPatchRange();
         assert.equal(Object.keys(element._commentMap).length, 0);
@@ -1461,7 +1512,6 @@ suite('gr-diff-view tests', () => {
           'path/to/file/one.cpp': [{patch_set: 3, message: 'lorem'}],
           'path-to/file/two.py': [{patch_set: 5, message: 'ipsum'}],
         });
-        sinon.stub(element, '_getCommentsForPath').returns({meta: {}});
         element._changeNum = '42';
         element._patchRange = {
           basePatchNum: 3,
@@ -1623,10 +1673,7 @@ suite('gr-diff-view tests', () => {
 
     test('_getReviewedStatus', () => {
       const promises = [];
-      element.$.restAPI.getReviewedFiles.restore();
-
-      sinon.stub(element.$.restAPI, 'getReviewedFiles')
-          .returns(Promise.resolve(['path']));
+      getReviewedFilesStub.returns(Promise.resolve(['path']));
 
       promises.push(element._getReviewedStatus(true, null, null, 'path')
           .then(reviewed => assert.isFalse(reviewed)));
@@ -1681,7 +1728,7 @@ suite('gr-diff-view tests', () => {
         element._patchRange = {patchNum: 1};
         // Reviewed checkbox should be shown.
         assert.isTrue(isVisible(element.$.reviewed));
-        element.set('_patchRange.patchNum', SPECIAL_PATCH_SET_NUM.EDIT);
+        element.set('_patchRange.patchNum', EditPatchSetNum);
         flush();
 
         assert.isFalse(isVisible(element.$.reviewed));
@@ -1690,7 +1737,7 @@ suite('gr-diff-view tests', () => {
 
     test('_paramsChanged sets in projectLookup', () => {
       sinon.stub(element, '_initLineOfInterestAndCursor');
-      const setStub = sinon.stub(element.$.restAPI, 'setInProjectLookup');
+      const setStub = stubRestApi('setInProjectLookup');
       element._paramsChanged({
         view: GerritNav.View.DIFF,
         changeNum: 101,
@@ -1867,18 +1914,17 @@ suite('gr-diff-view tests', () => {
         'file1.txt': {},
         'a/b/test.c': {},
       };
-      stub('gr-rest-api-interface', {
-        getConfig() { return Promise.resolve({change: {}}); },
-        getLoggedIn() { return Promise.resolve(false); },
-        getProjectConfig() { return Promise.resolve({}); },
-        getDiffChangeDetail() { return Promise.resolve({}); },
-        getChangeFiles() { return Promise.resolve(changedFiles); },
-        saveFileReviewed() { return Promise.resolve(); },
-        getDiffComments() { return Promise.resolve({}); },
-        getDiffRobotComments() { return Promise.resolve({}); },
-        getDiffDrafts() { return Promise.resolve({}); },
-        getReviewedFiles() { return Promise.resolve([]); },
-      });
+      stubRestApi('getConfig').returns(Promise.resolve({change: {}}));
+
+      stubRestApi('getProjectConfig').returns(Promise.resolve({}));
+      stubRestApi('getDiffChangeDetail').returns(Promise.resolve({}));
+      stubRestApi('getChangeFiles').returns(Promise.resolve(changedFiles));
+      stubRestApi('saveFileReviewed').returns(Promise.resolve());
+      stubRestApi('getDiffComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
+      stubRestApi('getReviewedFiles').returns(
+          Promise.resolve([]));
       element = basicFixture.instantiate();
       element._changeNum = '42';
       return element._loadComments();

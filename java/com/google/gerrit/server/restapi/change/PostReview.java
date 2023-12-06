@@ -15,7 +15,6 @@
 package com.google.gerrit.server.restapi.change;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.gerrit.entities.Patch.PATCHSET_LEVEL;
 import static com.google.gerrit.server.notedb.ReviewerStateInternal.REVIEWER;
@@ -30,6 +29,7 @@ import static java.util.stream.Collectors.toSet;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -177,6 +177,7 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
   private final ProjectCache projectCache;
   private final PermissionBackend permissionBackend;
   private final PluginSetContext<CommentValidator> commentValidators;
+  private final PluginSetContext<OnPostReview> onPostReviews;
   private final ReplyAttentionSetUpdates replyAttentionSetUpdates;
   private final boolean strictLabels;
   private final boolean publishPatchSetLevelComment;
@@ -203,6 +204,7 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
       ProjectCache projectCache,
       PermissionBackend permissionBackend,
       PluginSetContext<CommentValidator> commentValidators,
+      PluginSetContext<OnPostReview> onPostReviews,
       ReplyAttentionSetUpdates replyAttentionSetUpdates) {
     this.updateFactory = updateFactory;
     this.changeResourceFactory = changeResourceFactory;
@@ -223,6 +225,7 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
     this.projectCache = projectCache;
     this.permissionBackend = permissionBackend;
     this.commentValidators = commentValidators;
+    this.onPostReviews = onPostReviews;
     this.replyAttentionSetUpdates = replyAttentionSetUpdates;
     this.strictLabels = gerritConfig.getBoolean("change", "strictLabels", false);
     this.publishPatchSetLevelComment =
@@ -353,7 +356,8 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
       }
 
       // Add WorkInProgressOp if requested.
-      if (input.ready || input.workInProgress) {
+      if ((input.ready || input.workInProgress)
+          && didWorkInProgressChange(revision.getChange().isWorkInProgress(), input)) {
         if (input.ready && input.workInProgress) {
           output.error = ERROR_WIP_READY_MUTUALLY_EXCLUSIVE;
           return Response.withStatusCode(SC_BAD_REQUEST, output);
@@ -400,6 +404,10 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
     }
 
     return Response.ok(output);
+  }
+
+  private boolean didWorkInProgressChange(boolean currentWorkInProgress, ReviewInput input) {
+    return input.ready == currentWorkInProgress || input.workInProgress != currentWorkInProgress;
   }
 
   private NotifyHandling defaultNotify(Change c, ReviewInput in) {
@@ -1225,9 +1233,10 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
     }
 
     private boolean isReviewer(ChangeContext ctx) {
-      ChangeData cd = changeDataFactory.create(ctx.getNotes());
-      ReviewerSet reviewers = cd.reviewers();
-      return reviewers.byState(REVIEWER).contains(ctx.getAccountId());
+      return approvalsUtil
+          .getReviewers(ctx.getNotes())
+          .byState(REVIEWER)
+          .contains(ctx.getAccountId());
     }
 
     private boolean updateLabels(ProjectState projectState, ChangeContext ctx)
@@ -1269,7 +1278,10 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
             del.add(c);
             update.putApproval(normName, (short) 0);
           }
-        } else if (c != null && c.value() != ent.getValue()) {
+          // Only allow voting again if the vote is copied over from a past patch-set, or the
+          // values are different.
+        } else if (c != null
+            && (c.value() != ent.getValue() || isApprovalCopiedOver(c, ctx.getNotes()))) {
           PatchSetApproval.Builder b =
               c.toBuilder()
                   .value(ent.getValue())
@@ -1310,6 +1322,17 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
       }
 
       return !del.isEmpty() || !ups.isEmpty();
+    }
+
+    /**
+     * Approval is copied over if it doesn't exist in the approvals of the current patch-set
+     * according to change notes (which means it was computed in {@link
+     * com.google.gerrit.server.ApprovalInference})
+     */
+    private boolean isApprovalCopiedOver(
+        PatchSetApproval patchSetApproval, ChangeNotes changeNotes) {
+      return !changeNotes.getApprovals().get(changeNotes.getChange().currentPatchSetId()).stream()
+          .anyMatch(p -> p.equals(patchSetApproval));
     }
 
     private void validatePostSubmitLabels(
@@ -1356,7 +1379,6 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
         if (prev == null) {
           continue;
         }
-        checkState(prev != psa.value()); // Should be filtered out above.
         if (prev > psa.value()) {
           reduced.add(psa);
         }
@@ -1425,6 +1447,23 @@ public class PostReview implements RestModifyView<RevisionResource, ReviewInput>
       } else if (in.ready) {
         buf.append("\n\n" + START_REVIEW_MESSAGE);
       }
+
+      List<String> pluginMessages = new ArrayList<>();
+      onPostReviews.runEach(
+          onPostReview ->
+              onPostReview
+                  .getChangeMessageAddOn(user, ctx.getNotes(), ps, oldApprovals, approvals)
+                  .ifPresent(
+                      pluginMessage ->
+                          pluginMessages.add(
+                              !pluginMessage.endsWith("\n")
+                                  ? pluginMessage + "\n"
+                                  : pluginMessage)));
+      if (!pluginMessages.isEmpty()) {
+        buf.append("\n\n");
+        buf.append(Joiner.on("\n").join(pluginMessages));
+      }
+
       if (buf.length() == 0) {
         return false;
       }

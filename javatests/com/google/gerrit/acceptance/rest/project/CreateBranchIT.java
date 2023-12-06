@@ -26,7 +26,10 @@ import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.ExtensionRegistry;
+import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.RestResponse;
+import com.google.gerrit.acceptance.TestAccount;
+import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.Account;
@@ -61,6 +64,7 @@ import org.junit.Test;
 public class CreateBranchIT extends AbstractDaemonTest {
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
+  @Inject private GroupOperations groupOperations;
   @Inject private ExtensionRegistry extensionRegistry;
 
   private BranchNameKey testBranch;
@@ -207,7 +211,7 @@ public class CreateBranchIT extends AbstractDaemonTest {
   }
 
   @Test
-  public void createUserBranch_Conflict() throws Exception {
+  public void createUserBranch_NotAllowed() throws Exception {
     projectOperations
         .project(allUsers)
         .forUpdate()
@@ -217,12 +221,12 @@ public class CreateBranchIT extends AbstractDaemonTest {
     assertCreateFails(
         BranchNameKey.create(allUsers, RefNames.refsUsers(Account.id(1))),
         RefNames.refsUsers(admin.id()),
-        ResourceConflictException.class,
-        "Not allowed to create user branch.");
+        BadRequestException.class,
+        "Not allowed to create branches under Gerrit internal or tags refs.");
   }
 
   @Test
-  public void createGroupBranch_Conflict() throws Exception {
+  public void createGroupBranch_NotAllowed() throws Exception {
     projectOperations
         .project(allUsers)
         .forUpdate()
@@ -232,8 +236,8 @@ public class CreateBranchIT extends AbstractDaemonTest {
     assertCreateFails(
         BranchNameKey.create(allUsers, RefNames.refsGroups(AccountGroup.uuid("foo"))),
         RefNames.refsGroups(adminGroupUuid()),
-        ResourceConflictException.class,
-        "Not allowed to create group branch.");
+        BadRequestException.class,
+        "Not allowed to create branches under Gerrit internal or tags refs.");
   }
 
   @Test
@@ -355,6 +359,22 @@ public class CreateBranchIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void cannotCreateBranchInGerritInternalRefsNamespace() throws Exception {
+    assertCreateFails(
+        BranchNameKey.create(project, RefNames.REFS_CHANGES + "00/1000"),
+        BadRequestException.class,
+        "Not allowed to create branches under Gerrit internal or tags refs.");
+  }
+
+  @Test
+  public void cannotCreateBranchInTagsNamespace() throws Exception {
+    assertCreateFails(
+        BranchNameKey.create(project, RefNames.REFS_TAGS + "v1.0"),
+        BadRequestException.class,
+        "Not allowed to create branches under Gerrit internal or tags refs.");
+  }
+
+  @Test
   public void cannotCreateBranchWithInvalidName() throws Exception {
     assertCreateFails(
         BranchNameKey.create(project, RefNames.REFS_HEADS),
@@ -392,6 +412,50 @@ public class CreateBranchIT extends AbstractDaemonTest {
             BadRequestException.class,
             () -> gApi.projects().name(project.get()).branch("bar").create(branchInput));
     assertThat(ex).hasMessageThat().isEqualTo("ref must match URL");
+  }
+
+  @Test
+  public void createBranchRevisionVisibility() throws Exception {
+    AccountGroup.UUID privilegedGroupUuid =
+        groupOperations.newGroup().name(name("privilegedGroup")).create();
+    TestAccount privilegedUser =
+        accountCreator.create(
+            "privilegedUser", "privilegedUser@example.com", "privilegedUser", null);
+    groupOperations.group(privilegedGroupUuid).forUpdate().addMember(privilegedUser.id()).update();
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(block(Permission.READ).ref("refs/heads/secret/*").group(REGISTERED_USERS))
+        .add(allow(Permission.READ).ref("refs/heads/secret/*").group(privilegedGroupUuid))
+        .add(allow(Permission.READ).ref("refs/heads/*").group(REGISTERED_USERS))
+        .add(allow(Permission.CREATE).ref("refs/heads/*").group(REGISTERED_USERS))
+        .add(allow(Permission.PUSH).ref("refs/heads/*").group(REGISTERED_USERS))
+        .update();
+    PushOneCommit push =
+        pushFactory.create(admin.newIdent(), testRepo, "Configure", "file.txt", "contents");
+    PushOneCommit.Result result = push.to("refs/heads/secret/main");
+    result.assertOkStatus();
+    RevCommit secretCommit = result.getCommit();
+    requestScopeOperations.setApiUser(privilegedUser.id());
+    BranchInfo info = gApi.projects().name(project.get()).branch("refs/heads/secret/main").get();
+    assertThat(info.revision).isEqualTo(secretCommit.name());
+    TestAccount unprivileged =
+        accountCreator.create("unprivileged", "unprivileged@example.com", "unprivileged", null);
+    requestScopeOperations.setApiUser(unprivileged.id());
+    assertThrows(
+        ResourceNotFoundException.class,
+        () -> gApi.projects().name(project.get()).branch("refs/heads/secret/main").get());
+    BranchInput branchInput = new BranchInput();
+    branchInput.ref = "public";
+    branchInput.revision = secretCommit.name();
+    assertThrows(
+        AuthException.class,
+        () -> gApi.projects().name(project.get()).branch(branchInput.ref).create(branchInput));
+
+    branchInput.revision = "refs/heads/secret/main";
+    assertThrows(
+        AuthException.class,
+        () -> gApi.projects().name(project.get()).branch(branchInput.ref).create(branchInput));
   }
 
   private void blockCreateReference() throws Exception {

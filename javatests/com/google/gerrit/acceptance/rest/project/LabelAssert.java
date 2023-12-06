@@ -17,12 +17,13 @@ package com.google.gerrit.acceptance.rest.project;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.gerrit.entities.LabelFunction;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.extensions.common.LabelDefinitionInfo;
 import com.google.gerrit.server.config.AllProjectsNameProvider;
 
 public class LabelAssert {
   public static void assertCodeReviewLabel(LabelDefinitionInfo codeReviewLabel) {
-    assertThat(codeReviewLabel.name).isEqualTo("Code-Review");
+    assertThat(codeReviewLabel.name).isEqualTo(LabelId.CODE_REVIEW);
     assertThat(codeReviewLabel.projectName).isEqualTo(AllProjectsNameProvider.DEFAULT);
     assertThat(codeReviewLabel.function).isEqualTo(LabelFunction.MAX_WITH_BLOCK.getFunctionName());
     assertThat(codeReviewLabel.values)
@@ -43,6 +44,7 @@ public class LabelAssert {
     assertThat(codeReviewLabel.copyAnyScore).isNull();
     assertThat(codeReviewLabel.copyMinScore).isTrue();
     assertThat(codeReviewLabel.copyMaxScore).isNull();
+    assertThat(codeReviewLabel.copyAllScoresIfListOfFilesDidNotChange).isNull();
     assertThat(codeReviewLabel.copyAllScoresIfNoChange).isTrue();
     assertThat(codeReviewLabel.copyAllScoresIfNoCodeChange).isNull();
     assertThat(codeReviewLabel.copyAllScoresOnTrivialRebase).isTrue();

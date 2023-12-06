@@ -18,6 +18,7 @@ import static com.google.inject.Stage.PRODUCTION;
 
 import com.google.common.base.Splitter;
 import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.auth.AuthModule;
 import com.google.gerrit.elasticsearch.ElasticIndexModule;
 import com.google.gerrit.extensions.client.AuthType;
 import com.google.gerrit.gpg.GpgModule;
@@ -36,6 +37,7 @@ import com.google.gerrit.httpd.WebModule;
 import com.google.gerrit.httpd.WebSshGlueModule;
 import com.google.gerrit.httpd.auth.oauth.OAuthModule;
 import com.google.gerrit.httpd.auth.openid.OpenIdModule;
+import com.google.gerrit.httpd.auth.restapi.OAuthRestModule;
 import com.google.gerrit.httpd.plugins.HttpPluginModule;
 import com.google.gerrit.httpd.raw.StaticModule;
 import com.google.gerrit.index.IndexType;
@@ -102,6 +104,7 @@ import com.google.gerrit.server.update.SuperprojectUpdateSubmissionListener;
 import com.google.gerrit.sshd.SshHostKeyModule;
 import com.google.gerrit.sshd.SshKeyCacheImpl;
 import com.google.gerrit.sshd.SshModule;
+import com.google.gerrit.sshd.SshSessionFactoryInitializer;
 import com.google.gerrit.sshd.commands.DefaultCommandModule;
 import com.google.gerrit.sshd.commands.IndexCommandsModule;
 import com.google.gerrit.sshd.commands.SequenceCommandsModule;
@@ -323,7 +326,7 @@ public class WebAppInitializer extends GuiceServletContextListener implements Fi
     if (VersionManager.getOnlineUpgrade(config)) {
       modules.add(new OnlineUpgrader.Module());
     }
-
+    modules.add(new OAuthRestModule());
     modules.add(new RestApiModule());
     modules.add(new SubscriptionGraph.Module());
     modules.add(new SuperprojectUpdateSubmissionListener.Module());
@@ -338,6 +341,7 @@ public class WebAppInitializer extends GuiceServletContextListener implements Fi
         });
     modules.add(new DefaultUrlFormatter.Module());
 
+    SshSessionFactoryInitializer.init(config);
     modules.add(SshKeyCacheImpl.module());
     modules.add(
         new AbstractModule() {
@@ -409,6 +413,8 @@ public class WebAppInitializer extends GuiceServletContextListener implements Fi
     } else if (authConfig.getAuthType() == AuthType.OAUTH) {
       modules.add(new OAuthModule());
     }
+    modules.add(new AuthModule(authConfig));
+
     modules.add(sysInjector.getInstance(GetUserFilter.Module.class));
 
     // StaticModule contains a "/*" wildcard, place it last.

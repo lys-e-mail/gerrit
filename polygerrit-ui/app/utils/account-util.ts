@@ -28,6 +28,24 @@ export function isServiceUser(account?: AccountInfo): boolean {
   return !!account?.tags?.includes(AccountTag.SERVICE_USER);
 }
 
+export function isSelf(account?: AccountInfo, self?: AccountInfo): boolean {
+  return account?._account_id === self?._account_id;
+}
+
 export function removeServiceUsers(accounts?: AccountInfo[]): AccountInfo[] {
   return accounts?.filter(a => !isServiceUser(a)) || [];
+}
+
+export function hasSameAvatar(account?: AccountInfo, other?: AccountInfo) {
+  return account?.avatars?.[0]?.url === other?.avatars?.[0]?.url;
+}
+
+export function uniqueDefinedAvatar(
+  account: AccountInfo,
+  index: number,
+  accountArray: AccountInfo[]
+) {
+  return (
+    index === accountArray.findIndex(other => hasSameAvatar(account, other))
+  );
 }

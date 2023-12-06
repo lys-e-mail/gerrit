@@ -20,11 +20,8 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-dropdown/gr-dropdown';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-edit-controls_html';
 import {GrEditAction, GrEditConstants} from '../gr-edit-constants';
@@ -33,15 +30,14 @@ import {customElement, property} from '@polymer/decorators';
 import {ChangeInfo, PatchSetNum} from '../../../types/common';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {GrDialog} from '../../shared/gr-dialog/gr-dialog';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AutocompleteQuery,
   AutocompleteSuggestion,
 } from '../../shared/gr-autocomplete/gr-autocomplete';
+import {appContext} from '../../../services/app-context';
 
 export interface GrEditControls {
   $: {
-    restAPI: RestApiService & Element;
     overlay: GrOverlay;
     openDialog: GrDialog;
     deleteDialog: GrDialog;
@@ -51,9 +47,7 @@ export interface GrEditControls {
 }
 
 @customElement('gr-edit-controls')
-export class GrEditControls extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrEditControls extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -78,6 +72,8 @@ export class GrEditControls extends GestureEventListeners(
 
   @property({type: Object})
   _query: AutocompleteQuery;
+
+  private readonly restApiService = appContext.restApiService;
 
   constructor() {
     super();
@@ -167,16 +163,16 @@ export class GrEditControls extends GestureEventListeners(
       if (autocomplete) {
         autocomplete.focus();
       }
-      this.async(() => {
+      setTimeout(() => {
         this.$.overlay.center();
       }, 1);
     });
   }
 
   _hideAllDialogs() {
-    const dialogs = this.root!.querySelectorAll('.dialog') as NodeListOf<
-      GrDialog
-    >;
+    const dialogs = this.root!.querySelectorAll(
+      '.dialog'
+    ) as NodeListOf<GrDialog>;
     for (const dialog of dialogs) {
       this._closeDialog(dialog);
     }
@@ -221,7 +217,7 @@ export class GrEditControls extends GestureEventListeners(
       this._closeDialog(this.$.openDialog, true);
       return;
     }
-    return this.$.restAPI
+    return this.restApiService
       .saveFileUploadChangeEdit(this.change._number, path, fileData)
       .then(res => {
         if (!res || !res.ok) {
@@ -236,7 +232,7 @@ export class GrEditControls extends GestureEventListeners(
     // Get the dialog before the api call as the event will change during bubbling
     // which will make Polymer.dom(e).path an empty array in polymer 2
     const dialog = this._getDialogFromEvent(e);
-    this.$.restAPI
+    this.restApiService
       .deleteFileInChangeEdit(this.change._number, this._path)
       .then(res => {
         if (!res || !res.ok) {
@@ -249,7 +245,7 @@ export class GrEditControls extends GestureEventListeners(
 
   _handleRestoreConfirm(e: Event) {
     const dialog = this._getDialogFromEvent(e);
-    this.$.restAPI
+    this.restApiService
       .restoreFileInChangeEdit(this.change._number, this._path)
       .then(res => {
         if (!res || !res.ok) {
@@ -262,7 +258,7 @@ export class GrEditControls extends GestureEventListeners(
 
   _handleRenameConfirm(e: Event) {
     const dialog = this._getDialogFromEvent(e);
-    return this.$.restAPI
+    return this.restApiService
       .renameFileInChangeEdit(this.change._number, this._path, this._newPath)
       .then(res => {
         if (!res || !res.ok) {
@@ -274,10 +270,11 @@ export class GrEditControls extends GestureEventListeners(
   }
 
   _queryFiles(input: string): Promise<AutocompleteSuggestion[]> {
-    return this.$.restAPI
+    return this.restApiService
       .queryChangeFiles(this.change._number, this.patchNum, input)
       .then(res => {
-        if (!res) throw new Error('Failed to retrieve files. Reponse not set.');
+        if (!res)
+          throw new Error('Failed to retrieve files. Response not set.');
         return res.map(file => {
           return {name: file};
         });

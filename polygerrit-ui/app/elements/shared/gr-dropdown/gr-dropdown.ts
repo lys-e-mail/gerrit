@@ -17,12 +17,9 @@
 import '@polymer/iron-dropdown/iron-dropdown';
 import '../gr-button/gr-button';
 import '../gr-cursor-manager/gr-cursor-manager';
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-tooltip-content/gr-tooltip-content';
 import '../../../styles/shared-styles';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-dropdown_html';
 import {getBaseUrl} from '../../../utils/url-util';
@@ -43,7 +40,6 @@ declare global {
 export interface GrDropdown {
   $: {
     dropdown: IronDropdownElement;
-    cursor: GrCursorManager;
   };
 }
 
@@ -67,9 +63,7 @@ interface Content {
 }
 
 @customElement('gr-dropdown')
-export class GrDropdown extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrDropdown extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -108,18 +102,16 @@ export class GrDropdown extends KeyboardShortcutMixin(
   @property({type: Number})
   verticalOffset = 40;
 
+  /** Propagates/Reflects the `opened` property of the <iron-dropdown> */
+  @property({type: Boolean, notify: true})
+  opened = false;
+
   /**
    * List the IDs of dropdown buttons to be disabled. (Note this only
    * disables buttons and not link entries.)
    */
   @property({type: Array})
   disabledIds: string[] = [];
-
-  /**
-   * The elements of the list.
-   */
-  @property({type: Array})
-  _listElements: Element[] = [];
 
   get keyBindings() {
     return {
@@ -130,6 +122,20 @@ export class GrDropdown extends KeyboardShortcutMixin(
     };
   }
 
+  private cursor = new GrCursorManager();
+
+  constructor() {
+    super();
+    this.cursor.cursorTargetClass = 'selected';
+    this.cursor.focusOnMove = true;
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.cursor.unsetCursor();
+    super.disconnectedCallback();
+  }
+
   /**
    * Handle the up key.
    */
@@ -137,7 +143,7 @@ export class GrDropdown extends KeyboardShortcutMixin(
     if (this.$.dropdown.opened) {
       e.preventDefault();
       e.stopPropagation();
-      this.$.cursor.previous();
+      this.cursor.previous();
     } else {
       this._open();
     }
@@ -150,7 +156,7 @@ export class GrDropdown extends KeyboardShortcutMixin(
     if (this.$.dropdown.opened) {
       e.preventDefault();
       e.stopPropagation();
-      this.$.cursor.next();
+      this.cursor.next();
     } else {
       this._open();
     }
@@ -177,8 +183,8 @@ export class GrDropdown extends KeyboardShortcutMixin(
       // TODO(milutin): This solution is not particularly robust in general.
       // Since gr-tooltip-content click on shadow dom is not propagated down,
       // we have to target `a` inside it.
-      if (this.$.cursor.target !== null) {
-        const el = this.$.cursor.target.querySelector(':not([hidden]) a');
+      if (this.cursor.target !== null) {
+        const el = this.cursor.target.querySelector(':not([hidden]) a');
         if (el) {
           (el as HTMLElement).click();
         }
@@ -193,6 +199,10 @@ export class GrDropdown extends KeyboardShortcutMixin(
    */
   _handleDropdownClick() {
     this._close();
+  }
+
+  handleOpenedChanged(e: CustomEvent) {
+    this.opened = e.detail.value;
   }
 
   /**
@@ -214,14 +224,14 @@ export class GrDropdown extends KeyboardShortcutMixin(
   _open() {
     this.$.dropdown.open();
     this._resetCursorStops();
-    this.$.cursor.setCursorAtIndex(0);
-    if (this.$.cursor.target !== null) this.$.cursor.target.focus();
+    this.cursor.setCursorAtIndex(0);
+    if (this.cursor.target !== null) this.cursor.target.focus();
   }
 
   _close() {
     // async is needed so that that the click event is fired before the
     // dropdown closes (This was a bug for touch devices).
-    this.async(() => {
+    setTimeout(() => {
       this.$.dropdown.close();
     }, 1);
   }
@@ -330,7 +340,7 @@ export class GrDropdown extends KeyboardShortcutMixin(
   _resetCursorStops() {
     if (this.items && this.items.length > 0 && this.$.dropdown.opened) {
       flush();
-      this._listElements =
+      this.cursor.stops =
         this.root !== null ? Array.from(this.root.querySelectorAll('li')) : [];
     }
   }

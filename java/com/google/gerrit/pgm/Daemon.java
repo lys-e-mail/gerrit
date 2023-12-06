@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.auth.AuthModule;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.elasticsearch.ElasticIndexModule;
 import com.google.gerrit.extensions.client.AuthType;
@@ -40,6 +41,7 @@ import com.google.gerrit.httpd.WebModule;
 import com.google.gerrit.httpd.WebSshGlueModule;
 import com.google.gerrit.httpd.auth.oauth.OAuthModule;
 import com.google.gerrit.httpd.auth.openid.OpenIdModule;
+import com.google.gerrit.httpd.auth.restapi.OAuthRestModule;
 import com.google.gerrit.httpd.plugins.HttpPluginModule;
 import com.google.gerrit.httpd.raw.StaticModule;
 import com.google.gerrit.index.IndexType;
@@ -113,6 +115,7 @@ import com.google.gerrit.server.update.SuperprojectUpdateSubmissionListener;
 import com.google.gerrit.sshd.SshHostKeyModule;
 import com.google.gerrit.sshd.SshKeyCacheImpl;
 import com.google.gerrit.sshd.SshModule;
+import com.google.gerrit.sshd.SshSessionFactoryInitializer;
 import com.google.gerrit.sshd.commands.DefaultCommandModule;
 import com.google.gerrit.sshd.commands.IndexCommandsModule;
 import com.google.gerrit.sshd.commands.SequenceCommandsModule;
@@ -239,6 +242,10 @@ public class Daemon extends SiteProgram {
     this.replica = replica;
   }
 
+  public boolean isReplica() {
+    return replica;
+  }
+
   @VisibleForTesting
   public Injector getHttpdInjector() {
     return httpdInjector;
@@ -355,6 +362,7 @@ public class Daemon extends SiteProgram {
     }
     cfgInjector = createCfgInjector();
     config = cfgInjector.getInstance(Key.get(Config.class, GerritServerConfig.class));
+    config.setBoolean("container", null, "replica", replica);
     indexType = IndexModule.getIndexType(cfgInjector);
     sysInjector = createSysInjector();
     sysInjector.getInstance(PluginGuiceEnvironment.class).setDbCfgInjector(dbInjector, cfgInjector);
@@ -457,6 +465,7 @@ public class Daemon extends SiteProgram {
     if (VersionManager.getOnlineUpgrade(config)) {
       modules.add(new OnlineUpgrader.Module());
     }
+    modules.add(new OAuthRestModule());
     modules.add(new RestApiModule());
     modules.add(new GpgModule(config));
     modules.add(new StartupChecks.Module());
@@ -480,6 +489,7 @@ public class Daemon extends SiteProgram {
           });
     }
     modules.add(new DefaultUrlFormatter.Module());
+    SshSessionFactoryInitializer.init(config);
     if (sshd) {
       modules.add(SshKeyCacheImpl.module());
     } else {
@@ -510,6 +520,9 @@ public class Daemon extends SiteProgram {
 
     List<Module> libModules = LibModuleLoader.loadModules(cfgInjector, LibModuleType.SYS_MODULE);
     libModules.addAll(testSysModules);
+
+    AuthConfig authConfig = cfgInjector.getInstance(AuthConfig.class);
+    modules.add(new AuthModule(authConfig));
 
     return cfgInjector.createChildInjector(ModuleOverloader.override(modules, libModules));
   }
@@ -595,6 +608,7 @@ public class Daemon extends SiteProgram {
     } else if (authConfig.getAuthType() == AuthType.OAUTH) {
       modules.add(new OAuthModule());
     }
+
     modules.add(sysInjector.getInstance(GetUserFilter.Module.class));
 
     // StaticModule contains a "/*" wildcard, place it last.

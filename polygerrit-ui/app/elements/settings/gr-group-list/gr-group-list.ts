@@ -16,21 +16,12 @@
  */
 import '../../../styles/shared-styles';
 import '../../../styles/gr-form-styles';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-group-list_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {customElement, property} from '@polymer/decorators';
 import {GroupInfo, GroupId} from '../../../types/common';
-
-export interface GrGroupList {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -38,9 +29,7 @@ declare global {
   }
 }
 @customElement('gr-group-list')
-export class GrGroupList extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrGroupList extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -48,8 +37,10 @@ export class GrGroupList extends GestureEventListeners(
   @property({type: Array})
   _groups: GroupInfo[] = [];
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
-    return this.$.restAPI.getAccountGroups().then(groups => {
+    return this.restApiService.getAccountGroups().then(groups => {
       if (!groups) return;
       this._groups = groups.sort((a, b) =>
         (a.name || '').localeCompare(b.name || '')

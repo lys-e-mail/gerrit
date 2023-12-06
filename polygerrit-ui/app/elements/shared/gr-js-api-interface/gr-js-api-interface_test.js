@@ -18,23 +18,22 @@
 import '../../../test/common-test-setup-karma.js';
 import './gr-js-api-interface.js';
 import {GrPopupInterface} from '../../plugins/gr-popup-interface/gr-popup-interface.js';
-import {GrSettingsApi} from '../../plugins/gr-settings-api/gr-settings-api.js';
-import {EventType} from '../../plugins/gr-plugin-types.js';
+import {EventType} from '../../../api/plugin.js';
 import {PLUGIN_LOADING_TIMEOUT_MS} from './gr-api-utils.js';
 import {getPluginLoader} from './gr-plugin-loader.js';
 import {_testOnly_initGerritPluginApi} from './gr-gerrit.js';
 import {stubBaseUrl} from '../../../test/test-utils.js';
-
-const basicFixture = fixtureFromElement('gr-js-api-interface');
+import sinon from 'sinon/pkg/sinon-esm';
+import {stubRestApi} from '../../../test/test-utils.js';
+import {appContext} from '../../../services/app-context.js';
 
 const pluginApi = _testOnly_initGerritPluginApi();
 
-suite('gr-js-api-interface tests', () => {
+suite('GrJsApiInterface tests', () => {
   let element;
   let plugin;
   let errorStub;
 
-  let getResponseObjectStub;
   let sendStub;
   let clock;
 
@@ -45,19 +44,10 @@ suite('gr-js-api-interface tests', () => {
   setup(() => {
     clock = sinon.useFakeTimers();
 
-    getResponseObjectStub = sinon.stub().returns(Promise.resolve());
-    sendStub = sinon.stub().returns(Promise.resolve({status: 200}));
-    stub('gr-rest-api-interface', {
-      getAccount() {
-        return Promise.resolve({name: 'Judy Hopps'});
-      },
-      getResponseObject: getResponseObjectStub,
-      send(...args) {
-        return sendStub(...args);
-      },
-    });
-    element = basicFixture.instantiate();
-    errorStub = sinon.stub(console, 'error');
+    stubRestApi('getAccount').returns(Promise.resolve({name: 'Judy Hopps'}));
+    sendStub = stubRestApi('send').returns(Promise.resolve({status: 200}));
+    element = appContext.jsApiService;
+    errorStub = sinon.stub(element.reporting, 'error');
     pluginApi.install(p => { plugin = p; }, '0.1',
         'http://test.com/plugins/testplugin/static/test.js');
     getPluginLoader().loadPlugins([]);
@@ -110,76 +100,6 @@ suite('gr-js-api-interface tests', () => {
         {status: 400, text() { return Promise.resolve(null); }}));
     return plugin._send().catch(r => {
       assert.equal(r.message, '400');
-    });
-  });
-
-  test('get', () => {
-    const response = {foo: 'foo'};
-    getResponseObjectStub.returns(Promise.resolve(response));
-    return plugin.get('/url', r => {
-      assert.isTrue(sendStub.calledWith(
-          'GET', 'http://test.com/plugins/testplugin/url'));
-      assert.strictEqual(r, response);
-    });
-  });
-
-  test('get using Promise', () => {
-    const response = {foo: 'foo'};
-    getResponseObjectStub.returns(Promise.resolve(response));
-    return plugin.get('/url', r => 'rubbish').then(r => {
-      assert.isTrue(sendStub.calledWith(
-          'GET', 'http://test.com/plugins/testplugin/url'));
-      assert.strictEqual(r, response);
-    });
-  });
-
-  test('post', () => {
-    const payload = {foo: 'foo'};
-    const response = {bar: 'bar'};
-    getResponseObjectStub.returns(Promise.resolve(response));
-    return plugin.post('/url', payload, r => {
-      assert.isTrue(sendStub.calledWith(
-          'POST', 'http://test.com/plugins/testplugin/url', payload));
-      assert.strictEqual(r, response);
-    });
-  });
-
-  test('put', () => {
-    const payload = {foo: 'foo'};
-    const response = {bar: 'bar'};
-    getResponseObjectStub.returns(Promise.resolve(response));
-    return plugin.put('/url', payload, r => {
-      assert.isTrue(sendStub.calledWith(
-          'PUT', 'http://test.com/plugins/testplugin/url', payload));
-      assert.strictEqual(r, response);
-    });
-  });
-
-  test('delete works', () => {
-    const response = {status: 204};
-    sendStub.returns(Promise.resolve(response));
-    return plugin.delete('/url', r => {
-      assert.equal(sendStub.lastCall.args[0], 'DELETE');
-      assert.equal(
-          sendStub.lastCall.args[1],
-          'http://test.com/plugins/testplugin/url'
-      );
-      assert.strictEqual(r, response);
-    });
-  });
-
-  test('delete fails', () => {
-    sendStub.returns(Promise.resolve(
-        {status: 400, text() { return Promise.resolve('text'); }}));
-    return plugin.delete('/url', r => {
-      throw new Error('Should not resolve');
-    }).catch(err => {
-      assert.equal(sendStub.lastCall.args[0], 'DELETE');
-      assert.equal(
-          sendStub.lastCall.args[1],
-          'http://test.com/plugins/testplugin/url'
-      );
-      assert.equal('text', err.message);
     });
   });
 
@@ -242,7 +162,7 @@ suite('gr-js-api-interface tests', () => {
       revisions: {def: {_number: 2}, abc: {_number: 1}},
     };
     const spy = sinon.spy();
-    getPluginLoader().loadPlugins(['plugins/test.html']);
+    getPluginLoader().loadPlugins(['plugins/test.js']);
     plugin.on(EventType.SHOW_CHANGE, spy);
     element.handleEvent(EventType.SHOW_CHANGE,
         {change: testChange, patchNum: 1});
@@ -288,18 +208,33 @@ suite('gr-js-api-interface tests', () => {
     assert.isTrue(errorStub.calledTwice);
   });
 
-  test('postrevert event', () => {
+  test('postrevert event labels', () => {
     function getLabels(c) {
       return {'Code-Review': 1};
     }
 
-    assert.deepEqual(element.getLabelValuesPostRevert(null), {});
+    assert.deepEqual(element.getReviewPostRevert(null), {});
     assert.equal(errorStub.callCount, 0);
 
     plugin.on(EventType.POST_REVERT, throwErrFn);
     plugin.on(EventType.POST_REVERT, getLabels);
     assert.deepEqual(
-        element.getLabelValuesPostRevert(null), {'Code-Review': 1});
+        element.getReviewPostRevert(null), {labels: {'Code-Review': 1}});
+    assert.isTrue(errorStub.calledOnce);
+  });
+
+  test('postrevert event review', () => {
+    function getReview(c) {
+      return {labels: {'Code-Review': 1}};
+    }
+
+    assert.deepEqual(element.getReviewPostRevert(null), {});
+    assert.equal(errorStub.callCount, 0);
+
+    plugin.on(EventType.POST_REVERT, throwErrFn);
+    plugin.on(EventType.POST_REVERT, getReview);
+    assert.deepEqual(
+        element.getReviewPostRevert(null), {labels: {'Code-Review': 1}});
     assert.isTrue(errorStub.calledOnce);
   });
 
@@ -404,6 +339,7 @@ suite('gr-js-api-interface tests', () => {
 
   suite('popup', () => {
     test('popup(element) is deprecated', () => {
+      sinon.stub(console, 'error');
       plugin.popup(document.createElement('div'));
       assert.isTrue(console.error.calledOnce);
     });
@@ -416,7 +352,7 @@ suite('gr-js-api-interface tests', () => {
             // eslint-disable-next-line no-invalid-this
             const grPopupInterface = this;
             assert.equal(grPopupInterface.plugin, plugin);
-            assert.equal(grPopupInterface._moduleName, 'some-name');
+            assert.equal(grPopupInterface.moduleName, 'some-name');
           });
       plugin.popup('some-name');
       assert.isTrue(openStub.calledOnce);
@@ -441,13 +377,6 @@ suite('gr-js-api-interface tests', () => {
       plugin.screen('foo', 'some-module');
       assert.isTrue(plugin.registerCustomComponent.calledWith(
           'testplugin-screen-foo', 'some-module'));
-    });
-  });
-
-  suite('settingsScreen', () => {
-    test('plugin.settings() returns GrSettingsApi', () => {
-      assert.isOk(plugin.settings());
-      assert.isTrue(plugin.settings() instanceof GrSettingsApi);
     });
   });
 });

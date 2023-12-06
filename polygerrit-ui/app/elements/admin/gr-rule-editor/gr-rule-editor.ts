@@ -19,14 +19,12 @@ import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-select/gr-select';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-rule-editor_html';
 import {encodeURL, getBaseUrl} from '../../../utils/url-util';
 import {AccessPermissionId} from '../../../utils/access-util';
 import {property, customElement, observe} from '@polymer/decorators';
+import {fireEvent} from '../../../utils/event-util';
 
 /**
  * Fired when the rule has been modified or removed.
@@ -102,9 +100,7 @@ declare global {
 }
 
 @customElement('gr-rule-editor')
-export class GrRuleEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRuleEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -140,9 +136,8 @@ export class GrRuleEditor extends GestureEventListeners(
   @property({type: Object})
   _originalRuleValues?: RuleValue;
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('access-saved', () => this._handleAccessSaved());
   }
 
@@ -158,8 +153,8 @@ export class GrRuleEditor extends GestureEventListeners(
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     // Check needed for test purposes.
     if (!this._originalRuleValues && this.rule) {
       // Observer _handleValueChange is called after the ready()
@@ -268,15 +263,11 @@ export class GrRuleEditor extends GestureEventListeners(
   _handleRemoveRule() {
     if (!this.rule) return;
     if (this.rule.value.added) {
-      this.dispatchEvent(
-        new CustomEvent('added-rule-removed', {bubbles: true, composed: true})
-      );
+      fireEvent(this, 'added-rule-removed');
     }
     this._deleted = true;
     this.rule.value.deleted = true;
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   _handleUndoRemove() {
@@ -305,9 +296,7 @@ export class GrRuleEditor extends GestureEventListeners(
     }
     this.rule.value.modified = true;
     // Allows overall access page to know a change has been made.
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   _setOriginalRuleValues(value: RuleValue) {

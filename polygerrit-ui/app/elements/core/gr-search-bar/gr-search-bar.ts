@@ -15,11 +15,8 @@
  * limitations under the License.
  */
 import '../../shared/gr-autocomplete/gr-autocomplete';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-search-bar_html';
 import {
@@ -28,7 +25,6 @@ import {
 } from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {customElement, property} from '@polymer/decorators';
 import {ServerInfo} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AutocompleteQuery,
   AutocompleteSuggestion,
@@ -37,6 +33,7 @@ import {
 import {getDocsBaseUrl} from '../../../utils/url-util';
 import {CustomKeyboardEvent} from '../../../types/events';
 import {MergeabilityComputationBehavior} from '../../../constants/constants';
+import {appContext} from '../../../services/app-context';
 
 // Possible static search options for auto complete, without negations.
 const SEARCH_OPERATORS: ReadonlyArray<string> = [
@@ -100,6 +97,7 @@ const SEARCH_OPERATORS: ReadonlyArray<string> = [
   'onlyextensions:',
   'owner:',
   'ownerin:',
+  'parentof:',
   'parentproject:',
   'project:',
   'projects:',
@@ -142,15 +140,12 @@ export interface SearchBarHandleSearchDetail {
 
 export interface GrSearchBar {
   $: {
-    restAPI: RestApiService & Element;
     searchInput: GrAutocomplete;
   };
 }
 
 @customElement('gr-search-bar')
-export class GrSearchBar extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrSearchBar extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -193,14 +188,16 @@ export class GrSearchBar extends KeyboardShortcutMixin(
   @property({type: String})
   docBaseUrl: string | null = null;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this.query = (input: string) => this._getSearchSuggestions(input);
   }
 
-  attached() {
-    super.attached();
-    this.$.restAPI.getConfig().then((serverConfig?: ServerInfo) => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.restApiService.getConfig().then((serverConfig?: ServerInfo) => {
       const mergeability =
         serverConfig &&
         serverConfig.change &&
@@ -215,7 +212,7 @@ export class GrSearchBar extends KeyboardShortcutMixin(
         this._addOperator('is:mergeable');
       }
       if (serverConfig) {
-        getDocsBaseUrl(serverConfig, this.$.restAPI).then(baseUrl => {
+        getDocsBaseUrl(serverConfig, this.restApiService).then(baseUrl => {
           this.docBaseUrl = baseUrl;
         });
       }

@@ -17,19 +17,14 @@
 import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../shared/gr-dropdown/gr-dropdown';
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-account-dropdown/gr-account-dropdown';
 import '../gr-smart-search/gr-smart-search';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-main-header_html';
 import {getBaseUrl, getDocsBaseUrl} from '../../../utils/url-util';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {getAdminLinks, NavLink} from '../../../utils/admin-nav-util';
 import {customElement, property, observe} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AccountDetailInfo,
   RequireProperties,
@@ -37,9 +32,9 @@ import {
   TopMenuEntryInfo,
   TopMenuItemInfo,
 } from '../../../types/common';
-import {JsApiService} from '../../shared/gr-js-api-interface/gr-js-api-types';
 import {AuthType} from '../../../constants/constants';
 import {DropdownLink} from '../../shared/gr-dropdown/gr-dropdown';
+import {appContext} from '../../../services/app-context';
 
 type MainHeaderLink = RequireProperties<DropdownLink, 'url' | 'name'>;
 
@@ -103,17 +98,8 @@ const AUTH_TYPES_WITH_REGISTER_URL: Set<AuthType> = new Set([
   AuthType.CUSTOM_EXTENSION,
 ]);
 
-export interface GrMainHeader {
-  $: {
-    restAPI: RestApiService & Element;
-    jsAPI: JsApiService & Element;
-  };
-}
-
 @customElement('gr-main-header')
-export class GrMainHeader extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrMainHeader extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -158,8 +144,15 @@ export class GrMainHeader extends GestureEventListeners(
   @property({type: String})
   _registerURL = '';
 
+  @property({type: String})
+  _feedbackURL = '';
+
   @property({type: Boolean})
   mobileSearchHidden = false;
+
+  private readonly restApiService = appContext.restApiService;
+
+  private readonly jsAPI = appContext.jsApiService;
 
   /** @override */
   ready() {
@@ -168,15 +161,15 @@ export class GrMainHeader extends GestureEventListeners(
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadAccount();
     this._loadConfig();
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
+    super.disconnectedCallback();
   }
 
   reload() {
@@ -246,7 +239,7 @@ export class GrMainHeader extends GestureEventListeners(
       } else if (items.length > 0) {
         links.push({
           title: m.name,
-          links: topMenuLinks[m.name] = items,
+          links: (topMenuLinks[m.name] = items),
         });
       }
     }
@@ -274,8 +267,8 @@ export class GrMainHeader extends GestureEventListeners(
     this.loading = true;
 
     return Promise.all([
-      this.$.restAPI.getAccount(),
-      this.$.restAPI.getTopMenus(),
+      this.restApiService.getAccount(),
+      this.restApiService.getTopMenus(),
       getPluginLoader().awaitPluginsLoaded(),
     ]).then(result => {
       const account = result[0];
@@ -287,13 +280,13 @@ export class GrMainHeader extends GestureEventListeners(
       return getAdminLinks(
         account,
         () =>
-          this.$.restAPI.getAccountCapabilities().then(capabilities => {
+          this.restApiService.getAccountCapabilities().then(capabilities => {
             if (!capabilities) {
               throw new Error('getAccountCapabilities returns undefined');
             }
             return capabilities;
           }),
-        () => this.$.jsAPI.getAdminMenuLinks()
+        () => this.jsAPI.getAdminMenuLinks()
       ).then(res => {
         this._adminLinks = res.links;
       });
@@ -301,14 +294,15 @@ export class GrMainHeader extends GestureEventListeners(
   }
 
   _loadConfig() {
-    this.$.restAPI
+    this.restApiService
       .getConfig()
       .then(config => {
         if (!config) {
           throw new Error('getConfig returned undefined');
         }
+        this._retrieveFeedbackURL(config);
         this._retrieveRegisterURL(config);
-        return getDocsBaseUrl(config, this.$.restAPI);
+        return getDocsBaseUrl(config, this.restApiService);
       })
       .then(docBaseUrl => {
         this._docBaseUrl = docBaseUrl;
@@ -321,10 +315,16 @@ export class GrMainHeader extends GestureEventListeners(
       return;
     }
 
-    this.$.restAPI.getPreferences().then(prefs => {
+    this.restApiService.getPreferences().then(prefs => {
       this._userLinks =
         prefs && prefs.my ? prefs.my.map(this._createHeaderLink) : [];
     });
+  }
+
+  _retrieveFeedbackURL(config: ServerInfo) {
+    if (config.gerrit?.report_bug_url) {
+      this._feedbackURL = config.gerrit.report_bug_url;
+    }
   }
 
   _retrieveRegisterURL(config: ServerInfo) {
@@ -348,6 +348,7 @@ export class GrMainHeader extends GestureEventListeners(
     // If not, it sets target='_blank' on the menu item. The server
     // makes assumptions that work for the GWT UI, but not PolyGerrit,
     // so we'll just disable it altogether for now.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {target, ...headerLink} = {...linkObj};
 
     // Normalize all urls to PolyGerrit style.

@@ -82,7 +82,11 @@ export const htmlTemplate = html`
         <template is="dom-if" if="[[_isEmpty(changeSection)]]">
           <tr class="noChanges">
             <td aria-hidden="true" class="leftPadding"></td>
-            <td aria-hidden="true" class="star" hidden></td>
+            <td
+              aria-hidden="[[!showStar]]"
+              class="star"
+              hidden$="[[!showStar]]"
+            ></td>
             <td
               class="cell"
               colspan$="[[_computeColspan(changeSection, visibleChangeTableColumns, labelNames)]]"
@@ -117,9 +121,7 @@ export const htmlTemplate = html`
               items="[[_computeColumns(changeSection, visibleChangeTableColumns)]]"
               as="item"
             >
-              <td class$="[[_lowerCase(item)]]">
-                [[item]]
-              </td>
+              <td class$="[[_lowerCase(item)]]">[[item]]</td>
             </template>
             <template is="dom-repeat" items="[[labelNames]]" as="labelName">
               <td class="label" title$="[[labelName]]">
@@ -150,18 +152,12 @@ export const htmlTemplate = html`
             visible-change-table-columns="[[_computeColumns(changeSection, visibleChangeTableColumns)]]"
             show-number="[[showNumber]]"
             show-star="[[showStar]]"
-            tabindex$="[[_computeTabIndex(sectionIndex, index, selectedIndex)]]"
+            tabindex$="[[_computeTabIndex(sectionIndex, index, selectedIndex, isCursorMoving)]]"
             label-names="[[labelNames]]"
+            aria-label$="[[_computeAriaLabel(change, changeSection.name)]]"
           ></gr-change-list-item>
         </template>
       </tbody>
     </template>
   </table>
-  <gr-cursor-manager
-    id="cursor"
-    index="{{selectedIndex}}"
-    scroll-mode="keep-visible"
-    focus-on-move=""
-  ></gr-cursor-manager>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

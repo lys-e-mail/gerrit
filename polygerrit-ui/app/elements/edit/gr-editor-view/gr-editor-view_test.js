@@ -18,8 +18,9 @@
 import '../../../test/common-test-setup-karma.js';
 import './gr-editor-view.js';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util.js';
 import {HttpMethod} from '../../../constants/constants.js';
+import {stubRestApi} from '../../../test/test-utils.js';
+import {EditPatchSetNum} from '../../../types/common.js';
 
 const basicFixture = fixtureFromElement('gr-editor-view');
 
@@ -37,15 +38,11 @@ suite('gr-editor-view tests', () => {
   };
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getLoggedIn() { return Promise.resolve(true); },
-      getEditPreferences() { return Promise.resolve({}); },
-    });
-
     element = basicFixture.instantiate();
-    savePathStub = sinon.stub(element.$.restAPI, 'renameFileInChangeEdit');
-    saveFileStub = sinon.stub(element.$.restAPI, 'saveChangeEdit');
-    changeDetailStub = sinon.stub(element.$.restAPI, 'getDiffChangeDetail');
+    savePathStub = stubRestApi('renameFileInChangeEdit');
+    saveFileStub = stubRestApi('saveChangeEdit');
+    changeDetailStub = stubRestApi(
+        'getDiffChangeDetail');
     navigateStub = sinon.stub(element, '_viewEditInChangeView');
   });
 
@@ -106,13 +103,13 @@ suite('gr-editor-view tests', () => {
   });
 
   test('reacts to content-change event', () => {
-    const storeStub = sinon.spy(element.$.storage, 'setEditableContentItem');
+    const storeStub = sinon.spy(element.storage, 'setEditableContentItem');
     element._newContent = 'test';
     element.$.editorEndpoint.dispatchEvent(new CustomEvent('content-change', {
       bubbles: true, composed: true,
       detail: {value: 'new content value'},
     }));
-    element.flushDebouncer('store');
+    element.storeTask.flush();
     flush();
 
     assert.equal(element._newContent, 'new content value');
@@ -139,7 +136,7 @@ suite('gr-editor-view tests', () => {
 
     test('file modification and save, !ok response', () => {
       const saveSpy = sinon.spy(element, '_saveEdit');
-      const eraseStub = sinon.stub(element.$.storage,
+      const eraseStub = sinon.stub(element.storage,
           'eraseEditableContentItem');
       const alertStub = sinon.stub(element, '_showAlert');
       saveFileStub.returns(Promise.resolve({ok: false}));
@@ -199,7 +196,7 @@ suite('gr-editor-view tests', () => {
       const saveSpy = sinon.spy(element, '_saveEdit');
       const alertStub = sinon.stub(element, '_showAlert');
       const changeActionsStub =
-        sinon.stub(element.$.restAPI, 'executeChangeAction');
+        stubRestApi('executeChangeAction');
       saveFileStub.returns(Promise.resolve({ok: true}));
       element._newContent = newText;
       flush();
@@ -251,11 +248,11 @@ suite('gr-editor-view tests', () => {
       element._newContent = 'initial';
       element._content = 'initial';
       element._type = 'initial';
-      sinon.stub(element.$.storage, 'getEditableContentItem').returns(null);
+      sinon.stub(element.storage, 'getEditableContentItem').returns(null);
     });
 
     test('res.ok', () => {
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({
             ok: true,
             type: 'text/javascript',
@@ -271,7 +268,7 @@ suite('gr-editor-view tests', () => {
     });
 
     test('!res.ok', () => {
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({}));
 
       // Ensure no data is set with a bad response.
@@ -283,7 +280,7 @@ suite('gr-editor-view tests', () => {
     });
 
     test('content is undefined', () => {
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({
             ok: true,
             type: 'text/javascript',
@@ -297,7 +294,7 @@ suite('gr-editor-view tests', () => {
     });
 
     test('content and type is undefined', () => {
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({
             ok: true,
           }));
@@ -324,7 +321,7 @@ suite('gr-editor-view tests', () => {
     element._change = {};
     navigateStub.restore();
     const navStub = sinon.stub(GerritNav, 'navigateToChange');
-    element._patchNum = SPECIAL_PATCH_SET_NUM.EDIT;
+    element._patchNum = EditPatchSetNum;
     element._viewEditInChangeView();
     assert.equal(navStub.lastCall.args[1], undefined);
     assert.equal(navStub.lastCall.args[3], true);
@@ -375,9 +372,9 @@ suite('gr-editor-view tests', () => {
 
   suite('gr-storage caching', () => {
     test('local edit exists', () => {
-      sinon.stub(element.$.storage, 'getEditableContentItem')
+      sinon.stub(element.storage, 'getEditableContentItem')
           .returns({message: 'pending edit'});
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({
             ok: true,
             type: 'text/javascript',
@@ -398,9 +395,9 @@ suite('gr-editor-view tests', () => {
     });
 
     test('local edit exists, is same as remote edit', () => {
-      sinon.stub(element.$.storage, 'getEditableContentItem')
+      sinon.stub(element.storage, 'getEditableContentItem')
           .returns({message: 'pending edit'});
-      sinon.stub(element.$.restAPI, 'getFileContent')
+      stubRestApi('getFileContent')
           .returns(Promise.resolve({
             ok: true,
             type: 'text/javascript',

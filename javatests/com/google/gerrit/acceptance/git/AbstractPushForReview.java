@@ -62,12 +62,14 @@ import com.google.gerrit.acceptance.UseClockStep;
 import com.google.gerrit.acceptance.config.GerritConfig;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.Address;
 import com.google.gerrit.entities.BooleanProjectConfig;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.ChangeMessage;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.LabelType;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Permission;
@@ -87,16 +89,19 @@ import com.google.gerrit.extensions.client.ProjectWatchInfo;
 import com.google.gerrit.extensions.client.ReviewerState;
 import com.google.gerrit.extensions.client.Side;
 import com.google.gerrit.extensions.common.AccountInfo;
+import com.google.gerrit.extensions.common.ApprovalInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.EditInfo;
 import com.google.gerrit.extensions.common.LabelInfo;
 import com.google.gerrit.extensions.common.RevisionInfo;
+import com.google.gerrit.extensions.events.TopicEditedListener;
 import com.google.gerrit.git.ObjectIds;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.git.receive.NoteDbPushOption;
+import com.google.gerrit.server.git.receive.PluginPushOption;
 import com.google.gerrit.server.git.receive.ReceiveConstants;
 import com.google.gerrit.server.git.validators.CommitValidationListener;
 import com.google.gerrit.server.git.validators.CommitValidationMessage;
@@ -487,26 +492,34 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
   @Test
   public void pushForMasterWithTopic() throws Exception {
-    String topic = "my/topic";
-    // specify topic as option
-    PushOneCommit.Result r = pushTo("refs/for/master%topic=" + topic);
-    r.assertOkStatus();
-    r.assertChange(Change.Status.NEW, topic);
+    TopicValidator topicValidator = new TopicValidator();
+    try (Registration registration = extensionRegistry.newRegistration().add(topicValidator)) {
+      String topic = "my/topic";
+      // specify topic as option
+      PushOneCommit.Result r = pushTo("refs/for/master%topic=" + topic);
+      r.assertOkStatus();
+      r.assertChange(Change.Status.NEW, topic);
+      assertThat(topicValidator.count()).isEqualTo(1);
+    }
   }
 
   @Test
   public void pushForMasterWithTopicOption() throws Exception {
-    String topicOption = "topic=myTopic";
-    List<String> pushOptions = new ArrayList<>();
-    pushOptions.add(topicOption);
+    TopicValidator topicValidator = new TopicValidator();
+    try (Registration registration = extensionRegistry.newRegistration().add(topicValidator)) {
+      String topicOption = "topic=myTopic";
+      List<String> pushOptions = new ArrayList<>();
+      pushOptions.add(topicOption);
 
-    PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
-    push.setPushOptions(pushOptions);
-    PushOneCommit.Result r = push.to("refs/for/master");
+      PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
+      push.setPushOptions(pushOptions);
+      PushOneCommit.Result r = push.to("refs/for/master");
 
-    r.assertOkStatus();
-    r.assertChange(Change.Status.NEW, "myTopic");
-    r.assertPushOptions(pushOptions);
+      r.assertOkStatus();
+      r.assertChange(Change.Status.NEW, "myTopic");
+      r.assertPushOptions(pushOptions);
+      assertThat(topicValidator.count()).isEqualTo(1);
+    }
   }
 
   @Test
@@ -1040,7 +1053,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     PushOneCommit.Result r = pushTo("refs/for/master%l=Code-Review");
     r.assertOkStatus();
     ChangeInfo ci = get(r.getChangeId(), DETAILED_LABELS, MESSAGES, DETAILED_ACCOUNTS);
-    LabelInfo cr = ci.labels.get("Code-Review");
+    LabelInfo cr = ci.labels.get(LabelId.CODE_REVIEW);
     assertThat(cr.all).hasSize(1);
     assertThat(cr.all.get(0).name).isEqualTo("Administrator");
     assertThat(cr.all.get(0).value).isEqualTo(1);
@@ -1058,7 +1071,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r = push.to("refs/for/master%l=Code-Review+2");
 
     ci = get(r.getChangeId(), DETAILED_LABELS, MESSAGES, DETAILED_ACCOUNTS);
-    cr = ci.labels.get("Code-Review");
+    cr = ci.labels.get(LabelId.CODE_REVIEW);
     assertThat(Iterables.getLast(ci.messages).message)
         .isEqualTo("Uploaded patch set 2: Code-Review+2.");
     // Check that the user who pushed the change was added as a reviewer since they added a vote
@@ -1097,7 +1110,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     r = push.to("refs/for/master%l=Code-Review+2");
 
     ChangeInfo ci = get(r.getChangeId(), DETAILED_LABELS, MESSAGES, DETAILED_ACCOUNTS);
-    LabelInfo cr = ci.labels.get("Code-Review");
+    LabelInfo cr = ci.labels.get(LabelId.CODE_REVIEW);
     assertThat(Iterables.getLast(ci.messages).message)
         .isEqualTo("Uploaded patch set 2: Code-Review+2.");
 
@@ -1126,7 +1139,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
 
     String changeId = GitUtil.getChangeId(testRepo, c).get();
     assertThat(getOwnerEmail(changeId)).isEqualTo(admin.email());
-    assertThat(getReviewerEmails(changeId, ReviewerState.REVIEWER))
+    assertThat(getReviewerEmails(changeId, ReviewerState.CC))
         .containsExactly(user.email(), user2.email());
 
     assertThat(sender.getMessages()).hasSize(1);
@@ -1151,7 +1164,7 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     pushHead(testRepo, "refs/for/master");
 
     assertThat(getOwnerEmail(r.getChangeId())).isEqualTo(admin.email());
-    assertThat(getReviewerEmails(r.getChangeId(), ReviewerState.REVIEWER))
+    assertThat(getReviewerEmails(r.getChangeId(), ReviewerState.CC))
         .containsExactly(user.email(), user2.email());
 
     assertThat(sender.getMessages()).hasSize(1);
@@ -1183,27 +1196,20 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     // Push this commit as "Administrator" (requires Forge Committer Identity)
     pushHead(testRepo, "refs/for/master%l=Code-Review+1", false);
 
-    // Expected Code-Review votes:
-    // 1. 0 from User (committer):
-    //    When the committer is forged, the committer is automatically added as
-    //    reviewer, hence we expect a dummy 0 vote for the committer.
-    // 2. +1 from Administrator (uploader):
-    //    On push Code-Review+1 was specified, hence we expect a +1 vote from
-    //    the uploader.
+    // Expected Code-Review vote:
+    // +1 from Administrator (uploader):
+    // On push Code-Review+1 was specified, hence we expect a +1 vote from the uploader. When the
+    // committer is forged, the committer is automatically added as cc, but that doesn't add votes
+    // (as opposted to being added as reviewer that adds a dummy +0 vote). We ensure there are no
+    // votes from the committer.
     ChangeInfo ci =
         get(GitUtil.getChangeId(testRepo, c).get(), DETAILED_LABELS, MESSAGES, DETAILED_ACCOUNTS);
     LabelInfo cr = ci.labels.get("Code-Review");
-    assertThat(cr.all).hasSize(2);
-    int indexAdmin = admin.fullName().equals(cr.all.get(0).name) ? 0 : 1;
-    int indexUser = indexAdmin == 0 ? 1 : 0;
-    assertThat(cr.all.get(indexAdmin).name).isEqualTo(admin.fullName());
-    assertThat(cr.all.get(indexAdmin).value.intValue()).isEqualTo(1);
-    assertThat(cr.all.get(indexUser).name).isEqualTo(user.fullName());
-    assertThat(cr.all.get(indexUser).value.intValue()).isEqualTo(0);
+    ApprovalInfo approvalInfo = Iterables.getOnlyElement(cr.all);
+    assertThat(approvalInfo.name).isEqualTo(admin.fullName());
+    assertThat(approvalInfo.value.intValue()).isEqualTo(1);
     assertThat(Iterables.getLast(ci.messages).message)
         .isEqualTo("Uploaded patch set 1: Code-Review+1.");
-    // Check that the user who pushed the change was added as a reviewer since they added a vote
-    assertThatUserIsOnlyReviewer(ci, admin);
   }
 
   @Test
@@ -2360,6 +2366,8 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     private final AtomicInteger count = new AtomicInteger();
     private final boolean validateAll;
 
+    @Nullable private CommitReceivedEvent receivedEvent;
+
     TestValidator(boolean validateAll) {
       this.validateAll = validateAll;
     }
@@ -2369,7 +2377,8 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     }
 
     @Override
-    public List<CommitValidationMessage> onCommitReceived(CommitReceivedEvent receiveEvent) {
+    public List<CommitValidationMessage> onCommitReceived(CommitReceivedEvent receivedEvent) {
+      this.receivedEvent = receivedEvent;
       count.incrementAndGet();
       return Collections.emptyList();
     }
@@ -2377,6 +2386,44 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     @Override
     public boolean shouldValidateAllCommits() {
       return validateAll;
+    }
+
+    public int count() {
+      return count.get();
+    }
+
+    @Nullable
+    public CommitReceivedEvent getReceivedEvent() {
+      return receivedEvent;
+    }
+  }
+
+  private static class TestPluginPushOption implements PluginPushOption {
+    private final String name;
+    private final String description;
+
+    TestPluginPushOption(String name, String description) {
+      this.name = name;
+      this.description = description;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  private static class TopicValidator implements TopicEditedListener {
+    private final AtomicInteger count = new AtomicInteger();
+
+    @Override
+    public void onTopicEdited(Event event) {
+      count.incrementAndGet();
     }
 
     public int count() {
@@ -2428,6 +2475,38 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
         // Second listener was called.
         assertThat(validator2.count()).isEqualTo(1);
       }
+    }
+  }
+
+  @Test
+  public void pushOptionsArePassedToCommitValidationListener() throws Exception {
+    TestValidator validator = new TestValidator();
+    PluginPushOption fooOption = new TestPluginPushOption("foo", "some description");
+    PluginPushOption barOption = new TestPluginPushOption("bar", "other description");
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(validator).add(fooOption).add(barOption)) {
+      PushOneCommit push =
+          pushFactory.create(admin.newIdent(), testRepo, "change2", "b.txt", "content");
+      push.setPushOptions(ImmutableList.of("trace=123", "gerrit~foo", "gerrit~bar=456"));
+      PushOneCommit.Result r = push.to("refs/for/master");
+      r.assertOkStatus();
+      assertThat(validator.getReceivedEvent().pushOptions)
+          .containsExactly("trace", "123", "gerrit~foo", "", "gerrit~bar", "456");
+    }
+  }
+
+  @Test
+  public void pluginPushOptionsHelp() throws Exception {
+    PluginPushOption fooOption = new TestPluginPushOption("foo", "some description");
+    PluginPushOption barOption = new TestPluginPushOption("bar", "other description");
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(fooOption).add(barOption)) {
+      PushOneCommit push =
+          pushFactory.create(admin.newIdent(), testRepo, "change2", "b.txt", "content");
+      push.setPushOptions(ImmutableList.of("help"));
+      PushOneCommit.Result r = push.to("refs/for/master");
+      r.assertErrorStatus("see help");
+      r.assertMessage("-o gerrit~bar: other description\n-o gerrit~foo: some description\n");
     }
   }
 
@@ -2726,6 +2805,22 @@ public abstract class AbstractPushForReview extends AbstractDaemonTest {
     // now it should succeed since CREATE_NEW_CHANGE_FOR_ALL_NOT_IN_TARGET is true
     r = pushHead(testRepo, "refs/for/otherBranch");
     assertPushOk(r, "refs/for/otherBranch");
+  }
+
+  @Test
+  public void pushWithVoteDoesNotAddToAttentionSet() throws Exception {
+    String pushSpec = "refs/for/master%l=Code-Review+1";
+    PushOneCommit.Result r = pushTo(pushSpec);
+    r.assertOkStatus();
+    assertThat(r.getChange().attentionSet()).isEmpty();
+  }
+
+  @Test
+  public void pushForMasterWithUnknownOption() throws Exception {
+    PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
+    push.setPushOptions(ImmutableList.of("unknown=foo"));
+    PushOneCommit.Result r = push.to("refs/for/master");
+    r.assertErrorStatus("\"--unknown\" is not a valid option");
   }
 
   private DraftInput newDraft(String path, int line, String message) {

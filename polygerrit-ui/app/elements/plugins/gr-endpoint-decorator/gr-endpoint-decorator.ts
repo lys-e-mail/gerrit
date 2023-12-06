@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-endpoint-decorator_html';
 import {
@@ -25,14 +22,13 @@ import {
 } from '../../shared/gr-js-api-interface/gr-plugin-endpoints';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {customElement, property} from '@polymer/decorators';
-import {HookApi, PluginApi} from '../gr-plugin-types';
+import {PluginApi} from '../../../api/plugin';
+import {HookApi} from '../../../api/hook';
 
 const INIT_PROPERTIES_TIMEOUT_MS = 10000;
 
 @customElement('gr-endpoint-decorator')
-class GrEndpointDecorator extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrEndpointDecorator extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -54,12 +50,12 @@ class GrEndpointDecorator extends GestureEventListeners(
   _endpointCallBack: (info: ModuleInfo) => void = () => {};
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
     for (const [el, domHook] of this._domHooks) {
       domHook.handleInstanceDetached(el);
     }
     getPluginEndpoints().onDetachedEndpoint(this.name, this._endpointCallBack);
+    super.disconnectedCallback();
   }
 
   _initDecoration(
@@ -71,7 +67,9 @@ class GrEndpointDecorator extends GestureEventListeners(
     return this._initProperties(
       el,
       plugin,
-      this.getContentChildren().find(el => el.nodeName !== 'GR-ENDPOINT-PARAM')
+      // The direct children are slotted into <slot>, so this is identical to
+      // this.shadowRoot.querySelector('slot').assignedElements()[0].
+      this.firstElementChild
     ).then(el => {
       const slotEl = slot
         ? this.querySelector(`gr-endpoint-slot[name=${slot}]`)
@@ -85,9 +83,16 @@ class GrEndpointDecorator extends GestureEventListeners(
     });
   }
 
+  // As of March 2021 the only known plugin that replaces an endpoint instead
+  // of decorating it is codemirror_editor.
   _initReplacement(name: string, plugin: PluginApi): Promise<HTMLElement> {
-    this.getContentChildNodes()
+    // The direct children are slotted into <slot>, so they are identical to
+    // this.shadowRoot.querySelector('slot').assignedElements().
+    const directChildren = [...this.childNodes];
+    const shadowChildren = [...(this.shadowRoot?.childNodes ?? [])];
+    [...directChildren, ...shadowChildren]
       .filter(node => node.nodeName !== 'GR-ENDPOINT-PARAM')
+      .filter(node => node.nodeName !== 'SLOT')
       .forEach(node => (node as ChildNode).remove());
     const el = document.createElement(name);
     return this._initProperties(el, plugin).then((el: HTMLElement) =>
@@ -102,13 +107,16 @@ class GrEndpointDecorator extends GestureEventListeners(
   _initProperties(
     htmlEl: HTMLElement,
     plugin: PluginApi,
-    content?: HTMLElement
+    content?: Element | null
   ) {
     const el = htmlEl as HTMLElement & {
       plugin?: PluginApi;
-      content?: HTMLElement;
+      content?: Element;
     };
     el.plugin = plugin;
+    // The content is (only?) used in ChangeReplyPluginApi.
+    // Maybe it would be better for the consumer side to figure out the content
+    // with something like el.getRootNode().host, etc.
     if (content) {
       el.content = content;
     }
@@ -125,12 +133,13 @@ class GrEndpointDecorator extends GestureEventListeners(
           )
         );
     });
-    // TODO(TS): Should be a number, but TS thinks that is must be some weird
-    // NodeJS.Timeout object.
-    let timeoutId: any;
+    let timeoutId: number;
     const timeout = new Promise(
       () =>
-        (timeoutId = setTimeout(() => {
+        // specify window here so that TS pulls the correct setTimeout method
+        // if window is not specified, then the function is pulled from node
+        // and the return type is NodeJS.Timeout object
+        (timeoutId = window.setTimeout(() => {
           console.warn(
             'Timeout waiting for endpoint properties initialization: ' +
               `plugin ${plugin.getPluginName()}, endpoint ${this.name}`
@@ -183,7 +192,6 @@ class GrEndpointDecorator extends GestureEventListeners(
     if (this.name) {
       getPluginLoader()
         .awaitPluginsLoaded()
-        .then(() => getPluginEndpoints().getAndImportPlugins(this.name))
         .then(() =>
           getPluginEndpoints()
             .getDetails(this.name)

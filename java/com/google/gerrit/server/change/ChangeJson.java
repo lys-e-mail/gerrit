@@ -47,16 +47,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.flogger.FluentLogger;
+import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.Address;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.ChangeMessage;
+import com.google.gerrit.entities.LegacySubmitRequirement;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.Project;
+import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.entities.SubmitRecord;
 import com.google.gerrit.entities.SubmitRecord.Status;
-import com.google.gerrit.entities.SubmitRequirement;
 import com.google.gerrit.entities.SubmitTypeRecord;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.api.changes.FixInput;
@@ -68,13 +70,14 @@ import com.google.gerrit.extensions.common.AttentionSetInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.LabelInfo;
+import com.google.gerrit.extensions.common.LegacySubmitRequirementInfo;
 import com.google.gerrit.extensions.common.PluginDefinedInfo;
 import com.google.gerrit.extensions.common.ProblemInfo;
 import com.google.gerrit.extensions.common.ReviewerUpdateInfo;
 import com.google.gerrit.extensions.common.RevisionInfo;
-import com.google.gerrit.extensions.common.SubmitRequirementInfo;
 import com.google.gerrit.extensions.common.TrackingIdInfo;
 import com.google.gerrit.extensions.restapi.Url;
+import com.google.gerrit.index.RefState;
 import com.google.gerrit.index.query.QueryResult;
 import com.google.gerrit.metrics.Description;
 import com.google.gerrit.metrics.Description.Units;
@@ -112,11 +115,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.ObjectId;
 
 /**
  * Produces {@link ChangeInfo} (which is serialized to JSON afterwards) from {@link ChangeData}.
@@ -158,17 +164,12 @@ public class ChangeJson {
     }
 
     public ChangeJson create(Iterable<ListChangesOption> options) {
-      return factory.create(options, Optional.empty(), Optional.empty());
+      return factory.create(options, Optional.empty());
     }
 
     public ChangeJson create(
-        Iterable<ListChangesOption> options,
-        PluginDefinedAttributesFactory pluginDefinedAttributesFactory,
-        PluginDefinedInfosFactory pluginDefinedInfosFactory) {
-      return factory.create(
-          options,
-          Optional.of(pluginDefinedAttributesFactory),
-          Optional.of(pluginDefinedInfosFactory));
+        Iterable<ListChangesOption> options, PluginDefinedInfosFactory pluginDefinedInfosFactory) {
+      return factory.create(options, Optional.of(pluginDefinedInfosFactory));
     }
 
     public ChangeJson create(ListChangesOption first, ListChangesOption... rest) {
@@ -179,7 +180,6 @@ public class ChangeJson {
   public interface AssistedFactory {
     ChangeJson create(
         Iterable<ListChangesOption> options,
-        Optional<PluginDefinedAttributesFactory> pluginDefinedAttributesFactory,
         Optional<PluginDefinedInfosFactory> pluginDefinedInfosFactory);
   }
 
@@ -226,7 +226,6 @@ public class ChangeJson {
   private final TrackingFooters trackingFooters;
   private final Metrics metrics;
   private final RevisionJson revisionJson;
-  private final Optional<PluginDefinedAttributesFactory> pluginDefinedAttributesFactory;
   private final Optional<PluginDefinedInfosFactory> pluginDefinedInfosFactory;
   private final boolean includeMergeable;
   private final boolean lazyLoad;
@@ -244,14 +243,13 @@ public class ChangeJson {
       Provider<ConsistencyChecker> checkerProvider,
       ActionJson actionJson,
       ChangeNotes.Factory notesFactory,
-      LabelsJson.Factory labelsJsonFactory,
+      LabelsJson labelsJson,
       RemoveReviewerControl removeReviewerControl,
       TrackingFooters trackingFooters,
       Metrics metrics,
       RevisionJson.Factory revisionJsonFactory,
       @GerritServerConfig Config cfg,
       @Assisted Iterable<ListChangesOption> options,
-      @Assisted Optional<PluginDefinedAttributesFactory> pluginDefinedAttributesFactory,
       @Assisted Optional<PluginDefinedInfosFactory> pluginDefinedInfosFactory) {
     this.userProvider = user;
     this.changeDataFactory = cdf;
@@ -261,7 +259,7 @@ public class ChangeJson {
     this.checkerProvider = checkerProvider;
     this.actionJson = actionJson;
     this.notesFactory = notesFactory;
-    this.labelsJson = labelsJsonFactory.create(options);
+    this.labelsJson = labelsJson;
     this.removeReviewerControl = removeReviewerControl;
     this.trackingFooters = trackingFooters;
     this.metrics = metrics;
@@ -269,7 +267,6 @@ public class ChangeJson {
     this.options = Sets.immutableEnumSet(options);
     this.includeMergeable = MergeabilityComputationBehavior.fromConfig(cfg).includeInApi();
     this.lazyLoad = containsAnyOf(this.options, REQUIRE_LAZY_LOAD);
-    this.pluginDefinedAttributesFactory = pluginDefinedAttributesFactory;
     this.pluginDefinedInfosFactory = pluginDefinedInfosFactory;
 
     logger.atFine().log("options = %s", options);
@@ -286,6 +283,11 @@ public class ChangeJson {
 
   public ChangeInfo format(Change change) {
     return format(changeDataFactory.create(change));
+  }
+
+  public ChangeInfo format(Change change, @Nullable ObjectId metaRevId) {
+    ChangeNotes notes = notesFactory.createChecked(change.getProject(), change.getId(), metaRevId);
+    return format(changeDataFactory.create(notes));
   }
 
   public ChangeInfo format(ChangeData cd) {
@@ -330,9 +332,13 @@ public class ChangeJson {
   }
 
   public ChangeInfo format(Project.NameKey project, Change.Id id) {
+    return format(project, id, null);
+  }
+
+  public ChangeInfo format(Project.NameKey project, Change.Id id, @Nullable ObjectId metaRevId) {
     ChangeNotes notes;
     try {
-      notes = notesFactory.createChecked(project, id);
+      notes = notesFactory.createChecked(project, id, metaRevId);
     } catch (StorageException e) {
       if (!has(CHECK)) {
         throw e;
@@ -343,21 +349,22 @@ public class ChangeJson {
     return format(cd, Optional.empty(), true, getPluginInfos(cd));
   }
 
-  private static Collection<SubmitRequirementInfo> requirementsFor(ChangeData cd) {
-    Collection<SubmitRequirementInfo> reqInfos = new ArrayList<>();
+  private static Collection<LegacySubmitRequirementInfo> requirementsFor(ChangeData cd) {
+    Collection<LegacySubmitRequirementInfo> reqInfos = new ArrayList<>();
     for (SubmitRecord submitRecord : cd.submitRecords(SUBMIT_RULE_OPTIONS_STRICT)) {
       if (submitRecord.requirements == null) {
         continue;
       }
-      for (SubmitRequirement requirement : submitRecord.requirements) {
+      for (LegacySubmitRequirement requirement : submitRecord.requirements) {
         reqInfos.add(requirementToInfo(requirement, submitRecord.status));
       }
     }
     return reqInfos;
   }
 
-  private static SubmitRequirementInfo requirementToInfo(SubmitRequirement req, Status status) {
-    return new SubmitRequirementInfo(status.name(), req.fallbackText(), req.type());
+  private static LegacySubmitRequirementInfo requirementToInfo(
+      LegacySubmitRequirement req, Status status) {
+    return new LegacySubmitRequirementInfo(status.name(), req.fallbackText(), req.type());
   }
 
   private static void finish(ChangeInfo info) {
@@ -399,6 +406,10 @@ public class ChangeJson {
 
   private void ensureLoaded(Iterable<ChangeData> all) {
     if (lazyLoad) {
+      for (ChangeData cd : all) {
+        // Mark all ChangeDatas as coming from the index, but allow backfilling data from NoteDb
+        cd.setStorageConstraint(ChangeData.StorageConstraint.INDEX_PRIMARY_NOTEDB_SECONDARY);
+      }
       ChangeData.ensureChangeLoaded(all);
       if (has(ALL_REVISIONS)) {
         ChangeData.ensureAllPatchSetsLoaded(all);
@@ -411,7 +422,8 @@ public class ChangeJson {
       ChangeData.ensureCurrentApprovalsLoaded(all);
     } else {
       for (ChangeData cd : all) {
-        cd.setLazyLoad(false);
+        // Mark all ChangeDatas as coming from the index. Disallow using NoteDb
+        cd.setStorageConstraint(ChangeData.StorageConstraint.INDEX_ONLY);
       }
     }
   }
@@ -577,6 +589,15 @@ public class ChangeJson {
     out.totalCommentCount = cd.totalCommentCount();
     out.unresolvedCommentCount = cd.unresolvedCommentCount();
 
+    if (cd.getRefStates() != null) {
+      String metaName = RefNames.changeMetaRef(cd.getId());
+      Optional<RefState> metaState =
+          cd.getRefStates().values().stream().filter(r -> r.ref().equals(metaName)).findAny();
+
+      // metaState should always be there, but it doesn't hurt to be extra careful.
+      metaState.ifPresent(rs -> out.metaRevId = rs.id().getName());
+    }
+
     if (user.isIdentifiedUser()) {
       Collection<String> stars = cd.stars(user.getAccountId());
       out.starred = stars.contains(StarredChangesUtil.DEFAULT_LABEL) ? true : null;
@@ -611,17 +632,9 @@ public class ChangeJson {
     }
 
     setSubmitter(cd, out);
-    if (pluginDefinedAttributesFactory.isPresent()) {
-      out.plugins = pluginDefinedAttributesFactory.get().create(cd);
-    }
 
     if (!pluginInfos.isEmpty()) {
-      if (out.plugins == null) {
-        out.plugins = pluginInfos;
-      } else {
-        out.plugins = new ArrayList<>(out.plugins);
-        out.plugins.addAll(pluginInfos);
-      }
+      out.plugins = pluginInfos;
     }
     out.revertOf = cd.change().getRevertOf() != null ? cd.change().getRevertOf().get() : null;
     out.submissionId = cd.change().getSubmissionId();
@@ -665,7 +678,7 @@ public class ChangeJson {
     }
 
     if (has(CURRENT_ACTIONS) || has(CHANGE_ACTIONS)) {
-      actionJson.addChangeActions(out, cd.notes());
+      actionJson.addChangeActions(out, cd);
     }
 
     if (has(TRACKING_IDS)) {
@@ -749,7 +762,14 @@ public class ChangeJson {
     // removed.
     Collection<LabelInfo> labels = out.labels.values();
     Set<Account.Id> fixed = Sets.newHashSetWithExpectedSize(labels.size());
-    Set<Account.Id> removable = Sets.newHashSetWithExpectedSize(labels.size());
+    Set<Account.Id> removable = new HashSet<>();
+
+    // Add all reviewers, which will later be removed if they are in the "fixed" set.
+    removable.addAll(
+        out.reviewers.getOrDefault(ReviewerState.REVIEWER, Collections.emptySet()).stream()
+            .filter(a -> a._accountId != null)
+            .map(a -> Account.id(a._accountId))
+            .collect(Collectors.toSet()));
 
     // Check if the user has the permission to remove a reviewer. This means we can bypass the
     // testRemoveReviewer check for a specific reviewer in the loop saving potentially many
@@ -766,11 +786,9 @@ public class ChangeJson {
       for (ApprovalInfo ai : label.all) {
         Account.Id id = Account.id(ai._accountId);
 
-        if (canRemoveAnyReviewer
-            || removeReviewerControl.testRemoveReviewer(
+        if (!canRemoveAnyReviewer
+            && !removeReviewerControl.testRemoveReviewer(
                 cd, userProvider.get(), id, MoreObjects.firstNonNull(ai.value, 0))) {
-          removable.add(id);
-        } else {
           fixed.add(id);
         }
       }

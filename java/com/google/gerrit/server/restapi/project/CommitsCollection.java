@@ -17,6 +17,7 @@ package com.google.gerrit.server.restapi.project;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.extensions.registration.DynamicMap;
@@ -48,10 +49,12 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+/** The collection of commit IDs (ie. 40 char hex IDs) */
 @Singleton
 public class CommitsCollection implements ChildCollection<ProjectResource, CommitResource> {
   private final DynamicMap<RestView<CommitResource>> views;
@@ -93,10 +96,12 @@ public class CommitsCollection implements ChildCollection<ProjectResource, Commi
     try (Repository repo = repoManager.openRepository(parent.getNameKey());
         RevWalk rw = new RevWalk(repo)) {
       RevCommit commit = rw.parseCommit(objectId);
-      rw.parseBody(commit);
       if (!canRead(parent.getProjectState(), repo, commit)) {
         throw new ResourceNotFoundException(id);
       }
+      // GetCommit depends on the body of both the commit and parent being parsed, to get the
+      // subject.
+      rw.parseBody(commit);
       for (int i = 0; i < commit.getParentCount(); i++) {
         rw.parseBody(rw.parseCommit(commit.getParent(i)));
       }
@@ -171,9 +176,8 @@ public class CommitsCollection implements ChildCollection<ProjectResource, Commi
     // If we have already checked change refs using the change index, spare any further checks for
     // changes.
     List<Ref> refs =
-        repo.getRefDatabase().getRefs().stream()
-            .filter(r -> !r.getName().startsWith(RefNames.REFS_CHANGES))
-            .collect(toImmutableList());
+        repo.getRefDatabase()
+            .getRefsByPrefixWithExclusions(RefDatabase.ALL, ImmutableSet.of(RefNames.REFS_CHANGES));
     return reachable.fromRefs(project, repo, commit, refs);
   }
 }

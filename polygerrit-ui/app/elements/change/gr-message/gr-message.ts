@@ -21,14 +21,11 @@ import '../../shared/gr-account-chip/gr-account-chip';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-date-formatter/gr-date-formatter';
 import '../../shared/gr-formatted-text/gr-formatted-text';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import '../../../styles/gr-voting-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-message_html';
-import {SpecialFilePath} from '../../../constants/constants';
+import {MessageTag, SpecialFilePath} from '../../../constants/constants';
 import {customElement, property, computed, observe} from '@polymer/decorators';
 import {
   ChangeInfo,
@@ -40,13 +37,26 @@ import {
   VotingRangeInfo,
   NumericChangeId,
   ChangeMessageId,
+  PatchSetNum,
+  AccountInfo,
+  BasePatchSetNum,
 } from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {CommentThread} from '../../../utils/comment-util';
 import {hasOwnProperty} from '../../../utils/common-util';
+import {appContext} from '../../../services/app-context';
+import {pluralize} from '../../../utils/string-util';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
+import {
+  computeAllPatchSets,
+  computeLatestPatchNum,
+  computePredecessor,
+} from '../../../utils/patch-set-util';
+import {isServiceUser} from '../../../utils/account-util';
 
-const PATCH_SET_PREFIX_PATTERN = /^(?:Uploaded\s*)?(?:P|p)atch (?:S|s)et \d+:\s*(.*)/;
+const PATCH_SET_PREFIX_PATTERN = /^(?:Uploaded\s*)?[Pp]atch [Ss]et \d+:\s*(.*)/;
 const LABEL_TITLE_SCORE_PATTERN = /^(-?)([A-Za-z0-9-]+?)([+-]\d+)?[.]?$/;
+const UPLOADED_NEW_PATCHSET_PATTERN = /Uploaded patch set (\d+)./;
+const MERGED_PATCHSET_PATTERN = /(\d+) is the latest approved patch-set/;
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -58,13 +68,7 @@ export interface MessageAnchorTapDetail {
   id: ChangeMessageId;
 }
 
-export interface GrMessage {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
-interface ChangeMessage extends ChangeMessageInfo {
+export interface ChangeMessage extends ChangeMessageInfo {
   // TODO(TS): maybe should be an enum instead
   type: string;
   expanded: boolean;
@@ -79,9 +83,7 @@ interface Score {
 }
 
 @customElement('gr-message')
-export class GrMessage extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrMessage extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -192,20 +194,22 @@ export class GrMessage extends GestureEventListeners(
   })
   _commentCountText = '';
 
-  created() {
-    super.created();
+  private readonly restApiService = appContext.restApiService;
+
+  constructor() {
+    super();
     this.addEventListener('click', e => this._handleClick(e));
   }
 
-  attached() {
-    super.attached();
-    this.$.restAPI.getConfig().then(config => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.restApiService.getConfig().then(config => {
       this.config = config;
     });
-    this.$.restAPI.getLoggedIn().then(loggedIn => {
+    this.restApiService.getLoggedIn().then(loggedIn => {
       this._loggedIn = loggedIn;
     });
-    this.$.restAPI.getIsAdmin().then(isAdmin => {
+    this.restApiService.getIsAdmin().then(isAdmin => {
       this._isAdmin = !!isAdmin;
     });
   }
@@ -220,31 +224,15 @@ export class GrMessage extends GestureEventListeners(
   }
 
   _computeCommentCountText(threadsLength?: number) {
-    if (threadsLength === 0) {
+    if (!threadsLength) {
       return undefined;
-    } else if (threadsLength === 1) {
-      return '1 comment';
-    } else {
-      return `${threadsLength} comments`;
     }
-  }
 
-  _onThreadListModified() {
-    // TODO(taoalpha): this won't propagate the changes to the files
-    // should consider replacing this with either top level events
-    // or gerrit level events
-
-    // emit the event so change-view can also get updated with latest changes
-    this.dispatchEvent(
-      new CustomEvent('comment-refresh', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    return pluralize(threadsLength, 'comment');
   }
 
   _computeMessageContentExpanded(content?: string, tag?: ReviewInputTag) {
-    return this._computeMessageContent(content, tag, true);
+    return this._computeMessageContent(true, content, tag);
   }
 
   _patchsetCommentSummary(commentThreads: CommentThread[] = []) {
@@ -276,18 +264,66 @@ export class GrMessage extends GestureEventListeners(
     tag?: ReviewInputTag,
     commentThreads?: CommentThread[]
   ) {
-    const summary = this._computeMessageContent(content, tag, false);
+    const summary = this._computeMessageContent(false, content, tag);
     if (summary || !commentThreads) return summary;
     return this._patchsetCommentSummary(commentThreads);
   }
 
+  _showViewDiffButton(message?: ChangeMessage) {
+    return (
+      this._isNewPatchsetTag(message?.tag) || this._isMergePatchset(message)
+    );
+  }
+
+  _isMergePatchset(message?: ChangeMessage) {
+    return (
+      message?.tag === MessageTag.TAG_MERGED &&
+      message?.message.match(MERGED_PATCHSET_PATTERN)
+    );
+  }
+
+  _isNewPatchsetTag(tag?: ReviewInputTag) {
+    return (
+      tag === MessageTag.TAG_NEW_PATCHSET ||
+      tag === MessageTag.TAG_NEW_WIP_PATCHSET
+    );
+  }
+
+  _handleViewPatchsetDiff(e: Event) {
+    if (!this.message || !this.change) return;
+    let patchNum: PatchSetNum;
+    let basePatchNum: PatchSetNum;
+    if (this.message.message.match(UPLOADED_NEW_PATCHSET_PATTERN)) {
+      const match = this.message.message.match(UPLOADED_NEW_PATCHSET_PATTERN)!;
+      if (isNaN(Number(match[1])))
+        throw new Error('invalid patchnum in message');
+      patchNum = Number(match[1]) as PatchSetNum;
+      basePatchNum = computePredecessor(patchNum)!;
+    } else if (this.message.message.match(MERGED_PATCHSET_PATTERN)) {
+      const match = this.message.message.match(MERGED_PATCHSET_PATTERN)!;
+      if (isNaN(Number(match[1])))
+        throw new Error('invalid patchnum in message');
+      basePatchNum = Number(match[1]) as BasePatchSetNum;
+      patchNum = computeLatestPatchNum(computeAllPatchSets(this.change))!;
+    } else {
+      // Message is of the form "Commit Message was updated" or "Patchset X
+      // was rebased"
+      patchNum = computeLatestPatchNum(computeAllPatchSets(this.change))!;
+      basePatchNum = computePredecessor(patchNum)!;
+    }
+    GerritNav.navigateToChange(this.change, patchNum, basePatchNum);
+    // stop propagation to stop message expansion
+    e.stopPropagation();
+  }
+
   _computeMessageContent(
-    content = '',
-    tag: ReviewInputTag = '' as ReviewInputTag,
-    isExpanded: boolean
+    isExpanded: boolean,
+    content?: string,
+    tag?: ReviewInputTag
   ) {
-    const isNewPatchSet =
-      tag.endsWith(':newPatchSet') || tag.endsWith(':newWipPatchSet');
+    if (!content) return '';
+    const isNewPatchSet = this._isNewPatchsetTag(tag);
+
     const lines = content.split('\n');
     const filteredLines = lines.filter(line => {
       if (!isExpanded && line.startsWith('>')) {
@@ -435,16 +471,17 @@ export class GrMessage extends GestureEventListeners(
     return classes.join(' ');
   }
 
-  _computeClass(expanded: boolean) {
+  _computeClass(expanded?: boolean, author?: AccountInfo) {
     const classes = [];
     classes.push(expanded ? 'expanded' : 'collapsed');
+    if (isServiceUser(author)) classes.push('serviceUser');
     return classes.join(' ');
   }
 
   _handleAnchorClick(e: Event) {
     e.preventDefault();
     // The element which triggers _handleAnchorClick is rendered only if
-    // message.id defined: the elemenet is wrapped in dom-if if="[[message.id]]"
+    // message.id defined: the element is wrapped in dom-if if="[[message.id]]"
     const detail: MessageAnchorTapDetail = {
       id: this.message!.id,
     };
@@ -472,7 +509,7 @@ export class GrMessage extends GestureEventListeners(
     e.preventDefault();
     if (!this.message || !this.message.id || !this.changeNum) return;
     this._isDeletingChangeMsg = true;
-    this.$.restAPI
+    this.restApiService
       .deleteChangeCommitMessage(this.changeNum, this.message.id)
       .then(() => {
         this._isDeletingChangeMsg = false;
@@ -488,7 +525,7 @@ export class GrMessage extends GestureEventListeners(
 
   @observe('projectName')
   _projectNameChanged(name: string) {
-    this.$.restAPI.getProjectConfig(name as RepoName).then(config => {
+    this.restApiService.getProjectConfig(name as RepoName).then(config => {
       this._projectConfig = config;
     });
   }

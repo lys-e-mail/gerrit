@@ -29,7 +29,7 @@ import {Constructor} from '../../utils/common-util';
 // is used. To ensure that this import can't be avoided, the second parameter
 // is added. Usage example:
 // class Element extends IronFitMixin(PolymerElement, IronFitBehavior as IronFitBehavior)
-// The code 'IronFitBehavior as IronFitBehavior' required, becuase IronFitBehavior
+// The code 'IronFitBehavior as IronFitBehavior' required, because IronFitBehavior
 // defined as an object, not as IronFitBehavior instance.
 
 export const IronFitMixin = <T extends Constructor<PolymerElement>>(
@@ -38,4 +38,5 @@ export const IronFitMixin = <T extends Constructor<PolymerElement>>(
 ): T & Constructor<IronFitBehavior> =>
   // TODO(TS): mixinBehaviors in some lib is returning: `new () => T` instead
   // which will fail the type check due to missing IronFitBehavior interface
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mixinBehaviors([IronFitBehavior], superClass) as any;

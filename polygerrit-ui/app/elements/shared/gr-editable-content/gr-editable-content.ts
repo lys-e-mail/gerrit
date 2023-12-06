@@ -16,14 +16,13 @@
  */
 import '@polymer/iron-autogrow-textarea/iron-autogrow-textarea';
 import '../../../styles/shared-styles';
-import '../gr-storage/gr-storage';
 import '../gr-button/gr-button';
-import {GrStorage} from '../gr-storage/gr-storage';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {customElement, property} from '@polymer/decorators';
 import {htmlTemplate} from './gr-editable-content_html';
+import {fireAlert, fireEvent} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 
 const RESTORED_MESSAGE = 'Content restored from a previous edit.';
 const STORAGE_DEBOUNCE_INTERVAL_MS = 400;
@@ -34,16 +33,8 @@ declare global {
   }
 }
 
-export interface GrEditableContent {
-  $: {
-    storage: GrStorage;
-  };
-}
-
 @customElement('gr-editable-content')
-export class GrEditableContent extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrEditableContent extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -72,7 +63,7 @@ export class GrEditableContent extends GestureEventListeners(
   @property({type: Boolean, reflectToAttribute: true})
   disabled = false;
 
-  @property({type: Boolean, observer: '_editingChanged'})
+  @property({type: Boolean, observer: '_editingChanged', notify: true})
   editing = false;
 
   @property({type: Boolean})
@@ -82,6 +73,29 @@ export class GrEditableContent extends GestureEventListeners(
   @property({type: String})
   storageKey?: string;
 
+  /** If false, then the "Show more" button was used to expand. */
+  @property({type: Boolean})
+  _commitCollapsed = true;
+
+  @property({type: Boolean})
+  commitCollapsible = true;
+
+  @property({
+    type: Boolean,
+    computed:
+      '_computeHideShowAllContainer(hideEditCommitMessage, _hideShowAllButton, editing)',
+  })
+  _hideShowAllContainer = false;
+
+  @property({
+    type: Boolean,
+    computed: '_computeHideShowAllButton(commitCollapsible, editing)',
+  })
+  _hideShowAllButton = false;
+
+  @property({type: Boolean})
+  hideEditCommitMessage?: boolean;
+
   @property({
     type: Boolean,
     computed: '_computeSaveDisabled(disabled, content, _newContent)',
@@ -90,6 +104,23 @@ export class GrEditableContent extends GestureEventListeners(
 
   @property({type: String, observer: '_newContentChanged'})
   _newContent?: string;
+
+  private readonly storage = appContext.storageService;
+
+  private readonly reporting = appContext.reportingService;
+
+  private storeTask?: DelayedTask;
+
+  /** @override */
+  ready() {
+    super.ready();
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.storeTask?.cancel();
+    super.disconnectedCallback();
+  }
 
   _contentChanged() {
     /* A changed content means that either a different change has been loaded
@@ -107,18 +138,18 @@ export class GrEditableContent extends GestureEventListeners(
     if (!this.storageKey) return;
     const storageKey = this.storageKey;
 
-    this.debounce(
-      'store',
+    this.storeTask = debounce(
+      this.storeTask,
       () => {
         if (newContent.length) {
-          this.$.storage.setEditableContentItem(storageKey, newContent);
+          this.storage.setEditableContentItem(storageKey, newContent);
         } else {
           // This does not really happen, because we don't clear newContent
           // after saving (see below). So this only occurs when the user clears
-          // all the content in the editable textarea. But <gr-storage> cleans
+          // all the content in the editable textarea. But GrStorage cleans
           // up itself after one day, so we are not so concerned about leaving
           // some garbage behind.
-          this.$.storage.eraseEditableContentItem(storageKey);
+          this.storage.eraseEditableContentItem(storageKey);
         }
       },
       STORAGE_DEBOUNCE_INTERVAL_MS
@@ -144,18 +175,12 @@ export class GrEditableContent extends GestureEventListeners(
 
     let content;
     if (this.storageKey) {
-      const storedContent = this.$.storage.getEditableContentItem(
+      const storedContent = this.storage.getEditableContentItem(
         this.storageKey
       );
       if (storedContent?.message) {
         content = storedContent.message;
-        this.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {message: RESTORED_MESSAGE},
-            bubbles: true,
-            composed: true,
-          })
-        );
+        fireAlert(this, RESTORED_MESSAGE);
       }
     }
     if (!content) {
@@ -193,11 +218,43 @@ export class GrEditableContent extends GestureEventListeners(
   _handleCancel(e: Event) {
     e.preventDefault();
     this.editing = false;
-    this.dispatchEvent(
-      new CustomEvent('editable-content-cancel', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'editable-content-cancel');
+  }
+
+  _computeCollapseText(collapsed: boolean) {
+    return collapsed ? 'Show all' : 'Show less';
+  }
+
+  _toggleCommitCollapsed() {
+    this._commitCollapsed = !this._commitCollapsed;
+    this.reporting.reportInteraction('toggle show all button', {
+      sectionName: 'Commit message',
+      toState: !this._commitCollapsed ? 'Show all' : 'Show less',
+    });
+    if (this._commitCollapsed) {
+      window.scrollTo(0, 0);
+    }
+  }
+
+  _computeHideShowAllContainer(
+    hideEditCommitMessage?: boolean,
+    _hideShowAllButton?: boolean,
+    editing?: boolean
+  ) {
+    if (editing) return false;
+    return _hideShowAllButton && hideEditCommitMessage;
+  }
+
+  _computeHideShowAllButton(commitCollapsible?: boolean, editing?: boolean) {
+    return !commitCollapsible || editing;
+  }
+
+  _computeCommitMessageCollapsed(collapsed?: boolean, collapsible?: boolean) {
+    return collapsible && collapsed;
+  }
+
+  _handleEditCommitMessage() {
+    this.editing = true;
+    this.focusTextarea();
   }
 }

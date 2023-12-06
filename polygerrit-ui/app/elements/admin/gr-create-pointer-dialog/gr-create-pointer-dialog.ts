@@ -18,33 +18,22 @@ import '@polymer/iron-input/iron-input';
 import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-create-pointer-dialog_html';
 import {encodeURL, getBaseUrl} from '../../../utils/url-util';
 import {page} from '../../../utils/page-wrapper-utils';
 import {customElement, property, observe} from '@polymer/decorators';
 import {BranchName, RepoName} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
 enum DetailType {
   branches = 'branches',
   tags = 'tags',
 }
 
-export interface GrCreatePointerDialog {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
 @customElement('gr-create-pointer-dialog')
-export class GrCreatePointerDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrCreatePointerDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -75,6 +64,8 @@ export class GrCreatePointerDialog extends GestureEventListeners(
     this.hasNewItemName = !!name;
   }
 
+  private readonly restApiService = appContext.restApiService;
+
   handleCreateItem() {
     if (!this.repoName) {
       throw new Error('repoName name is not set');
@@ -85,7 +76,7 @@ export class GrCreatePointerDialog extends GestureEventListeners(
     const USE_HEAD = this._itemRevision ? this._itemRevision : 'HEAD';
     const url = `${getBaseUrl()}/admin/repos/${encodeURL(this.repoName, true)}`;
     if (this.itemDetail === DetailType.branches) {
-      return this.$.restAPI
+      return this.restApiService
         .createRepoBranch(this.repoName, this._itemName, {revision: USE_HEAD})
         .then(itemRegistered => {
           if (itemRegistered.status === 201) {
@@ -93,7 +84,7 @@ export class GrCreatePointerDialog extends GestureEventListeners(
           }
         });
     } else if (this.itemDetail === DetailType.tags) {
-      return this.$.restAPI
+      return this.restApiService
         .createRepoTag(this.repoName, this._itemName, {
           revision: USE_HEAD,
           message: this._itemAnnotation || undefined,

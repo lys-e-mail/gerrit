@@ -19,12 +19,18 @@ import {FlagsServiceImplementation} from './flags/flags_impl';
 import {GrReporting} from './gr-reporting/gr-reporting_impl';
 import {EventEmitter} from './gr-event-interface/gr-event-interface_impl';
 import {Auth} from './gr-auth/gr-auth_impl';
+import {GrRestApiInterface} from '../elements/shared/gr-rest-api-interface/gr-rest-api-interface';
+import {ChangeService} from './change/change-service';
+import {ChecksService} from './checks/checks-service';
+import {GrJsApiInterface} from '../elements/shared/gr-js-api-interface/gr-js-api-interface-element';
+import {GrStorageService} from './storage/gr-storage_impl';
+import {ConfigService} from './config/config-service';
 
 type ServiceName = keyof AppContext;
 type ServiceCreator<T> = () => T;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const initializedServices: Map<ServiceName, any> = new Map();
+const initializedServices: Map<ServiceName, any> = new Map<ServiceName, any>();
 
 function getService<K extends ServiceName>(
   serviceName: K,
@@ -65,5 +71,11 @@ export function initAppContext() {
     reportingService: () => new GrReporting(appContext.flagsService),
     eventEmitter: () => new EventEmitter(),
     authService: () => new Auth(appContext.eventEmitter),
+    restApiService: () => new GrRestApiInterface(appContext.authService),
+    changeService: () => new ChangeService(),
+    checksService: () => new ChecksService(),
+    jsApiService: () => new GrJsApiInterface(),
+    storageService: () => new GrStorageService(),
+    configService: () => new ConfigService(),
   });
 }

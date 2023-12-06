@@ -488,6 +488,10 @@ public class MergeUtil {
   }
 
   public static String createConflictMessage(List<String> conflicts) {
+    if (conflicts.isEmpty()) {
+      return "";
+    }
+
     StringBuilder sb = new StringBuilder("merge conflict(s):");
     for (String c : conflicts) {
       sb.append('\n').append(c);
@@ -637,11 +641,11 @@ public class MergeUtil {
   }
 
   private static boolean isCodeReview(LabelId id) {
-    return "Code-Review".equalsIgnoreCase(id.get());
+    return LabelId.CODE_REVIEW.equalsIgnoreCase(id.get());
   }
 
   private static boolean isVerified(LabelId id) {
-    return "Verified".equalsIgnoreCase(id.get());
+    return LabelId.VERIFIED.equalsIgnoreCase(id.get());
   }
 
   private Iterable<PatchSetApproval> safeGetApprovals(ChangeNotes notes, PatchSet.Id psId) {

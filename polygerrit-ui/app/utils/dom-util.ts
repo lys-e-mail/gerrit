@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {JsApiService} from '../elements/shared/gr-js-api-interface/gr-js-api-types';
+import {check} from './common-util';
 
 /**
  * Event emitted from polymer elements.
@@ -70,27 +69,9 @@ function getPathFromNode(el: EventTarget) {
 
 /**
  * Get computed style value.
- *
- * If ShadyCSS is provided, use ShadyCSS api.
- * If `getComputedStyleValue` is provided on the element, use it.
- * Otherwise fallback to native method (in polymer 2).
- *
  */
-export function getComputedStyleValue(
-  name: string,
-  el: Element | LegacyElementMixin
-) {
-  let style;
-  if (window.ShadyCSS) {
-    style = window.ShadyCSS.getComputedStyleValue(el as Element, name);
-    // `getComputedStyleValue` defined through LegacyElementMixin
-    // TODO: It should be safe to just use `getComputedStyle`, but just to be safe
-  } else if ('getComputedStyleValue' in el) {
-    style = el.getComputedStyleValue(name);
-  } else {
-    style = getComputedStyle(el).getPropertyValue(name);
-  }
-  return style;
+export function getComputedStyleValue(name: string, el: Element) {
+  return getComputedStyle(el).getPropertyValue(name).trim();
 }
 
 /**
@@ -173,6 +154,12 @@ export function querySelectorAll(
   return [...results];
 }
 
+export function windowLocationReload() {
+  const e = new Error();
+  console.info(`Calling window.location.reload(): ${e.stack}`);
+  window.location.reload();
+}
+
 /**
  * Retrieves the dom path of the current event.
  *
@@ -236,24 +223,6 @@ export function strToClassName(str = '', prefix = 'generated_') {
   return `${prefix}${str.replace(/[^a-zA-Z0-9-_]/g, '_')}`;
 }
 
-// shared API element
-// TODO: Make this a proper service singleton. Move into AppContext?
-let _sharedApiEl: JsApiService;
-
-/**
- * Retrieves the shared API element.
- * We want to keep a single instance of API element instead of
- * creating multiple elements.
- */
-export function getSharedApiEl(): JsApiService {
-  if (!_sharedApiEl) {
-    _sharedApiEl = (document.createElement(
-      'gr-js-api-interface'
-    ) as unknown) as JsApiService;
-  }
-  return _sharedApiEl;
-}
-
 // document.activeElement is not enough, because it's not getting activeElement
 // without looking inside of shadow roots. This will find best activeElement.
 export function findActiveElement(
@@ -289,4 +258,37 @@ export function isSafari() {
     /^((?!chrome|android).)*safari/i.test(navigator.userAgent) ||
     (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
   );
+}
+
+export function whenVisible(
+  element: Element,
+  callback: () => void,
+  marginPx = 0
+) {
+  const observer = new IntersectionObserver(
+    (entries: IntersectionObserverEntry[]) => {
+      check(entries.length === 1, 'Expected one intersection observer entry.');
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        callback();
+      }
+    },
+    {rootMargin: `${marginPx}px`}
+  );
+  observer.observe(element);
+}
+
+/**
+ * Toggles a CSS class on or off for an element.
+ */
+export function toggleClass(el: Element, className: string, bool?: boolean) {
+  if (bool === undefined) {
+    bool = !el.classList.contains(className);
+  }
+  if (bool) {
+    el.classList.add(className);
+  } else {
+    el.classList.remove(className);
+  }
 }

@@ -109,6 +109,12 @@ public class CreateBranch
               + MagicBranch.getMagicRefNamePrefix(ref)
               + "\"");
     }
+    if (!isBranchAllowed(ref)) {
+      throw new BadRequestException(
+          "Cannot create a branch with name \""
+              + ref
+              + "\". Not allowed to create branches under Gerrit internal or tags refs.");
+    }
 
     BranchNameKey name = BranchNameKey.create(rsrc.getNameKey(), ref);
     try (Repository repo = repoManager.openRepository(rsrc.getNameKey())) {
@@ -123,7 +129,7 @@ public class CreateBranch
         object = rw.parseCommit(object);
       }
 
-      createRefControl.checkCreateRef(identifiedUser, repo, name, object);
+      createRefControl.checkCreateRef(identifiedUser, repo, name, object, /* forPush= */ false);
 
       RefUpdate u = repo.updateRef(ref);
       u.setExpectedOldObjectId(ObjectId.zeroId());
@@ -186,5 +192,10 @@ public class CreateBranch
     } catch (RefUtil.InvalidRevisionException e) {
       throw new BadRequestException("invalid revision \"" + input.revision + "\"", e);
     }
+  }
+
+  /** Branches cannot be created under any Gerrit internal or tags refs. */
+  private boolean isBranchAllowed(String branch) {
+    return !RefNames.isGerritRef(branch) && !branch.startsWith(RefNames.REFS_TAGS);
   }
 }

@@ -23,6 +23,12 @@ export const htmlTemplate = html`
       font-size: var(--font-size-normal);
       font-weight: var(--font-weight-normal);
       line-height: var(--line-height-normal);
+      /* Explicitly set the background color of the diff. We
+       * cannot use the diff content type ab because of the skip chunk preceding
+       * it, diff processor assumes the chunk of type skip/ab can be collapsed
+       * and hides our diff behind context control buttons.
+       *  */
+      --dark-add-highlight-color: var(--background-color-primary);
     }
     gr-button {
       margin-left: var(--spacing-m);
@@ -34,24 +40,30 @@ export const htmlTemplate = html`
       margin-left: auto;
       padding: var(--spacing-s) var(--spacing-m);
     }
-    #container {
+    .comment-box {
+      width: 80ch;
+      max-width: 100%;
       background-color: var(--comment-background-color);
       color: var(--comment-text-color);
-      display: var(--gr-comment-thread-display, block);
-      margin: 0 var(--spacing-s) var(--spacing-s);
-      white-space: normal;
       box-shadow: var(--elevation-level-2);
       border-radius: var(--border-radius);
+      flex-shrink: 0;
+    }
+    #container {
+      display: var(--gr-comment-thread-display, flex);
+      align-items: flex-start;
+      margin: 0 var(--spacing-s) var(--spacing-s);
+      white-space: normal;
       /** This is required for firefox to continue the inheritance */
       -webkit-user-select: inherit;
       -moz-user-select: inherit;
       -ms-user-select: inherit;
       user-select: inherit;
     }
-    #container.unresolved {
+    .comment-box.unresolved {
       background-color: var(--unresolved-comment-background-color);
     }
-    #container.robotComment {
+    .comment-box.robotComment {
       background-color: var(--robot-comment-background-color);
     }
     #commentInfoContainer {
@@ -75,7 +87,27 @@ export const htmlTemplate = html`
     .fileName {
       padding: var(--spacing-m) var(--spacing-s) var(--spacing-m);
     }
+    @media only screen and (max-width: 1200px) {
+      .diff-container {
+        display: none;
+      }
+    }
+    .diff-container {
+      margin-left: var(--spacing-l);
+      border: 1px solid var(--border-color);
+      flex-grow: 1;
+      flex-shrink: 1;
+      max-width: 1200px;
+    }
+    .view-diff-button {
+      margin: var(--spacing-s) var(--spacing-m);
+    }
+    .view-diff-container {
+      border-top: 1px solid var(--border-color);
+      background-color: var(--background-color-primary);
+    }
   </style>
+
   <template is="dom-if" if="[[showFilePath]]">
     <template is="dom-if" if="[[showFileName]]">
       <div class="fileName">
@@ -83,7 +115,9 @@ export const htmlTemplate = html`
           <span> [[_computeDisplayPath(path)]] </span>
         </template>
         <template is="dom-if" if="[[!_isPatchsetLevelComment(path)]]">
-          <a href$="[[_getDiffUrlForPath(path)]]">
+          <a
+            href$="[[_getDiffUrlForPath(projectName, changeNum, path, patchNum)]]"
+          >
             [[_computeDisplayPath(path)]]
           </a>
         </template>
@@ -98,72 +132,92 @@ export const htmlTemplate = html`
       </template>
     </div>
   </template>
-  <div
-    id="container"
-    class$="[[_computeHostClass(unresolved, isRobotComment)]]"
-  >
-    <template
-      id="commentList"
-      is="dom-repeat"
-      items="[[_orderedComments]]"
-      as="comment"
-    >
-      <gr-comment
-        comment="{{comment}}"
-        comments="{{comments}}"
-        robot-button-disabled="[[_shouldDisableAction(_showActions, _lastComment)]]"
-        change-num="[[changeNum]]"
-        patch-num="[[patchNum]]"
-        draft="[[_isDraft(comment)]]"
-        show-actions="[[_showActions]]"
-        show-patchset="[[showPatchset]]"
-        comment-side="[[comment.__commentSide]]"
-        side="[[comment.side]]"
-        project-config="[[_projectConfig]]"
-        on-create-fix-comment="_handleCommentFix"
-        on-comment-discard="_handleCommentDiscard"
-        on-comment-save="_handleCommentSavedOrDiscarded"
-      ></gr-comment>
-    </template>
-    <div
-      id="commentInfoContainer"
-      hidden$="[[_hideActions(_showActions, _lastComment)]]"
-    >
-      <span id="unresolvedLabel" hidden$="[[!unresolved]]">Unresolved</span>
-      <div id="actions">
-        <gr-button
-          id="replyBtn"
-          link=""
-          class="action reply"
-          on-click="_handleCommentReply"
-          >Reply</gr-button
-        >
-        <gr-button
-          id="quoteBtn"
-          link=""
-          class="action quote"
-          on-click="_handleCommentQuote"
-          >Quote</gr-button
-        >
-        <template is="dom-if" if="[[unresolved]]">
+  <div id="container">
+    <div class$="[[_computeHostClass(unresolved, isRobotComment)]] comment-box">
+      <template
+        id="commentList"
+        is="dom-repeat"
+        items="[[_orderedComments]]"
+        as="comment"
+      >
+        <gr-comment
+          comment="{{comment}}"
+          comments="{{comments}}"
+          robot-button-disabled="[[_shouldDisableAction(_showActions, _lastComment)]]"
+          change-num="[[changeNum]]"
+          project-name="[[projectName]]"
+          patch-num="[[patchNum]]"
+          draft="[[_isDraft(comment)]]"
+          show-actions="[[_showActions]]"
+          show-patchset="[[showPatchset]]"
+          show-ported-comment="[[_computeShowPortedComment(comment)]]"
+          side="[[comment.side]]"
+          project-config="[[_projectConfig]]"
+          on-create-fix-comment="_handleCommentFix"
+          on-comment-discard="_handleCommentDiscard"
+          on-comment-save="_handleCommentSavedOrDiscarded"
+        ></gr-comment>
+      </template>
+      <div
+        id="commentInfoContainer"
+        hidden$="[[_hideActions(_showActions, _lastComment)]]"
+      >
+        <span id="unresolvedLabel">[[_getUnresolvedLabel(unresolved)]]</span>
+        <div id="actions">
           <gr-button
-            id="ackBtn"
+            id="replyBtn"
             link=""
-            class="action ack"
-            on-click="_handleCommentAck"
-            >Ack</gr-button
+            class="action reply"
+            on-click="_handleCommentReply"
+            >Reply</gr-button
           >
           <gr-button
-            id="doneBtn"
+            id="quoteBtn"
             link=""
-            class="action done"
-            on-click="_handleCommentDone"
-            >Done</gr-button
+            class="action quote"
+            on-click="_handleCommentQuote"
+            >Quote</gr-button
           >
-        </template>
+          <template is="dom-if" if="[[unresolved]]">
+            <gr-button
+              id="ackBtn"
+              link=""
+              class="action ack"
+              on-click="_handleCommentAck"
+              >Ack</gr-button
+            >
+            <gr-button
+              id="doneBtn"
+              link=""
+              class="action done"
+              on-click="_handleCommentDone"
+              >Done</gr-button
+            >
+          </template>
+        </div>
       </div>
     </div>
+    <template is="dom-if" if="[[_shouldShowCommentContext(_diff)]]">
+      <div class="diff-container">
+        <gr-diff
+          id="diff"
+          change-num="[[changeNum]]"
+          diff="[[_diff]]"
+          layers="[[_getLayers(_diff)]]"
+          path="[[path]]"
+          prefs="[[_prefs]]"
+          render-prefs="[[_renderPrefs]]"
+          highlight-range="[[getHighlightRange(comments)]]"
+        >
+        </gr-diff>
+        <div class="view-diff-container">
+          <a href="[[_getUrlForViewDiff(comments)]]">
+            <gr-button link class="view-diff-button" on-click="_handleViewDiff">
+              View Diff
+            </gr-button>
+          </a>
+        </div>
+      </div>
+    </template>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
 `;

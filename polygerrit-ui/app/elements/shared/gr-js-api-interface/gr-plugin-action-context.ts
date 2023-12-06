@@ -16,19 +16,19 @@
  */
 
 import {RevisionInfo, ChangeInfo, RequestPayload} from '../../../types/common';
-import {PluginApi} from '../../plugins/gr-plugin-types';
+import {ShowAlertEventDetail} from '../../../types/events';
+import {PluginApi} from '../../../api/plugin';
 import {UIActionInfo} from './gr-change-actions-js-api';
-
-interface GrPopupInterface {
-  close(): void;
-}
+import {windowLocationReload} from '../../../utils/dom-util';
+import {PopupPluginApi} from '../../../api/popup';
+import {GrPopupInterface} from '../../plugins/gr-popup-interface/gr-popup-interface';
 
 interface ButtonCallBacks {
   onclick: (event: Event) => boolean;
 }
 
 export class GrPluginActionContext {
-  private _popups: GrPopupInterface[] = [];
+  private popups: PopupPluginApi[] = [];
 
   constructor(
     public readonly plugin: PluginApi,
@@ -39,24 +39,24 @@ export class GrPluginActionContext {
 
   popup(element: Node) {
     this.plugin.popup().then(popApi => {
-      const popupEl = popApi._getElement();
+      const popupEl = (popApi as GrPopupInterface)._getElement();
       if (!popupEl) {
         throw new Error('Popup element not found');
       }
       popupEl.appendChild(element);
-      this._popups.push(popApi);
+      this.popups.push(popApi);
     });
   }
 
   hide() {
-    for (const popupApi of this._popups) {
+    for (const popupApi of this.popups) {
       popupApi.close();
     }
-    this._popups.splice(0);
+    this.popups.splice(0);
   }
 
   refresh() {
-    window.location.reload();
+    windowLocationReload();
   }
 
   textfield(): HTMLElement {
@@ -117,7 +117,7 @@ export class GrPluginActionContext {
       .then(onSuccess)
       .catch((error: unknown) => {
         document.dispatchEvent(
-          new CustomEvent('show-alert', {
+          new CustomEvent<ShowAlertEventDetail>('show-alert', {
             detail: {
               message: `Plugin network error: ${error}`,
             },

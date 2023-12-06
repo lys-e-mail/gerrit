@@ -36,28 +36,74 @@ function getStyleEl() {
        * you probably want to override all.
        */
 
-      /* text colors */
-      --primary-text-color: #e8eaed;
-      --link-color: #8ab4f8;
-      --comment-text-color: var(--primary-text-color);
-      --deemphasized-text-color: #9aa0a6;
-      --default-button-text-color: #8ab4f8;
-      --chip-selected-text-color: #d2e3fc;
-      --error-text-color: red;
+      --error-foreground: var(--red-200);
+      --error-background: var(--red-tonal);
+      --error-background-hover: linear-gradient(var(--white-04), var(--white-04)), var(--red-tonal);
+      --error-background-focus: linear-gradient(var(--white-12), var(--white-12)), var(--red-tonal);
+      --error-ripple: var(--white-10);
+
+      --warning-foreground: var(--orange-200);
+      --warning-background: var(--orange-tonal);
+      --warning-background-hover: linear-gradient(var(--white-04), var(--white-04)), var(--orange-tonal);
+      --warning-background-focus: linear-gradient(var(--white-12), var(--white-12)), var(--orange-tonal);
+      --warning-ripple: var(--white-10);
+
+      --info-foreground: var(--blue-200);
+      --info-background: var(--blue-tonal);
+      --info-background-hover: linear-gradient(var(--white-04), var(--white-04)), var(--blue-tonal);
+      --info-background-focus: linear-gradient(var(--white-12), var(--white-12)), var(--blue-tonal);
+      --info-ripple: var(--white-10);
+
       --primary-button-text-color: black;
-        /* Used on text color for change list doesn't need user's attention. */
-      --reviewed-text-color: #dadce0;
+      --primary-button-background-color: var(--gerrit-blue-dark);
+      --primary-button-background-hover: var(--blue-200-16);
+      --primary-button-background-focus: var(--blue-200-24);
+
+      --selected-foreground: var(--blue-200);
+      --selected-background: var(--blue-900);
+
+      --success-foreground: var(--green-200);
+      --success-background: var(--green-tonal);
+      --success-background-hover: linear-gradient(var(--white-04), var(--white-04)), var(--green-tonal);
+      --success-background-focus: linear-gradient(var(--white-12), var(--white-12)), var(--green-tonal);
+      --success-ripple: var(--white-10);
+
+      --gray-foreground: var(--gray-300);
+      --gray-background: var(--gray-tonal);
+      --gray-background-hover: linear-gradient(var(--white-04), var(--white-04)), var(--gray-tonal);
+      --gray-background-focus: linear-gradient(var(--white-12), var(--white-12)), var(--gray-tonal);
+      --gray-ripple: var(--white-10);
+
+      --disabled-foreground: var(--gray-200-38);
+      --disabled-background: var(--gray-200-12);
+
+      --chip-color: var(--gray-100);
+      --error-color: var(--red-200);
+      --tag-background: var(--cyan-900);
+      --label-background: var(--red-900);
+
+      /* text colors */
+      --primary-text-color: var(--gray-200);
+      --link-color: var(--gerrit-blue-dark);
+      --comment-text-color: var(--primary-text-color);
+      --deemphasized-text-color: var(--gray-500);
+      --default-button-text-color: var(--gerrit-blue-dark);
+      --chip-selected-text-color: var(--blue-100);
+      --error-text-color: var(--red-200);
+      /* Used on text color for change list doesn't need user's attention. */
+      --reviewed-text-color: var(--gray-300);
       --vote-text-color: black;
       --status-text-color: black;
-      --tooltip-text-color: white;
-      --negative-red-text-color: #f28b82;
-      --positive-green-text-color: #81c995;
+      --tooltip-text-color: var(--gray-200);
+      --negative-red-text-color: var(--red-200);
+      --positive-green-text-color: var(--green-200);
+      --indirect-ancestor-text-color: var(--green-200);
 
       /* background colors */
       /* primary background colors */
-      --background-color-primary: #202124;
+      --background-color-primary: var(--gray-900);
       --background-color-secondary: #2f3034;
-      --background-color-tertiary: #3b3d3f;
+      --background-color-tertiary: var(--gray-800);
       /* directly derived from primary background colors */
       /*   empty, because inheriting from app-theme is just fine
       /* unique background colors */
@@ -68,33 +114,51 @@ function getStyleEl() {
       --emphasis-color: #383f4a;
       --hover-background-color: rgba(161, 194, 250, 0.2);
       --disabled-button-background-color: #484a4d;
-      --primary-button-background-color: var(--link-color);
       --selection-background-color: rgba(161, 194, 250, 0.1);
-      --tooltip-background-color: #111;
+      --tooltip-background-color: var(--gray-800);
+
       /* comment background colors */
       --comment-background-color: #3c3f43;
       --robot-comment-background-color: #1e3a5f;
       --unresolved-comment-background-color: #614a19;
+
       /* vote background colors */
-      --vote-color-approved: #7fb66b;
-      --vote-color-disliked: #bf6874;
-      --vote-color-neutral: #597280;
-      --vote-color-recommended: #3f6732;
-      --vote-color-rejected: #ac2d3e;
+      --vote-color-approved: var(--green-300);
+      --vote-color-disliked: var(--red-tonal);
+      --vote-outline-disliked: var(--red-200);
+      --vote-color-neutral: var(--gray-700);
+      --vote-color-recommended: var(--green-tonal);
+      --vote-outline-recommended: var(--green-200);
+      --vote-color-rejected: var(--red-200);
+
+      --outline-color-focus: var(--gray-100);
 
       /* misc colors */
-      --border-color: #5f6368;
+      --border-color: var(--gray-700);
       --comment-separator-color: var(--border-color);
 
+      /* checks tag colors */
+      --tag-gray: var(--gray-tonal);
+      --tag-yellow: var(--yellow-tonal);
+      --tag-pink: var(--pink-tonal);
+      --tag-purple: var(--purple-tonal);
+      --tag-cyan: var(--cyan-tonal);
+      --tag-brown: var(--brown-tonal);
+
       /* status colors */
-      --status-merged: #5bb974;
-      --status-abandoned: #dadce0;
+      --status-merged: var(--green-400);
+      --status-abandoned: var(--gray-300);
       --status-wip: #bcaaa4;
-      --status-private: #d7aefb;
-      --status-conflict: #f28b82;
-      --status-active: #669df6;
-      --status-ready: #f439a0;
-      --status-custom: #af5cf7;
+      --status-private: var(--purple-200);
+      --status-conflict: var(--red-300);
+      --status-active: var(--blue-400);
+      --status-ready: var(--pink-500);
+      --status-custom: var(--purple-400);
+
+      /* file status colors */
+      --file-status-added: var(--green-tonal);
+      --file-status-changed: var(--red-tonal);
+      --file-status-unchanged: var(--grey-700);
 
       /* fonts */
       --font-weight-bold: 700; /* 700 is the same as 'bold' */
@@ -125,11 +189,15 @@ function getStyleEl() {
       --diff-trailing-whitespace-indicator: #ff9ad2;
       --light-add-highlight-color: #0f401f;
       --light-rebased-add-highlight-color: #487165;
-      --light-moved-add-highlight-color: #487165;
+      --diff-moved-in-background: #1d4042;
+      --diff-moved-out-background: #230e34;
+      --diff-moved-in-label-color: var(--cyan-50);
+      --diff-moved-out-label-color: var(--purple-50);
       --light-remove-add-highlight-color: #2f3f2f;
       --light-remove-highlight-color: #320404;
       --coverage-covered: #112826;
       --coverage-not-covered: #6b3600;
+      --ranged-comment-hint-text-color: var(--blue-50);
 
       /* syntax colors */
       --syntax-attr-color: #80cbbf;
@@ -161,6 +229,8 @@ function getStyleEl() {
       --syntax-variable-color: #f77669;
 
       /* misc */
+      /* Base 64 encoded 1x1px of #d7aefb; */
+      --line-length-indicator: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2O4vu73fwAIYAOAtqAXCQAAAABJRU5ErkJggg==');
 
       /* paper and iron component overrides */
       --iron-overlay-backdrop-background-color: white;

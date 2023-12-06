@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 import {getAccountDisplayName} from '../../utils/display-name-util';
-import {RestApiService} from '../../services/services/gr-rest-api/gr-rest-api';
+import {RestApiService} from '../../services/gr-rest-api/gr-rest-api';
 import {AccountInfo} from '../../types/common';
 
 export class GrEmailSuggestionsProvider {
-  constructor(private _restAPI: RestApiService) {}
+  constructor(private restAPI: RestApiService) {}
 
   getSuggestions(input: string) {
-    return this._restAPI.getSuggestedAccounts(`${input}`).then(accounts => {
+    return this.restAPI.getSuggestedAccounts(`${input}`).then(accounts => {
       if (!accounts) {
         return [];
       }

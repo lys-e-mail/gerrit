@@ -16,32 +16,34 @@
  */
 
 import {appContext} from '../../../services/app-context';
-import {EventDetails} from '../../../services/gr-reporting/gr-reporting';
-
-// TODO(TS): remove once Plugin api converted to ts
-interface PluginApi {
-  getPluginName(): string;
-}
+import {PluginApi} from '../../../api/plugin';
+import {EventDetails, ReportingPluginApi} from '../../../api/reporting';
+import {LifeCycle} from '../../../constants/reporting';
 
 /**
  * Defines all methods that will be exported to plugin from reporting service.
  */
-export class GrReporintJsApi {
+export class GrReportingJsApi implements ReportingPluginApi {
   private readonly reporting = appContext.reportingService;
 
-  constructor(private readonly plugin: PluginApi) {}
+  constructor(private readonly plugin: PluginApi) {
+    this.reporting.trackApi(this.plugin, 'reporting', 'constructor');
+  }
 
   reportInteraction(eventName: string, details?: EventDetails) {
-    return this.reporting.reportInteraction(
+    this.reporting.trackApi(this.plugin, 'reporting', 'reportInteraction');
+    this.reporting.reportInteraction(
       `${this.plugin.getPluginName()}-${eventName}`,
       details
     );
   }
 
   reportLifeCycle(eventName: string, details?: EventDetails) {
-    return this.reporting.reportLifeCycle(
-      `${this.plugin.getPluginName()}-${eventName}`,
-      details
-    );
+    this.reporting.trackApi(this.plugin, 'reporting', 'reportLifeCycle');
+    this.reporting.reportLifeCycle(LifeCycle.PLUGIN_LIFE_CYCLE, {
+      ...details,
+      pluginName: this.plugin.getPluginName(),
+      eventName,
+    });
   }
 }

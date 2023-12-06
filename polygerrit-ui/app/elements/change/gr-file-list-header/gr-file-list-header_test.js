@@ -21,6 +21,7 @@ import {FilesExpandedState} from '../gr-file-list-constants.js';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
 import 'lodash/lodash.js';
 import {createRevisions} from '../../../test/test-data-generators.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-file-list-header');
 
@@ -28,11 +29,8 @@ suite('gr-file-list-header tests', () => {
   let element;
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({test: 'config'}); },
-      getAccount() { return Promise.resolve(null); },
-      _fetchSharedCacheURL() { return Promise.resolve({}); },
-    });
+    stubRestApi('getConfig').returns(Promise.resolve({test: 'config'}));
+    stubRestApi('getAccount').returns(Promise.resolve(null));
     element = basicFixture.instantiate();
   });
 
@@ -61,99 +59,6 @@ suite('gr-file-list-header tests', () => {
     assert.isFalse(element.$.diffPrefsContainer.hidden);
   });
 
-  test('_computeDescriptionReadOnly', () => {
-    element.loggedIn = false;
-    element.change = {owner: {_account_id: 1}};
-    element.account = {_account_id: 1};
-    assert.equal(element._descriptionReadOnly, true);
-
-    element.loggedIn = true;
-    element.change = {owner: {_account_id: 0}};
-    element.account = {_account_id: 1};
-    assert.equal(element._descriptionReadOnly, true);
-
-    element.loggedIn = true;
-    element.change = {owner: {_account_id: 1}};
-    element.account = {_account_id: 1};
-    assert.equal(element._descriptionReadOnly, false);
-  });
-
-  test('_computeDescriptionPlaceholder', () => {
-    assert.equal(element._computeDescriptionPlaceholder(true),
-        'No patchset description');
-    assert.equal(element._computeDescriptionPlaceholder(false),
-        'Add patchset description');
-  });
-
-  test('description editing', () => {
-    const putDescStub = sinon.stub(element.$.restAPI, 'setDescription')
-        .returns(Promise.resolve({ok: true}));
-
-    element.changeNum = '42';
-    element.basePatchNum = 'PARENT';
-    element.patchNum = 1;
-
-    element.change = {
-      change_id: 'Iad9dc96274af6946f3632be53b106ef80f7ba6ca',
-      revisions: {
-        rev1: {_number: 1, description: 'test', commit: {commit: 'rev1'}},
-      },
-      current_revision: 'rev1',
-      status: 'NEW',
-      labels: {},
-      actions: {},
-      owner: {_account_id: 1},
-    };
-    element.account = {_account_id: 1};
-    element.owner = {_account_id: 1};
-    element.loggedIn = true;
-
-    flush();
-
-    // The element has a description, so the account chip should be visible
-    element.owner = {_account_id: 1};
-    // and the description label should not exist.
-    const chip = element.root.querySelector('#descriptionChip');
-    let label = element.root.querySelector('#descriptionLabel');
-
-    assert.equal(chip.text, 'test');
-    assert.isNotOk(label);
-
-    // Simulate tapping the remove button, but call function directly so that
-    // can determine what happens after the promise is resolved.
-    return element._handleDescriptionRemoved()
-        .then(() => {
-          // The API stub should be called with an empty string for the new
-          // description.
-          assert.equal(putDescStub.lastCall.args[2], '');
-          assert.equal(element.change.revisions.rev1.description, '');
-
-          flush();
-          // The editable label should now be visible and the chip hidden.
-          label = element.root.querySelector('#descriptionLabel');
-          assert.isOk(label);
-          assert.equal(getComputedStyle(chip).display, 'none');
-          assert.notEqual(getComputedStyle(label).display, 'none');
-          assert.isFalse(label.readOnly);
-          // Edit the label to have a new value of test2, and save.
-          label.editing = true;
-          label._inputText = 'test2';
-          label._save();
-          flush();
-          // The API stub should be called with an `test2` for the new
-          // description.
-          assert.equal(putDescStub.callCount, 2);
-          assert.equal(putDescStub.lastCall.args[2], 'test2');
-        })
-        .then(() => {
-          flush();
-          // The chip should be visible again, and the label hidden.
-          assert.equal(element.change.revisions.rev1.description, 'test2');
-          assert.equal(getComputedStyle(label).display, 'none');
-          assert.notEqual(getComputedStyle(chip).display, 'none');
-        });
-  });
-
   test('expandAllDiffs called when expand button clicked', () => {
     element.shownFileCount = 1;
     flush();
@@ -163,7 +68,7 @@ suite('gr-file-list-header tests', () => {
     assert.isTrue(element._expandAllDiffs.called);
   });
 
-  test('collapseAllDiffs called when expand button clicked', () => {
+  test('collapseAllDiffs called when collapse button clicked', () => {
     element.shownFileCount = 1;
     flush();
     sinon.stub(element, '_collapseAllDiffs');
@@ -205,20 +110,29 @@ suite('gr-file-list-header tests', () => {
   });
 
   test('expand/collapse buttons are toggled correctly', () => {
+    // Only the expand button should be visible in the initial state when
+    // NO files are expanded.
     element.shownFileCount = 10;
     flush();
     const expandBtn = element.shadowRoot.querySelector('#expandBtn');
     const collapseBtn = element.shadowRoot.querySelector('#collapseBtn');
     assert.notEqual(getComputedStyle(expandBtn).display, 'none');
     assert.equal(getComputedStyle(collapseBtn).display, 'none');
+
+    // Both expand and collapse buttons should be visible when SOME files are
+    // expanded.
     element.filesExpanded = FilesExpandedState.SOME;
     flush();
     assert.notEqual(getComputedStyle(expandBtn).display, 'none');
-    assert.equal(getComputedStyle(collapseBtn).display, 'none');
+    assert.notEqual(getComputedStyle(collapseBtn).display, 'none');
+
+    // Only the collapse button should be visible when ALL files are expanded.
     element.filesExpanded = FilesExpandedState.ALL;
     flush();
     assert.equal(getComputedStyle(expandBtn).display, 'none');
     assert.notEqual(getComputedStyle(collapseBtn).display, 'none');
+
+    // Only the expand button should be visible when NO files are expanded.
     element.filesExpanded = FilesExpandedState.NONE;
     flush();
     assert.notEqual(getComputedStyle(expandBtn).display, 'none');
@@ -249,11 +163,11 @@ suite('gr-file-list-header tests', () => {
 
   test('class is applied to file list on old patch set', () => {
     const allPatchSets = [{num: 4}, {num: 2}, {num: 1}];
-    assert.equal(element._computePatchInfoClass('1', allPatchSets),
+    assert.equal(element._computePatchInfoClass(1, allPatchSets),
         'patchInfoOldPatchSet');
-    assert.equal(element._computePatchInfoClass('2', allPatchSets),
+    assert.equal(element._computePatchInfoClass(2, allPatchSets),
         'patchInfoOldPatchSet');
-    assert.equal(element._computePatchInfoClass('4', allPatchSets), '');
+    assert.equal(element._computePatchInfoClass(4, allPatchSets), '');
   });
 
   suite('editMode behavior', () => {
@@ -273,14 +187,10 @@ suite('gr-file-list-header tests', () => {
       flush();
 
       assert.isFalse(isVisible(element.$.diffPrefsContainer));
-      assert.isFalse(isVisible(element.shadowRoot
-          .querySelector('.descriptionContainer')));
 
       element.editMode = false;
       flush();
 
-      assert.isTrue(isVisible(element.shadowRoot
-          .querySelector('.descriptionContainer')));
       assert.isTrue(isVisible(element.$.diffPrefsContainer));
     });
 
@@ -301,17 +211,6 @@ suite('gr-file-list-header tests', () => {
       flush();
       assert.isFalse(isVisible(element.shadowRoot
           .querySelector('#editControls').parentElement));
-    });
-
-    test('_computeUploadHelpContainerClass', () => {
-      // Only show the upload helper button when an unmerged change is viewed
-      // by its owner.
-      const accountA = {_account_id: 1};
-      const accountB = {_account_id: 2};
-      assert.notInclude(element._computeUploadHelpContainerClass(
-          {owner: accountA}, accountA), 'hide');
-      assert.include(element._computeUploadHelpContainerClass(
-          {owner: accountA}, accountB), 'hide');
     });
   });
 });

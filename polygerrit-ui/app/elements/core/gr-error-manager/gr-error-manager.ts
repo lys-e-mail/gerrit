@@ -19,26 +19,27 @@
 import '../gr-error-dialog/gr-error-dialog';
 import '../../shared/gr-alert/gr-alert';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-error-manager_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {appContext} from '../../../services/app-context';
 import {IronA11yAnnouncer} from '@polymer/iron-a11y-announcer/iron-a11y-announcer';
 import {customElement, property} from '@polymer/decorators';
-import {ReportingService} from '../../../services/gr-reporting/gr-reporting';
-import {AuthService} from '../../../services/gr-auth/gr-auth';
-import {EventEmitterService} from '../../../services/gr-event-interface/gr-event-interface';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {GrErrorDialog} from '../gr-error-dialog/gr-error-dialog';
 import {GrAlert} from '../../shared/gr-alert/gr-alert';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {FetchRequest} from '../../shared/gr-rest-api-interface/gr-rest-apis/gr-rest-api-helper';
 import {ErrorType, FixIronA11yAnnouncer} from '../../../types/types';
 import {AccountId} from '../../../types/common';
+import {
+  EventType,
+  NetworkErrorEvent,
+  ServerErrorEvent,
+  ShowAlertEventDetail,
+  ShowErrorEvent,
+} from '../../../types/events';
+import {windowLocationReload} from '../../../utils/dom-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
+import {fireIronAnnounce} from '../../../utils/event-util';
 
 const HIDE_ALERT_TIMEOUT_MS = 5000;
 const CHECK_SIGN_IN_INTERVAL_MS = 60 * 1000;
@@ -46,6 +47,10 @@ const STALE_CREDENTIAL_THRESHOLD_MS = 10 * 60 * 1000;
 const SIGN_IN_WIDTH_PX = 690;
 const SIGN_IN_HEIGHT_PX = 500;
 const TOO_MANY_FILES = 'too many files to find conflicts';
+/* TODO: This error is suppressed to allow rolling upgrades.
+ * Remove on stable-3.6 */
+const CONFLICTS_OPERATOR_IS_NOT_SUPPORTED =
+  "'conflicts:' operator is not supported by server";
 const AUTHENTICATION_REQUIRED = 'Authentication required\n';
 
 // Bigger number has higher priority
@@ -71,13 +76,11 @@ export interface GrErrorManager {
     noInteractionOverlay: GrOverlay;
     errorDialog: GrErrorDialog;
     errorOverlay: GrOverlay;
-    restAPI: RestApiService & Element;
   };
 }
+
 @customElement('gr-error-manager')
-export class GrErrorManager extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrErrorManager extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -107,33 +110,28 @@ export class GrErrorManager extends GestureEventListeners(
   @property({type: String})
   loginUrl = '/login';
 
-  reporting: ReportingService;
+  private readonly reporting = appContext.reportingService;
 
-  _authService: AuthService;
+  private readonly _authService = appContext.authService;
 
-  eventEmitter: EventEmitterService;
+  private readonly eventEmitter = appContext.eventEmitter;
 
   _authErrorHandlerDeregistrationHook?: Function;
 
-  constructor() {
-    super();
+  private readonly restApiService = appContext.restApiService;
 
-    this._authService = appContext.authService;
-
-    this.reporting = appContext.reportingService;
-    this.eventEmitter = appContext.eventEmitter;
-  }
+  private checkLoggedInTask?: DelayedTask;
 
   /** @override */
-  attached() {
-    super.attached();
-    this.listen(document, 'server-error', '_handleServerError');
-    this.listen(document, 'network-error', '_handleNetworkError');
-    this.listen(document, 'show-alert', '_handleShowAlert');
-    this.listen(document, 'hide-alert', '_hideAlert');
-    this.listen(document, 'show-error', '_handleShowErrorDialog');
-    this.listen(document, 'visibilitychange', '_handleVisibilityChange');
-    this.listen(document, 'show-auth-required', '_handleAuthRequired');
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener(EventType.SERVER_ERROR, this.handleServerError);
+    document.addEventListener(EventType.NETWORK_ERROR, this.handleNetworkError);
+    document.addEventListener(EventType.SHOW_ALERT, this.handleShowAlert);
+    document.addEventListener('hide-alert', this.hideAlert);
+    document.addEventListener('show-error', this.handleShowErrorDialog);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    document.addEventListener('show-auth-required', this.handleAuthRequired);
 
     this._authErrorHandlerDeregistrationHook = this.eventEmitter.on(
       'auth-error',
@@ -146,32 +144,45 @@ export class GrErrorManager extends GestureEventListeners(
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
     this._clearHideAlertHandle();
-    this.unlisten(document, 'server-error', '_handleServerError');
-    this.unlisten(document, 'network-error', '_handleNetworkError');
-    this.unlisten(document, 'show-alert', '_handleShowAlert');
-    this.unlisten(document, 'hide-alert', '_hideAlert');
-    this.unlisten(document, 'show-error', '_handleShowErrorDialog');
-    this.unlisten(document, 'visibilitychange', '_handleVisibilityChange');
-    this.unlisten(document, 'show-auth-required', '_handleAuthRequired');
+    document.removeEventListener(
+      EventType.SERVER_ERROR,
+      this.handleServerError
+    );
+    document.removeEventListener(
+      EventType.NETWORK_ERROR,
+      this.handleNetworkError
+    );
+    document.removeEventListener(EventType.SHOW_ALERT, this.handleShowAlert);
+    document.removeEventListener('hide-alert', this.hideAlert);
+    document.removeEventListener('show-error', this.handleShowErrorDialog);
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange
+    );
+    document.removeEventListener('show-auth-required', this.handleAuthRequired);
+    this.checkLoggedInTask?.cancel();
 
     if (this._authErrorHandlerDeregistrationHook) {
       this._authErrorHandlerDeregistrationHook();
     }
+    super.disconnectedCallback();
   }
 
   _shouldSuppressError(msg: string) {
-    return msg.includes(TOO_MANY_FILES);
+    return (
+      msg.includes(TOO_MANY_FILES) ||
+      msg.includes(CONFLICTS_OPERATOR_IS_NOT_SUPPORTED)
+    );
   }
 
-  _handleAuthRequired() {
+  private readonly handleAuthRequired = () => {
     this._showAuthErrorAlert(
       'Log in is required to perform that action.',
       'Log in.'
     );
-  }
+  };
 
   _handleAuthError(msg: string, action: string) {
     this.$.noInteractionOverlay.open().then(() => {
@@ -179,9 +190,7 @@ export class GrErrorManager extends GestureEventListeners(
     });
   }
 
-  _handleServerError(
-    e: CustomEvent<{response: Response; request: FetchRequest}>
-  ) {
+  private readonly handleServerError = (e: ServerErrorEvent) => {
     const {request, response} = e.detail;
     response.text().then(errorText => {
       const url = request && (request.anonymizedUrl || request.url);
@@ -193,7 +202,7 @@ export class GrErrorManager extends GestureEventListeners(
       ) {
         // if not authed previously, this is trying to access auth required APIs
         // show auth required alert
-        this._handleAuthRequired();
+        this.handleAuthRequired();
       } else if (
         response.status === 403 &&
         this._authService.isAuthed &&
@@ -203,7 +212,7 @@ export class GrErrorManager extends GestureEventListeners(
         // This indicates the auth token may no longer valid.
         // Re-check on auth
         this._authService.clearCache();
-        this.$.restAPI.getLoggedIn();
+        this.restApiService.getLoggedIn();
       } else if (!this._shouldSuppressError(errorText)) {
         const trace =
           response.headers && response.headers.get('X-Gerrit-Trace');
@@ -229,7 +238,7 @@ export class GrErrorManager extends GestureEventListeners(
       }
       console.info(`server error: ${errorText}`);
     });
-  }
+  };
 
   _showNotFoundMessageWithTip({
     status,
@@ -238,7 +247,7 @@ export class GrErrorManager extends GestureEventListeners(
     url,
     trace,
   }: ErrorMsg) {
-    this.$.restAPI.getLoggedIn().then(isLoggedIn => {
+    this.restApiService.getLoggedIn().then(isLoggedIn => {
       const tip = isLoggedIn
         ? 'You might have not enough privileges.'
         : 'You might have not enough privileges. Sign in and try again.';
@@ -289,19 +298,21 @@ export class GrErrorManager extends GestureEventListeners(
     return err;
   }
 
-  _handleShowAlert(e: CustomEvent) {
+  private readonly handleShowAlert = (e: CustomEvent<ShowAlertEventDetail>) => {
     this._showAlert(
       e.detail.message,
       e.detail.action,
       e.detail.callback,
-      e.detail.dismissOnNavigation
+      e.detail.dismissOnNavigation,
+      undefined,
+      e.detail.showDismiss
     );
-  }
+  };
 
-  _handleNetworkError(e: CustomEvent) {
+  private readonly handleNetworkError = (e: NetworkErrorEvent) => {
     this._showAlert('Server unavailable');
     console.error(e.detail.error.message);
-  }
+  };
 
   // TODO(dhruvsr): allow less priority alerts to override high priority alerts
   // In some use cases we may want generic alerts to show along/over errors
@@ -314,32 +325,33 @@ export class GrErrorManager extends GestureEventListeners(
     actionText?: string,
     actionCallback?: () => void,
     dismissOnNavigation?: boolean,
-    type?: ErrorType
+    type?: ErrorType,
+    showDismiss?: boolean
   ) {
     if (this._alertElement) {
       // check priority before hiding
       if (!this._canOverride(type, this._alertElement.type)) return;
-      this._hideAlert();
+      this.hideAlert();
     }
 
     this._clearHideAlertHandle();
     if (dismissOnNavigation) {
       // Persist alert until navigation.
-      this.listen(document, 'location-change', '_hideAlert');
+      document.addEventListener('location-change', this.hideAlert);
     } else {
-      this._hideAlertHandle = this.async(
-        this._hideAlert,
+      this._hideAlertHandle = window.setTimeout(
+        this.hideAlert,
         HIDE_ALERT_TIMEOUT_MS
       );
     }
-    const el = this._createToastAlert();
+    const el = this._createToastAlert(showDismiss);
     el.show(text, actionText, actionCallback);
     this._alertElement = el;
-    this.fire('iron-announce', {text}, {bubbles: true});
+    fireIronAnnounce(this, `Alert: ${text}`);
     this.reporting.reportInteraction('show-alert', {text});
   }
 
-  _hideAlert() {
+  private readonly hideAlert = () => {
     if (!this._alertElement) {
       return;
     }
@@ -348,12 +360,12 @@ export class GrErrorManager extends GestureEventListeners(
     this._alertElement = null;
 
     // Remove listener for page navigation, if it exists.
-    this.unlisten(document, 'location-change', '_hideAlert');
-  }
+    document.removeEventListener('location-change', this.hideAlert);
+  };
 
   _clearHideAlertHandle() {
     if (this._hideAlertHandle !== null) {
-      this.cancelAsync(this._hideAlertHandle);
+      window.clearTimeout(this._hideAlertHandle);
       this._hideAlertHandle = null;
     }
   }
@@ -370,26 +382,25 @@ export class GrErrorManager extends GestureEventListeners(
     this._alertElement.show(errorText, actionText, () =>
       this._createLoginPopup()
     );
-    this.fire('iron-announce', {text: errorText}, {bubbles: true});
+    fireIronAnnounce(this, errorText);
+    this.reporting.reportInteraction('show-auth-error', {text: errorText});
     this._refreshingCredentials = true;
     this._requestCheckLoggedIn();
     if (!document.hidden) {
-      this._handleVisibilityChange();
+      this.handleVisibilityChange();
     }
   }
 
-  _createToastAlert() {
+  _createToastAlert(showDismiss?: boolean) {
     const el = document.createElement('gr-alert');
     el.toast = true;
+    el.showDismiss = !!showDismiss;
     return el;
   }
 
-  _handleVisibilityChange() {
-    // Ignore when the page is transitioning to hidden (or hidden is
-    // undefined).
-    if (document.hidden !== false) {
-      return;
-    }
+  private readonly handleVisibilityChange = () => {
+    // Ignore when the page is transitioning to hidden (or hidden is undefined).
+    if (document.hidden !== false) return;
 
     // If not currently refreshing credentials and the credentials are old,
     // request them to confirm their validity or (display an auth toast if it
@@ -400,6 +411,7 @@ export class GrErrorManager extends GestureEventListeners(
       this.knownAccountId !== undefined &&
       timeSinceLastCheck > STALE_CREDENTIAL_THRESHOLD_MS
     ) {
+      this.reporting.reportInteraction('visibility-sign-in-check');
       this._lastCredentialCheck = Date.now();
 
       // check auth status in case:
@@ -407,12 +419,12 @@ export class GrErrorManager extends GestureEventListeners(
       // - user switched account
       this._checkSignedIn();
     }
-  }
+  };
 
   _requestCheckLoggedIn() {
-    this.debounce(
-      'checkLoggedIn',
-      this._checkSignedIn,
+    this.checkLoggedInTask = debounce(
+      this.checkLoggedInTask,
+      () => this._checkSignedIn(),
       CHECK_SIGN_IN_INTERVAL_MS
     );
   }
@@ -421,11 +433,10 @@ export class GrErrorManager extends GestureEventListeners(
     this._lastCredentialCheck = Date.now();
 
     // force to refetch account info
-    this.$.restAPI.invalidateAccountsCache();
+    this.restApiService.invalidateAccountsCache();
     this._authService.clearCache();
 
-    this.$.restAPI.getLoggedIn().then(isLoggedIn => {
-      // do nothing if its refreshing
+    this.restApiService.getLoggedIn().then(isLoggedIn => {
       if (!this._refreshingCredentials) return;
 
       if (!isLoggedIn) {
@@ -435,17 +446,20 @@ export class GrErrorManager extends GestureEventListeners(
         // in case #2, auth-error is taken care of separately
         this._requestCheckLoggedIn();
       } else {
-        // check account
-        this.$.restAPI.getAccount().then(account => {
+        this.restApiService.getAccount().then(account => {
           if (this._refreshingCredentials) {
-            // If the credentials were refreshed but the account is different
+            // If the credentials were refreshed but the account is different,
             // then reload the page completely.
             if (account?._account_id !== this.knownAccountId) {
+              this.reporting.reportInteraction('sign-in-window-reload', {
+                oldAccount: !!this.knownAccountId,
+                newAccount: !!account?._account_id,
+              });
               this._reloadPage();
               return;
             }
 
-            this._handleCredentialRefreshed();
+            this.handleCredentialRefreshed();
           }
         });
       }
@@ -453,7 +467,7 @@ export class GrErrorManager extends GestureEventListeners(
   }
 
   _reloadPage() {
-    window.location.reload();
+    windowLocationReload();
   }
 
   _createLoginPopup() {
@@ -470,13 +484,13 @@ export class GrErrorManager extends GestureEventListeners(
       '_blank',
       options.join(',')
     );
-    this.listen(window, 'focus', '_handleWindowFocus');
+    window.addEventListener('focus', this.handleWindowFocus);
   }
 
-  _handleCredentialRefreshed() {
-    this.unlisten(window, 'focus', '_handleWindowFocus');
+  handleCredentialRefreshed() {
+    window.removeEventListener('focus', this.handleWindowFocus);
     this._refreshingCredentials = false;
-    this._hideAlert();
+    this.hideAlert();
     this._showAlert('Credentials refreshed.');
     this.$.noInteractionOverlay.close();
 
@@ -484,13 +498,13 @@ export class GrErrorManager extends GestureEventListeners(
     this._authService.clearCache();
   }
 
-  _handleWindowFocus() {
-    this.flushDebouncer('checkLoggedIn');
-  }
+  private readonly handleWindowFocus = () => {
+    this.checkLoggedInTask?.flush();
+  };
 
-  _handleShowErrorDialog(e: CustomEvent) {
+  private readonly handleShowErrorDialog = (e: ShowErrorEvent) => {
     this._showErrorDialog(e.detail.message);
-  }
+  };
 
   _handleDismissErrorDialog() {
     this.$.errorOverlay.close();

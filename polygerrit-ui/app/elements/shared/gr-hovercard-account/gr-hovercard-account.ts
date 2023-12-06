@@ -19,17 +19,13 @@ import '@polymer/iron-icon/iron-icon';
 import '../../../styles/shared-styles';
 import '../gr-avatar/gr-avatar';
 import '../gr-button/gr-button';
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import {hovercardBehaviorMixin} from '../gr-hovercard/gr-hovercard-behavior';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-hovercard-account_html';
 import {appContext} from '../../../services/app-context';
-import {accountKey} from '../../../utils/account-util';
+import {accountKey, isSelf} from '../../../utils/account-util';
 import {getDisplayName} from '../../../utils/display-name-util';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AccountInfo,
   ChangeInfo,
@@ -45,17 +41,12 @@ import {
   isAttentionSetEnabled,
 } from '../../../utils/attention-set-util';
 import {ReviewerState} from '../../../constants/constants';
-import {isRemovableReviewer} from '../../../utils/change-util';
+import {CURRENT} from '../../../utils/patch-set-util';
+import {isInvolved, isRemovableReviewer} from '../../../utils/change-util';
+import {assertIsDefined} from '../../../utils/common-util';
 
-export interface GrHovercardAccount {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-hovercard-account')
-export class GrHovercardAccount extends GestureEventListeners(
-  hovercardBehaviorMixin(LegacyElementMixin(PolymerElement))
-) {
+export class GrHovercardAccount extends hovercardBehaviorMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -94,24 +85,26 @@ export class GrHovercardAccount extends GestureEventListeners(
 
   reporting: ReportingService;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this.reporting = appContext.reportingService;
   }
 
-  attached() {
-    super.attached();
-    this.$.restAPI.getConfig().then(config => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.restApiService.getConfig().then(config => {
       this._config = config;
     });
-    this.$.restAPI.getAccount().then(account => {
+    this.restApiService.getAccount().then(account => {
       this._selfAccount = account;
     });
   }
 
   _computeText(account?: AccountInfo, selfAccount?: AccountInfo) {
     if (!account || !selfAccount) return '';
-    return account._account_id === selfAccount._account_id ? 'Your' : 'Their';
+    return isSelf(account, selfAccount) ? 'Your' : 'Their';
   }
 
   get isAttentionEnabled() {
@@ -142,9 +135,7 @@ export class GrHovercardAccount extends GestureEventListeners(
   _getReviewerState(account: AccountInfo, change: ChangeInfo) {
     if (
       change.reviewers[ReviewerState.REVIEWER]?.some(
-        (reviewer: AccountInfo) => {
-          return reviewer._account_id === account._account_id;
-        }
+        (reviewer: AccountInfo) => reviewer._account_id === account._account_id
       )
     ) {
       return ReviewerState.REVIEWER;
@@ -167,7 +158,7 @@ export class GrHovercardAccount extends GestureEventListeners(
   }
 
   _handleChangeReviewerOrCCStatus() {
-    if (!this.change) throw new Error('expected change object to be present');
+    assertIsDefined(this.change, 'change');
     // accountKey() throws an error if _account_id & email is not found, which
     // we want to check before showing reloading toast
     const _accountKey = accountKey(this.account);
@@ -185,8 +176,8 @@ export class GrHovercardAccount extends GestureEventListeners(
       },
     ];
 
-    this.$.restAPI
-      .saveChangeReview(this.change._number, 'current', reviewInput)
+    this.restApiService
+      .saveChangeReview(this.change._number, CURRENT, reviewInput)
       .then(response => {
         if (!response || !response.ok) {
           throw new Error(
@@ -204,7 +195,7 @@ export class GrHovercardAccount extends GestureEventListeners(
     this.dispatchEventThroughTarget('show-alert', {
       message: 'Reloading page...',
     });
-    this.$.restAPI
+    this.restApiService
       .removeChangeReviewer(
         this.change._number,
         (this.account?._account_id || this.account?.email)!
@@ -223,15 +214,17 @@ export class GrHovercardAccount extends GestureEventListeners(
   }
 
   _computeShowActionAddToAttentionSet() {
-    return (
-      this._selfAccount && this.isAttentionEnabled && !this.hasUserAttention
-    );
+    const involvedOrSelf =
+      isInvolved(this.change, this._selfAccount) ||
+      isSelf(this.account, this._selfAccount);
+    return involvedOrSelf && this.isAttentionEnabled && !this.hasUserAttention;
   }
 
   _computeShowActionRemoveFromAttentionSet() {
-    return (
-      this._selfAccount && this.isAttentionEnabled && this.hasUserAttention
-    );
+    const involvedOrSelf =
+      isInvolved(this.change, this._selfAccount) ||
+      isSelf(this.account, this._selfAccount);
+    return involvedOrSelf && this.isAttentionEnabled && this.hasUserAttention;
   }
 
   _handleClickAddToAttentionSet() {
@@ -256,7 +249,7 @@ export class GrHovercardAccount extends GestureEventListeners(
       'attention-hovercard-add',
       this._reportingDetails()
     );
-    this.$.restAPI
+    this.restApiService
       .addToAttentionSet(this.change._number, this.account._account_id, reason)
       .then(() => {
         this.dispatchEventThroughTarget('hide-alert');
@@ -283,7 +276,7 @@ export class GrHovercardAccount extends GestureEventListeners(
       'attention-hovercard-remove',
       this._reportingDetails()
     );
-    this.$.restAPI
+    this.restApiService
       .removeFromAttentionSet(
         this.change._number,
         this.account._account_id,

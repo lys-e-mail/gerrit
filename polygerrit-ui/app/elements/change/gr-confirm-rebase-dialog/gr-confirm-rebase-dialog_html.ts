@@ -108,9 +108,7 @@ export const htmlTemplate = html`
         />
         <label id="rebaseOnOtherLabel" for="rebaseOnOtherInput">
           Rebase on a specific change, ref, or commit
-          <span hidden$="[[!hasParent]]">
-            (breaks relation chain)
-          </span>
+          <span hidden$="[[!hasParent]]"> (breaks relation chain) </span>
         </label>
       </div>
       <div class="parentRevisionContainer">
@@ -127,5 +125,4 @@ export const htmlTemplate = html`
       </div>
     </div>
   </gr-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

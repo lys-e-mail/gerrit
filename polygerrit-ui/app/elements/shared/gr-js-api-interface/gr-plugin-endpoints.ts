@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {importHref} from '../../../scripts/import-href';
-import {HookApi, PluginApi} from '../../plugins/gr-plugin-types';
+import {PluginApi} from '../../../api/plugin';
 import {notUndefined} from '../../../types/types';
+import {HookApi} from '../../../api/hook';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Callback = (value: any) => void;
 
 export interface ModuleInfo {
@@ -42,16 +42,15 @@ interface Options {
 export class GrPluginEndpoints {
   private readonly _endpoints = new Map<string, ModuleInfo[]>();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly _callbacks = new Map<string, ((value: any) => void)[]>();
 
   private readonly _dynamicPlugins = new Map<string, Set<string>>();
 
-  private readonly _importedUrls = new Set<string>();
-
-  private _pluginLoaded = false;
+  private pluginLoaded = false;
 
   setPluginsReady() {
-    this._pluginLoaded = true;
+    this.pluginLoaded = true;
   }
 
   onNewEndpoint(endpoint: string, callback: Callback) {
@@ -122,7 +121,7 @@ export class GrPluginEndpoints {
     // one register before plugins ready
     // the other done after, then only the later one will have the callbacks
     // invoked.
-    if (this._pluginLoaded && this._callbacks.has(endpoint)) {
+    if (this.pluginLoaded && this._callbacks.has(endpoint)) {
       this._callbacks.get(endpoint)!.forEach(callback => callback(moduleInfo));
     }
   }
@@ -174,42 +173,6 @@ export class GrPluginEndpoints {
     }
     return Array.from(new Set(modulesData.map(m => m.pluginUrl))).filter(
       notUndefined
-    );
-  }
-
-  importUrl(pluginUrl: URL) {
-    let timerId: any;
-    return Promise.race([
-      new Promise((resolve, reject) => {
-        this._importedUrls.add(pluginUrl.href);
-        importHref(pluginUrl.href, resolve, reject);
-      }),
-      // Timeout after 3s
-      new Promise(r => (timerId = setTimeout(r, 3000))),
-    ]).finally(() => {
-      if (timerId) clearTimeout(timerId);
-    });
-  }
-
-  /**
-   * Get plugin URLs with element and module definitions.
-   */
-  getAndImportPlugins(name: string, options?: Options) {
-    return Promise.all(
-      this.getPlugins(name, options).map(pluginUrl => {
-        if (this._importedUrls.has(pluginUrl.href)) {
-          return Promise.resolve();
-        }
-
-        // TODO: we will deprecate html plugins entirely
-        // for now, keep the original behavior and import
-        // only for html ones
-        if (pluginUrl?.pathname.endsWith('.html')) {
-          return this.importUrl(pluginUrl);
-        } else {
-          return Promise.resolve();
-        }
-      })
     );
   }
 }

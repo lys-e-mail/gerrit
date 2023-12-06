@@ -25,9 +25,6 @@ suite('gr-account-link tests', () => {
   let element;
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-    });
     element = basicFixture.instantiate();
   });
 

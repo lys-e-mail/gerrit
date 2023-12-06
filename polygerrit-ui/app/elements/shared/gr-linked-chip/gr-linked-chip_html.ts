@@ -31,7 +31,10 @@ export const htmlTemplate = html`
     }
     gr-button.remove {
       --gr-remove-button-style: {
-        border: 0;
+        border-top-width: 0;
+        border-right-width: 0;
+        border-bottom-width: 0;
+        border-left-width: 0;
         color: var(--deemphasized-text-color);
         font-weight: var(--font-weight-normal);
         height: 0.6em;
@@ -46,7 +49,6 @@ export const htmlTemplate = html`
     gr-button.remove:focus {
       --gr-button: {
         @apply --gr-remove-button-style;
-        color: #333;
       }
     }
     gr-button.remove {

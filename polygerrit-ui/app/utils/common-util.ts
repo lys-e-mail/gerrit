@@ -47,6 +47,50 @@ export function assertNever(obj: never, msg: string): never {
 }
 
 /**
+ * Throws an error with the provided error message if the condition is false.
+ */
+export function check(
+  condition: boolean,
+  errorMessage: string
+): asserts condition {
+  if (!condition) throw new Error(errorMessage);
+}
+
+/**
+ * Throws an error if the property is not defined.
+ */
+export function checkProperty(
+  condition: boolean,
+  propertyName: string
+): asserts condition {
+  check(condition, `missing required property '${propertyName}'`);
+}
+
+/**
+ * Throws an error if the property is not defined.
+ */
+export function checkRequiredProperty<T>(
+  property: T,
+  propertyName: string
+): asserts property is NonNullable<T> {
+  if (property === undefined || property === null) {
+    throw new Error(`Required property '${propertyName}' not set.`);
+  }
+}
+
+/**
+ * Throws an error if the property is not defined.
+ */
+export function assertIsDefined<T>(
+  val: T,
+  variableName = 'variable'
+): asserts val is NonNullable<T> {
+  if (val === undefined || val === null) {
+    throw new Error(`${variableName} is not defined`);
+  }
+}
+
+/**
  * Returns true, if both sets contain the same members.
  */
 export function areSetsEqual<T>(a: Set<T>, b: Set<T>): boolean {
@@ -66,4 +110,19 @@ export function containsAll<T>(set: Set<T>, subSet: Set<T>): boolean {
     }
   }
   return true;
+}
+
+/**
+ * Add value, if the set does not contain it. Otherwise remove it.
+ */
+export function toggleSetMembership<T>(set: Set<T>, value: T): void {
+  if (set.has(value)) {
+    set.delete(value);
+  } else {
+    set.add(value);
+  }
+}
+
+export function unique<T>(item: T, index: number, array: T[]) {
+  return array.indexOf(item) === index;
 }

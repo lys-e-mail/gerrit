@@ -239,22 +239,43 @@ export const htmlTemplate = html`
       --gr-account-label-text-style: {
         font-weight: var(--font-weight-bold);
       }
-      --account-max-length: 120px;
-      width: 120px;
+      --account-max-length: 130px;
+      width: 150px;
     }
     .draft gr-account-label {
       width: unset;
+    }
+    .portedMessage {
+      margin: 0 var(--spacing-m);
     }
   </style>
   <div id="container" class="container">
     <div class="header" id="header" on-click="_handleToggleCollapsed">
       <div class="headerLeft">
-        <gr-account-label
-          account="[[_getAuthor(comment, _selfAccount)]]"
-          class$="[[_computeAccountLabelClass(draft)]]"
-          hide-status=""
-        >
-        </gr-account-label>
+        <template is="dom-if" if="[[comment.robot_id]]">
+          <span class="robotName"> [[comment.robot_id]] </span>
+        </template>
+        <template is="dom-if" if="[[!comment.robot_id]]">
+          <gr-account-label
+            account="[[_getAuthor(comment, _selfAccount)]]"
+            class$="[[_computeAccountLabelClass(draft)]]"
+            hide-status=""
+          >
+          </gr-account-label>
+        </template>
+        <template is="dom-if" if="[[showPortedComment]]">
+          <a href="[[_getUrlForComment(comment)]]"
+            ><span class="portedMessage" on-click="_handlePortedMessageClick"
+              >From patchset [[comment.patch_set]]</span
+            ></a
+          >
+          <a
+            href="https://bugs.chromium.org/p/gerrit/issues/entry?template=Porting+Comments"
+            target="_blank"
+          >
+            <iron-icon icon="gr-icons:bug" title="report a problem"></iron-icon>
+          </a>
+        </template>
         <gr-tooltip-content
           class="draftTooltip"
           has-tooltip=""
@@ -464,15 +485,11 @@ export const htmlTemplate = html`
         on-confirm="_handleConfirmDiscard"
         on-cancel="_closeConfirmDiscardOverlay"
       >
-        <div class="header" slot="header">
-          Discard comment
-        </div>
+        <div class="header" slot="header">Discard comment</div>
         <div class="main" slot="main">
           Are you sure you want to discard this draft comment?
         </div>
       </gr-dialog>
     </gr-overlay>
   </template>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
 `;

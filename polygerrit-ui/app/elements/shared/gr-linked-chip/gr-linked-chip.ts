@@ -19,11 +19,10 @@ import '../gr-button/gr-button';
 import '../gr-icons/gr-icons';
 import '../gr-limited-text/gr-limited-text';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {customElement, property} from '@polymer/decorators';
 import {htmlTemplate} from './gr-linked-chip_html';
+import {fireEvent} from '../../../utils/event-util';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -32,9 +31,7 @@ declare global {
 }
 
 @customElement('gr-linked-chip')
-export class GrLinkedChip extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrLinkedChip extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -64,11 +61,6 @@ export class GrLinkedChip extends GestureEventListeners(
 
   _handleRemoveTap(e: Event) {
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('remove', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'remove');
   }
 }

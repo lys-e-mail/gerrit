@@ -14,10 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-date-formatter_html';
 import {TooltipMixin} from '../../../mixins/gr-tooltip-mixin/gr-tooltip-mixin';
@@ -30,11 +27,12 @@ import {
   isWithinHalfYear,
   formatDate,
   utcOffsetString,
+  wasYesterday,
 } from '../../../utils/date-util';
 import {TimeFormat, DateFormat} from '../../../constants/constants';
 import {assertNever} from '../../../utils/common-util';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {Timestamp} from '../../../types/common';
+import {appContext} from '../../../services/app-context';
 
 const TimeFormats = {
   TIME_12: 'h:mm A', // 2:14 PM
@@ -77,16 +75,8 @@ declare global {
   }
 }
 
-export interface GrDateFormatter {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
 @customElement('gr-date-formatter')
-export class GrDateFormatter extends TooltipMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrDateFormatter extends TooltipMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -103,6 +93,9 @@ export class GrDateFormatter extends TooltipMixin(
    */
   @property({type: Boolean})
   hasTooltip = false;
+
+  @property({type: Boolean})
+  showYesterday = false;
 
   /**
    * The title to be used as the native tooltip or by the tooltip behavior.
@@ -130,13 +123,15 @@ export class GrDateFormatter extends TooltipMixin(
   @property({type: Boolean})
   relativeOptionNoAgo = false;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadPreferences();
   }
 
@@ -210,11 +205,11 @@ export class GrDateFormatter extends TooltipMixin(
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   _getPreferences() {
-    return this.$.restAPI.getPreferences();
+    return this.restApiService.getPreferences();
   }
 
   _computeDateStr(
@@ -222,7 +217,8 @@ export class GrDateFormatter extends TooltipMixin(
     timeFormat?: string,
     dateFormat?: DateFormatPair,
     relative?: boolean,
-    showDateAndTime?: boolean
+    showDateAndTime?: boolean,
+    showYesterday?: boolean
   ) {
     if (!dateStr || !timeFormat || !dateFormat) {
       return '';
@@ -238,6 +234,8 @@ export class GrDateFormatter extends TooltipMixin(
     let format = dateFormat.full;
     if (isWithinDay(now, date)) {
       format = timeFormat;
+    } else if (showYesterday && wasYesterday(now, date)) {
+      return `Yesterday at ${formatDate(date, timeFormat)}`;
     } else {
       if (isWithinHalfYear(now, date)) {
         format = dateFormat.short;

@@ -75,7 +75,7 @@ suite('gr-change-metadata tests', () => {
     assert.equal(element._optionalLabels.length, 1);
     assert.equal(element._requiredLabels.length, 1);
 
-    assert.equal(element._optionalLabels[0].label, 'opt_test');
+    assert.equal(element._optionalLabels[0].labelName, 'opt_test');
     assert.equal(element._optionalLabels[0].icon, 'gr-icons:schedule');
     assert.equal(element._optionalLabels[0].style, '');
     assert.ok(element._optionalLabels[0].labelInfo);
@@ -88,7 +88,7 @@ suite('gr-change-metadata tests', () => {
     assert.ok(element.shadowRoot
         .querySelector('section.optional'));
     MockInteractions.tap(element.shadowRoot
-        .querySelector('.showHide'));
+        .querySelector('.show-all-button'));
     flush();
 
     assert.isFalse(element._showOptionalLabels);

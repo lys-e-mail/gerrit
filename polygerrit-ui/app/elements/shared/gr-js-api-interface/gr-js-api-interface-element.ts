@@ -14,36 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
-import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {getPluginLoader} from './gr-plugin-loader';
-import {patchNumEquals} from '../../../utils/patch-set-util';
-import {customElement} from '@polymer/decorators';
+import {hasOwnProperty} from '../../../utils/common-util';
 import {
   ChangeInfo,
   LabelNameToValuesMap,
+  ReviewInput,
   RevisionInfo,
 } from '../../../types/common';
 import {GrAnnotationActionsInterface} from './gr-annotation-actions-js-api';
-import {GrAdminApi, MenuLink} from '../../plugins/gr-admin-api/gr-admin-api';
+import {GrAdminApi} from '../../plugins/gr-admin-api/gr-admin-api';
 import {
   JsApiService,
   EventCallback,
   ShowChangeDetail,
   ShowRevisionActionsDetail,
 } from './gr-js-api-types';
-import {EventType, TargetElement} from '../../plugins/gr-plugin-types';
-import {DiffLayer, HighlightJS} from '../../../types/types';
-import {ParsedChangeInfo} from '../gr-rest-api-interface/gr-reviewer-updates-parser';
+import {EventType, TargetElement} from '../../../api/plugin';
+import {DiffLayer, HighlightJS, ParsedChangeInfo} from '../../../types/types';
+import {appContext} from '../../../services/app-context';
+import {MenuLink} from '../../../api/admin';
 
 const elements: {[key: string]: HTMLElement} = {};
 const eventCallbacks: {[key: string]: EventCallback[]} = {};
 
-@customElement('gr-js-api-interface')
-export class GrJsApiInterface
-  extends GestureEventListeners(LegacyElementMixin(PolymerElement))
-  implements JsApiService {
+export class GrJsApiInterface implements JsApiService {
+  private readonly reporting = appContext.reportingService;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleEvent(type: EventType, detail: any) {
     getPluginLoader()
       .awaitPluginsLoaded()
@@ -98,7 +96,7 @@ export class GrJsApiInterface
       try {
         return callback(change, revision) === false;
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
       return false;
     });
@@ -119,7 +117,7 @@ export class GrJsApiInterface
       try {
         cb(detail.path);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -150,7 +148,7 @@ export class GrJsApiInterface
 
     let revision;
     for (const rev of Object.values(change.revisions || {})) {
-      if (patchNumEquals(rev._number, patchNum)) {
+      if (rev._number === patchNum) {
         revision = rev;
         break;
       }
@@ -160,7 +158,7 @@ export class GrJsApiInterface
       try {
         cb(change, revision, info);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -173,7 +171,7 @@ export class GrJsApiInterface
       try {
         cb(detail.revisionActions, detail.change);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -183,7 +181,7 @@ export class GrJsApiInterface
       try {
         cb(change, msg);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -194,7 +192,7 @@ export class GrJsApiInterface
       try {
         cb(detail.node);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -204,7 +202,7 @@ export class GrJsApiInterface
       try {
         cb(detail.change);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -214,7 +212,7 @@ export class GrJsApiInterface
       try {
         cb(detail.hljs);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -224,7 +222,7 @@ export class GrJsApiInterface
       try {
         revertMsg = cb(change, revertMsg, origMsg) as string;
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
     return revertMsg;
@@ -243,21 +241,21 @@ export class GrJsApiInterface
           origMsg
         ) as string;
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
     return revertSubmissionMsg;
   }
 
-  getDiffLayers(path: string, changeNum: number) {
+  getDiffLayers(path: string) {
     const layers: DiffLayer[] = [];
     for (const cb of this._getEventCallbacks(EventType.ANNOTATE_DIFF)) {
       const annotationApi = (cb as unknown) as GrAnnotationActionsInterface;
       try {
-        const layer = annotationApi.getLayer(path, changeNum);
-        layers.push(layer);
+        const layer = annotationApi.createLayer(path);
+        if (layer) layers.push(layer);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
     return layers;
@@ -269,7 +267,7 @@ export class GrJsApiInterface
         const annotationApi = (cb as unknown) as GrAnnotationActionsInterface;
         annotationApi.disposeLayer(path);
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
   }
@@ -304,25 +302,24 @@ export class GrJsApiInterface
     return links;
   }
 
-  getLabelValuesPostRevert(change?: ChangeInfo): LabelNameToValuesMap {
-    let labels: LabelNameToValuesMap = {};
+  getReviewPostRevert(change?: ChangeInfo): ReviewInput {
+    let review: ReviewInput = {};
     for (const cb of this._getEventCallbacks(EventType.POST_REVERT)) {
       try {
-        labels = cb(change);
+        const r = cb(change);
+        if (hasOwnProperty(r, 'labels')) {
+          review = r as ReviewInput;
+        } else {
+          review = {labels: r as LabelNameToValuesMap};
+        }
       } catch (err) {
-        console.error(err);
+        this.reporting.error(err);
       }
     }
-    return labels;
+    return review;
   }
 
   _getEventCallbacks(type: EventType) {
     return eventCallbacks[type] || [];
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'gr-js-api-interface': JsApiService & Element;
   }
 }

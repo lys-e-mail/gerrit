@@ -30,7 +30,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//tools/bzl:maven_jar.bzl", "GERRIT", "MAVEN_LOCAL", "maven_jar")
 load("//plugins:external_plugin_deps.bzl", "external_plugin_deps")
-load("//tools:nongoogle.bzl", "declare_nongoogle_deps")
+load("//tools:nongoogle.bzl", "TESTCONTAINERS_VERSION", "declare_nongoogle_deps")
 
 http_archive(
     name = "platforms",
@@ -43,20 +43,20 @@ http_archive(
 
 http_archive(
     name = "rbe_jdk11",
-    sha256 = "766796de71916118e528b9f4334c29c9c9b4e926227bf3264dee555e6a4306c8",
-    strip_prefix = "rbe_autoconfig-2.0.0",
+    sha256 = "5939e2a4e56d1fc53b6c44c6db97ee068c9f4bd18e86c762f6ab8b4fff5e294b",
+    strip_prefix = "rbe_autoconfig-3.0.0",
     urls = [
-        "https://gerrit-bazel.storage.googleapis.com/rbe_autoconfig/v2.0.0.tar.gz",
-        "https://github.com/davido/rbe_autoconfig/archive/v2.0.0.tar.gz",
+        "https://gerrit-bazel.storage.googleapis.com/rbe_autoconfig/v3.0.0.tar.gz",
+        "https://github.com/davido/rbe_autoconfig/archive/v3.0.0.tar.gz",
     ],
 )
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "71030a04aedf9f612d2991c1c552317038c3c5a2b578ac4745267a45e7037c29",
-    strip_prefix = "protobuf-3.12.3",
+    sha256 = "d0f5f605d0d656007ce6c8b5a82df3037e1d8fe8b121ed42e536f569dec16113",
+    strip_prefix = "protobuf-3.14.0",
     urls = [
-        "https://github.com/protocolbuffers/protobuf/archive/v3.12.3.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
     ],
 )
 
@@ -103,10 +103,10 @@ browser_repositories(
 # Golang support for PolyGerrit local dev server.
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "a8d6b1b354d371a646d2f7927319974e0f9e52f73a2452d2b3877118169eb6bb",
+    sha256 = "4d838e2d70b955ef9dd0d0648f673141df1bc1d7ecf5c2d621dcc163f47dd38a",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.23.3/rules_go-v0.23.3.tar.gz",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.23.3/rules_go-v0.23.3.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.24.12/rules_go-v0.24.12.tar.gz",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.24.12/rules_go-v0.24.12.tar.gz",
     ],
 )
 
@@ -118,10 +118,10 @@ go_register_toolchains()
 
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "cdb02a887a7187ea4d5a27452311a75ed8637379a1287d8eeb952138ea485f7d",
+    sha256 = "222e49f034ca7a1d1231422cdb67066b885819885c356673cb1f72f748a3c9d4",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.21.1/bazel-gazelle-v0.21.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.21.1/bazel-gazelle-v0.21.1.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.22.3/bazel-gazelle-v0.22.3.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.22.3/bazel-gazelle-v0.22.3.tar.gz",
     ],
 )
 
@@ -170,6 +170,12 @@ maven_jar(
 )
 
 maven_jar(
+    name = "aopalliance",
+    artifact = "aopalliance:aopalliance:1.0",
+    sha1 = "0235ba8b489512805ac13a8f9ea77a1ca5ebe3e8",
+)
+
+maven_jar(
     name = "javax_inject",
     artifact = "javax.inject:javax.inject:1",
     sha1 = "6975da39a7040257bd51d21a231b76c915872d38",
@@ -179,13 +185,6 @@ maven_jar(
     name = "servlet-api",
     artifact = "javax.servlet:javax.servlet-api:3.1.0",
     sha1 = "3cd63d075497751784b2fa84be59432f4905bf7c",
-)
-
-# JGit's transitive dependencies
-maven_jar(
-    name = "hamcrest-library",
-    artifact = "org.hamcrest:hamcrest-library:1.3",
-    sha1 = "4785a3c21320980282f9f33d0d1264a69040538f",
 )
 
 maven_jar(
@@ -211,14 +210,6 @@ maven_jar(
     name = "gson",
     artifact = "com.google.code.gson:gson:2.8.5",
     sha1 = "f645ed69d595b24d4cf8b3fbb64cc505bede8829",
-)
-
-load("//lib:guava.bzl", "GUAVA_BIN_SHA1", "GUAVA_VERSION")
-
-maven_jar(
-    name = "guava",
-    artifact = "com.google.guava:guava:" + GUAVA_VERSION,
-    sha1 = GUAVA_BIN_SHA1,
 )
 
 CAFFEINE_VERS = "2.8.5"
@@ -369,156 +360,156 @@ maven_jar(
     sha1 = "c075db2a3301100cf70c7dced8ecf86b494458a2",
 )
 
-FLEXMARK_VERS = "0.34.18"
+FLEXMARK_VERS = "0.50.42"
 
 maven_jar(
     name = "flexmark",
     artifact = "com.vladsch.flexmark:flexmark:" + FLEXMARK_VERS,
-    sha1 = "65cc1489ef8902023140900a3a7fcce89fba678d",
+    sha1 = "ed537d7bc31883b008cc17d243a691c7efd12a72",
 )
 
 maven_jar(
     name = "flexmark-ext-abbreviation",
     artifact = "com.vladsch.flexmark:flexmark-ext-abbreviation:" + FLEXMARK_VERS,
-    sha1 = "a0384932801e51f16499358dec69a730739aca3f",
+    sha1 = "dc27c3e7abbc8d2cfb154f41c68645c365bb9d22",
 )
 
 maven_jar(
     name = "flexmark-ext-anchorlink",
     artifact = "com.vladsch.flexmark:flexmark-ext-anchorlink:" + FLEXMARK_VERS,
-    sha1 = "6df2e23b5c94a5e46b1956a29179eb783f84ea2f",
+    sha1 = "6a8edb0165f695c9c19b7143a7fbd78c25c3b99c",
 )
 
 maven_jar(
     name = "flexmark-ext-autolink",
     artifact = "com.vladsch.flexmark:flexmark-ext-autolink:" + FLEXMARK_VERS,
-    sha1 = "069f8ff15e5b435cc96b23f31798ce64a7a3f6d3",
+    sha1 = "5da7a4d009ea08ef2d8714cc73e54a992c6d2d9a",
 )
 
 maven_jar(
     name = "flexmark-ext-definition",
     artifact = "com.vladsch.flexmark:flexmark-ext-definition:" + FLEXMARK_VERS,
-    sha1 = "ff177d8970810c05549171e3ce189e2c68b906c0",
+    sha1 = "862d17812654624ed81ce8fc89c5ef819ff45f87",
 )
 
 maven_jar(
     name = "flexmark-ext-emoji",
     artifact = "com.vladsch.flexmark:flexmark-ext-emoji:" + FLEXMARK_VERS,
-    sha1 = "410bf7d8e5b8bc2c4a8cff644d1b2bc7b271a41e",
+    sha1 = "f0d7db64cb546798742b1ffc6db316a33f6acd76",
 )
 
 maven_jar(
     name = "flexmark-ext-escaped-character",
     artifact = "com.vladsch.flexmark:flexmark-ext-escaped-character:" + FLEXMARK_VERS,
-    sha1 = "6f4fb89311b54284a6175341d4a5e280f13b2179",
+    sha1 = "6fd9ab77619df417df949721cb29c45914b326f8",
 )
 
 maven_jar(
     name = "flexmark-ext-footnotes",
     artifact = "com.vladsch.flexmark:flexmark-ext-footnotes:" + FLEXMARK_VERS,
-    sha1 = "35efe7d9aea97b6f36e09c65f748863d14e1cfe4",
+    sha1 = "e36bd69e43147cc6e19c3f55e4b27c0fc5a3d88c",
 )
 
 maven_jar(
     name = "flexmark-ext-gfm-issues",
     artifact = "com.vladsch.flexmark:flexmark-ext-gfm-issues:" + FLEXMARK_VERS,
-    sha1 = "ec1d660102f6a1d0fbe5e57c13b7ff8bae6cff72",
+    sha1 = "5c825dd4e4fa4f7ccbe30dc92d7e35cdcb8a8c24",
 )
 
 maven_jar(
     name = "flexmark-ext-gfm-strikethrough",
     artifact = "com.vladsch.flexmark:flexmark-ext-gfm-strikethrough:" + FLEXMARK_VERS,
-    sha1 = "6060442b742c9b6d4d83d7dd4f0fe477c4686dd2",
+    sha1 = "3256735fd77e7228bf40f7888b4d3dc56787add4",
 )
 
 maven_jar(
     name = "flexmark-ext-gfm-tables",
     artifact = "com.vladsch.flexmark:flexmark-ext-gfm-tables:" + FLEXMARK_VERS,
-    sha1 = "2fe597849e46e02e0c1ea1d472848f74ff261282",
+    sha1 = "62f0efcfb974756940ebe749fd4eb01323babc29",
 )
 
 maven_jar(
     name = "flexmark-ext-gfm-tasklist",
     artifact = "com.vladsch.flexmark:flexmark-ext-gfm-tasklist:" + FLEXMARK_VERS,
-    sha1 = "b3af19ce4efdc980a066c1bf0f5a6cf8c24c487a",
+    sha1 = "76d4971ad9ce02f0e70351ab6bd06ad8e405e40d",
 )
 
 maven_jar(
     name = "flexmark-ext-gfm-users",
     artifact = "com.vladsch.flexmark:flexmark-ext-gfm-users:" + FLEXMARK_VERS,
-    sha1 = "7456c5f7272c195ee953a02ebab4f58374fb23ee",
+    sha1 = "7b0fc7e42e4da508da167fcf8e1cbf9ba7e21147",
 )
 
 maven_jar(
     name = "flexmark-ext-ins",
     artifact = "com.vladsch.flexmark:flexmark-ext-ins:" + FLEXMARK_VERS,
-    sha1 = "13fe1a95a8f3be30b574451cfe8d3d5936fa3e94",
+    sha1 = "9e51809867b9c4db0fb1c29599b4574e3d2a78e9",
 )
 
 maven_jar(
     name = "flexmark-ext-jekyll-front-matter",
     artifact = "com.vladsch.flexmark:flexmark-ext-jekyll-front-matter:" + FLEXMARK_VERS,
-    sha1 = "e146e2bf3a740d6ef06a33a516c4d1f6d3761109",
+    sha1 = "44eb6dbb33b3831d3b40af938ddcd99c9c16a654",
 )
 
 maven_jar(
     name = "flexmark-ext-superscript",
     artifact = "com.vladsch.flexmark:flexmark-ext-superscript:" + FLEXMARK_VERS,
-    sha1 = "02541211e8e4a6c89ce0a68b07b656d8a19ac282",
+    sha1 = "35815b8cb91000344d1fe5df21cacde8553d2994",
 )
 
 maven_jar(
     name = "flexmark-ext-tables",
     artifact = "com.vladsch.flexmark:flexmark-ext-tables:" + FLEXMARK_VERS,
-    sha1 = "775d9587de71fd50573f32eee98ab039b4dcc219",
+    sha1 = "f6768e98c7210b79d5e8bab76fff27eec6db51e6",
 )
 
 maven_jar(
     name = "flexmark-ext-toc",
     artifact = "com.vladsch.flexmark:flexmark-ext-toc:" + FLEXMARK_VERS,
-    sha1 = "85b75fe1ebe24c92b9d137bcbc51d232845b6077",
+    sha1 = "1968d038fc6c8156f244f5a7eecb34e7e2f33705",
 )
 
 maven_jar(
     name = "flexmark-ext-typographic",
     artifact = "com.vladsch.flexmark:flexmark-ext-typographic:" + FLEXMARK_VERS,
-    sha1 = "c1bf0539de37d83aa05954b442f929e204cd89db",
+    sha1 = "6549b9862b61c4434a855a733237103df9162849",
 )
 
 maven_jar(
     name = "flexmark-ext-wikilink",
     artifact = "com.vladsch.flexmark:flexmark-ext-wikilink:" + FLEXMARK_VERS,
-    sha1 = "400b23b9a4e0c008af0d779f909ee357628be39d",
+    sha1 = "e105b09dd35aab6e6f5c54dfe062ee59bd6f786a",
 )
 
 maven_jar(
     name = "flexmark-ext-yaml-front-matter",
     artifact = "com.vladsch.flexmark:flexmark-ext-yaml-front-matter:" + FLEXMARK_VERS,
-    sha1 = "491f815285a8e16db1e906f3789a94a8a9836fa6",
+    sha1 = "b2d3a1e7f3985841062e8d3203617e29c6c21b52",
 )
 
 maven_jar(
     name = "flexmark-formatter",
     artifact = "com.vladsch.flexmark:flexmark-formatter:" + FLEXMARK_VERS,
-    sha1 = "d46308006800d243727100ca0f17e6837070fd48",
+    sha1 = "a50c6cb10f6d623fc4354a572c583de1372d217f",
 )
 
 maven_jar(
     name = "flexmark-html-parser",
     artifact = "com.vladsch.flexmark:flexmark-html-parser:" + FLEXMARK_VERS,
-    sha1 = "fece2e646d11b6a77fc611b4bd3eb1fb8a635c87",
+    sha1 = "46c075f30017e131c1ada8538f1d8eacf652b044",
 )
 
 maven_jar(
     name = "flexmark-profile-pegdown",
     artifact = "com.vladsch.flexmark:flexmark-profile-pegdown:" + FLEXMARK_VERS,
-    sha1 = "297f723bb51286eaa7029558fac87d819643d577",
+    sha1 = "d9aafd47629959cbeddd731f327ae090fc92b60f",
 )
 
 maven_jar(
     name = "flexmark-util",
     artifact = "com.vladsch.flexmark:flexmark-util:" + FLEXMARK_VERS,
-    sha1 = "31e2e1fbe8273d7c913506eafeb06b1a7badb062",
+    sha1 = "417a9821d5d80ddacbfecadc6843ae7b259d5112",
 )
 
 # Transitive dependency of flexmark and gitiles
@@ -564,36 +555,36 @@ maven_jar(
     sha1 = "5e3bda828a80c7a21dfbe2308d1755759c2fd7b4",
 )
 
-OW2_VERS = "7.2"
+OW2_VERS = "9.0"
 
 maven_jar(
     name = "ow2-asm",
     artifact = "org.ow2.asm:asm:" + OW2_VERS,
-    sha1 = "fa637eb67eb7628c915d73762b681ae7ff0b9731",
+    sha1 = "af582ff60bc567c42d931500c3fdc20e0141ddf9",
 )
 
 maven_jar(
     name = "ow2-asm-analysis",
     artifact = "org.ow2.asm:asm-analysis:" + OW2_VERS,
-    sha1 = "b6e6abe057f23630113f4167c34bda7086691258",
+    sha1 = "4630afefbb43939c739445dde0af1a5729a0fb4e",
 )
 
 maven_jar(
     name = "ow2-asm-commons",
     artifact = "org.ow2.asm:asm-commons:" + OW2_VERS,
-    sha1 = "ca2954e8d92a05bacc28ff465b25c70e0f512497",
+    sha1 = "5a34a3a9ac44f362f35d1b27932380b0031a3334",
 )
 
 maven_jar(
     name = "ow2-asm-tree",
     artifact = "org.ow2.asm:asm-tree:" + OW2_VERS,
-    sha1 = "3a23cc36edaf8fc5a89cb100182758ccb5991487",
+    sha1 = "9df939f25c556b0c7efe00701d47e77a49837f24",
 )
 
 maven_jar(
     name = "ow2-asm-util",
     artifact = "org.ow2.asm:asm-util:" + OW2_VERS,
-    sha1 = "a3ae34e57fa8a4040e28247291d0cc3d6b8c7bcf",
+    sha1 = "7c059a94ab5eed3347bf954e27fab58e52968848",
 )
 
 AUTO_VALUE_VERSION = "1.7.4"
@@ -608,6 +599,38 @@ maven_jar(
     name = "auto-value-annotations",
     artifact = "com.google.auto.value:auto-value-annotations:" + AUTO_VALUE_VERSION,
     sha1 = "eff48ed53995db2dadf0456426cc1f8700136f86",
+)
+
+AUTO_VALUE_GSON_VERSION = "1.3.0"
+
+maven_jar(
+    name = "auto-value-gson-runtime",
+    artifact = "com.ryanharter.auto.value:auto-value-gson-runtime:" + AUTO_VALUE_GSON_VERSION,
+    sha1 = "a69a9db5868bb039bd80f60661a771b643eaba59",
+)
+
+maven_jar(
+    name = "auto-value-gson-extension",
+    artifact = "com.ryanharter.auto.value:auto-value-gson-extension:" + AUTO_VALUE_GSON_VERSION,
+    sha1 = "6a61236d17b58b05e32b4c532bcb348280d2212b",
+)
+
+maven_jar(
+    name = "auto-value-gson-factory",
+    artifact = "com.ryanharter.auto.value:auto-value-gson-factory:" + AUTO_VALUE_GSON_VERSION,
+    sha1 = "b1f01918c0d6cb1f5482500e6b9e62589334dbb0",
+)
+
+maven_jar(
+    name = "javapoet",
+    artifact = "com.squareup:javapoet:1.13.0",
+    sha1 = "d6562d385049f35eb50403fa86bb11cce76b866a",
+)
+
+maven_jar(
+    name = "autotransient",
+    artifact = "io.sweers.autotransient:autotransient:1.0.0",
+    sha1 = "38b1c630b8e76560221622289f37be40105abb3d",
 )
 
 declare_nongoogle_deps()
@@ -725,13 +748,6 @@ maven_jar(
     sha1 = "b8ba1c1eb8b2e45cfd465d01218c6060e887572e",
 )
 
-# Keep this version of Soy synchronized with the version used in Gitiles.
-maven_jar(
-    name = "soy",
-    artifact = "com.google.template:soy:2019-10-08",
-    sha1 = "4518bf8bac2dbbed684849bc209c39c4cb546237",
-)
-
 maven_jar(
     name = "html-types",
     artifact = "com.google.common.html.types:types:1.0.8",
@@ -800,47 +816,9 @@ maven_jar(
 # Test-only dependencies below.
 
 maven_jar(
-    name = "jimfs",
-    artifact = "com.google.jimfs:jimfs:1.1",
-    sha1 = "8fbd0579dc68aba6186935cc1bee21d2f3e7ec1c",
-)
-
-maven_jar(
     name = "junit",
     artifact = "junit:junit:4.12",
     sha1 = "2973d150c0dc1fefe998f834810d68f278ea58ec",
-)
-
-maven_jar(
-    name = "hamcrest-core",
-    artifact = "org.hamcrest:hamcrest-core:1.3",
-    sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
-)
-
-TRUTH_VERS = "1.1"
-
-maven_jar(
-    name = "truth",
-    artifact = "com.google.truth:truth:" + TRUTH_VERS,
-    sha1 = "6a096a16646559c24397b03f797d0c9d75ee8720",
-)
-
-maven_jar(
-    name = "truth-java8-extension",
-    artifact = "com.google.truth.extensions:truth-java8-extension:" + TRUTH_VERS,
-    sha1 = "258db6eb8df61832c5c059ed2bc2e1c88683e92f",
-)
-
-maven_jar(
-    name = "truth-liteproto-extension",
-    artifact = "com.google.truth.extensions:truth-liteproto-extension:" + TRUTH_VERS,
-    sha1 = "bf65afa13aa03330e739bcaa5d795fe0f10fbf20",
-)
-
-maven_jar(
-    name = "truth-proto-extension",
-    artifact = "com.google.truth.extensions:truth-proto-extension:" + TRUTH_VERS,
-    sha1 = "64cba89cf87c1d84cb8c81d06f0b9c482f10b4dc",
 )
 
 maven_jar(
@@ -920,28 +898,28 @@ maven_jar(
 
 maven_jar(
     name = "mockito",
-    artifact = "org.mockito:mockito-core:2.24.0",
-    sha1 = "969a7bcb6f16e076904336ebc7ca171d412cc1f9",
+    artifact = "org.mockito:mockito-core:3.3.3",
+    sha1 = "4878395d4e63173f3825e17e5e0690e8054445f1",
 )
 
-BYTE_BUDDY_VERSION = "1.9.7"
+BYTE_BUDDY_VERSION = "1.10.7"
 
 maven_jar(
     name = "bytebuddy",
     artifact = "net.bytebuddy:byte-buddy:" + BYTE_BUDDY_VERSION,
-    sha1 = "8fea78fea6449e1738b675cb155ce8422661e237",
+    sha1 = "1eefb7dd1b032b33c773ca0a17d5cc9e6b56ea1a",
 )
 
 maven_jar(
     name = "bytebuddy-agent",
     artifact = "net.bytebuddy:byte-buddy-agent:" + BYTE_BUDDY_VERSION,
-    sha1 = "8e7d1b599f4943851ffea125fd9780e572727fc0",
+    sha1 = "c472fad33f617228601172682aa64f8b78508045",
 )
 
 maven_jar(
     name = "objenesis",
-    artifact = "org.objenesis:objenesis:2.6",
-    sha1 = "639033469776fd37c08358c6b92a4761feb2af4b",
+    artifact = "org.objenesis:objenesis:3.0.1",
+    sha1 = "11cfac598df9dc48bb9ed9357ed04212694b7808",
 )
 
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
@@ -1190,3 +1168,19 @@ bower_archive(
 )
 
 external_plugin_deps()
+
+# When upgrading elasticsearch-rest-client, also upgrade httpcore-nio
+# and httpasyncclient as necessary in tools/nongoogle.bzl. Consider
+# also the other org.apache.httpcomponents dependencies in
+# WORKSPACE.
+maven_jar(
+    name = "elasticsearch-rest-client",
+    artifact = "org.elasticsearch.client:elasticsearch-rest-client:7.8.1",
+    sha1 = "59feefe006a96a39f83b0dfb6780847e06c1d0a8",
+)
+
+maven_jar(
+    name = "testcontainers-elasticsearch",
+    artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
+    sha1 = "6b778a270b7529fcb9b7a6f62f3ae9d38544ce2f",
+)

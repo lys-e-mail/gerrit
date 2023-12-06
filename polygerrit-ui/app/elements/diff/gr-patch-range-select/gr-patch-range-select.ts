@@ -18,11 +18,9 @@ import '../../../styles/shared-styles';
 import '../../shared/gr-dropdown-list/gr-dropdown-list';
 import '../../shared/gr-select/gr-select';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-patch-range-select_html';
-import {GrCountStringFormatter} from '../../shared/gr-count-string-formatter/gr-count-string-formatter';
+import {pluralize} from '../../../utils/string-util';
 import {appContext} from '../../../services/app-context';
 import {
   computeLatestPatchNum,
@@ -30,14 +28,15 @@ import {
   getParentIndex,
   getRevisionByPatchNum,
   isMergeParent,
-  patchNumEquals,
   sortRevisions,
   PatchSet,
+  convertToPatchSetNum,
 } from '../../../utils/patch-set-util';
 import {customElement, property, observe} from '@polymer/decorators';
 import {ReportingService} from '../../../services/gr-reporting/gr-reporting';
 import {hasOwnProperty} from '../../../utils/common-util';
 import {
+  BasePatchSetNum,
   ParentPatchSetNum,
   PatchSetNum,
   RevisionInfo,
@@ -58,7 +57,7 @@ const PATCH_DESC_MAX_LENGTH = 500;
 
 export interface PatchRangeChangeDetail {
   patchNum?: PatchSetNum;
-  basePatchNum?: PatchSetNum;
+  basePatchNum?: BasePatchSetNum;
 }
 
 export type PatchRangeChangeEvent = CustomEvent<PatchRangeChangeDetail>;
@@ -81,12 +80,9 @@ export interface GrPatchRangeSelect {
  *
  * @property {string} patchNum
  * @property {string} basePatchNum
- * @extends PolymerElement
  */
 @customElement('gr-patch-range-select')
-export class GrPatchRangeSelect extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrPatchRangeSelect extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -123,7 +119,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
   patchNum?: PatchSetNum;
 
   @property({type: String})
-  basePatchNum?: PatchSetNum;
+  basePatchNum?: BasePatchSetNum;
 
   @property({type: Object})
   revisions?: RevisionInfo[];
@@ -222,7 +218,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
 
   _computePatchDropdownContent(
     availablePatches?: PatchSet[],
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     _sortedRevisions?: RevisionInfo[],
     changeComments?: ChangeComments
   ): DropdownItem[] | undefined {
@@ -346,7 +342,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
     patchNum: PatchSetNum,
     sortedRevisions: RevisionInfo[]
   ): boolean {
-    if (patchNumEquals(basePatchNum, ParentPatchSetNum)) {
+    if (basePatchNum === ParentPatchSetNum) {
       return false;
     }
 
@@ -367,6 +363,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
     );
   }
 
+  // TODO(dhruvsri): have ported comments contribute to this count
   _computePatchSetCommentsString(
     changeComments: ChangeComments,
     patchNum: PatchSetNum
@@ -375,19 +372,20 @@ export class GrPatchRangeSelect extends GestureEventListeners(
       return;
     }
 
-    const commentThreadCount = changeComments.computeCommentThreadCount({
-      patchNum,
-    });
-    const commentThreadString = GrCountStringFormatter.computePluralString(
-      commentThreadCount,
-      'comment'
+    const commentThreadCount = changeComments.computeCommentThreadCount(
+      {
+        patchNum,
+      },
+      true
     );
+    const commentThreadString = pluralize(commentThreadCount, 'comment');
 
-    const unresolvedCount = changeComments.computeUnresolvedNum({patchNum});
-    const unresolvedString = GrCountStringFormatter.computeString(
-      unresolvedCount,
-      'unresolved'
+    const unresolvedCount = changeComments.computeUnresolvedNum(
+      {patchNum},
+      true
     );
+    const unresolvedString =
+      unresolvedCount === 0 ? '' : `${unresolvedCount} unresolved`;
 
     if (!commentThreadString.length && !unresolvedString.length) {
       return '';
@@ -431,7 +429,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
       basePatchNum: this.basePatchNum,
     };
     const target = (dom(e) as EventApi).localTarget;
-    const patchSetValue = e.detail.value as PatchSetNum;
+    const patchSetValue = convertToPatchSetNum(e.detail.value)!;
     const latestPatchNum = computeLatestPatchNum(this.availablePatches);
     if (target === this.$.patchNumDropdown) {
       if (detail.patchNum === e.detail.value) return;
@@ -445,7 +443,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
       });
       detail.patchNum = patchSetValue;
     } else {
-      if (patchNumEquals(detail.basePatchNum, patchSetValue)) return;
+      if (detail.basePatchNum === patchSetValue) return;
       this.reporting.reportInteraction('left-patchset-changed', {
         previous: detail.basePatchNum,
         current: e.detail.value,
@@ -453,7 +451,7 @@ export class GrPatchRangeSelect extends GestureEventListeners(
           patchNum: patchSetValue,
         }),
       });
-      detail.basePatchNum = patchSetValue;
+      detail.basePatchNum = patchSetValue as BasePatchSetNum;
     }
 
     this.dispatchEvent(

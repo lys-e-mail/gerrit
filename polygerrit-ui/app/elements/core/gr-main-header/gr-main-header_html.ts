@@ -79,6 +79,7 @@ export const htmlTemplate = html`
       flex-grow: 1;
       margin: 0 var(--spacing-m);
       max-width: 500px;
+      min-width: 150px;
     }
     gr-dropdown,
     .browse {
@@ -91,6 +92,9 @@ export const htmlTemplate = html`
     }
     .settingsButton {
       margin-left: var(--spacing-m);
+    }
+    .feedbackButton {
+      margin-left: var(--spacing-s);
     }
     .browse {
       color: var(--header-text-color);
@@ -206,11 +210,22 @@ export const htmlTemplate = html`
         class="hideOnMobile"
         name="header-browse-source"
       ></gr-endpoint-decorator>
+      <template is="dom-if" if="[[_feedbackURL]]">
+        <a class="feedbackButton"
+          href$="[[_feedbackURL]]"
+          title="File a bug"
+          aria-label="File a bug"
+          role="button"
+        >
+          <iron-icon icon="gr-icons:bug"></iron-icon>
+        </a>
+      </template>
+      </div>
       <div class="accountContainer" id="accountContainer">
         <iron-icon
           id="mobileSearch"
           icon="gr-icons:search"
-          on-tap="_onMobileSearchTap"
+          on-click="_onMobileSearchTap"
           role="button"
           aria-label="[[_computeShowHideAriaLabel(mobileSearchHidden)]]"
         ></iron-icon>
@@ -238,6 +253,4 @@ export const htmlTemplate = html`
       </div>
     </div>
   </nav>
-  <gr-js-api-interface id="jsAPI"></gr-js-api-interface>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

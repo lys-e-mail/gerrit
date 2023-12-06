@@ -54,6 +54,7 @@ import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.BranchOrderSection;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.RefNames;
@@ -87,15 +88,12 @@ import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.BinaryResult;
-import com.google.gerrit.extensions.restapi.ETagView;
 import com.google.gerrit.extensions.restapi.MethodNotAllowedException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.UnprocessableEntityException;
 import com.google.gerrit.extensions.webui.PatchSetWebLink;
-import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.query.change.ChangeData;
-import com.google.gerrit.server.restapi.change.GetRevisionActions;
 import com.google.gerrit.testing.FakeEmailSender;
 import com.google.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -121,7 +119,6 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.junit.Test;
 
 public class RevisionIT extends AbstractDaemonTest {
-  @Inject private GetRevisionActions getRevisionActions;
   @Inject private ProjectOperations projectOperations;
   @Inject private RequestScopeOperations requestScopeOperations;
   @Inject private ExtensionRegistry extensionRegistry;
@@ -165,7 +162,7 @@ public class RevisionIT extends AbstractDaemonTest {
     String changeId = project.get() + "~master~" + r.getChangeId();
     gApi.changes().id(changeId).current().review(ReviewInput.recommend());
 
-    String label = "Code-Review";
+    String label = LabelId.CODE_REVIEW;
     ApprovalInfo approval = getApproval(changeId, label);
     assertThat(approval.value).isEqualTo(1);
     assertThat(approval.postSubmit).isNull();
@@ -177,10 +174,10 @@ public class RevisionIT extends AbstractDaemonTest {
     approval = getApproval(changeId, label);
     assertThat(approval.value).isEqualTo(1);
     assertThat(approval.postSubmit).isNull();
-    assertPermitted(gApi.changes().id(changeId).get(DETAILED_LABELS), "Code-Review", 1, 2);
+    assertPermitted(gApi.changes().id(changeId).get(DETAILED_LABELS), LabelId.CODE_REVIEW, 1, 2);
 
-    // Repeating the current label is allowed. Does not flip the postSubmit bit
-    // due to deduplication codepath.
+    // Repeating the current label is allowed. Does not flip the postSubmit bit due to
+    // deduplication codepath.
     gApi.changes().id(changeId).current().review(ReviewInput.recommend());
     approval = getApproval(changeId, label);
     assertThat(approval.value).isEqualTo(1);
@@ -203,7 +200,7 @@ public class RevisionIT extends AbstractDaemonTest {
     approval = getApproval(changeId, label);
     assertThat(approval.value).isEqualTo(2);
     assertThat(approval.postSubmit).isTrue();
-    assertPermitted(gApi.changes().id(changeId).get(DETAILED_LABELS), "Code-Review", 2);
+    assertPermitted(gApi.changes().id(changeId).get(DETAILED_LABELS), LabelId.CODE_REVIEW, 2);
 
     // Decreasing to previous post-submit vote is still not allowed.
     thrown =
@@ -230,9 +227,9 @@ public class RevisionIT extends AbstractDaemonTest {
     revision(r).review(ReviewInput.recommend());
 
     requestScopeOperations.setApiUser(admin.id());
-    gApi.changes().id(changeId).reviewer(user.username()).deleteVote("Code-Review");
+    gApi.changes().id(changeId).reviewer(user.username()).deleteVote(LabelId.CODE_REVIEW);
     Optional<ApprovalInfo> crUser =
-        get(changeId, DETAILED_LABELS).labels.get("Code-Review").all.stream()
+        get(changeId, DETAILED_LABELS).labels.get(LabelId.CODE_REVIEW).all.stream()
             .filter(a -> a._accountId == user.id().get())
             .findFirst();
     assertThat(crUser).isPresent();
@@ -242,12 +239,13 @@ public class RevisionIT extends AbstractDaemonTest {
 
     requestScopeOperations.setApiUser(user.id());
     ReviewInput in = new ReviewInput();
-    in.label("Code-Review", 1);
+    in.label(LabelId.CODE_REVIEW, 1);
     in.message = "Still LGTM";
     revision(r).review(in);
 
     ApprovalInfo cr =
-        gApi.changes().id(changeId).get(DETAILED_LABELS).labels.get("Code-Review").all.stream()
+        gApi.changes().id(changeId).get(DETAILED_LABELS).labels.get(LabelId.CODE_REVIEW).all
+            .stream()
             .filter(a -> a._accountId == user.id().get())
             .findFirst()
             .get();
@@ -262,7 +260,7 @@ public class RevisionIT extends AbstractDaemonTest {
     revision(r).submit();
 
     ReviewInput in = new ReviewInput();
-    in.label("Code-Review", 0);
+    in.label(LabelId.CODE_REVIEW, 0);
 
     ResourceConflictException thrown =
         assertThrows(ResourceConflictException.class, () -> revision(r).review(in));
@@ -285,7 +283,7 @@ public class RevisionIT extends AbstractDaemonTest {
         Iterators.getOnlyElement(
             cd.currentApprovals().stream().filter(a -> !a.isLegacySubmit()).iterator());
     assertThat(psa.patchSetId().get()).isEqualTo(2);
-    assertThat(psa.label()).isEqualTo("Code-Review");
+    assertThat(psa.label()).isEqualTo(LabelId.CODE_REVIEW);
     assertThat(psa.value()).isEqualTo(2);
     assertThat(psa.postSubmit()).isFalse();
   }
@@ -386,8 +384,11 @@ public class RevisionIT extends AbstractDaemonTest {
 
     // The cherry-pick honors the ChangeId specified in the input message:
     RevisionInfo revInfo = changeInfo.revisions.get(changeInfo.currentRevision);
+    // New change was created.
+    assertThat(changeInfo._number).isGreaterThan(orig.get()._number);
+    assertThat(changeInfo.changeId).isEqualTo(id);
     assertThat(revInfo).isNotNull();
-    assertThat(revInfo.commit.message).endsWith(id + "\n");
+    assertThat(revInfo.commit.message.trim()).endsWith(id);
   }
 
   @Test
@@ -477,6 +478,9 @@ public class RevisionIT extends AbstractDaemonTest {
     assertThat(cherryInfo.messages).hasSize(2);
     Iterator<ChangeMessageInfo> cherryIt = cherryInfo.messages.iterator();
     assertThat(cherryInfo.cherryPickOfChange).isEqualTo(change.get()._number);
+
+    // Existing change was updated.
+    assertThat(cherryInfo._number).isEqualTo(change.get()._number);
     assertThat(cherryInfo.cherryPickOfPatchSet).isEqualTo(1);
     assertThat(cherryIt.next().message).isEqualTo("Uploaded patch set 1.");
     assertThat(cherryIt.next().message).isEqualTo("Uploaded patch set 2.");
@@ -708,12 +712,13 @@ public class RevisionIT extends AbstractDaemonTest {
     in.destination = "foo";
     in.message = r3.getCommit().getFullMessage();
     cherry = gApi.changes().id(t1).current().cherryPick(in);
+    assertThat(cherry.get()._number).isEqualTo(info(t2)._number);
     assertThat(cherry.get().cherryPickOfChange).isEqualTo(orig.get()._number);
     assertThat(cherry.get().cherryPickOfPatchSet).isEqualTo(2);
   }
 
   @Test
-  public void cherryPickToExistingChange() throws Exception {
+  public void cherryPickToAbandonedChange() throws Exception {
     PushOneCommit.Result r1 =
         pushFactory
             .create(admin.newIdent(), testRepo, SUBJECT, FILE_NAME, "a")
@@ -734,20 +739,60 @@ public class RevisionIT extends AbstractDaemonTest {
     CherryPickInput in = new CherryPickInput();
     in.destination = "foo";
     in.message = r1.getCommit().getFullMessage();
-    ResourceConflictException thrown =
+    BadRequestException thrown =
         assertThrows(
-            ResourceConflictException.class, () -> gApi.changes().id(t1).current().cherryPick(in));
+            BadRequestException.class, () -> gApi.changes().id(t1).current().cherryPick(in));
     assertThat(thrown)
         .hasMessageThat()
         .isEqualTo(
-            "Cannot create new patch set of change "
-                + info(t2)._number
-                + " because it is abandoned");
+            String.format(
+                "Cherry-pick with Change-Id %s could not update the existing change %d in "
+                    + "destination branch refs/heads/foo of project %s, because "
+                    + "the change was closed (ABANDONED)",
+                r1.getChangeId(), info(t2)._number, project.get()));
 
     gApi.changes().id(t2).restore();
     gApi.changes().id(t1).current().cherryPick(in);
     assertThat(get(t2, ALL_REVISIONS).revisions).hasSize(2);
     assertThat(gApi.changes().id(t2).current().file(FILE_NAME).content().asString()).isEqualTo("a");
+  }
+
+  @Test
+  public void cherryPickToExistingMergedChange() throws Exception {
+    PushOneCommit.Result r1 =
+        pushFactory
+            .create(admin.newIdent(), testRepo, SUBJECT, FILE_NAME, "a")
+            .to("refs/for/master");
+
+    BranchInput bin = new BranchInput();
+    bin.revision = r1.getCommit().getParent(0).name();
+    gApi.projects().name(project.get()).branch("foo").create(bin);
+
+    PushOneCommit.Result r2 =
+        pushFactory
+            .create(admin.newIdent(), testRepo, SUBJECT, FILE_NAME, "b", r1.getChangeId())
+            .to("refs/for/foo");
+    String t2 = project.get() + "~foo~" + r2.getChangeId();
+
+    gApi.changes().id(t2).current().review(ReviewInput.approve());
+    gApi.changes().id(t2).current().submit();
+
+    CherryPickInput in = new CherryPickInput();
+    in.destination = "foo";
+    in.message = r1.getCommit().getFullMessage();
+    in.allowConflicts = true;
+    in.allowEmpty = true;
+    BadRequestException thrown =
+        assertThrows(
+            BadRequestException.class, () -> gApi.changes().id(t2).current().cherryPick(in));
+    assertThat(thrown)
+        .hasMessageThat()
+        .isEqualTo(
+            String.format(
+                "Cherry-pick with Change-Id %s could not update the existing change %d in "
+                    + "destination branch refs/heads/foo of project %s, because "
+                    + "the change was closed (MERGED)",
+                r1.getChangeId(), info(t2)._number, project.get()));
   }
 
   @Test
@@ -872,7 +917,7 @@ public class RevisionIT extends AbstractDaemonTest {
     String changeId = project.get() + "~master~" + result.getChangeId();
 
     // 'user' cherry-picks the change to a new branch, the source change's author/committer('admin')
-    // will be added as a reviewer of the newly created change.
+    // will be added as cc of the newly created change.
     requestScopeOperations.setApiUser(user.id());
     CherryPickInput input = new CherryPickInput();
     input.message = "it goes to a new branch";
@@ -882,7 +927,7 @@ public class RevisionIT extends AbstractDaemonTest {
     input.notify = NotifyHandling.ALL;
     sender.clear();
     gApi.changes().id(changeId).current().cherryPick(input);
-    assertNotifyTo(admin);
+    assertNotifyCc(admin);
 
     // Disable the notification. 'admin' as a reviewer should not be notified any more.
     input.destination = "branch-2";
@@ -1573,7 +1618,8 @@ public class RevisionIT extends AbstractDaemonTest {
     PatchSetWebLink link =
         new PatchSetWebLink() {
           @Override
-          public WebLinkInfo getPatchSetWebLink(String projectName, String commit) {
+          public WebLinkInfo getPatchSetWebLink(
+              String projectName, String commit, String commitMessage, String branchName) {
             return expectedWebLinkInfo;
           }
         };
@@ -1778,23 +1824,6 @@ public class RevisionIT extends AbstractDaemonTest {
   }
 
   @Test
-  public void actionsETag() throws Exception {
-    PushOneCommit.Result r1 = createChange();
-    PushOneCommit.Result r2 = createChange();
-
-    String oldETag = checkETag(getRevisionActions, r2, null);
-    current(r2).review(ReviewInput.approve());
-    oldETag = checkETag(getRevisionActions, r2, oldETag);
-
-    // Dependent change is included in ETag.
-    current(r1).review(ReviewInput.approve());
-    oldETag = checkETag(getRevisionActions, r2, oldETag);
-
-    current(r2).submit();
-    checkETag(getRevisionActions, r2, oldETag);
-  }
-
-  @Test
   public void deleteVoteOnNonCurrentPatchSet() throws Exception {
     PushOneCommit.Result r = createChange(); // patch set 1
     gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).review(ReviewInput.approve());
@@ -1816,7 +1845,7 @@ public class RevisionIT extends AbstractDaemonTest {
                     .id(r.getChangeId())
                     .revision(r.getCommit().getName())
                     .reviewer(user.id().toString())
-                    .deleteVote("Code-Review"));
+                    .deleteVote(LabelId.CODE_REVIEW));
     assertThat(thrown).hasMessageThat().contains("Cannot access on non-current patch set");
   }
 
@@ -1837,12 +1866,12 @@ public class RevisionIT extends AbstractDaemonTest {
         .id(r.getChangeId())
         .current()
         .reviewer(user.id().toString())
-        .deleteVote("Code-Review");
+        .deleteVote(LabelId.CODE_REVIEW);
 
     Map<String, Short> m =
         gApi.changes().id(r.getChangeId()).current().reviewer(user.id().toString()).votes();
 
-    assertThat(m).containsExactly("Code-Review", Short.valueOf((short) 0));
+    assertThat(m).containsExactly(LabelId.CODE_REVIEW, Short.valueOf((short) 0));
 
     ChangeInfo c = gApi.changes().id(r.getChangeId()).get();
     ChangeMessageInfo message = Iterables.getLast(c.messages);
@@ -1860,8 +1889,8 @@ public class RevisionIT extends AbstractDaemonTest {
     assertThat(votes).isEmpty();
     recommend(changeId);
     votes = gApi.changes().id(changeId).current().votes();
-    assertThat(votes.keySet()).containsExactly("Code-Review");
-    List<ApprovalInfo> approvals = votes.get("Code-Review");
+    assertThat(votes.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    List<ApprovalInfo> approvals = votes.get(LabelId.CODE_REVIEW);
     assertThat(approvals).hasSize(1);
     ApprovalInfo approval = approvals.get(0);
     assertThat(approval._accountId).isEqualTo(admin.id().get());
@@ -1875,8 +1904,8 @@ public class RevisionIT extends AbstractDaemonTest {
     // Patch set 1 has 2 votes on Code-Review
     requestScopeOperations.setApiUser(admin.id());
     votes = gApi.changes().id(changeId).current().votes();
-    assertThat(votes.keySet()).containsExactly("Code-Review");
-    approvals = votes.get("Code-Review");
+    assertThat(votes.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    approvals = votes.get(LabelId.CODE_REVIEW);
     assertThat(approvals).hasSize(2);
     assertThat(approvals.stream().map(a -> a._accountId))
         .containsExactlyElementsIn(ImmutableList.of(admin.id().get(), user.id().get()));
@@ -1888,8 +1917,8 @@ public class RevisionIT extends AbstractDaemonTest {
 
     // Votes are still returned for ps 1
     votes = gApi.changes().id(changeId).revision(1).votes();
-    assertThat(votes.keySet()).containsExactly("Code-Review");
-    approvals = votes.get("Code-Review");
+    assertThat(votes.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    approvals = votes.get(LabelId.CODE_REVIEW);
     assertThat(approvals).hasSize(2);
   }
 
@@ -1963,13 +1992,6 @@ public class RevisionIT extends AbstractDaemonTest {
 
   private RevisionApi current(PushOneCommit.Result r) throws Exception {
     return gApi.changes().id(r.getChangeId()).current();
-  }
-
-  private String checkETag(ETagView<RevisionResource> view, PushOneCommit.Result r, String oldETag)
-      throws Exception {
-    String eTag = view.getETag(parseRevisionResource(r));
-    assertThat(eTag).isNotEqualTo(oldETag);
-    return eTag;
   }
 
   private PushOneCommit.Result createCherryPickableMerge(

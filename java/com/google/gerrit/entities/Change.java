@@ -21,6 +21,9 @@ import com.google.auto.value.AutoValue;
 import com.google.common.primitives.Ints;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.extensions.client.ChangeStatus;
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Optional;
@@ -100,6 +103,7 @@ public final class Change {
     return new AutoValue_Change_Id(id);
   }
 
+  /** The numeric change ID */
   @AutoValue
   public abstract static class Id {
     /**
@@ -283,6 +287,7 @@ public final class Change {
       return Change.key(KeyUtil.decode(str));
     }
 
+    @SerializedName("id")
     abstract String key();
 
     public String get() {
@@ -306,6 +311,10 @@ public final class Change {
     @Override
     public final String toString() {
       return get();
+    }
+
+    public static TypeAdapter<Key> typeAdapter(Gson gson) {
+      return new AutoValue_Change_Key.GsonTypeAdapter(gson);
     }
   }
 
@@ -447,19 +456,13 @@ public final class Change {
    */
   protected Timestamp lastUpdatedOn;
 
-  // DELETED: id = 6 (sortkey)
-
   protected Account.Id owner;
 
   /** The branch (and project) this change merges into. */
   protected BranchNameKey dest;
 
-  // DELETED: id = 9 (open)
-
   /** Current state code; see {@link Status}. */
   protected char status;
-
-  // DELETED: id = 11 (nbrPatchSets)
 
   /** The current patch set. */
   protected int currentPatchSetId;
@@ -469,9 +472,6 @@ public final class Change {
 
   /** Topic name assigned by the user, if any. */
   @Nullable protected String topic;
-
-  // DELETED: id = 15 (lastSha1MergeTested)
-  // DELETED: id = 16 (mergeable)
 
   /**
    * First line of first patch set's commit message.
@@ -544,12 +544,12 @@ public final class Change {
     cherryPickOf = other.cherryPickOf;
   }
 
-  /** Legacy 32 bit integer identity for a change. */
+  /** 32 bit integer identity for a change. */
   public Change.Id getId() {
     return changeId;
   }
 
-  /** Legacy 32 bit integer identity for a change. */
+  /** 32 bit integer identity for a change. */
   public int getChangeId() {
     return changeId.get();
   }

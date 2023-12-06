@@ -23,17 +23,17 @@ import '@polymer/iron-test-helpers/iron-test-helpers';
 import './test-router';
 import {_testOnlyInitAppContext} from './test-app-context-init';
 import {_testOnly_resetPluginLoader} from '../elements/shared/gr-js-api-interface/gr-plugin-loader';
-import {_testOnlyResetRestApi} from '../elements/shared/gr-js-api-interface/gr-plugin-rest-api';
 import {_testOnlyResetGrRestApiSharedObjects} from '../elements/shared/gr-rest-api-interface/gr-rest-api-interface';
 import {
   cleanupTestUtils,
   getCleanupsCount,
   registerTestCleanup,
+  addIronOverlayBackdropStyleEl,
+  removeIronOverlayBackdropStyleEl,
   TestKeyboardShortcutBinder,
 } from './test-utils';
-import {flushDebouncers} from '@polymer/polymer/lib/utils/debounce';
 import {_testOnly_getShortcutManagerInstance} from '../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
-import sinon, {SinonSpy} from 'sinon/pkg/sinon-esm';
+import sinon from 'sinon/pkg/sinon-esm';
 import {safeTypesBridge} from '../utils/safe-types-util';
 import {_testOnly_initGerritPluginApi} from '../elements/shared/gr-js-api-interface/gr-gerrit';
 import {initGlobalVariables} from '../elements/gr-app-global-var-init';
@@ -42,7 +42,8 @@ import {
   _testOnly_defaultResinReportHandler,
   installPolymerResin,
 } from '../scripts/polymer-resin-install';
-import {hasOwnProperty} from '../utils/common-util';
+import {_testOnly_allTasks} from '../utils/async-util';
+import {cleanUpStorage} from '../services/storage/gr-storage_mock';
 
 declare global {
   interface Window {
@@ -90,10 +91,13 @@ function fixtureImpl(fixtureId: string, model: unknown) {
 }
 
 window.fixture = fixtureImpl;
+let testSetupTimestampMs = 0;
 
 setup(() => {
+  testSetupTimestampMs = new Date().getTime();
   window.Gerrit = {};
   initGlobalVariables();
+  addIronOverlayBackdropStyleEl();
 
   // If the following asserts fails - then window.stub is
   // overwritten by some other code.
@@ -119,30 +123,22 @@ setup(() => {
   // to reset this behavior if you need to test something specific.
   pl.loadPlugins([]);
   _testOnlyResetGrRestApiSharedObjects();
-  _testOnlyResetRestApi();
 });
 
 // For karma always set our implementation
 // (karma doesn't provide the stub method)
-function stubImpl<T extends keyof HTMLElementTagNameMap>(
-  tagName: T,
-  implementation: Partial<HTMLElementTagNameMap[T]>
-) {
+function stubImpl<
+  T extends keyof HTMLElementTagNameMap,
+  K extends keyof HTMLElementTagNameMap[T]
+>(tagName: T, method: K) {
   // This method is inspired by web-component-tester method
   const proto = document.createElement(tagName).constructor
     .prototype as HTMLElementTagNameMap[T];
-  let key: keyof HTMLElementTagNameMap[T];
-  const stubs: SinonSpy[] = [];
-  for (key in implementation) {
-    if (hasOwnProperty(implementation, key)) {
-      stubs.push(sinon.stub(proto, key).callsFake(implementation[key]));
-    }
-  }
+  const stub = sinon.stub(proto, method);
   registerTestCleanup(() => {
-    stubs.forEach(stub => {
-      stub.restore();
-    });
+    stub.restore();
   });
+  return stub;
 }
 
 window.stub = stubImpl;
@@ -191,11 +187,24 @@ function checkGlobalSpace() {
   }
 }
 
+function cancelAllTasks() {
+  for (const task of _testOnly_allTasks.values()) {
+    console.warn('ATTENTION! A task was still active at the end of the test!');
+    task.cancel();
+  }
+}
+
 teardown(() => {
   sinon.restore();
   cleanupTestUtils();
   TestKeyboardShortcutBinder.pop();
   checkGlobalSpace();
-  // Clean Polymer debouncer queue, so next tests will not be affected.
-  flushDebouncers();
+  removeIronOverlayBackdropStyleEl();
+  cancelAllTasks();
+  cleanUpStorage();
+  const testTeardownTimestampMs = new Date().getTime();
+  const elapsedMs = testTeardownTimestampMs - testSetupTimestampMs;
+  if (elapsedMs > 1000) {
+    console.warn(`ATTENTION! Test took longer than 1 second: ${elapsedMs} ms`);
+  }
 });

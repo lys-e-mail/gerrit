@@ -18,6 +18,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -36,7 +43,6 @@ import com.google.gerrit.extensions.api.changes.ReviewInput;
 import com.google.gerrit.extensions.events.ChangeIndexedListener;
 import com.google.gerrit.httpd.restapi.ParameterParser;
 import com.google.gerrit.httpd.restapi.RestApiServlet;
-import com.google.gerrit.server.ExceptionHook;
 import com.google.gerrit.server.events.CommitReceivedEvent;
 import com.google.gerrit.server.git.WorkQueue;
 import com.google.gerrit.server.git.validators.CommitValidationException;
@@ -52,11 +58,10 @@ import com.google.gerrit.server.rules.SubmitRule;
 import com.google.gerrit.server.validators.ProjectCreationValidationListener;
 import com.google.gerrit.server.validators.ValidationException;
 import com.google.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.SortedSet;
+import java.util.Set;
 import org.apache.http.message.BasicHeader;
 import org.junit.Rule;
 import org.junit.Test;
@@ -337,7 +342,7 @@ public class TraceIT extends AbstractDaemonTest {
     assertThat(LoggingContext.getInstance().getTags().isEmpty()).isTrue();
     assertForceLogging(false);
     try (TraceContext traceContext = TraceContext.open().forceLogging().addTag("foo", "bar")) {
-      SortedMap<String, SortedSet<Object>> tagMap = LoggingContext.getInstance().getTags().asMap();
+      Map<String, ? extends Set<Object>> tagMap = LoggingContext.getInstance().getTags().asMap();
       assertThat(tagMap.keySet()).containsExactly("foo");
       assertThat(tagMap.get("foo")).containsExactly("bar");
       assertForceLogging(true);
@@ -348,7 +353,7 @@ public class TraceIT extends AbstractDaemonTest {
               () -> {
                 // Verify that the tags and force logging flag have been propagated to the new
                 // thread.
-                SortedMap<String, SortedSet<Object>> threadTagMap =
+                Map<String, ? extends Set<Object>> threadTagMap =
                     LoggingContext.getInstance().getTags().asMap();
                 expect.that(threadTagMap.keySet()).containsExactly("foo");
                 expect.that(threadTagMap.get("foo")).containsExactly("bar");
@@ -370,37 +375,31 @@ public class TraceIT extends AbstractDaemonTest {
 
   @Test
   public void performanceLoggingForRestCall() throws Exception {
-    TestPerformanceLogger testPerformanceLogger = new TestPerformanceLogger();
+    PerformanceLogger testPerformanceLogger = mock(PerformanceLogger.class);
     try (Registration registration =
         extensionRegistry.newRegistration().add(testPerformanceLogger)) {
       RestResponse response = adminRestSession.put("/projects/new10");
       assertThat(response.getStatusCode()).isEqualTo(SC_CREATED);
-
-      // This assertion assumes that the server invokes the PerformanceLogger plugins before it
-      // sends
-      // the response to the client. If this assertion gets flaky it's likely that this got changed
-      // on
-      // server-side.
-      assertThat(testPerformanceLogger.logEntries()).isNotEmpty();
+      verify(testPerformanceLogger, timeout(5000).atLeastOnce()).log(anyString(), anyLong(), any());
     }
   }
 
   @Test
   public void performanceLoggingForPush() throws Exception {
-    TestPerformanceLogger testPerformanceLogger = new TestPerformanceLogger();
+    PerformanceLogger testPerformanceLogger = mock(PerformanceLogger.class);
     try (Registration registration =
         extensionRegistry.newRegistration().add(testPerformanceLogger)) {
       PushOneCommit push = pushFactory.create(admin.newIdent(), testRepo);
       PushOneCommit.Result r = push.to("refs/heads/master");
       r.assertOkStatus();
-      assertThat(testPerformanceLogger.logEntries()).isNotEmpty();
+      verify(testPerformanceLogger, timeout(5000).atLeastOnce()).log(anyString(), anyLong(), any());
     }
   }
 
   @Test
   @GerritConfig(name = "tracing.performanceLogging", value = "false")
   public void noPerformanceLoggingIfDisabled() throws Exception {
-    TestPerformanceLogger testPerformanceLogger = new TestPerformanceLogger();
+    PerformanceLogger testPerformanceLogger = mock(PerformanceLogger.class);
     try (Registration registration =
         extensionRegistry.newRegistration().add(testPerformanceLogger)) {
       RestResponse response = adminRestSession.put("/projects/new11");
@@ -410,7 +409,7 @@ public class TraceIT extends AbstractDaemonTest {
       PushOneCommit.Result r = push.to("refs/heads/master");
       r.assertOkStatus();
 
-      assertThat(testPerformanceLogger.logEntries()).isEmpty();
+      verifyZeroInteractions(testPerformanceLogger);
     }
   }
 
@@ -713,7 +712,7 @@ public class TraceIT extends AbstractDaemonTest {
 
   @Test
   @GerritConfig(name = "retry.retryWithTraceOnFailure", value = "true")
-  public void autoRetryWithTrace() throws Exception {
+  public void noAutoRetryIfExceptionCausesNormalRetrying() throws Exception {
     String changeId = createChange().getChangeId();
     approve(changeId);
 
@@ -723,49 +722,6 @@ public class TraceIT extends AbstractDaemonTest {
       RestResponse response = adminRestSession.post("/changes/" + changeId + "/submit");
       assertThat(response.getStatusCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
       assertThat(response.getHeader(RestApiServlet.X_GERRIT_TRACE)).startsWith("retry-on-failure-");
-      assertThat(traceSubmitRule.traceId).startsWith("retry-on-failure-");
-      assertThat(traceSubmitRule.isLoggingForced).isTrue();
-    }
-  }
-
-  @Test
-  @GerritConfig(name = "retry.retryWithTraceOnFailure", value = "true")
-  public void noAutoRetryIfExceptionCausesNormalRetrying() throws Exception {
-    String changeId = createChange().getChangeId();
-    approve(changeId);
-
-    TraceSubmitRule traceSubmitRule = new TraceSubmitRule();
-    traceSubmitRule.failAlways = true;
-    try (Registration registration =
-        extensionRegistry
-            .newRegistration()
-            .add(traceSubmitRule)
-            .add(
-                new ExceptionHook() {
-                  @Override
-                  public boolean shouldRetry(String actionType, String actionName, Throwable t) {
-                    return true;
-                  }
-                })) {
-      RestResponse response = adminRestSession.post("/changes/" + changeId + "/submit");
-      assertThat(response.getStatusCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
-      assertThat(response.getHeader(RestApiServlet.X_GERRIT_TRACE)).isNull();
-      assertThat(traceSubmitRule.traceId).isNull();
-      assertThat(traceSubmitRule.isLoggingForced).isFalse();
-    }
-  }
-
-  @Test
-  public void noAutoRetryWithTraceIfDisabled() throws Exception {
-    String changeId = createChange().getChangeId();
-    approve(changeId);
-
-    TraceSubmitRule traceSubmitRule = new TraceSubmitRule();
-    traceSubmitRule.failOnce = true;
-    try (Registration registration = extensionRegistry.newRegistration().add(traceSubmitRule)) {
-      RestResponse response = adminRestSession.post("/changes/" + changeId + "/submit");
-      assertThat(response.getStatusCode()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
-      assertThat(response.getHeader(RestApiServlet.X_GERRIT_TRACE)).isNull();
       assertThat(traceSubmitRule.traceId).isNull();
       assertThat(traceSubmitRule.isLoggingForced).isFalse();
     }
@@ -841,19 +797,6 @@ public class TraceIT extends AbstractDaemonTest {
       SubmitRecord submitRecord = new SubmitRecord();
       submitRecord.status = SubmitRecord.Status.OK;
       return Optional.of(submitRecord);
-    }
-  }
-
-  private static class TestPerformanceLogger implements PerformanceLogger {
-    private List<PerformanceLogEntry> logEntries = new ArrayList<>();
-
-    @Override
-    public void log(String operation, long durationMs, Metadata metadata) {
-      logEntries.add(PerformanceLogEntry.create(operation, metadata));
-    }
-
-    ImmutableList<PerformanceLogEntry> logEntries() {
-      return ImmutableList.copyOf(logEntries);
     }
   }
 

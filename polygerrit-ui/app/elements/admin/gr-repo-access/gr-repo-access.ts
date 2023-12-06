@@ -17,11 +17,8 @@
 import '../../../styles/gr-menu-page-styles';
 import '../../../styles/gr-subpage-styles';
 import '../../../styles/shared-styles';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-access-section/gr-access-section';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-access_html';
 import {encodeURL, getBaseUrl, singleDecodeURL} from '../../../utils/url-util';
@@ -38,8 +35,6 @@ import {
   UrlEncodedRepoName,
   ProjectAccessGroups,
 } from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrAccessSection} from '../gr-access-section/gr-access-section';
 import {
@@ -52,16 +47,13 @@ import {
   PropertyTreeNode,
   PrimitiveValue,
 } from './gr-repo-access-interfaces';
+import {firePageError, fireAlert} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {WebLinkInfo} from '../../../types/diff';
 
 const NOTHING_TO_SAVE = 'No changes to save.';
 
 const MAX_AUTOCOMPLETE_RESULTS = 50;
-
-export interface GrRepoAccess {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 
 /**
  * Fired when save is a no-op
@@ -69,9 +61,7 @@ export interface GrRepoAccess {
  * @event show-alert
  */
 @customElement('gr-repo-access')
-export class GrRepoAccess extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRepoAccess extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -119,21 +109,18 @@ export class GrRepoAccess extends GestureEventListeners(
   _sections?: PermissionAccessSection[];
 
   @property({type: Array})
-  _weblinks?: string[];
+  _weblinks?: WebLinkInfo[];
 
   @property({type: Boolean})
   _loading = true;
 
-  private _originalInheritsFrom?: ProjectInfo | null;
+  private originalInheritsFrom?: ProjectInfo | null;
+
+  private readonly restApiService = appContext.restApiService;
 
   constructor() {
     super();
     this._query = () => this._getInheritFromSuggestions();
-  }
-
-  /** @override */
-  created() {
-    super.created();
     this.addEventListener('access-modified', () =>
       this._handleAccessModified()
     );
@@ -155,20 +142,14 @@ export class GrRepoAccess extends GestureEventListeners(
 
   _reload(repo: RepoName) {
     const errFn = (response?: Response | null) => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
 
     this._editing = false;
 
     // Always reset sections when a project changes.
     this._sections = [];
-    const sectionsPromises = this.$.restAPI
+    const sectionsPromises = this.restApiService
       .getRepoAccessRights(repo, errFn)
       .then(res => {
         if (!res) {
@@ -183,7 +164,7 @@ export class GrRepoAccess extends GestureEventListeners(
               ...res.inherits_from,
             }
           : null;
-        this._originalInheritsFrom = res.inherits_from
+        this.originalInheritsFrom = res.inherits_from
           ? {
               ...res.inherits_from,
             }
@@ -204,7 +185,7 @@ export class GrRepoAccess extends GestureEventListeners(
         return toSortedPermissionsArray(this._local);
       });
 
-    const capabilitiesPromises = this.$.restAPI
+    const capabilitiesPromises = this.restApiService
       .getCapabilities(errFn)
       .then(res => {
         if (!res) {
@@ -214,13 +195,15 @@ export class GrRepoAccess extends GestureEventListeners(
         return res;
       });
 
-    const labelsPromises = this.$.restAPI.getRepo(repo, errFn).then(res => {
-      if (!res) {
-        return Promise.resolve(undefined);
-      }
+    const labelsPromises = this.restApiService
+      .getRepo(repo, errFn)
+      .then(res => {
+        if (!res) {
+          return Promise.resolve(undefined);
+        }
 
-      return res.labels;
-    });
+        return res.labels;
+      });
 
     return Promise.all([
       sectionsPromises,
@@ -252,7 +235,7 @@ export class GrRepoAccess extends GestureEventListeners(
   }
 
   _getInheritFromSuggestions(): Promise<AutocompleteSuggestion[]> {
-    return this.$.restAPI
+    return this.restApiService
       .getRepos(this._inheritFromFilter, MAX_AUTOCOMPLETE_RESULTS)
       .then(response => {
         const projects: AutocompleteSuggestion[] = [];
@@ -314,9 +297,18 @@ export class GrRepoAccess extends GestureEventListeners(
     }
     // Restore inheritFrom.
     if (this._inheritsFrom) {
-      this._inheritsFrom = {...this._originalInheritsFrom};
-      this._inheritFromFilter =
-        'name' in this._inheritsFrom ? this._inheritsFrom.name : undefined;
+      // Can't assign this._inheritsFrom = {...this.originalInheritsFrom}
+      // directly, because this._inheritsFrom is declared as
+      // '...|null|undefined` and typescript reports error when trying
+      // to access .name property (because 'name' in null and 'name' in undefined
+      // lead to runtime error)
+      // After migrating to Typescript v4.2 the code below can be rewritten as
+      // const copy = {...this.originalInheritsFrom};
+      const copy: ProjectInfo | {} = this.originalInheritsFrom
+        ? {...this.originalInheritsFrom}
+        : {};
+      this._inheritsFrom = copy;
+      this._inheritFromFilter = 'name' in copy ? copy.name : undefined;
     }
     if (!this._local) {
       return;
@@ -377,11 +369,9 @@ export class GrRepoAccess extends GestureEventListeners(
   /**
    * Used to recursively remove any objects with a 'deleted' bit.
    */
-  _recursivelyRemoveDeleted(obj: PropertyTreeNode) {
-    for (const k in obj) {
-      if (!hasOwnProperty(obj, k)) {
-        continue;
-      }
+  _recursivelyRemoveDeleted(obj?: PropertyTreeNode) {
+    if (!obj) return;
+    for (const k of Object.keys(obj)) {
       const node = obj[k];
       if (typeof node === 'object') {
         if (node.deleted) {
@@ -394,17 +384,15 @@ export class GrRepoAccess extends GestureEventListeners(
   }
 
   _recursivelyUpdateAddRemoveObj(
-    obj: PropertyTreeNode,
+    obj: PropertyTreeNode | undefined,
     addRemoveObj: {
       add: PropertyTreeNode;
       remove: PropertyTreeNode;
     },
     path: string[] = []
   ) {
-    for (const k in obj) {
-      if (!hasOwnProperty(obj, k)) {
-        continue;
-      }
+    if (!obj) return;
+    for (const k of Object.keys(obj)) {
       const node = obj[k];
       if (typeof node === 'object') {
         const updatedId = node.updatedId;
@@ -458,8 +446,8 @@ export class GrRepoAccess extends GestureEventListeners(
       remove: {},
     };
 
-    const originalInheritsFromId = this._originalInheritsFrom
-      ? singleDecodeURL(this._originalInheritsFrom.id)
+    const originalInheritsFromId = this.originalInheritsFrom
+      ? singleDecodeURL(this.originalInheritsFrom.id)
       : null;
     // TODO(TS): this._inheritsFrom as ProjectInfo might be a mistake.
     // _inheritsFrom can be {}
@@ -516,13 +504,7 @@ export class GrRepoAccess extends GestureEventListeners(
       !Object.keys(addRemoveObj.remove).length &&
       !addRemoveObj.parent
     ) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: NOTHING_TO_SAVE},
-          bubbles: true,
-          composed: true,
-        })
-      );
+      fireAlert(this, NOTHING_TO_SAVE);
       return;
     }
     const obj: ProjectAccessInput = ({
@@ -548,7 +530,7 @@ export class GrRepoAccess extends GestureEventListeners(
     if (!repo) {
       return Promise.resolve();
     }
-    return this.$.restAPI
+    return this.restApiService
       .setRepoAccessRights(repo, obj)
       .then(() => {
         this._reload(repo);
@@ -573,7 +555,7 @@ export class GrRepoAccess extends GestureEventListeners(
     if (!this.repo) {
       return;
     }
-    return this.$.restAPI
+    return this.restApiService
       .setRepoAccessRightsForReview(this.repo, obj)
       .then(change => {
         GerritNav.navigateToChange(change);

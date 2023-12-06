@@ -54,11 +54,14 @@ import com.google.gerrit.acceptance.testsuite.account.AccountOperations;
 import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.auth.ldap.FakeLdapGroupBackend;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.InternalGroup;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
@@ -85,8 +88,7 @@ import com.google.gerrit.server.ServerInitiated;
 import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.account.GroupIncludeCache;
 import com.google.gerrit.server.account.GroupsSnapshotReader;
-import com.google.gerrit.server.auth.ldap.FakeLdapGroupBackend;
-import com.google.gerrit.server.group.InternalGroup;
+import com.google.gerrit.server.account.ServiceUserClassifier;
 import com.google.gerrit.server.group.PeriodicGroupIndexer;
 import com.google.gerrit.server.group.SystemGroupBackend;
 import com.google.gerrit.server.group.db.Groups;
@@ -916,7 +918,9 @@ public class GroupsIT extends AbstractDaemonTest {
   @Test
   public void defaultGroupsCreated() throws Exception {
     Iterable<String> names = gApi.groups().list().getAsMap().keySet();
-    assertThat(names).containsAtLeast("Administrators", "Service Users").inOrder();
+    assertThat(names)
+        .containsAtLeast("Administrators", ServiceUserClassifier.SERVICE_USERS)
+        .inOrder();
   }
 
   @Test
@@ -1547,7 +1551,7 @@ public class GroupsIT extends AbstractDaemonTest {
         .project(project)
         .forUpdate()
         .add(
-            allowLabel("Code-Review")
+            allowLabel(LabelId.CODE_REVIEW)
                 .ref(RefNames.REFS_GROUPS + "*")
                 .group(REGISTERED_USERS)
                 .range(-2, 2))

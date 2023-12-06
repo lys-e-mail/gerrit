@@ -20,9 +20,10 @@ import com.google.gerrit.common.Nullable;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.events.LifecycleListener;
 import com.google.gerrit.lifecycle.LifecycleModule;
-import com.google.gerrit.metrics.DisabledMetricMaker;
 import com.google.gerrit.metrics.MetricMaker;
+import com.google.gerrit.metrics.MetricsReservoirConfig;
 import com.google.gerrit.server.config.GerritServerConfig;
+import com.google.gerrit.server.config.MetricsReservoirConfigImpl;
 import com.google.gerrit.server.config.SitePath;
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.config.TrackingFooters;
@@ -33,6 +34,7 @@ import com.google.gerrit.server.schema.SchemaModule;
 import com.google.gerrit.testing.InMemoryRepositoryManager;
 import com.google.inject.Inject;
 import com.google.inject.ProvisionException;
+import com.google.inject.Scopes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +66,8 @@ class InMemoryTestingDatabaseModule extends LifecycleModule {
       bind(InMemoryRepositoryManager.class).in(SINGLETON);
     }
 
-    bind(MetricMaker.class).to(DisabledMetricMaker.class);
+    bind(MetricsReservoirConfig.class).to(MetricsReservoirConfigImpl.class).in(Scopes.SINGLETON);
+    bind(MetricMaker.class).to(TestMetricMaker.class);
 
     listener().to(CreateSchema.class);
 

@@ -29,8 +29,10 @@ import com.google.gerrit.extensions.restapi.RestApiModule;
 import com.google.gerrit.server.config.GerritConfigListener;
 import com.google.gerrit.server.project.RefValidationHelper;
 import com.google.gerrit.server.restapi.change.CherryPickCommit;
+import com.google.gerrit.server.validators.ProjectCreationValidationListener;
 
 public class Module extends RestApiModule {
+
   @Override
   protected void configure() {
     bind(ProjectsCollection.class);
@@ -46,6 +48,8 @@ public class Module extends RestApiModule {
     DynamicMap.mapOf(binder(), LABEL_KIND);
 
     DynamicSet.bind(binder(), GerritConfigListener.class).to(SetParent.class);
+    DynamicSet.bind(binder(), ProjectCreationValidationListener.class)
+        .to(CreateProject.ValidBranchListener.class);
 
     create(PROJECT_KIND).to(CreateProject.class);
     put(PROJECT_KIND).to(PutProject.class);
@@ -57,7 +61,7 @@ public class Module extends RestApiModule {
     get(PROJECT_KIND, "access").to(GetAccess.class);
     post(PROJECT_KIND, "access").to(SetAccess.class);
     put(PROJECT_KIND, "access:review").to(CreateAccessChange.class);
-    get(PROJECT_KIND, "check.access").to(CheckAccessReadView.class);
+    get(PROJECT_KIND, "check.access").to(CheckAccess.class);
 
     post(PROJECT_KIND, "check").to(Check.class);
 
@@ -79,10 +83,7 @@ public class Module extends RestApiModule {
 
     put(PROJECT_KIND, "ban").to(BanCommit.class);
 
-    get(PROJECT_KIND, "statistics.git").to(GetStatistics.class);
-    post(PROJECT_KIND, "gc").to(GarbageCollect.class);
     post(PROJECT_KIND, "index").to(Index.class);
-    post(PROJECT_KIND, "index.changes").to(IndexChanges.class);
 
     child(PROJECT_KIND, "branches").to(BranchesCollection.class);
     create(BRANCH_KIND).to(CreateBranch.class);
@@ -120,5 +121,15 @@ public class Module extends RestApiModule {
     post(COMMIT_KIND, "cherrypick").to(CherryPickCommit.class);
 
     factory(ProjectNode.Factory.class);
+  }
+
+  /** Separately bind batch functionality. */
+  public static class BatchModule extends RestApiModule {
+    @Override
+    protected void configure() {
+      get(PROJECT_KIND, "statistics.git").to(GetStatistics.class);
+      post(PROJECT_KIND, "gc").to(GarbageCollect.class);
+      post(PROJECT_KIND, "index.changes").to(IndexChanges.class);
+    }
   }
 }

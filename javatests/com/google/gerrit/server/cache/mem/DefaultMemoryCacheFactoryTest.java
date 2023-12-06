@@ -39,12 +39,15 @@ import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.eclipse.jgit.lib.Config;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +63,7 @@ public class DefaultMemoryCacheFactoryTest {
   private DefaultMemoryCacheFactory memoryCacheFactoryDirectExecutor;
   private DefaultMemoryCacheFactory memoryCacheFactoryWithThreadPool;
   private Config memoryCacheConfig;
+  private ScheduledExecutorService executor;
   private Config memoryCacheConfigDirectExecutor;
   private Config memoryCacheConfigWithThreadPool;
   private CyclicBarrier cacheGetStarted;
@@ -70,16 +74,13 @@ public class DefaultMemoryCacheFactoryTest {
 
   @Before
   public void setUp() {
-
     IdGenerator idGenerator = Guice.createInjector().getInstance(IdGenerator.class);
     workQueue = new WorkQueue(idGenerator, 10, new DisabledMetricMaker());
-
     memoryCacheConfig = new Config();
     memoryCacheConfigDirectExecutor = new Config();
     memoryCacheConfigDirectExecutor.setInt("cache", null, "threads", 0);
     memoryCacheConfigWithThreadPool = new Config();
     memoryCacheConfigWithThreadPool.setInt("cache", null, "threads", 1);
-
     forwardingRemovalListener = new ForwardingRemovalTrackerListener();
     memoryCacheFactory =
         new DefaultMemoryCacheFactory(
@@ -90,9 +91,42 @@ public class DefaultMemoryCacheFactoryTest {
     memoryCacheFactoryWithThreadPool =
         new DefaultMemoryCacheFactory(
             memoryCacheConfigWithThreadPool, (cache) -> forwardingRemovalListener, workQueue);
+    executor = Executors.newScheduledThreadPool(1);
     cacheGetStarted = new CyclicBarrier(2);
     cacheGetCompleted = new CyclicBarrier(2);
     evictionReceived = new CyclicBarrier(2);
+  }
+
+  @Test
+  public void shouldNotBlockEvictionsWhenCacheIsDisabledByDefault() throws Exception {
+    LoadingCache<Integer, Integer> disabledCache =
+        memoryCacheFactory.build(newCacheDef(0), newCacheLoader(identity()), CacheBackend.CAFFEINE);
+
+    assertCacheEvictionIsNotBlocking(disabledCache);
+  }
+
+  @Test
+  public void shouldNotBlockEvictionsWhenCacheIsDisabledByConfiguration() throws Exception {
+    memoryCacheConfig.setInt("cache", TEST_CACHE, "memoryLimit", 0);
+    LoadingCache<Integer, Integer> disabledCache =
+        memoryCacheFactory.build(newCacheDef(1), newCacheLoader(identity()), CacheBackend.CAFFEINE);
+
+    assertCacheEvictionIsNotBlocking(disabledCache);
+  }
+
+  @Test
+  public void shouldBlockEvictionsWhenCacheIsEnabled() throws Exception {
+    LoadingCache<Integer, Integer> cache =
+        memoryCacheFactory.build(newCacheDef(1), newCacheLoader(identity()), CacheBackend.CAFFEINE);
+
+    ScheduledFuture<Integer> cacheValue =
+        executor.schedule(() -> cache.getUnchecked(TEST_CACHE_KEY), 0, TimeUnit.SECONDS);
+
+    cacheGetStarted.await(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+    cache.invalidate(TEST_CACHE_KEY);
+
+    assertThat(cacheValue.isDone()).isTrue();
+    assertThat(cacheValue.get()).isEqualTo(TEST_CACHE_KEY);
   }
 
   @Test
@@ -146,6 +180,22 @@ public class DefaultMemoryCacheFactoryTest {
     assertThat(entries).containsExactly(1, 1, 2, 2);
   }
 
+  private void assertCacheEvictionIsNotBlocking(LoadingCache<Integer, Integer> disabledCache)
+      throws InterruptedException, BrokenBarrierException, TimeoutException, ExecutionException {
+    ScheduledFuture<Integer> cacheValue =
+        executor.schedule(() -> disabledCache.getUnchecked(TEST_CACHE_KEY), 0, TimeUnit.SECONDS);
+    cacheGetStarted.await(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+    disabledCache.invalidate(TEST_CACHE_KEY);
+
+    // The invalidate did not wait for the cache loader to finish, therefore the cacheValue isn't
+    // done yet
+    assertThat(cacheValue.isDone()).isFalse();
+
+    // The cache loader completes after the invalidation
+    cacheGetCompleted.await(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+    assertThat(cacheValue.get()).isEqualTo(TEST_CACHE_KEY);
+  }
+
   private CacheLoader<Integer, Integer> newCacheLoader(Function<Integer, Integer> loadFunc) {
     return new CacheLoader<Integer, Integer>() {
 
@@ -186,7 +236,7 @@ public class DefaultMemoryCacheFactoryTest {
           removalEvents.computeIfAbsent(
               notification.getKey(),
               (key) -> {
-                Set<Object> elements = new ConcurrentHashSet<>();
+                Set<Object> elements = ConcurrentHashMap.newKeySet();
                 return elements;
               });
       setOfValues.add(notification.getValue());
@@ -246,6 +296,11 @@ public class DefaultMemoryCacheFactoryTest {
 
       @Override
       public Duration expireFromMemoryAfterAccess() {
+        return null;
+      }
+
+      @Override
+      public Duration refreshAfterWrite() {
         return null;
       }
 

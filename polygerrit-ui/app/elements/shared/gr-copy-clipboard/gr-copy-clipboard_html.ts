@@ -17,7 +17,7 @@
 import {html} from '@polymer/polymer/lib/utils/html-tag';
 
 export const htmlTemplate = html`
-  <style include="shared-styles">
+  <style>
     .text {
       align-items: center;
       display: flex;
@@ -48,6 +48,12 @@ export const htmlTemplate = html`
       height: 16px;
       width: 16px;
     }
+    iron-icon {
+      color: var(--deemphasized-text-color);
+      vertical-align: top;
+      --iron-icon-height: 20px;
+      --iron-icon-width: 20px;
+    }
     gr-button {
       --gr-button: {
         padding: 2px;
@@ -59,7 +65,7 @@ export const htmlTemplate = html`
       class="copyText"
       type="text"
       bind-value="[[text]]"
-      on-tap="_handleInputClick"
+      on-click="_handleInputClick"
       readonly=""
     >
       <input

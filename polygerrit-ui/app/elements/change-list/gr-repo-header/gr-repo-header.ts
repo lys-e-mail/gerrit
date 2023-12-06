@@ -18,20 +18,16 @@
 import '../../../styles/dashboard-header-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-date-formatter/gr-date-formatter';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-header_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
 import {RepoName} from '../../../types/common';
+import {WebLinkInfo} from '../../../types/diff';
+import {appContext} from '../../../services/app-context';
 
-/** @extends PolymerElement */
 @customElement('gr-repo-header')
-class GrRepoHeader extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrRepoHeader extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -42,12 +38,23 @@ class GrRepoHeader extends GestureEventListeners(
   @property({type: String})
   _repoUrl: string | null = null;
 
+  @property({type: Array})
+  _webLinks: WebLinkInfo[] = [];
+
+  private readonly restApiService = appContext.restApiService;
+
   _repoChanged(repoName: RepoName) {
     if (!repoName) {
       this._repoUrl = null;
       return;
     }
+
     this._repoUrl = GerritNav.getUrlForRepo(repoName);
+
+    this.restApiService.getRepo(repoName).then(repo => {
+      if (!repo?.web_links) return;
+      this._webLinks = repo.web_links;
+    });
   }
 }
 

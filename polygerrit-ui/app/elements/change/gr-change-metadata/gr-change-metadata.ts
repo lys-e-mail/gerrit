@@ -28,14 +28,11 @@ import '../../shared/gr-icons/gr-icons';
 import '../../shared/gr-limited-text/gr-limited-text';
 import '../../shared/gr-linked-chip/gr-linked-chip';
 import '../../shared/gr-tooltip-content/gr-tooltip-content';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-change-requirements/gr-change-requirements';
 import '../gr-commit-info/gr-commit-info';
 import '../gr-reviewer-list/gr-reviewer-list';
 import '../../shared/gr-account-list/gr-account-list';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-metadata_html';
 import {
@@ -46,20 +43,18 @@ import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {
   ChangeStatus,
   GpgKeyInfoStatus,
+  InheritedBooleanInfoConfiguredValue,
   SubmitType,
 } from '../../../constants/constants';
 import {changeIsOpen} from '../../../utils/change-util';
 import {customElement, property, observe} from '@polymer/decorators';
-import {
-  EditRevisionInfo,
-  ParsedChangeInfo,
-} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
 import {
   AccountDetailInfo,
   AccountInfo,
   BranchName,
   CommitId,
   CommitInfo,
+  ConfigInfo,
   ElementPropertyDeepChange,
   GpgKeyInfo,
   Hashtag,
@@ -72,10 +67,25 @@ import {
   ServerInfo,
   TopicName,
 } from '../../../types/common';
-import {assertNever} from '../../../utils/common-util';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {assertNever, unique} from '../../../utils/common-util';
 import {GrEditableLabel} from '../../shared/gr-editable-label/gr-editable-label';
 import {GrLinkedChip} from '../../shared/gr-linked-chip/gr-linked-chip';
+import {appContext} from '../../../services/app-context';
+import {
+  Metadata,
+  isSectionSet,
+  DisplayRules,
+} from '../../../utils/change-metadata-util';
+import {fireEvent} from '../../../utils/event-util';
+import {
+  EditRevisionInfo,
+  notUndefined,
+  ParsedChangeInfo,
+} from '../../../types/types';
+import {
+  AutocompleteQuery,
+  AutocompleteSuggestion,
+} from '../../shared/gr-autocomplete/gr-autocomplete';
 
 const HASHTAG_ADD_MESSAGE = 'Add Hashtag';
 
@@ -102,7 +112,7 @@ const SubmitTypeLabel = new Map<SubmitType, string>([
 
 const NOT_CURRENT_MESSAGE = 'Not current - rebase possible';
 
-interface PushCertifacteValidationInfo {
+interface PushCertificateValidationInfo {
   class: string;
   icon: string;
   message: string;
@@ -110,14 +120,12 @@ interface PushCertifacteValidationInfo {
 
 export interface GrChangeMetadata {
   $: {
-    restAPI: RestApiService & Element;
+    webLinks: HTMLElement;
   };
 }
 
 @customElement('gr-change-metadata')
-export class GrChangeMetadata extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrChangeMetadata extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -169,9 +177,10 @@ export class GrChangeMetadata extends GestureEventListeners(
 
   @property({
     type: Object,
-    computed: '_computePushCertificateValidation(serverConfig, change)',
+    computed:
+      '_computePushCertificateValidation(serverConfig, change, repoConfig)',
   })
-  _pushCertificateValidation: PushCertifacteValidationInfo | null = null;
+  _pushCertificateValidation?: PushCertificateValidationInfo;
 
   @property({type: Boolean, computed: '_computeShowRequirements(change)'})
   _showRequirements = false;
@@ -194,9 +203,31 @@ export class GrChangeMetadata extends GestureEventListeners(
   @property({type: Object})
   _CHANGE_ROLE = ChangeRole;
 
+  @property({type: Object})
+  _SECTION = Metadata;
+
+  @property({type: Boolean})
+  _showAllSections = false;
+
+  @property({type: Object})
+  queryTopic?: AutocompleteQuery;
+
+  @property({type: Object})
+  repoConfig?: ConfigInfo;
+
+  restApiService = appContext.restApiService;
+
+  private readonly reporting = appContext.reportingService;
+
+  /** @override */
+  ready() {
+    super.ready();
+    this.queryTopic = (input: string) => this._getTopicSuggestions(input);
+  }
+
   @observe('change.labels')
   _labelsChanged(labels?: LabelNameToInfoMap) {
-    this.labels = {...labels} || null;
+    this.labels = {...labels};
   }
 
   @observe('change')
@@ -223,13 +254,13 @@ export class GrChangeMetadata extends GestureEventListeners(
         return;
       }
       this.set(['change', 'assignee'], acct);
-      this.$.restAPI.setAssignee(this.change._number, acct._account_id);
+      this.restApiService.setAssignee(this.change._number, acct._account_id);
     } else {
       if (!this.change.assignee) {
         return;
       }
       this.set(['change', 'assignee'], undefined);
-      this.$.restAPI.deleteAssignee(this.change._number);
+      this.restApiService.deleteAssignee(this.change._number);
     }
   }
 
@@ -238,7 +269,7 @@ export class GrChangeMetadata extends GestureEventListeners(
   }
 
   /**
-   * @return If array is empty, returns null instead so
+   * @return If array is empty, returns undefined instead so
    * an existential check can be used to hide or show the webLinks
    * section.
    */
@@ -246,9 +277,7 @@ export class GrChangeMetadata extends GestureEventListeners(
     commitInfo?: CommitInfoWithRequiredCommit,
     serverConfig?: ServerInfo
   ) {
-    if (!commitInfo) {
-      return null;
-    }
+    if (!commitInfo) return undefined;
     const weblinks = GerritNav.getChangeWeblinks(
       this.change ? this.change.project : ('' as RepoName),
       commitInfo.commit,
@@ -257,15 +286,15 @@ export class GrChangeMetadata extends GestureEventListeners(
         config: serverConfig,
       }
     );
-    return weblinks.length ? weblinks : null;
+    return weblinks.length ? weblinks : undefined;
+  }
+
+  _isChangeMerged(change?: ParsedChangeInfo) {
+    return change?.status === ChangeStatus.MERGED;
   }
 
   _isAssigneeEnabled(serverConfig?: ServerInfo) {
-    return (
-      serverConfig &&
-      serverConfig.change &&
-      !!serverConfig.change.enable_assignee
-    );
+    return !!serverConfig?.change?.enable_assignee;
   }
 
   _computeStrategy(change?: ParsedChangeInfo) {
@@ -285,54 +314,43 @@ export class GrChangeMetadata extends GestureEventListeners(
       throw new Error('change must be set');
     }
     const lastTopic = this.change.topic;
-    const topic = e.detail.length ? e.detail : null;
+    const topic = e.detail.length ? e.detail : undefined;
     this._settingTopic = true;
     const topicChangedForChangeNumber = this.change._number;
-    this.$.restAPI
+    this.restApiService
       .setChangeTopic(topicChangedForChangeNumber, topic)
       .then(newTopic => {
-        if (
-          !this.change ||
-          this.change._number !== topicChangedForChangeNumber
-        ) {
-          return;
-        }
+        if (this.change?._number !== topicChangedForChangeNumber) return;
         this._settingTopic = false;
         this.set(['change', 'topic'], newTopic);
         if (newTopic !== lastTopic) {
-          this.dispatchEvent(
-            new CustomEvent('topic-changed', {bubbles: true, composed: true})
-          );
+          fireEvent(this, 'topic-changed');
         }
       });
   }
 
   _showAddTopic(
-    changeRecord: ElementPropertyDeepChange<GrChangeMetadata, 'change'>,
+    changeRecord?: ElementPropertyDeepChange<GrChangeMetadata, 'change'>,
     settingTopic?: boolean
   ) {
-    const hasTopic =
-      !!changeRecord && !!changeRecord.base && !!changeRecord.base.topic;
+    const hasTopic = !!changeRecord?.base?.topic;
     return !hasTopic && !settingTopic;
   }
 
   _showTopicChip(
-    changeRecord: ElementPropertyDeepChange<GrChangeMetadata, 'change'>,
+    changeRecord?: ElementPropertyDeepChange<GrChangeMetadata, 'change'>,
     settingTopic?: boolean
   ) {
-    const hasTopic =
-      !!changeRecord && !!changeRecord.base && !!changeRecord.base.topic;
+    const hasTopic = !!changeRecord?.base?.topic;
     return hasTopic && !settingTopic;
   }
 
   _showCherryPickOf(
-    changeRecord: ElementPropertyDeepChange<GrChangeMetadata, 'change'>
+    changeRecord?: ElementPropertyDeepChange<GrChangeMetadata, 'change'>
   ) {
     const hasCherryPickOf =
-      !!changeRecord &&
-      !!changeRecord.base &&
-      !!changeRecord.base.cherry_pick_of_change &&
-      !!changeRecord.base.cherry_pick_of_patch_set;
+      !!changeRecord?.base?.cherry_pick_of_change &&
+      !!changeRecord?.base?.cherry_pick_of_patch_set;
     return hasCherryPickOf;
   }
 
@@ -345,47 +363,24 @@ export class GrChangeMetadata extends GestureEventListeners(
     }
     const newHashtag = this._newHashtag;
     this._newHashtag = '' as Hashtag;
-    this.$.restAPI
+    this.restApiService
       .setChangeHashtag(this.change._number, {add: [newHashtag]})
       .then(newHashtag => {
         this.set(['change', 'hashtags'], newHashtag);
-        this.dispatchEvent(
-          new CustomEvent('hashtag-changed', {
-            bubbles: true,
-            composed: true,
-          })
-        );
+        fireEvent(this, 'hashtag-changed');
       });
   }
 
   _computeTopicReadOnly(mutable?: boolean, change?: ParsedChangeInfo) {
-    return (
-      !mutable ||
-      !change ||
-      !change.actions ||
-      !change.actions.topic ||
-      !change.actions.topic.enabled
-    );
+    return !mutable || !change?.actions?.topic?.enabled;
   }
 
   _computeHashtagReadOnly(mutable?: boolean, change?: ParsedChangeInfo) {
-    return (
-      !mutable ||
-      !change ||
-      !change.actions ||
-      !change.actions.hashtags ||
-      !change.actions.hashtags.enabled
-    );
+    return !mutable || !change?.actions?.hashtags?.enabled;
   }
 
   _computeAssigneeReadOnly(mutable?: boolean, change?: ParsedChangeInfo) {
-    return (
-      !mutable ||
-      !change ||
-      !change.actions ||
-      !change.actions.assignee ||
-      !change.actions.assignee.enabled
-    );
+    return !mutable || !change?.actions?.assignee?.enabled;
   }
 
   _computeTopicPlaceholder(_topicReadOnly?: boolean) {
@@ -418,18 +413,16 @@ export class GrChangeMetadata extends GestureEventListeners(
    */
   _computePushCertificateValidation(
     serverConfig?: ServerInfo,
-    change?: ParsedChangeInfo
-  ): PushCertifacteValidationInfo | null {
-    if (
-      !change ||
-      !serverConfig ||
-      !serverConfig.receive ||
-      !serverConfig.receive.enable_signed_push
-    ) {
-      return null;
+    change?: ParsedChangeInfo,
+    repoConfig?: ConfigInfo
+  ): PushCertificateValidationInfo | undefined {
+    if (!change || !serverConfig?.receive?.enable_signed_push) return undefined;
+
+    if (!this.isEnabledSignedPushOnRepo(repoConfig)) {
+      return undefined;
     }
     const rev = change.revisions[change.current_revision];
-    if (!rev.push_certificate || !rev.push_certificate.key) {
+    if (!rev.push_certificate?.key) {
       return {
         class: 'help',
         icon: 'gr-icons:help',
@@ -471,8 +464,22 @@ export class GrChangeMetadata extends GestureEventListeners(
     }
   }
 
+  // private but used in test
+  isEnabledSignedPushOnRepo(repoConfig?: ConfigInfo) {
+    if (!repoConfig?.enable_signed_push) return false;
+
+    const enableSignedPush = repoConfig.enable_signed_push;
+    return (
+      (enableSignedPush.configured_value ===
+        InheritedBooleanInfoConfiguredValue.INHERIT &&
+        enableSignedPush.inherited_value) ||
+      enableSignedPush.configured_value ===
+        InheritedBooleanInfoConfiguredValue.TRUE
+    );
+  }
+
   _problems(msg: string, key: GpgKeyInfo) {
-    if (!key || !key.problems || key.problems.length === 0) {
+    if (!key?.problems || key.problems.length === 0) {
       return msg;
     }
 
@@ -524,18 +531,15 @@ export class GrChangeMetadata extends GestureEventListeners(
     }
     const target = (dom(e) as EventApi).rootTarget as GrLinkedChip;
     target.disabled = true;
-    this.$.restAPI
-      .setChangeTopic(this.change._number, null)
+    this.restApiService
+      .setChangeTopic(this.change._number)
       .then(() => {
         target.disabled = false;
         this.set(['change', 'topic'], '');
-        this.dispatchEvent(
-          new CustomEvent('topic-changed', {bubbles: true, composed: true})
-        );
+        fireEvent(this, 'topic-changed');
       })
       .catch(() => {
         target.disabled = false;
-        return;
       });
   }
 
@@ -546,7 +550,7 @@ export class GrChangeMetadata extends GestureEventListeners(
     }
     const target = (dom(e) as EventApi).rootTarget as GrLinkedChip;
     target.disabled = true;
-    this.$.restAPI
+    this.restApiService
       .setChangeHashtag(this.change._number, {remove: [target.text as Hashtag]})
       .then(newHashtags => {
         target.disabled = false;
@@ -554,35 +558,74 @@ export class GrChangeMetadata extends GestureEventListeners(
       })
       .catch(() => {
         target.disabled = false;
-        return;
       });
   }
 
   _computeIsWip(change?: ParsedChangeInfo) {
-    return change && !!change.work_in_progress;
+    return !!change?.work_in_progress;
   }
 
   _computeShowRoleClass(change?: ParsedChangeInfo, role?: ChangeRole) {
     return this._getNonOwnerRole(change, role) ? '' : 'hideDisplay';
   }
 
+  _computeDisplayState(
+    showAllSections: boolean,
+    change: ParsedChangeInfo | undefined,
+    section: Metadata
+  ) {
+    if (
+      showAllSections ||
+      DisplayRules.ALWAYS_SHOW.includes(section) ||
+      (DisplayRules.SHOW_IF_SET.includes(section) &&
+        isSectionSet(section, change))
+    ) {
+      return '';
+    }
+    return 'hideDisplay';
+  }
+
+  _computeMergedCommitInfo(
+    current_revision: CommitId,
+    revisions: {[revisionId: string]: RevisionInfo}
+  ) {
+    const rev = revisions[current_revision];
+    if (!rev || !rev.commit) {
+      return {};
+    }
+    // CommitInfo.commit is optional. Set commit in all cases to avoid error
+    // in <gr-commit-info>. @see Issue 5337
+    if (!rev.commit.commit) {
+      rev.commit.commit = current_revision;
+    }
+    return rev.commit;
+  }
+
+  _computeShowAllLabelText(showAllSections: boolean) {
+    if (showAllSections) {
+      return 'Show less';
+    } else {
+      return 'Show all';
+    }
+  }
+
+  _onShowAllClick() {
+    this._showAllSections = !this._showAllSections;
+    this.reporting.reportInteraction('toggle show all button', {
+      sectionName: 'metadata',
+      toState: this._showAllSections ? 'Show all' : 'Show less',
+    });
+  }
+
   /**
-   * Get the user with the specified role on the change. Returns null if the
+   * Get the user with the specified role on the change. Returns undefined if the
    * user with that role is the same as the owner.
    */
   _getNonOwnerRole(change?: ParsedChangeInfo, role?: ChangeRole) {
-    if (
-      !change ||
-      !change.current_revision ||
-      !change.revisions[change.current_revision]
-    ) {
-      return null;
-    }
+    if (!change?.revisions?.[change.current_revision]) return undefined;
 
     const rev = change.revisions[change.current_revision];
-    if (!rev) {
-      return null;
-    }
+    if (!rev) return undefined;
 
     if (
       role === ChangeRole.UPLOADER &&
@@ -611,7 +654,7 @@ export class GrChangeMetadata extends GestureEventListeners(
       return rev.commit.committer;
     }
 
-    return null;
+    return undefined;
   }
 
   _computeParents(
@@ -670,12 +713,26 @@ export class GrChangeMetadata extends GestureEventListeners(
       return undefined;
     }
     const provider = GrReviewerSuggestionsProvider.create(
-      this.$.restAPI,
+      this.restApiService,
       change._number,
       SUGGESTIONS_PROVIDERS_USERS_TYPES.ANY
     );
     provider.init();
     return provider;
+  }
+
+  _getTopicSuggestions(input: string): Promise<AutocompleteSuggestion[]> {
+    return this.restApiService
+      .getChangesWithSimilarTopic(input)
+      .then(response =>
+        (response ?? [])
+          .map(change => change.topic)
+          .filter(notUndefined)
+          .filter(unique)
+          .map(topic => {
+            return {name: topic, value: topic};
+          })
+      );
   }
 }
 

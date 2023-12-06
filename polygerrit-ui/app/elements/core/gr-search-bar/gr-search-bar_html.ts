@@ -47,6 +47,7 @@ export const htmlTemplate = html`
         href$="[[_computeHelpDocLink(docBaseUrl)]]"
         target="_blank"
         class="help"
+        tabindex="-1"
       >
         <iron-icon
           icon="gr-icons:help-outline"
@@ -55,5 +56,4 @@ export const htmlTemplate = html`
       </a>
     </gr-autocomplete>
   </form>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

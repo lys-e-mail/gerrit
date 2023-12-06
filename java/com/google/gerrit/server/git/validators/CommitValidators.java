@@ -56,11 +56,11 @@ import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectConfig;
 import com.google.gerrit.server.project.ProjectState;
+import com.google.gerrit.server.ssh.HostKey;
 import com.google.gerrit.server.ssh.SshInfo;
 import com.google.gerrit.server.util.MagicBranch;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jcraft.jsch.HostKey;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -234,7 +234,7 @@ public class CommitValidators {
     List<CommitValidationMessage> messages = new ArrayList<>();
     try {
       for (CommitValidationListener commitValidator : validators) {
-        try (TraceTimer traceTimer =
+        try (TraceTimer ignored =
             TraceContext.newTimer(
                 "Running CommitValidationListener",
                 Metadata.builder()
@@ -336,7 +336,7 @@ public class CommitValidators {
       } else if (idList.size() > 1) {
         throw new CommitValidationException(MULTIPLE_CHANGE_ID_MSG, messages);
       } else {
-        String v = idList.get(idList.size() - 1).trim();
+        String v = idList.get(0).trim();
         // Reject Change-Ids with wrong format and invalid placeholder ID from
         // Egit (I0000000000000000000000000000000000000000).
         if (!CHANGE_ID.matcher(v).matches() || v.matches("^I00*$")) {
@@ -458,10 +458,11 @@ public class CommitValidators {
 
     private long countChangedFiles(CommitReceivedEvent receiveEvent) throws IOException {
       try (Repository repository = repoManager.openRepository(receiveEvent.project.getNameKey());
-          RevWalk revWalk = new RevWalk(repository);
           DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE)) {
-        diffFormatter.setReader(revWalk.getObjectReader(), repository.getConfig());
-        diffFormatter.setDetectRenames(true);
+        diffFormatter.setRepository(repository);
+        // Do not detect renames; that would require reading file contents, which is slow for large
+        // files.
+        diffFormatter.setDetectRenames(false);
         // For merge commits, i.e. >1 parents, we use parent #0 by convention.
         List<DiffEntry> diffEntries =
             diffFormatter.scan(
@@ -562,7 +563,7 @@ public class CommitValidators {
 
   /** Execute commit validation plug-ins */
   public static class PluginCommitValidationListener implements CommitValidationListener {
-    private boolean skipValidation;
+    private final boolean skipValidation;
     private final PluginSetContext<CommitValidationListener> commitValidationListeners;
 
     public PluginCommitValidationListener(
@@ -604,7 +605,8 @@ public class CommitValidators {
 
     @Override
     public boolean shouldValidateAllCommits() {
-      return commitValidationListeners.stream().anyMatch(v -> v.shouldValidateAllCommits());
+      return commitValidationListeners.stream()
+          .anyMatch(CommitValidationListener::shouldValidateAllCommits);
     }
   }
 

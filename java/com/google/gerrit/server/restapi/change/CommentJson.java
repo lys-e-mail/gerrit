@@ -20,9 +20,12 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import com.google.gerrit.common.Nullable;
+import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.Comment;
+import com.google.gerrit.entities.CommentContext;
 import com.google.gerrit.entities.FixReplacement;
 import com.google.gerrit.entities.FixSuggestion;
 import com.google.gerrit.entities.HumanComment;
@@ -31,15 +34,18 @@ import com.google.gerrit.entities.RobotComment;
 import com.google.gerrit.extensions.client.Comment.Range;
 import com.google.gerrit.extensions.client.Side;
 import com.google.gerrit.extensions.common.CommentInfo;
+import com.google.gerrit.extensions.common.ContextLineInfo;
 import com.google.gerrit.extensions.common.FixReplacementInfo;
 import com.google.gerrit.extensions.common.FixSuggestionInfo;
 import com.google.gerrit.extensions.common.RobotCommentInfo;
 import com.google.gerrit.extensions.restapi.Url;
-import com.google.gerrit.server.CommentContextLoader;
 import com.google.gerrit.server.account.AccountLoader;
+import com.google.gerrit.server.comment.CommentContextCache;
+import com.google.gerrit.server.comment.CommentContextKey;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,18 +53,20 @@ import java.util.TreeMap;
 public class CommentJson {
 
   private final AccountLoader.Factory accountLoaderFactory;
+  private final CommentContextCache commentContextCache;
+
+  private Project.NameKey project;
+  private Change.Id changeId;
 
   private boolean fillAccounts = true;
   private boolean fillPatchSet;
-  private CommentContextLoader.Factory commentContextLoaderFactory;
-  private CommentContextLoader commentContextLoader;
+  private boolean fillCommentContext;
+  private int contextPadding;
 
   @Inject
-  CommentJson(
-      AccountLoader.Factory accountLoaderFactory,
-      CommentContextLoader.Factory commentContextLoaderFactory) {
+  CommentJson(AccountLoader.Factory accountLoaderFactory, CommentContextCache commentContextCache) {
     this.accountLoaderFactory = accountLoaderFactory;
-    this.commentContextLoaderFactory = commentContextLoaderFactory;
+    this.commentContextCache = commentContextCache;
   }
 
   CommentJson setFillAccounts(boolean fillAccounts) {
@@ -71,10 +79,23 @@ public class CommentJson {
     return this;
   }
 
-  CommentJson setEnableContext(boolean enableContext, Project.NameKey project) {
-    if (enableContext) {
-      this.commentContextLoader = commentContextLoaderFactory.create(project);
-    }
+  CommentJson setFillCommentContext(boolean fillCommentContext) {
+    this.fillCommentContext = fillCommentContext;
+    return this;
+  }
+
+  CommentJson setContextPadding(int contextPadding) {
+    this.contextPadding = contextPadding;
+    return this;
+  }
+
+  CommentJson setProjectKey(Project.NameKey project) {
+    this.project = project;
+    return this;
+  }
+
+  CommentJson setChangeId(Change.Id changeId) {
+    this.changeId = changeId;
     return this;
   }
 
@@ -93,9 +114,6 @@ public class CommentJson {
       if (loader != null) {
         loader.fill();
       }
-      if (commentContextLoader != null) {
-        commentContextLoader.fill();
-      }
       return info;
     }
 
@@ -111,7 +129,6 @@ public class CommentJson {
           list = new ArrayList<>();
           out.put(o.path, list);
         }
-        o.path = null;
         list.add(o);
       }
 
@@ -120,9 +137,12 @@ public class CommentJson {
       if (loader != null) {
         loader.fill();
       }
-      if (commentContextLoader != null) {
-        commentContextLoader.fill();
+
+      List<T> allComments = out.values().stream().flatMap(Collection::stream).collect(toList());
+      if (fillCommentContext) {
+        addCommentContext(allComments);
       }
+      allComments.forEach(c -> c.path = null); // we don't need path since it exists in the map keys
       return out;
     }
 
@@ -138,10 +158,43 @@ public class CommentJson {
       if (loader != null) {
         loader.fill();
       }
-      if (commentContextLoader != null) {
-        commentContextLoader.fill();
+
+      if (fillCommentContext) {
+        addCommentContext(out);
       }
+
       return out;
+    }
+
+    protected void addCommentContext(List<T> allComments) {
+      List<CommentContextKey> keys =
+          allComments.stream().map(this::createCommentContextKey).collect(toList());
+      ImmutableMap<CommentContextKey, CommentContext> allContext = commentContextCache.getAll(keys);
+      for (T c : allComments) {
+        CommentContextKey contextKey = createCommentContextKey(c);
+        CommentContext commentContext = allContext.get(contextKey);
+        c.contextLines = toContextLineInfoList(commentContext);
+        c.sourceContentType = commentContext.contentType();
+      }
+    }
+
+    protected List<ContextLineInfo> toContextLineInfoList(CommentContext commentContext) {
+      List<ContextLineInfo> result = new ArrayList<>();
+      for (Map.Entry<Integer, String> e : commentContext.lines().entrySet()) {
+        result.add(new ContextLineInfo(e.getKey(), e.getValue()));
+      }
+      return result;
+    }
+
+    protected CommentContextKey createCommentContextKey(T r) {
+      return CommentContextKey.builder()
+          .project(project)
+          .changeId(changeId)
+          .id(r.id)
+          .path(r.path)
+          .patchset(r.patchSet)
+          .contextPadding(contextPadding)
+          .build();
     }
 
     protected abstract T toInfo(F comment, AccountLoader loader);
@@ -170,9 +223,6 @@ public class CommentJson {
         r.author = loader.get(c.author.getId());
       }
       r.commitId = c.getCommitId().getName();
-      if (commentContextLoader != null) {
-        r.contextLines = commentContextLoader.getContext(r);
-      }
     }
 
     protected Range toRange(Comment.Range commentRange) {

@@ -16,30 +16,43 @@
  */
 import '../../../styles/shared-styles';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {Debouncer} from '@polymer/polymer/lib/utils/debounce';
-import {timeOut} from '@polymer/polymer/lib/utils/async';
 import {getRootElement} from '../../../scripts/rootElement';
 import {Constructor} from '../../../utils/common-util';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {dedupingMixin} from '@polymer/polymer/lib/utils/mixin';
 import {property, observe} from '@polymer/decorators';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {
   pushScrollLock,
   removeScrollLock,
 } from '@polymer/iron-overlay-behavior/iron-scroll-manager';
-
-interface ShowAlertEventDetail {
-  message: string;
-  dismissOnNavigation?: boolean;
-}
-
+import {ShowAlertEventDetail} from '../../../types/events';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 interface ReloadEventDetail {
   clearPatchset?: boolean;
 }
 
 const HOVER_CLASS = 'hovered';
 const HIDE_CLASS = 'hide';
+
+/**
+ * ID for the container element.
+ */
+const containerId = 'gr-hovercard-container';
+
+export function getHovercardContainer(
+  options: {createIfNotExists: boolean} = {createIfNotExists: false}
+): HTMLElement | null {
+  let container = getRootElement().querySelector<HTMLElement>(
+    `#${containerId}`
+  );
+  if (!container && options.createIfNotExists) {
+    // If it does not exist, create and initialize the hovercard container.
+    container = document.createElement('div');
+    container.setAttribute('id', containerId);
+    getRootElement().appendChild(container);
+  }
+  return container;
+}
 
 /**
  * How long should we wait before showing the hovercard when the user hovers
@@ -60,11 +73,8 @@ const HIDE_DELAY_MS = 500;
  *
  * @example
  *
- * // LegacyElementMixin is still needed to support the old lifecycles
- * // TODO: Replace old life cycles with new ones.
- *
  * class YourComponent extends hovercardBehaviorMixin(
- *  LegacyElementMixin(PolymerElement)
+ *  PolymerElement
  *
  * @see gr-hovercard.ts
  *
@@ -73,7 +83,7 @@ const HIDE_DELAY_MS = 500;
  * @mixinFunction
  */
 export const hovercardBehaviorMixin = dedupingMixin(
-  <T extends Constructor<PolymerElement & LegacyElementMixin>>(
+  <T extends Constructor<PolymerElement>>(
     superClass: T
   ): T & Constructor<GrHovercardBehaviorInterface> => {
     /**
@@ -82,7 +92,7 @@ export const hovercardBehaviorMixin = dedupingMixin(
      */
     class Mixin extends superClass {
       @property({type: Object})
-      _target: Element | null = null;
+      _target: HTMLElement | null = null;
 
       // Determines whether or not the hovercard is visible.
       @property({type: Boolean})
@@ -109,92 +119,79 @@ export const hovercardBehaviorMixin = dedupingMixin(
       @property({type: Object})
       container: HTMLElement | null = null;
 
-      /**
-       * ID for the container element.
-       */
-      @property({type: String})
-      containerId = 'gr-hovercard-container';
+      private hideTask?: DelayedTask;
 
-      private _hideDebouncer: Debouncer | null = null;
+      private showTask?: DelayedTask;
 
-      private _showDebouncer: Debouncer | null = null;
+      private isScheduledToShow?: boolean;
 
-      private _isScheduledToShow?: boolean;
-
-      private _isScheduledToHide?: boolean;
+      private isScheduledToHide?: boolean;
 
       /** @override */
-      attached() {
-        super.attached();
+      connectedCallback() {
+        super.connectedCallback();
         if (!this._target) {
           this._target = this.target;
         }
-        this.listen(this._target, 'mouseenter', 'debounceShow');
-        this.listen(this._target, 'focus', 'debounceShow');
-        this.listen(this._target, 'mouseleave', 'debounceHide');
-        this.listen(this._target, 'blur', 'debounceHide');
+        this._target.addEventListener('mouseenter', this.debounceShow);
+        this._target.addEventListener('focus', this.debounceShow);
+        this._target.addEventListener('mouseleave', this.debounceHide);
+        this._target.addEventListener('blur', this.debounceHide);
 
         // when click, dismiss immediately
-        this.listen(this._target, 'click', 'hide');
+        this._target.addEventListener('click', this.hide);
 
         // show the hovercard if mouse moves to hovercard
         // this will cancel pending hide as well
-        this.listen(this, 'mouseenter', 'show');
-        this.listen(this, 'mouseenter', 'lock');
+        this.addEventListener('mouseenter', this.show);
+        this.addEventListener('mouseenter', this.lock);
         // when leave hovercard, hide it immediately
-        this.listen(this, 'mouseleave', 'hide');
-        this.listen(this, 'mouseleave', 'unlock');
+        this.addEventListener('mouseleave', this.hide);
+        this.addEventListener('mouseleave', this.unlock);
       }
 
-      detached() {
-        super.detached();
+      disconnectedCallback() {
+        this.cancelShowTask();
+        this.cancelHideTask();
         this.unlock();
+        super.disconnectedCallback();
       }
 
       /** @override */
       ready() {
         super.ready();
         // First, check to see if the container has already been created.
-        this.container = getRootElement().querySelector('#' + this.containerId);
-
-        if (this.container) {
-          return;
-        }
-
-        // If it does not exist, create and initialize the hovercard container.
-        this.container = document.createElement('div');
-        this.container.setAttribute('id', this.containerId);
-        getRootElement().appendChild(this.container);
+        this.container = getHovercardContainer({createIfNotExists: true});
       }
 
       removeListeners() {
-        this.unlisten(this._target, 'mouseenter', 'debounceShow');
-        this.unlisten(this._target, 'focus', 'debounceShow');
-        this.unlisten(this._target, 'mouseleave', 'debounceHide');
-        this.unlisten(this._target, 'blur', 'debounceHide');
-        this.unlisten(this._target, 'click', 'hide');
+        this._target?.removeEventListener('mouseenter', this.debounceShow);
+        this._target?.removeEventListener('focus', this.debounceShow);
+        this._target?.removeEventListener('mouseleave', this.debounceHide);
+        this._target?.removeEventListener('blur', this.debounceHide);
+        this._target?.removeEventListener('click', this.hide);
       }
 
-      debounceHide() {
-        this.cancelShowDebouncer();
-        if (!this._isShowing || this._isScheduledToHide) return;
-        this._isScheduledToHide = true;
-        this._hideDebouncer = Debouncer.debounce(
-          this._hideDebouncer,
-          timeOut.after(HIDE_DELAY_MS),
+      readonly debounceHide = () => {
+        this.cancelShowTask();
+        if (!this._isShowing || this.isScheduledToHide) return;
+        this.isScheduledToHide = true;
+        this.hideTask = debounce(
+          this.hideTask,
           () => {
             // This happens when hide immediately through click or mouse leave
             // on the hovercard
-            if (!this._isScheduledToHide) return;
+            if (!this.isScheduledToHide) return;
             this.hide();
-          }
+          },
+          HIDE_DELAY_MS
         );
-      }
+      };
 
-      cancelHideDebouncer() {
-        if (this._hideDebouncer) {
-          this._hideDebouncer.cancel();
-          this._isScheduledToHide = false;
+      cancelHideTask() {
+        if (this.hideTask) {
+          this.hideTask.cancel();
+          this.isScheduledToHide = false;
         }
       }
 
@@ -231,7 +228,7 @@ export const hovercardBehaviorMixin = dedupingMixin(
        * Returns the target element that the hovercard is anchored to (the `id` of
        * the `for` property).
        */
-      get target(): Element {
+      get target(): HTMLElement {
         const parentNode = this.parentNode;
         // If the parentNode is a document fragment, then we need to use the host.
         const ownerRoot = this.getRootNode() as ShadowRoot;
@@ -244,15 +241,15 @@ export const hovercardBehaviorMixin = dedupingMixin(
               ? ownerRoot.host
               : parentNode;
         }
-        return target as Element;
+        return target as HTMLElement;
       }
 
       /**
        * unlock scroll, this will resume the scroll outside of the hovercard.
        */
-      unlock() {
+      readonly unlock = () => {
         removeScrollLock(this);
-      }
+      };
 
       /**
        * Hides/closes the hovercard. This occurs when the user triggers the
@@ -260,9 +257,9 @@ export const hovercardBehaviorMixin = dedupingMixin(
        * user is not hovering over the hovercard).
        *
        */
-      hide(e?: MouseEvent) {
-        this.cancelHideDebouncer();
-        this.cancelShowDebouncer();
+      readonly hide = (e?: MouseEvent) => {
+        this.cancelHideTask();
+        this.cancelShowTask();
         if (!this._isShowing) {
           return;
         }
@@ -294,54 +291,54 @@ export const hovercardBehaviorMixin = dedupingMixin(
         if (this.container?.contains(this)) {
           this.container.removeChild(this);
         }
-      }
+      };
 
       /**
        * Shows/opens the hovercard with a fixed delay.
        */
-      debounceShow() {
+      readonly debounceShow = () => {
         this.debounceShowBy(SHOW_DELAY_MS);
-      }
+      };
 
       /**
        * Shows/opens the hovercard with the given delay.
        */
       debounceShowBy(delayMs: number) {
-        this.cancelHideDebouncer();
-        if (this._isShowing || this._isScheduledToShow) return;
-        this._isScheduledToShow = true;
-        this._showDebouncer = Debouncer.debounce(
-          this._showDebouncer,
-          timeOut.after(delayMs),
+        this.cancelHideTask();
+        if (this._isShowing || this.isScheduledToShow) return;
+        this.isScheduledToShow = true;
+        this.showTask = debounce(
+          this.showTask,
           () => {
             // This happens when the mouse leaves the target before the delay is over.
-            if (!this._isScheduledToShow) return;
+            if (!this.isScheduledToShow) return;
             this.show();
-          }
+          },
+          delayMs
         );
       }
 
-      cancelShowDebouncer() {
-        if (this._showDebouncer) {
-          this._showDebouncer.cancel();
-          this._isScheduledToShow = false;
+      cancelShowTask() {
+        if (this.showTask) {
+          this.showTask.cancel();
+          this.isScheduledToShow = false;
         }
       }
 
       /**
        * Lock background scroll but enable scroll inside of current hovercard.
        */
-      lock() {
+      readonly lock = () => {
         pushScrollLock(this);
-      }
+      };
 
       /**
        * Shows/opens the hovercard. This occurs when the user triggers the
        * `mousenter` event on the hovercard's `target` element.
        */
-      show() {
-        this.cancelHideDebouncer();
-        this.cancelShowDebouncer();
+      readonly show = () => {
+        this.cancelHideTask();
+        this.cancelShowTask();
         if (this._isShowing || !this.container) {
           return;
         }
@@ -362,7 +359,7 @@ export const hovercardBehaviorMixin = dedupingMixin(
         flush();
         this.updatePosition();
         this.classList.remove(HIDE_CLASS);
-      }
+      };
 
       updatePosition() {
         const positionsToTry = new Set([
@@ -482,16 +479,15 @@ export const hovercardBehaviorMixin = dedupingMixin(
 );
 
 export interface GrHovercardBehaviorInterface {
-  attached(): void;
   ready(): void;
   removeListeners(): void;
   debounceHide(): void;
-  cancelHideDebouncer(): void;
+  cancelHideTask(): void;
   dispatchEventThroughTarget(eventName: string, detail?: unknown): void;
   hide(e?: MouseEvent): void;
   debounceShow(): void;
   debounceShowBy(delayMs: number): void;
-  cancelShowDebouncer(): void;
+  cancelShowTask(): void;
   show(): void;
   updatePosition(): void;
   updatePositionTo(position: string): void;

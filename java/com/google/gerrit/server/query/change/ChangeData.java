@@ -26,13 +26,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
+import com.google.common.flogger.FluentLogger;
 import com.google.common.primitives.Ints;
 import com.google.gerrit.common.Nullable;
+import com.google.gerrit.common.UsedAt;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AttentionSetUpdate;
 import com.google.gerrit.entities.Change;
@@ -43,6 +47,7 @@ import com.google.gerrit.entities.LabelTypes;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.Project;
+import com.google.gerrit.entities.Project.NameKey;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.entities.RobotComment;
 import com.google.gerrit.entities.SubmitRecord;
@@ -50,6 +55,7 @@ import com.google.gerrit.entities.SubmitTypeRecord;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
+import com.google.gerrit.index.RefState;
 import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.CommentsUtil;
@@ -69,6 +75,7 @@ import com.google.gerrit.server.config.TrackingFooters;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.MergeUtil;
 import com.google.gerrit.server.notedb.ChangeNotes;
+import com.google.gerrit.server.notedb.RobotCommentNotes;
 import com.google.gerrit.server.patch.DiffSummary;
 import com.google.gerrit.server.patch.DiffSummaryKey;
 import com.google.gerrit.server.patch.PatchListCache;
@@ -103,7 +110,31 @@ import org.eclipse.jgit.revwalk.FooterLine;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
+/**
+ * ChangeData provides lazily loaded interface to change metadata loaded from NoteDb. It can be
+ * constructed by loading from NoteDb, or calling setters. The latter happens when ChangeData is
+ * retrieved through the change index. This happens for Applications that are performance sensitive
+ * (eg. dashboard loads, git protocol negotiation) but can tolerate staleness. In that case, setting
+ * lazyLoad=false disables loading from NoteDb, so we don't accidentally enable a slow path.
+ */
 public class ChangeData {
+  private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+
+  public enum StorageConstraint {
+    /**
+     * This instance was loaded from the change index. Backfilling missing data from NoteDb is not
+     * allowed.
+     */
+    INDEX_ONLY,
+    /**
+     * This instance was loaded from the change index. Backfilling missing data from NoteDb is
+     * allowed.
+     */
+    INDEX_PRIMARY_NOTEDB_SECONDARY,
+    /** This instance was loaded from NoteDb. */
+    NOTEDB_ONLY
+  }
+
   public static List<Change> asChanges(List<ChangeData> changeDatas) {
     List<Change> result = new ArrayList<>(changeDatas.size());
     for (ChangeData cd : changeDatas) {
@@ -269,7 +300,7 @@ public class ChangeData {
   private final Map<SubmitRuleOptions, List<SubmitRecord>> submitRecords =
       Maps.newLinkedHashMapWithExpectedSize(1);
 
-  private boolean lazyLoad = true;
+  private StorageConstraint storageConstraint = StorageConstraint.NOTEDB_ONLY;
   private Change change;
   private ChangeNotes notes;
   private String commitMessage;
@@ -307,8 +338,8 @@ public class ChangeData {
   private Integer unresolvedCommentCount;
   private Integer totalCommentCount;
   private LabelTypes labelTypes;
-
-  private ImmutableList<byte[]> refStates;
+  private Optional<Timestamp> mergedOn;
+  private ImmutableSetMultimap<NameKey, RefState> refStates;
   private ImmutableList<byte[]> refStatePatterns;
 
   @Inject
@@ -362,9 +393,15 @@ public class ChangeData {
    * lazyLoad} is on, the {@code ChangeData} object will load from the database ("lazily") when a
    * field accessor is called.
    */
-  public ChangeData setLazyLoad(boolean load) {
-    lazyLoad = load;
+  public ChangeData setStorageConstraint(StorageConstraint storageConstraint) {
+    this.storageConstraint = storageConstraint;
     return this;
+  }
+
+  /** Returns {@code true} if we allow reading data from NoteDb. */
+  public boolean lazyload() {
+    return storageConstraint.ordinal()
+        >= StorageConstraint.INDEX_PRIMARY_NOTEDB_SECONDARY.ordinal();
   }
 
   public AllUsersName getAllUsersNameForIndexing() {
@@ -381,7 +418,7 @@ public class ChangeData {
 
   public List<String> currentFilePaths() {
     if (currentFiles == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       Optional<DiffSummary> p = getDiffSummary();
@@ -392,7 +429,7 @@ public class ChangeData {
 
   private Optional<DiffSummary> getDiffSummary() {
     if (diffSummary == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Optional.empty();
       }
 
@@ -423,7 +460,7 @@ public class ChangeData {
 
   public Optional<ChangedLines> changedLines() {
     if (changedLines == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Optional.empty();
       }
       changedLines = computeChangedLines();
@@ -456,7 +493,7 @@ public class ChangeData {
   }
 
   public Change change() {
-    if (change == null && lazyLoad) {
+    if (change == null && lazyload()) {
       reloadChange();
     }
     return change;
@@ -487,7 +524,7 @@ public class ChangeData {
 
   public ChangeNotes notes() {
     if (notes == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         throw new StorageException("ChangeNotes not available, lazyLoad = false");
       }
       notes = notesFactory.create(project(), legacyId);
@@ -513,7 +550,7 @@ public class ChangeData {
 
   public List<PatchSetApproval> currentApprovals() {
     if (currentApprovals == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       Change c = change();
@@ -594,6 +631,7 @@ public class ChangeData {
       author = c.getAuthorIdent();
       committer = c.getCommitterIdent();
       parentCount = c.getParentCount();
+      merge = parentCount > 1;
     } catch (IOException e) {
       throw new StorageException(
           String.format(
@@ -607,12 +645,35 @@ public class ChangeData {
   /** Returns the most recent update (i.e. status) per user. */
   public ImmutableSet<AttentionSetUpdate> attentionSet() {
     if (attentionSet == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ImmutableSet.of();
       }
       attentionSet = notes().getAttentionSet();
     }
     return attentionSet;
+  }
+
+  /**
+   * Returns the {@link Optional} value of time when the change was merged.
+   *
+   * <p>The value can be set from index field, see {@link ChangeData#setMergedOn} or loaded from the
+   * database (available in {@link ChangeNotes})
+   *
+   * @return {@link Optional} value of time when the change was merged.
+   * @throws StorageException if {@code lazyLoad} is off, {@link ChangeNotes} can not be loaded
+   *     because we do not expect to call the database.
+   */
+  public Optional<Timestamp> getMergedOn() throws StorageException {
+    if (mergedOn == null) {
+      // The value was not loaded yet, try to get from the database.
+      mergedOn = notes().getMergedOn();
+    }
+    return mergedOn;
+  }
+
+  /** Sets the value e.g. when loading from index. */
+  public void setMergedOn(@Nullable Timestamp mergedOn) {
+    this.mergedOn = Optional.ofNullable(mergedOn);
   }
 
   /**
@@ -662,7 +723,7 @@ public class ChangeData {
    */
   public ListMultimap<PatchSet.Id, PatchSetApproval> approvals() {
     if (allApprovals == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ImmutableListMultimap.of();
       }
       allApprovals = approvalsUtil.byChange(notes());
@@ -670,14 +731,16 @@ public class ChangeData {
     return allApprovals;
   }
 
-  /** @return The submit ('SUBM') approval label */
+  /* @return legacy submit ('SUBM') approval label */
+  // TODO(mariasavtchouk): Deprecate legacy submit label,
+  // see com.google.gerrit.entities.LabelId.LEGACY_SUBMIT_NAME
   public Optional<PatchSetApproval> getSubmitApproval() {
     return currentApprovals().stream().filter(PatchSetApproval::isLegacySubmit).findFirst();
   }
 
   public ReviewerSet reviewers() {
     if (reviewers == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         // We are not allowed to load values from NoteDb. Reviewers were not populated with values
         // from the index. However, we need these values for permission checks.
         throw new IllegalStateException("reviewers not populated");
@@ -693,7 +756,7 @@ public class ChangeData {
 
   public ReviewerByEmailSet reviewersByEmail() {
     if (reviewersByEmail == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ReviewerByEmailSet.empty();
       }
       reviewersByEmail = notes().getReviewersByEmail();
@@ -719,7 +782,7 @@ public class ChangeData {
 
   public ReviewerSet pendingReviewers() {
     if (pendingReviewers == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ReviewerSet.empty();
       }
       pendingReviewers = notes().getPendingReviewers();
@@ -737,7 +800,7 @@ public class ChangeData {
 
   public ReviewerByEmailSet pendingReviewersByEmail() {
     if (pendingReviewersByEmail == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ReviewerByEmailSet.empty();
       }
       pendingReviewersByEmail = notes().getPendingReviewersByEmail();
@@ -747,7 +810,7 @@ public class ChangeData {
 
   public List<ReviewerStatusUpdate> reviewerUpdates() {
     if (reviewerUpdates == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       reviewerUpdates = approvalsUtil.getReviewerUpdates(notes());
@@ -765,7 +828,7 @@ public class ChangeData {
 
   public Collection<HumanComment> publishedComments() {
     if (publishedComments == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       publishedComments = commentsUtil.publishedHumanCommentsByChange(notes());
@@ -775,7 +838,7 @@ public class ChangeData {
 
   public Collection<RobotComment> robotComments() {
     if (robotComments == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       robotComments = commentsUtil.robotCommentsByChange(notes());
@@ -785,7 +848,7 @@ public class ChangeData {
 
   public Integer unresolvedCommentCount() {
     if (unresolvedCommentCount == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return null;
       }
 
@@ -807,7 +870,7 @@ public class ChangeData {
 
   public Integer totalCommentCount() {
     if (totalCommentCount == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return null;
       }
 
@@ -824,7 +887,7 @@ public class ChangeData {
 
   public List<ChangeMessage> messages() {
     if (messages == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyList();
       }
       messages = cmUtil.byChange(notes());
@@ -833,34 +896,33 @@ public class ChangeData {
   }
 
   public List<SubmitRecord> submitRecords(SubmitRuleOptions options) {
-    List<SubmitRecord> records = getCachedSubmitRecord(options);
+    // If the change is not submitted yet, 'strict' and 'lenient' both have the same result. If the
+    // change is submitted, SubmitRecord requested with 'strict' will contain just a single entry
+    // that with status=CLOSED. The latter is cheap to evaluate as we don't have to run any actual
+    // evaluation.
+    List<SubmitRecord> records = submitRecords.get(options);
     if (records == null) {
-      if (!lazyLoad) {
+      if (storageConstraint != StorageConstraint.NOTEDB_ONLY) {
+        // Submit requirements are expensive. We allow loading them only if this change did not
+        // originate from the change index and we can invest the extra time.
+        logger.atWarning().log(
+            "Tried to load SubmitRecords for change fetched from index %s: %d",
+            project(), getId().get());
         return Collections.emptyList();
       }
       records = submitRuleEvaluatorFactory.create(options).evaluate(this);
       submitRecords.put(options, records);
+      if (!change().isClosed() && submitRecords.size() == 1) {
+        // Cache the SubmitRecord with allowClosed = !allowClosed as the SubmitRecord are the same.
+        submitRecords.put(
+            options
+                .toBuilder()
+                .recomputeOnClosedChanges(!options.recomputeOnClosedChanges())
+                .build(),
+            records);
+      }
     }
     return records;
-  }
-
-  @Nullable
-  public List<SubmitRecord> getSubmitRecords(SubmitRuleOptions options) {
-    return getCachedSubmitRecord(options);
-  }
-
-  private List<SubmitRecord> getCachedSubmitRecord(SubmitRuleOptions options) {
-    List<SubmitRecord> records = submitRecords.get(options);
-    if (records != null) {
-      return records;
-    }
-
-    if (options.allowClosed() && change != null && change.getStatus().isOpen()) {
-      SubmitRuleOptions openSubmitRuleOptions = options.toBuilder().allowClosed(false).build();
-      return submitRecords.get(openSubmitRuleOptions);
-    }
-
-    return null;
   }
 
   public void setSubmitRecords(SubmitRuleOptions options, List<SubmitRecord> records) {
@@ -893,7 +955,7 @@ public class ChangeData {
       } else if (c.isWorkInProgress()) {
         return null;
       } else {
-        if (!lazyLoad) {
+        if (!lazyload()) {
           return null;
         }
         PatchSet ps = currentPatchSet();
@@ -930,7 +992,7 @@ public class ChangeData {
         return null;
       }
     }
-    return parentCount > 1;
+    return merge;
   }
 
   public Set<Account.Id> editsByUser() {
@@ -939,7 +1001,7 @@ public class ChangeData {
 
   public Map<Account.Id, Ref> editRefs() {
     if (editsByUser == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyMap();
       }
       Change c = change();
@@ -971,7 +1033,7 @@ public class ChangeData {
 
   public Map<Account.Id, Ref> draftRefs() {
     if (draftsByUser == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptyMap();
       }
       Change c = change();
@@ -1016,7 +1078,7 @@ public class ChangeData {
 
   public Set<Account.Id> reviewedBy() {
     if (reviewedBy == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptySet();
       }
       Change c = change();
@@ -1048,7 +1110,7 @@ public class ChangeData {
 
   public Set<String> hashtags() {
     if (hashtags == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return Collections.emptySet();
       }
       hashtags = notes().getHashtags();
@@ -1062,7 +1124,7 @@ public class ChangeData {
 
   public ImmutableListMultimap<Account.Id, String> stars() {
     if (stars == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ImmutableListMultimap.of();
       }
       ImmutableListMultimap.Builder<Account.Id, String> b = ImmutableListMultimap.builder();
@@ -1080,7 +1142,7 @@ public class ChangeData {
 
   public ImmutableMap<Account.Id, StarRef> starRefs() {
     if (starRefs == null) {
-      if (!lazyLoad) {
+      if (!lazyload()) {
         return ImmutableMap.of();
       }
       starRefs = requireNonNull(starredChangesUtil).byChange(legacyId);
@@ -1098,7 +1160,7 @@ public class ChangeData {
       if (stars != null) {
         starsOf = StarsOf.create(accountId, stars.get(accountId));
       } else {
-        if (!lazyLoad) {
+        if (!lazyload()) {
           return ImmutableSet.of();
         }
         starsOf = StarsOf.create(accountId, starredChangesUtil.getLabels(accountId, legacyId));
@@ -1144,12 +1206,38 @@ public class ChangeData {
     }
   }
 
-  public ImmutableList<byte[]> getRefStates() {
+  public SetMultimap<NameKey, RefState> getRefStates() {
+    if (refStates == null) {
+      if (!lazyload()) {
+        return ImmutableSetMultimap.of();
+      }
+
+      ImmutableSetMultimap.Builder<NameKey, RefState> result = ImmutableSetMultimap.builder();
+      editRefs().values().forEach(r -> result.put(project, RefState.of(r)));
+      starRefs().values().forEach(r -> result.put(allUsersName, RefState.of(r.ref())));
+
+      // TODO: instantiating the notes is too much. We don't want to parse NoteDb, we just want the
+      // refs.
+      result.put(project, RefState.create(notes().getRefName(), notes().getMetaId()));
+      notes().getRobotComments(); // Force loading robot comments.
+      RobotCommentNotes robotNotes = notes().getRobotCommentNotes();
+      result.put(project, RefState.create(robotNotes.getRefName(), robotNotes.getMetaId()));
+      draftRefs().values().forEach(r -> result.put(allUsersName, RefState.of(r)));
+
+      refStates = result.build();
+    }
+
     return refStates;
   }
 
+  @UsedAt(UsedAt.Project.GOOGLE)
   public void setRefStates(Iterable<byte[]> refStates) {
-    this.refStates = ImmutableList.copyOf(refStates);
+    // TODO(hanwen): remove Google use, and drop this method.
+    setRefStates(RefState.parseStates(refStates));
+  }
+
+  public void setRefStates(ImmutableSetMultimap<Project.NameKey, RefState> refStates) {
+    this.refStates = refStates;
   }
 
   public ImmutableList<byte[]> getRefStatePatterns() {

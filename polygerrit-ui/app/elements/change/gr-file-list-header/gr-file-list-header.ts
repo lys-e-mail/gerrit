@@ -18,46 +18,34 @@ import '../../../styles/shared-styles';
 import '../../diff/gr-diff-mode-selector/gr-diff-mode-selector';
 import '../../diff/gr-patch-range-select/gr-patch-range-select';
 import '../../edit/gr-edit-controls/gr-edit-controls';
-import '../../shared/gr-editable-label/gr-editable-label';
-import '../../shared/gr-linked-chip/gr-linked-chip';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-icons/gr-icons';
 import '../gr-commit-info/gr-commit-info';
-import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-file-list-header_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {FilesExpandedState} from '../gr-file-list-constants';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
-import {
-  computeLatestPatchNum,
-  getRevisionByPatchNum,
-  patchNumEquals,
-  PatchSet,
-} from '../../../utils/patch-set-util';
-import {property, computed, observe, customElement} from '@polymer/decorators';
+import {computeLatestPatchNum, PatchSet} from '../../../utils/patch-set-util';
+import {property, customElement} from '@polymer/decorators';
 import {
   AccountInfo,
   ChangeInfo,
   PatchSetNum,
   CommitInfo,
   ServerInfo,
-  DiffPreferencesInfo,
   RevisionInfo,
   NumericChangeId,
+  BasePatchSetNum,
 } from '../../../types/common';
+import {DiffPreferencesInfo} from '../../../types/diff';
 import {ChangeComments} from '../../diff/gr-comment-api/gr-comment-api';
 import {GrDiffModeSelector} from '../../diff/gr-diff-mode-selector/gr-diff-mode-selector';
-import {DiffViewMode} from '../../../constants/constants';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {ChangeStatus, DiffViewMode} from '../../../constants/constants';
 import {GrButton} from '../../shared/gr-button/gr-button';
+import {fireEvent} from '../../../utils/event-util';
 
-// Maximum length for patch set descriptions.
-const PATCH_DESC_MAX_LENGTH = 500;
 const MERGED_STATUS = 'MERGED';
 
 declare global {
@@ -69,16 +57,13 @@ declare global {
 export interface GrFileListHeader {
   $: {
     modeSelect: GrDiffModeSelector;
-    restAPI: RestApiService & Element;
     expandBtn: GrButton;
     collapseBtn: GrButton;
   };
 }
 
 @customElement('gr-file-list-header')
-export class GrFileListHeader extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrFileListHeader extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -101,10 +86,6 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
 
   /**
    * @event open-download-dialog
-   */
-
-  /**
-   * @event open-upload-help-dialog
    */
 
   @property({type: Object})
@@ -153,7 +134,7 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
   patchNum?: PatchSetNum;
 
   @property({type: String})
-  basePatchNum?: PatchSetNum;
+  basePatchNum?: BasePatchSetNum;
 
   @property({type: String})
   filesExpanded?: FilesExpandedState;
@@ -163,154 +144,31 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
   @property({type: Number})
   readonly _maxFilesForBulkActions = 225;
 
-  @property({type: String})
-  _patchsetDescription = '';
-
   @property({type: Object})
   revisionInfo?: RevisionInfo;
-
-  @computed('loggedIn', 'change', 'account')
-  get _descriptionReadOnly(): boolean {
-    if (
-      this.loggedIn === undefined ||
-      this.change === undefined ||
-      this.account === undefined
-    ) {
-      return true;
-    }
-
-    return !(
-      this.loggedIn &&
-      this.account._account_id === this.change.owner._account_id
-    );
-  }
 
   setDiffViewMode(mode: DiffViewMode) {
     this.$.modeSelect.setMode(mode);
   }
 
   _expandAllDiffs() {
-    this.dispatchEvent(
-      new CustomEvent('expand-diffs', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'expand-diffs');
   }
 
   _collapseAllDiffs() {
-    this.dispatchEvent(
-      new CustomEvent('collapse-diffs', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'collapse-diffs');
   }
 
   _computeExpandedClass(filesExpanded: FilesExpandedState) {
     const classes = [];
     if (filesExpanded === FilesExpandedState.ALL) {
-      classes.push('expanded');
-    }
-    if (
-      filesExpanded === FilesExpandedState.SOME ||
-      filesExpanded === FilesExpandedState.ALL
-    ) {
       classes.push('openFile');
+      classes.push('allExpanded');
+    } else if (filesExpanded === FilesExpandedState.SOME) {
+      classes.push('openFile');
+      classes.push('someExpanded');
     }
     return classes.join(' ');
-  }
-
-  _computeDescriptionPlaceholder(readOnly: boolean) {
-    return (readOnly ? 'No' : 'Add') + ' patchset description';
-  }
-
-  @observe('change', 'patchNum')
-  _computePatchSetDescription(change: ChangeInfo, patchNum: PatchSetNum) {
-    // Polymer 2: check for undefined
-    if (
-      change === undefined ||
-      change.revisions === undefined ||
-      patchNum === undefined
-    ) {
-      return;
-    }
-
-    const rev = getRevisionByPatchNum(
-      Object.values(change.revisions),
-      patchNum
-    );
-    this._patchsetDescription = rev?.description
-      ? rev.description.substring(0, PATCH_DESC_MAX_LENGTH)
-      : '';
-  }
-
-  _handleDescriptionRemoved(e: CustomEvent) {
-    return this._updateDescription('', e);
-  }
-
-  /**
-   * @param revisions The revisions object keyed by revision hashes
-   * @param patchSet A revision already fetched from {revisions}
-   * @return the SHA hash corresponding to the revision.
-   */
-  _getPatchsetHash(
-    revisions: {[revisionId: string]: RevisionInfo},
-    patchSet: RevisionInfo
-  ) {
-    for (const sha of Object.keys(revisions)) {
-      if (revisions[sha] === patchSet) {
-        return sha;
-      }
-    }
-    throw new Error('patchset hash not found');
-  }
-
-  _handleDescriptionChanged(e: CustomEvent) {
-    const desc = e.detail.trim();
-    this._updateDescription(desc, e);
-  }
-
-  /**
-   * Update the patchset description with the rest API.
-   */
-  _updateDescription(desc: string, e: CustomEvent) {
-    if (
-      !this.change ||
-      !this.change.revisions ||
-      !this.patchNum ||
-      !this.changeNum
-    )
-      return;
-    // target can be either gr-editable-label or gr-linked-chip
-    const target = (dom(e) as EventApi).rootTarget as HTMLElement & {
-      disabled: boolean;
-    };
-    if (target) {
-      target.disabled = true;
-    }
-    const rev = getRevisionByPatchNum(
-      Object.values(this.change.revisions),
-      this.patchNum
-    )!;
-    const sha = this._getPatchsetHash(this.change.revisions, rev);
-    return this.$.restAPI
-      .setDescription(this.changeNum, this.patchNum, desc)
-      .then((res: Response) => {
-        if (res.ok) {
-          if (target) {
-            target.disabled = false;
-          }
-          this.set(['change', 'revisions', sha, 'description'], desc);
-          this._patchsetDescription = desc;
-        }
-      })
-      .catch(() => {
-        if (target) {
-          target.disabled = false;
-        }
-        return;
-      });
   }
 
   _computePrefsButtonHidden(
@@ -327,11 +185,17 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
     return shownFileCount <= maxFilesForBulkActions;
   }
 
+  _showAddPatchsetDescription(
+    patchsetDescription: string,
+    change?: ChangeInfo
+  ) {
+    return !patchsetDescription && change?.status === ChangeStatus.NEW;
+  }
+
   _handlePatchChange(e: CustomEvent) {
     const {basePatchNum, patchNum} = e.detail;
     if (
-      (patchNumEquals(basePatchNum, this.basePatchNum) &&
-        patchNumEquals(patchNum, this.patchNum)) ||
+      (basePatchNum === this.basePatchNum && patchNum === this.patchNum) ||
       !this.change
     ) {
       return;
@@ -341,22 +205,12 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
 
   _handlePrefsTap(e: Event) {
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('open-diff-prefs', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'open-diff-prefs');
   }
 
   _handleIncludedInTap(e: Event) {
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('open-included-in-dialog', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'open-included-in-dialog');
   }
 
   _handleDownloadTap(e: Event) {
@@ -373,7 +227,7 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
 
   _computePatchInfoClass(patchNum?: PatchSetNum, allPatchSets?: PatchSet[]) {
     const latestNum = computeLatestPatchNum(allPatchSets);
-    if (patchNumEquals(patchNum, latestNum)) {
+    if (patchNum === latestNum) {
       return '';
     }
     return 'patchInfoOldPatchSet';
@@ -381,22 +235,5 @@ export class GrFileListHeader extends KeyboardShortcutMixin(
 
   _hideIncludedIn(change?: ChangeInfo) {
     return change?.status === MERGED_STATUS ? '' : 'hide';
-  }
-
-  _handleUploadTap(e: Event) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.dispatchEvent(
-      new CustomEvent('open-upload-help-dialog', {bubbles: false})
-    );
-  }
-
-  _computeUploadHelpContainerClass(change: ChangeInfo, account: AccountInfo) {
-    const changeIsMerged = change?.status === MERGED_STATUS;
-    const ownerId = change?.owner?._account_id || null;
-    const userId = account && account._account_id;
-    const userIsOwner = ownerId && userId && ownerId === userId;
-    const hideContainer = !userIsOwner || changeIsMerged;
-    return 'uploadContainer desktop' + (hideContainer ? ' hide' : '');
   }
 }

@@ -105,7 +105,7 @@ suite('GrDiffBuilderUnified tests', () => {
       lines[0].text = 'def hello_world():';
       lines[1].text = '  print "Hello World"';
       const group = new GrDiffGroup(GrDiffGroupType.DELTA, lines);
-      group.dueToMove = true;
+      group.moveDetails = {changed: false};
 
       const sectionEl = diffBuilder.buildSectionElement(group);
 
@@ -116,7 +116,7 @@ suite('GrDiffBuilderUnified tests', () => {
       assert.equal(rowEls.length, 3);
       assert.isTrue(moveControlsRow.classList.contains('movedOut'));
       assert.equal(cells.length, 3);
-      assert.isTrue(cells[2].classList.contains('moveDescription'));
+      assert.isTrue(cells[2].classList.contains('moveLabel'));
       assert.equal(cells[2].textContent, 'Moved out');
     });
 
@@ -128,7 +128,7 @@ suite('GrDiffBuilderUnified tests', () => {
       lines[0].text = 'def hello_world():';
       lines[1].text = '  print "Hello World"';
       const group = new GrDiffGroup(GrDiffGroupType.DELTA, lines);
-      group.dueToMove = true;
+      group.moveDetails = {changed: false};
 
       const sectionEl = diffBuilder.buildSectionElement(group);
 
@@ -139,7 +139,7 @@ suite('GrDiffBuilderUnified tests', () => {
       assert.equal(rowEls.length, 3);
       assert.isTrue(moveControlsRow.classList.contains('movedIn'));
       assert.equal(cells.length, 3);
-      assert.isTrue(cells[2].classList.contains('moveDescription'));
+      assert.isTrue(cells[2].classList.contains('moveLabel'));
       assert.equal(cells[2].textContent, 'Moved in');
     });
   });

@@ -23,12 +23,6 @@ declare global {
   interface Window {
     CANONICAL_PATH?: string;
     INITIAL_DATA?: {[key: string]: ParsedJSON};
-    ShadyCSS?: {
-      getComputedStyleValue(el: Element, name: string): string;
-    };
-    ShadyDOM?: {
-      inUse?: boolean;
-    };
     HTMLImports?: {whenReady: (cb: () => void) => void};
     linkify(
       text: string,
@@ -38,20 +32,14 @@ declare global {
     // TODO(TS): define gerrit type
     Gerrit?: {
       Nav?: unknown;
-      getRootElement?: unknown;
       Auth?: unknown;
-      _pluginLoader?: unknown;
-      _endpoints?: unknown;
-      slotToContent?: unknown;
-      rangesEqual?: unknown;
-      SUGGESTIONS_PROVIDERS_USERS_TYPES?: unknown;
-      RevisionInfo?: unknown;
-      CoverageType?: unknown;
-      hiddenscroll?: unknown;
-      flushPreinstalls?: () => void;
     };
     // TODO(TS): define polymer type
-    Polymer?: {importHref?: unknown};
+    Polymer: {
+      IronFocusablesHelper: {
+        getTabbableNodes: (el: Element) => Node[];
+      };
+    };
     // TODO(TS): remove page when better workaround is found
     // page shouldn't be exposed in window and it shouldn't be used
     // it's defined because of limitations from typescript, which don't import .mjs
@@ -75,51 +63,9 @@ declare global {
     // TODO(TS): should clean up those and removing them may break certain plugin behaviors
     // TODO(TS): as @brohlfs suggested, to avoid importing anything from elements/ to types/
     // use any for them for now
-    GrDisplayNameUtils: unknown;
     GrAnnotation: unknown;
-    GrAttributeHelper: unknown;
-    GrDiffLine: unknown;
-    GrDiffLineType: unknown;
-    GrDiffGroup: unknown;
-    GrDiffGroupType: unknown;
-    GrDiffBuilder: unknown;
-    GrDiffBuilderSideBySide: unknown;
-    GrDiffBuilderImage: unknown;
-    GrDiffBuilderUnified: unknown;
-    GrDiffBuilderBinary: unknown;
-    GrChangeActionsInterface: unknown;
-    GrChangeReplyInterface: unknown;
-    GrEditConstants: unknown;
-    GrDomHooksManager: unknown;
-    GrDomHook: unknown;
-    GrEtagDecorator: unknown;
-    GrThemeApi: unknown;
-    SiteBasedCache: unknown;
-    FetchPromisesCache: unknown;
-    GrRestApiHelper: unknown;
-    GrLinkTextParser: unknown;
-    GrPluginEndpoints: unknown;
-    GrReviewerUpdatesParser: unknown;
-    GrPopupInterface: unknown;
-    GrCountStringFormatter: unknown;
-    GrReviewerSuggestionsProvider: unknown;
-    util: unknown;
-    Auth: unknown;
-    EventEmitter: unknown;
-    GrAdminApi: unknown;
-    GrAnnotationActionsContext: unknown;
-    GrAnnotationActionsInterface: unknown;
-    GrChangeMetadataApi: unknown;
-    GrEmailSuggestionsProvider: unknown;
-    GrGroupSuggestionsProvider: unknown;
-    GrEventHelper: unknown;
-    GrPluginRestApi: unknown;
-    GrRepoApi: unknown;
-    GrSettingsApi: unknown;
-    GrStylesApi: unknown;
-    PluginLoader: unknown;
+    // Heads up! There is a known plugin dependency on GrPluginActionContext.
     GrPluginActionContext: unknown;
-    _apiUtils: {};
   }
 
   interface Performance {
@@ -130,13 +76,6 @@ declare global {
       totalJSHeapSize: number;
       usedJSHeapSize: number;
     };
-  }
-
-  interface Event {
-    // path is a non-standard property. Actually, this is optional property,
-    // but marking it as optional breaks CustomKeyboardEvent
-    // TODO(TS): replace with composedPath if possible
-    readonly path: EventTarget[];
   }
 
   interface Error {

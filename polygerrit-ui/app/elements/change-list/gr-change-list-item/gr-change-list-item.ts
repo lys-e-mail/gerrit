@@ -26,8 +26,6 @@ import '../../shared/gr-tooltip-content/gr-tooltip-content';
 import '../../../styles/shared-styles';
 import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-list-item_html';
 import {ChangeTableMixin} from '../../../mixins/gr-change-table-mixin/gr-change-table-mixin';
@@ -38,7 +36,7 @@ import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader
 import {appContext} from '../../../services/app-context';
 import {truncatePath} from '../../../utils/path-list-util';
 import {changeStatuses} from '../../../utils/change-util';
-import {isServiceUser} from '../../../utils/account-util';
+import {isSelf, isServiceUser} from '../../../utils/account-util';
 import {customElement, property} from '@polymer/decorators';
 import {ReportingService} from '../../../services/gr-reporting/gr-reporting';
 import {
@@ -49,6 +47,7 @@ import {
   Timestamp,
 } from '../../../types/common';
 import {hasOwnProperty} from '../../../utils/common-util';
+import {pluralize} from '../../../utils/string-util';
 
 enum ChangeSize {
   XS = 10,
@@ -77,9 +76,7 @@ export interface ChangeListToggleReviewedDetail {
 const PRIMARY_REVIEWERS_COUNT = 2;
 
 @customElement('gr-change-list-item')
-export class GrChangeListItem extends ChangeTableMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrChangeListItem extends ChangeTableMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -125,8 +122,8 @@ export class GrChangeListItem extends ChangeTableMixin(
   reporting: ReportingService = appContext.reportingService;
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     getPluginLoader()
       .awaitPluginsLoaded()
       .then(() => {
@@ -152,15 +149,18 @@ export class GrChangeListItem extends ChangeTableMixin(
     if (!label || category === LabelCategory.NOT_APPLICABLE) {
       return 'Label not applicable';
     }
+    const titleParts: string[] = [];
     if (category === LabelCategory.UNRESOLVED_COMMENTS) {
       const num = change?.unresolved_comment_count ?? 0;
-      const plural = num > 1 ? 's' : '';
-      return `${num} unresolved comment${plural}`;
+      titleParts.push(pluralize(num, 'unresolved comment'));
     }
     const significantLabel =
       label.rejected || label.approved || label.disliked || label.recommended;
-    if (significantLabel && significantLabel.name) {
-      return `${labelName}\nby ${significantLabel.name}`;
+    if (significantLabel?.name) {
+      titleParts.push(`${labelName} by ${significantLabel.name}`);
+    }
+    if (titleParts.length > 0) {
+      return titleParts.join(',\n');
     }
     return labelName;
   }
@@ -329,8 +329,8 @@ export class GrChangeListItem extends ChangeTableMixin(
     );
     reviewers.sort((r1, r2) => {
       if (this.account) {
-        if (r1._account_id === this.account._account_id) return -1;
-        if (r2._account_id === this.account._account_id) return 1;
+        if (isSelf(r1, this.account)) return -1;
+        if (isSelf(r2, this.account)) return 1;
       }
       if (this._hasAttention(r1) && !this._hasAttention(r2)) return -1;
       if (this._hasAttention(r2) && !this._hasAttention(r1)) return 1;

@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {html} from '@polymer/polymer/lib/utils/html-tag';
 import {customElement, property, observe} from '@polymer/decorators';
@@ -30,9 +28,7 @@ declare global {
  * GrSelect `gr-select` component.
  */
 @customElement('gr-select')
-export class GrSelect extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrSelect extends PolymerElement {
   static get template() {
     return html` <slot></slot> `;
   }
@@ -57,7 +53,7 @@ export class GrSelect extends GestureEventListeners(
       // Async needed for firefox to populate value. It was trying to do it
       // before options from a dom-repeat were rendered previously.
       // See https://bugs.chromium.org/p/gerrit/issues/detail?id=7735
-      this.async(() => {
+      setTimeout(() => {
         // TODO(TS): maybe should check for undefined before assigning
         // or fallback to ''
         this.nativeSelect.value = this.bindValue!;
@@ -73,9 +69,8 @@ export class GrSelect extends GestureEventListeners(
     this.nativeSelect.focus();
   }
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('change', () => this._valueChanged());
     this.addEventListener('dom-change', () => this._updateValue());
   }

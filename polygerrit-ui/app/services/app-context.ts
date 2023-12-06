@@ -18,12 +18,24 @@ import {FlagsService} from './flags/flags';
 import {EventEmitterService} from './gr-event-interface/gr-event-interface';
 import {ReportingService} from './gr-reporting/gr-reporting';
 import {AuthService} from './gr-auth/gr-auth';
+import {RestApiService} from './gr-rest-api/gr-rest-api';
+import {ChangeService} from './change/change-service';
+import {ChecksService} from './checks/checks-service';
+import {JsApiService} from '../elements/shared/gr-js-api-interface/gr-js-api-types';
+import {StorageService} from './storage/gr-storage';
+import {ConfigService} from './config/config-service';
 
 export interface AppContext {
   flagsService: FlagsService;
   reportingService: ReportingService;
   eventEmitter: EventEmitterService;
   authService: AuthService;
+  restApiService: RestApiService;
+  changeService: ChangeService;
+  checksService: ChecksService;
+  jsApiService: JsApiService;
+  storageService: StorageService;
+  configService: ConfigService;
 }
 
 /**

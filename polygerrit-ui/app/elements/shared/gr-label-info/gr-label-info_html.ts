@@ -31,9 +31,9 @@ export const htmlTemplate = html`
       display: flex;
       justify-content: center;
       margin-right: var(--spacing-s);
-      padding: 0;
+      padding: 1px;
       @apply --vote-chip-styles;
-      border-width: 0;
+      border: 1px solid var(--border-color);
     }
     .max {
       background-color: var(--vote-color-approved);
@@ -43,9 +43,15 @@ export const htmlTemplate = html`
     }
     .positive {
       background-color: var(--vote-color-recommended);
+      border-radius: 12px;
+      border: 1px solid var(--vote-outline-recommended);
+      color: var(--chip-color);
     }
     .negative {
       background-color: var(--vote-color-disliked);
+      border-radius: 12px;
+      border: 1px solid var(--vote-outline-disliked);
+      color: var(--chip-color);
     }
     .hidden {
       display: none;
@@ -68,7 +74,7 @@ export const htmlTemplate = html`
       color: var(--border-color);
     }
     gr-account-link {
-      --account-max-length: 120px;
+      --account-max-length: 100px;
       margin-right: var(--spacing-xs);
     }
     iron-icon {
@@ -95,13 +101,16 @@ export const htmlTemplate = html`
           <gr-label
             has-tooltip=""
             title="[[_computeValueTooltip(labelInfo, mappedLabel.value)]]"
-            class$="[[mappedLabel.className]] voteChip"
+            class$="[[mappedLabel.className]] voteChip font-small"
           >
             [[mappedLabel.value]]
           </gr-label>
         </td>
         <td>
-          <gr-account-link account="[[mappedLabel.account]]"></gr-account-link>
+          <gr-account-link
+            account="[[mappedLabel.account]]"
+            change="[[change]]"
+          ></gr-account-link>
         </td>
         <td>
           <gr-button
@@ -118,5 +127,4 @@ export const htmlTemplate = html`
       </tr>
     </template>
   </table>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

@@ -19,9 +19,7 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-dropdown/gr-dropdown';
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-confirm-abandon-dialog/gr-confirm-abandon-dialog';
 import '../gr-confirm-cherrypick-dialog/gr-confirm-cherrypick-dialog';
 import '../gr-confirm-cherrypick-conflict-dialog/gr-confirm-cherrypick-conflict-dialog';
@@ -32,19 +30,15 @@ import '../gr-confirm-revert-submission-dialog/gr-confirm-revert-submission-dial
 import '../gr-confirm-submit-dialog/gr-confirm-submit-dialog';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-actions_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {appContext} from '../../../services/app-context';
-import {
-  fetchChangeUpdates,
-  patchNumEquals,
-} from '../../../utils/patch-set-util';
+import {fetchChangeUpdates, CURRENT} from '../../../utils/patch-set-util';
 import {
   changeIsOpen,
+  isOwner,
   ListChangesOption,
   listChangesOptionsToHex,
 } from '../../../utils/change-util';
@@ -54,16 +48,10 @@ import {
   HttpMethod,
   NotifyType,
 } from '../../../constants/constants';
-import {EventType, TargetElement} from '../../plugins/gr-plugin-types';
+import {EventType as PluginEventType, TargetElement} from '../../../api/plugin';
 import {customElement, observe, property} from '@polymer/decorators';
-import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
 import {
-  ActionPriority,
-  ActionType,
-  ErrorCallback,
-  RestApiService,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {
+  AccountInfo,
   ActionInfo,
   ActionNameToActionInfoMap,
   BranchName,
@@ -104,12 +92,25 @@ import {
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {
-  ChangeActions,
   GrChangeActionsElement,
-  PrimaryActionKey,
-  RevisionActions,
   UIActionInfo,
 } from '../../shared/gr-js-api-interface/gr-change-actions-js-api';
+import {fireAlert} from '../../../utils/event-util';
+import {
+  CODE_REVIEW,
+  getApprovalInfo,
+  getVotingRange,
+} from '../../../utils/label-util';
+import {CommentThread} from '../../../utils/comment-util';
+import {ShowAlertEventDetail} from '../../../types/events';
+import {
+  ActionPriority,
+  ActionType,
+  ChangeActions,
+  PrimaryActionKey,
+  RevisionActions,
+} from '../../../api/change-actions';
+import {ErrorCallback} from '../../../api/rest';
 
 const ERR_BRANCH_EMPTY = 'The destination branch can’t be empty.';
 const ERR_COMMIT_EMPTY = 'The commit message can’t be empty.';
@@ -170,7 +171,7 @@ const QUICK_APPROVE_ACTION: QuickApproveUIActionInfo = {
   method: HttpMethod.POST,
 };
 
-function isQuckApproveAction(
+function isQuickApproveAction(
   action: UIActionInfo
 ): action is QuickApproveUIActionInfo {
   return (action as QuickApproveUIActionInfo).key === QUICK_APPROVE_ACTION.key;
@@ -312,12 +313,11 @@ interface ActionPriorityOverride {
 
 interface ChangeActionDialog extends HTMLElement {
   resetFocus?(): void;
+  init?(): void;
 }
 
 export interface GrChangeActions {
   $: {
-    jsAPI: GrJsApiInterface;
-    restAPI: RestApiService & Element;
     mainContent: Element;
     overlay: GrOverlay;
     confirmRebase: GrConfirmRebaseDialog;
@@ -337,7 +337,7 @@ export interface GrChangeActions {
 
 @customElement('gr-change-actions')
 export class GrChangeActions
-  extends GestureEventListeners(LegacyElementMixin(PolymerElement))
+  extends PolymerElement
   implements GrChangeActionsElement {
   static get template() {
     return htmlTemplate;
@@ -378,6 +378,8 @@ export class GrChangeActions
 
   reporting = appContext.reportingService;
 
+  private readonly jsAPI = appContext.jsApiService;
+
   @property({type: Object})
   change?: ChangeViewChangeInfo;
 
@@ -398,6 +400,9 @@ export class GrChangeActions
 
   @property({type: Boolean})
   _hideQuickApproveAction = false;
+
+  @property({type: Object})
+  account?: AccountInfo;
 
   @property({type: String})
   changeNum?: NumericChangeId;
@@ -434,6 +439,9 @@ export class GrChangeActions
 
   @property({type: String})
   _actionLoadingMessage = '';
+
+  @property({type: Array})
+  commentThreads: CommentThread[] = [];
 
   @property({
     type: Array,
@@ -543,9 +551,10 @@ export class GrChangeActions
   @property({type: Object})
   _config?: ServerInfo;
 
-  /** @override */
-  created() {
-    super.created();
+  private readonly restApiService = appContext.restApiService;
+
+  constructor() {
+    super();
     this.addEventListener('fullscreen-overlay-opened', () =>
       this._handleHideBackgroundContent()
     );
@@ -557,8 +566,8 @@ export class GrChangeActions
   /** @override */
   ready() {
     super.ready();
-    this.$.jsAPI.addElement(TargetElement.CHANGE_ACTIONS, this);
-    this.$.restAPI.getConfig().then(config => {
+    this.jsAPI.addElement(TargetElement.CHANGE_ACTIONS, this);
+    this.restApiService.getConfig().then(config => {
       this._config = config;
     });
     this._handleLoadingComplete();
@@ -594,7 +603,7 @@ export class GrChangeActions
     const change = this.change;
 
     this._loading = true;
-    return this.$.restAPI
+    return this.restApiService
       .getChangeRevisionActions(this.changeNum, this.latestPatchNum)
       .then(revisionActions => {
         if (!revisionActions) {
@@ -609,13 +618,7 @@ export class GrChangeActions
         this._handleLoadingComplete();
       })
       .catch(err => {
-        this.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {message: ERR_REVISION_ACTIONS},
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireAlert(this, ERR_REVISION_ACTIONS);
         this._loading = false;
         throw err;
       });
@@ -631,7 +634,7 @@ export class GrChangeActions
     change: ChangeInfo;
     revisionActions: ActionNameToActionInfoMap;
   }) {
-    this.$.jsAPI.handleEvent(EventType.SHOW_REVISION_ACTIONS, detail);
+    this.jsAPI.handleEvent(PluginEventType.SHOW_REVISION_ACTIONS, detail);
   }
 
   @observe('change')
@@ -889,6 +892,7 @@ export class GrChangeActions
       if (editMode && !editPatchsetLoaded) {
         if (!actions.stopEdit) {
           this.set('actions.stopEdit', STOP_EDIT);
+          fireAlert(this, 'Change is in edit mode');
         }
       } else {
         this._deleteAndNotify('stopEdit');
@@ -926,20 +930,24 @@ export class GrChangeActions
     if (!this.change || !this.change.labels || !this.change.permitted_labels) {
       return null;
     }
+    if (this.change && this.change.status === ChangeStatus.MERGED) {
+      return null;
+    }
     let result;
-    for (const label in this.change.labels) {
+    for (const [label, labelInfo] of Object.entries(this.change.labels)) {
       if (!(label in this.change.permitted_labels)) {
         continue;
       }
       if (this.change.permitted_labels[label].length === 0) {
         continue;
       }
-      const status = this._getLabelStatus(this.change.labels[label]);
+      const status = this._getLabelStatus(labelInfo);
       if (status === LabelStatus.NEED) {
         if (result) {
-          // More than one label is missing, so it's unclear which to quick
-          // approve, return null;
-          return null;
+          // More than one label is missing, so check if Code Review can be
+          // given
+          result = null;
+          break;
         }
         result = label;
       } else if (
@@ -949,18 +957,39 @@ export class GrChangeActions
         return null;
       }
     }
+    // Allow the user to use quick approve to vote the max score on code review
+    // even if it is already granted by someone else. Does not apply if the
+    // user owns the change or has already granted the max score themselves.
+    const codeReviewLabel = this.change.labels[CODE_REVIEW];
+    const codeReviewPermittedValues = this.change.permitted_labels[CODE_REVIEW];
+    if (
+      !result &&
+      codeReviewLabel &&
+      codeReviewPermittedValues &&
+      this.account?._account_id &&
+      isDetailedLabelInfo(codeReviewLabel) &&
+      this._getLabelStatus(codeReviewLabel) === LabelStatus.OK &&
+      !isOwner(this.change, this.account) &&
+      getApprovalInfo(codeReviewLabel, this.account)?.value !==
+        getVotingRange(codeReviewLabel)?.max
+    ) {
+      result = CODE_REVIEW;
+    }
+
     if (result) {
-      const score = this.change.permitted_labels[result].slice(-1)[0];
       const labelInfo = this.change.labels[result];
       if (!isDetailedLabelInfo(labelInfo)) {
         return null;
       }
-      const maxScore = Object.keys(labelInfo.values).slice(-1)[0];
-      if (score === maxScore) {
+      const permittedValues = this.change.permitted_labels[result];
+      const usersMaxPermittedScore =
+        permittedValues[permittedValues.length - 1];
+      const maxScoreForLabel = getVotingRange(labelInfo)?.max;
+      if (Number(usersMaxPermittedScore) === maxScoreForLabel) {
         // Allow quick approve only for maximal score.
         return {
           label: result,
-          score,
+          score: usersMaxPermittedScore,
         };
       }
     }
@@ -972,7 +1001,7 @@ export class GrChangeActions
       throw new Error('_topLevelSecondaryActions must be set');
     }
     this._topLevelSecondaryActions = this._topLevelSecondaryActions.filter(
-      sa => !isQuckApproveAction(sa)
+      sa => !isQuickApproveAction(sa)
     );
     this._hideQuickApproveAction = true;
   }
@@ -1074,7 +1103,7 @@ export class GrChangeActions
     if (!this.changeNum) {
       return;
     }
-    this.$.restAPI
+    this.restApiService
       .getChangeActionURL(this.changeNum, patchNum, '/' + action.__key)
       .then(url => (action.__url = url));
   }
@@ -1113,7 +1142,7 @@ export class GrChangeActions
     if (!this.change) {
       return false;
     }
-    return this.$.jsAPI.canSubmitChange(
+    return this.jsAPI.canSubmitChange(
       this.change,
       this._getRevision(this.change, this.latestPatchNum)
     );
@@ -1121,7 +1150,7 @@ export class GrChangeActions
 
   _getRevision(change: ChangeViewChangeInfo, patchNum?: PatchSetNum) {
     for (const rev of Object.values(change.revisions)) {
-      if (patchNumEquals(rev._number, patchNum)) {
+      if (rev._number === patchNum) {
         return rev;
       }
     }
@@ -1136,9 +1165,9 @@ export class GrChangeActions
     /* A chromium plugin expects that the modifyRevertMsg hook will only
     be called after the revert button is pressed, hence we populate the
     revert dialog after revert button is pressed. */
-    this.$.restAPI.getChanges(0, query).then(changes => {
+    this.restApiService.getChanges(0, query).then(changes => {
       if (!changes) {
-        console.error('changes is undefined');
+        this.reporting.error(new Error('changes is undefined'));
         return;
       }
       this.$.confirmRevertDialog.populate(change, this.commitMessage, changes);
@@ -1150,9 +1179,9 @@ export class GrChangeActions
     const change = this.change;
     if (!change) return;
     const query = `submissionid:${change.submission_id}`;
-    this.$.restAPI.getChanges(0, query).then(changes => {
+    this.restApiService.getChanges(0, query).then(changes => {
       if (!changes) {
-        console.error('changes is undefined');
+        this.reporting.error(new Error('changes is undefined'));
         return;
       }
       this.$.confirmRevertSubmissionDialog._populateRevertSubmissionMessage(
@@ -1244,7 +1273,7 @@ export class GrChangeActions
         this._showActionDialog(this.$.confirmAbandonDialog);
         break;
       case QUICK_APPROVE_ACTION.key: {
-        const action = this._allActionValues.find(isQuckApproveAction);
+        const action = this._allActionValues.find(isQuickApproveAction);
         if (!action) {
           return;
         }
@@ -1370,23 +1399,11 @@ export class GrChangeActions
   _handleCherryPickRestApi(conflicts: boolean) {
     const el = this.$.confirmCherrypick;
     if (!el.branch) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: ERR_BRANCH_EMPTY},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, ERR_BRANCH_EMPTY);
       return;
     }
     if (!el.message) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: ERR_COMMIT_EMPTY},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, ERR_COMMIT_EMPTY);
       return;
     }
     this.$.overlay.close();
@@ -1407,13 +1424,7 @@ export class GrChangeActions
   _handleMoveConfirm() {
     const el = this.$.confirmMove;
     if (!el.branch) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: ERR_BRANCH_EMPTY},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, ERR_BRANCH_EMPTY);
       return;
     }
     this.$.overlay.close();
@@ -1448,7 +1459,7 @@ export class GrChangeActions
         );
         break;
       default:
-        console.error('invalid revert type');
+        this.reporting.error(new Error('invalid revert type'));
     }
   }
 
@@ -1584,7 +1595,7 @@ export class GrChangeActions
 
   _showActionDialog(dialog: ChangeActionDialog) {
     this._hideAllDialogs();
-
+    if (dialog.init) dialog.init();
     dialog.hidden = false;
     this.$.overlay.open().then(() => {
       if (dialog.resetFocus) {
@@ -1595,24 +1606,24 @@ export class GrChangeActions
 
   // TODO(rmistry): Redo this after
   // https://bugs.chromium.org/p/gerrit/issues/detail?id=4671 is resolved.
-  _setLabelValuesOnRevert(newChangeId: NumericChangeId) {
-    const labels = this.$.jsAPI.getLabelValuesPostRevert(this.change);
-    if (!labels) {
+  _setReviewOnRevert(newChangeId: NumericChangeId) {
+    const review = this.jsAPI.getReviewPostRevert(this.change);
+    if (!review) {
       return Promise.resolve(undefined);
     }
-    return this.$.restAPI.saveChangeReview(newChangeId, 'current', {labels});
+    return this.restApiService.saveChangeReview(newChangeId, CURRENT, review);
   }
 
   _handleResponse(action: UIActionInfo, response?: Response) {
     if (!response) {
       return;
     }
-    return this.$.restAPI.getResponseObject(response).then(obj => {
+    return this.restApiService.getResponseObject(response).then(obj => {
       switch (action.__key) {
         case ChangeActions.REVERT: {
           const revertChangeInfo: ChangeInfo = (obj as unknown) as ChangeInfo;
           this._waitForChangeReachable(revertChangeInfo._number)
-            .then(() => this._setLabelValuesOnRevert(revertChangeInfo._number))
+            .then(() => this._setReviewOnRevert(revertChangeInfo._number))
             .then(() => {
               GerritNav.navigateToChange(revertChangeInfo);
             });
@@ -1735,10 +1746,10 @@ export class GrChangeActions
         new Error('Properties change and changeNum must be set.')
       );
     }
-    return fetchChangeUpdates(change, this.$.restAPI).then(result => {
+    return fetchChangeUpdates(change, this.restApiService).then(result => {
       if (!result.isLatest) {
         this.dispatchEvent(
-          new CustomEvent('show-alert', {
+          new CustomEvent<ShowAlertEventDetail>('show-alert', {
             detail: {
               message:
                 'Cannot set label: a newer patch has been ' +
@@ -1766,7 +1777,7 @@ export class GrChangeActions
         return Promise.resolve(undefined);
       }
       const patchNum = revisionAction ? this.latestPatchNum : undefined;
-      return this.$.restAPI
+      return this.restApiService
         .executeChangeAction(
           changeNum,
           method,
@@ -1796,14 +1807,16 @@ export class GrChangeActions
       ListChangesOption.MESSAGES,
       ListChangesOption.ALL_REVISIONS
     );
-    this.$.restAPI.getChanges(0, query, undefined, options).then(changes => {
-      if (!changes) {
-        console.error('getChanges returns undefined');
-        return;
-      }
-      this.$.confirmCherrypick.updateChanges(changes);
-      this._showActionDialog(this.$.confirmCherrypick);
-    });
+    this.restApiService
+      .getChanges(0, query, undefined, options)
+      .then(changes => {
+        if (!changes) {
+          this.reporting.error(new Error('getChanges returns undefined'));
+          return;
+        }
+        this.$.confirmCherrypick.updateChanges(changes);
+        this._showActionDialog(this.$.confirmCherrypick);
+      });
   }
 
   _handleMoveTap() {
@@ -2053,12 +2066,12 @@ export class GrChangeActions
    *
    */
   _waitForChangeReachable(changeNum: NumericChangeId) {
-    let attempsRemaining = AWAIT_CHANGE_ATTEMPTS;
+    let attemptsRemaining = AWAIT_CHANGE_ATTEMPTS;
     return new Promise(resolve => {
       const check = () => {
-        attempsRemaining--;
+        attemptsRemaining--;
         // Pass a no-op error handler to avoid the "not found" error toast.
-        this.$.restAPI
+        this.restApiService
           .getChange(changeNum, () => {})
           .then(response => {
             // If the response is 404, the response will be undefined.
@@ -2067,8 +2080,8 @@ export class GrChangeActions
               return;
             }
 
-            if (attempsRemaining) {
-              this.async(check, AWAIT_CHANGE_TIMEOUT_MS);
+            if (attemptsRemaining) {
+              setTimeout(check, AWAIT_CHANGE_TIMEOUT_MS);
             } else {
               resolve(false);
             }

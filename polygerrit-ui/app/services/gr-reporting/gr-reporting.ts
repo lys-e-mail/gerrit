@@ -15,10 +15,12 @@
  * limitations under the License.
  */
 
-export type EventValue = string | number | {error?: Error};
+import {NumericChangeId} from '../../types/common';
+import {EventDetails} from '../../api/reporting';
+import {PluginApi} from '../../api/plugin';
+import {Execution, LifeCycle, Timing} from '../../constants/reporting';
 
-// TODO(dmfilippov): TS-fix-any use more specific type instead if possible
-export type EventDetails = any;
+export type EventValue = string | number | {error?: Error};
 
 export interface Timer {
   reset(): this;
@@ -50,17 +52,18 @@ export interface ReportingService {
   reportExtension(name: string): void;
   pluginLoaded(name: string): void;
   pluginsLoaded(pluginsList?: string[]): void;
+  error(err: unknown, reporter?: string, details?: EventDetails): void;
   /**
    * Reset named timer.
    */
-  time(name: string): void;
+  time(name: Timing): void;
   /**
    * Finish named timer and report it to server.
    */
-  timeEnd(name: string, eventDetails?: EventDetails): void;
+  timeEnd(name: Timing, eventDetails?: EventDetails): void;
   /**
    * Reports just line timeEnd, but additionally reports an average given a
-   * denominator and a separate reporiting name for the average.
+   * denominator and a separate reporting name for the average.
    *
    * @param name Timing name.
    * @param averageName Average timing name.
@@ -68,12 +71,12 @@ export interface ReportingService {
    *     compute the average.
    */
   timeEndWithAverage(
-    name: string,
-    averageName: string,
+    name: Timing,
+    averageName: Timing,
     denominator: number
   ): void;
   /**
-   * Get a timer object to for reporing a user timing. The start time will be
+   * Get a timer object for reporting a user timing. The start time will be
    * the time that the object has been created, and the end time will be the
    * time that the "end" method is called on the object.
    */
@@ -85,13 +88,29 @@ export interface ReportingService {
    * @param elapsed The time elapsed of the RPC.
    */
   reportRpcTiming(anonymizedUrl: string, elapsed: number): void;
-  reportLifeCycle(eventName: string, details?: EventDetails): void;
+  reportLifeCycle(eventName: LifeCycle, details?: EventDetails): void;
+
+  /**
+   * Use this method, if you want to check/count how often a certain code path
+   * is executed. For example you can use this method to prove that certain code
+   * paths are dead: Add reportExecution(), check the logs a week later, then
+   * safely remove the code.
+   *
+   * Every execution is only reported once per session.
+   */
+  reportExecution(id: Execution, details?: EventDetails): void;
+  trackApi(
+    plugin: Pick<PluginApi, 'getPluginName'>,
+    object: string,
+    method: string
+  ): void;
   reportInteraction(eventName: string, details?: EventDetails): void;
   /**
-   * A draft interaction was started. Update the time-betweeen-draft-actions
+   * A draft interaction was started. Update the time-between-draft-actions
    * timer.
    */
   recordDraftInteraction(): void;
   reportErrorDialog(message: string): void;
   setRepoName(repoName: string): void;
+  setChangeId(changeId: NumericChangeId): void;
 }

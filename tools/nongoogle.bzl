@@ -1,5 +1,12 @@
 load("//tools/bzl:maven_jar.bzl", "maven_jar")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+
+GUAVA_VERSION = "30.1-jre"
+
+GUAVA_BIN_SHA1 = "00d0c3ce2311c9e36e73228da25a6e99b2ab826f"
+
+GUAVA_DOC_URL = "https://google.github.io/guava/releases/" + GUAVA_VERSION + "/api/docs/"
+
+TESTCONTAINERS_VERSION = "1.15.1"
 
 def declare_nongoogle_deps():
     """loads dependencies that are not used at Google.
@@ -60,12 +67,18 @@ def declare_nongoogle_deps():
         sha1 = "cb2f351bf4463751201f43bb99865235d5ba07ca",
     )
 
-    SSHD_VERS = "2.4.0"
+    SSHD_VERS = "2.7.0"
 
     maven_jar(
         name = "sshd-osgi",
         artifact = "org.apache.sshd:sshd-osgi:" + SSHD_VERS,
-        sha1 = "fc4551c1eeda35e4671b263297d37d2bca81c4d4",
+        sha1 = "a101aad0f79ad424498098f7e91c39d3d92177c1",
+    )
+
+    maven_jar(
+        name = "sshd-sftp",
+        artifact = "org.apache.sshd:sshd-sftp:" + SSHD_VERS,
+        sha1 = "0c9eff7145e20b338c1dd6aca36ba93ed7c0147c",
     )
 
     maven_jar(
@@ -83,7 +96,7 @@ def declare_nongoogle_deps():
     maven_jar(
         name = "sshd-mina",
         artifact = "org.apache.sshd:sshd-mina:" + SSHD_VERS,
-        sha1 = "8aa8715d07bd61ad8315df66d43c0c04b1b755c8",
+        sha1 = "22799941ec7bd5170ea890363cb968e400a69c41",
     )
 
     # elasticsearch-rest-client explicitly depends on this version
@@ -125,19 +138,10 @@ def declare_nongoogle_deps():
         sha1 = "76716d529710fc03d1d429b43e3cedd4419f78d4",
     )
 
-    # When upgrading elasticsearch-rest-client, also upgrade httpcore-nio
-    # and httpasyncclient as necessary. Consider also the other
-    # org.apache.httpcomponents dependencies in ../WORKSPACE.
-    maven_jar(
-        name = "elasticsearch-rest-client",
-        artifact = "org.elasticsearch.client:elasticsearch-rest-client:7.8.1",
-        sha1 = "59feefe006a96a39f83b0dfb6780847e06c1d0a8",
-    )
-
     maven_jar(
         name = "jackson-core",
-        artifact = "com.fasterxml.jackson.core:jackson-core:2.11.3",
-        sha1 = "c2351800432bdbdd8284c3f5a7f0782a352aa84a",
+        artifact = "com.fasterxml.jackson.core:jackson-core:2.12.0",
+        sha1 = "afe52c6947d9939170da7989612cef544115511a",
     )
 
     maven_jar(
@@ -169,38 +173,40 @@ def declare_nongoogle_deps():
         sha1 = "b66d3bedb14da604828a8693bb24fd78e36b0e9e",
     )
 
-    GUICE_VERS = "4.2.3"
+    maven_jar(
+        name = "guava",
+        artifact = "com.google.guava:guava:" + GUAVA_VERSION,
+        sha1 = GUAVA_BIN_SHA1,
+    )
 
-    GUICE_LIBRARY_SHA256 = "5168f5e7383f978c1b4154ac777b78edd8ac214bb9f9afdb92921c8d156483d3"
+    GUICE_VERS = "5.0.1"
 
-    http_file(
-        name = "guice-library-no-aop",
-        canonical_id = "guice-library-no-aop-" + GUICE_VERS + ".jar-" + GUICE_LIBRARY_SHA256,
-        downloaded_file_path = "guice-library-no-aop.jar",
-        sha256 = GUICE_LIBRARY_SHA256,
-        urls = [
-            "https://repo1.maven.org/maven2/com/google/inject/guice/" +
-            GUICE_VERS +
-            "/guice-" +
-            GUICE_VERS +
-            "-no_aop.jar",
-        ],
+    maven_jar(
+        name = "guice-library",
+        artifact = "com.google.inject:guice:" + GUICE_VERS,
+        sha1 = "0dae7556b441cada2b4f0a2314eb68e1ff423429",
     )
 
     maven_jar(
         name = "guice-assistedinject",
         artifact = "com.google.inject.extensions:guice-assistedinject:" + GUICE_VERS,
-        sha1 = "acbfddc556ee9496293ed1df250cc378f331d854",
+        sha1 = "62e02f2aceb7d90ba354584dacc018c1e94ff01c",
     )
 
     maven_jar(
         name = "guice-servlet",
         artifact = "com.google.inject.extensions:guice-servlet:" + GUICE_VERS,
-        sha1 = "8d6e7e35eac4fb5e7df19c55b3bc23fa51b10a11",
+        sha1 = "f527009d51f172a2e6937bfb55fcb827e2e2386b",
+    )
+
+    # Keep this version of Soy synchronized with the version used in Gitiles.
+    maven_jar(
+        name = "soy",
+        artifact = "com.google.template:soy:2021-02-01",
+        sha1 = "8e833744832ba88059205a1e30e0898f925d8cb5",
     )
 
     # Test-only dependencies below.
-
     maven_jar(
         name = "cglib-3_2",
         artifact = "cglib:cglib-nodep:3.2.6",
@@ -235,18 +241,10 @@ def declare_nongoogle_deps():
         sha1 = "0f63b3b1da563767d04d2e4d3fc1ae0cdeffebe7",
     )
 
-    TESTCONTAINERS_VERSION = "1.15.1"
-
     maven_jar(
         name = "testcontainers",
         artifact = "org.testcontainers:testcontainers:" + TESTCONTAINERS_VERSION,
         sha1 = "91e6dfab8f141f77c6a0dd147a94bd186993a22c",
-    )
-
-    maven_jar(
-        name = "testcontainers-elasticsearch",
-        artifact = "org.testcontainers:elasticsearch:" + TESTCONTAINERS_VERSION,
-        sha1 = "6b778a270b7529fcb9b7a6f62f3ae9d38544ce2f",
     )
 
     maven_jar(
@@ -265,4 +263,43 @@ def declare_nongoogle_deps():
         name = "jna",
         artifact = "net.java.dev.jna:jna:5.5.0",
         sha1 = "0e0845217c4907822403912ad6828d8e0b256208",
+    )
+
+    maven_jar(
+        name = "jimfs",
+        artifact = "com.google.jimfs:jimfs:1.2",
+        sha1 = "48462eb319817c90c27d377341684b6b81372e08",
+    )
+
+    TRUTH_VERS = "1.1"
+
+    maven_jar(
+        name = "truth",
+        artifact = "com.google.truth:truth:" + TRUTH_VERS,
+        sha1 = "6a096a16646559c24397b03f797d0c9d75ee8720",
+    )
+
+    maven_jar(
+        name = "truth-java8-extension",
+        artifact = "com.google.truth.extensions:truth-java8-extension:" + TRUTH_VERS,
+        sha1 = "258db6eb8df61832c5c059ed2bc2e1c88683e92f",
+    )
+
+    maven_jar(
+        name = "truth-liteproto-extension",
+        artifact = "com.google.truth.extensions:truth-liteproto-extension:" + TRUTH_VERS,
+        sha1 = "bf65afa13aa03330e739bcaa5d795fe0f10fbf20",
+    )
+
+    maven_jar(
+        name = "truth-proto-extension",
+        artifact = "com.google.truth.extensions:truth-proto-extension:" + TRUTH_VERS,
+        sha1 = "64cba89cf87c1d84cb8c81d06f0b9c482f10b4dc",
+    )
+
+    # JGit's transitive dependencies
+    maven_jar(
+        name = "hamcrest",
+        artifact = "org.hamcrest:hamcrest:2.2",
+        sha1 = "1820c0968dba3a11a1b30669bb1f01978a91dedc",
     )

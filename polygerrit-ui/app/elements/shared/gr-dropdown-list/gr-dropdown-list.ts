@@ -21,22 +21,16 @@ import '../../../styles/shared-styles';
 import '../gr-button/gr-button';
 import '../gr-date-formatter/gr-date-formatter';
 import '../gr-select/gr-select';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
+import '../gr-file-status-chip/gr-file-status-chip';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-dropdown-list_html';
 import {customElement, property, observe} from '@polymer/decorators';
 import {IronDropdownElement} from '@polymer/iron-dropdown/iron-dropdown';
 import {Timestamp} from '../../../types/common';
+import {NormalizedFileInfo} from '../../change/gr-file-list/gr-file-list';
 
 /**
- * fired when the selected value of the dropdown changes
- *
- * @event {change}
- */
-
-/**
- * Requred values are text and value. mobileText and triggerText will
+ * Required values are text and value. mobileText and triggerText will
  * fall back to text if not provided.
  *
  * If bottomText is not provided, nothing will display on the second
@@ -52,6 +46,7 @@ export interface DropdownItem {
   mobileText?: string;
   date?: Timestamp;
   disabled?: boolean;
+  file?: NormalizedFileInfo;
 }
 
 export interface GrDropdownList {
@@ -67,9 +62,7 @@ export interface ValueChangeDetail {
 export type DropDownValueChangeEvent = CustomEvent<ValueChangeDetail>;
 
 @customElement('gr-dropdown-list')
-export class GrDropdownList extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDropdownList extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -106,7 +99,7 @@ export class GrDropdownList extends GestureEventListeners(
   _handleDropdownClick() {
     // async is needed so that that the click event is fired before the
     // dropdown closes (This was a bug for touch devices).
-    this.async(() => {
+    setTimeout(() => {
       this.$.dropdown.close();
     }, 1);
   }

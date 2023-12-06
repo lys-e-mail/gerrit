@@ -22,6 +22,7 @@ import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.LabelFunction;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.extensions.common.LabelDefinitionInfo;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
@@ -38,7 +39,7 @@ public class GetLabelIT extends AbstractDaemonTest {
     AuthException thrown =
         assertThrows(
             AuthException.class,
-            () -> gApi.projects().name(allProjects.get()).label("Code-Review").get());
+            () -> gApi.projects().name(allProjects.get()).label(LabelId.CODE_REVIEW).get());
     assertThat(thrown).hasMessageThat().contains("Authentication required");
   }
 
@@ -48,7 +49,7 @@ public class GetLabelIT extends AbstractDaemonTest {
     AuthException thrown =
         assertThrows(
             AuthException.class,
-            () -> gApi.projects().name(allProjects.get()).label("Code-Review").get());
+            () -> gApi.projects().name(allProjects.get()).label(LabelId.CODE_REVIEW).get());
     assertThat(thrown).hasMessageThat().contains("read refs/meta/config not permitted");
   }
 
@@ -64,7 +65,7 @@ public class GetLabelIT extends AbstractDaemonTest {
   @Test
   public void allProjectsCodeReviewLabel() throws Exception {
     LabelDefinitionInfo codeReviewLabel =
-        gApi.projects().name(allProjects.get()).label("Code-Review").get();
+        gApi.projects().name(allProjects.get()).label(LabelId.CODE_REVIEW).get();
     LabelAssert.assertCodeReviewLabel(codeReviewLabel);
   }
 
@@ -113,6 +114,7 @@ public class GetLabelIT extends AbstractDaemonTest {
     assertThat(fooLabel.copyAnyScore).isNull();
     assertThat(fooLabel.copyMinScore).isNull();
     assertThat(fooLabel.copyMaxScore).isNull();
+    assertThat(fooLabel.copyAllScoresIfListOfFilesDidNotChange).isNull();
     assertThat(fooLabel.copyAllScoresIfNoChange).isNull();
     assertThat(fooLabel.copyAllScoresIfNoCodeChange).isNull();
     assertThat(fooLabel.copyAllScoresOnTrivialRebase).isNull();
@@ -135,6 +137,7 @@ public class GetLabelIT extends AbstractDaemonTest {
                 labelType.setCopyAnyScore(true);
                 labelType.setCopyMinScore(true);
                 labelType.setCopyMaxScore(true);
+                labelType.setCopyAllScoresIfListOfFilesDidNotChange(true);
                 labelType.setCopyAllScoresIfNoCodeChange(true);
                 labelType.setCopyAllScoresOnTrivialRebase(true);
                 labelType.setCopyAllScoresOnMergeFirstParentUpdate(true);
@@ -149,6 +152,7 @@ public class GetLabelIT extends AbstractDaemonTest {
     assertThat(fooLabel.copyAnyScore).isTrue();
     assertThat(fooLabel.copyMinScore).isTrue();
     assertThat(fooLabel.copyMaxScore).isTrue();
+    assertThat(fooLabel.copyAllScoresIfListOfFilesDidNotChange).isTrue();
     assertThat(fooLabel.copyAllScoresIfNoChange).isTrue();
     assertThat(fooLabel.copyAllScoresIfNoCodeChange).isTrue();
     assertThat(fooLabel.copyAllScoresOnTrivialRebase).isTrue();

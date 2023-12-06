@@ -19,6 +19,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.base.Strings;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.exceptions.NoSuchGroupException;
 import com.google.gerrit.extensions.client.AuthType;
 import com.google.gerrit.pgm.init.api.ConsoleUI;
@@ -28,7 +29,6 @@ import com.google.gerrit.pgm.init.api.SequencesOnInit;
 import com.google.gerrit.server.account.AccountSshKey;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.account.externalids.ExternalId;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.index.account.AccountIndex;
 import com.google.gerrit.server.index.account.AccountIndexCollection;
 import com.google.gerrit.server.index.group.GroupIndex;
@@ -88,6 +88,9 @@ public class InitAdminUser implements InitStep {
 
   @Override
   public void postRun() throws Exception {
+    if (!accounts.hasAnyAccount()) {
+      welcome();
+    }
     AuthType authType = flags.cfg.getEnum(AuthType.values(), "auth", null, "type", null);
     if (authType != AuthType.DEVELOPMENT_BECOME_ANY_ACCOUNT) {
       return;
@@ -144,6 +147,15 @@ public class InitAdminUser implements InitStep {
         }
       }
     }
+  }
+
+  private void welcome() {
+    ui.message(
+        "============================================================================\n"
+            + "Welcome to the Gerrit community\n\n"
+            + "Find more information on the homepage: https://www.gerritcodereview.com\n"
+            + "Discuss Gerrit on the mailing list: https://groups.google.com/g/repo-discuss\n"
+            + "============================================================================\n");
   }
 
   private String readEmail(AccountSshKey sshKey) {

@@ -28,7 +28,7 @@ export const htmlTemplate = html`
       margin-bottom: var(--spacing-xxl);
     }
   </style>
-  <main class="gr-form-styles read-only">
+  <div class="main gr-form-styles read-only">
     <h1 id="Title" class="heading-1">Repository Commands</h1>
     <div id="loading" class$="[[_computeLoadingClass(_loading)]]">
       Loading...
@@ -67,7 +67,7 @@ export const htmlTemplate = html`
         </gr-endpoint-decorator>
       </div>
     </div>
-  </main>
+  </div>
   <gr-overlay id="createChangeOverlay" with-backdrop="">
     <gr-dialog
       id="createChangeDialog"
@@ -76,9 +76,7 @@ export const htmlTemplate = html`
       on-confirm="_handleCreateChange"
       on-cancel="_handleCloseCreateChange"
     >
-      <div class="header" slot="header">
-        Create Change
-      </div>
+      <div class="header" slot="header">Create Change</div>
       <div class="main" slot="main">
         <gr-create-change-dialog
           id="createNewChangeModal"
@@ -88,5 +86,4 @@ export const htmlTemplate = html`
       </div>
     </gr-dialog>
   </gr-overlay>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

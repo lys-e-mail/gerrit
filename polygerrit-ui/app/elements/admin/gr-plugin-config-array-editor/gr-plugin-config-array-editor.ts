@@ -20,8 +20,6 @@ import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-plugin-config-array-editor_html';
 import {property, customElement} from '@polymer/decorators';
@@ -37,9 +35,7 @@ declare global {
 }
 
 @customElement('gr-plugin-config-array-editor')
-class GrPluginConfigArrayEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrPluginConfigArrayEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }

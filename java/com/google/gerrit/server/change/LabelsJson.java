@@ -20,14 +20,12 @@ import static java.util.stream.Collectors.toList;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.flogger.FluentLogger;
 import com.google.common.primitives.Ints;
@@ -38,21 +36,18 @@ import com.google.gerrit.entities.LabelTypes;
 import com.google.gerrit.entities.LabelValue;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.SubmitRecord;
-import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.common.ApprovalInfo;
 import com.google.gerrit.extensions.common.LabelInfo;
 import com.google.gerrit.extensions.common.VotingRangeInfo;
-import com.google.gerrit.server.ApprovalsUtil;
 import com.google.gerrit.server.ChangeUtil;
 import com.google.gerrit.server.account.AccountLoader;
-import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 import com.google.gerrit.server.permissions.LabelPermission;
 import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
+import com.google.inject.Singleton;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,28 +63,15 @@ import java.util.TreeMap;
 /**
  * Produces label-related entities, like {@link LabelInfo}s, which is serialized to JSON afterwards.
  */
+@Singleton
 public class LabelsJson {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  public interface Factory {
-    LabelsJson create(Iterable<ListChangesOption> options);
-  }
-
-  private final ApprovalsUtil approvalsUtil;
-  private final ChangeNotes.Factory notesFactory;
   private final PermissionBackend permissionBackend;
-  private final boolean lazyLoad;
 
   @Inject
-  LabelsJson(
-      ApprovalsUtil approvalsUtil,
-      ChangeNotes.Factory notesFactory,
-      PermissionBackend permissionBackend,
-      @Assisted Iterable<ListChangesOption> options) {
-    this.approvalsUtil = approvalsUtil;
-    this.notesFactory = notesFactory;
+  LabelsJson(PermissionBackend permissionBackend) {
     this.permissionBackend = permissionBackend;
-    this.lazyLoad = containsAnyOf(Sets.immutableEnumSet(options), ChangeJson.REQUIRE_LAZY_LOAD);
   }
 
   /**
@@ -171,11 +153,6 @@ public class LabelsJson {
     return permitted.asMap();
   }
 
-  private static boolean containsAnyOf(
-      ImmutableSet<ListChangesOption> set, ImmutableSet<ListChangesOption> toFind) {
-    return !Sets.intersection(toFind, set).isEmpty();
-  }
-
   private static boolean isOnlyZero(Collection<String> values) {
     return values.isEmpty() || (values.size() == 1 && values.contains(" 0"));
   }
@@ -253,14 +230,10 @@ public class LabelsJson {
 
   private Map<String, Short> currentLabels(Account.Id accountId, ChangeData cd) {
     Map<String, Short> result = new HashMap<>();
-    for (PatchSetApproval psa :
-        approvalsUtil.byPatchSetUser(
-            lazyLoad ? cd.notes() : notesFactory.createFromIndexedChange(cd.change()),
-            cd.change().currentPatchSetId(),
-            accountId,
-            null,
-            null)) {
-      result.put(psa.label(), psa.value());
+    for (PatchSetApproval psa : cd.currentApprovals()) {
+      if (psa.accountId().equals(accountId)) {
+        result.put(psa.label(), psa.value());
+      }
     }
     return result;
   }

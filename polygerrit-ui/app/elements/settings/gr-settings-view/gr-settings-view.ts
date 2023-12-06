@@ -30,7 +30,6 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-date-formatter/gr-date-formatter';
 import '../../shared/gr-diff-preferences/gr-diff-preferences';
 import '../../shared/gr-page-nav/gr-page-nav';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
 import '../gr-account-info/gr-account-info';
 import '../gr-agreements-list/gr-agreements-list';
@@ -43,8 +42,6 @@ import '../gr-identities/gr-identities';
 import '../gr-menu-editor/gr-menu-editor';
 import '../gr-ssh-editor/gr-ssh-editor';
 import '../gr-watched-projects-editor/gr-watched-projects-editor';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-settings-view_html';
 import {getDocsBaseUrl} from '../../../utils/url-util';
@@ -57,7 +54,6 @@ import {GrGroupList} from '../gr-group-list/gr-group-list';
 import {GrIdentities} from '../gr-identities/gr-identities';
 import {GrEditPreferences} from '../gr-edit-preferences/gr-edit-preferences';
 import {GrDiffPreferences} from '../../shared/gr-diff-preferences/gr-diff-preferences';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   PreferencesInput,
   ServerInfo,
@@ -65,9 +61,11 @@ import {
 } from '../../../types/common';
 import {GrSshEditor} from '../gr-ssh-editor/gr-ssh-editor';
 import {GrGpgEditor} from '../gr-gpg-editor/gr-gpg-editor';
-import {GerritView} from '../../core/gr-navigation/gr-navigation';
 import {GrEmailEditor} from '../gr-email-editor/gr-email-editor';
 import {CustomKeyboardEvent} from '../../../types/events';
+import {fireAlert, fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {GerritView} from '../../../services/router/router-model';
 
 const PREFS_SECTION_FIELDS: Array<keyof PreferencesInput> = [
   'changes_per_page',
@@ -101,7 +99,6 @@ type LocalMenuItemInfo = Omit<TopMenuItemInfo, 'id'>;
 
 export interface GrSettingsView {
   $: {
-    restAPI: RestApiService & Element;
     accountInfo: GrAccountInfo;
     watchedProjectsEditor: GrWatchedProjectsEditor;
     groupList: GrGroupList;
@@ -120,9 +117,7 @@ export interface GrSettingsView {
 }
 
 @customElement('gr-settings-view')
-export class GrSettingsView extends ChangeTableMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrSettingsView extends ChangeTableMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -147,9 +142,6 @@ export class GrSettingsView extends ChangeTableMixin(
 
   @property({type: Boolean})
   _accountInfoChanged?: boolean;
-
-  @property({type: Array})
-  _changeTableColumnsNotDisplayed?: string[];
 
   @property({type: Object})
   _localPrefs: PreferencesInput = {};
@@ -213,19 +205,15 @@ export class GrSettingsView extends ChangeTableMixin(
 
   public _testOnly_loadingPromise?: Promise<void>;
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     // Polymer 2: anchor tag won't work on shadow DOM
     // we need to manually calling scrollIntoView when hash changed
-    this.listen(window, 'location-change', '_handleLocationChange');
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Settings'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    window.addEventListener('location-change', this.handleLocationChange);
+    fireTitleChange(this, 'Settings');
 
     this._isDark = !!window.localStorage.getItem('dark-theme');
 
@@ -239,20 +227,23 @@ export class GrSettingsView extends ChangeTableMixin(
     ];
 
     promises.push(
-      this.$.restAPI.getPreferences().then(prefs => {
+      this.restApiService.getPreferences().then(prefs => {
         if (!prefs) {
           throw new Error('getPreferences returned undefined');
         }
         this.prefs = prefs;
         this._showNumber = !!prefs.legacycid_in_change_table;
         this._copyPrefs(CopyPrefsDirection.PrefsToLocalPrefs);
-        this._cloneMenu(prefs.my);
-        this._cloneChangeTableColumns(prefs.change_table);
+        this._localMenu = this._cloneMenu(prefs.my);
+        this._localChangeTableColumns =
+          prefs.change_table.length === 0
+            ? this.columnNames
+            : this.renameProjectToRepoColumn(prefs.change_table);
       })
     );
 
     promises.push(
-      this.$.restAPI.getConfig().then(config => {
+      this.restApiService.getConfig().then(config => {
         this._serverConfig = config;
         const configPromises: Array<Promise<void>> = [];
 
@@ -269,7 +260,7 @@ export class GrSettingsView extends ChangeTableMixin(
         }
 
         configPromises.push(
-          getDocsBaseUrl(config, this.$.restAPI).then(baseUrl => {
+          getDocsBaseUrl(config, this.restApiService).then(baseUrl => {
             this._docsBaseUrl = baseUrl;
           })
         );
@@ -284,18 +275,14 @@ export class GrSettingsView extends ChangeTableMixin(
       this.params.emailToken
     ) {
       promises.push(
-        this.$.restAPI.confirmEmail(this.params.emailToken).then(message => {
-          if (message) {
-            this.dispatchEvent(
-              new CustomEvent('show-alert', {
-                detail: {message},
-                composed: true,
-                bubbles: true,
-              })
-            );
-          }
-          this.$.emailEditor.loadData();
-        })
+        this.restApiService
+          .confirmEmail(this.params.emailToken)
+          .then(message => {
+            if (message) {
+              fireAlert(this, message);
+            }
+            this.$.emailEditor.loadData();
+          })
       );
     } else {
       promises.push(this.$.emailEditor.loadData());
@@ -305,16 +292,16 @@ export class GrSettingsView extends ChangeTableMixin(
       this._loading = false;
 
       // Handle anchor tag for initial load
-      this._handleLocationChange();
+      this.handleLocationChange();
     });
   }
 
-  detached() {
-    super.detached();
-    this.unlisten(window, 'location-change', '_handleLocationChange');
+  disconnectedCallback() {
+    window.removeEventListener('location-change', this.handleLocationChange);
+    super.disconnectedCallback();
   }
 
-  _handleLocationChange() {
+  private readonly handleLocationChange = () => {
     // Handle anchor tag after dom attached
     const urlHash = window.location.hash;
     if (urlHash) {
@@ -324,7 +311,7 @@ export class GrSettingsView extends ChangeTableMixin(
         elem.scrollIntoView();
       }
     }
-  }
+  };
 
   reloadAccountDetail() {
     Promise.all([this.$.accountInfo.loadData(), this.$.emailEditor.loadData()]);
@@ -350,29 +337,8 @@ export class GrSettingsView extends ChangeTableMixin(
   }
 
   _cloneMenu(prefs: TopMenuItemInfo[]) {
-    const menu = [];
-    for (const item of prefs) {
-      menu.push({
-        name: item.name,
-        url: item.url,
-        target: item.target,
-      });
-    }
-    this._localMenu = menu;
-  }
-
-  _cloneChangeTableColumns(changeTable: string[]) {
-    let columns = this.getVisibleColumns(changeTable);
-
-    if (columns.length === 0) {
-      columns = this.columnNames;
-      this._changeTableColumnsNotDisplayed = [];
-    } else {
-      this._changeTableColumnsNotDisplayed = this.getComplementColumns(
-        changeTable
-      );
-    }
-    this._localChangeTableColumns = columns;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    return prefs.map(({id, ...item}) => item);
   }
 
   @observe('_localChangeTableColumns', '_showNumber')
@@ -438,7 +404,7 @@ export class GrSettingsView extends ChangeTableMixin(
   _handleSavePreferences() {
     this._copyPrefs(CopyPrefsDirection.LocalPrefsToPrefs);
 
-    return this.$.restAPI.savePreferences(this.prefs).then(() => {
+    return this.restApiService.savePreferences(this.prefs).then(() => {
       this._prefsChanged = false;
     });
   }
@@ -446,8 +412,7 @@ export class GrSettingsView extends ChangeTableMixin(
   _handleSaveChangeTable() {
     this.set('prefs.change_table', this._localChangeTableColumns);
     this.set('prefs.legacycid_in_change_table', this._showNumber);
-    this._cloneChangeTableColumns(this._localChangeTableColumns);
-    return this.$.restAPI.savePreferences(this.prefs).then(() => {
+    return this.restApiService.savePreferences(this.prefs).then(() => {
       this._changeTableChanged = false;
     });
   }
@@ -462,16 +427,15 @@ export class GrSettingsView extends ChangeTableMixin(
 
   _handleSaveMenu() {
     this.set('prefs.my', this._localMenu);
-    this._cloneMenu(this._localMenu);
-    return this.$.restAPI.savePreferences(this.prefs).then(() => {
+    return this.restApiService.savePreferences(this.prefs).then(() => {
       this._menuChanged = false;
     });
   }
 
   _handleResetMenuButton() {
-    return this.$.restAPI.getDefaultPreferences().then(data => {
+    return this.restApiService.getDefaultPreferences().then(data => {
       if (data?.my) {
-        this._cloneMenu(data.my);
+        this._localMenu = this._cloneMenu(data.my);
       }
     });
   }
@@ -508,7 +472,7 @@ export class GrSettingsView extends ChangeTableMixin(
     if (!this._isNewEmailValid(this._newEmail)) return;
 
     this._addingEmail = true;
-    this.$.restAPI.addAccountEmail(this._newEmail).then(response => {
+    this.restApiService.addAccountEmail(this._newEmail).then(response => {
       this._addingEmail = false;
 
       // If it was unsuccessful.
@@ -542,15 +506,7 @@ export class GrSettingsView extends ChangeTableMixin(
       applyDarkTheme();
     }
     this._isDark = !!window.localStorage.getItem('dark-theme');
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {
-          message: `Theme changed to ${this._isDark ? 'dark' : 'light'}.`,
-        },
-        bubbles: true,
-        composed: true,
-      })
-    );
+    fireAlert(this, `Theme changed to ${this._isDark ? 'dark' : 'light'}.`);
   }
 
   _showHttpAuth(config?: ServerInfo) {

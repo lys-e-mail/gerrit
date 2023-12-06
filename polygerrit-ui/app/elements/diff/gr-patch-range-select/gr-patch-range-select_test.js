@@ -24,8 +24,10 @@ import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import {RevisionInfo} from '../../shared/revision-info/revision-info.js';
 import {createCommentApiMockWithTemplateElement} from '../../../test/mocks/comment-api';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util.js';
 import {ChangeComments} from '../gr-comment-api/gr-comment-api.js';
+import {stubRestApi} from '../../../test/test-utils.js';
+import {EditPatchSetNum} from '../../../types/common.js';
+import {SpecialFilePath} from '../../../constants/constants.js';
 
 const commentApiMockElement = createCommentApiMockWithTemplateElement(
     'gr-patch-range-select-comment-api-mock', html`
@@ -50,11 +52,9 @@ suite('gr-patch-range-select tests', () => {
   }
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getDiffComments() { return Promise.resolve({}); },
-      getDiffRobotComments() { return Promise.resolve({}); },
-      getDiffDrafts() { return Promise.resolve({}); },
-    });
+    stubRestApi('getDiffComments').returns(Promise.resolve({}));
+    stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+    stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
 
     // Element must be wrapped in an element with direct access to the
     // comment API.
@@ -73,7 +73,7 @@ suite('gr-patch-range-select tests', () => {
     };
     const sortedRevisions = [
       {_number: 3},
-      {_number: SPECIAL_PATCH_SET_NUM.EDIT, basePatchNum: 2},
+      {_number: EditPatchSetNum, basePatchNum: 2},
       {_number: 2},
       {_number: 1},
     ];
@@ -87,7 +87,7 @@ suite('gr-patch-range-select tests', () => {
     }
     assert.isTrue(element._computeLeftDisabled('3', patchRange.patchNum));
 
-    patchRange.basePatchNum = SPECIAL_PATCH_SET_NUM.EDIT;
+    patchRange.basePatchNum = EditPatchSetNum;
     assert.isTrue(element._computeLeftDisabled('3', patchRange.patchNum,
         sortedRevisions));
     assert.isTrue(element._computeRightDisabled(patchRange.basePatchNum, '1',
@@ -97,7 +97,7 @@ suite('gr-patch-range-select tests', () => {
     assert.isFalse(element._computeRightDisabled(patchRange.basePatchNum, '3',
         sortedRevisions));
     assert.isTrue(element._computeRightDisabled(patchRange.basePatchNum,
-        SPECIAL_PATCH_SET_NUM.EDIT, sortedRevisions));
+        EditPatchSetNum, sortedRevisions));
   });
 
   test('_computeBaseDropdownContent', () => {
@@ -121,7 +121,7 @@ suite('gr-patch-range-select tests', () => {
     const patchNum = 1;
     const sortedRevisions = [
       {_number: 3, created: 'Mon, 01 Jan 2001 00:00:00 GMT'},
-      {_number: SPECIAL_PATCH_SET_NUM.EDIT, basePatchNum: 2},
+      {_number: EditPatchSetNum, basePatchNum: 2},
       {_number: 2, description: 'description'},
       {_number: 1},
     ];
@@ -285,7 +285,7 @@ suite('gr-patch-range-select tests', () => {
     const basePatchNum = 1;
     const sortedRevisions = [
       {_number: 3, created: 'Mon, 01 Jan 2001 00:00:00 GMT'},
-      {_number: SPECIAL_PATCH_SET_NUM.EDIT, basePatchNum: 2},
+      {_number: EditPatchSetNum, basePatchNum: 2},
       {_number: 2, description: 'description'},
       {_number: 1},
     ];
@@ -364,21 +364,31 @@ suite('gr-patch-range-select tests', () => {
         unresolved: true,
         updated: '2017-10-11 20:48:40.000000000',
       }],
-      bar: [{
-        id: '27dcee4d_f7b77cfa',
-        message: 'test',
-        patch_set: 1,
-        updated: '2017-10-12 20:48:40.000000000',
-      },
-      {
-        id: '27dcee4d_f7b77cfa',
-        message: 'test',
-        patch_set: 1,
-        updated: '2017-10-13 20:48:40.000000000',
-      }],
+      bar: [
+        {
+          id: '27dcee4d_f7b77cfa',
+          message: 'test',
+          patch_set: 1,
+          updated: '2017-10-12 20:48:40.000000000',
+        },
+        {
+          id: '27dcee4d_f7b77cfa',
+          message: 'test',
+          patch_set: 1,
+          updated: '2017-10-13 20:48:40.000000000',
+        },
+      ],
       abc: [],
+      // Patchset level comment does not contribute to the count
+      [SpecialFilePath.PATCHSET_LEVEL_COMMENTS]: [{
+        id: '27dcee4d_f7b77cfa',
+        message: 'test',
+        patch_set: 1,
+        unresolved: true,
+        updated: '2017-10-11 20:48:40.000000000',
+      }],
     };
-    element.changeComments = new ChangeComments(comments, {}, {}, 123);
+    element.changeComments = new ChangeComments(comments);
 
     assert.equal(element._computePatchSetCommentsString(
         element.changeComments, 1), ' (3 comments, 1 unresolved)');

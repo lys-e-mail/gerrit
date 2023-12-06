@@ -32,8 +32,8 @@ suite('gr-diff-group tests', () => {
     assert.deepEqual(group.adds, [l1, l2]);
     assert.deepEqual(group.removes, [l3]);
     assert.deepEqual(group.lineRange, {
-      left: {start: 64, end: 64},
-      right: {start: 128, end: 129},
+      left: {start_line: 64, end_line: 64},
+      right: {start_line: 128, end_line: 129},
     });
 
     let pairs = group.getSideBySidePairs();
@@ -66,8 +66,8 @@ suite('gr-diff-group tests', () => {
     assert.deepEqual(group.removes, []);
 
     assert.deepEqual(group.lineRange, {
-      left: {start: 64, end: 66},
-      right: {start: 128, end: 130},
+      left: {start_line: 64, end_line: 66},
+      right: {start_line: 128, end_line: 130},
     });
 
     let pairs = group.getSideBySidePairs();
@@ -122,17 +122,19 @@ suite('gr-diff-group tests', () => {
           new GrDiffLine(GrDiffLineType.ADD, 0, 11),
           new GrDiffLine(GrDiffLineType.REMOVE, 10),
           new GrDiffLine(GrDiffLineType.ADD, 0, 12),
+          new GrDiffLine(GrDiffLineType.REMOVE, 11),
+          new GrDiffLine(GrDiffLineType.ADD, 0, 13),
         ]),
         new GrDiffGroup(GrDiffGroupType.BOTH, [
-          new GrDiffLine(GrDiffLineType.BOTH, 11, 13),
           new GrDiffLine(GrDiffLineType.BOTH, 12, 14),
           new GrDiffLine(GrDiffLineType.BOTH, 13, 15),
+          new GrDiffLine(GrDiffLineType.BOTH, 14, 16),
         ]),
       ];
     });
 
     test('hides hidden groups in context control', () => {
-      const collapsedGroups = hideInContextControl(groups, 3, 6);
+      const collapsedGroups = hideInContextControl(groups, 3, 7);
       assert.equal(collapsedGroups.length, 3);
 
       assert.equal(collapsedGroups[0], groups[0]);
@@ -145,7 +147,7 @@ suite('gr-diff-group tests', () => {
     });
 
     test('splits partially hidden groups', () => {
-      const collapsedGroups = hideInContextControl(groups, 4, 7);
+      const collapsedGroups = hideInContextControl(groups, 4, 8);
       assert.equal(collapsedGroups.length, 4);
       assert.equal(collapsedGroups[0], groups[0]);
 
@@ -182,8 +184,8 @@ suite('gr-diff-group tests', () => {
         const skipGroup = new GrDiffGroup(GrDiffGroupType.BOTH);
         skipGroup.skip = 60;
         skipGroup.lineRange = {
-          left: {start: 8, end: 67},
-          right: {start: 10, end: 69},
+          left: {start_line: 8, end_line: 67},
+          right: {start_line: 10, end_line: 69},
         };
         groups = [
           new GrDiffGroup(GrDiffGroupType.BOTH, [

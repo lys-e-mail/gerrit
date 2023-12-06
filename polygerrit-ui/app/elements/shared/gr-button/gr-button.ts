@@ -16,8 +16,6 @@
  */
 import '@polymer/paper-button/paper-button';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {customElement, property, computed, observe} from '@polymer/decorators';
 import {htmlTemplate} from './gr-button_html';
@@ -35,8 +33,8 @@ declare global {
 }
 
 @customElement('gr-button')
-export class GrButton extends LegacyElementMixin(
-  KeyboardShortcutMixin(TooltipMixin(GestureEventListeners(PolymerElement)))
+export class GrButton extends KeyboardShortcutMixin(
+  TooltipMixin(PolymerElement)
 ) {
   static get template() {
     return htmlTemplate;
@@ -61,7 +59,7 @@ export class GrButton extends LegacyElementMixin(
   tooltip = '';
 
   // Note: don't assign a value to this, since constructor is called
-  // after created, the initial value maybe overriden by this
+  // after created, the initial value maybe overridden by this
   @property({type: String})
   _initialTabindex?: string;
 
@@ -83,9 +81,8 @@ export class GrButton extends LegacyElementMixin(
 
   private readonly reporting: ReportingService = appContext.reportingService;
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this._initialTabindex = this.getAttribute('tabindex') || '0';
     // TODO(TS): try avoid using unknown
     this.addEventListener('click', e =>

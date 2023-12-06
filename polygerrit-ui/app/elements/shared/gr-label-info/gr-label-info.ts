@@ -21,10 +21,7 @@ import '../gr-account-link/gr-account-link';
 import '../gr-button/gr-button';
 import '../gr-icons/gr-icons';
 import '../gr-label/gr-label';
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-label-info_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
@@ -38,15 +35,9 @@ import {
   isQuickLabelInfo,
   isDetailedLabelInfo,
 } from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrButton} from '../gr-button/gr-button';
 import {getVotingRangeOrDefault} from '../../../utils/label-util';
-
-export interface GrLabelInfo {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -68,9 +59,7 @@ interface FormattedLabel {
 }
 
 @customElement('gr-label-info')
-export class GrLabelInfo extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrLabelInfo extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -89,6 +78,8 @@ export class GrLabelInfo extends GestureEventListeners(
 
   @property({type: Boolean})
   mutable = false;
+
+  private readonly restApiService = appContext.restApiService;
 
   // TODO(TS): not used, remove later
   _xhrPromise?: Promise<void>;
@@ -206,7 +197,7 @@ export class GrLabelInfo extends GestureEventListeners(
     const accountID = Number(
       `${target.getAttribute('data-account-id')}`
     ) as AccountId;
-    this._xhrPromise = this.$.restAPI
+    this._xhrPromise = this.restApiService
       .deleteVote(this.change._number, accountID, this.label)
       .then(response => {
         target.disabled = false;
@@ -228,7 +219,7 @@ export class GrLabelInfo extends GestureEventListeners(
     if (
       !labelInfo ||
       !isDetailedLabelInfo(labelInfo) ||
-      !labelInfo.values[score]
+      !labelInfo.values?.[score]
     ) {
       return '';
     }
