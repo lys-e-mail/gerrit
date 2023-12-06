@@ -142,7 +142,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   public static final String FIELD_ASSIGNEE = "assignee";
   public static final String FIELD_AUTHOR = "author";
   public static final String FIELD_EXACTAUTHOR = "exactauthor";
-  public static final String FIELD_BEFORE = "before";
+
   public static final String FIELD_CHANGE = "change";
   public static final String FIELD_CHANGE_ID = "change_id";
   public static final String FIELD_COMMENT = "comment";
@@ -169,9 +169,11 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   public static final String FIELD_LIMIT = "limit";
   public static final String FIELD_MERGE = "merge";
   public static final String FIELD_MERGEABLE = "mergeable2";
+  public static final String FIELD_MERGED_ON = "mergedon";
   public static final String FIELD_MESSAGE = "message";
   public static final String FIELD_OWNER = "owner";
   public static final String FIELD_OWNERIN = "ownerin";
+  public static final String FIELD_PARENTOF = "parentof";
   public static final String FIELD_PARENTPROJECT = "parentproject";
   public static final String FIELD_PATH = "path";
   public static final String FIELD_PENDING_REVIEWER = "pendingreviewer";
@@ -199,10 +201,18 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   public static final String FIELD_CHERRY_PICK_OF_CHANGE = "cherrypickofchange";
   public static final String FIELD_CHERRY_PICK_OF_PATCHSET = "cherrypickofpatchset";
 
+  public static final String ARG_ID_NAME = "name";
   public static final String ARG_ID_USER = "user";
   public static final String ARG_ID_GROUP = "group";
   public static final String ARG_ID_OWNER = "owner";
   public static final Account.Id OWNER_ACCOUNT_ID = Account.id(0);
+
+  public static final String OPERATOR_MERGED_BEFORE = "mergedbefore";
+  public static final String OPERATOR_MERGED_AFTER = "mergedafter";
+
+  // Operators to match on the last time the change was updated. Naming for legacy reasons.
+  public static final String OPERATOR_BEFORE = "before";
+  public static final String OPERATOR_AFTER = "after";
 
   private static final QueryBuilder.Definition<ChangeData, ChangeQueryBuilder> mydef =
       new QueryBuilder.Definition<>(ChangeQueryBuilder.class);
@@ -470,7 +480,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
 
   @Operator
   public Predicate<ChangeData> before(String value) throws QueryParseException {
-    return new BeforePredicate(value);
+    return new BeforePredicate(ChangeField.UPDATED, ChangeQueryBuilder.OPERATOR_BEFORE, value);
   }
 
   @Operator
@@ -480,12 +490,34 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
 
   @Operator
   public Predicate<ChangeData> after(String value) throws QueryParseException {
-    return new AfterPredicate(value);
+    return new AfterPredicate(ChangeField.UPDATED, ChangeQueryBuilder.OPERATOR_AFTER, value);
   }
 
   @Operator
   public Predicate<ChangeData> since(String value) throws QueryParseException {
     return after(value);
+  }
+
+  @Operator
+  public Predicate<ChangeData> mergedBefore(String value) throws QueryParseException {
+    if (!args.index.getSchema().hasField(ChangeField.MERGED_ON)) {
+      throw new QueryParseException(
+          String.format(
+              "'%s' operator is not supported by change index version", OPERATOR_MERGED_BEFORE));
+    }
+    return new BeforePredicate(
+        ChangeField.MERGED_ON, ChangeQueryBuilder.OPERATOR_MERGED_BEFORE, value);
+  }
+
+  @Operator
+  public Predicate<ChangeData> mergedAfter(String value) throws QueryParseException {
+    if (!args.index.getSchema().hasField(ChangeField.MERGED_ON)) {
+      throw new QueryParseException(
+          String.format(
+              "'%s' operator is not supported by change index version", OPERATOR_MERGED_AFTER));
+    }
+    return new AfterPredicate(
+        ChangeField.MERGED_ON, ChangeQueryBuilder.OPERATOR_MERGED_AFTER, value);
   }
 
   @Operator
@@ -701,6 +733,16 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   @Operator
   public Predicate<ChangeData> projects(String name) {
     return new ProjectPrefixPredicate(name);
+  }
+
+  @Operator
+  public Predicate<ChangeData> parentof(String value) throws QueryParseException {
+    List<ChangeData> changes = parseChangeData(value);
+    List<Predicate<ChangeData>> or = new ArrayList<>(changes.size());
+    for (ChangeData c : changes) {
+      or.add(new ParentOfPredicate(value, c, args.repoManager));
+    }
+    return Predicate.or(or);
   }
 
   @Operator
@@ -1034,7 +1076,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
       for (GroupReference ref : suggestions) {
         ids.add(ref.getUUID());
       }
-      return visibleto(new SingleGroupUser(ids));
+      return visibleto(new GroupBackedUser(ids));
     }
 
     throw error("No user or group matches \"" + who + "\".");
@@ -1232,9 +1274,36 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   }
 
   @Operator
-  public Predicate<ChangeData> query(String name) throws QueryParseException {
+  public Predicate<ChangeData> query(String value) throws QueryParseException {
+    // [name=]<name>[,user=<user>] || [user=<user>,][name=]<name>
+    PredicateArgs inputArgs = new PredicateArgs(value);
+    String name = null;
+    Account.Id account = null;
+
     try (Repository git = args.repoManager.openRepository(args.allUsersName)) {
-      VersionedAccountQueries q = VersionedAccountQueries.forUser(self());
+      // [name=]<name>
+      if (inputArgs.keyValue.containsKey(ARG_ID_NAME)) {
+        name = inputArgs.keyValue.get(ARG_ID_NAME);
+      } else if (inputArgs.positional.size() == 1) {
+        name = Iterables.getOnlyElement(inputArgs.positional);
+      } else if (inputArgs.positional.size() > 1) {
+        throw new QueryParseException("Error parsing named query: " + value);
+      }
+
+      // [,user=<user>]
+      if (inputArgs.keyValue.containsKey(ARG_ID_USER)) {
+        Set<Account.Id> accounts = parseAccount(inputArgs.keyValue.get(ARG_ID_USER));
+        if (accounts != null && accounts.size() > 1) {
+          throw error(
+              String.format(
+                  "\"%s\" resolves to multiple accounts", inputArgs.keyValue.get(ARG_ID_USER)));
+        }
+        account = (accounts == null ? self() : Iterables.getOnlyElement(accounts));
+      } else {
+        account = self();
+      }
+
+      VersionedAccountQueries q = VersionedAccountQueries.forUser(account);
       q.load(args.allUsersName, git);
       String query = q.getQueryList().getQuery(name);
       if (query != null) {
@@ -1244,7 +1313,7 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
       throw new QueryParseException(
           "Unknown named query (no " + args.allUsersName + " repo): " + name, e);
     } catch (IOException | ConfigInvalidException e) {
-      throw new QueryParseException("Error parsing named query: " + name, e);
+      throw new QueryParseException("Error parsing named query: " + value, e);
     }
     throw new QueryParseException("Unknown named query: " + name);
   }
@@ -1256,19 +1325,46 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   }
 
   @Operator
-  public Predicate<ChangeData> destination(String name) throws QueryParseException {
+  public Predicate<ChangeData> destination(String value) throws QueryParseException {
+    // [name=]<name>[,user=<user>] || [user=<user>,][name=]<name>
+    PredicateArgs inputArgs = new PredicateArgs(value);
+    String name = null;
+    Account.Id account = null;
+
     try (Repository git = args.repoManager.openRepository(args.allUsersName)) {
-      VersionedAccountDestinations d = VersionedAccountDestinations.forUser(self());
+      // [name=]<name>
+      if (inputArgs.keyValue.containsKey(ARG_ID_NAME)) {
+        name = inputArgs.keyValue.get(ARG_ID_NAME);
+      } else if (inputArgs.positional.size() == 1) {
+        name = Iterables.getOnlyElement(inputArgs.positional);
+      } else if (inputArgs.positional.size() > 1) {
+        throw new QueryParseException("Error parsing named destination: " + value);
+      }
+
+      // [,user=<user>]
+      if (inputArgs.keyValue.containsKey(ARG_ID_USER)) {
+        Set<Account.Id> accounts = parseAccount(inputArgs.keyValue.get(ARG_ID_USER));
+        if (accounts != null && accounts.size() > 1) {
+          throw error(
+              String.format(
+                  "\"%s\" resolves to multiple accounts", inputArgs.keyValue.get(ARG_ID_USER)));
+        }
+        account = (accounts == null ? self() : Iterables.getOnlyElement(accounts));
+      } else {
+        account = self();
+      }
+
+      VersionedAccountDestinations d = VersionedAccountDestinations.forUser(account);
       d.load(args.allUsersName, git);
       Set<BranchNameKey> destinations = d.getDestinationList().getDestinations(name);
       if (destinations != null && !destinations.isEmpty()) {
-        return new DestinationPredicate(destinations, name);
+        return new DestinationPredicate(destinations, value);
       }
     } catch (RepositoryNotFoundException e) {
       throw new QueryParseException(
           "Unknown named destination (no " + args.allUsersName + " repo): " + name, e);
     } catch (IOException | ConfigInvalidException e) {
-      throw new QueryParseException("Error parsing named destination: " + name, e);
+      throw new QueryParseException("Error parsing named destination: " + value, e);
     }
     throw new QueryParseException("Unknown named destination: " + name);
   }
@@ -1481,14 +1577,18 @@ public class ChangeQueryBuilder extends QueryBuilder<ChangeData, ChangeQueryBuil
   }
 
   private List<Change> parseChange(String value) throws QueryParseException {
+    return asChanges(parseChangeData(value));
+  }
+
+  private List<ChangeData> parseChangeData(String value) throws QueryParseException {
     if (PAT_LEGACY_ID.matcher(value).matches()) {
       Optional<Change.Id> id = Change.Id.tryParse(value);
       if (!id.isPresent()) {
         throw error("Invalid change id " + value);
       }
-      return asChanges(args.queryProvider.get().byLegacyChangeId(id.get()));
+      return args.queryProvider.get().byLegacyChangeId(id.get());
     } else if (PAT_CHANGE_ID.matcher(value).matches()) {
-      List<Change> changes = asChanges(args.queryProvider.get().byKeyPrefix(parseChangeId(value)));
+      List<ChangeData> changes = args.queryProvider.get().byKeyPrefix(parseChangeId(value));
       if (changes.isEmpty()) {
         throw error("Change " + value + " not found");
       }

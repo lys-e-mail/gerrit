@@ -19,19 +19,20 @@ import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-create-repo-dialog_html';
 import {encodeURL, getBaseUrl} from '../../../utils/url-util';
 import {page} from '../../../utils/page-wrapper-utils';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {ProjectInput, RepoName} from '../../../types/common';
-import {hasOwnProperty} from '../../../utils/common-util';
+import {
+  BranchName,
+  GroupId,
+  ProjectInput,
+  RepoName,
+} from '../../../types/common';
 import {AutocompleteQuery} from '../../shared/gr-autocomplete/gr-autocomplete';
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -39,16 +40,8 @@ declare global {
   }
 }
 
-export interface GrCreateRepoDialog {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
 @customElement('gr-create-repo-dialog')
-export class GrCreateRepoDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrCreateRepoDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -61,7 +54,11 @@ export class GrCreateRepoDialog extends GestureEventListeners(
     create_empty_commit: true,
     permissions_only: false,
     name: '' as RepoName,
+    branches: [],
   };
+
+  @property({type: String})
+  _defaultBranch?: BranchName;
 
   @property({type: Boolean})
   _repoCreated = false;
@@ -70,13 +67,15 @@ export class GrCreateRepoDialog extends GestureEventListeners(
   _repoOwner?: string;
 
   @property({type: String})
-  _repoOwnerId?: string;
+  _repoOwnerId?: GroupId;
 
   @property({type: Object})
   _query: AutocompleteQuery;
 
   @property({type: Object})
   _queryGroups: AutocompleteQuery;
+
+  private readonly restApiService = appContext.restApiService;
 
   constructor() {
     super();
@@ -88,56 +87,43 @@ export class GrCreateRepoDialog extends GestureEventListeners(
     return getBaseUrl() + '/admin/repos/' + encodeURL(repoName, true);
   }
 
+  focus() {
+    this.shadowRoot?.querySelector('input')?.focus();
+  }
+
   @observe('_repoConfig.name')
   _updateRepoName(name: string) {
     this.hasNewRepoName = !!name;
   }
 
-  @observe('_repoOwnerId')
-  _repoOwnerIdUpdate(id?: string) {
-    if (id) {
-      this.set('_repoConfig.owners', [id]);
-    } else {
-      this.set('_repoConfig.owners', undefined);
-    }
-  }
-
   handleCreateRepo() {
-    return this.$.restAPI.createRepo(this._repoConfig).then(repoRegistered => {
-      if (repoRegistered.status === 201) {
-        this._repoCreated = true;
-        page.show(this._computeRepoUrl(this._repoConfig.name));
-      }
-    });
+    if (this._defaultBranch) this._repoConfig.branches = [this._defaultBranch];
+    if (this._repoOwnerId) this._repoConfig.owners = [this._repoOwnerId];
+    return this.restApiService
+      .createRepo(this._repoConfig)
+      .then(repoRegistered => {
+        if (repoRegistered.status === 201) {
+          this._repoCreated = true;
+          page.show(this._computeRepoUrl(this._repoConfig.name));
+        }
+      });
   }
 
   _getRepoSuggestions(input: string) {
-    return this.$.restAPI.getSuggestedProjects(input).then(response => {
+    return this.restApiService.getSuggestedProjects(input).then(response => {
       const repos = [];
-      for (const key in response) {
-        if (!hasOwnProperty(response, key)) {
-          continue;
-        }
-        repos.push({
-          name: key,
-          value: response[key],
-        });
+      for (const [name, project] of Object.entries(response ?? {})) {
+        repos.push({name, value: project.id});
       }
       return repos;
     });
   }
 
   _getGroupSuggestions(input: string) {
-    return this.$.restAPI.getSuggestedGroups(input).then(response => {
+    return this.restApiService.getSuggestedGroups(input).then(response => {
       const groups = [];
-      for (const key in response) {
-        if (!hasOwnProperty(response, key)) {
-          continue;
-        }
-        groups.push({
-          name: key,
-          value: decodeURIComponent(response[key].id),
-        });
+      for (const [name, group] of Object.entries(response ?? {})) {
+        groups.push({name, value: decodeURIComponent(group.id)});
       }
       return groups;
     });

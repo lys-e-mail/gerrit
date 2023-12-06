@@ -15,24 +15,26 @@
  * limitations under the License.
  */
 import {
+  BasePatchSetNum,
   BranchName,
+  ChangeConfigInfo,
   ChangeInfo,
+  CommentLinks,
+  CommitId,
+  DashboardId,
+  EditPatchSetNum,
+  GroupId,
+  Hashtag,
+  NumericChangeId,
+  ParentPatchSetNum,
   PatchSetNum,
   RepoName,
-  TopicName,
-  GroupId,
-  DashboardId,
-  NumericChangeId,
-  EditPatchSetNum,
-  ChangeConfigInfo,
-  CommitId,
-  Hashtag,
-  UrlEncodedCommentId,
-  CommentLinks,
-  ParentPatchSetNum,
   ServerInfo,
+  TopicName,
+  UrlEncodedCommentId,
 } from '../../../types/common';
-import {ParsedChangeInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
+import {GerritView} from '../../../services/router/router-model';
+import {ParsedChangeInfo} from '../../../types/types';
 
 // Navigation parameters object format:
 //
@@ -248,11 +250,11 @@ export interface GenerateUrlSearchViewParameters {
 
 export interface GenerateUrlChangeViewParameters {
   view: GerritView.CHANGE;
-  // TODO(TS): NumericChangeId - not sure about it, may be it can be removeds
+  // TODO(TS): NumericChangeId - not sure about it, may be it can be removed
   changeNum: NumericChangeId;
   project: RepoName;
   patchNum?: PatchSetNum;
-  basePatchNum?: PatchSetNum;
+  basePatchNum?: BasePatchSetNum;
   edit?: boolean;
   host?: string;
   messageHash?: string;
@@ -309,7 +311,7 @@ export interface GenerateUrlDiffViewParameters {
   project: RepoName;
   path?: string;
   patchNum?: PatchSetNum | null;
-  basePatchNum?: PatchSetNum | null;
+  basePatchNum?: BasePatchSetNum | null;
   lineNum?: number | string;
   leftSide?: boolean;
   commentId?: UrlEncodedCommentId;
@@ -396,22 +398,6 @@ export interface GeneratedWebLink {
   url?: string;
 }
 
-export enum GerritView {
-  ADMIN = 'admin',
-  AGREEMENTS = 'agreements',
-  CHANGE = 'change',
-  DASHBOARD = 'dashboard',
-  DIFF = 'diff',
-  DOCUMENTATION_SEARCH = 'documentation-search',
-  EDIT = 'edit',
-  GROUP = 'group',
-  PLUGIN_SCREEN = 'plugin-screen',
-  REPO = 'repo',
-  ROOT = 'root',
-  SEARCH = 'search',
-  SETTINGS = 'settings',
-}
-
 export enum GroupDetailView {
   MEMBERS = 'members',
   LOG = 'log',
@@ -450,7 +436,7 @@ export const GerritNav = {
 
   mapCommentlinks: uninitializedMapCommentLinks,
 
-  _checkPatchRange(patchNum?: PatchSetNum, basePatchNum?: PatchSetNum) {
+  _checkPatchRange(patchNum?: PatchSetNum, basePatchNum?: BasePatchSetNum) {
     if (basePatchNum && !patchNum) {
       throw new Error('Cannot use base patch number without patch number.');
     }
@@ -559,7 +545,6 @@ export const GerritNav = {
     return this._getUrlFor({
       view: GerritView.SEARCH,
       topic,
-      statuses: ['open', 'merged'],
       host,
     });
   },
@@ -607,7 +592,7 @@ export const GerritNav = {
   getUrlForChange(
     change: Pick<ChangeInfo, '_number' | 'project' | 'internalHost'>,
     patchNum?: PatchSetNum,
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     isEdit?: boolean,
     messageHash?: string
   ) {
@@ -651,7 +636,7 @@ export const GerritNav = {
   navigateToChange(
     change: Pick<ChangeInfo, '_number' | 'project' | 'internalHost'>,
     patchNum?: PatchSetNum,
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     isEdit?: boolean,
     redirect?: boolean
   ) {
@@ -668,7 +653,7 @@ export const GerritNav = {
     change: ChangeInfo | ParsedChangeInfo,
     filePath: string,
     patchNum?: PatchSetNum,
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     lineNum?: number
   ) {
     return this.getUrlForDiffById(
@@ -702,7 +687,7 @@ export const GerritNav = {
     project: RepoName,
     filePath: string,
     patchNum?: PatchSetNum,
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     lineNum?: number,
     leftSide?: boolean
   ) {
@@ -767,7 +752,7 @@ export const GerritNav = {
     change: ChangeInfo | ParsedChangeInfo,
     filePath: string,
     patchNum?: PatchSetNum,
-    basePatchNum?: PatchSetNum,
+    basePatchNum?: BasePatchSetNum,
     lineNum?: number
   ) {
     this._navigate(

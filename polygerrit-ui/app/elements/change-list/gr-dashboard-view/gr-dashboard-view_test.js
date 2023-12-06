@@ -17,10 +17,12 @@
 
 import '../../../test/common-test-setup-karma.js';
 import './gr-dashboard-view.js';
-import {isHidden} from '../../../test/test-utils.js';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation.js';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
+import {GerritView} from '../../../services/router/router-model.js';
 import {changeIsOpen} from '../../../utils/change-util.js';
 import {ChangeStatus} from '../../../constants/constants.js';
+import {createAccountWithId} from '../../../test/test-data-generators.js';
+import {addListenerForTest, stubRestApi, isHidden} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-dashboard-view');
 
@@ -31,15 +33,13 @@ suite('gr-dashboard-view tests', () => {
   let getChangesStub;
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getLoggedIn() { return Promise.resolve(false); },
-      getAccountDetails() { return Promise.resolve({}); },
-      getAccountStatus() { return Promise.resolve(false); },
-    });
-    element = basicFixture.instantiate();
-
-    getChangesStub = sinon.stub(element.$.restAPI, 'getChanges').callsFake(
+    stubRestApi('getLoggedIn').returns(Promise.resolve(false));
+    stubRestApi('getAccountDetails').returns(Promise.resolve({}));
+    stubRestApi('getAccountStatus').returns(Promise.resolve(false));
+    getChangesStub= stubRestApi('getChanges').callsFake(
         (_, qs) => Promise.resolve(qs.map(() => [])));
+
+    element = basicFixture.instantiate();
 
     let resolver;
     paramsChangedPromise = new Promise(resolve => {
@@ -123,15 +123,14 @@ suite('gr-dashboard-view tests', () => {
       const deleteDraftCommentsPromise = new Promise(resolve => {
         deleteDraftCommentsPromiseResolver = resolve;
       });
-      sinon.stub(element.$.restAPI, 'deleteDraftComments')
+      const deleteStub = stubRestApi('deleteDraftComments')
           .returns(deleteDraftCommentsPromise);
 
       // Open confirmation dialog and tap confirm button.
       await element.$.confirmDeleteOverlay.open();
       MockInteractions.tap(element.$.confirmDeleteDialog.$.confirm);
       flush();
-      assert.isTrue(element.$.restAPI.deleteDraftComments
-          .calledWithExactly('-is:open'));
+      assert.isTrue(deleteStub.calledWithExactly('-is:open'));
       assert.isTrue(element.$.confirmDeleteDialog.disabled);
       assert.equal(element._reload.callCount, 0);
 
@@ -201,9 +200,23 @@ suite('gr-dashboard-view tests', () => {
         user: 'self',
       };
       return paramsChangedPromise.then(() => {
-        assert.isTrue(
-            getChangesStub.calledWith(undefined,
-                ['1', '2', 'owner:self limit:1']));
+        assert.isTrue(getChangesStub.calledWith(undefined, ['1', '2']));
+      });
+    });
+
+    test('viewing dashboard when logged in includes owner:self query', () => {
+      element.account = createAccountWithId(1);
+      element.params = {
+        view: GerritNav.View.DASHBOARD,
+        sections: [
+          {query: '1'},
+          {query: '2', selfOnly: true},
+        ],
+        user: 'self',
+      };
+      return paramsChangedPromise.then(() => {
+        assert.isTrue(getChangesStub.calledWith(undefined,
+            ['1', '2', 'owner:self limit:1']));
       });
     });
 
@@ -239,7 +252,7 @@ suite('gr-dashboard-view tests', () => {
 
   suite('_getProjectDashboard', () => {
     test('dashboard with foreach', () => {
-      sinon.stub(element.$.restAPI, 'getDashboard')
+      stubRestApi('getDashboard')
           .callsFake( () => Promise.resolve({
             title: 'title',
             foreach: 'foreach for ${project}',
@@ -265,7 +278,7 @@ suite('gr-dashboard-view tests', () => {
     });
 
     test('dashboard without foreach', () => {
-      sinon.stub(element.$.restAPI, 'getDashboard').callsFake(
+      stubRestApi('getDashboard').callsFake(
           () => Promise.resolve({
             title: 'title',
             sections: [
@@ -293,7 +306,7 @@ suite('gr-dashboard-view tests', () => {
       {name: 'test2', query: 'test2', hideIfEmpty: true},
     ];
     getChangesStub.restore();
-    sinon.stub(element.$.restAPI, 'getChanges')
+    stubRestApi('getChanges')
         .returns(Promise.resolve([[], ['nonempty']]));
 
     return element._fetchDashboardChanges({sections}, false).then(() => {
@@ -308,7 +321,7 @@ suite('gr-dashboard-view tests', () => {
       {name: 'test2', query: 'test2'},
     ];
     getChangesStub.restore();
-    sinon.stub(element.$.restAPI, 'getChanges')
+    stubRestApi('getChanges')
         .returns(Promise.resolve([[], []]));
 
     return element._fetchDashboardChanges({sections}, false).then(() => {
@@ -316,6 +329,56 @@ suite('gr-dashboard-view tests', () => {
       assert.isTrue(element._results[0].isOutgoing);
       assert.isNotOk(element._results[1].isOutgoing);
     });
+  });
+
+  test('toggling star will update change everywhere', () => {
+    // It is important that the same change is represented by multiple objects
+    // and all are updated.
+    const change = {id: '5', starred: false};
+    const sameChange = {id: '5', starred: false};
+    const differentChange = {id: '4', starred: false};
+    element._results = [
+      {query: 'has:draft', results: [change]},
+      {query: 'is:open', results: [sameChange, differentChange]},
+    ];
+
+    element._handleToggleStar(
+        new CustomEvent('toggle-star', {
+          detail: {
+            change,
+            starred: true,
+          },
+        })
+    );
+
+    assert.isTrue(change.starred);
+    assert.isTrue(sameChange.starred);
+    assert.isFalse(differentChange.starred);
+  });
+
+  test('toggling reviewed will update change everywhere', () => {
+    // It is important that the same change is represented by multiple objects
+    // and all are updated.
+    const change = {id: '5', reviewed: false};
+    const sameChange = {id: '5', reviewed: false};
+    const differentChange = {id: '4', reviewed: false};
+    element._results = [
+      {query: 'has:draft', results: [change]},
+      {query: 'is:open', results: [sameChange, differentChange]},
+    ];
+
+    element._handleToggleReviewed(
+        new CustomEvent('toggle-reviewed', {
+          detail: {
+            change,
+            reviewed: true,
+          },
+        })
+    );
+
+    assert.isTrue(change.reviewed);
+    assert.isTrue(sameChange.reviewed);
+    assert.isFalse(differentChange.reviewed);
   });
 
   test('_showNewUserHelp', () => {
@@ -359,11 +422,11 @@ suite('gr-dashboard-view tests', () => {
 
   test('404 page', done => {
     const response = {status: 404};
-    sinon.stub(element.$.restAPI, 'getDashboard').callsFake(
+    stubRestApi('getDashboard').callsFake(
         async (project, dashboard, errFn) => {
           errFn(response);
         });
-    element.addEventListener('page-error', e => {
+    addListenerForTest(document, 'page-error', e => {
       assert.strictEqual(e.detail.response, response);
       paramsChangedPromise.then(done);
     });
@@ -374,15 +437,39 @@ suite('gr-dashboard-view tests', () => {
     };
   });
 
-  test('params change triggers dashboardDisplayed()', () => {
+  test('params change triggers dashboardDisplayed()', async () => {
+    stubRestApi('getDashboard').returns(Promise.resolve({
+      title: 'title',
+      sections: [],
+    }));
     sinon.stub(element.reporting, 'dashboardDisplayed');
     element.params = {
       view: GerritNav.View.DASHBOARD,
       project: 'project',
       dashboard: 'dashboard',
     };
-    return paramsChangedPromise.then(() => {
-      assert.isTrue(element.reporting.dashboardDisplayed.calledOnce);
+    await paramsChangedPromise;
+    assert.isTrue(element.reporting.dashboardDisplayed.calledOnce);
+  });
+
+  test('selectedChangeIndex is derived from the params', () => {
+    stubRestApi('getDashboard').returns(Promise.resolve({
+      title: 'title',
+      sections: [],
+    }));
+    element.viewState = {
+      101001: 23,
+    };
+    element.params = {
+      view: GerritNav.View.DASHBOARD,
+      project: 'project',
+      dashboard: 'dashboard',
+      user: '101001',
+    };
+    flush();
+    sinon.stub(element.reporting, 'dashboardDisplayed');
+    paramsChangedPromise.then(() => {
+      assert.equal(element._selectedChangeIndex, 23);
     });
   });
 });

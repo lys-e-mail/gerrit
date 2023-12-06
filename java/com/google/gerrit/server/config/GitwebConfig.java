@@ -142,7 +142,7 @@ public class GitwebConfig {
         type.setProject("?p=${project}.git;a=summary");
         type.setRevision("?p=${project}.git;a=commit;h=${commit}");
         type.setBranch("?p=${project}.git;a=shortlog;h=${branch}");
-        type.setTag("?p=${project}.git;a=tag;h=${tag}");
+        type.setTag("?p=${project}.git;a=shortlog;h=${tag}");
         type.setRootTree("?p=${project}.git;a=tree;hb=${commit}");
         type.setFile("?p=${project}.git;hb=${commit};f=${file}");
         type.setFileHistory("?p=${project}.git;a=history;hb=${branch};f=${file}");
@@ -315,11 +315,13 @@ public class GitwebConfig {
     }
 
     @Override
-    public WebLinkInfo getFileWebLink(String projectName, String revision, String fileName) {
+    public WebLinkInfo getFileWebLink(
+        String projectName, String revision, String hash, String fileName) {
       if (file != null) {
         return link(
             file.replace("project", encode(projectName))
                 .replace("commit", encode(revision))
+                .replace("hash", encode(hash))
                 .replace("file", encode(fileName))
                 .toString());
       }
@@ -327,8 +329,10 @@ public class GitwebConfig {
     }
 
     @Override
-    public WebLinkInfo getPatchSetWebLink(String projectName, String commit) {
+    public WebLinkInfo getPatchSetWebLink(
+        String projectName, String commit, String commitMessage, String branchName) {
       if (revision != null) {
+        // commitMessage and branchName are not needed, hence not used.
         return link(
             revision
                 .replace("project", encode(projectName))
@@ -339,9 +343,10 @@ public class GitwebConfig {
     }
 
     @Override
-    public WebLinkInfo getParentWebLink(String projectName, String commit) {
+    public WebLinkInfo getParentWebLink(
+        String projectName, String commit, String commitMessage, String branchName) {
       // For Gitweb treat parent revision links the same as patch set links
-      return getPatchSetWebLink(projectName, commit);
+      return getPatchSetWebLink(projectName, commit, commitMessage, branchName);
     }
 
     @Override

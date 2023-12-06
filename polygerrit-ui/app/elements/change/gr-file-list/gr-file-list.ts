@@ -23,29 +23,31 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-cursor-manager/gr-cursor-manager';
 import '../../shared/gr-icons/gr-icons';
 import '../../shared/gr-linked-text/gr-linked-text';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
 import '../../shared/gr-tooltip-content/gr-tooltip-content';
 import '../../shared/gr-copy-clipboard/gr-copy-clipboard';
+import '../../shared/gr-file-status-chip/gr-file-status-chip';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-file-list_html';
-import {asyncForeach} from '../../../utils/async-util';
+import {asyncForeach, debounce, DelayedTask} from '../../../utils/async-util';
 import {
   KeyboardShortcutMixin,
   Modifier,
   Shortcut,
 } from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {FilesExpandedState} from '../gr-file-list-constants';
-import {GrCountStringFormatter} from '../../shared/gr-count-string-formatter/gr-count-string-formatter';
+import {pluralize} from '../../../utils/string-util';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {getPluginEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-endpoints';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {appContext} from '../../../services/app-context';
-import {DiffViewMode, SpecialFilePath} from '../../../constants/constants';
-import {descendedFromClass} from '../../../utils/dom-util';
+import {
+  DiffViewMode,
+  ScrollMode,
+  SpecialFilePath,
+} from '../../../constants/constants';
+import {descendedFromClass, toggleClass} from '../../../utils/dom-util';
 import {
   addUnmodifiedFiles,
   computeDisplayPath,
@@ -54,10 +56,7 @@ import {
   specialFilePathCompare,
 } from '../../../utils/path-list-util';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
-  ConfigInfo,
-  DiffPreferencesInfo,
   ElementPropertyDeepChange,
   FileInfo,
   FileNameToFileInfoMap,
@@ -67,17 +66,16 @@ import {
   RevisionInfo,
   UrlEncodedCommentId,
 } from '../../../types/common';
+import {DiffPreferencesInfo} from '../../../types/diff';
 import {GrDiffHost} from '../../diff/gr-diff-host/gr-diff-host';
 import {GrDiffPreferencesDialog} from '../../diff/gr-diff-preferences-dialog/gr-diff-preferences-dialog';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {GrDiffCursor} from '../../diff/gr-diff-cursor/gr-diff-cursor';
 import {GrCursorManager} from '../../shared/gr-cursor-manager/gr-cursor-manager';
 import {PolymerSpliceChange} from '@polymer/polymer/interfaces';
 import {ChangeComments} from '../../diff/gr-comment-api/gr-comment-api';
-import {UIDraft} from '../../../utils/comment-util';
-import {ParsedChangeInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
-import {PatchSetFile} from '../../../types/types';
 import {CustomKeyboardEvent} from '../../../types/events';
+import {ParsedChangeInfo, PatchSetFile} from '../../../types/types';
+import {Timing} from '../../../constants/reporting';
 
 export const DEFAULT_NUM_FILES_SHOWN = 200;
 
@@ -88,36 +86,19 @@ const SIZE_BAR_MAX_WIDTH = 61;
 const SIZE_BAR_GAP_WIDTH = 1;
 const SIZE_BAR_MIN_WIDTH = 1.5;
 
-const RENDER_TIMING_LABEL = 'FileListRenderTime';
-const RENDER_AVG_TIMING_LABEL = 'FileListRenderTimePerFile';
-const EXPAND_ALL_TIMING_LABEL = 'ExpandAllDiffs';
-const EXPAND_ALL_AVG_TIMING_LABEL = 'ExpandAllPerDiff';
-
-const FileStatus = {
-  A: 'Added',
-  C: 'Copied',
-  D: 'Deleted',
-  M: 'Modified',
-  R: 'Renamed',
-  W: 'Rewritten',
-  U: 'Unchanged',
-};
-
 const FILE_ROW_CLASS = 'file-row';
 
 export interface GrFileList {
   $: {
-    restAPI: RestApiService & Element;
     diffPreferencesDialog: GrDiffPreferencesDialog;
     diffCursor: GrDiffCursor;
-    fileCursor: GrCursorManager;
   };
 }
 
 interface ReviewedFileInfo extends FileInfo {
   isReviewed?: boolean;
 }
-interface NormalizedFileInfo extends ReviewedFileInfo {
+export interface NormalizedFileInfo extends ReviewedFileInfo {
   __path: string;
 }
 
@@ -184,9 +165,7 @@ export type FileNameToReviewedFileInfoMap = {[name: string]: ReviewedFileInfo};
  */
 
 @customElement('gr-file-list')
-export class GrFileList extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrFileList extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -209,14 +188,8 @@ export class GrFileList extends KeyboardShortcutMixin(
   @property({type: Object})
   changeComments?: ChangeComments;
 
-  @property({type: Object})
-  drafts?: {[path: string]: UIDraft[]};
-
   @property({type: Array})
   revisions?: {[revisionId: string]: RevisionInfo};
-
-  @property({type: Object})
-  projectConfig?: ConfigInfo;
 
   @property({type: Number, notify: true})
   selectedIndex = -1;
@@ -301,6 +274,8 @@ export class GrFileList extends KeyboardShortcutMixin(
 
   private _cancelForEachDiff?: () => void;
 
+  loadingTask?: DelayedTask;
+
   @property({
     type: Boolean,
     computed:
@@ -333,6 +308,8 @@ export class GrFileList extends KeyboardShortcutMixin(
   _dynamicPrependedContentEndpoints?: string[];
 
   private readonly reporting = appContext.reportingService;
+
+  private readonly restApiService = appContext.restApiService;
 
   get keyBindings() {
     return {
@@ -367,15 +344,19 @@ export class GrFileList extends KeyboardShortcutMixin(
     };
   }
 
-  /** @override */
-  created() {
-    super.created();
+  private fileCursor = new GrCursorManager();
+
+  constructor() {
+    super();
+    this.fileCursor.scrollMode = ScrollMode.KEEP_VISIBLE;
+    this.fileCursor.cursorTargetClass = 'selected';
+    this.fileCursor.focusOnMove = true;
     this.addEventListener('keydown', e => this._scopedKeydownHandler(e));
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     getPluginLoader()
       .awaitPluginsLoaded()
       .then(() => {
@@ -423,9 +404,11 @@ export class GrFileList extends KeyboardShortcutMixin(
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
+    this.fileCursor.unsetCursor();
     this._cancelDiffs();
+    this.loadingTask?.cancel();
+    super.disconnectedCallback();
   }
 
   /**
@@ -457,7 +440,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     const promises = [];
 
     promises.push(
-      this.$.restAPI
+      this.restApiService
         .getChangeOrEditFiles(changeNum, patchRange)
         .then(filesByPath => {
           this._filesByPath = filesByPath;
@@ -544,11 +527,11 @@ export class GrFileList extends KeyboardShortcutMixin(
   }
 
   _getDiffPreferences() {
-    return this.$.restAPI.getDiffPreferences();
+    return this.restApiService.getDiffPreferences();
   }
 
   _getPreferences() {
-    return this.$.restAPI.getPreferences();
+    return this.restApiService.getPreferences();
   }
 
   private _toggleFileExpanded(file: PatchSetFile) {
@@ -571,7 +554,7 @@ export class GrFileList extends KeyboardShortcutMixin(
       return;
     }
     // Re-render all expanded diffs sequentially.
-    this.reporting.time(EXPAND_ALL_TIMING_LABEL);
+    this.reporting.time(Timing.FILE_EXPAND_ALL);
     this._renderInOrder(
       this._expandedFiles,
       this.diffs,
@@ -619,6 +602,21 @@ export class GrFileList extends KeyboardShortcutMixin(
   _computeCommentsString(
     changeComments?: ChangeComments,
     patchRange?: PatchRange,
+    file?: NormalizedFileInfo
+  ) {
+    if (
+      changeComments === undefined ||
+      patchRange === undefined ||
+      file?.__path === undefined
+    ) {
+      return '';
+    }
+    return changeComments.computeCommentsString(patchRange, file.__path, file);
+  }
+
+  _computeDraftCount(
+    changeComments?: ChangeComments,
+    patchRange?: PatchRange,
     path?: string
   ) {
     if (
@@ -628,39 +626,22 @@ export class GrFileList extends KeyboardShortcutMixin(
     ) {
       return '';
     }
-    const unresolvedCount =
-      changeComments.computeUnresolvedNum({
-        patchNum: patchRange.basePatchNum,
-        path,
-      }) +
-      changeComments.computeUnresolvedNum({
-        patchNum: patchRange.patchNum,
-        path,
-      });
-    const commentThreadCount =
-      changeComments.computeCommentThreadCount({
-        patchNum: patchRange.basePatchNum,
-        path,
-      }) +
-      changeComments.computeCommentThreadCount({
-        patchNum: patchRange.patchNum,
-        path,
-      });
-    const commentString = GrCountStringFormatter.computePluralString(
-      commentThreadCount,
-      'comment'
-    );
-    const unresolvedString = GrCountStringFormatter.computeString(
-      unresolvedCount,
-      'unresolved'
-    );
-
     return (
-      commentString +
-      // Add a space if both comments and unresolved
-      (commentString && unresolvedString ? ' ' : '') +
-      // Add parentheses around unresolved if it exists.
-      (unresolvedString ? `(${unresolvedString})` : '')
+      changeComments.computeDraftCount({
+        patchNum: patchRange.basePatchNum,
+        path,
+      }) +
+      changeComments.computeDraftCount({
+        patchNum: patchRange.patchNum,
+        path,
+      }) +
+      changeComments.computePortedDraftCount(
+        {
+          patchNum: patchRange.patchNum,
+          basePatchNum: patchRange.basePatchNum,
+        },
+        path
+      )
     );
   }
 
@@ -672,23 +653,13 @@ export class GrFileList extends KeyboardShortcutMixin(
     patchRange?: PatchRange,
     path?: string
   ) {
-    if (
-      changeComments === undefined ||
-      patchRange === undefined ||
-      path === undefined
-    ) {
-      return '';
-    }
-    const draftCount =
-      changeComments.computeDraftCount({
-        patchNum: patchRange.basePatchNum,
-        path,
-      }) +
-      changeComments.computeDraftCount({
-        patchNum: patchRange.patchNum,
-        path,
-      });
-    return GrCountStringFormatter.computePluralString(draftCount, 'draft');
+    const draftCount = this._computeDraftCount(
+      changeComments,
+      patchRange,
+      path
+    );
+    if (draftCount === '') return draftCount;
+    return pluralize(draftCount, 'draft');
   }
 
   /**
@@ -699,23 +670,12 @@ export class GrFileList extends KeyboardShortcutMixin(
     patchRange?: PatchRange,
     path?: string
   ) {
-    if (
-      changeComments === undefined ||
-      patchRange === undefined ||
-      path === undefined
-    ) {
-      return '';
-    }
-    const draftCount =
-      changeComments.computeDraftCount({
-        patchNum: patchRange.basePatchNum,
-        path,
-      }) +
-      changeComments.computeDraftCount({
-        patchNum: patchRange.patchNum,
-        path,
-      });
-    return GrCountStringFormatter.computeShortString(draftCount, 'd');
+    const draftCount = this._computeDraftCount(
+      changeComments,
+      patchRange,
+      path
+    );
+    return draftCount === 0 ? '' : `${draftCount}d`;
   }
 
   /**
@@ -742,7 +702,7 @@ export class GrFileList extends KeyboardShortcutMixin(
         patchNum: patchRange.patchNum,
         path,
       });
-    return GrCountStringFormatter.computeShortString(commentThreadCount, 'c');
+    return commentThreadCount === 0 ? '' : `${commentThreadCount}c`;
   }
 
   private _reviewFile(path: string, reviewed?: boolean) {
@@ -765,7 +725,7 @@ export class GrFileList extends KeyboardShortcutMixin(
       throw new Error('changeNum and patchRange must be set');
     }
 
-    return this.$.restAPI.saveFileReviewed(
+    return this.restApiService.saveFileReviewed(
       this.changeNum,
       this.patchRange.patchNum,
       path,
@@ -774,14 +734,14 @@ export class GrFileList extends KeyboardShortcutMixin(
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   _getReviewedFiles(changeNum: NumericChangeId, patchRange: PatchRange) {
     if (this.editMode) {
       return Promise.resolve([]);
     }
-    return this.$.restAPI.getReviewedFiles(changeNum, patchRange.patchNum);
+    return this.restApiService.getReviewedFiles(changeNum, patchRange.patchNum);
   }
 
   _normalizeChangeFilesResponse(
@@ -829,7 +789,7 @@ export class GrFileList extends KeyboardShortcutMixin(
       e.preventDefault();
       // Prevent _handleFileListClick handler call
       e.stopPropagation();
-      this.$.fileCursor.setCursor(fileRow.element);
+      this.fileCursor.setCursor(fileRow.element);
       fileAction(fileRow.file);
     }
   }
@@ -843,7 +803,7 @@ export class GrFileList extends KeyboardShortcutMixin(
   }
 
   /**
-   * Handle all events from the file list dom-repeat so event handleers don't
+   * Handle all events from the file list dom-repeat so event handlers don't
    * have to get registered for potentially very long lists.
    */
   _handleFileListClick(e: MouseEvent) {
@@ -869,7 +829,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     }
 
     e.preventDefault();
-    this.$.fileCursor.setCursor(fileRow.element);
+    this.fileCursor.setCursor(fileRow.element);
     this._toggleFileExpanded(file);
   }
 
@@ -926,13 +886,13 @@ export class GrFileList extends KeyboardShortcutMixin(
     if (
       this.shouldSuppressKeyboardShortcut(e) ||
       this.modifierPressed(e) ||
-      this.$.fileCursor.index === -1
+      this.fileCursor.index === -1
     ) {
       return;
     }
 
     e.preventDefault();
-    this._toggleFileExpandedByIndex(this.$.fileCursor.index);
+    this._toggleFileExpandedByIndex(this.fileCursor.index);
   }
 
   _handleToggleAllInlineDiffs(e: CustomKeyboardEvent) {
@@ -950,7 +910,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     }
 
     e.preventDefault();
-    this.toggleClass('hideComments');
+    toggleClass(this, 'hideComments');
   }
 
   _handleCursorNext(e: CustomKeyboardEvent) {
@@ -968,8 +928,8 @@ export class GrFileList extends KeyboardShortcutMixin(
         return;
       }
       e.preventDefault();
-      this.$.fileCursor.next();
-      this.selectedIndex = this.$.fileCursor.index;
+      this.fileCursor.next();
+      this.selectedIndex = this.fileCursor.index;
     }
   }
 
@@ -988,8 +948,8 @@ export class GrFileList extends KeyboardShortcutMixin(
         return;
       }
       e.preventDefault();
-      this.$.fileCursor.previous();
-      this.selectedIndex = this.$.fileCursor.index;
+      this.fileCursor.previous();
+      this.selectedIndex = this.fileCursor.index;
     }
   }
 
@@ -998,6 +958,7 @@ export class GrFileList extends KeyboardShortcutMixin(
       return;
     }
     e.preventDefault();
+    this.classList.remove('hideComments');
     this.$.diffCursor.createCommentInPlace();
   }
 
@@ -1083,10 +1044,10 @@ export class GrFileList extends KeyboardShortcutMixin(
     }
 
     e.preventDefault();
-    if (!this._files[this.$.fileCursor.index]) {
+    if (!this._files[this.fileCursor.index]) {
       return;
     }
-    this._reviewFile(this._files[this.$.fileCursor.index].__path);
+    this._reviewFile(this._files[this.fileCursor.index].__path);
   }
 
   _handleToggleLeftPane(e: CustomKeyboardEvent) {
@@ -1110,28 +1071,22 @@ export class GrFileList extends KeyboardShortcutMixin(
 
   _openCursorFile() {
     const diff = this.$.diffCursor.getTargetDiffElement();
-    if (
-      !this.change ||
-      !diff ||
-      !this.patchRange ||
-      !diff.path ||
-      !diff.patchRange
-    ) {
+    if (!this.change || !diff || !this.patchRange || !diff.path) {
       throw new Error('change, diff and patchRange must be all set and valid');
     }
     GerritNav.navigateToDiff(
       this.change,
       diff.path,
-      diff.patchRange.patchNum,
+      this.patchRange.patchNum,
       this.patchRange.basePatchNum
     );
   }
 
   _openSelectedFile(index?: number) {
     if (index !== undefined) {
-      this.$.fileCursor.setCursorAtIndex(index);
+      this.fileCursor.setCursorAtIndex(index);
     }
-    if (!this._files[this.$.fileCursor.index]) {
+    if (!this._files[this.fileCursor.index]) {
       return;
     }
     if (!this.change || !this.patchRange) {
@@ -1139,7 +1094,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     }
     GerritNav.navigateToDiff(
       this.change,
-      this._files[this.$.fileCursor.index].__path,
+      this._files[this.fileCursor.index].__path,
       this.patchRange.patchNum,
       this.patchRange.basePatchNum
     );
@@ -1162,12 +1117,6 @@ export class GrFileList extends KeyboardShortcutMixin(
       _patchChange.size_delta_inserted === 0 &&
       _patchChange.size_delta_deleted === 0
     );
-  }
-
-  _computeFileStatus(
-    status?: keyof typeof FileStatus
-  ): keyof typeof FileStatus {
-    return status || 'M';
   }
 
   _computeDiffURL(
@@ -1244,12 +1193,6 @@ export class GrFileList extends KeyboardShortcutMixin(
     return classes.join(' ');
   }
 
-  _computeStatusClass(file?: NormalizedFileInfo) {
-    if (!file) return '';
-    const classStr = this._computeClass('status', file.__path);
-    return `${classStr} ${this._computeFileStatus(file.status)}`;
-  }
-
   _computePathClass(
     path: string | undefined,
     expandedFilesRecord: ElementPropertyDeepChange<GrFileList, '_expandedFiles'>
@@ -1300,13 +1243,9 @@ export class GrFileList extends KeyboardShortcutMixin(
     const files: FileNameToReviewedFileInfoMap = {...filesByPath};
     addUnmodifiedFiles(files, commentedPaths);
     const reviewedSet = new Set(reviewed || []);
-    for (const filePath in files) {
-      if (!hasOwnProperty(files, filePath)) {
-        continue;
-      }
-      files[filePath].isReviewed = reviewedSet.has(filePath);
+    for (const [filePath, reviewedFileInfo] of Object.entries(files)) {
+      reviewedFileInfo.isReviewed = reviewedSet.has(filePath);
     }
-
     this._files = this._normalizeChangeFilesResponse(files);
   }
 
@@ -1333,7 +1272,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     // Start the timer for the rendering work hwere because this is where the
     // _shownFiles property is being set, and _shownFiles is used in the
     // dom-repeat binding.
-    this.reporting.time(RENDER_TIMING_LABEL);
+    this.reporting.time(Timing.FILE_RENDER);
 
     // How many more files are being shown (if it's an increase).
     this._reportinShownFilesIncrement = Math.max(
@@ -1357,10 +1296,10 @@ export class GrFileList extends KeyboardShortcutMixin(
   _filesChanged() {
     if (this._files && this._files.length > 0) {
       flush();
-      this.$.fileCursor.stops = Array.from(
+      this.fileCursor.stops = Array.from(
         this.root!.querySelectorAll(`.${FILE_ROW_CLASS}`)
       );
-      this.$.fileCursor.setCursorAtIndex(this.selectedIndex, true);
+      this.fileCursor.setCursorAtIndex(this.selectedIndex, true);
     }
   }
 
@@ -1402,17 +1341,6 @@ export class GrFileList extends KeyboardShortcutMixin(
 
   _showAllFiles() {
     this.numFilesShown = this._files.length;
-  }
-
-  /**
-   * Get a descriptive label for use in the status indicator's tooltip and
-   * ARIA label.
-   */
-  _computeFileStatusLabel(status?: keyof typeof FileStatus) {
-    const statusCode = this._computeFileStatus(status);
-    return hasOwnProperty(FileStatus, statusCode)
-      ? FileStatus[statusCode]
-      : 'Status Unknown';
   }
 
   /**
@@ -1492,7 +1420,7 @@ export class GrFileList extends KeyboardShortcutMixin(
     // Required so that the newly created diff view is included in this.diffs.
     flush();
 
-    this.reporting.time(EXPAND_ALL_TIMING_LABEL);
+    this.reporting.time(Timing.FILE_EXPAND_ALL);
 
     if (newFiles.length) {
       this._renderInOrder(newFiles, this.diffs, newFiles.length);
@@ -1557,10 +1485,10 @@ export class GrFileList extends KeyboardShortcutMixin(
             'changeComments, patchRange and diffPrefs must be set'
           );
         }
-        diffElem.comments = this.changeComments.getCommentsBySideForFile(
+
+        diffElem.threads = this.changeComments.getThreadsBySideForFile(
           file,
-          this.patchRange,
-          this.projectConfig
+          this.patchRange
         );
         const promises: Array<Promise<unknown>> = [diffElem.reload()];
         if (this._loggedIn && !this.diffPrefs.manual_review) {
@@ -1571,8 +1499,8 @@ export class GrFileList extends KeyboardShortcutMixin(
         this._cancelForEachDiff = undefined;
         console.info('Finished expanding', initialCount, 'diff(s)');
         this.reporting.timeEndWithAverage(
-          EXPAND_ALL_TIMING_LABEL,
-          EXPAND_ALL_AVG_TIMING_LABEL,
+          Timing.FILE_EXPAND_ALL,
+          Timing.FILE_EXPAND_ALL_AVG,
           initialCount
         );
         /* Block diff cursor from auto scrolling after files are done rendering.
@@ -1647,14 +1575,9 @@ export class GrFileList extends KeyboardShortcutMixin(
       return;
     }
 
-    // Comments are not returned with the commentSide attribute from
-    // the api, but it's necessary to be stored on the diff's
-    // comments due to use in the _handleCommentUpdate function.
-    // The comment thread already has a side associated with it, so
-    // set the comment's side to match.
-    threadEl.comments = newComments.map(c =>
-      Object.assign(c, {__commentSide: threadEl.commentSide})
-    );
+    threadEl.comments = newComments.map(c => {
+      return {...c};
+    });
     flush();
   }
 
@@ -1672,8 +1595,8 @@ export class GrFileList extends KeyboardShortcutMixin(
    * are reasonably fast.
    */
   _loadingChanged(loading?: boolean) {
-    this.debounce(
-      'loading-change',
+    this.loadingTask = debounce(
+      this.loadingTask,
       () => {
         // Only show set the loading if there have been files loaded to show. In
         // this way, the gray loading style is not shown on initial loads.
@@ -1855,10 +1778,10 @@ export class GrFileList extends KeyboardShortcutMixin(
    */
   _reportRenderedRow(index: number) {
     if (index === this._shownFiles.length - 1) {
-      this.async(() => {
+      setTimeout(() => {
         this.reporting.timeEndWithAverage(
-          RENDER_TIMING_LABEL,
-          RENDER_AVG_TIMING_LABEL,
+          Timing.FILE_RENDER,
+          Timing.FILE_RENDER_AVG,
           this._reportinShownFilesIncrement
         );
       }, 1);
@@ -1892,6 +1815,16 @@ export class GrFileList extends KeyboardShortcutMixin(
    */
   _computeTruncatedPath(path: string) {
     return computeTruncatedPath(path);
+  }
+
+  _getOldPath(file: NormalizedFileInfo) {
+    // The gr-endpoint-decorator is waiting until all gr-endpoint-param
+    // values are updated.
+    // The old_path property is undefined for added files, and the
+    // gr-endpoint-param value bound to file.old_path is never updates.
+    // As a results, the gr-endpoint-decorator doesn't work for added files.
+    // As a workaround, this method returns null instead of undefined.
+    return file.old_path ?? null;
   }
 }
 

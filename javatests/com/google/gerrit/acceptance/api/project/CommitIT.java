@@ -19,6 +19,7 @@ import static com.google.gerrit.acceptance.GitUtil.pushHead;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
 import static com.google.gerrit.server.group.SystemGroupBackend.REGISTERED_USERS;
+import static com.google.gerrit.testing.GerritJUnit.assertThrows;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
@@ -41,6 +42,7 @@ import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.CommitInfo;
 import com.google.gerrit.extensions.common.GitPerson;
 import com.google.gerrit.extensions.common.RevisionInfo;
+import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
@@ -379,6 +381,41 @@ public class CommitIT extends AbstractDaemonTest {
     assertThat(cherryPickResult._number).isEqualTo(existingDestChange._number);
     assertThat(cherryPickResult.cherryPickOfChange).isNull();
     assertThat(cherryPickResult.cherryPickOfPatchSet).isNull();
+  }
+
+  @Test
+  public void cherryPickCommitWithChangeIdToClosedChange() throws Exception {
+    String destBranch = "refs/heads/foo";
+    createBranch(BranchNameKey.create(project, destBranch));
+
+    PushOneCommit.Result r = createChange("refs/for/" + destBranch);
+    ChangeInfo existingDestChange = info(r.getChangeId());
+    String commitToCherryPick = createChange().getCommit().getName();
+
+    gApi.changes().id(existingDestChange.changeId).current().review(ReviewInput.approve());
+    gApi.changes().id(existingDestChange.changeId).current().submit();
+
+    CherryPickInput input = new CherryPickInput();
+    input.destination = destBranch;
+    input.message =
+        String.format("it goes to foo branch\n\nChange-Id: %s\n", existingDestChange.changeId);
+    input.allowConflicts = true;
+    input.allowEmpty = true;
+
+    BadRequestException thrown =
+        assertThrows(
+            BadRequestException.class,
+            () -> gApi.projects().name(project.get()).commit(commitToCherryPick).cherryPick(input));
+    assertThat(thrown)
+        .hasMessageThat()
+        .isEqualTo(
+            String.format(
+                "Cherry-pick with Change-Id %s could not update the existing change %d in "
+                    + "destination branch %s of project %s, because the change was closed (MERGED)",
+                existingDestChange.changeId,
+                existingDestChange._number,
+                destBranch,
+                project.get()));
   }
 
   @Test

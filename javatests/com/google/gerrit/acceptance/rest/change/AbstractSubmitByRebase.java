@@ -29,6 +29,7 @@ import com.google.gerrit.acceptance.TestProjectInput;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.BranchNameKey;
+import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.extensions.client.ChangeStatus;
@@ -235,7 +236,9 @@ public abstract class AbstractSubmitByRebase extends AbstractSubmit {
         change2.getChangeId(),
         "Cannot rebase "
             + change2.getCommit().name()
-            + ": The change could not be rebased due to a conflict during merge.");
+            + ": The change could not be rebased due to a conflict during merge.\n\n"
+            + "merge conflict(s):\n"
+            + "a.txt");
     RevCommit head = projectOperations.project(project).getHead("master");
     assertThat(head).isEqualTo(headAfterFirstSubmit);
     assertCurrentRevision(change2.getChangeId(), 1, change2.getCommit());
@@ -362,7 +365,9 @@ public abstract class AbstractSubmitByRebase extends AbstractSubmit {
         "Cannot rebase "
             + change2.getCommit().getName()
             + ": "
-            + "The change could not be rebased due to a conflict during merge.");
+            + "The change could not be rebased due to a conflict during merge.\n\n"
+            + "merge conflict(s):\n"
+            + "fileName 2");
     assertThat(projectOperations.project(project).getHead("master")).isEqualTo(headAfterChange1);
   }
 
@@ -383,5 +388,50 @@ public abstract class AbstractSubmitByRebase extends AbstractSubmit {
     // Do manual rebase first.
     gApi.changes().id(change2.getChangeId()).current().rebase();
     submit(change2.getChangeId());
+  }
+
+  @Test
+  public void dependencyOnOutdatedPatchSetPreventsRebase() throws Throwable {
+    // Create a change
+    PushOneCommit change = pushFactory.create(user.newIdent(), testRepo, "fix", "a.txt", "foo");
+    PushOneCommit.Result changeResult = change.to("refs/for/master");
+    PatchSet.Id patchSetId = changeResult.getPatchSetId();
+
+    // Create a successor change.
+    PushOneCommit change2 =
+        pushFactory.create(user.newIdent(), testRepo, "feature", "b.txt", "bar");
+    PushOneCommit.Result change2Result = change2.to("refs/for/master");
+
+    // Create new patch set for first change.
+    testRepo.reset(changeResult.getCommit().name());
+    amendChange(changeResult.getChangeId());
+
+    // Approve both changes
+    approve(changeResult.getChangeId());
+    approve(change2Result.getChangeId());
+
+    // submit button is disabled.
+    assertSubmitDisabled(change2Result.getChangeId());
+
+    submitWithConflict(
+        change2Result.getChangeId(),
+        "Failed to submit 2 changes due to the following problems:\n"
+            + "Change "
+            + change2Result.getChange().getId()
+            + ": Depends on change that was not submitted."
+            + " Commit "
+            + change2Result.getCommit().name()
+            + " depends on commit "
+            + changeResult.getCommit().name()
+            + ", which is outdated patch set "
+            + patchSetId.get()
+            + " of change "
+            + changeResult.getChange().getId()
+            + ". The latest patch set is "
+            + changeResult.getPatchSetId().get()
+            + ".");
+
+    assertRefUpdatedEvents();
+    assertChangeMergedEvents();
   }
 }

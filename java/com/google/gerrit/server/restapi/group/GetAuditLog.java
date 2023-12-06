@@ -14,12 +14,14 @@
 
 package com.google.gerrit.server.restapi.group;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Comparator.comparing;
 
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.AccountGroupByIdAudit;
 import com.google.gerrit.entities.AccountGroupMemberAudit;
 import com.google.gerrit.entities.GroupDescription;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.GroupAuditEventInfo;
 import com.google.gerrit.extensions.common.GroupInfo;
@@ -33,7 +35,6 @@ import com.google.gerrit.server.account.GroupCache;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.group.GroupResource;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.InternalGroupDescription;
 import com.google.gerrit.server.group.db.Groups;
 import com.google.gerrit.server.permissions.PermissionBackendException;
@@ -42,7 +43,7 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.Repository;
 
@@ -105,14 +106,17 @@ public class GetAuditLog implements RestReadView<GroupResource> {
                   member));
         }
       }
-
-      for (AccountGroupByIdAudit auditEvent :
-          groups.getSubgroupsAudit(allUsersRepo, group.getGroupUUID())) {
+      List<AccountGroupByIdAudit> subGroupsAudit =
+          groups.getSubgroupsAudit(allUsersRepo, group.getGroupUUID());
+      Map<AccountGroup.UUID, InternalGroup> groups =
+          groupCache.get(
+              subGroupsAudit.stream().map(a -> a.includeUuid()).collect(toImmutableList()));
+      for (AccountGroupByIdAudit auditEvent : subGroupsAudit) {
         AccountGroup.UUID includedGroupUUID = auditEvent.includeUuid();
-        Optional<InternalGroup> includedGroup = groupCache.get(includedGroupUUID);
+        InternalGroup includedGroup = groups.get(includedGroupUUID);
         GroupInfo member;
-        if (includedGroup.isPresent()) {
-          member = groupJson.format(new InternalGroupDescription(includedGroup.get()));
+        if (includedGroup != null) {
+          member = groupJson.format(new InternalGroupDescription(includedGroup));
         } else {
           member = new GroupInfo();
           member.id = Url.encode(includedGroupUUID.get());

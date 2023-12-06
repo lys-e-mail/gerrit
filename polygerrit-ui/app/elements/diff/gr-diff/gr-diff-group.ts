@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import {BLANK_LINE, GrDiffLine, GrDiffLineType} from './gr-diff-line';
-import {Side} from '../../../constants/constants';
+import {LineRange} from '../../../api/diff';
 
 export enum GrDiffGroupType {
   /** Unchanged context. */
@@ -31,20 +31,6 @@ export enum GrDiffGroupType {
 export interface GrDiffLinePair {
   left: GrDiffLine;
   right: GrDiffLine;
-}
-
-interface Range {
-  start: number | null;
-  end: number | null;
-}
-
-export interface GrDiffGroupRange {
-  left: Range;
-  right: Range;
-}
-
-export function rangeBySide(range: GrDiffGroupRange, side: Side): Range {
-  return side === Side.LEFT ? range.left : range.right;
 }
 
 /**
@@ -83,16 +69,17 @@ export function hideInContextControl(
 
   const numHidden = hiddenEnd - hiddenStart;
 
-  // Only collapse if there is more than 1 line to be hidden.
-  if (numHidden > 1) {
+  // Showing a context control row for less than 4 lines does not make much,
+  // because then that row would consume as much space as the collapsed code.
+  if (numHidden > 3) {
     if (hiddenStart) {
       [before, hidden] = _splitCommonGroups(hidden, hiddenStart);
     }
     if (hiddenEnd) {
       let beforeLength = 0;
       if (before.length > 0) {
-        const beforeStart = before[0].lineRange.left.start || 0;
-        const beforeEnd = before[before.length - 1].lineRange.left.end || 0;
+        const beforeStart = before[0].lineRange.left.start_line;
+        const beforeEnd = before[before.length - 1].lineRange.left.end_line;
         beforeLength = beforeEnd - beforeStart + 1;
       }
       [hidden, after] = _splitCommonGroups(hidden, hiddenEnd - beforeLength);
@@ -136,8 +123,8 @@ function _splitGroupInTwo(
     // group will in the future mean load more data - and therefore we want to
     // fire an event when user wants to do it.
     const closerToStartThanEnd =
-      leftSplit - (group.lineRange.left.start || 0) <
-      (group.lineRange.right.end || 0) - leftSplit;
+      leftSplit - group.lineRange.left.start_line <
+      group.lineRange.right.end_line - leftSplit;
     if (closerToStartThanEnd) {
       afterSplit = group;
     } else {
@@ -190,18 +177,18 @@ function _splitCommonGroups(
   split: number
 ): GrDiffGroup[][] {
   if (groups.length === 0) return [[], []];
-  const leftSplit = (groups[0].lineRange.left.start || 0) + split;
-  const rightSplit = (groups[0].lineRange.right.start || 0) + split;
+  const leftSplit = groups[0].lineRange.left.start_line + split;
+  const rightSplit = groups[0].lineRange.right.start_line + split;
 
   const beforeGroups = [];
   const afterGroups = [];
   for (const group of groups) {
     const isCompletelyBefore =
-      (group.lineRange.left.end || 0) < leftSplit ||
-      (group.lineRange.right.end || 0) < rightSplit;
+      group.lineRange.left.end_line < leftSplit ||
+      group.lineRange.right.end_line < rightSplit;
     const isCompletelyAfter =
-      leftSplit <= (group.lineRange.left.start || 0) ||
-      rightSplit <= (group.lineRange.right.start || 0);
+      leftSplit <= group.lineRange.left.start_line ||
+      rightSplit <= group.lineRange.right.start_line;
     if (isCompletelyBefore) {
       beforeGroups.push(group);
     } else if (isCompletelyAfter) {
@@ -237,8 +224,6 @@ export class GrDiffGroup {
 
   dueToRebase = false;
 
-  dueToMove = false;
-
   /**
    * True means all changes in this line are whitespace changes that should
    * not be highlighted as changed as per the user settings.
@@ -264,9 +249,17 @@ export class GrDiffGroup {
   skip?: number;
 
   /** Both start and end line are inclusive. */
-  lineRange: GrDiffGroupRange = {
-    left: {start: null, end: null},
-    right: {start: null, end: null},
+  lineRange = {
+    left: {start_line: 0, end_line: 0} as LineRange,
+    right: {start_line: 0, end_line: 0} as LineRange,
+  };
+
+  moveDetails?: {
+    changed: boolean;
+    range?: {
+      start: number;
+      end: number;
+    };
   };
 
   /**
@@ -331,22 +324,24 @@ export class GrDiffGroup {
   }
 
   _updateRange(line: GrDiffLine) {
-    if (line.beforeNumber === 'FILE' || line.afterNumber === 'FILE') {
+    if (
+      line.beforeNumber === 'FILE' ||
+      line.afterNumber === 'FILE' ||
+      line.beforeNumber === 'LOST' ||
+      line.afterNumber === 'LOST'
+    ) {
       return;
     }
 
     if (line.type === GrDiffLineType.ADD || line.type === GrDiffLineType.BOTH) {
       if (
-        this.lineRange.right.start === null ||
-        line.afterNumber < this.lineRange.right.start
+        this.lineRange.right.start_line === 0 ||
+        line.afterNumber < this.lineRange.right.start_line
       ) {
-        this.lineRange.right.start = line.afterNumber;
+        this.lineRange.right.start_line = line.afterNumber;
       }
-      if (
-        this.lineRange.right.end === null ||
-        line.afterNumber > this.lineRange.right.end
-      ) {
-        this.lineRange.right.end = line.afterNumber;
+      if (line.afterNumber > this.lineRange.right.end_line) {
+        this.lineRange.right.end_line = line.afterNumber;
       }
     }
 
@@ -355,16 +350,13 @@ export class GrDiffGroup {
       line.type === GrDiffLineType.BOTH
     ) {
       if (
-        this.lineRange.left.start === null ||
-        line.beforeNumber < this.lineRange.left.start
+        this.lineRange.left.start_line === 0 ||
+        line.beforeNumber < this.lineRange.left.start_line
       ) {
-        this.lineRange.left.start = line.beforeNumber;
+        this.lineRange.left.start_line = line.beforeNumber;
       }
-      if (
-        this.lineRange.left.end === null ||
-        line.beforeNumber > this.lineRange.left.end
-      ) {
-        this.lineRange.left.end = line.beforeNumber;
+      if (line.beforeNumber > this.lineRange.left.end_line) {
+        this.lineRange.left.end_line = line.beforeNumber;
       }
     }
   }

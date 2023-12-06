@@ -16,8 +16,6 @@
  */
 import '../../shared/gr-dialog/gr-dialog';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-confirm-delete-item-dialog_html';
 import {customElement, property} from '@polymer/decorators';
@@ -36,9 +34,7 @@ declare global {
 }
 
 @customElement('gr-confirm-delete-item-dialog')
-export class GrConfirmDeleteItemDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrConfirmDeleteItemDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }

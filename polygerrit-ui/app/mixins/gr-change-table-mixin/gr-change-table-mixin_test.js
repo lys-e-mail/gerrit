@@ -37,35 +37,6 @@ suite('gr-change-table-mixin tests', () => {
     element = basicFixture.instantiate();
   });
 
-  test('getComplementColumns', () => {
-    let columns = [
-      'Subject',
-      'Status',
-      'Owner',
-      'Assignee',
-      'Reviewers',
-      'Comments',
-      'Repo',
-      'Branch',
-      'Updated',
-      'Size',
-    ];
-    assert.deepEqual(element.getComplementColumns(columns), []);
-
-    columns = [
-      'Subject',
-      'Status',
-      'Assignee',
-      'Reviewers',
-      'Comments',
-      'Repo',
-      'Branch',
-      'Size',
-    ];
-    assert.deepEqual(element.getComplementColumns(columns),
-        ['Owner', 'Updated']);
-  });
-
   test('isColumnHidden', () => {
     const columnToCheck = 'Repo';
     let columnsToDisplay = [
@@ -92,15 +63,16 @@ suite('gr-change-table-mixin tests', () => {
     assert.isTrue(element.isColumnHidden(columnToCheck, columnsToDisplay));
   });
 
-  test('getVisibleColumns maps Project to Repo', () => {
+  test('renameProjectToRepoColumn maps Project to Repo', () => {
     const columns = [
       'Subject',
       'Status',
       'Owner',
     ];
-    assert.deepEqual(element.getVisibleColumns(columns), columns.slice(0));
+    assert.deepEqual(element.renameProjectToRepoColumn(columns),
+        columns.slice(0));
     assert.deepEqual(
-        element.getVisibleColumns(columns.concat(['Project'])),
+        element.renameProjectToRepoColumn(columns.concat(['Project'])),
         columns.slice(0).concat(['Repo']));
   });
 });

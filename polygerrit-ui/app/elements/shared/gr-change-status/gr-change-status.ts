@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-tooltip-content/gr-tooltip-content';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-status_html';
 import {customElement, property} from '@polymer/decorators';
@@ -36,20 +33,17 @@ const WIP_TOOLTIP =
   "It will not appear on dashboards unless you are CC'ed or assigned, " +
   'and email notifications will be silenced until the review is started.';
 
-const MERGE_CONFLICT_TOOLTIP =
+export const MERGE_CONFLICT_TOOLTIP =
   'This change has merge conflicts. ' +
-  'Download the patch and run "git rebase master". ' +
+  'Download the patch and run "git rebase". ' +
   'Upload a new patchset after resolving all merge conflicts.';
 
 const PRIVATE_TOOLTIP =
   'This change is only visible to its owner and ' +
   'current reviewers (or anyone with "View Private Changes" permission).';
 
-/** @extends PolymerElement */
 @customElement('gr-change-status')
-class GrChangeStatus extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrChangeStatus extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }

@@ -22,12 +22,13 @@ import com.google.common.collect.Sets;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.exceptions.NoSuchGroupException;
 import com.google.gerrit.server.ServerInitiated;
 import com.google.gerrit.server.account.AccountsUpdate;
 import com.google.gerrit.server.account.GroupCache;
+import com.google.gerrit.server.account.ServiceUserClassifier;
 import com.google.gerrit.server.account.externalids.ExternalId;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.db.GroupsUpdate;
 import com.google.gerrit.server.group.db.InternalGroupUpdate;
 import com.google.gerrit.server.notedb.Sequences;
@@ -110,7 +111,7 @@ public class AccountCreator {
           throw new NoSuchGroupException(n);
         }
         addGroupMember(group.get().getGroupUUID(), id);
-        if ("Service Users".equals(n)) {
+        if (ServiceUserClassifier.SERVICE_USERS.equals(n)) {
           tags.add("SERVICE_USER");
         }
       }

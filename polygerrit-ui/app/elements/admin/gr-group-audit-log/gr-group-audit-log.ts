@@ -18,37 +18,26 @@
 import '../../../styles/gr-table-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-date-formatter/gr-date-formatter';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-account-link/gr-account-link';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-group-audit-log_html';
 import {ListViewMixin} from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
 import {
-  ErrorCallback,
-  RestApiService,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {
   GroupInfo,
   AccountInfo,
   EncodedGroupId,
   GroupAuditEventInfo,
 } from '../../../types/common';
+import {firePageError, fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 const GROUP_EVENTS = ['ADD_GROUP', 'REMOVE_GROUP'];
 
-export interface GrGroupAuditLog {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-group-audit-log')
-export class GrGroupAuditLog extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrGroupAuditLog extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -62,16 +51,12 @@ export class GrGroupAuditLog extends ListViewMixin(
   @property({type: Boolean})
   _loading = true;
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Audit Log'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+  connectedCallback() {
+    super.connectedCallback();
+    fireTitleChange(this, 'Audit Log');
   }
 
   /** @override */
@@ -86,16 +71,10 @@ export class GrGroupAuditLog extends ListViewMixin(
     }
 
     const errFn: ErrorCallback = response => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
 
-    return this.$.restAPI
+    return this.restApiService
       .getGroupAuditLog(this.groupId, errFn)
       .then(auditLog => {
         if (!auditLog) {

@@ -17,7 +17,9 @@
 import './gr-plugin-popup';
 import {dom, flush} from '@polymer/polymer/lib/legacy/polymer.dom';
 import {GrPluginPopup} from './gr-plugin-popup';
-import {PluginApi} from '../gr-plugin-types';
+import {PluginApi} from '../../../api/plugin';
+import {PopupPluginApi} from '../../../api/popup';
+import {appContext} from '../../../services/app-context';
 
 interface CustomPolymerPluginEl extends HTMLElement {
   plugin: PluginApi;
@@ -26,23 +28,27 @@ interface CustomPolymerPluginEl extends HTMLElement {
 /**
  * Plugin popup API.
  * Provides method for opening and closing popups from plugin.
- * opt_moduleName is a name of custom element that will be automatically
+ * optmoduleName is a name of custom element that will be automatically
  * inserted on popup opening.
  */
-export class GrPopupInterface {
-  private _openingPromise: Promise<GrPopupInterface> | null = null;
+export class GrPopupInterface implements PopupPluginApi {
+  private openingPromise: Promise<GrPopupInterface> | null = null;
 
-  private _popup: GrPluginPopup | null = null;
+  private popup: GrPluginPopup | null = null;
+
+  private readonly reporting = appContext.reportingService;
 
   constructor(
     readonly plugin: PluginApi,
-    private _moduleName: string | null = null
-  ) {}
+    private moduleName: string | null = null
+  ) {
+    this.reporting.trackApi(this.plugin, 'popup', 'constructor');
+  }
 
   _getElement() {
     // TODO(TS): maybe consider removing this if no one is using
     // anything other than native methods on the return
-    return (dom(this._popup) as unknown) as HTMLElement;
+    return (dom(this.popup) as unknown) as HTMLElement;
   }
 
   /**
@@ -50,35 +56,37 @@ export class GrPopupInterface {
    * Creates the popup if not previously created. Creates popup content element,
    * if it was provided with constructor.
    */
-  open(): Promise<GrPopupInterface> {
-    if (!this._openingPromise) {
-      this._openingPromise = this.plugin
+  open(): Promise<PopupPluginApi> {
+    this.reporting.trackApi(this.plugin, 'popup', 'open');
+    if (!this.openingPromise) {
+      this.openingPromise = this.plugin
         .hook('plugin-overlay')
         .getLastAttached()
         .then(hookEl => {
           const popup = document.createElement('gr-plugin-popup');
-          if (this._moduleName) {
+          if (this.moduleName) {
             const el = popup.appendChild(
-              document.createElement(this._moduleName) as CustomPolymerPluginEl
+              document.createElement(this.moduleName) as CustomPolymerPluginEl
             );
             el.plugin = this.plugin;
           }
-          this._popup = hookEl.appendChild(popup);
+          this.popup = hookEl.appendChild(popup);
           flush();
-          return this._popup.open().then(() => this);
+          return this.popup.open().then(() => this);
         });
     }
-    return this._openingPromise;
+    return this.openingPromise;
   }
 
   /**
    * Hides the popup.
    */
   close() {
-    if (!this._popup) {
+    this.reporting.trackApi(this.plugin, 'popup', 'close');
+    if (!this.popup) {
       return;
     }
-    this._popup.close();
-    this._openingPromise = null;
+    this.popup.close();
+    this.openingPromise = null;
   }
 }

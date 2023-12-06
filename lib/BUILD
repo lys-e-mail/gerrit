@@ -54,6 +54,16 @@ java_library(
 )
 
 java_library(
+    name = "jgit-ssh-apache",
+    data = ["//lib:LICENSE-jgit"],
+    visibility = ["//visibility:public"],
+    exports = ["@jgit//org.eclipse.jgit.ssh.apache:ssh-apache"],
+    runtime_deps = [
+        "//lib/mina:sshd-sftp",
+    ],
+)
+
+java_library(
     name = "jgit-archive",
     data = ["//lib:LICENSE-jgit"],
     visibility = ["//visibility:public"],
@@ -480,17 +490,17 @@ java_library(
     data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
     visibility = ["//visibility:public"],
     exports = [
-        ":hamcrest-core",
+        ":hamcrest",
         "@junit//jar",
     ],
-    runtime_deps = [":hamcrest-core"],
+    runtime_deps = [":hamcrest"],
 )
 
 java_library(
-    name = "hamcrest-core",
+    name = "hamcrest",
     data = ["//lib:LICENSE-DO_NOT_DISTRIBUTE"],
     visibility = ["//visibility:public"],
-    exports = ["@hamcrest-core//jar"],
+    exports = ["@hamcrest//jar"],
 )
 
 java_library(

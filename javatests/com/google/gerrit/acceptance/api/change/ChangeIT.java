@@ -47,6 +47,7 @@ import static com.google.gerrit.extensions.client.ListChangesOption.TRACKING_IDS
 import static com.google.gerrit.extensions.client.ReviewerState.CC;
 import static com.google.gerrit.extensions.client.ReviewerState.REMOVED;
 import static com.google.gerrit.extensions.client.ReviewerState.REVIEWER;
+import static com.google.gerrit.git.ObjectIds.abbreviateName;
 import static com.google.gerrit.server.StarredChangesUtil.DEFAULT_LABEL;
 import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
 import static com.google.gerrit.server.group.SystemGroupBackend.CHANGE_OWNER;
@@ -91,8 +92,10 @@ import com.google.gerrit.common.data.GlobalCapability;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.Address;
+import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.LabelFunction;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.LabelType;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Permission;
@@ -141,8 +144,10 @@ import com.google.gerrit.extensions.common.GitPerson;
 import com.google.gerrit.extensions.common.LabelInfo;
 import com.google.gerrit.extensions.common.RevisionInfo;
 import com.google.gerrit.extensions.common.TrackingIdInfo;
+import com.google.gerrit.extensions.events.WorkInProgressStateChangedListener;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.extensions.restapi.BadRequestException;
+import com.google.gerrit.extensions.restapi.BinaryResult;
 import com.google.gerrit.extensions.restapi.MethodNotAllowedException;
 import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
@@ -154,6 +159,7 @@ import com.google.gerrit.server.ChangeMessagesUtil;
 import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.change.ChangeResource;
 import com.google.gerrit.server.change.testing.TestChangeETagComputation;
+import com.google.gerrit.server.git.ChangeMessageModifier;
 import com.google.gerrit.server.group.SystemGroupBackend;
 import com.google.gerrit.server.index.change.ChangeIndex;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
@@ -176,6 +182,7 @@ import com.google.gerrit.testing.FakeEmailSender.Message;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -235,7 +242,7 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThat(c.status).isEqualTo(ChangeStatus.NEW);
     assertThat(c.subject).isEqualTo("test commit");
     assertThat(c.submitType).isEqualTo(SubmitType.MERGE_IF_NECESSARY);
-    assertThat(c.mergeable).isTrue();
+    assertThat(c.mergeable).isNull();
     assertThat(c.changeId).isEqualTo(r.getChangeId());
     assertThat(c.created).isEqualTo(c.updated);
     assertThat(c._number).isEqualTo(r.getChange().getId().get());
@@ -611,7 +618,7 @@ public class ChangeIT extends AbstractDaemonTest {
     ReviewInput in =
         ReviewInput.approve()
             .reviewer(user.email())
-            .label("Code-Review", 1)
+            .label(LabelId.CODE_REVIEW, 1)
             .setWorkInProgress(true);
     gApi.changes().id(r.getChangeId()).current().review(in);
 
@@ -619,7 +626,8 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThat(info.workInProgress).isTrue();
     assertThat(info.reviewers.get(REVIEWER).stream().map(ai -> ai._accountId).collect(toList()))
         .containsExactly(admin.id().get(), user.id().get());
-    assertThat(info.labels.get("Code-Review").recommended._accountId).isEqualTo(admin.id().get());
+    assertThat(info.labels.get(LabelId.CODE_REVIEW).recommended._accountId)
+        .isEqualTo(admin.id().get());
   }
 
   @Test
@@ -694,6 +702,8 @@ public class ChangeIT extends AbstractDaemonTest {
   @Test
   public void reviewWithReadyByNonOwnerReturnsError() throws Exception {
     PushOneCommit.Result r = createChange();
+    change(r).setWorkInProgress();
+
     ReviewInput in = ReviewInput.noScore().setReady(true);
     requestScopeOperations.setApiUser(user.id());
     AuthException thrown =
@@ -774,7 +784,7 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThat(description).isEqualTo("Rebase");
 
     // ...and the approval was copied
-    LabelInfo cr = c2.labels.get("Code-Review");
+    LabelInfo cr = c2.labels.get(LabelId.CODE_REVIEW);
     assertThat(cr).isNotNull();
     assertThat(cr.all).hasSize(1);
     assertThat(cr.all.get(0).value).isEqualTo(1);
@@ -1338,9 +1348,135 @@ public class ChangeIT extends AbstractDaemonTest {
             "If09d8782c1e59dd0b33de2b1ec3595d69cc10ad5");
     PushOneCommit.Result r2 = push.to("refs/for/master");
     r2.assertOkStatus();
-    assertThrows(
-        ResourceConflictException.class,
-        () -> gApi.changes().id(r2.getChangeId()).revision(r2.getCommit().name()).rebase());
+    ResourceConflictException exception =
+        assertThrows(
+            ResourceConflictException.class,
+            () -> gApi.changes().id(r2.getChangeId()).revision(r2.getCommit().name()).rebase());
+    assertThat(exception)
+        .hasMessageThat()
+        .isEqualTo(
+            String.format(
+                "The change could not be rebased due to a conflict during merge.\n\n"
+                    + "merge conflict(s):\n%s",
+                PushOneCommit.FILE_NAME));
+  }
+
+  @Test
+  public void rebaseDoesNotAddWorkInProgress() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    // create an unrelated change so that we can rebase
+    testRepo.reset("HEAD~1");
+    PushOneCommit.Result unrelated = createChange();
+    gApi.changes().id(unrelated.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(unrelated.getChangeId()).current().submit();
+
+    gApi.changes().id(r.getChangeId()).rebase();
+
+    // change is still ready for review after rebase
+    assertThat(gApi.changes().id(r.getChangeId()).get().workInProgress).isNull();
+  }
+
+  @Test
+  public void rebaseDoesNotRemoveWorkInProgress() throws Exception {
+    PushOneCommit.Result r = createChange();
+    change(r).setWorkInProgress();
+
+    // create an unrelated change so that we can rebase
+    testRepo.reset("HEAD~1");
+    PushOneCommit.Result unrelated = createChange();
+    gApi.changes().id(unrelated.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(unrelated.getChangeId()).current().submit();
+
+    gApi.changes().id(r.getChangeId()).rebase();
+
+    // change is still work in progress after rebase
+    assertThat(gApi.changes().id(r.getChangeId()).get().workInProgress).isTrue();
+  }
+
+  @Test
+  public void rebaseConflict_conflictsAllowed() throws Exception {
+    String patchSetSubject = "patch set change";
+    String patchSetContent = "patch set content";
+    String baseSubject = "base change";
+    String baseContent = "base content";
+
+    PushOneCommit.Result r1 = createChange(baseSubject, PushOneCommit.FILE_NAME, baseContent);
+    gApi.changes()
+        .id(r1.getChangeId())
+        .revision(r1.getCommit().name())
+        .review(ReviewInput.approve());
+    gApi.changes().id(r1.getChangeId()).revision(r1.getCommit().name()).submit();
+
+    testRepo.reset("HEAD~1");
+    PushOneCommit push =
+        pushFactory.create(
+            admin.newIdent(), testRepo, patchSetSubject, PushOneCommit.FILE_NAME, patchSetContent);
+    PushOneCommit.Result r2 = push.to("refs/for/master");
+    r2.assertOkStatus();
+
+    String changeId = r2.getChangeId();
+    RevCommit patchSet = r2.getCommit();
+    RevCommit base = r1.getCommit();
+
+    TestWorkInProgressStateChangedListener wipStateChangedListener =
+        new TestWorkInProgressStateChangedListener();
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(wipStateChangedListener)) {
+      RebaseInput rebaseInput = new RebaseInput();
+      rebaseInput.allowConflicts = true;
+      ChangeInfo changeInfo =
+          gApi.changes().id(changeId).revision(patchSet.name()).rebaseAsInfo(rebaseInput);
+      assertThat(changeInfo.containsGitConflicts).isTrue();
+      assertThat(changeInfo.workInProgress).isTrue();
+    }
+    assertThat(wipStateChangedListener.invoked).isTrue();
+    assertThat(wipStateChangedListener.wip).isTrue();
+
+    // To get the revisions, we must retrieve the change with more change options.
+    ChangeInfo changeInfo =
+        gApi.changes().id(changeId).get(ALL_REVISIONS, CURRENT_COMMIT, CURRENT_REVISION);
+    assertThat(changeInfo.revisions).hasSize(2);
+    assertThat(changeInfo.revisions.get(changeInfo.currentRevision).commit.parents.get(0).commit)
+        .isEqualTo(base.name());
+
+    // Verify that the file content in the created patch set is correct.
+    // We expect that it has conflict markers to indicate the conflict.
+    BinaryResult bin =
+        gApi.changes().id(changeId).current().file(PushOneCommit.FILE_NAME).content();
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    bin.writeTo(os);
+    String fileContent = new String(os.toByteArray(), UTF_8);
+    String patchSetSha1 = abbreviateName(patchSet, 6);
+    String baseSha1 = abbreviateName(base, 6);
+    assertThat(fileContent)
+        .isEqualTo(
+            "<<<<<<< PATCH SET ("
+                + patchSetSha1
+                + " "
+                + patchSetSubject
+                + ")\n"
+                + patchSetContent
+                + "\n"
+                + "=======\n"
+                + baseContent
+                + "\n"
+                + ">>>>>>> BASE      ("
+                + baseSha1
+                + " "
+                + baseSubject
+                + ")\n");
+
+    // Verify the message that has been posted on the change.
+    List<ChangeMessageInfo> messages = gApi.changes().id(changeId).messages();
+    assertThat(messages).hasSize(2);
+    assertThat(Iterables.getLast(messages).message)
+        .isEqualTo(
+            "Patch Set 2: Patch Set 1 was rebased\n\n"
+                + "The following files contain Git conflicts:\n"
+                + "* "
+                + PushOneCommit.FILE_NAME
+                + "\n");
   }
 
   @Test
@@ -1504,19 +1640,19 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThat(commit.author.email).isEqualTo(user.email());
     assertThat(commit.committer.email).isEqualTo(user.email());
 
-    // check that the author/committer was added as reviewer
-    Collection<AccountInfo> reviewers = change.reviewers.get(REVIEWER);
+    // check that the author/committer was added as cc
+    Collection<AccountInfo> reviewers = change.reviewers.get(CC);
     assertThat(reviewers).isNotNull();
     assertThat(reviewers).hasSize(1);
     assertThat(reviewers.iterator().next()._accountId).isEqualTo(user.id().get());
-    assertThat(change.reviewers.get(CC)).isNull();
+    assertThat(change.reviewers.get(REVIEWER)).isNull();
 
     List<Message> messages = sender.getMessages();
     assertThat(messages).hasSize(1);
     Message m = messages.get(0);
     assertThat(m.from().name()).isEqualTo("Administrator (Code Review)");
     assertThat(m.rcpt()).containsExactly(user.getNameEmail());
-    assertThat(m.body()).contains("I'd like you to do a code review");
+    assertThat(m.body()).contains("has uploaded this change for review");
     assertThat(m.body()).contains("Change subject: " + PushOneCommit.SUBJECT + "\n");
     assertMailReplyTo(m, admin.email());
   }
@@ -2193,7 +2329,7 @@ public class ChangeIT extends AbstractDaemonTest {
         gApi.changes().id(r.getChangeId()).reviewer(admin.id().toString()).votes();
 
     assertThat(m).hasSize(1);
-    assertThat(m).containsExactly("Code-Review", Short.valueOf((short) 2));
+    assertThat(m).containsExactly(LabelId.CODE_REVIEW, Short.valueOf((short) 2));
 
     requestScopeOperations.setApiUser(user.id());
     gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).review(ReviewInput.dislike());
@@ -2201,7 +2337,7 @@ public class ChangeIT extends AbstractDaemonTest {
     m = gApi.changes().id(r.getChangeId()).reviewer(user.id().toString()).votes();
 
     assertThat(m).hasSize(1);
-    assertThat(m).containsExactly("Code-Review", Short.valueOf((short) -1));
+    assertThat(m).containsExactly(LabelId.CODE_REVIEW, Short.valueOf((short) -1));
   }
 
   @Test
@@ -2215,18 +2351,18 @@ public class ChangeIT extends AbstractDaemonTest {
     // check finding by address works
     Map<String, Short> m = gApi.changes().id(r.getChangeId()).reviewer(admin.email()).votes();
     assertThat(m).hasSize(1);
-    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 2));
+    assertThat(m).containsEntry(LabelId.CODE_REVIEW, Short.valueOf((short) 2));
 
     // check finding by id works
     m = gApi.changes().id(r.getChangeId()).reviewer(admin.id().toString()).votes();
     assertThat(m).hasSize(1);
-    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 2));
+    assertThat(m).containsEntry(LabelId.CODE_REVIEW, Short.valueOf((short) 2));
   }
 
   @Test
   public void removeReviewerNoVotes() throws Exception {
     LabelType verified =
-        label("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
+        label(LabelId.VERIFIED, value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
     try (ProjectConfigUpdate u = updateProject(project)) {
       u.getConfig().upsertLabelType(verified);
       u.save();
@@ -2258,6 +2394,10 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThat(message.body()).contains("Removed reviewer " + user.fullName() + ".");
     assertThat(message.body()).doesNotContain("with the following votes");
 
+    // Make sure the change message for removing a reviewer is correct.
+    assertThat(Iterables.getLast(gApi.changes().id(changeId).messages()).message)
+        .contains("Removed reviewer " + user.fullName());
+
     // Make sure the reviewer can still be added again.
     gApi.changes().id(changeId).addReviewer(user.id().toString());
     c = gApi.changes().id(changeId).get();
@@ -2270,6 +2410,31 @@ public class ChangeIT extends AbstractDaemonTest {
     assertThrows(
         ResourceNotFoundException.class,
         () -> gApi.changes().id(changeId).reviewer(user.id().toString()).remove());
+  }
+
+  @Test
+  public void removeCC() throws Exception {
+    PushOneCommit.Result result = createChange();
+    String changeId = result.getChangeId();
+    // Add a cc
+    AddReviewerInput addReviewerInput = new AddReviewerInput();
+    addReviewerInput.state = CC;
+    addReviewerInput.reviewer = user.id().toString();
+    gApi.changes().id(changeId).addReviewer(addReviewerInput);
+
+    // Remove a cc
+    sender.clear();
+    gApi.changes().id(changeId).reviewer(user.id().toString()).remove();
+    assertThat(gApi.changes().id(changeId).get().reviewers).isEmpty();
+
+    // Make sure the email for removing a cc is correct.
+    assertThat(sender.getMessages()).hasSize(1);
+    Message message = sender.getMessages().get(0);
+    assertThat(message.body()).contains("Removed cc " + user.fullName() + ".");
+
+    // Make sure the change message for removing a reviewer is correct.
+    assertThat(Iterables.getLast(gApi.changes().id(changeId).messages()).message)
+        .contains("Removed cc " + user.fullName());
   }
 
   @Test
@@ -2403,7 +2568,10 @@ public class ChangeIT extends AbstractDaemonTest {
 
     requestScopeOperations.setApiUser(admin.id());
     sender.clear();
-    gApi.changes().id(r.getChangeId()).reviewer(user.id().toString()).deleteVote("Code-Review");
+    gApi.changes()
+        .id(r.getChangeId())
+        .reviewer(user.id().toString())
+        .deleteVote(LabelId.CODE_REVIEW);
 
     List<Message> messages = sender.getMessages();
     assertThat(messages).hasSize(1);
@@ -2417,7 +2585,7 @@ public class ChangeIT extends AbstractDaemonTest {
         gApi.changes().id(r.getChangeId()).reviewer(user.id().toString()).votes();
 
     // Dummy 0 approval on the change to block vote copying to this patch set.
-    assertThat(m).containsExactly("Code-Review", Short.valueOf((short) 0));
+    assertThat(m).containsExactly(LabelId.CODE_REVIEW, Short.valueOf((short) 0));
 
     ChangeInfo c = gApi.changes().id(r.getChangeId()).get();
 
@@ -2439,7 +2607,7 @@ public class ChangeIT extends AbstractDaemonTest {
     requestScopeOperations.setApiUser(admin.id());
     sender.clear();
     DeleteVoteInput in = new DeleteVoteInput();
-    in.label = "Code-Review";
+    in.label = LabelId.CODE_REVIEW;
     in.notify = NotifyHandling.NONE;
     gApi.changes().id(r.getChangeId()).reviewer(user.id().toString()).deleteVote(in);
     assertThat(sender.getMessages()).isEmpty();
@@ -2451,7 +2619,7 @@ public class ChangeIT extends AbstractDaemonTest {
     gApi.changes().id(r.getChangeId()).revision(r.getCommit().name()).review(ReviewInput.approve());
 
     DeleteVoteInput in = new DeleteVoteInput();
-    in.label = "Code-Review";
+    in.label = LabelId.CODE_REVIEW;
     in.notify = NotifyHandling.NONE;
 
     // notify unrelated account as TO
@@ -2505,14 +2673,14 @@ public class ChangeIT extends AbstractDaemonTest {
                 gApi.changes()
                     .id(r.getChangeId())
                     .reviewer(admin.id().toString())
-                    .deleteVote("Code-Review"));
+                    .deleteVote(LabelId.CODE_REVIEW));
     assertThat(thrown).hasMessageThat().contains("delete vote not permitted");
   }
 
   @Test
   public void nonVotingReviewerStaysAfterSubmit() throws Exception {
     LabelType verified =
-        label("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
+        label(LabelId.VERIFIED, value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
     String heads = "refs/heads/*";
     try (ProjectConfigUpdate u = updateProject(project)) {
       u.getConfig().upsertLabelType(verified);
@@ -2522,7 +2690,7 @@ public class ChangeIT extends AbstractDaemonTest {
         .project(project)
         .forUpdate()
         .add(allowLabel(verified.getName()).ref(heads).group(CHANGE_OWNER).range(-1, 1))
-        .add(allowLabel("Code-Review").ref(heads).group(REGISTERED_USERS).range(-2, +2))
+        .add(allowLabel(LabelId.CODE_REVIEW).ref(heads).group(REGISTERED_USERS).range(-2, +2))
         .update();
 
     // Set Code-Review+2 and Verified+1 as admin (change owner)
@@ -2691,7 +2859,7 @@ public class ChangeIT extends AbstractDaemonTest {
                 .withOptions(
                     ALL_REVISIONS, CHANGE_ACTIONS, CURRENT_ACTIONS, DETAILED_LABELS, MESSAGES)
                 .get());
-    assertThat(Iterables.getOnlyElement(result.labels.keySet())).isEqualTo("Code-Review");
+    assertThat(Iterables.getOnlyElement(result.labels.keySet())).isEqualTo(LabelId.CODE_REVIEW);
     assertThat(result.messages).hasSize(1);
     assertThat(result.actions).isNotEmpty();
 
@@ -2874,7 +3042,7 @@ public class ChangeIT extends AbstractDaemonTest {
   @Test
   public void commitFooters() throws Exception {
     LabelType verified =
-        label("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
+        label(LabelId.VERIFIED, value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
     LabelType custom1 =
         label("Custom1", value(1, "Positive"), value(0, "No score"), value(-1, "Negative"));
     LabelType custom2 =
@@ -2902,8 +3070,8 @@ public class ChangeIT extends AbstractDaemonTest {
     r2.assertOkStatus();
 
     ReviewInput in = new ReviewInput();
-    in.label("Code-Review", 1);
-    in.label("Verified", 1);
+    in.label(LabelId.CODE_REVIEW, 1);
+    in.label(LabelId.VERIFIED, 1);
     in.label("Custom1", -1);
     in.label("Custom2", 1);
     gApi.changes().id(r2.getChangeId()).current().review(in);
@@ -2942,14 +3110,19 @@ public class ChangeIT extends AbstractDaemonTest {
   public void customCommitFooters() throws Exception {
     PushOneCommit.Result change = createChange();
     ChangeInfo actual;
-    try (Registration registration =
-        extensionRegistry
-            .newRegistration()
-            .add(
-                (newCommitMessage, original, mergeTip, destination) -> {
-                  assertThat(original.getName()).isNotEqualTo(mergeTip.getName());
-                  return newCommitMessage + "Custom: " + destination.branch();
-                })) {
+    ChangeMessageModifier link =
+        new ChangeMessageModifier() {
+          @Override
+          public String onSubmit(
+              String newCommitMessage,
+              RevCommit original,
+              RevCommit mergeTip,
+              BranchNameKey destination) {
+            assertThat(original.getName()).isNotEqualTo(mergeTip.getName());
+            return newCommitMessage + "Custom: " + destination.branch();
+          }
+        };
+    try (Registration registration = extensionRegistry.newRegistration().add(link)) {
       actual = gApi.changes().id(change.getChangeId()).get(ALL_REVISIONS, COMMIT_FOOTERS);
     }
     List<String> footers =
@@ -3006,7 +3179,7 @@ public class ChangeIT extends AbstractDaemonTest {
     String triplet = project.get() + "~master~" + r.getChangeId();
     gApi.changes().id(triplet).addReviewer(user.username());
     ChangeInfo c = gApi.changes().id(triplet).get(DETAILED_LABELS);
-    LabelInfo codeReview = c.labels.get("Code-Review");
+    LabelInfo codeReview = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(codeReview.all).hasSize(1);
     ApprovalInfo approval = codeReview.all.get(0);
     assertThat(approval._accountId).isEqualTo(user.id().get());
@@ -3015,11 +3188,15 @@ public class ChangeIT extends AbstractDaemonTest {
     projectOperations
         .project(project)
         .forUpdate()
-        .add(blockLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-1, 1))
+        .add(
+            blockLabel(LabelId.CODE_REVIEW)
+                .ref("refs/heads/*")
+                .group(REGISTERED_USERS)
+                .range(-1, 1))
         .update();
 
     c = gApi.changes().id(triplet).get(DETAILED_LABELS);
-    codeReview = c.labels.get("Code-Review");
+    codeReview = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(codeReview.all).hasSize(1);
     approval = codeReview.all.get(0);
     assertThat(approval._accountId).isEqualTo(user.id().get());
@@ -3210,8 +3387,8 @@ public class ChangeIT extends AbstractDaemonTest {
     PushOneCommit.Result r = createChange();
     ChangeInfo change = gApi.changes().id(r.getChangeId()).get();
     assertThat(change.status).isEqualTo(ChangeStatus.NEW);
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review");
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertThat(change.permittedLabels.keySet()).containsExactly(LabelId.CODE_REVIEW);
 
     // add new label and assert that it's returned for existing changes
     AccountGroup.UUID registeredUsers = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
@@ -3229,10 +3406,11 @@ public class ChangeIT extends AbstractDaemonTest {
         .update();
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review", "Verified");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review", "Verified");
-    assertPermitted(change, "Code-Review", -2, -1, 0, 1, 2);
-    assertPermitted(change, "Verified", -1, 0, 1);
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW, LabelId.VERIFIED);
+    assertThat(change.permittedLabels.keySet())
+        .containsExactly(LabelId.CODE_REVIEW, LabelId.VERIFIED);
+    assertPermitted(change, LabelId.CODE_REVIEW, -2, -1, 0, 1, 2);
+    assertPermitted(change, LabelId.VERIFIED, -1, 0, 1);
 
     // add an approval on the new label
     gApi.changes()
@@ -3256,15 +3434,15 @@ public class ChangeIT extends AbstractDaemonTest {
         .update();
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review");
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertThat(change.permittedLabels.keySet()).containsExactly(LabelId.CODE_REVIEW);
 
     // abandon the change and see that the returned labels stay the same
     // while all permitted labels disappear.
     gApi.changes().id(r.getChangeId()).abandon();
     change = gApi.changes().id(r.getChangeId()).get();
     assertThat(change.status).isEqualTo(ChangeStatus.ABANDONED);
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
     assertThat(change.permittedLabels).isEmpty();
   }
 
@@ -3277,9 +3455,9 @@ public class ChangeIT extends AbstractDaemonTest {
     ChangeInfo change = gApi.changes().id(r.getChangeId()).get();
     assertThat(change.status).isEqualTo(ChangeStatus.MERGED);
     assertThat(change.submissionId).isNotNull();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review");
-    assertPermitted(change, "Code-Review", 2);
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertThat(change.permittedLabels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertPermitted(change, LabelId.CODE_REVIEW, 2);
 
     LabelType verified = TestLabels.verified();
     AccountGroup.UUID registeredUsers = systemGroupBackend.getGroup(REGISTERED_USERS).getUUID();
@@ -3297,10 +3475,11 @@ public class ChangeIT extends AbstractDaemonTest {
         .update();
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review", "Verified");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review", "Verified");
-    assertPermitted(change, "Code-Review", 2);
-    assertPermitted(change, "Verified", 0, 1);
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW, LabelId.VERIFIED);
+    assertThat(change.permittedLabels.keySet())
+        .containsExactly(LabelId.CODE_REVIEW, LabelId.VERIFIED);
+    assertPermitted(change, LabelId.CODE_REVIEW, 2);
+    assertPermitted(change, LabelId.VERIFIED, 0, 1);
 
     // ignore the new label by Prolog submit rule and assert that the label is
     // no longer returned
@@ -3316,8 +3495,8 @@ public class ChangeIT extends AbstractDaemonTest {
     push2.to(RefNames.REFS_CONFIG);
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertPermitted(change, "Code-Review", 2);
-    assertPermitted(change, "Verified");
+    assertPermitted(change, LabelId.CODE_REVIEW, 2);
+    assertPermitted(change, LabelId.VERIFIED);
 
     // add an approval on the new label and assert that the label is now
     // returned although it is ignored by the Prolog submit rule and hence not
@@ -3328,9 +3507,9 @@ public class ChangeIT extends AbstractDaemonTest {
         .review(new ReviewInput().label(verified.getName(), verified.getMax().getValue()));
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review", "Verified");
-    assertPermitted(change, "Code-Review", 2);
-    assertPermitted(change, "Verified");
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW, LabelId.VERIFIED);
+    assertPermitted(change, LabelId.CODE_REVIEW, 2);
+    assertPermitted(change, LabelId.VERIFIED);
 
     // remove label and assert that it's no longer returned for existing
     // changes, even if there is an approval for it
@@ -3345,9 +3524,9 @@ public class ChangeIT extends AbstractDaemonTest {
         .update();
 
     change = gApi.changes().id(r.getChangeId()).get();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review");
-    assertPermitted(change, "Code-Review", 2);
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertThat(change.permittedLabels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertPermitted(change, LabelId.CODE_REVIEW, 2);
   }
 
   @Test
@@ -3440,9 +3619,10 @@ public class ChangeIT extends AbstractDaemonTest {
     ChangeInfo change = gApi.changes().id(r.getChangeId()).get();
     assertThat(change.status).isEqualTo(ChangeStatus.MERGED);
     assertThat(change.submissionId).isNotNull();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review", "Non-Author-Code-Review");
-    assertThat(change.permittedLabels.keySet()).containsExactly("Code-Review");
-    assertPermitted(change, "Code-Review", 0, 1, 2);
+    assertThat(change.labels.keySet())
+        .containsExactly(LabelId.CODE_REVIEW, "Non-Author-Code-Review");
+    assertThat(change.permittedLabels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertPermitted(change, LabelId.CODE_REVIEW, 0, 1, 2);
   }
 
   @Test
@@ -3456,8 +3636,8 @@ public class ChangeIT extends AbstractDaemonTest {
     ChangeInfo change = gApi.changes().id(r.getChangeId()).get();
     assertThat(change.status).isEqualTo(ChangeStatus.MERGED);
     assertThat(change.submissionId).isNotNull();
-    assertThat(change.labels.keySet()).containsExactly("Code-Review");
-    assertPermitted(change, "Code-Review", 0, 1, 2);
+    assertThat(change.labels.keySet()).containsExactly(LabelId.CODE_REVIEW);
+    assertPermitted(change, LabelId.CODE_REVIEW, 0, 1, 2);
   }
 
   @Test
@@ -3494,7 +3674,7 @@ public class ChangeIT extends AbstractDaemonTest {
     gApi.changes().id(triplet).addReviewer(user.username());
 
     ChangeInfo c = gApi.changes().id(triplet).get(DETAILED_LABELS);
-    LabelInfo codeReview = c.labels.get("Code-Review");
+    LabelInfo codeReview = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(codeReview.all).hasSize(1);
     ApprovalInfo approval = codeReview.all.get(0);
     assertThat(approval._accountId).isEqualTo(user.id().get());
@@ -3507,14 +3687,14 @@ public class ChangeIT extends AbstractDaemonTest {
         .project(project)
         .forUpdate()
         .add(
-            allowLabel("Code-Review")
+            allowLabel(LabelId.CODE_REVIEW)
                 .ref(heads)
                 .group(REGISTERED_USERS)
                 .range(minPermittedValue, maxPermittedValue))
         .update();
 
     c = gApi.changes().id(triplet).get(DETAILED_LABELS);
-    codeReview = c.labels.get("Code-Review");
+    codeReview = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(codeReview.all).hasSize(1);
     approval = codeReview.all.get(0);
     assertThat(approval._accountId).isEqualTo(user.id().get());
@@ -3528,7 +3708,11 @@ public class ChangeIT extends AbstractDaemonTest {
     projectOperations
         .project(project)
         .forUpdate()
-        .add(blockLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-1, 1))
+        .add(
+            blockLabel(LabelId.CODE_REVIEW)
+                .ref("refs/heads/*")
+                .group(REGISTERED_USERS)
+                .range(-1, 1))
         .update();
 
     PushOneCommit.Result r = createChange();
@@ -3537,7 +3721,7 @@ public class ChangeIT extends AbstractDaemonTest {
     gApi.changes().id(triplet).addReviewer(user.username());
 
     ChangeInfo c = gApi.changes().id(triplet).get(DETAILED_LABELS);
-    LabelInfo codeReview = c.labels.get("Code-Review");
+    LabelInfo codeReview = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(codeReview.all).hasSize(1);
     ApprovalInfo approval = codeReview.all.get(0);
     assertThat(approval._accountId).isEqualTo(user.id().get());
@@ -3554,7 +3738,7 @@ public class ChangeIT extends AbstractDaemonTest {
 
     Map<String, Short> votes =
         gApi.changes().id(changeId).current().reviewer(admin.email()).votes();
-    assertThat(votes.keySet()).containsExactly("Code-Review");
+    assertThat(votes.keySet()).containsExactly(LabelId.CODE_REVIEW);
     assertThat(votes.values()).containsExactly((short) 2);
   }
 
@@ -3563,7 +3747,7 @@ public class ChangeIT extends AbstractDaemonTest {
     String changeId = createChange().getChangeId();
 
     // Add a review with invalid label values.
-    ReviewInput input = new ReviewInput().label("Code-Review", 3);
+    ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 3);
     gApi.changes().id(changeId).current().review(input);
 
     assertThrows(
@@ -3587,7 +3771,7 @@ public class ChangeIT extends AbstractDaemonTest {
   @GerritConfig(name = "change.strictLabels", value = "true")
   public void strictLabelWithInvalidValue() throws Exception {
     String changeId = createChange().getChangeId();
-    ReviewInput in = new ReviewInput().label("Code-Review", 3);
+    ReviewInput in = new ReviewInput().label(LabelId.CODE_REVIEW, 3);
 
     BadRequestException thrown =
         assertThrows(
@@ -3811,7 +3995,7 @@ public class ChangeIT extends AbstractDaemonTest {
   }
 
   private void submittableAfterLosingPermissions(String label) throws Exception {
-    String codeReviewLabel = "Code-Review";
+    String codeReviewLabel = LabelId.CODE_REVIEW;
     AccountGroup.UUID registered = REGISTERED_USERS;
     projectOperations
         .project(project)
@@ -4327,5 +4511,18 @@ public class ChangeIT extends AbstractDaemonTest {
   @FunctionalInterface
   private interface AddReviewerCaller {
     void call(String changeId, String reviewer) throws RestApiException;
+  }
+
+  private static class TestWorkInProgressStateChangedListener
+      implements WorkInProgressStateChangedListener {
+    boolean invoked;
+    Boolean wip;
+
+    @Override
+    public void onWorkInProgressStateChanged(Event event) {
+      this.invoked = true;
+      this.wip =
+          event.getChange().workInProgress != null ? event.getChange().workInProgress : false;
+    }
   }
 }

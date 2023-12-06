@@ -16,18 +16,19 @@
  */
 import {
   GenerateUrlParameters,
-  GerritView,
   GroupDetailView,
   RepoDetailView,
 } from './core/gr-navigation/gr-navigation';
 import {
+  BasePatchSetNum,
   DashboardId,
   GroupId,
   NumericChangeId,
-  PatchSetNum,
   RepoName,
+  RevisionPatchSetNum,
   UrlEncodedCommentId,
 } from '../types/common';
+import {GerritView} from '../services/router/router-model';
 
 export interface AppElement extends HTMLElement {
   params: AppElementParams | GenerateUrlParameters;
@@ -99,8 +100,8 @@ export interface AppElementDiffViewParam {
   project?: RepoName;
   commentId?: UrlEncodedCommentId;
   path?: string;
-  patchNum?: PatchSetNum;
-  basePatchNum?: PatchSetNum;
+  patchNum?: RevisionPatchSetNum;
+  basePatchNum?: BasePatchSetNum;
   lineNum: number;
   leftSide?: boolean;
   commentLink?: boolean;
@@ -110,8 +111,8 @@ export interface AppElementChangeViewParams {
   changeNum: NumericChangeId;
   project: RepoName;
   edit?: boolean;
-  patchNum?: PatchSetNum;
-  basePatchNum?: PatchSetNum;
+  patchNum?: RevisionPatchSetNum;
+  basePatchNum?: BasePatchSetNum;
   queryMap?: Map<string, string> | URLSearchParams;
 }
 

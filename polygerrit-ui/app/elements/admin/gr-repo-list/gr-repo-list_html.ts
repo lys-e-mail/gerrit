@@ -104,9 +104,7 @@ export const htmlTemplate = html`
       on-confirm="_handleCreateRepo"
       on-cancel="_handleCloseCreate"
     >
-      <div class="header" slot="header">
-        Create Repository
-      </div>
+      <div class="header" slot="header">Create Repository</div>
       <div class="main" slot="main">
         <gr-create-repo-dialog
           has-new-repo-name="{{_hasNewRepoName}}"
@@ -115,5 +113,4 @@ export const htmlTemplate = html`
       </div>
     </gr-dialog>
   </gr-overlay>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

@@ -25,28 +25,15 @@ export const htmlTemplate = html`
     gr-comment-thread {
       display: block;
       margin-bottom: var(--spacing-m);
-      max-width: 80ch;
     }
     .header {
       align-items: center;
-      background-color: var(--table-header-background-color);
+      background-color: var(--background-color-primary);
       border-bottom: 1px solid var(--border-color);
       border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: left;
-      min-height: 3.2em;
       padding: var(--spacing-m) var(--spacing-l);
-    }
-    .toggleItem.draftToggle {
-      display: none;
-    }
-    .toggleItem.draftToggle.show {
-      display: flex;
-    }
-    .toggleItem {
-      align-items: center;
-      display: flex;
-      margin-right: var(--spacing-l);
     }
     .draftsOnly:not(.unresolvedOnly) gr-comment-thread[has-draft],
     .unresolvedOnly:not(.draftsOnly) gr-comment-thread[unresolved],
@@ -65,27 +52,53 @@ export const htmlTemplate = html`
       box-shadow: none;
       padding-left: var(--spacing-m);
     }
+    .header .categoryRadio {
+      height: 18px;
+      width: 18px;
+    }
+    .header label {
+      padding-left: 8px;
+      margin-right: 16px;
+    }
+    .partypopper{
+      margin-right: var(--spacing-s);
+    }
   </style>
   <template is="dom-if" if="[[!hideToggleButtons]]">
     <div class="header">
-      <div class="toggleItem">
-        <paper-toggle-button
-          id="unresolvedToggle"
-          checked="{{!unresolvedOnly}}"
-          on-tap="_onTapUnresolvedToggle"
-          >All comments</paper-toggle-button
-        >
-      </div>
-      <div
-        class$="toggleItem draftToggle [[_computeShowDraftToggle(loggedIn)]]"
-      >
-        <paper-toggle-button
-          id="draftToggle"
-          checked="{{_draftsOnly}}"
-          on-tap="_onTapUnresolvedToggle"
-          >Comments with drafts</paper-toggle-button
-        >
-      </div>
+        <input
+          class="categoryRadio"
+          id="unresolvedRadio"
+          name="filterComments"
+          type="radio"
+          on-click="_handleOnlyUnresolved"
+          checked="[[unresolvedOnly]]"
+        />
+        <label for="unresolvedRadio">
+          Unresolved ([[_countUnresolved(threads)]])
+        </label>
+        <input
+          class="categoryRadio"
+          id="draftsRadio"
+          name="filterComments"
+          type="radio"
+          on-click="_handleOnlyDrafts"
+          checked="[[_draftsOnly]]"
+        />
+        <label for="draftsRadio">
+          Drafts ([[_countDrafts(threads)]])
+        </label>
+        <input
+          class="categoryRadio"
+          id="allRadio"
+          name="filterComments"
+          type="radio"
+          on-click="_handleAllComments"
+          checked="[[_showAllComments(_draftsOnly, unresolvedOnly)]]"
+        />
+        <label for="allRadio">
+          All ([[_countAllThreads(threads)]])
+        </label>
     </div>
   </template>
   <div id="threads">
@@ -96,7 +109,7 @@ export const htmlTemplate = html`
       <div>
         <span>
           <template is="dom-if" if="[[_showPartyPopper(threads)]]">
-            <span> \&#x1F389 </span>
+            <span class="partypopper">\&#x1F389</span>
           </template>
           [[_computeEmptyThreadsMessage(threads, _displayedThreads,
           unresolvedOnly)]]
@@ -106,7 +119,7 @@ export const htmlTemplate = html`
               link
               on-click="_handleResolvedCommentsMessageClick">
                 [[_computeResolvedCommentsMessage(threads, _displayedThreads,
-                unresolvedOnly)]]
+                unresolvedOnly, onlyShowRobotCommentsWithHumanReply)]]
             </gr-button>
           </template>
         </span>
@@ -127,9 +140,11 @@ export const htmlTemplate = html`
       </template>
       <gr-comment-thread
         show-file-path=""
+        show-ported-comment="[[thread.ported]]"
+        show-comment-context="[[showCommentContext]]"
         change-num="[[changeNum]]"
         comments="[[thread.comments]]"
-        comment-side="[[thread.commentSide]]"
+        diff-side="[[thread.diffSide]]"
         show-file-name="[[_isFirstThreadWithFileName(_displayedThreads, thread, unresolvedOnly, _draftsOnly, onlyShowRobotCommentsWithHumanReply)]]"
         project-name="[[change.project]]"
         is-on-parent="[[_isOnParent(thread.commentSide)]]"

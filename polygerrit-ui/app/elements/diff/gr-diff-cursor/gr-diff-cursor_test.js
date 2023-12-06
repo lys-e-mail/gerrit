@@ -18,14 +18,14 @@
 import '../../../test/common-test-setup-karma.js';
 import '../gr-diff/gr-diff.js';
 import './gr-diff-cursor.js';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface.js';
-import {getMockDiffResponse} from '../../../test/mocks/diff-response.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+import {listenOnce} from '../../../test/test-utils.js';
+import {getMockDiffResponse} from '../../../test/mocks/diff-response.js';
+import {createDefaultDiffPrefs} from '../../../constants/constants.js';
 
 const basicFixture = fixtureFromTemplate(html`
   <gr-diff></gr-diff>
   <gr-diff-cursor></gr-diff-cursor>
-  <gr-rest-api-interface></gr-rest-api-interface>
 `);
 
 const emptyFixture = fixtureFromElement('div');
@@ -39,7 +39,6 @@ suite('gr-diff-cursor tests', () => {
     const fixtureElems = basicFixture.instantiate();
     diffElement = fixtureElems[0];
     cursorElement = fixtureElems[1];
-    const restAPI = fixtureElems[2];
 
     // Register the diff with the cursor.
     cursorElement.push('diffs', diffElement);
@@ -51,6 +50,7 @@ suite('gr-diff-cursor tests', () => {
       right: [],
       meta: {patchRange: undefined},
     };
+    diffElement.path = 'some/path.ts';
     const setupDone = () => {
       cursorElement._updateStops();
       cursorElement.moveToFirstChunk();
@@ -60,10 +60,8 @@ suite('gr-diff-cursor tests', () => {
     diffElement.addEventListener('render', setupDone);
 
     diff = getMockDiffResponse();
-    restAPI.getDiffPreferences().then(prefs => {
-      diffElement.prefs = prefs;
-      diffElement.diff = diff;
-    });
+    diffElement.prefs = createDefaultDiffPrefs();
+    diffElement.diff = diff;
   });
 
   test('diff cursor functionality (side-by-side)', () => {
@@ -85,39 +83,130 @@ suite('gr-diff-cursor tests', () => {
     assert.equal(cursorElement.diffRow, firstDeltaRow);
   });
 
-  test('moveToLastChunk', () => {
+  test('moveToFirstChunk', async () => {
+    const diff = {
+      meta_a: {
+        name: 'lorem-ipsum.txt',
+        content_type: 'text/plain',
+        lines: 3,
+      },
+      meta_b: {
+        name: 'lorem-ipsum.txt',
+        content_type: 'text/plain',
+        lines: 3,
+      },
+      intraline_status: 'OK',
+      change_type: 'MODIFIED',
+      diff_header: [
+        'diff --git a/lorem-ipsum.txt b/lorem-ipsum.txt',
+        'index b2adcf4..554ae49 100644',
+        '--- a/lorem-ipsum.txt',
+        '+++ b/lorem-ipsum.txt',
+      ],
+      content: [
+        {b: ['new line 1']},
+        {ab: ['unchanged line']},
+        {a: ['old line 2']},
+        {ab: ['more unchanged lines']},
+      ],
+    };
+
+    diffElement.diff = diff;
+    // The file comment button, if present, is a cursor stop. Ensure
+    // moveToFirstChunk() works correctly even if the button is not shown.
+    diffElement.prefs.show_file_comment_button = false;
+    await flush();
+    cursorElement._updateStops();
+
     const chunks = Array.from(diffElement.root.querySelectorAll(
         '.section.delta'));
-    assert.isAbove(chunks.length, 1);
+    assert.equal(chunks.length, 2);
+
+    // Verify it works on fresh diff.
+    cursorElement.moveToFirstChunk();
     assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 0);
+    assert.equal(cursorElement.side, 'right');
 
+    // Verify it works from other cursor positions.
+    cursorElement.moveToNextChunk();
+    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 1);
+    assert.equal(cursorElement.side, 'left');
+    cursorElement.moveToFirstChunk();
+    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 0);
+    assert.equal(cursorElement.side, 'right');
+  });
+
+  test('moveToLastChunk', async () => {
+    const diff = {
+      meta_a: {
+        name: 'lorem-ipsum.txt',
+        content_type: 'text/plain',
+        lines: 3,
+      },
+      meta_b: {
+        name: 'lorem-ipsum.txt',
+        content_type: 'text/plain',
+        lines: 3,
+      },
+      intraline_status: 'OK',
+      change_type: 'MODIFIED',
+      diff_header: [
+        'diff --git a/lorem-ipsum.txt b/lorem-ipsum.txt',
+        'index b2adcf4..554ae49 100644',
+        '--- a/lorem-ipsum.txt',
+        '+++ b/lorem-ipsum.txt',
+      ],
+      content: [
+        {ab: ['unchanged line']},
+        {a: ['old line 2']},
+        {ab: ['more unchanged lines']},
+        {b: ['new line 3']},
+      ],
+    };
+
+    diffElement.diff = diff;
+    await flush();
+    cursorElement._updateStops();
+
+    const chunks = Array.from(diffElement.root.querySelectorAll(
+        '.section.delta'));
+    assert.equal(chunks.length, 2);
+
+    // Verify it works on fresh diff.
     cursorElement.moveToLastChunk();
+    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 1);
+    assert.equal(cursorElement.side, 'right');
 
-    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement),
-        chunks.length - 1);
+    // Verify it works from other cursor positions.
+    cursorElement.moveToPreviousChunk();
+    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 0);
+    assert.equal(cursorElement.side, 'left');
+    cursorElement.moveToLastChunk();
+    assert.equal(chunks.indexOf(cursorElement.diffRow.parentElement), 1);
+    assert.equal(cursorElement.side, 'right');
   });
 
   test('cursor scroll behavior', () => {
-    assert.equal(cursorElement._scrollMode, 'keep-visible');
+    assert.equal(cursorElement.cursorManager.scrollMode, 'keep-visible');
 
-    cursorElement._handleDiffRenderStart();
-    assert.isTrue(cursorElement._focusOnMove);
+    diffElement.dispatchEvent(new Event('render-start'));
+    assert.isTrue(cursorElement.cursorManager.focusOnMove);
 
-    cursorElement._handleWindowScroll();
-    assert.equal(cursorElement._scrollMode, 'never');
-    assert.isFalse(cursorElement._focusOnMove);
+    window.dispatchEvent(new Event('scroll'));
+    assert.equal(cursorElement.cursorManager.scrollMode, 'never');
+    assert.isFalse(cursorElement.cursorManager.focusOnMove);
 
-    cursorElement._handleDiffRenderContent();
-    assert.isTrue(cursorElement._focusOnMove);
+    diffElement.dispatchEvent(new Event('render-content'));
+    assert.isTrue(cursorElement.cursorManager.focusOnMove);
 
     cursorElement.reInitCursor();
-    assert.equal(cursorElement._scrollMode, 'keep-visible');
+    assert.equal(cursorElement.cursorManager.scrollMode, 'keep-visible');
   });
 
   test('moves to selected line', () => {
     const moveToNumStub = sinon.stub(cursorElement, 'moveToLineNumber');
 
-    cursorElement._handleDiffLineSelected(
+    diffElement.dispatchEvent(
         new CustomEvent('line-selected', {
           detail: {number: '123', side: 'right', path: 'some/file'},
         }));
@@ -177,7 +266,7 @@ suite('gr-diff-cursor tests', () => {
     // to the right side.
     assert.equal(cursorElement.side, 'right');
     assert.equal(cursorElement.diffRow, firstDeltaRow);
-    const firstIndex = cursorElement.$.cursorManager.index;
+    const firstIndex = cursorElement.cursorManager.index;
 
     // Move the side to the left. Because this delta only has a right side, we
     // should be moved up to the previous line where there is content on the
@@ -186,7 +275,7 @@ suite('gr-diff-cursor tests', () => {
 
     assert.equal(cursorElement.side, 'left');
     assert.notEqual(cursorElement.diffRow, firstDeltaRow);
-    assert.equal(cursorElement.$.cursorManager.index, firstIndex - 1);
+    assert.equal(cursorElement.cursorManager.index, firstIndex - 1);
     assert.equal(cursorElement.diffRow.parentElement,
         firstDeltaSection.previousSibling);
 
@@ -196,7 +285,7 @@ suite('gr-diff-cursor tests', () => {
 
     assert.equal(cursorElement.side, 'left');
     assert.notEqual(cursorElement.diffRow, firstDeltaRow);
-    assert.isTrue(cursorElement.$.cursorManager.index > firstIndex);
+    assert.isTrue(cursorElement.cursorManager.index > firstIndex);
     assert.equal(cursorElement.diffRow.parentElement,
         firstDeltaSection.nextSibling);
   });
@@ -225,7 +314,7 @@ suite('gr-diff-cursor tests', () => {
     assert.equal(cursorElement.side, 'left');
   });
 
-  suite('moved chunks (dueToMove=true)', () => {
+  suite('moved chunks without line range)', () => {
     setup(done => {
       const renderHandler = function() {
         diffElement.removeEventListener('render', renderHandler);
@@ -245,7 +334,7 @@ suite('gr-diff-cursor tests', () => {
             'Sagittis tincidunt torquent, tempor nunc amet.',
             'At rhoncus id.',
           ],
-          due_to_move: true,
+          move_details: {changed: false},
         },
         {
           ab: [
@@ -258,7 +347,7 @@ suite('gr-diff-cursor tests', () => {
             'Sagittis tincidunt torquent, tempor nunc amet.',
             'At rhoncus id.',
           ],
-          due_to_move: true,
+          move_details: {changed: false},
         },
         {
           ab: [
@@ -268,33 +357,96 @@ suite('gr-diff-cursor tests', () => {
       ]};
     });
 
-    test('chunk skip functionality', () => {
-      const chunks = diffElement.root.querySelectorAll(
-          '.section.delta');
-      const indexOfChunk = function(chunk) {
-        return Array.prototype.indexOf.call(chunks, chunk);
+    test('renders moveControls with simple descriptions', () => {
+      const [movedIn, movedOut] = diffElement.root
+          .querySelectorAll('.dueToMove .moveControls');
+      assert.equal(movedIn.textContent, 'Moved in');
+      assert.equal(movedOut.textContent, 'Moved out');
+    });
+  });
+
+  suite('moved chunks (moveDetails)', () => {
+    setup(done => {
+      const renderHandler = function() {
+        diffElement.removeEventListener('render', renderHandler);
+        cursorElement.reInitCursor();
+        done();
       };
+      diffElement.addEventListener('render', renderHandler);
+      diffElement.diff = {...diff, content: [
+        {
+          ab: [
+            'Lorem ipsum dolor sit amet, suspendisse inceptos vehicula, ',
+          ],
+        },
+        {
+          b: [
+            'Nullam neque, ligula ac, id blandit.',
+            'Sagittis tincidunt torquent, tempor nunc amet.',
+            'At rhoncus id.',
+          ],
+          move_details: {changed: false, range: {start: 4, end: 6}},
+        },
+        {
+          ab: [
+            'Sem nascetur, erat ut, non in.',
+          ],
+        },
+        {
+          a: [
+            'Nullam neque, ligula ac, id blandit.',
+            'Sagittis tincidunt torquent, tempor nunc amet.',
+            'At rhoncus id.',
+          ],
+          move_details: {changed: false, range: {start: 2, end: 4}},
+        },
+        {
+          ab: [
+            'Arcu eget, rhoncus amet cursus, ipsum elementum.',
+          ],
+        },
+      ]};
+    });
 
-      // We should be initialized to the first chunk (b)
-      let currentIndex = indexOfChunk(cursorElement.diffRow.parentElement);
-      assert.equal(currentIndex, 0);
-      assert.equal(cursorElement.side, 'right');
+    test('renders moveControls with simple descriptions', () => {
+      const [movedIn, movedOut] = diffElement.root
+          .querySelectorAll('.dueToMove .moveControls');
+      assert.equal(movedIn.textContent, 'Moved from lines 4 - 6');
+      assert.equal(movedOut.textContent, 'Moved to lines 2 - 4');
+    });
 
-      // Move to the next chunk.
-      cursorElement.moveToNextChunk();
+    test('startLineAnchor of movedIn chunk fires events', done => {
+      const [movedIn] = diffElement.root
+          .querySelectorAll('.dueToMove .moveControls');
+      const [startLineAnchor] = movedIn.querySelectorAll('a');
 
-      // Since the next chunk only has content on the left side (a). we should have been
-      // automatically moved over.
-      const previousIndex = currentIndex;
-      currentIndex = indexOfChunk(cursorElement.diffRow.parentElement);
-      assert.equal(currentIndex, previousIndex + 1);
-      assert.equal(cursorElement.side, 'left');
+      const onMovedLinkClicked = e => {
+        assert.deepEqual(e.detail, {lineNum: 4, side: 'left'});
+        done();
+      };
+      assert.equal(startLineAnchor.textContent, '4');
+      startLineAnchor
+          .addEventListener('moved-link-clicked', onMovedLinkClicked);
+      MockInteractions.click(startLineAnchor);
+    });
+
+    test('endLineAnchor of movedOut fires events', done => {
+      const [, movedOut] = diffElement.root
+          .querySelectorAll('.dueToMove .moveControls');
+      const [, endLineAnchor] = movedOut.querySelectorAll('a');
+
+      const onMovedLinkClicked = e => {
+        assert.deepEqual(e.detail, {lineNum: 4, side: 'right'});
+        done();
+      };
+      assert.equal(endLineAnchor.textContent, '4');
+      endLineAnchor.addEventListener('moved-link-clicked', onMovedLinkClicked);
+      MockInteractions.click(endLineAnchor);
     });
   });
 
   test('navigate to next unreviewed file via moveToNextChunk', () => {
-    const cursorManager =
-        cursorElement.shadowRoot.querySelector('#cursorManager');
+    const cursorManager = cursorElement.cursorManager;
     cursorManager.index = cursorManager.stops.length - 1;
     const dispatchEventStub = sinon.stub(cursorElement, 'dispatchEvent');
     cursorElement.moveToNextChunk(/* opt_clipToTop = */false,
@@ -312,8 +464,9 @@ suite('gr-diff-cursor tests', () => {
     let scrollBehaviorDuringMove;
     const moveToNumStub = sinon.stub(cursorElement, 'moveToLineNumber');
     const moveToChunkStub = sinon.stub(cursorElement, 'moveToFirstChunk')
-        .callsFake(
-            () => { scrollBehaviorDuringMove = cursorElement._scrollMode; });
+        .callsFake(() => {
+          scrollBehaviorDuringMove = cursorElement.cursorManager.scrollMode;
+        });
 
     function renderHandler() {
       diffElement.removeEventListener('render', renderHandler);
@@ -321,7 +474,7 @@ suite('gr-diff-cursor tests', () => {
       assert.isFalse(moveToNumStub.called);
       assert.isTrue(moveToChunkStub.called);
       assert.equal(scrollBehaviorDuringMove, 'never');
-      assert.equal(cursorElement._scrollMode, 'keep-visible');
+      assert.equal(cursorElement.cursorManager.scrollMode, 'keep-visible');
       done();
     }
     diffElement.addEventListener('render', renderHandler);
@@ -331,8 +484,9 @@ suite('gr-diff-cursor tests', () => {
   test('initialLineNumber provided', done => {
     let scrollBehaviorDuringMove;
     const moveToNumStub = sinon.stub(cursorElement, 'moveToLineNumber')
-        .callsFake(
-            () => { scrollBehaviorDuringMove = cursorElement._scrollMode; });
+        .callsFake(() => {
+          scrollBehaviorDuringMove = cursorElement.cursorManager.scrollMode;
+        });
     const moveToChunkStub = sinon.stub(cursorElement, 'moveToFirstChunk');
     function renderHandler() {
       diffElement.removeEventListener('render', renderHandler);
@@ -342,7 +496,7 @@ suite('gr-diff-cursor tests', () => {
       assert.equal(moveToNumStub.lastCall.args[0], 10);
       assert.equal(moveToNumStub.lastCall.args[1], 'right');
       assert.equal(scrollBehaviorDuringMove, 'keep-visible');
-      assert.equal(cursorElement._scrollMode, 'keep-visible');
+      assert.equal(cursorElement.cursorManager.scrollMode, 'keep-visible');
       done();
     }
     diffElement.addEventListener('render', renderHandler);
@@ -369,10 +523,9 @@ suite('gr-diff-cursor tests', () => {
     test('adds new draft for selected line on the left', done => {
       cursorElement.moveToLineNumber(2, 'left');
       diffElement.addEventListener('create-comment', e => {
-        const {lineNum, range, side, patchNum} = e.detail;
+        const {lineNum, range, side} = e.detail;
         assert.equal(lineNum, 2);
         assert.equal(range, undefined);
-        assert.equal(patchNum, 1);
         assert.equal(side, 'left');
         done();
       });
@@ -382,17 +535,16 @@ suite('gr-diff-cursor tests', () => {
     test('adds draft for selected line on the right', done => {
       cursorElement.moveToLineNumber(4, 'right');
       diffElement.addEventListener('create-comment', e => {
-        const {lineNum, range, side, patchNum} = e.detail;
+        const {lineNum, range, side} = e.detail;
         assert.equal(lineNum, 4);
         assert.equal(range, undefined);
-        assert.equal(patchNum, 2);
         assert.equal(side, 'right');
         done();
       });
       cursorElement.createCommentInPlace();
     });
 
-    test('createCommentInPlace creates comment for range if selected', done => {
+    test('creates comment for range if selected', done => {
       const someRange = {
         start_line: 2,
         start_character: 3,
@@ -404,17 +556,16 @@ suite('gr-diff-cursor tests', () => {
         range: someRange,
       };
       diffElement.addEventListener('create-comment', e => {
-        const {lineNum, range, side, patchNum} = e.detail;
+        const {lineNum, range, side} = e.detail;
         assert.equal(lineNum, 6);
         assert.equal(range, someRange);
-        assert.equal(patchNum, 2);
         assert.equal(side, 'right');
         done();
       });
       cursorElement.createCommentInPlace();
     });
 
-    test('createCommentInPlace ignores call if nothing is selected', () => {
+    test('ignores call if nothing is selected', () => {
       const createRangeCommentStub = sinon.stub(diffElement,
           'createRangeComment');
       const addDraftAtLineStub = sinon.stub(diffElement, 'addDraftAtLine');
@@ -450,13 +601,13 @@ suite('gr-diff-cursor tests', () => {
         {leftSide: true, number: 10});
 
     // Should be null if there is no selection.
-    cursorElement.$.cursorManager.unsetCursor();
+    cursorElement.cursorManager.unsetCursor();
     assert.isNotOk(cursorElement.getAddress());
   });
 
   test('_findRowByNumberAndFile', () => {
     // Get the first ab row after the first chunk.
-    const row = diffElement.root.querySelectorAll('tr')[8];
+    const row = diffElement.root.querySelectorAll('tr')[9];
 
     // It should be line 8 on the right, but line 5 on the left.
     assert.equal(cursorElement._findRowByNumberAndFile(8, 'right'), row);
@@ -471,6 +622,12 @@ suite('gr-diff-cursor tests', () => {
       assert.isTrue(cursorElement._updateStops.called);
       done();
     });
+  });
+
+  test('updates stops when loading changes', () => {
+    sinon.spy(cursorElement, '_updateStops');
+    diffElement.dispatchEvent(new Event('loading-changed'));
+    assert.isTrue(cursorElement._updateStops.called);
   });
 
   suite('gr-diff-cursor event tests', () => {
@@ -488,6 +645,75 @@ suite('gr-diff-cursor tests', () => {
         done();
       });
       someEmptyDiv.appendChild(cursorElement);
+    });
+  });
+
+  suite('multi diff', () => {
+    const multiDiffFixture = fixtureFromTemplate(html`
+      <gr-diff></gr-diff>
+      <gr-diff></gr-diff>
+      <gr-diff></gr-diff>
+      <gr-diff-cursor></gr-diff-cursor>
+    `);
+
+    let diffElements;
+
+    setup(() => {
+      const fixtureElems = multiDiffFixture.instantiate();
+      diffElements = fixtureElems.slice(0, 3);
+      cursorElement = fixtureElems[3];
+
+      // Register the diff with the cursor.
+      cursorElement.push('diffs', ...diffElements);
+
+      for (const el of diffElements) {
+        el.prefs = createDefaultDiffPrefs();
+      }
+    });
+
+    function getTargetDiffIndex() {
+      // Mocha has a bug where when `assert.equals` fails, it will try to
+      // JSON.stringify the operands, which fails when they are cyclic structures
+      // like GrDiffElement. The failure is difficult to attribute to a specific
+      // assertion because of the async nature assertion errors are handled and
+      // can cause the test simply timing out, causing a lot of debugging headache.
+      // Working with indices circumvents the problem.
+      return diffElements.indexOf(cursorElement.getTargetDiffElement());
+    }
+
+    test('do not skip loading diffs', async () => {
+      const diffRenderedPromises =
+          diffElements.map(diffEl => listenOnce(diffEl, 'render'));
+
+      diffElements[0].diff = getMockDiffResponse();
+      diffElements[2].diff = getMockDiffResponse();
+      await Promise.all([diffRenderedPromises[0], diffRenderedPromises[2]]);
+
+      const lastLine = diffElements[0].diff.meta_b.lines;
+
+      // Goto second last line of the first diff
+      cursorElement.moveToLineNumber(lastLine - 1, 'right');
+      assert.equal(
+          cursorElement.getTargetLineElement().textContent, lastLine - 1);
+
+      // Can move down until we reach the loading file
+      cursorElement.moveDown();
+      assert.equal(getTargetDiffIndex(), 0);
+      assert.equal(cursorElement.getTargetLineElement().textContent, lastLine);
+
+      // Cannot move down while still loading the diff we would switch to
+      cursorElement.moveDown();
+      assert.equal(getTargetDiffIndex(), 0);
+      assert.equal(cursorElement.getTargetLineElement().textContent, lastLine);
+
+      // Diff 1 finishing to load
+      diffElements[1].diff = getMockDiffResponse();
+      await diffRenderedPromises[1];
+
+      // Now we can go down
+      cursorElement.moveDown();
+      assert.equal(getTargetDiffIndex(), 1);
+      assert.equal(cursorElement.getTargetLineElement().textContent, 'File');
     });
   });
 });

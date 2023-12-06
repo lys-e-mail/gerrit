@@ -48,6 +48,7 @@ import com.google.gerrit.acceptance.PushOneCommit.Result;
 import com.google.gerrit.acceptance.testsuite.account.TestSshKeys;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.acceptance.testsuite.request.SshSessionFactory;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.AccessSection;
 import com.google.gerrit.entities.Account;
@@ -59,6 +60,7 @@ import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.EmailHeader;
 import com.google.gerrit.entities.GroupDescription;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.entities.LabelFunction;
 import com.google.gerrit.entities.LabelType;
 import com.google.gerrit.entities.LabelValue;
@@ -74,6 +76,7 @@ import com.google.gerrit.extensions.api.changes.ReviewInput;
 import com.google.gerrit.extensions.api.changes.RevisionApi;
 import com.google.gerrit.extensions.api.changes.SubmittedTogetherInfo;
 import com.google.gerrit.extensions.api.projects.BranchApi;
+import com.google.gerrit.extensions.api.projects.BranchInfo;
 import com.google.gerrit.extensions.api.projects.BranchInput;
 import com.google.gerrit.extensions.api.projects.ProjectInput;
 import com.google.gerrit.extensions.client.InheritableBoolean;
@@ -114,7 +117,6 @@ import com.google.gerrit.server.config.PluginConfigFactory;
 import com.google.gerrit.server.config.SitePaths;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.meta.MetaDataUpdate;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.SystemGroupBackend;
 import com.google.gerrit.server.index.account.AccountIndex;
 import com.google.gerrit.server.index.account.AccountIndexCollection;
@@ -143,7 +145,6 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Module;
 import com.google.inject.Provider;
-import com.jcraft.jsch.KeyPair;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -155,6 +156,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyPair;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -168,10 +170,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.junit.TestRepository;
 import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -558,7 +563,7 @@ public abstract class AbstractDaemonTest {
         && (adminSshSession == null || userSshSession == null)) {
       // Create Ssh sessions
       KeyPair adminKeyPair = sshKeys.getKeyPair(admin);
-      GitUtil.initSsh(adminKeyPair);
+      SshSessionFactory.initSsh(adminKeyPair);
       Context ctx = newRequestContext(user);
       atrScope.set(ctx);
       userSshSession = ctx.getSession();
@@ -580,6 +585,7 @@ public abstract class AbstractDaemonTest {
     ProjectInput in = new ProjectInput();
     TestProjectInput ann = description.getAnnotation(TestProjectInput.class);
     in.name = name("project");
+    in.branches = ImmutableList.of(Constants.R_HEADS + Constants.MASTER);
     if (ann != null) {
       in.parent = Strings.emptyToNull(ann.parent());
       in.description = Strings.emptyToNull(ann.description());
@@ -761,6 +767,57 @@ public abstract class AbstractDaemonTest {
         pushFactory.create(
             admin.newIdent(), testRepo, "merge", ImmutableMap.of(file, "foo-1", "bar", "bar-2"));
     m.setParents(ImmutableList.of(p1.getCommit(), p2.getCommit()));
+    PushOneCommit.Result result = m.to(ref);
+    result.assertOkStatus();
+    return result;
+  }
+
+  protected PushOneCommit.Result createNParentsMergeCommitChange(String ref, List<String> fileNames)
+      throws Exception {
+    // This method creates n different commits and creates a merge commit pointing to all n parents.
+    // Each commit will contain all the fileNames. Commit i will have the following file names and
+    // their contents:
+    // {$file_1_name, ${file_1_name}-1}
+    // {$file_2_name, ${file_2_name}-1}, etc...
+    // The merge commit will have:
+    // {$file_1_name, ${file_1_name}-1}
+    // {$file_2_name, ${file_2_name}-2},
+    // {$file_3_name, ${file_3_name}-3}, etc...
+    // i.e. taking the ith file from the ith commit.
+    int n = fileNames.size();
+    ObjectId initial = repo().exactRef(HEAD).getLeaf().getObjectId();
+
+    List<PushOneCommit.Result> pushResults = new ArrayList<>();
+
+    for (int i = 1; i <= n; i++) {
+      int finalI = i;
+      pushResults.add(
+          pushFactory
+              .create(
+                  admin.newIdent(),
+                  testRepo,
+                  "parent " + i,
+                  fileNames.stream().collect(Collectors.toMap(f -> f, f -> f + "-" + finalI)))
+              .to(ref));
+
+      // reset HEAD in order to create a sibling of the first change
+      if (i < n) {
+        testRepo.reset(initial);
+      }
+    }
+
+    PushOneCommit m =
+        pushFactory.create(
+            admin.newIdent(),
+            testRepo,
+            "merge",
+            IntStream.range(1, n + 1)
+                .boxed()
+                .collect(
+                    Collectors.toMap(
+                        i -> fileNames.get(i - 1), i -> fileNames.get(i - 1) + "-" + i)));
+
+    m.setParents(pushResults.stream().map(PushOneCommit.Result::getCommit).collect(toList()));
     PushOneCommit.Result result = m.to(ref);
     result.assertOkStatus();
     return result;
@@ -1295,6 +1352,16 @@ public abstract class AbstractDaemonTest {
     assertThat(rule.getMax()).isEqualTo(expectedMax);
   }
 
+  protected void assertHead(String projectName, String expectedRef) throws Exception {
+    // Assert gerrit's project head points to the correct branch
+    assertThat(getProjectBranches(projectName).get(Constants.HEAD).revision)
+        .isEqualTo(RefNames.shortName(expectedRef));
+    // Assert git head points to the correct branch
+    try (Repository repo = repoManager.openRepository(Project.nameKey(projectName))) {
+      assertThat(repo.exactRef(Constants.HEAD).getTarget().getName()).isEqualTo(expectedRef);
+    }
+  }
+
   protected InternalGroup group(AccountGroup.UUID groupUuid) {
     InternalGroup group = groupCache.get(groupUuid).orElse(null);
     assertWithMessage(groupUuid.get()).that(group).isNotNull();
@@ -1566,6 +1633,12 @@ public abstract class AbstractDaemonTest {
     }
     comments.sort(Comparator.comparing(c -> c.id));
     return comments;
+  }
+
+  protected ImmutableMap<String, BranchInfo> getProjectBranches(String projectName)
+      throws RestApiException {
+    return gApi.projects().name(projectName).branches().get().stream()
+        .collect(ImmutableMap.toImmutableMap(branch -> branch.ref, branch -> branch));
   }
 
   protected AutoCloseable installPlugin(String pluginName, Class<? extends Module> sysModuleClass)

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
-  <version>3.3.12-SNAPSHOT</version>
+  <version>3.4.9-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
@@ -47,6 +47,9 @@
       <name>Han-Wen Nienhuys</name>
     </developer>
     <developer>
+      <name>Joerg Zieren</name>
+    </developer>
+    <developer>
       <name>Jacek Centkowski</name>
     </developer>
     <developer>
@@ -78,6 +81,9 @@
     </developer>
     <developer>
       <name>Sven Selberg</name>
+    </developer>
+    <developer>
+      <name>Tao Zhou</name>
     </developer>
   </developers>
 

@@ -17,20 +17,11 @@
 import '@polymer/iron-input/iron-input';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-included-in-dialog_html';
 import {customElement, property} from '@polymer/decorators';
 import {IncludedInInfo, NumericChangeId} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-
-export interface GrIncludedInDialog {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 interface DisplayGroup {
   title: string;
@@ -38,9 +29,7 @@ interface DisplayGroup {
 }
 
 @customElement('gr-included-in-dialog')
-export class GrIncludedInDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrIncludedInDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -63,18 +52,22 @@ export class GrIncludedInDialog extends GestureEventListeners(
   @property({type: String})
   _filterText = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
     if (!this.changeNum) {
       return Promise.reject(new Error('missing required property changeNum'));
     }
     this._filterText = '';
-    return this.$.restAPI.getChangeIncludedIn(this.changeNum).then(configs => {
-      if (!configs) {
-        return;
-      }
-      this._includedIn = configs;
-      this._loaded = true;
-    });
+    return this.restApiService
+      .getChangeIncludedIn(this.changeNum)
+      .then(configs => {
+        if (!configs) {
+          return;
+        }
+        this._includedIn = configs;
+        this._loaded = true;
+      });
   }
 
   _resetData() {

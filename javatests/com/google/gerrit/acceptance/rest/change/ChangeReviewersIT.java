@@ -28,6 +28,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.RestResponse;
@@ -37,6 +38,7 @@ import com.google.gerrit.acceptance.testsuite.group.GroupOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.Address;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.extensions.api.changes.AddReviewerInput;
@@ -283,7 +285,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     ChangeInfo c = gApi.changes().id(r.getChangeId()).get();
     assertReviewers(c, REVIEWER, user);
     assertReviewers(c, CC);
-    LabelInfo label = c.labels.get("Code-Review");
+    LabelInfo label = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(label).isNotNull();
     assertThat(label.all).isNotNull();
     assertThat(label.all).hasSize(1);
@@ -313,7 +315,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     assertReviewers(c, CC, user);
     // Verify no approvals were added.
     assertThat(c.labels).isNotNull();
-    LabelInfo label = c.labels.get("Code-Review");
+    LabelInfo label = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(label).isNotNull();
     assertThat(label.all).isNull();
   }
@@ -327,7 +329,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     ChangeInfo c = gApi.changes().id(r.getChangeId()).get();
     assertReviewers(c, REVIEWER);
     assertReviewers(c, CC);
-    LabelInfo label = c.labels.get("Code-Review");
+    LabelInfo label = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(label).isNotNull();
     assertThat(label.all).isNull();
 
@@ -342,7 +344,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     c = gApi.changes().id(r.getChangeId()).get();
     assertReviewers(c, REVIEWER, user);
     assertReviewers(c, CC);
-    label = c.labels.get("Code-Review");
+    label = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(label).isNotNull();
     assertThat(label.all).isNotNull();
     assertThat(label.all).hasSize(1);
@@ -366,7 +368,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     c = gApi.changes().id(r.getChangeId()).get();
     assertReviewers(c, REVIEWER, user);
     assertReviewers(c, CC);
-    label = c.labels.get("Code-Review");
+    label = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(label).isNotNull();
     assertThat(label.all).isNotNull();
     assertThat(label.all).hasSize(1);
@@ -600,7 +602,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
 
   @Test
   public void removingReviewerRemovesTheirVote() throws Exception {
-    String crLabel = "Code-Review";
+    String crLabel = LabelId.CODE_REVIEW;
     PushOneCommit.Result r = createChange();
     ReviewInput input = ReviewInput.approve().reviewer(admin.email());
     ReviewResult addResult = review(r.getChangeId(), r.getCommit().name(), input);
@@ -657,13 +659,124 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void removeReviewerWithVoteOnMergedChangeForChangeOwnerFails() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    requestScopeOperations.setApiUser(user.id());
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 1));
+
+    requestScopeOperations.setApiUser(admin.id());
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 2));
+    gApi.changes().id(r.getChangeId()).current().submit();
+
+    assertThat(gApi.changes().id(r.getChangeId()).get().removableReviewers).isEmpty();
+    AuthException thrown =
+        assertThrows(
+            AuthException.class,
+            () -> gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove());
+    assertThat(thrown).hasMessageThat().contains("remove reviewer not permitted");
+  }
+
+  @Test
+  public void removeReviewerWithVoteOnMergedChangeForUserFails() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    requestScopeOperations.setApiUser(user.id());
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 1));
+
+    requestScopeOperations.setApiUser(admin.id());
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 2));
+    gApi.changes().id(r.getChangeId()).current().submit();
+
+    requestScopeOperations.setApiUser(user.id());
+    assertThat(gApi.changes().id(r.getChangeId()).get().removableReviewers).isEmpty();
+
+    AuthException thrown =
+        assertThrows(
+            AuthException.class,
+            () -> gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove());
+    assertThat(thrown).hasMessageThat().contains("remove reviewer not permitted");
+  }
+
+  @Test
+  public void removeReviewerWithoutVoteOnMergedChangeForChangeOwnerSucceeds() throws Exception {
+    PushOneCommit.Result r = createChange();
+    gApi.changes().id(r.getChangeId()).addReviewer(user.email());
+
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 2));
+    gApi.changes().id(r.getChangeId()).current().submit();
+    assertThat(
+            Iterables.getOnlyElement(gApi.changes().id(r.getChangeId()).get().removableReviewers)
+                .email)
+        .isEqualTo(user.email());
+
+    gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove();
+
+    // Admin is a "reviewer" since the admin submitted the change, this ensures user is not a
+    // reviewer.
+    assertThat(
+            Iterables.getOnlyElement(
+                    gApi.changes().id(r.getChangeId()).get().reviewers.get(REVIEWER))
+                .email)
+        .doesNotMatch(user.email());
+  }
+
+  @Test
+  public void removeReviewerWithoutVoteOnMergedChangeForUserSucceeds() throws Exception {
+    PushOneCommit.Result r = createChange();
+    gApi.changes().id(r.getChangeId()).addReviewer(user.email());
+
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 2));
+    gApi.changes().id(r.getChangeId()).current().submit();
+
+    requestScopeOperations.setApiUser(user.id());
+    assertThat(
+            Iterables.getOnlyElement(gApi.changes().id(r.getChangeId()).get().removableReviewers)
+                .email)
+        .isEqualTo(user.email());
+
+    gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove();
+
+    // Admin is a "reviewer" since the admin submitted the change, this ensures user is not a
+    // reviewer.
+    assertThat(
+            Iterables.getOnlyElement(
+                    gApi.changes().id(r.getChangeId()).get().reviewers.get(REVIEWER))
+                .email)
+        .doesNotMatch(user.email());
+  }
+
+  @Test
   public void removeReviewerWithVoteWithoutPermissionFails() throws Exception {
     PushOneCommit.Result r = createChange();
     TestAccount newUser = createAccounts(1, name("foo")).get(0);
 
     requestScopeOperations.setApiUser(user.id());
-    gApi.changes().id(r.getChangeId()).current().review(new ReviewInput().label("Code-Review", 1));
+    gApi.changes()
+        .id(r.getChangeId())
+        .current()
+        .review(new ReviewInput().label(LabelId.CODE_REVIEW, 1));
     requestScopeOperations.setApiUser(newUser.id());
+    assertThat(gApi.changes().id(r.getChangeId()).get().removableReviewers).isEmpty();
+
     AuthException thrown =
         assertThrows(
             AuthException.class,
@@ -687,8 +800,42 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     gApi.changes().id(r.getChangeId()).addReviewer(user.email());
     assertThatUserIsOnlyReviewer(r.getChangeId());
     requestScopeOperations.setApiUser(newUser.id());
+    assertThat(
+            Iterables.getOnlyElement(gApi.changes().id(r.getChangeId()).get().removableReviewers)
+                .email)
+        .isEqualTo(user.email());
+
     gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove();
     assertThat(gApi.changes().id(r.getChangeId()).get().reviewers).isEmpty();
+  }
+
+  @Test
+  @Sandboxed
+  public void removeReviewerWithoutVoteOnAMergedChangeWithPermissionSucceeds() throws Exception {
+    PushOneCommit.Result r = createChange();
+    // This test creates a new user so that it can explicitly check the REMOVE_REVIEWER permission
+    // rather than bypassing the check because of project or ref ownership.
+    TestAccount newUser = createAccounts(1, name("foo")).get(0);
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.REMOVE_REVIEWER).ref(RefNames.REFS + "*").group(REGISTERED_USERS))
+        .update();
+
+    gApi.changes().id(r.getChangeId()).addReviewer(user.email());
+    gApi.changes().id(r.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(r.getChangeId()).current().submit();
+
+    requestScopeOperations.setApiUser(newUser.id());
+
+    // Ensures user is removable.
+    assertThat(
+            gApi.changes().id(r.getChangeId()).get().removableReviewers.stream()
+                .filter(a -> user.email().equals(a.email))
+                .findAny()
+                .isPresent())
+        .isTrue();
+    gApi.changes().id(r.getChangeId()).reviewer(user.email()).remove();
   }
 
   @Test
@@ -698,6 +845,8 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
 
     gApi.changes().id(r.getChangeId()).addReviewer(user.email());
     requestScopeOperations.setApiUser(newUser.id());
+    assertThat(gApi.changes().id(r.getChangeId()).get().removableReviewers).isEmpty();
+
     AuthException thrown =
         assertThrows(
             AuthException.class,
@@ -715,6 +864,8 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     input.state = ReviewerState.CC;
     gApi.changes().id(r.getChangeId()).addReviewer(input);
     requestScopeOperations.setApiUser(newUser.id());
+    assertThat(gApi.changes().id(r.getChangeId()).get().removableReviewers).isEmpty();
+
     AuthException thrown =
         assertThrows(
             AuthException.class,
@@ -789,7 +940,11 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     projectOperations
         .project(project)
         .forUpdate()
-        .add(allowLabel("Code-Review").ref("refs/heads/*").group(REGISTERED_USERS).range(-2, 2))
+        .add(
+            allowLabel(LabelId.CODE_REVIEW)
+                .ref("refs/heads/*")
+                .group(REGISTERED_USERS)
+                .range(-2, 2))
         .update();
 
     // Create a change and add 'user' as reviewer.
@@ -808,7 +963,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     requestScopeOperations.setApiUser(user.id());
     approve(changeId);
     c = gApi.changes().id(changeId).get();
-    assertThat(c.labels.get("Code-Review").approved._accountId).isEqualTo(user.id().get());
+    assertThat(c.labels.get(LabelId.CODE_REVIEW).approved._accountId).isEqualTo(user.id().get());
 
     // Move 'user' from reviewer to CC.
     requestScopeOperations.setApiUser(admin.id());
@@ -826,7 +981,7 @@ public class ChangeReviewersIT extends AbstractDaemonTest {
     assertThat(c.reviewers.get(REVIEWER)).isNull();
 
     // Verify that the approval of 'user' is still there.
-    assertThat(c.labels.get("Code-Review").approved._accountId).isEqualTo(user.id().get());
+    assertThat(c.labels.get(LabelId.CODE_REVIEW).approved._accountId).isEqualTo(user.id().get());
   }
 
   private void assertThatUserIsOnlyReviewer(String changeId) throws Exception {

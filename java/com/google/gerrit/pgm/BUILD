@@ -7,6 +7,7 @@ java_library(
     resources = ["//resources/com/google/gerrit/pgm"],
     visibility = ["//visibility:public"],
     deps = [
+        "//java/com/google/gerrit/auth",
         "//java/com/google/gerrit/common:annotations",
         "//java/com/google/gerrit/common:server",
         "//java/com/google/gerrit/elasticsearch",
@@ -17,6 +18,7 @@ java_library(
         "//java/com/google/gerrit/httpd",
         "//java/com/google/gerrit/httpd/auth/oauth",
         "//java/com/google/gerrit/httpd/auth/openid",
+        "//java/com/google/gerrit/httpd/auth/restapi",
         "//java/com/google/gerrit/index",
         "//java/com/google/gerrit/index/project",
         "//java/com/google/gerrit/launcher",
@@ -42,6 +44,7 @@ java_library(
         "//lib:args4j",
         "//lib:guava",
         "//lib:jgit",
+        "//lib:jgit-ssh-apache",
         "//lib:protobuf",
         "//lib:servlet-api-without-neverlink",
         "//lib/auto:auto-value",

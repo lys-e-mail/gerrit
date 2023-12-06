@@ -18,13 +18,13 @@ import '@polymer/iron-input/iron-input';
 import '@polymer/iron-icon/iron-icon';
 import '../../../styles/shared-styles';
 import '../gr-button/gr-button';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-list-view_html';
 import {encodeURL, getBaseUrl} from '../../../utils/url-util';
 import {page} from '../../../utils/page-wrapper-utils';
-import {property, observe, customElement} from '@polymer/decorators';
+import {property, customElement} from '@polymer/decorators';
+import {fireEvent} from '../../../utils/event-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 
 const REQUEST_DEBOUNCE_INTERVAL_MS = 200;
 
@@ -35,9 +35,7 @@ declare global {
 }
 
 @customElement('gr-list-view')
-class GrListView extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrListView extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -51,7 +49,7 @@ class GrListView extends GestureEventListeners(
   @property({type: Number})
   itemsPerPage = 25;
 
-  @property({type: String})
+  @property({type: String, observer: '_filterChanged'})
   filter?: string;
 
   @property({type: Number})
@@ -63,14 +61,16 @@ class GrListView extends GestureEventListeners(
   @property({type: String})
   path?: string;
 
+  private reloadTask?: DelayedTask;
+
   /** @override */
-  detached() {
-    super.detached();
-    this.cancelDebouncer('reload');
+  disconnectedCallback() {
+    this.reloadTask?.cancel();
+    super.disconnectedCallback();
   }
 
-  @observe('filter')
-  _filterChanged(newFilter: string, oldFilter: string) {
+  _filterChanged(newFilter?: string, oldFilter?: string) {
+    // newFilter can be empty string and then !newFilter === true
     if (!newFilter && !oldFilter) {
       return;
     }
@@ -78,9 +78,9 @@ class GrListView extends GestureEventListeners(
     this._debounceReload(newFilter);
   }
 
-  _debounceReload(filter: string) {
-    this.debounce(
-      'reload',
+  _debounceReload(filter?: string) {
+    this.reloadTask = debounce(
+      this.reloadTask,
       () => {
         if (this.path) {
           if (filter) {
@@ -96,12 +96,7 @@ class GrListView extends GestureEventListeners(
   }
 
   _createNewItem() {
-    this.dispatchEvent(
-      new CustomEvent('create-clicked', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'create-clicked');
   }
 
   _computeNavLink(

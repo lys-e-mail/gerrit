@@ -18,12 +18,8 @@ import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-editable-label/gr-editable-label';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import '../../shared/gr-storage/gr-storage';
 import '../gr-default-editor/gr-default-editor';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-editor-view_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
@@ -31,22 +27,22 @@ import {
   GerritNav,
   GenerateUrlEditViewParameters,
 } from '../../core/gr-navigation/gr-navigation';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util';
 import {computeTruncatedPath} from '../../../utils/path-list-util';
 import {customElement, property} from '@polymer/decorators';
-import {
-  RestApiService,
-  ErrorCallback,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   ChangeInfo,
   PatchSetNum,
   EditPreferencesInfo,
   Base64FileContent,
   NumericChangeId,
+  EditPatchSetNum,
 } from '../../../types/common';
-import {GrStorage} from '../../shared/gr-storage/gr-storage';
 import {HttpMethod, NotifyType} from '../../../constants/constants';
+import {fireAlert, fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
+import {assertIsDefined} from '../../../utils/common-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 import {changeIsMerged, changeIsAbandoned} from '../../../utils/change-util';
 
 const RESTORED_MESSAGE = 'Content restored from a previous edit.';
@@ -58,16 +54,8 @@ const PUBLISH_FAILED_MSG = 'Failed to publish edit';
 
 const STORAGE_DEBOUNCE_INTERVAL_MS = 100;
 
-export interface GrEditorView {
-  $: {
-    restAPI: RestApiService & Element;
-    storage: GrStorage;
-  };
-}
 @customElement('gr-editor-view')
-export class GrEditorView extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrEditorView extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -126,26 +114,39 @@ export class GrEditorView extends KeyboardShortcutMixin(
   @property({type: Number})
   _lineNum?: number;
 
+  private readonly restApiService = appContext.restApiService;
+
+  private readonly storage = appContext.storageService;
+
+  private storeTask?: DelayedTask;
+
+  reporting = appContext.reportingService;
+
   get keyBindings() {
     return {
       'ctrl+s meta+s': '_handleSaveShortcut',
     };
   }
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('content-change', e => {
       this._handleContentChange(e as CustomEvent<{value: string}>);
     });
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._getEditPrefs().then(prefs => {
       this._prefs = prefs;
     });
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.storeTask?.cancel();
+    super.disconnectedCallback();
   }
 
   get storageKey() {
@@ -153,11 +154,11 @@ export class GrEditorView extends KeyboardShortcutMixin(
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   _getEditPrefs() {
-    return this.$.restAPI.getEditPreferences();
+    return this.restApiService.getEditPreferences();
   }
 
   _paramsChanged(value: GenerateUrlEditViewParameters) {
@@ -167,23 +168,16 @@ export class GrEditorView extends KeyboardShortcutMixin(
 
     this._changeNum = value.changeNum;
     this._path = value.path;
-    this._patchNum =
-      value.patchNum || (SPECIAL_PATCH_SET_NUM.EDIT as PatchSetNum);
+    this._patchNum = value.patchNum || (EditPatchSetNum as PatchSetNum);
     this._lineNum =
       typeof value.lineNum === 'string' ? Number(value.lineNum) : value.lineNum;
 
     // NOTE: This may be called before attachment (e.g. while parentElement is
     // null). Fire title-change in an async so that, if attachment to the DOM
     // has been queued, the event can bubble up to the handler in gr-app.
-    this.async(() => {
+    setTimeout(() => {
       const title = `Editing ${computeTruncatedPath(value.path)}`;
-      this.dispatchEvent(
-        new CustomEvent('title-change', {
-          detail: {title},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireTitleChange(this, title);
     });
 
     const promises = [];
@@ -196,7 +190,7 @@ export class GrEditorView extends KeyboardShortcutMixin(
   }
 
   _getChangeDetail(changeNum: NumericChangeId) {
-    return this.$.restAPI.getDiffChangeDetail(changeNum).then(change => {
+    return this.restApiService.getDiffChangeDetail(changeNum).then(change => {
       this._change = change;
     });
   }
@@ -204,20 +198,15 @@ export class GrEditorView extends KeyboardShortcutMixin(
   _editChange(value?: ChangeInfo | null) {
     if (!changeIsMerged(value) && !changeIsAbandoned(value)) return;
     if (!value) return;
-    const message =
-      'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {message},
-        bubbles: true,
-        composed: true,
-      })
+    fireAlert(
+      this,
+      'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
     );
     GerritNav.navigateToChange(value);
   }
 
   _handlePathChanged(e: CustomEvent<string>) {
-    // TODO(TS) could be cleand up, it was added for type requirements
+    // TODO(TS) could be cleaned up, it was added for type requirements
     if (this._changeNum === undefined || !this._path) {
       return Promise.reject(new Error('changeNum or path undefined'));
     }
@@ -225,7 +214,7 @@ export class GrEditorView extends KeyboardShortcutMixin(
     if (path === this._path) {
       return Promise.resolve();
     }
-    return this.$.restAPI
+    return this.restApiService
       .renameFileInChangeEdit(this._changeNum, this._path, path)
       .then(res => {
         if (!res || !res.ok) {
@@ -250,11 +239,9 @@ export class GrEditorView extends KeyboardShortcutMixin(
     if (patchNum === undefined) {
       return Promise.reject(new Error('patchNum undefined'));
     }
-    const storedContent = this.$.storage.getEditableContentItem(
-      this.storageKey
-    );
+    const storedContent = this.storage.getEditableContentItem(this.storageKey);
 
-    return this.$.restAPI
+    return this.restApiService
       .getFileContent(changeNum, path, patchNum)
       .then(res => {
         const content = (res && (res as Base64FileContent).content) || '';
@@ -263,13 +250,7 @@ export class GrEditorView extends KeyboardShortcutMixin(
           storedContent.message &&
           storedContent.message !== content
         ) {
-          this.dispatchEvent(
-            new CustomEvent('show-alert', {
-              detail: {message: RESTORED_MESSAGE},
-              bubbles: true,
-              composed: true,
-            })
-          );
+          fireAlert(this, RESTORED_MESSAGE);
 
           this._newContent = storedContent.message;
         } else {
@@ -294,10 +275,10 @@ export class GrEditorView extends KeyboardShortcutMixin(
     }
     this._saving = true;
     this._showAlert(SAVING_MESSAGE);
-    this.$.storage.eraseEditableContentItem(this.storageKey);
+    this.storage.eraseEditableContentItem(this.storageKey);
     if (!this._newContent)
       return Promise.reject(new Error('new content undefined'));
-    return this.$.restAPI
+    return this.restApiService
       .saveChangeEdit(this._changeNum, this._path, this._newContent)
       .then(res => {
         this._saving = false;
@@ -313,13 +294,7 @@ export class GrEditorView extends KeyboardShortcutMixin(
   }
 
   _showAlert(message: string) {
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {message},
-        bubbles: true,
-        composed: true,
-      })
-    );
+    fireAlert(this, message);
   }
 
   _computeSaveDisabled(
@@ -350,18 +325,18 @@ export class GrEditorView extends KeyboardShortcutMixin(
   }
 
   _handlePublishTap() {
-    if (!this._changeNum) throw new Error('missing changeNum');
+    assertIsDefined(this._changeNum, '_changeNum');
 
     const changeNum = this._changeNum;
     this._saveEdit().then(() => {
       const handleError: ErrorCallback = response => {
         this._showAlert(PUBLISH_FAILED_MSG);
-        console.error(response);
+        this.reporting.error(new Error(response?.statusText));
       };
 
       this._showAlert(PUBLISHING_EDIT_MSG);
 
-      this.$.restAPI
+      this.restApiService
         .executeChangeAction(
           changeNum,
           HttpMethod.POST,
@@ -371,22 +346,22 @@ export class GrEditorView extends KeyboardShortcutMixin(
           handleError
         )
         .then(() => {
-          if (!this._change) throw new Error('missing change');
+          assertIsDefined(this._change, '_change');
           GerritNav.navigateToChange(this._change);
         });
     });
   }
 
   _handleContentChange(e: CustomEvent<{value: string}>) {
-    this.debounce(
-      'store',
+    this.storeTask = debounce(
+      this.storeTask,
       () => {
         const content = e.detail.value;
         if (content) {
           this.set('_newContent', e.detail.value);
-          this.$.storage.setEditableContentItem(this.storageKey, content);
+          this.storage.setEditableContentItem(this.storageKey, content);
         } else {
-          this.$.storage.eraseEditableContentItem(this.storageKey);
+          this.storage.eraseEditableContentItem(this.storageKey);
         }
       },
       STORAGE_DEBOUNCE_INTERVAL_MS

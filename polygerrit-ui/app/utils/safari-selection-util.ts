@@ -19,7 +19,8 @@ import {isSafari, findActiveElement} from './dom-util';
 const SUPPORTS_SHADOW_SELECTION =
   typeof window.ShadowRoot.prototype.getSelection === 'function';
 const SUPPORTS_BEFORE_INPUT =
-  typeof (window.InputEvent.prototype as any).getTargetRanges === 'function';
+  typeof (window.InputEvent.prototype as InputEventExtended).getTargetRanges ===
+  'function';
 
 const TARGET_ID = 'diffTable';
 

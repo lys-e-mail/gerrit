@@ -15,30 +15,30 @@
  * limitations under the License.
  */
 
-import {GrReplyDialog} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {PluginApi, TargetElement} from '../../plugins/gr-plugin-types';
+import {GrReplyDialog} from '../../../services/gr-rest-api/gr-rest-api';
+import {PluginApi, TargetElement} from '../../../api/plugin';
 import {JsApiService} from './gr-js-api-types';
-
-// TODO(TS): maybe move interfaces\types to other files when convertion complete
-interface LabelsChangedDetail {
-  name: string;
-  value: string;
-}
-interface ValueChangedDetail {
-  value: string;
-}
-
-type ReplyChangedCallback = (text: string) => void;
-type LabelsChangedCallback = (detail: LabelsChangedDetail) => void;
+import {
+  ChangeReplyPluginApi,
+  LabelsChangedCallback,
+  LabelsChangedDetail,
+  ReplyChangedCallback,
+  ValueChangedDetail,
+} from '../../../api/change-reply';
+import {appContext} from '../../../services/app-context';
 
 /**
  * GrChangeReplyInterface, provides a set of handy methods on reply dialog.
  */
-export class GrChangeReplyInterface {
+export class GrChangeReplyInterface implements ChangeReplyPluginApi {
+  private readonly reporting = appContext.reportingService;
+
   constructor(
     readonly plugin: PluginApi,
     readonly sharedApiElement: JsApiService
-  ) {}
+  ) {
+    this.reporting.trackApi(this.plugin, 'reply', 'constructor');
+  }
 
   get _el(): GrReplyDialog {
     return (this.sharedApiElement.getElement(
@@ -46,19 +46,18 @@ export class GrChangeReplyInterface {
     ) as unknown) as GrReplyDialog;
   }
 
-  getLabelValue(label: string) {
+  getLabelValue(label: string): string {
+    this.reporting.trackApi(this.plugin, 'reply', 'getLabelValue');
     return this._el.getLabelValue(label);
   }
 
   setLabelValue(label: string, value: string) {
+    this.reporting.trackApi(this.plugin, 'reply', 'setLabelValue');
     this._el.setLabelValue(label, value);
   }
 
-  send(includeComments?: boolean) {
-    this._el.send(includeComments);
-  }
-
   addReplyTextChangedCallback(handler: ReplyChangedCallback) {
+    this.reporting.trackApi(this.plugin, 'reply', 'addReplyTextChangedCb');
     const hookApi = this.plugin.hook('reply-text');
     const registeredHandler = (e: Event) => {
       const ce = e as CustomEvent<ValueChangedDetail>;
@@ -79,6 +78,7 @@ export class GrChangeReplyInterface {
   }
 
   addLabelValuesChangedCallback(handler: LabelsChangedCallback) {
+    this.reporting.trackApi(this.plugin, 'reply', 'addLabelValuesChangedCb');
     const hookApi = this.plugin.hook('reply-label-scores');
     const registeredHandler = (e: Event) => {
       const ce = e as CustomEvent<LabelsChangedDetail>;
@@ -100,6 +100,7 @@ export class GrChangeReplyInterface {
   }
 
   showMessage(message: string) {
-    return this._el.setPluginMessage(message);
+    this.reporting.trackApi(this.plugin, 'reply', 'showMessage');
+    this._el.setPluginMessage(message);
   }
 }

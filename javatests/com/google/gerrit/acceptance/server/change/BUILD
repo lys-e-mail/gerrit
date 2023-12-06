@@ -5,7 +5,19 @@ acceptance_tests(
     group = "server_change",
     labels = ["server"],
     deps = [
+        ":util",
         "//java/com/google/gerrit/server/logging",
         "//java/com/google/gerrit/server/util/time",
+    ],
+)
+
+java_library(
+    name = "util",
+    srcs = ["CommentsUtil.java"],
+    deps = [
+        "//java/com/google/gerrit/acceptance:lib",
+        "//java/com/google/gerrit/entities",
+        "//java/com/google/gerrit/extensions:api",
+        "@guava//jar",
     ],
 )

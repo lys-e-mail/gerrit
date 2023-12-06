@@ -21,7 +21,6 @@ export const htmlTemplate = html`
     id="diff"
     change-num="[[changeNum]]"
     no-auto-render="[[noAutoRender]]"
-    patch-range="[[patchRange]]"
     path="[[path]]"
     prefs="[[prefs]]"
     display-line="[[displayLine]]"
@@ -41,14 +40,7 @@ export const htmlTemplate = html`
     diff="[[diff]]"
     show-newline-warning-left="[[_showNewlineWarningLeft(diff)]]"
     show-newline-warning-right="[[_showNewlineWarningRight(diff)]]"
-    use-new-context-controls="[[_useNewContextControls()]]"
+    use-new-image-diff-ui="[[_useNewImageDiffUi()]]"
   >
   </gr-diff>
-  <gr-syntax-layer
-    id="syntaxLayer"
-    enabled="[[_syntaxHighlightingEnabled]]"
-    diff="[[diff]]"
-  ></gr-syntax-layer>
-  <gr-js-api-interface id="jsAPI"></gr-js-api-interface>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

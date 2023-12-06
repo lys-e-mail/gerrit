@@ -17,10 +17,12 @@ package com.google.gerrit.server.git.receive;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableListMultimap.toImmutableListMultimap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.flogger.LazyArgs.lazy;
 import static com.google.gerrit.entities.RefNames.REFS_CHANGES;
 import static com.google.gerrit.entities.RefNames.isConfigRef;
+import static com.google.gerrit.entities.RefNames.isRefsUsersSelf;
 import static com.google.gerrit.git.ObjectIds.abbreviateName;
 import static com.google.gerrit.server.change.HashtagsUtil.cleanupHashtag;
 import static com.google.gerrit.server.git.MultiProgressMonitor.UNKNOWN;
@@ -47,6 +49,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
@@ -112,6 +115,7 @@ import com.google.gerrit.server.change.ChangeInserter;
 import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.change.SetHashtagsOp;
 import com.google.gerrit.server.change.SetPrivateOp;
+import com.google.gerrit.server.change.SetTopicOp;
 import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.PluginConfig;
@@ -144,6 +148,7 @@ import com.google.gerrit.server.logging.TraceContext.TraceTimer;
 import com.google.gerrit.server.mail.MailUtil.MailRecipients;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.Sequences;
+import com.google.gerrit.server.patch.AutoMerger;
 import com.google.gerrit.server.patch.PatchSetInfoFactory;
 import com.google.gerrit.server.permissions.ChangePermission;
 import com.google.gerrit.server.permissions.GlobalPermission;
@@ -179,7 +184,6 @@ import com.google.gerrit.server.util.LabelVote;
 import com.google.gerrit.server.util.MagicBranch;
 import com.google.gerrit.server.util.RequestScopePropagator;
 import com.google.gerrit.server.util.time.TimeUtil;
-import com.google.gerrit.server.validators.ValidationException;
 import com.google.gerrit.util.cli.CmdLineParser;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -210,6 +214,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -325,6 +330,7 @@ class ReceiveCommits {
   private final CreateGroupPermissionSyncer createGroupPermissionSyncer;
   private final CreateRefControl createRefControl;
   private final DynamicMap<ProjectConfigEntry> pluginConfigEntries;
+  private final DynamicSet<PluginPushOption> pluginPushOptions;
   private final PluginSetContext<ReceivePackInitializer> initializers;
   private final MergedByPushOp.Factory mergedByPushOpFactory;
   private final PatchSetInfoFactory patchSetInfoFactory;
@@ -344,12 +350,14 @@ class ReceiveCommits {
   private final RequestScopePropagator requestScopePropagator;
   private final Sequences seq;
   private final SetHashtagsOp.Factory hashtagsFactory;
-  private final SubmissionListener superprojectUpdateSubmissionListener;
+  private final SetTopicOp.Factory setTopicFactory;
+  private final ImmutableList<SubmissionListener> superprojectUpdateSubmissionListeners;
   private final TagCache tagCache;
   private final ProjectConfig.Factory projectConfigFactory;
   private final SetPrivateOp.Factory setPrivateOpFactory;
   private final ReplyAttentionSetUpdates replyAttentionSetUpdates;
   private final DynamicItem<UrlFormatter> urlFormatter;
+  private final AutoMerger autoMerger;
 
   // Assisted injected fields.
   private final ProjectState projectState;
@@ -406,6 +414,7 @@ class ReceiveCommits {
       CreateGroupPermissionSyncer createGroupPermissionSyncer,
       CreateRefControl createRefControl,
       DynamicMap<ProjectConfigEntry> pluginConfigEntries,
+      DynamicSet<PluginPushOption> pluginPushOptions,
       PluginSetContext<ReceivePackInitializer> initializers,
       PluginSetContext<CommentValidator> commentValidators,
       MergedByPushOp.Factory mergedByPushOpFactory,
@@ -426,11 +435,14 @@ class ReceiveCommits {
       RequestScopePropagator requestScopePropagator,
       Sequences seq,
       SetHashtagsOp.Factory hashtagsFactory,
-      @SuperprojectUpdateOnSubmission SubmissionListener superprojectUpdateSubmissionListener,
+      SetTopicOp.Factory setTopicFactory,
+      @SuperprojectUpdateOnSubmission
+          ImmutableList<SubmissionListener> superprojectUpdateSubmissionListeners,
       TagCache tagCache,
       SetPrivateOp.Factory setPrivateOpFactory,
       ReplyAttentionSetUpdates replyAttentionSetUpdates,
       DynamicItem<UrlFormatter> urlFormatter,
+      AutoMerger autoMerger,
       @Assisted ProjectState projectState,
       @Assisted IdentifiedUser user,
       @Assisted ReceivePack rp,
@@ -452,6 +464,7 @@ class ReceiveCommits {
     this.createGroupPermissionSyncer = createGroupPermissionSyncer;
     this.editUtil = editUtil;
     this.hashtagsFactory = hashtagsFactory;
+    this.setTopicFactory = setTopicFactory;
     this.indexer = indexer;
     this.initializers = initializers;
     this.mergeOpProvider = mergeOpProvider;
@@ -462,6 +475,7 @@ class ReceiveCommits {
     this.patchSetInfoFactory = patchSetInfoFactory;
     this.permissionBackend = permissionBackend;
     this.pluginConfigEntries = pluginConfigEntries;
+    this.pluginPushOptions = pluginPushOptions;
     this.projectCache = projectCache;
     this.psUtil = psUtil;
     this.performanceLoggers = performanceLoggers;
@@ -474,12 +488,13 @@ class ReceiveCommits {
     this.retryHelper = retryHelper;
     this.requestScopePropagator = requestScopePropagator;
     this.seq = seq;
-    this.superprojectUpdateSubmissionListener = superprojectUpdateSubmissionListener;
+    this.superprojectUpdateSubmissionListeners = superprojectUpdateSubmissionListeners;
     this.tagCache = tagCache;
     this.projectConfigFactory = projectConfigFactory;
     this.setPrivateOpFactory = setPrivateOpFactory;
     this.replyAttentionSetUpdates = replyAttentionSetUpdates;
     this.urlFormatter = urlFormatter;
+    this.autoMerger = autoMerger;
 
     // Assisted injected fields.
     this.projectState = projectState;
@@ -624,7 +639,7 @@ class ReceiveCommits {
   private void processCommandsUnsafe(
       Collection<ReceiveCommand> commands, MultiProgressMonitor progress) {
     logger.atFine().log("Calling user: %s", user.getLoggableName());
-    logger.atFine().log("Groups: %s", user.getEffectiveGroups().getKnownGroups());
+    logger.atFine().log("Groups: %s", lazy(() -> user.getEffectiveGroups().getKnownGroups()));
 
     if (!projectState.getProject().getState().permitsWrite()) {
       for (ReceiveCommand cmd : commands) {
@@ -742,7 +757,7 @@ class ReceiveCommits {
         logger.atFine().log("Added %d additional ref updates", added);
 
         SubmissionExecutor submissionExecutor =
-            new SubmissionExecutor(false, superprojectUpdateSubmissionListener);
+            new SubmissionExecutor(false, superprojectUpdateSubmissionListeners);
 
         submissionExecutor.execute(ImmutableList.of(bu));
 
@@ -1076,7 +1091,7 @@ class ReceiveCommits {
   private ReceiveCommand wrapReceiveCommand(ReceiveCommand cmd, Task progress) {
     String refname = cmd.getRefName();
 
-    if (projectState.isAllUsers() && RefNames.REFS_USERS_SELF.equals(cmd.getRefName())) {
+    if (isRefsUsersSelf(cmd.getRefName(), projectState.isAllUsers())) {
       refname = RefNames.refsUsers(user.getAccountId());
       logger.atFine().log("Swapping out command for %s to %s", RefNames.REFS_USERS_SELF, refname);
     }
@@ -1334,7 +1349,7 @@ class ReceiveCommits {
         // Must pass explicit user instead of injecting a provider into CreateRefControl, since
         // Provider<CurrentUser> within ReceiveCommits will always return anonymous.
         createRefControl.checkCreateRef(
-            Providers.of(user), receivePack.getRepository(), branch, obj);
+            Providers.of(user), receivePack.getRepository(), branch, obj, /* forPush= */ true);
       } catch (AuthException denied) {
         rejectProhibited(cmd, denied);
         return;
@@ -1783,8 +1798,13 @@ class ReceiveCommits {
       String ref;
       magicBranch.cmdLineParser = optionParserFactory.create(magicBranch);
 
+      // Filter out plugin push options, as the parser would reject them as unknown.
+      ImmutableListMultimap<String, String> pushOptionsToParse =
+          pushOptions.entries().stream()
+              .filter(e -> !isPluginPushOption(e.getKey()))
+              .collect(toImmutableListMultimap(e -> e.getKey(), e -> e.getValue()));
       try {
-        ref = magicBranch.parse(pushOptions);
+        ref = magicBranch.parse(pushOptionsToParse);
       } catch (CmdLineException e) {
         if (!magicBranch.cmdLineParser.wasHelpRequestedByOption()) {
           logger.atFine().log("Invalid branch syntax");
@@ -1803,6 +1823,20 @@ class ReceiveCommits {
         StringWriter w = new StringWriter();
         w.write("\nHelp for refs/for/branch:\n\n");
         magicBranch.cmdLineParser.printUsage(w, null);
+
+        String pluginPushOptionsHelp =
+            StreamSupport.stream(pluginPushOptions.entries().spliterator(), /* parallel= */ false)
+                .map(
+                    e ->
+                        String.format(
+                            "-o %s~%s: %s",
+                            e.getPluginName(), e.get().getName(), e.get().getDescription()))
+                .sorted()
+                .collect(joining("\n"));
+        if (!pluginPushOptionsHelp.isEmpty()) {
+          w.write("\nPlugin push options:\n" + pluginPushOptionsHelp);
+        }
+
         addMessage(w.toString());
         reject(cmd, "see help");
         return;
@@ -1965,6 +1999,11 @@ class ReceiveCommits {
         this.result.magicPush(true);
       }
     }
+  }
+
+  private boolean isPluginPushOption(String pushOptionName) {
+    return StreamSupport.stream(pluginPushOptions.entries().spliterator(), /* parallel= */ false)
+        .anyMatch(e -> pushOptionName.equals(e.getPluginName() + "~" + e.get().getName()));
   }
 
   // Validate that the new commits are connected with the target
@@ -2145,15 +2184,15 @@ class ReceiveCommits {
           receivePack.getRevWalk().parseBody(c);
           String name = c.name();
           groupCollector.visit(c);
-          Collection<Ref> existingRefs =
-              receivePackRefCache.tipsFromObjectId(c, RefNames.REFS_CHANGES);
+          Collection<PatchSet.Id> existingPatchSets =
+              receivePackRefCache.patchSetIdsFromObjectId(c);
 
           if (rejectImplicitMerges) {
             Collections.addAll(mergedParents, c.getParents());
             mergedParents.remove(c);
           }
 
-          boolean commitAlreadyTracked = !existingRefs.isEmpty();
+          boolean commitAlreadyTracked = !existingPatchSets.isEmpty();
           if (commitAlreadyTracked) {
             alreadyTracked++;
             // Corner cases where an existing commit might need a new group:
@@ -2169,9 +2208,7 @@ class ReceiveCommits {
             //      A's group.
             // C) Commit is a PatchSet of a pre-existing change uploaded with a
             //    different target branch.
-            existingRefs.stream()
-                .map(r -> PatchSet.Id.fromRef(r.getName()))
-                .filter(Objects::nonNull)
+            existingPatchSets.stream()
                 .forEach(i -> updateGroups.add(new UpdateGroupsRequest(i, c)));
             if (!(newChangeForAllNotInTarget || magicBranch.base != null)) {
               continue;
@@ -2216,6 +2253,7 @@ class ReceiveCommits {
                   receivePack.getRevWalk().getObjectReader(),
                   magicBranch.cmd,
                   c,
+                  ImmutableListMultimap.copyOf(pushOptions),
                   magicBranch.merged,
                   rejectCommits,
                   null);
@@ -2312,8 +2350,7 @@ class ReceiveCommits {
 
             // In case the change look up from the index failed,
             // double check against the existing refs
-            if (foundInExistingRef(
-                receivePackRefCache.tipsFromObjectId(p.commit, RefNames.REFS_CHANGES))) {
+            if (foundInExistingPatchSets(receivePackRefCache.patchSetIdsFromObjectId(p.commit))) {
               if (pending.size() == 1) {
                 reject(magicBranch.cmd, "commit(s) already exists (as current patchset)");
                 return Collections.emptyList();
@@ -2361,11 +2398,10 @@ class ReceiveCommits {
     }
   }
 
-  private boolean foundInExistingRef(Collection<Ref> existingRefs) {
-    try (TraceTimer traceTimer = newTimer("foundInExistingRef")) {
-      for (Ref ref : existingRefs) {
-        ChangeNotes notes =
-            notesFactory.create(project.getNameKey(), Change.Id.fromRef(ref.getName()));
+  private boolean foundInExistingPatchSets(Collection<PatchSet.Id> existingPatchSets) {
+    try (TraceTimer traceTimer = newTimer("foundInExistingPatchSet")) {
+      for (PatchSet.Id psId : existingPatchSets) {
+        ChangeNotes notes = notesFactory.create(project.getNameKey(), psId.changeId());
         Change change = notes.getChange();
         if (change.getDest().equals(magicBranch.dest)) {
           logger.atFine().log("Found change %s from existing refs.", change.getKey());
@@ -2598,7 +2634,7 @@ class ReceiveCommits {
                     .setFireEvent(false));
           }
           if (!Strings.isNullOrEmpty(magicBranch.topic)) {
-            bu.addOp(changeId, new SetTopicOp(magicBranch.topic));
+            bu.addOp(changeId, setTopicFactory.create(magicBranch.topic));
           }
           bu.addOp(
               changeId,
@@ -2837,15 +2873,15 @@ class ReceiveCommits {
           return false;
         }
 
-        List<Ref> existingChangesWithSameCommit =
-            receivePackRefCache.tipsFromObjectId(newCommit, RefNames.REFS_CHANGES);
-        if (!existingChangesWithSameCommit.isEmpty()) {
+        List<PatchSet.Id> existingPatchSetsWithSameCommit =
+            receivePackRefCache.patchSetIdsFromObjectId(newCommit);
+        if (!existingPatchSetsWithSameCommit.isEmpty()) {
           // TODO(hiesel, hanwen): Remove this check entirely when Gerrit requires change IDs
           //  without the option to turn that off.
           reject(
               inputCommand,
               "commit already exists (in the project): "
-                  + existingChangesWithSameCommit.get(0).getName());
+                  + existingPatchSetsWithSameCommit.get(0).toRefName());
           return false;
         }
 
@@ -3031,6 +3067,25 @@ class ReceiveCommits {
         if (progress != null) {
           bu.addOp(notes.getChangeId(), new ChangeProgressOp(progress));
         }
+        bu.addRepoOnlyOp(
+            new RepoOnlyOp() {
+              @Override
+              public void updateRepo(RepoContext ctx) throws Exception {
+                // Create auto merge ref if the new patch set is a merge commit. This is only
+                // required for new patch sets on existing changes as these do not go through
+                // PatchSetInserter. New changes pushed via git go through ChangeInserter and have
+                // their auto merge commits created there.
+                Optional<ReceiveCommand> autoMerge =
+                    autoMerger.createAutoMergeCommitIfNecessary(
+                        ctx.getRepoView(),
+                        ctx.getRevWalk(),
+                        ctx.getInserter(),
+                        ctx.getRevWalk().parseCommit(newCommitId));
+                if (autoMerge.isPresent()) {
+                  ctx.addRefUpdate(autoMerge.get());
+                }
+              }
+            });
       }
     }
 
@@ -3224,13 +3279,21 @@ class ReceiveCommits {
                     "more than %d commits, and %s not set", limit, PUSH_OPTION_SKIP_VALIDATION));
             return;
           }
-          if (!receivePackRefCache.tipsFromObjectId(c, RefNames.REFS_CHANGES).isEmpty()) {
+          if (!receivePackRefCache.patchSetIdsFromObjectId(c).isEmpty()) {
             continue;
           }
 
           BranchCommitValidator.Result validationResult =
               validator.validateCommit(
-                  repo, walk.getObjectReader(), cmd, c, false, rejectCommits, null, skipValidation);
+                  repo,
+                  walk.getObjectReader(),
+                  cmd,
+                  c,
+                  ImmutableListMultimap.copyOf(pushOptions),
+                  false,
+                  rejectCommits,
+                  null,
+                  skipValidation);
           messages.addAll(validationResult.messages());
           if (!validationResult.isValid()) {
             break;
@@ -3293,12 +3356,8 @@ class ReceiveCommits {
 
                       // Check if change refs point to this commit. Usually there are 0-1 change
                       // refs pointing to this commit.
-                      for (Ref ref :
-                          receivePackRefCache.tipsFromObjectId(c.copy(), RefNames.REFS_CHANGES)) {
-                        if (!PatchSet.isChangeRef(ref.getName())) {
-                          continue;
-                        }
-                        PatchSet.Id psId = PatchSet.Id.fromRef(ref.getName());
+                      for (PatchSet.Id psId :
+                          receivePackRefCache.patchSetIdsFromObjectId(c.copy())) {
                         Optional<ChangeNotes> notes = getChangeNotes(psId.changeId());
                         if (notes.isPresent() && notes.get().getChange().getDest().equals(branch)) {
                           if (submissionId == null) {
@@ -3477,20 +3536,5 @@ class ReceiveCommits {
     }
     b.append(")\n");
     return b.toString();
-  }
-
-  private static class SetTopicOp implements BatchUpdateOp {
-
-    private final String topic;
-
-    public SetTopicOp(String topic) {
-      this.topic = topic;
-    }
-
-    @Override
-    public boolean updateChange(ChangeContext ctx) throws ValidationException {
-      ctx.getUpdate(ctx.getChange().currentPatchSetId()).setTopic(topic);
-      return true;
-    }
   }
 }

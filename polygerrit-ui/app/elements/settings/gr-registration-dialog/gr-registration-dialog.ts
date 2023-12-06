@@ -17,23 +17,19 @@
 import '@polymer/iron-input/iron-input';
 import '../../../styles/gr-form-styles';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-registration-dialog_html';
 import {customElement, property, observe} from '@polymer/decorators';
 import {ServerInfo, AccountDetailInfo} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {EditableAccountField} from '../../../constants/constants';
+import {appContext} from '../../../services/app-context';
+import {fireEvent} from '../../../utils/event-util';
 
 export interface GrRegistrationDialog {
   $: {
-    restAPI: RestApiService & Element;
     name: HTMLInputElement;
     username: HTMLInputElement;
-    email: HTMLSelectElement;
   };
 }
 
@@ -44,9 +40,7 @@ declare global {
 }
 
 @customElement('gr-registration-dialog')
-export class GrRegistrationDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRegistrationDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -78,10 +72,18 @@ export class GrRegistrationDialog extends GestureEventListeners(
   _serverConfig?: ServerInfo;
 
   @property({
-    computed: '_computeUsernameMutable(_serverConfig,_account.username)',
+    computed: '_computeUsernameMutable(_account.username)',
     type: Boolean,
   })
   _usernameMutable = false;
+
+  @property({type: Boolean})
+  _hasUsernameChange?: boolean;
+
+  @property({type: String, observer: '_usernameChanged'})
+  _username?: string;
+
+  private readonly restApiService = appContext.restApiService;
 
   /** @override */
   ready() {
@@ -89,29 +91,20 @@ export class GrRegistrationDialog extends GestureEventListeners(
     this._ensureAttribute('role', 'dialog');
   }
 
-  _computeUsernameMutable(config?: ServerInfo, username?: string) {
-    // Polymer 2: check for undefined
-    // username is not being checked for undefined as we want to avoid
-    // setting it null explicitly to trigger the computation
-    if (config === undefined) {
-      return false;
-    }
-
-    return (
-      config.auth.editable_account_fields.includes(
-        EditableAccountField.USER_NAME
-      ) && !username
-    );
-  }
-
   loadData() {
     this._loading = true;
 
-    const loadAccount = this.$.restAPI.getAccount().then(account => {
-      this._account = {...this._account, ...account};
+    const loadAccount = this.restApiService.getAccount().then(account => {
+      if (!account) return;
+      this._hasUsernameChange = false;
+      // Provide predefined value for username to trigger computation of
+      // username mutability.
+      account.username = account.username || '';
+      this._account = account;
+      this._username = account.username;
     });
 
-    const loadConfig = this.$.restAPI.getConfig().then(config => {
+    const loadConfig = this.restApiService.getConfig().then(config => {
       this._serverConfig = config;
     });
 
@@ -120,25 +113,39 @@ export class GrRegistrationDialog extends GestureEventListeners(
     });
   }
 
+  _usernameChanged() {
+    if (this._loading || !this._account) {
+      return;
+    }
+    this._hasUsernameChange =
+      (this._account.username || '') !== (this._username || '');
+  }
+
+  _computeUsernameMutable(username?: string) {
+    // Username may not be changed once it is set.
+    return !username;
+  }
+
+  _computeUsernameEditable(config?: ServerInfo) {
+    return !!config?.auth.editable_account_fields.includes(
+      EditableAccountField.USER_NAME
+    );
+  }
+
   _save() {
     this._saving = true;
-    const promises = [
-      this.$.restAPI.setAccountName(this.$.name.value),
-      this.$.restAPI.setPreferredAccountEmail(this.$.email.value || ''),
-    ];
 
-    if (this._usernameMutable) {
-      promises.push(this.$.restAPI.setAccountUsername(this.$.username.value));
+    const promises = [this.restApiService.setAccountName(this.$.name.value)];
+
+    // Note that we are intentionally not acting on this._username being the
+    // empty string (which is falsy).
+    if (this._hasUsernameChange && this._usernameMutable && this._username) {
+      promises.push(this.restApiService.setAccountUsername(this._username));
     }
 
     return Promise.all(promises).then(() => {
       this._saving = false;
-      this.dispatchEvent(
-        new CustomEvent('account-detail-update', {
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireEvent(this, 'account-detail-update');
     });
   }
 
@@ -154,20 +161,11 @@ export class GrRegistrationDialog extends GestureEventListeners(
 
   close() {
     this._saving = true; // disable buttons indefinitely
-    this.dispatchEvent(
-      new CustomEvent('close', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'close');
   }
 
-  _computeSaveDisabled(name?: string, email?: string, saving?: boolean) {
-    return !name || !email || saving;
-  }
-
-  _computeUsernameClass(usernameMutable: boolean) {
-    return usernameMutable ? '' : 'hide';
+  _computeSaveDisabled(name?: string, username?: string, saving?: boolean) {
+    return saving || (!name && !username);
   }
 
   @observe('_loading')

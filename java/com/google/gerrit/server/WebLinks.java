@@ -86,31 +86,43 @@ public class WebLinks {
   /**
    * @param project Project name.
    * @param commit SHA1 of commit.
+   * @param commitMessage the commit message of the commit.
+   * @param branchName branch of the commit.
    * @return Links for patch sets.
    */
-  public ImmutableList<WebLinkInfo> getPatchSetLinks(Project.NameKey project, String commit) {
-    return filterLinks(patchSetLinks, webLink -> webLink.getPatchSetWebLink(project.get(), commit));
+  public ImmutableList<WebLinkInfo> getPatchSetLinks(
+      Project.NameKey project, String commit, String commitMessage, String branchName) {
+    return filterLinks(
+        patchSetLinks,
+        webLink -> webLink.getPatchSetWebLink(project.get(), commit, commitMessage, branchName));
   }
 
   /**
    * @param project Project name.
    * @param revision SHA1 of the parent revision.
+   * @param commitMessage the commit message of the parent revision.
+   * @param branchName branch of the revision (and parent revision).
    * @return Links for patch sets.
    */
-  public ImmutableList<WebLinkInfo> getParentLinks(Project.NameKey project, String revision) {
-    return filterLinks(parentLinks, webLink -> webLink.getParentWebLink(project.get(), revision));
+  public ImmutableList<WebLinkInfo> getParentLinks(
+      Project.NameKey project, String revision, String commitMessage, String branchName) {
+    return filterLinks(
+        parentLinks,
+        webLink -> webLink.getParentWebLink(project.get(), revision, commitMessage, branchName));
   }
 
   /**
    * @param project Project name.
-   * @param revision SHA1 of revision.
+   * @param revision Name of the revision (e.g. branch or commit ID)
+   * @param hash SHA1 of revision.
    * @param file File name.
    * @return Links for files.
    */
-  public ImmutableList<WebLinkInfo> getFileLinks(String project, String revision, String file) {
+  public ImmutableList<WebLinkInfo> getFileLinks(
+      String project, String revision, String hash, String file) {
     return Patch.isMagic(file)
         ? ImmutableList.of()
-        : filterLinks(fileLinks, webLink -> webLink.getFileWebLink(project, revision, file));
+        : filterLinks(fileLinks, webLink -> webLink.getFileWebLink(project, revision, hash, file));
   }
 
   /**

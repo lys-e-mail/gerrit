@@ -17,9 +17,6 @@
 import '../../../styles/gr-table-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-list-view/gr-list-view';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-documentation-search_html';
 import {
@@ -28,18 +25,12 @@ import {
 } from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
 import {getBaseUrl} from '../../../utils/url-util';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {DocResult} from '../../../types/common';
+import {fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
 
-export interface GrDocumentationSearch {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-documentation-search')
-export class GrDocumentationSearch extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrDocumentationSearch extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -59,12 +50,12 @@ export class GrDocumentationSearch extends ListViewMixin(
   @property({type: String})
   _filter = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
-    this.dispatchEvent(
-      new CustomEvent('title-change', {detail: {title: 'Documentation Search'}})
-    );
+  connectedCallback() {
+    super.connectedCallback();
+    fireTitleChange(this, 'Documentation Search');
   }
 
   _paramsChanged(params: ListViewParams) {
@@ -76,14 +67,16 @@ export class GrDocumentationSearch extends ListViewMixin(
 
   _getDocumentationSearches(filter: string) {
     this._documentationSearches = [];
-    return this.$.restAPI.getDocumentationSearches(filter).then(searches => {
-      // Late response.
-      if (filter !== this._filter || !searches) {
-        return;
-      }
-      this._documentationSearches = searches;
-      this._loading = false;
-    });
+    return this.restApiService
+      .getDocumentationSearches(filter)
+      .then(searches => {
+        // Late response.
+        if (filter !== this._filter || !searches) {
+          return;
+        }
+        this._documentationSearches = searches;
+        this._loading = false;
+      });
   }
 
   _computeSearchUrl(url?: string) {

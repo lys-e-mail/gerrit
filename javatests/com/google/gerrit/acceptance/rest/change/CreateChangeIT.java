@@ -15,7 +15,9 @@
 package com.google.gerrit.acceptance.rest.change;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.block;
+import static com.google.gerrit.entities.Permission.CREATE;
 import static com.google.gerrit.entities.Permission.READ;
 import static com.google.gerrit.entities.RefNames.changeMetaRef;
 import static com.google.gerrit.extensions.common.testing.GitPersonSubject.assertThat;
@@ -177,6 +179,77 @@ public class CreateChangeIT extends AbstractDaemonTest {
     ChangeInfo info = assertCreateSucceeds(ci);
     assertThat(info.changeId).isEqualTo(changeId);
     assertThat(info.revisions.get(info.currentRevision).commit.message).contains(changeIdLine);
+  }
+
+  @Test
+  public void cannotCreateChangeOnGerritInternalRefs() throws Exception {
+    requestScopeOperations.setApiUser(admin.id());
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(CREATE).ref("refs/*").group(REGISTERED_USERS))
+        .update();
+
+    requestScopeOperations.setApiUser(user.id());
+    ChangeInput ci = newChangeInput(ChangeStatus.NEW);
+    ci.subject = "Subject";
+    ci.branch = "refs/changes/00/1000"; // disallowedRef
+
+    Throwable thrown = assertThrows(RestApiException.class, () -> gApi.changes().create(ci));
+    assertThat(thrown).hasMessageThat().contains("Cannot create a change on ref " + ci.branch);
+  }
+
+  @Test
+  public void cannotCreateChangeOnTagRefs() throws Exception {
+    requestScopeOperations.setApiUser(admin.id());
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(CREATE).ref("refs/*").group(REGISTERED_USERS))
+        .update();
+
+    requestScopeOperations.setApiUser(user.id());
+    ChangeInput ci = newChangeInput(ChangeStatus.NEW);
+    ci.subject = "Subject";
+    ci.branch = "refs/tags/v1.0"; // disallowed ref
+
+    Throwable thrown = assertThrows(RestApiException.class, () -> gApi.changes().create(ci));
+    assertThat(thrown).hasMessageThat().contains("Cannot create a change on ref " + ci.branch);
+  }
+
+  @Test
+  public void canCreateChangeOnRefsMetaConfig() throws Exception {
+    requestScopeOperations.setApiUser(admin.id());
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(CREATE).ref("refs/*").group(REGISTERED_USERS))
+        .add(allow(READ).ref("refs/meta/config").group(REGISTERED_USERS))
+        .update();
+    requestScopeOperations.setApiUser(user.id());
+    ChangeInput ci = newChangeInput(ChangeStatus.NEW);
+    ci.subject = "Subject";
+    ci.branch = RefNames.REFS_CONFIG;
+    assertThat(gApi.changes().create(ci).info().branch).isEqualTo(RefNames.REFS_CONFIG);
+  }
+
+  @Test
+  public void canCreateChangeOnRefsMetaDashboards() throws Exception {
+    String branchName = "refs/meta/dashboards/project_1";
+    requestScopeOperations.setApiUser(admin.id());
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(CREATE).ref(branchName).group(REGISTERED_USERS))
+        .add(allow(READ).ref(branchName).group(REGISTERED_USERS))
+        .update();
+    BranchNameKey branchNameKey = BranchNameKey.create(project, branchName);
+    createBranch(branchNameKey);
+    requestScopeOperations.setApiUser(user.id());
+    ChangeInput ci = newChangeInput(ChangeStatus.NEW);
+    ci.subject = "Subject";
+    ci.branch = branchName;
+    assertThat(gApi.changes().create(ci).info().branch).isEqualTo(branchName);
   }
 
   @Test
@@ -708,6 +781,9 @@ public class CreateChangeIT extends AbstractDaemonTest {
     projectOperations
         .project(project)
         .forUpdate()
+        // Allow reading for refs/meta/config so that the project is visible to the user. Otherwise
+        // the request will fail with an UnprocessableEntityException "Project not found:".
+        .add(allow(READ).ref("refs/meta/config").group(REGISTERED_USERS))
         .add(block(READ).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
     requestScopeOperations.setApiUser(user.id());
@@ -731,6 +807,9 @@ public class CreateChangeIT extends AbstractDaemonTest {
     projectOperations
         .project(project)
         .forUpdate()
+        // Allow reading for refs/meta/config so that the project is visible to the user. Otherwise
+        // the request will fail with an UnprocessableEntityException "Project not found:".
+        .add(allow(READ).ref("refs/meta/config").group(REGISTERED_USERS))
         .add(block(READ).ref("refs/heads/*").group(REGISTERED_USERS))
         .update();
     requestScopeOperations.setApiUser(user.id());

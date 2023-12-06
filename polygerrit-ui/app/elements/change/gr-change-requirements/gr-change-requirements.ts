@@ -20,8 +20,6 @@ import '../../shared/gr-icons/gr-icons';
 import '../../shared/gr-label/gr-label';
 import '../../shared/gr-label-info/gr-label-info';
 import '../../shared/gr-limited-text/gr-limited-text';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-requirements_html';
 import {customElement, property, observe} from '@polymer/decorators';
@@ -34,8 +32,9 @@ import {
   LabelNameToInfoMap,
   LabelInfo,
 } from '../../../types/common';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+import {appContext} from '../../../services/app-context';
+import {labelCompare} from '../../../utils/label-util';
 
 interface ChangeRequirement extends Requirement {
   satisfied: boolean;
@@ -49,15 +48,14 @@ interface ChangeWIP {
 }
 
 interface Label {
+  labelName: string;
   labelInfo: LabelInfo;
   icon: string;
   style: string;
 }
 
 @customElement('gr-change-requirements')
-class GrChangeRequirements extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrChangeRequirements extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -85,6 +83,8 @@ class GrChangeRequirements extends GestureEventListeners(
 
   @property({type: Boolean})
   _showOptionalLabels = true;
+
+  private readonly reporting = appContext.reportingService;
 
   _computeShowWip(change: ChangeInfo) {
     return change.work_in_progress;
@@ -126,22 +126,19 @@ class GrChangeRequirements extends GestureEventListeners(
       LabelNameToInfoMap
     >
   ) {
-    const labels = labelsRecord.base;
-    this._optionalLabels = [];
-    this._requiredLabels = [];
+    const labels = labelsRecord.base || {};
+    const allLabels: Label[] = [];
 
-    for (const label of Object.keys(labels || {}).sort()) {
-      if (!hasOwnProperty(labels, label)) {
-        continue;
-      }
-
-      const labelInfo = labels[label];
-      const icon = this._computeLabelIcon(labelInfo);
-      const style = this._computeLabelClass(labelInfo);
-      const path = labelInfo.optional ? '_optionalLabels' : '_requiredLabels';
-
-      this.push(path, {label, icon, style, labelInfo});
+    for (const label of Object.keys(labels).sort(labelCompare)) {
+      allLabels.push({
+        labelName: label,
+        icon: this._computeLabelIcon(labels[label]),
+        style: this._computeLabelClass(labels[label]),
+        labelInfo: labels[label],
+      });
     }
+    this._optionalLabels = allLabels.filter(label => label.labelInfo.optional);
+    this._requiredLabels = allLabels.filter(label => !label.labelInfo.optional);
   }
 
   /**
@@ -178,20 +175,28 @@ class GrChangeRequirements extends GestureEventListeners(
     return `${value > 0 ? '+' : ''}${value}`;
   }
 
-  _computeShowHideIcon(showOptionalLabels: boolean) {
-    return showOptionalLabels ? 'gr-icons:expand-less' : 'gr-icons:expand-more';
-  }
-
   _computeSectionClass(show: boolean) {
     return show ? '' : 'hidden';
   }
 
   _handleShowHide() {
     this._showOptionalLabels = !this._showOptionalLabels;
+    this.reporting.reportInteraction('toggle show all button', {
+      sectionName: 'optional labels',
+      toState: this._showOptionalLabels ? 'Show all' : 'Show less',
+    });
   }
 
   _computeSubmitRequirementEndpoint(item: ChangeRequirement | ChangeWIP) {
     return `submit-requirement-item-${item.type}`;
+  }
+
+  _computeShowAllLabelText(_showOptionalLabels: boolean) {
+    if (_showOptionalLabels) {
+      return 'Show less';
+    } else {
+      return 'Show all';
+    }
   }
 }
 

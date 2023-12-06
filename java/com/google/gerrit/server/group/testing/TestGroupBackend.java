@@ -22,7 +22,7 @@ import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.GroupDescription;
 import com.google.gerrit.entities.GroupReference;
-import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.account.GroupMembership;
 import com.google.gerrit.server.project.ProjectState;
@@ -118,11 +118,21 @@ public class TestGroupBackend implements GroupBackend {
 
   @Override
   public Collection<GroupReference> suggest(String name, ProjectState project) {
+    AccountGroup.UUID uuid = AccountGroup.uuid(name);
+    if (handles(uuid)) {
+      GroupDescription.Basic g = get(uuid);
+      if (g != null) {
+        return ImmutableList.of(GroupReference.forGroup(g));
+      }
+    }
     return ImmutableList.of();
   }
 
   @Override
-  public GroupMembership membershipsOf(IdentifiedUser user) {
+  public GroupMembership membershipsOf(CurrentUser user) {
+    if (!user.isIdentifiedUser()) {
+      return GroupMembership.EMPTY;
+    }
     return memberships.getOrDefault(user.getAccountId(), GroupMembership.EMPTY);
   }
 

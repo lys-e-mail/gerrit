@@ -29,7 +29,6 @@ import static com.google.gerrit.server.change.VoteResource.VOTE_KIND;
 
 import com.google.gerrit.extensions.registration.DynamicMap;
 import com.google.gerrit.extensions.restapi.RestApiModule;
-import com.google.gerrit.server.CommentContextLoader;
 import com.google.gerrit.server.account.AccountLoader;
 import com.google.gerrit.server.change.AddReviewersOp;
 import com.google.gerrit.server.change.AddToAttentionSetOp;
@@ -47,7 +46,9 @@ import com.google.gerrit.server.change.SetAssigneeOp;
 import com.google.gerrit.server.change.SetCherryPickOp;
 import com.google.gerrit.server.change.SetHashtagsOp;
 import com.google.gerrit.server.change.SetPrivateOp;
+import com.google.gerrit.server.change.SetTopicOp;
 import com.google.gerrit.server.change.WorkInProgressOp;
+import com.google.gerrit.server.comment.CommentContextLoader;
 import com.google.gerrit.server.restapi.change.Reviewed.DeleteReviewed;
 import com.google.gerrit.server.restapi.change.Reviewed.PutReviewed;
 import com.google.gerrit.server.util.AttentionSetEmail;
@@ -81,6 +82,7 @@ public class Module extends RestApiModule {
 
     postOnCollection(CHANGE_KIND).to(CreateChange.class);
     get(CHANGE_KIND).to(GetChange.class);
+    get(CHANGE_KIND, "meta_diff").to(GetMetaDiff.class);
     post(CHANGE_KIND, "merge").to(CreateMergePatchSet.class);
     get(CHANGE_KIND, "detail").to(GetDetail.class);
     get(CHANGE_KIND, "topic").to(GetTopic.class);
@@ -218,9 +220,9 @@ public class Module extends RestApiModule {
     factory(SetAssigneeOp.Factory.class);
     factory(SetCherryPickOp.Factory.class);
     factory(SetHashtagsOp.Factory.class);
+    factory(SetTopicOp.Factory.class);
     factory(SetPrivateOp.Factory.class);
     factory(WorkInProgressOp.Factory.class);
-    factory(SetTopicOp.Factory.class);
     factory(AddToAttentionSetOp.Factory.class);
     factory(RemoveFromAttentionSetOp.Factory.class);
     factory(AttentionSetEmail.Factory.class);

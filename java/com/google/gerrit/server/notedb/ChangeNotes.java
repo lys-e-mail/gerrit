@@ -64,6 +64,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,6 +80,9 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
 /** View of a single {@link Change} based on the log of its notes branch. */
+// TODO(paiking): This class should be refactored to get rid of potentially duplicate or unneeded
+// variables, such as allAttentionSetUpdates, reviewerUpdates, and others.
+
 public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
@@ -189,8 +193,9 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     }
 
     /**
-     * Create change notes based on a {@link Change.Id}. This requires using the Change index and
-     * should only be used when {@link Project.NameKey} and the numeric change ID are not available.
+     * Create change notes based on a {@link com.google.gerrit.entities.Change.Id}. This requires
+     * using the Change index and should only be used when {@link
+     * com.google.gerrit.entities.Project.NameKey} and the numeric change ID are not available.
      */
     public ChangeNotes createCheckedUsingIndexLookup(Change.Id changeId) {
       InternalChangeQuery query = queryProvider.get().noFields();
@@ -206,9 +211,9 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     }
 
     /**
-     * Create change notes based on a list of {@link Change.Id}s. This requires using the Change
-     * index and should only be used when {@link Project.NameKey} and the numeric change ID are not
-     * available.
+     * Create change notes based on a list of {@link com.google.gerrit.entities.Change.Id}s. This
+     * requires using the Change index and should only be used when {@link
+     * com.google.gerrit.entities.Project.NameKey} and the numeric change ID are not available.
      */
     public List<ChangeNotes> createUsingIndexLookup(Collection<Change.Id> changeIds) {
       List<ChangeNotes> notes = new ArrayList<>();
@@ -456,6 +461,11 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     return state.attentionSet();
   }
 
+  /** Returns all updates for the attention set. */
+  public ImmutableList<AttentionSetUpdate> getAttentionSetUpdates() {
+    return state.allAttentionSetUpdates();
+  }
+
   /**
    * @return an ImmutableSet of Account.Ids of all users that have been assigned to this change. The
    *     order of the set is the order in which they were assigned.
@@ -519,6 +529,11 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     return state.updateCount();
   }
 
+  /** @return {@link Optional} value of time when the change was merged. */
+  public Optional<Timestamp> getMergedOn() {
+    return Optional.ofNullable(state.mergedOn());
+  }
+
   public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(Account.Id author) {
     return getDraftComments(author, null);
   }
@@ -564,6 +579,7 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
   }
 
   public RobotCommentNotes getRobotCommentNotes() {
+    loadRobotComments();
     return robotCommentNotes;
   }
 

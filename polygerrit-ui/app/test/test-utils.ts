@@ -16,12 +16,15 @@
  */
 import '../types/globals';
 import {_testOnly_resetPluginLoader} from '../elements/shared/gr-js-api-interface/gr-plugin-loader';
-import {testOnly_resetInternalState} from '../elements/shared/gr-js-api-interface/gr-api-utils';
 import {_testOnly_resetEndpoints} from '../elements/shared/gr-js-api-interface/gr-plugin-endpoints';
 import {
   _testOnly_getShortcutManagerInstance,
   Shortcut,
 } from '../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
+import {appContext} from '../services/app-context';
+import {RestApiService} from '../services/gr-rest-api/gr-rest-api';
+import {SinonSpy} from 'sinon/pkg/sinon-esm';
+import {StorageService} from '../services/storage/gr-storage';
 
 export interface MockPromise extends Promise<unknown> {
   resolve: (value?: unknown) => void;
@@ -41,10 +44,31 @@ export function isHidden(el: Element | undefined | null) {
   return getComputedStyle(el).display === 'none';
 }
 
-export function query(el: Element | undefined, selectors: string) {
-  if (!el) return null;
-  const root = el.shadowRoot || el;
-  return root.querySelector(selectors);
+export function queryAll<E extends Element = Element>(
+  el: Element | undefined,
+  selector: string
+): NodeListOf<E> {
+  if (!el) assert.fail('element not defined');
+  const root = el.shadowRoot ?? el;
+  return root.querySelectorAll<E>(selector);
+}
+
+export function query<E extends Element = Element>(
+  el: Element | undefined,
+  selector: string
+): E | undefined {
+  if (!el) return undefined;
+  const root = el.shadowRoot ?? el;
+  return root.querySelector<E>(selector) ?? undefined;
+}
+
+export function queryAndAssert<E extends Element = Element>(
+  el: Element | undefined,
+  selector: string
+): E {
+  const found = query<E>(el, selector);
+  if (!found) assert.fail(`selector '${selector}' did not match anything'`);
+  return found;
 }
 
 // Some tests/elements can define its own binding. We want to restore bindings
@@ -87,7 +111,6 @@ export class TestKeyboardShortcutBinder {
 // Provide reset plugins function to clear installed plugins between tests.
 // No gr-app found (running tests)
 export const resetPlugins = () => {
-  testOnly_resetInternalState();
   _testOnly_resetEndpoints();
   const pl = _testOnly_resetPluginLoader();
   pl.loadPlugins([]);
@@ -105,6 +128,25 @@ export function registerTestCleanup(cleanupCallback: CleanupCallback) {
   cleanups.push(cleanupCallback);
 }
 
+export function addListenerForTest(
+  el: EventTarget,
+  type: string,
+  listener: EventListenerOrEventListenerObject
+) {
+  el.addEventListener(type, listener);
+  registerListenerCleanup(el, type, listener);
+}
+
+export function registerListenerCleanup(
+  el: EventTarget,
+  type: string,
+  listener: EventListenerOrEventListenerObject
+) {
+  registerTestCleanup(() => {
+    el.removeEventListener(type, listener);
+  });
+}
+
 export function cleanupTestUtils() {
   cleanups.forEach(cleanup => cleanup());
   cleanups.splice(0);
@@ -116,19 +158,39 @@ export function stubBaseUrl(newUrl: string) {
   registerTestCleanup(() => (window.CANONICAL_PATH = originalCanonicalPath));
 }
 
+export function stubRestApi<K extends keyof RestApiService>(method: K) {
+  return sinon.stub(appContext.restApiService, method);
+}
+
+export function spyRestApi<K extends keyof RestApiService>(method: K) {
+  return sinon.spy(appContext.restApiService, method);
+}
+
+export function stubStorage<K extends keyof StorageService>(method: K) {
+  return sinon.stub(appContext.storageService, method);
+}
+
+export type SinonSpyMember<F extends (...args: any) => any> = SinonSpy<
+  Parameters<F>,
+  ReturnType<F>
+>;
+
 /**
  * Forcing an opacity of 0 onto the ironOverlayBackdrop is required, because
  * otherwise the backdrop stays around in the DOM for too long waiting for
- * an animation to finish. This could be considered to be moved to a
- * common-test-setup file.
+ * an animation to finish.
  */
-export function createIronOverlayBackdropStyleEl() {
-  const ironOverlayBackdropStyleEl = document.createElement('style');
-  document.head.appendChild(ironOverlayBackdropStyleEl);
-  ironOverlayBackdropStyleEl.sheet!.insertRule(
-    'body { --iron-overlay-backdrop-opacity: 0; }'
-  );
-  return ironOverlayBackdropStyleEl;
+export function addIronOverlayBackdropStyleEl() {
+  const el = document.createElement('style');
+  el.setAttribute('id', 'backdrop-style');
+  document.head.appendChild(el);
+  el.sheet!.insertRule('body { --iron-overlay-backdrop-opacity: 0; }');
+}
+
+export function removeIronOverlayBackdropStyleEl() {
+  const el = document.getElementById('backdrop-style');
+  if (!el?.parentNode) throw new Error('Backdrop style element not found.');
+  el.parentNode?.removeChild(el);
 }
 
 /**
@@ -139,7 +201,7 @@ export function createIronOverlayBackdropStyleEl() {
  *   ...
  */
 export function listenOnce(el: EventTarget, eventType: string) {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     const listener = () => {
       removeEventListener();
       resolve();

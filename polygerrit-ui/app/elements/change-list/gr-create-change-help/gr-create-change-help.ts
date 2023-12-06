@@ -18,11 +18,10 @@
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-icons/gr-icons';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {customElement} from '@polymer/decorators';
 import {htmlTemplate} from './gr-create-change-help_html';
+import {fireEvent} from '../../../utils/event-util';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -31,9 +30,7 @@ declare global {
 }
 
 @customElement('gr-create-change-help')
-class GrCreateChangeHelp extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrCreateChangeHelp extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -43,8 +40,6 @@ class GrCreateChangeHelp extends GestureEventListeners(
    */
   _handleCreateTap(e: Event) {
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('create-tap', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'create-tap');
   }
 }

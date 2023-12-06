@@ -16,21 +16,17 @@
  */
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-dialog/gr-dialog';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-confirm-rebase-dialog_html';
 import {customElement, property, observe} from '@polymer/decorators';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {NumericChangeId, BranchName} from '../../../types/common';
 import {
   GrAutocomplete,
   AutocompleteQuery,
   AutocompleteSuggestion,
 } from '../../shared/gr-autocomplete/gr-autocomplete';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
 interface RebaseChange {
   name: string;
@@ -43,7 +39,6 @@ export interface ConfirmRebaseEventDetail {
 
 export interface GrConfirmRebaseDialog {
   $: {
-    restAPI: RestApiService & Element;
     parentInput: GrAutocomplete;
     rebaseOnParentInput: HTMLInputElement;
     rebaseOnOtherInput: HTMLInputElement;
@@ -52,9 +47,7 @@ export interface GrConfirmRebaseDialog {
 }
 
 @customElement('gr-confirm-rebase-dialog')
-export class GrConfirmRebaseDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrConfirmRebaseDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -92,6 +85,8 @@ export class GrConfirmRebaseDialog extends GestureEventListeners(
   @property({type: Array})
   _recentChanges?: RebaseChange[];
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._query = input => this._getChangeSuggestions(input);
@@ -104,18 +99,15 @@ export class GrConfirmRebaseDialog extends GestureEventListeners(
   // in case there are new/updated changes in the generic query since the
   // last time it was run.
   fetchRecentChanges() {
-    return this.$.restAPI
+    return this.restApiService
       .getChanges(undefined, 'is:open -age:90d')
       .then(response => {
         if (!response) return [];
         const changes: RebaseChange[] = [];
-        for (const key in response) {
-          if (!hasOwnProperty(response, key)) {
-            continue;
-          }
+        for (const change of response) {
           changes.push({
-            name: `${response[key]._number}: ${response[key].subject}`,
-            value: response[key]._number,
+            name: `${change._number}: ${change.subject}`,
+            value: change._number,
           });
         }
         this._recentChanges = changes;

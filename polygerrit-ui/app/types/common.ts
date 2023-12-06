@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import {CommentRange} from '../api/core';
 import {
   ChangeStatus,
   DefaultDisplayNameConfig,
@@ -37,7 +38,6 @@ import {
   TimeFormat,
   EmailStrategy,
   DefaultBase,
-  IgnoreWhitespaceType,
   UserPriority,
   DiffViewMode,
   DraftsAction,
@@ -49,6 +49,10 @@ import {
   MergeabilityComputationBehavior,
 } from '../constants/constants';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+
+import {DiffInfo, IgnoreWhitespaceType, WebLinkInfo} from './diff';
+
+export {CommentRange};
 
 export type BrandType<T, BrandName extends string> = T &
   {[__brand in BrandName]: never};
@@ -72,11 +76,14 @@ export type ElementPropertyDeepChange<
 export type ParsedJSON = BrandType<unknown, '_parsedJSON'>;
 
 export type PatchSetNum = BrandType<'PARENT' | 'edit' | number, '_patchSet'>;
+export type BasePatchSetNum = BrandType<'PARENT' | number, '_patchSet'>;
+export type RevisionPatchSetNum = BrandType<'edit' | number, '_patchSet'>;
+export type PatchSetNumber = BrandType<number, '_patchSet'>;
 
-export const EditPatchSetNum = 'edit' as PatchSetNum;
+export const EditPatchSetNum = 'edit' as RevisionPatchSetNum;
 // TODO(TS): This is not correct, it is better to have a separate ApiPatchSetNum
 // without 'parent'.
-export const ParentPatchSetNum = 'PARENT' as PatchSetNum;
+export const ParentPatchSetNum = 'PARENT' as BasePatchSetNum;
 
 export type ChangeId = BrandType<string, '_changeId'>;
 export type ChangeMessageId = BrandType<string, '_changeMessageId'>;
@@ -194,7 +201,7 @@ export interface DetailedLabelInfo extends LabelCommonInfo {
   // This is not set when the change has no reviewers.
   all?: ApprovalInfo[];
   // Docs claim that 'values' is optional, but it is actually always set.
-  values: LabelValueToDescriptionMap; // A map of all values that are allowed for this label
+  values?: LabelValueToDescriptionMap; // A map of all values that are allowed for this label
   default_value?: number;
 }
 
@@ -261,7 +268,6 @@ export interface ChangeInfo {
   deletions: number; // Number of deleted lines
   total_comment_count?: number;
   unresolved_comment_count?: number;
-  // TODO(TS): Use changed_id everywhere in code instead of (legacy) _number
   _number: NumericChangeId;
   owner: AccountInfo;
   actions?: ActionNameToActionInfoMap;
@@ -547,7 +553,7 @@ export interface RevisionInfo {
   commit_with_footers?: boolean;
   push_certificate?: PushCertificateInfo;
   description?: string;
-  basePatchNum?: PatchSetNum;
+  basePatchNum?: BasePatchSetNum;
 }
 
 /**
@@ -716,16 +722,6 @@ export interface GitPersonInfo {
 }
 
 /**
- * The WebLinkInfo entity describes a link to an external site.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#web-link-info
- */
-export interface WebLinkInfo {
-  name: string;
-  url: string;
-  image_url: string;
-}
-
-/**
  * The VotingRangeInfo entity describes the continuous voting range from minto
  * max values.
  * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#voting-range-info
@@ -753,7 +749,7 @@ export interface AccountsConfigInfo {
 export interface AuthInfo {
   auth_type: AuthType; // docs incorrectly names it 'type'
   use_contributor_agreements?: boolean;
-  contributor_agreements?: ContributorAgreementInfo;
+  contributor_agreements?: ContributorAgreementInfo[];
   editable_account_fields: EditableAccountField[];
   login_url?: string;
   login_text?: string;
@@ -1028,9 +1024,8 @@ export interface MemSummaryInfo {
  */
 export interface PluginConfigInfo {
   has_avatars: boolean;
-  // The following 2 properies exists in Java class, but don't mention in docs
+  // Exists in Java class, but not mentioned in docs.
   js_resource_paths: string[];
-  html_resource_paths: string[];
 }
 
 /**
@@ -1180,19 +1175,19 @@ export interface CommentInfo {
   unresolved?: boolean;
   change_message_id?: string;
   commit_id?: string;
+  context_lines?: ContextLine[];
+  source_content_type?: string;
 }
 
 export type PathToCommentsInfoMap = {[path: string]: CommentInfo[]};
 
 /**
- * The CommentRange entity describes the range of an inline comment.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#comment-range
+ * The ContextLine entity contains the line number and line text of a single line of the source file content..
+ * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#context-line
  */
-export interface CommentRange {
-  start_line: number;
-  start_character: number;
-  end_line: number;
-  end_character: number;
+export interface ContextLine {
+  line_number: number;
+  context_line: string;
 }
 
 /**
@@ -1235,101 +1230,7 @@ export interface LabelTypeInfo {
 
 export type LabelTypeInfoValues = {[value: string]: string};
 
-/**
- * The DiffContent entity contains information about the content differences in a file.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-content
- */
-export interface DiffContent {
-  a?: string[];
-  b?: string[];
-  ab?: string[];
-  // The inner array is always of length two. The first entry is the 'skip'
-  // length. The second entry is the 'edit' length.
-  edit_a?: number[][];
-  edit_b?: number[][];
-  due_to_rebase?: boolean;
-  due_to_move?: boolean;
-  skip?: number;
-  common?: string;
-  keyLocation?: boolean;
-}
-
-/**
- * The DiffFileMetaInfo entity contains meta information about a file diff.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-file-meta-info
- */
-export interface DiffFileMetaInfo {
-  name: string;
-  content_type: string;
-  lines: string;
-  web_links?: WebLinkInfo[];
-  language?: string;
-}
-
-/**
- * The DiffInfo entity contains information about the diff of a file in a revision.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-info
- */
-export interface DiffInfo {
-  meta_a: DiffFileMetaInfo;
-  meta_b: DiffFileMetaInfo;
-  change_type: string;
-  intraline_status: string;
-  diff_header: string[];
-  content: DiffContent[];
-  web_links?: DiffWebLinkInfo[];
-  binary: boolean;
-}
-
 export type FilePathToDiffInfoMap = {[path: string]: DiffInfo};
-
-/**
- * The DiffWebLinkInfo entity describes a link on a diff screen to an external site.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#diff-web-link-info
- */
-export interface DiffWebLinkInfo {
-  name: string;
-  url: string;
-  image_url: string;
-  show_on_side_by_side_diff_view: string;
-  show_on_unified_diff_view: string;
-}
-
-/**
- * The DiffPreferencesInfo entity contains information about the diff preferences of a user.
- * https://gerrit-review.googlesource.com/Documentation/rest-api-accounts.html#diff-preferences-info
- */
-export interface DiffPreferencesInfo {
-  context: number;
-  expand_all_comments?: boolean;
-  ignore_whitespace: IgnoreWhitespaceType;
-  intraline_difference?: boolean;
-  line_length: number;
-  cursor_blink_rate: number;
-  manual_review?: boolean;
-  retain_header?: boolean;
-  show_line_endings?: boolean;
-  show_tabs?: boolean;
-  show_whitespace_errors?: boolean;
-  skip_deleted?: boolean;
-  skip_uncommented?: boolean;
-  syntax_highlighting?: boolean;
-  hide_top_menu?: boolean;
-  auto_hide_diff_table_header?: boolean;
-  hide_line_numbers?: boolean;
-  tab_size: number;
-  font_size: number;
-  hide_empty_pane?: boolean;
-  match_brackets?: boolean;
-  line_wrapping?: boolean;
-  // TODO(TS): show_file_comment_button exists in JS code, but doesn't exist in the doc.
-  // Either remove or update doc
-  show_file_comment_button?: boolean;
-  // TODO(TS): theme exists in JS code, but doesn't exist in the doc.
-  // Either remove or update doc
-  theme?: string;
-}
-export type DiffPreferencesInfoKey = keyof DiffPreferencesInfo;
 
 /**
  * The RangeInfo entity stores the coordinates of a range.
@@ -1490,7 +1391,7 @@ export interface ProjectAccessInfo {
   can_add_tags?: boolean;
   config_visible?: boolean;
   groups: ProjectAccessGroups;
-  config_web_links: string[];
+  config_web_links: WebLinkInfo[];
 }
 
 export type ProjectAccessInfoMap = {[projectName: string]: ProjectAccessInfo};
@@ -1716,12 +1617,12 @@ export interface HashtagsInput {
 }
 
 /**
- * Defines a patch ranges. Used as input for gr-rest-api-interface methods,
+ * Defines a patch ranges. Used as input for gr-rest-api methods,
  * doesn't exist in Rest API
  */
 export interface PatchRange {
-  patchNum: PatchSetNum;
-  basePatchNum: PatchSetNum;
+  patchNum: RevisionPatchSetNum;
+  basePatchNum: BasePatchSetNum;
 }
 
 /**
@@ -1782,7 +1683,6 @@ export interface DiffPreferenceInput {
   context?: number;
   expand_all_comments?: boolean;
   ignore_whitespace: IgnoreWhitespaceType;
-  intraline_difference?: boolean;
   line_length?: number;
   manual_review?: boolean;
   retain_header?: boolean;
@@ -1790,10 +1690,8 @@ export interface DiffPreferenceInput {
   show_tabs?: boolean;
   show_whitespace_errors?: boolean;
   skip_deleted?: boolean;
-  skip_uncommented?: boolean;
   syntax_highlighting?: boolean;
   hide_top_menu?: boolean;
-  auto_hide_diff_table_header?: boolean;
   hide_line_numbers?: boolean;
   tab_size?: number;
   font_size?: number;
@@ -1825,8 +1723,8 @@ export interface AccountCapabilityInfo {
   flushCaches?: boolean;
   killTask?: boolean;
   maintainServer?: boolean;
-  priority: UserPriority;
-  queryLimit: QueryLimitInfo;
+  priority?: UserPriority;
+  queryLimit?: QueryLimitInfo;
   runAs?: boolean;
   runGC?: boolean;
   streamEvents?: boolean;
@@ -2041,7 +1939,7 @@ export interface AttentionSetInput {
  */
 export interface EditInfo {
   commit: CommitInfo;
-  base_patch_set_number: PatchSetNum;
+  base_patch_set_number: BasePatchSetNum;
   base_revision: string;
   ref: GitRef;
   fetch?: ProtocolToFetchInfoMap;

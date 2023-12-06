@@ -20,10 +20,7 @@ import '../../../styles/shared-styles';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-list-view/gr-list-view';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-create-group-dialog/gr-create-group-dialog';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-admin-group-list_html';
 import {ListViewMixin} from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
@@ -32,8 +29,9 @@ import {customElement, property, observe, computed} from '@polymer/decorators';
 import {AppElementAdminParams} from '../../gr-app-types';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {GroupId, GroupInfo, GroupName} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrCreateGroupDialog} from '../gr-create-group-dialog/gr-create-group-dialog';
+import {fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -45,14 +43,11 @@ export interface GrAdminGroupList {
   $: {
     createOverlay: GrOverlay;
     createNewModal: GrCreateGroupDialog;
-    restAPI: RestApiService & Element;
   };
 }
 
 @customElement('gr-admin-group-list')
-export class GrAdminGroupList extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrAdminGroupList extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -96,17 +91,13 @@ export class GrAdminGroupList extends ListViewMixin(
   @property({type: String})
   _filter = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._getCreateGroupCapability();
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Groups'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, 'Groups');
     this._maybeOpenCreateOverlay(this.params);
   }
 
@@ -136,11 +127,11 @@ export class GrAdminGroupList extends ListViewMixin(
   }
 
   _getCreateGroupCapability() {
-    return this.$.restAPI.getAccount().then(account => {
+    return this.restApiService.getAccount().then(account => {
       if (!account) {
         return;
       }
-      return this.$.restAPI
+      return this.restApiService
         .getAccountCapabilities(['createGroup'])
         .then(capabilities => {
           if (capabilities?.createGroup) {
@@ -152,7 +143,7 @@ export class GrAdminGroupList extends ListViewMixin(
 
   _getGroups(filter: string, groupsPerPage: number, offset?: number) {
     this._groups = [];
-    return this.$.restAPI
+    return this.restApiService
       .getGroups(filter, groupsPerPage, offset)
       .then(groups => {
         if (!groups) {
@@ -168,7 +159,7 @@ export class GrAdminGroupList extends ListViewMixin(
   }
 
   _refreshGroupsList() {
-    this.$.restAPI.invalidateGroupsCache();
+    this.restApiService.invalidateGroupsCache();
     return this._getGroups(this._filter, this._groupsPerPage, this._offset);
   }
 
@@ -183,7 +174,9 @@ export class GrAdminGroupList extends ListViewMixin(
   }
 
   _handleCreateClicked() {
-    this.$.createOverlay.open();
+    this.$.createOverlay.open().then(() => {
+      this.$.createNewModal.focus();
+    });
   }
 
   _visibleToAll(item: GroupInfo) {

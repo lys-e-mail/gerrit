@@ -223,6 +223,12 @@ public class CreateChange
       throw new BadRequestException("branch must be non-empty");
     }
     input.branch = RefNames.fullName(input.branch);
+    if (!isBranchAllowed(input.branch)) {
+      throw new BadRequestException(
+          "Cannot create a change on ref "
+              + input.branch
+              + ". Gerrit internal refs and refs/tags/* are not allowed.");
+    }
 
     String subject = Strings.nullToEmpty(input.subject);
     subject = subject.replaceAll("(?m)^#.*$\n?", "").trim();
@@ -290,6 +296,11 @@ public class CreateChange
             || Strings.isNullOrEmpty(input.author.name))) {
       throw new BadRequestException("Author must specify name and email");
     }
+  }
+
+  /** Changes are allowed to be created on any ref that is not Gerrit internal or a tag ref. */
+  private boolean isBranchAllowed(String branch) {
+    return !RefNames.isGerritRef(branch) && !branch.startsWith(RefNames.REFS_TAGS);
   }
 
   private void checkRequiredPermissions(

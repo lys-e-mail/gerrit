@@ -16,17 +16,14 @@
  */
 
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-change-list/gr-change-list';
 import '../gr-repo-header/gr-repo-header';
 import '../gr-user-header/gr-user-header';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-list-view_html';
 import {page} from '../../../utils/page-wrapper-utils';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
 import {AppElementParams} from '../../gr-app-types';
 import {
@@ -36,17 +33,18 @@ import {
   EmailAddress,
   PreferencesInput,
 } from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {ChangeListToggleReviewedDetail} from '../gr-change-list-item/gr-change-list-item';
 import {ChangeStarToggleStarDetail} from '../../shared/gr-change-star/gr-change-star';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {ChangeListViewState} from '../../../types/types';
+import {fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {GerritView} from '../../../services/router/router-model';
 
-const LookupQueryPatterns = {
-  CHANGE_ID: /^\s*i?[0-9a-f]{7,40}\s*$/i,
-  CHANGE_NUM: /^\s*[1-9][0-9]*\s*$/g,
-  COMMIT: /[0-9a-f]{40}/,
-};
+const LOOKUP_QUERY_PATTERNS: RegExp[] = [
+  /^\s*i?[0-9a-f]{7,40}\s*$/i, // CHANGE_ID
+  /^\s*[1-9][0-9]*\s*$/g, // CHANGE_NUM
+  /[0-9a-f]{40}/, // COMMIT
+];
 
 const USER_QUERY_PATTERN = /^owner:\s?("[^"]+"|[^ ]+)$/;
 
@@ -56,16 +54,13 @@ const LIMIT_OPERATOR_PATTERN = /\blimit:(\d+)/i;
 
 export interface GrChangeListView {
   $: {
-    restAPI: RestApiService & Element;
     prevArrow: HTMLAnchorElement;
     nextArrow: HTMLAnchorElement;
   };
 }
 
 @customElement('gr-change-list-view')
-export class GrChangeListView extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrChangeListView extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -112,16 +107,17 @@ export class GrChangeListView extends GestureEventListeners(
   @property({type: String})
   _repo: string | null = null;
 
-  /** @override */
-  created() {
-    super.created();
+  private readonly restApiService = appContext.restApiService;
+
+  constructor() {
+    super();
     this.addEventListener('next-page', () => this._handleNextPage());
     this.addEventListener('previous-page', () => this._handlePreviousPage());
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadPreferences();
   }
 
@@ -143,17 +139,9 @@ export class GrChangeListView extends GestureEventListeners(
 
     // NOTE: This method may be called before attachment. Fire title-change
     // in an async so that attachment to the DOM can take place first.
-    this.async(() =>
-      this.dispatchEvent(
-        new CustomEvent('title-change', {
-          detail: {title: this._query},
-          composed: true,
-          bubbles: true,
-        })
-      )
-    );
+    setTimeout(() => fireTitleChange(this, this._query));
 
-    this.$.restAPI
+    this.restApiService
       .getPreferences()
       .then(prefs => {
         if (!prefs) {
@@ -165,12 +153,8 @@ export class GrChangeListView extends GestureEventListeners(
       .then(changes => {
         changes = changes || [];
         if (this._query && changes.length === 1) {
-          let query: keyof typeof LookupQueryPatterns;
-          for (query in LookupQueryPatterns) {
-            if (
-              hasOwnProperty(LookupQueryPatterns, query) &&
-              this._query.match(LookupQueryPatterns[query])
-            ) {
+          for (const queryPattern of LOOKUP_QUERY_PATTERNS) {
+            if (this._query.match(queryPattern)) {
               // "Back"/"Forward" buttons work correctly only with
               // opt_redirect options
               GerritNav.navigateToChange(
@@ -190,9 +174,9 @@ export class GrChangeListView extends GestureEventListeners(
   }
 
   _loadPreferences() {
-    return this.$.restAPI.getLoggedIn().then(loggedIn => {
+    return this.restApiService.getLoggedIn().then(loggedIn => {
       if (loggedIn) {
-        this.$.restAPI.getPreferences().then(preferences => {
+        this.restApiService.getPreferences().then(preferences => {
           this.preferences = preferences;
         });
       } else {
@@ -202,7 +186,7 @@ export class GrChangeListView extends GestureEventListeners(
   }
 
   _getChanges() {
-    return this.$.restAPI.getChanges(
+    return this.restApiService.getChanges(
       this._changesPerPage,
       this._query,
       this._offset
@@ -289,11 +273,14 @@ export class GrChangeListView extends GestureEventListeners(
   }
 
   _handleToggleStar(e: CustomEvent<ChangeStarToggleStarDetail>) {
-    this.$.restAPI.saveChangeStarred(e.detail.change._number, e.detail.starred);
+    this.restApiService.saveChangeStarred(
+      e.detail.change._number,
+      e.detail.starred
+    );
   }
 
   _handleToggleReviewed(e: CustomEvent<ChangeListToggleReviewedDetail>) {
-    this.$.restAPI.saveChangeReviewed(
+    this.restApiService.saveChangeReviewed(
       e.detail.change._number,
       e.detail.reviewed
     );

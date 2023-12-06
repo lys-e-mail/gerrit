@@ -20,14 +20,14 @@ import {
   AbortStop,
   CursorMoveResult,
   GrCursorManager,
+  Stop,
   isTargetable,
 } from '../../shared/gr-cursor-manager/gr-cursor-manager';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status';
 import {dom} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-cursor_html';
+import {DiffViewMode} from '../../../api/diff';
 import {ScrollMode, Side} from '../../../constants/constants';
 import {customElement, property, observe} from '@polymer/decorators';
 import {GrDiffLineType} from '../gr-diff/gr-diff-line';
@@ -35,11 +35,9 @@ import {PolymerSpliceChange} from '@polymer/polymer/interfaces';
 import {PolymerDomWrapper} from '../../../types/types';
 import {GrDiffGroupType} from '../gr-diff/gr-diff-group';
 import {GrDiff} from '../gr-diff/gr-diff';
-
-const DiffViewMode = {
-  SIDE_BY_SIDE: 'SIDE_BY_SIDE',
-  UNIFIED: 'UNIFIED_DIFF',
-};
+import {fireAlert, fireEvent} from '../../../utils/event-util';
+import {Subscription} from 'rxjs';
+import {toggleClass} from '../../../utils/dom-util';
 
 type GrDiffRowType = GrDiffLineType | GrDiffGroupType;
 
@@ -50,30 +48,18 @@ const RIGHT_SIDE_CLASS = 'target-side-right';
 const NAVIGATE_TO_NEXT_FILE_TIMEOUT_MS = 5000;
 
 export interface GrDiffCursor {
-  $: {
-    cursorManager: GrCursorManager;
-  };
+  $: {};
 }
 
 @customElement('gr-diff-cursor')
-export class GrDiffCursor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffCursor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
 
-  private _boundHandleWindowScroll: () => void;
+  private preventAutoScrollOnManualScroll = false;
 
-  private _boundHandleDiffRenderStart: () => void;
-
-  private _boundHandleDiffRenderContent: () => void;
-
-  private _boundHandleDiffLineSelected: (e: Event) => void;
-
-  private _preventAutoScrollOnManualScroll = false;
-
-  private lastDisplayedNavigateToNextFileToast: number | null = null;
+  private lastDisplayedNavigateToFileToast: Map<string, number> = new Map();
 
   @property({type: String})
   side = Side.RIGHT;
@@ -95,27 +81,16 @@ export class GrDiffCursor extends GestureEventListeners(
   @property({type: Number})
   initialLineNumber: number | null = null;
 
-  /**
-   * The scroll behavior for the cursor. Values are 'never' and
-   * 'keep-visible'. 'keep-visible' will only scroll if the cursor is beyond
-   * the viewport.
-   */
-  @property({type: String})
-  _scrollMode = ScrollMode.KEEP_VISIBLE;
-
-  @property({type: Boolean})
-  _focusOnMove = true;
-
   @property({type: Boolean})
   _listeningForScroll = false;
 
+  private cursorManager = new GrCursorManager();
+
   constructor() {
     super();
-    this._boundHandleWindowScroll = () => this._handleWindowScroll();
-    this._boundHandleDiffRenderStart = () => this._handleDiffRenderStart();
-    this._boundHandleDiffRenderContent = () => this._handleDiffRenderContent();
-    this._boundHandleDiffLineSelected = (e: Event) =>
-      this._handleDiffLineSelected(e);
+    this.cursorManager.cursorTargetClass = 'target-row';
+    this.cursorManager.scrollMode = ScrollMode.KEEP_VISIBLE;
+    this.cursorManager.focusOnMove = true;
   }
 
   /** @override */
@@ -141,17 +116,34 @@ export class GrDiffCursor extends GestureEventListeners(
     });
   }
 
+  private targetSubscription?: Subscription;
+
   /** @override */
   connectedCallback() {
     super.connectedCallback();
     // Catch when users are scrolling as the view loads.
     window.addEventListener('scroll', this._boundHandleWindowScroll);
+    this.targetSubscription = this.cursorManager.target$.subscribe(target => {
+      this.diffRow = target || undefined;
+    });
   }
 
   /** @override */
   disconnectedCallback() {
-    super.disconnectedCallback();
+    if (this.targetSubscription) this.targetSubscription.unsubscribe();
     window.removeEventListener('scroll', this._boundHandleWindowScroll);
+    this.cursorManager.unsetCursor();
+    super.disconnectedCallback();
+  }
+
+  // Don't remove - used by clients embedding gr-diff outside of Gerrit.
+  isAtStart() {
+    return this.cursorManager.isAtStart();
+  }
+
+  // Don't remove - used by clients embedding gr-diff outside of Gerrit.
+  isAtEnd() {
+    return this.cursorManager.isAtEnd();
   }
 
   moveLeft() {
@@ -170,106 +162,115 @@ export class GrDiffCursor extends GestureEventListeners(
 
   moveDown() {
     if (this._getViewMode() === DiffViewMode.SIDE_BY_SIDE) {
-      this.$.cursorManager.next({
+      return this.cursorManager.next({
         filter: (row: Element) => this._rowHasSide(row),
       });
     } else {
-      this.$.cursorManager.next();
+      return this.cursorManager.next();
     }
   }
 
   moveUp() {
     if (this._getViewMode() === DiffViewMode.SIDE_BY_SIDE) {
-      this.$.cursorManager.previous({
+      return this.cursorManager.previous({
         filter: (row: Element) => this._rowHasSide(row),
       });
     } else {
-      this.$.cursorManager.previous();
+      return this.cursorManager.previous();
     }
   }
 
   moveToVisibleArea() {
     if (this._getViewMode() === DiffViewMode.SIDE_BY_SIDE) {
-      this.$.cursorManager.moveToVisibleArea((row: Element) =>
+      this.cursorManager.moveToVisibleArea((row: Element) =>
         this._rowHasSide(row)
       );
     } else {
-      this.$.cursorManager.moveToVisibleArea();
+      this.cursorManager.moveToVisibleArea();
     }
   }
 
-  moveToNextChunk(clipToTop?: boolean, navigateToNextFile?: boolean) {
-    const result = this.$.cursorManager.next({
+  private showToastAndFireEvent(direction: string, shortcut: string) {
+    /*
+     * If user presses p/n on the first/last diff chunk, show a toast informing
+     * user that pressing it again will navigate them to previous/next
+     * unreviewedfile if click happens within the time limit
+     */
+    if (
+      this.lastDisplayedNavigateToFileToast.get(direction) &&
+      Date.now() - this.lastDisplayedNavigateToFileToast.get(direction)! <=
+        NAVIGATE_TO_NEXT_FILE_TIMEOUT_MS
+    ) {
+      // reset for next file
+      this.lastDisplayedNavigateToFileToast.delete(direction);
+      fireEvent(this, `navigate-to-${direction}-unreviewed-file`);
+    } else {
+      this.lastDisplayedNavigateToFileToast.set(direction, Date.now());
+      fireAlert(
+        this,
+        `Press ${shortcut} again to navigate to ${direction} unreviewed file`
+      );
+    }
+  }
+
+  moveToNextChunk(
+    clipToTop?: boolean,
+    navigateToNextFile?: boolean
+  ): CursorMoveResult {
+    const result = this.cursorManager.next({
       filter: (row: HTMLElement) => this._isFirstRowOfChunk(row),
       getTargetHeight: target =>
         (target?.parentNode as HTMLElement)?.scrollHeight || 0,
       clipToTop,
     });
-    /*
-     * If user presses n on the last diff chunk, show a toast informing user
-     * that pressing n again will navigate them to next unreviewed file.
-     * If click happens within the time limit, then navigate to next file
-     */
     if (
       navigateToNextFile &&
       result === CursorMoveResult.CLIPPED &&
-      this.$.cursorManager.isAtEnd()
+      this.isAtEnd()
     ) {
-      if (
-        this.lastDisplayedNavigateToNextFileToast &&
-        Date.now() - this.lastDisplayedNavigateToNextFileToast <=
-          NAVIGATE_TO_NEXT_FILE_TIMEOUT_MS
-      ) {
-        // reset for next file
-        this.lastDisplayedNavigateToNextFileToast = null;
-        this.dispatchEvent(
-          new CustomEvent('navigate-to-next-unreviewed-file', {
-            composed: true,
-            bubbles: true,
-          })
-        );
-      }
-      this.lastDisplayedNavigateToNextFileToast = Date.now();
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Press n again to navigate to next unreviewed file',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+      this.showToastAndFireEvent('next', 'n');
     }
 
     this._fixSide();
+    return result;
   }
 
-  moveToPreviousChunk() {
-    this.$.cursorManager.previous({
+  moveToPreviousChunk(navigateToPreviousFile?: boolean): CursorMoveResult {
+    const result = this.cursorManager.previous({
       filter: (row: HTMLElement) => this._isFirstRowOfChunk(row),
     });
+    if (navigateToPreviousFile && this.isAtStart()) {
+      this.showToastAndFireEvent('previous', 'p');
+    }
     this._fixSide();
+    return result;
   }
 
-  moveToNextCommentThread() {
-    this.$.cursorManager.next({
+  moveToNextCommentThread(): CursorMoveResult | undefined {
+    if (this.isAtEnd()) {
+      fireEvent(this, 'navigate-to-next-file-with-comments');
+      return;
+    }
+    const result = this.cursorManager.next({
       filter: (row: HTMLElement) => this._rowHasThread(row),
     });
     this._fixSide();
+    return result;
   }
 
-  moveToPreviousCommentThread() {
-    this.$.cursorManager.previous({
+  moveToPreviousCommentThread(): CursorMoveResult {
+    const result = this.cursorManager.previous({
       filter: (row: HTMLElement) => this._rowHasThread(row),
     });
     this._fixSide();
+    return result;
   }
 
   moveToLineNumber(number: number, side: Side, path?: string) {
     const row = this._findRowByNumberAndFile(number, side, path);
     if (row) {
       this.side = side;
-      this.$.cursorManager.setCursor(row);
+      this.cursorManager.setCursor(row);
     }
   }
 
@@ -301,13 +302,21 @@ export class GrDiffCursor extends GestureEventListeners(
   }
 
   moveToFirstChunk() {
-    this.$.cursorManager.moveToStart();
-    this.moveToNextChunk(true);
+    this.cursorManager.moveToStart();
+    if (this.diffRow && !this._isFirstRowOfChunk(this.diffRow)) {
+      this.moveToNextChunk(true);
+    } else {
+      this._fixSide();
+    }
   }
 
   moveToLastChunk() {
-    this.$.cursorManager.moveToEnd();
-    this.moveToPreviousChunk();
+    this.cursorManager.moveToEnd();
+    if (this.diffRow && !this._isFirstRowOfChunk(this.diffRow)) {
+      this.moveToPreviousChunk();
+    } else {
+      this._fixSide();
+    }
   }
 
   /**
@@ -322,7 +331,7 @@ export class GrDiffCursor extends GestureEventListeners(
   reInitCursor() {
     if (!this.diffRow) {
       // does not scroll during init unless requested
-      this._scrollMode = this.initialLineNumber
+      this.cursorManager.scrollMode = this.initialLineNumber
         ? ScrollMode.KEEP_VISIBLE
         : ScrollMode.NEVER;
       if (this.initialLineNumber) {
@@ -336,16 +345,16 @@ export class GrDiffCursor extends GestureEventListeners(
   }
 
   reInit() {
-    this._scrollMode = ScrollMode.KEEP_VISIBLE;
+    this.cursorManager.scrollMode = ScrollMode.KEEP_VISIBLE;
   }
 
-  _handleWindowScroll() {
-    if (this._preventAutoScrollOnManualScroll) {
-      this._scrollMode = ScrollMode.NEVER;
-      this._focusOnMove = false;
-      this._preventAutoScrollOnManualScroll = false;
+  private _boundHandleWindowScroll = () => {
+    if (this.preventAutoScrollOnManualScroll) {
+      this.cursorManager.scrollMode = ScrollMode.NEVER;
+      this.cursorManager.focusOnMove = false;
+      this.preventAutoScrollOnManualScroll = false;
     }
-  }
+  };
 
   reInitAndUpdateStops() {
     this.reInit();
@@ -357,25 +366,29 @@ export class GrDiffCursor extends GestureEventListeners(
     this.reInitCursor();
   }
 
-  _handleDiffRenderStart() {
-    this._preventAutoScrollOnManualScroll = true;
-  }
+  private boundHandleDiffLoadingChanged = () => {
+    this._updateStops();
+  };
 
-  _handleDiffRenderContent() {
+  private _boundHandleDiffRenderStart = () => {
+    this.preventAutoScrollOnManualScroll = true;
+  };
+
+  private _boundHandleDiffRenderContent = () => {
     this._updateStops();
     // When done rendering, turn focus on move and automatic scrolling back on
-    this._focusOnMove = true;
-    this._preventAutoScrollOnManualScroll = false;
-  }
+    this.cursorManager.focusOnMove = true;
+    this.preventAutoScrollOnManualScroll = false;
+  };
 
-  _handleDiffLineSelected(event: Event) {
+  private _boundHandleDiffLineSelected = (event: Event) => {
     const customEvent = event as CustomEvent;
     this.moveToLineNumber(
       customEvent.detail.number,
       customEvent.detail.side,
       customEvent.detail.path
     );
-  }
+  };
 
   createCommentInPlace() {
     const diffWithRangeSelected = this.diffs.find(diff =>
@@ -398,7 +411,6 @@ export class GrDiffCursor extends GestureEventListeners(
    * {leftSide: true, number: 321} for line 321 of the base patch.
    * Returns null if an address is not available.
    *
-   * @return
    */
   getAddress() {
     if (!this.diffRow) {
@@ -500,8 +512,8 @@ export class GrDiffCursor extends GestureEventListeners(
     if (!this.diffRow) {
       return;
     }
-    this.toggleClass(LEFT_SIDE_CLASS, this.side === Side.LEFT, this.diffRow);
-    this.toggleClass(RIGHT_SIDE_CLASS, this.side === Side.RIGHT, this.diffRow);
+    toggleClass(this.diffRow, LEFT_SIDE_CLASS, this.side === Side.LEFT);
+    toggleClass(this.diffRow, RIGHT_SIDE_CLASS, this.side === Side.RIGHT);
   }
 
   _isActionType(type: GrDiffRowType) {
@@ -524,8 +536,8 @@ export class GrDiffCursor extends GestureEventListeners(
   }
 
   _updateStops() {
-    this.$.cursorManager.stops = this.diffs.reduce(
-      (stops: HTMLElement[], diff) => stops.concat(diff.getCursorStops()),
+    this.cursorManager.stops = this.diffs.reduce(
+      (stops: Stop[], diff) => stops.concat(diff.getCursorStops()),
       []
     );
   }
@@ -555,6 +567,10 @@ export class GrDiffCursor extends GestureEventListeners(
       // might be the same.
       for (i = 0; i < splice?.removed.length; i++) {
         splice.removed[i].removeEventListener(
+          'loading-changed',
+          this.boundHandleDiffLoadingChanged
+        );
+        splice.removed[i].removeEventListener(
           'render-start',
           this._boundHandleDiffRenderStart
         );
@@ -569,6 +585,10 @@ export class GrDiffCursor extends GestureEventListeners(
       }
 
       for (i = splice.index; i < splice.index + splice.addedCount; i++) {
+        this.diffs[i].addEventListener(
+          'loading-changed',
+          this.boundHandleDiffLoadingChanged
+        );
         this.diffs[i].addEventListener(
           'render-start',
           this._boundHandleDiffRenderStart
@@ -595,7 +615,7 @@ export class GrDiffCursor extends GestureEventListeners(
       const diff = this.diffs.filter(diff => diff.path === path)[0];
       stops = diff.getCursorStops();
     } else {
-      stops = this.$.cursorManager.stops;
+      stops = this.cursorManager.stops;
     }
     // Sadly needed for type narrowing to understand that the result is always
     // targetable.

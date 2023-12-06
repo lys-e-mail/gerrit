@@ -73,7 +73,7 @@ suite('gr-diff-processor tests', () => {
 
       return element.process(content).then(() => {
         const groups = element.groups;
-
+        groups.shift(); // remove portedThreadsWithoutRangeGroup
         assert.equal(groups.length, 4);
 
         let group = groups[0];
@@ -133,6 +133,7 @@ suite('gr-diff-processor tests', () => {
 
       return element.process(content).then(() => {
         const groups = element.groups;
+        groups.shift(); // remove portedThreadsWithoutRangeGroup
 
         assert.equal(groups[0].type, GrDiffGroupType.BOTH);
         assert.equal(groups[0].lines.length, 1);
@@ -153,6 +154,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
 
@@ -185,6 +187,7 @@ suite('gr-diff-processor tests', () => {
         await element.process(content);
 
         const groups = element.groups;
+        groups.shift(); // remove portedThreadsWithoutRangeGroup
 
         // group[0] is the file group
 
@@ -202,8 +205,8 @@ suite('gr-diff-processor tests', () => {
         const skipGroup = commonGroup.contextGroups[1];
         assert.equal(skipGroup.skip, 43900);
         const expectedRange = {
-          left: {start: 21, end: 43920},
-          right: {start: 21, end: 43920},
+          left: {start_line: 21, end_line: 43920},
+          right: {start_line: 21, end_line: 43920},
         };
         assert.deepEqual(skipGroup.lineRange, expectedRange);
 
@@ -231,6 +234,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
 
@@ -252,6 +256,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
           // group[1] is the "a" group
@@ -283,6 +288,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
           // group[1] is the "a" group
@@ -324,6 +330,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
           // group[1] is the "a" group
@@ -411,6 +418,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
           // group[1] is the "a" group
@@ -450,6 +458,7 @@ suite('gr-diff-processor tests', () => {
 
         return element.process(content).then(() => {
           const groups = element.groups;
+          groups.shift(); // remove portedThreadsWithoutRangeGroup
 
           // group[0] is the file group
           // group[1] is the "a" group
@@ -479,6 +488,7 @@ suite('gr-diff-processor tests', () => {
       await element.process(content);
 
       const groups = element.groups;
+      groups.shift(); // remove portedThreadsWithoutRangeGroup
 
       // group[0] is the file group
       // group[1] is the chunk with a
@@ -499,8 +509,8 @@ suite('gr-diff-processor tests', () => {
       const skipGroup = commonGroup.contextGroups[1];
       assert.equal(skipGroup.skip, 60);
       const expectedRange = {
-        left: {start: 22, end: 81},
-        right: {start: 21, end: 80},
+        left: {start_line: 22, end_line: 81},
+        right: {start_line: 21, end_line: 80},
       };
       assert.deepEqual(skipGroup.lineRange, expectedRange);
 
@@ -588,6 +598,43 @@ suite('gr-diff-processor tests', () => {
       assert.equal(result.length, 2);
       assert.deepEqual(result[0].ab, content[0].ab.slice(0, 120));
       assert.deepEqual(result[1].ab, content[0].ab.slice(120));
+    });
+
+    test('breaks down added chunks', () => {
+      const size = 120 * 2 + 5;
+      const content = _.times(size, () => `${Math.random()}`);
+      element.context = 5;
+      const splitContent = element._splitLargeChunks([{a: [], b: content}])
+          .map(r => r.b);
+      assert.equal(splitContent.length, 3);
+      assert.deepEqual(splitContent[0], content.slice(0, 5));
+      assert.deepEqual(splitContent[1], content.slice(5, 125));
+      assert.deepEqual(splitContent[2], content.slice(125));
+    });
+
+    test('breaks down removed chunks', () => {
+      const size = 120 * 2 + 5;
+      const content = _.times(size, () => `${Math.random()}`);
+      element.context = 5;
+      const splitContent = element._splitLargeChunks([{a: content, b: []}])
+          .map(r => r.a);
+      assert.equal(splitContent.length, 3);
+      assert.deepEqual(splitContent[0], content.slice(0, 5));
+      assert.deepEqual(splitContent[1], content.slice(5, 125));
+      assert.deepEqual(splitContent[2], content.slice(125));
+    });
+
+    test('does not break down moved chunks', () => {
+      const size = 120 * 2 + 5;
+      const content = _.times(size, () => `${Math.random()}`);
+      element.context = 5;
+      const splitContent = element._splitLargeChunks([{
+        a: content,
+        b: [],
+        move_details: {changed: false},
+      }]).map(r => r.a);
+      assert.equal(splitContent.length, 1);
+      assert.deepEqual(splitContent[0], content);
     });
 
     test('does not break-down common chunks w/ context', () => {
@@ -703,16 +750,15 @@ suite('gr-diff-processor tests', () => {
         ],
       };
       const content = _.times(200, _.constant(contentRow));
-      sinon.stub(element, 'async');
       element._isScrolling = true;
       element.process(content);
       // Just the files group - no more processing during scrolling.
-      assert.equal(element.groups.length, 1);
+      assert.equal(element.groups.length, 2);
 
       element._isScrolling = false;
       element.process(content);
       // More groups have been processed. How many does not matter here.
-      assert.isAtLeast(element.groups.length, 2);
+      assert.isAtLeast(element.groups.length, 3);
     });
 
     test('image diffs', () => {
@@ -723,9 +769,8 @@ suite('gr-diff-processor tests', () => {
         ],
       };
       const content = _.times(200, _.constant(contentRow));
-      sinon.stub(element, 'async');
       element.process(content, true);
-      assert.equal(element.groups.length, 1);
+      assert.equal(element.groups.length, 2);
 
       // Image diffs don't process content, just the 'FILE' line.
       assert.equal(element.groups[0].lines.length, 1);
@@ -797,20 +842,26 @@ suite('gr-diff-processor tests', () => {
         assert.deepEqual(
             skippedGroup.lineRange,
             {
-              left: {start: lineNums.left + 1, end: lineNums.left + skip},
-              right: {start: lineNums.right + 1, end: lineNums.right + skip},
+              left: {
+                start_line: lineNums.left + 1,
+                end_line: lineNums.left + skip,
+              },
+              right: {
+                start_line: lineNums.right + 1,
+                end_line: lineNums.right + skip,
+              },
             });
 
         assert.deepEqual(
             abGroup.lineRange,
             {
               left: {
-                start: lineNums.left + skip + 1,
-                end: lineNums.left + skip + rows.length,
+                start_line: lineNums.left + skip + 1,
+                end_line: lineNums.left + skip + rows.length,
               },
               right: {
-                start: lineNums.right + skip + 1,
-                end: lineNums.right + skip + rows.length,
+                start_line: lineNums.right + skip + 1,
+                end_line: lineNums.right + skip + rows.length,
               },
             });
       });
@@ -1019,16 +1070,6 @@ suite('gr-diff-processor tests', () => {
             }
           });
 
-      test('_breakdownChunk keeps due_to_move for broken down additions',
-          () => {
-            sinon.spy(element, '_breakdown');
-            const chunk = {b: ['blah', 'blah', 'blah'], due_to_move: true};
-            const result = element._breakdownChunk(chunk);
-            for (const subResult of result) {
-              assert.isTrue(subResult.due_to_move);
-            }
-          });
-
       test('_breakdown common case', () => {
         const array = 'Lorem ipsum dolor sit amet, suspendisse inceptos'
             .split(' ');
@@ -1070,7 +1111,7 @@ suite('gr-diff-processor tests', () => {
   test('detaching cancels', () => {
     element = basicFixture.instantiate();
     sinon.stub(element, 'cancel');
-    element.detached();
+    element.disconnectedCallback();
     assert(element.cancel.called);
   });
 });

@@ -16,16 +16,11 @@
  */
 
 import '../../test/common-test-setup-karma.js';
-import '../../elements/shared/gr-rest-api-interface/gr-rest-api-interface.js';
 import {GrEmailSuggestionsProvider} from './gr-email-suggestions-provider.js';
-import {html} from '@polymer/polymer/lib/utils/html-tag.js';
-
-const basicFixture = fixtureFromTemplate(html`
-<gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-`);
+import {appContext} from '../../services/app-context.js';
+import {stubRestApi} from '../../test/test-utils.js';
 
 suite('GrEmailSuggestionsProvider tests', () => {
-  let restAPI;
   let provider;
   const account1 = {
     name: 'Some name',
@@ -37,17 +32,13 @@ suite('GrEmailSuggestionsProvider tests', () => {
   };
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-    });
-    restAPI = basicFixture.instantiate();
-    provider = new GrEmailSuggestionsProvider(restAPI);
+    provider = new GrEmailSuggestionsProvider(appContext.restApiService);
   });
 
   test('getSuggestions', done => {
     const getSuggestedAccountsStub =
-        sinon.stub(restAPI, 'getSuggestedAccounts')
-            .returns(Promise.resolve([account1, account2]));
+        stubRestApi('getSuggestedAccounts').returns(
+            Promise.resolve([account1, account2]));
 
     provider.getSuggestions('Some input').then(res => {
       assert.deepEqual(res, [account1, account2]);

@@ -33,7 +33,7 @@ export const htmlTemplate = html`
     #email {
       margin-bottom: var(--spacing-l);
     }
-    main section.darkToggle {
+    .main section.darkToggle {
       display: block;
     }
     .filters p,
@@ -75,14 +75,10 @@ export const htmlTemplate = html`
           <li><a href="#HTTPCredentials">HTTP Credentials</a></li>
         </template>
         <li hidden$="[[!_serverConfig.sshd]]">
-          <a href="#SSHKeys">
-            SSH Keys
-          </a>
+          <a href="#SSHKeys"> SSH Keys </a>
         </li>
         <li hidden$="[[!_serverConfig.receive.enable_signed_push]]">
-          <a href="#GPGKeys">
-            GPG Keys
-          </a>
+          <a href="#GPGKeys"> GPG Keys </a>
         </li>
         <li><a href="#Groups">Groups</a></li>
         <li><a href="#Identities">Identities</a></li>
@@ -99,7 +95,7 @@ export const htmlTemplate = html`
         </gr-endpoint-decorator>
       </ul>
     </gr-page-nav>
-    <main class="gr-form-styles">
+    <div class="main gr-form-styles">
       <h1 class="heading-1">User Settings</h1>
       <section class="darkToggle">
         <div class="toggle">
@@ -107,7 +103,7 @@ export const htmlTemplate = html`
             aria-labelledby="darkThemeToggleLabel"
             checked="[[_isDark]]"
             on-change="_handleToggleDark"
-            on-tap="_onTapDarkToggle"
+            on-click="_onTapDarkToggle"
           ></paper-toggle-button>
           <div id="darkThemeToggleLabel">Dark theme (alpha)</div>
         </div>
@@ -136,10 +132,12 @@ export const htmlTemplate = html`
       </h2>
       <fieldset id="preferences">
         <section>
-          <span class="title">Changes per page</span>
+          <label class="title" for="changesPerPageSelect"
+            >Changes per page</label
+          >
           <span class="value">
             <gr-select bind-value="{{_localPrefs.changes_per_page}}">
-              <select>
+              <select id="changesPerPageSelect">
                 <option value="10">10 rows per page</option>
                 <option value="25">25 rows per page</option>
                 <option value="50">50 rows per page</option>
@@ -149,10 +147,12 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">Date/time format</span>
+          <label class="title" for="dateTimeFormatSelect"
+            >Date/time format</label
+          >
           <span class="value">
             <gr-select bind-value="{{_localPrefs.date_format}}">
-              <select>
+              <select id="dateTimeFormatSelect">
                 <option value="STD">Jun 3 ; Jun 3, 2016</option>
                 <option value="US">06/03 ; 06/03/16</option>
                 <option value="ISO">06-03 ; 2016-06-03</option>
@@ -160,7 +160,10 @@ export const htmlTemplate = html`
                 <option value="UK">03/06 ; 03/06/2016</option>
               </select>
             </gr-select>
-            <gr-select bind-value="{{_localPrefs.time_format}}">
+            <gr-select
+              bind-value="{{_localPrefs.time_format}}"
+              aria-label="Time Format"
+            >
               <select>
                 <option value="HHMM_12">4:10 PM</option>
                 <option value="HHMM_24">16:10</option>
@@ -169,25 +172,27 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">Email notifications</span>
+          <label class="title" for="emailNotificationsSelect"
+            >Email notifications</label
+          >
           <span class="value">
             <gr-select bind-value="{{_localPrefs.email_strategy}}">
-              <select>
+              <select id="emailNotificationsSelect">
                 <option value="CC_ON_OWN_COMMENTS">Every comment</option>
                 <option value="ENABLED">Only comments left by others</option>
-                <option value="ATTENTION_SET_ONLY"
-                  >Only when I am in the attention set</option
-                >
+                <option value="ATTENTION_SET_ONLY">
+                  Only when I am in the attention set
+                </option>
                 <option value="DISABLED">None</option>
               </select>
             </gr-select>
           </span>
         </section>
         <section hidden$="[[!_localPrefs.email_format]]">
-          <span class="title">Email format</span>
+          <label class="title" for="emailFormatSelect">Email format</label>
           <span class="value">
             <gr-select bind-value="{{_localPrefs.email_format}}">
-              <select>
+              <select id="emailFormatSelect">
                 <option value="HTML_PLAINTEXT">HTML and plaintext</option>
                 <option value="PLAINTEXT">Plaintext only</option>
               </select>
@@ -206,7 +211,9 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">Show Relative Dates In Changes Table</span>
+          <label class="title" for="relativeDateInChangeTable"
+            >Show Relative Dates In Changes Table</label
+          >
           <span class="value">
             <input
               id="relativeDateInChangeTable"
@@ -228,7 +235,9 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">Show size bars in file list</span>
+          <label for="showSizeBarsInFileList" class="title"
+            >Show size bars in file list</label
+          >
           <span class="value">
             <input
               id="showSizeBarsInFileList"
@@ -239,7 +248,9 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">Publish comments on push</span>
+          <label for="publishCommentsOnPush" class="title"
+            >Publish comments on push</label
+          >
           <span class="value">
             <input
               id="publishCommentsOnPush"
@@ -250,8 +261,8 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title"
-            >Set new changes to "work in progress" by default</span
+          <label for="workInProgressByDefault" class="title"
+            >Set new changes to "work in progress" by default</label
           >
           <span class="value">
             <input
@@ -263,9 +274,9 @@ export const htmlTemplate = html`
           </span>
         </section>
         <section>
-          <span class="title">
+          <label for="insertSignedOff" class="title">
             Insert Signed-off-by Footer For Inline Edit Changes
-          </span>
+          </label>
           <span class="value">
             <input
               id="insertSignedOff"
@@ -340,6 +351,7 @@ export const htmlTemplate = html`
       <fieldset id="changeTableColumns">
         <gr-change-table-editor
           show-number="{{_showNumber}}"
+          server-config="[[_serverConfig]]"
           displayed-columns="{{_localChangeTableColumns}}"
         >
         </gr-change-table-editor>
@@ -550,7 +562,6 @@ export const htmlTemplate = html`
         </table>
       </fieldset>
       <gr-endpoint-decorator name="settings-screen"> </gr-endpoint-decorator>
-    </main>
+    </div>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

@@ -60,9 +60,6 @@ suite('gr-account-list tests', () => {
     existingAccount1 = makeAccount();
     existingAccount2 = makeAccount();
 
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-    });
     element = basicFixture.instantiate();
     element.accounts = [existingAccount1, existingAccount2];
     suggestionsProvider = new MockSuggestionsProvider();

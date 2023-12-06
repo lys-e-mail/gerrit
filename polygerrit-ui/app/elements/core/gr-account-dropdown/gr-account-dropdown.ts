@@ -16,17 +16,15 @@
  */
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-dropdown/gr-dropdown';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import '../../shared/gr-avatar/gr-avatar';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-account-dropdown_html';
 import {getUserName} from '../../../utils/display-name-util';
 import {customElement, property} from '@polymer/decorators';
 import {AccountInfo, ServerInfo} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
+import {fireEvent} from '../../../utils/event-util';
 
 const INTERPOLATE_URL_PATTERN = /\${([\w]+)}/g;
 
@@ -36,16 +34,8 @@ declare global {
   }
 }
 
-export interface GrAccountDropdown {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
 @customElement('gr-account-dropdown')
-export class GrAccountDropdown extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAccountDropdown extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -71,12 +61,14 @@ export class GrAccountDropdown extends GestureEventListeners(
   @property({type: String})
   _switchAccountUrl = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
-    this._handleLocationChange();
-    this.listen(window, 'location-change', '_handleLocationChange');
-    this.$.restAPI.getConfig().then(cfg => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleLocationChange();
+    window.addEventListener('location-change', this.handleLocationChange);
+    this.restApiService.getConfig().then(cfg => {
       this.config = cfg;
 
       if (cfg && cfg.auth && cfg.auth.switch_account_url) {
@@ -89,9 +81,9 @@ export class GrAccountDropdown extends GestureEventListeners(
   }
 
   /** @override */
-  detached() {
-    super.detached();
-    this.unlisten(window, 'location-change', '_handleLocationChange');
+  disconnectedCallback() {
+    window.removeEventListener('location-change', this.handleLocationChange);
+    super.disconnectedCallback();
   }
 
   _getLinks(switchAccountUrl: string, path: string) {
@@ -120,18 +112,13 @@ export class GrAccountDropdown extends GestureEventListeners(
   }
 
   _handleShortcutsTap() {
-    this.dispatchEvent(
-      new CustomEvent('show-keyboard-shortcuts', {
-        bubbles: true,
-        composed: true,
-      })
-    );
+    fireEvent(this, 'show-keyboard-shortcuts');
   }
 
-  _handleLocationChange() {
+  private readonly handleLocationChange = () => {
     this._path =
       window.location.pathname + window.location.search + window.location.hash;
-  }
+  };
 
   _interpolateUrl(url: string, replacements: {[key: string]: string}) {
     return url.replace(

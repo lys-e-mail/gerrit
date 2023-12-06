@@ -111,6 +111,8 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
   public static final String KEY_IGNORE_SELF_APPROVAL = "ignoreSelfApproval";
   public static final String KEY_COPY_ANY_SCORE = "copyAnyScore";
   public static final String KEY_COPY_MAX_SCORE = "copyMaxScore";
+  public static final String KEY_COPY_ALL_SCORES_IF_LIST_OF_FILES_DID_NOT_CHANGE =
+      "copyAllScoresIfListOfFilesDidNotChange";
   public static final String KEY_COPY_ALL_SCORES_ON_MERGE_FIRST_PARENT_UPDATE =
       "copyAllScoresOnMergeFirstParentUpdate";
   public static final String KEY_COPY_ALL_SCORES_ON_TRIVIAL_REBASE = "copyAllScoresOnTrivialRebase";
@@ -211,7 +213,8 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     }
 
     public ProjectConfig create(Project.NameKey projectName) {
-      return new ProjectConfig(projectName, getBaseConfig(sitePaths, allProjects, projectName));
+      return new ProjectConfig(
+          projectName, getBaseConfig(sitePaths, allProjects, projectName), allProjects);
     }
 
     public ProjectConfig read(MetaDataUpdate update) throws IOException, ConfigInvalidException {
@@ -237,6 +240,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
   }
 
   private final StoredConfig baseConfig;
+  private final AllProjectsName allProjectsName;
 
   private Project project;
   private AccountsSection accountsSection;
@@ -273,7 +277,6 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
             .setCheckReceivedObjects(checkReceivedObjects)
             .setExtensionPanelSections(extensionPanelSections);
     groupList.byUUID().values().forEach(g -> builder.addGroup(g));
-    accessSections.values().forEach(a -> builder.addAccessSection(a));
     contributorAgreements.values().forEach(c -> builder.addContributorAgreement(c));
     notifySections.values().forEach(n -> builder.addNotifySection(n));
     subscribeSections.values().forEach(s -> builder.addSubscribeSection(s));
@@ -285,6 +288,28 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     projectLevelConfigs
         .entrySet()
         .forEach(c -> builder.addProjectLevelConfig(c.getKey(), c.getValue().toText()));
+
+    if (projectName.equals(allProjectsName)) {
+      // Filter out permissions that aren't allowed to be set on All-Projects
+      accessSections
+          .values()
+          .forEach(
+              a -> {
+                List<Permission.Builder> copy = new ArrayList<>();
+                for (Permission p : a.getPermissions()) {
+                  if (Permission.canBeOnAllProjects(a.getName(), p.getName())) {
+                    copy.add(p.toBuilder());
+                  }
+                }
+                AccessSection section =
+                    AccessSection.builder(a.getName())
+                        .modifyPermissions(permissions -> permissions.addAll(copy))
+                        .build();
+                builder.addAccessSection(section);
+              });
+    } else {
+      accessSections.values().forEach(a -> builder.addAccessSection(a));
+    }
     return builder.build();
   }
 
@@ -340,9 +365,13 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     requireNonNull(commentLinkSections.remove(name));
   }
 
-  private ProjectConfig(Project.NameKey projectName, @Nullable StoredConfig baseConfig) {
+  private ProjectConfig(
+      Project.NameKey projectName,
+      @Nullable StoredConfig baseConfig,
+      AllProjectsName allProjectsName) {
     this.projectName = projectName;
     this.baseConfig = baseConfig;
+    this.allProjectsName = allProjectsName;
   }
 
   public void load(Repository repo) throws IOException, ConfigInvalidException {
@@ -385,6 +414,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     this.accountsSection = accountsSection;
   }
 
+  /** Returns an access section, {@code name} typically is a ref pattern. */
   public AccessSection getAccessSection(String name) {
     return accessSections.get(name);
   }
@@ -1028,6 +1058,12 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           rc.getBoolean(LABEL, name, KEY_COPY_MIN_SCORE, LabelType.DEF_COPY_MIN_SCORE));
       label.setCopyMaxScore(
           rc.getBoolean(LABEL, name, KEY_COPY_MAX_SCORE, LabelType.DEF_COPY_MAX_SCORE));
+      label.setCopyAllScoresIfListOfFilesDidNotChange(
+          rc.getBoolean(
+              LABEL,
+              name,
+              KEY_COPY_ALL_SCORES_IF_LIST_OF_FILES_DID_NOT_CHANGE,
+              LabelType.DEF_COPY_ALL_SCORES_IF_LIST_OF_FILES_DID_NOT_CHANGE));
       label.setCopyAllScoresOnMergeFirstParentUpdate(
           rc.getBoolean(
               LABEL,
@@ -1561,6 +1597,13 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
           KEY_COPY_ALL_SCORES_IF_NO_CHANGE,
           label.isCopyAllScoresIfNoChange(),
           LabelType.DEF_COPY_ALL_SCORES_IF_NO_CHANGE);
+      setBooleanConfigKey(
+          rc,
+          LABEL,
+          name,
+          KEY_COPY_ALL_SCORES_IF_LIST_OF_FILES_DID_NOT_CHANGE,
+          label.isCopyAllScoresIfListOfFilesDidNotChange(),
+          LabelType.DEF_COPY_ALL_SCORES_IF_LIST_OF_FILES_DID_NOT_CHANGE);
       setBooleanConfigKey(
           rc,
           LABEL,

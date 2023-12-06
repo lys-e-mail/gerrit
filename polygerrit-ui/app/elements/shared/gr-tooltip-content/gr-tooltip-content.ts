@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 import '../gr-icons/gr-icons';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-tooltip-content_html';
 import {TooltipMixin} from '../../../mixins/gr-tooltip-mixin/gr-tooltip-mixin';
@@ -32,9 +30,7 @@ declare global {
  * Transclude anything inside and wrap them to support tooltip functionality.
  */
 @customElement('gr-tooltip-content')
-export class GrTooltipContent extends TooltipMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrTooltipContent extends TooltipMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }

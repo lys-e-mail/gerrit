@@ -14,11 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ActionInfo, ChangeInfo, PatchSetNum} from '../../../types/common';
-import {EventType, TargetElement} from '../../plugins/gr-plugin-types';
-import {DiffLayer} from '../../../types/types';
+import {
+  ActionInfo,
+  ChangeInfo,
+  PatchSetNum,
+  ReviewInput,
+  RevisionInfo,
+} from '../../../types/common';
+import {EventType, TargetElement} from '../../../api/plugin';
+import {DiffLayer, ParsedChangeInfo} from '../../../types/types';
 import {GrAnnotationActionsInterface} from './gr-annotation-actions-js-api';
-import {MenuLink} from '../../plugins/gr-admin-api/gr-admin-api';
+import {MenuLink} from '../../../api/admin';
 
 export interface ShowChangeDetail {
   change: ChangeInfo;
@@ -31,6 +37,7 @@ export interface ShowRevisionActionsDetail {
   revisionActions: {[key: string]: ActionInfo};
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventCallback = (...args: any[]) => any;
 
 export interface JsApiService {
@@ -41,6 +48,7 @@ export interface JsApiService {
     revertSubmissionMsg: string,
     origMsg: string
   ): string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleEvent(eventName: EventType, detail: any): void;
   modifyRevertMsg(
     change: ChangeInfo,
@@ -48,9 +56,11 @@ export interface JsApiService {
     origMsg: string
   ): string;
   addElement(key: TargetElement, el: HTMLElement): void;
-  getDiffLayers(path: string, changeNum: number): DiffLayer[];
+  getDiffLayers(path: string): DiffLayer[];
   disposeDiffLayers(path: string): void;
   getCoverageAnnotationApis(): Promise<GrAnnotationActionsInterface[]>;
   getAdminMenuLinks(): MenuLink[];
-  // TODO(TS): Add more methods when needed for the TS conversion.
+  handleCommitMessage(change: ChangeInfo | ParsedChangeInfo, msg: string): void;
+  canSubmitChange(change: ChangeInfo, revision?: RevisionInfo | null): boolean;
+  getReviewPostRevert(change?: ChangeInfo): ReviewInput;
 }

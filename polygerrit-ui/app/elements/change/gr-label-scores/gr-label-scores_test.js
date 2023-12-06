@@ -17,6 +17,7 @@
 
 import '../../../test/common-test-setup-karma.js';
 import './gr-label-scores.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-label-scores');
 
@@ -24,9 +25,7 @@ suite('gr-label-scores tests', () => {
   let element;
 
   setup(done => {
-    stub('gr-rest-api-interface', {
-      getLoggedIn() { return Promise.resolve(false); },
-    });
+    stubRestApi('getLoggedIn').returns(Promise.resolve(false));
     element = basicFixture.instantiate();
     element.change = {
       _number: '123',
@@ -86,12 +85,10 @@ suite('gr-label-scores tests', () => {
   });
 
   test('get and set label scores', () => {
-    for (const label in element.permittedLabels) {
-      if (element.permittedLabels.hasOwnProperty(label)) {
-        const row = element.shadowRoot
-            .querySelector('gr-label-score-row[name="' + label + '"]');
-        row.setSelectedValue(-1);
-      }
+    for (const label of Object.keys(element.permittedLabels)) {
+      const row = element.shadowRoot
+          .querySelector('gr-label-score-row[name="' + label + '"]');
+      row.setSelectedValue(-1);
     }
     assert.deepEqual(element.getLabelValues(), {
       'Code-Review': -1,

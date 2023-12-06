@@ -15,16 +15,11 @@
  * limitations under the License.
  */
 import {getBaseUrl} from '../../../../utils/url-util';
-import {
-  CancelConditionCallback,
-  ErrorCallback,
-  RestApiService,
-} from '../../../../services/services/gr-rest-api/gr-rest-api';
+import {CancelConditionCallback} from '../../../../services/gr-rest-api/gr-rest-api';
 import {
   AuthRequestInit,
   AuthService,
 } from '../../../../services/gr-auth/gr-auth';
-import {hasOwnProperty} from '../../../../utils/common-util';
 import {
   AccountDetailInfo,
   EmailInfo,
@@ -33,8 +28,11 @@ import {
 } from '../../../../types/common';
 import {HttpMethod} from '../../../../constants/constants';
 import {RpcLogEventDetail} from '../../../../types/events';
+import {fireNetworkError, fireServerError} from '../../../../utils/event-util';
+import {FetchRequest} from '../../../../types/types';
+import {ErrorCallback} from '../../../../api/rest';
 
-const JSON_PREFIX = ")]}'";
+export const JSON_PREFIX = ")]}'";
 
 export interface ResponsePayload {
   // TODO(TS): readResponsePayload can assign null to the parsed property if
@@ -46,6 +44,29 @@ export interface ResponsePayload {
   raw: string;
 }
 
+export function readResponsePayload(
+  response: Response
+): Promise<ResponsePayload> {
+  return response.text().then(text => {
+    let result;
+    try {
+      result = parsePrefixedJSON(text);
+    } catch (_) {
+      result = null;
+    }
+    // TODO(TS): readResponsePayload can assign null to the parsed property if
+    // it can't parse input data. However polygerrit assumes in many places
+    // that the parsed property can't be null. We should update
+    // readResponsePayload method and reject a promise instead of assigning
+    // null to the parsed property
+    return {parsed: result!, raw: text};
+  });
+}
+
+export function parsePrefixedJSON(jsonWithPrefix: string): ParsedJSON {
+  return JSON.parse(jsonWithPrefix.substring(JSON_PREFIX.length)) as ParsedJSON;
+}
+
 /**
  * Wrapper around Map for caching server responses. Site-based so that
  * changes to CANONICAL_PATH will result in a different cache going into
@@ -54,7 +75,7 @@ export interface ResponsePayload {
 export class SiteBasedCache {
   // TODO(TS): Type looks unusual. Fix it.
   // Container of per-canonical-path caches.
-  private readonly _data = new Map<
+  private readonly data = new Map<
     string | undefined,
     unknown | Map<string, ParsedJSON | null>
   >();
@@ -72,10 +93,13 @@ export class SiteBasedCache {
 
   // Returns the cache for the current canonical path.
   _cache(): Map<string, unknown> {
-    if (!this._data.has(window.CANONICAL_PATH)) {
-      this._data.set(window.CANONICAL_PATH, new Map());
+    if (!this.data.has(window.CANONICAL_PATH)) {
+      this.data.set(
+        window.CANONICAL_PATH,
+        new Map<string, ParsedJSON | null>()
+      );
     }
-    return this._data.get(window.CANONICAL_PATH) as Map<
+    return this.data.get(window.CANONICAL_PATH) as Map<
       string,
       ParsedJSON | null
     >;
@@ -110,13 +134,13 @@ export class SiteBasedCache {
   }
 
   invalidatePrefix(prefix: string) {
-    const newMap = new Map();
+    const newMap = new Map<string, unknown>();
     for (const [key, value] of this._cache().entries()) {
       if (!key.startsWith(prefix)) {
         newMap.set(key, value);
       }
     }
-    this._data.set(window.CANONICAL_PATH, newMap);
+    this.data.set(window.CANONICAL_PATH, newMap);
   }
 }
 
@@ -125,25 +149,25 @@ type FetchPromisesCacheData = {
 };
 
 export class FetchPromisesCache {
-  private _data: FetchPromisesCacheData;
+  private data: FetchPromisesCacheData;
 
   constructor() {
-    this._data = {};
+    this.data = {};
   }
 
   public testOnlyGetData() {
-    return this._data;
+    return this.data;
   }
 
   /**
    * @return true only if a value for a key sets and it is not undefined
    */
   has(key: string): boolean {
-    return !!this._data[key];
+    return !!this.data[key];
   }
 
   get(key: string) {
-    return this._data[key];
+    return this.data[key];
   }
 
   /**
@@ -151,17 +175,17 @@ export class FetchPromisesCache {
    *     mark key as deleted.
    */
   set(key: string, value: Promise<ParsedJSON | undefined> | undefined) {
-    this._data[key] = value;
+    this.data[key] = value;
   }
 
   invalidatePrefix(prefix: string) {
     const newData: FetchPromisesCacheData = {};
-    Object.entries(this._data).forEach(([key, value]) => {
+    Object.entries(this.data).forEach(([key, value]) => {
       if (!key.startsWith(prefix)) {
         newData[key] = value;
       }
     });
-    this._data = newData;
+    this.data = newData;
   }
 }
 export type FetchParams = {
@@ -189,12 +213,6 @@ export interface SendJSONRequest extends SendRequestBase {
 
 export type SendRequest = SendRawRequest | SendJSONRequest;
 
-export interface FetchRequest {
-  url: string;
-  fetchOptions?: AuthRequestInit;
-  anonymizedUrl?: string;
-}
-
 export interface FetchJSONRequest extends FetchRequest {
   reportUrlAsIs?: boolean;
   params?: FetchParams;
@@ -218,8 +236,7 @@ export class GrRestApiHelper {
   constructor(
     private readonly _cache: SiteBasedCache,
     private readonly _auth: AuthService,
-    private readonly _fetchPromisesCache: FetchPromisesCache,
-    private readonly _restApiInterface: RestApiService
+    private readonly _fetchPromisesCache: FetchPromisesCache
   ) {}
 
   /**
@@ -277,8 +294,8 @@ s   */
         elapsed,
         anonymizedUrl: req.anonymizedUrl,
       };
-      this.dispatchEvent(
-        new CustomEvent('rpc-log', {
+      document.dispatchEvent(
+        new CustomEvent('gr-rpc-log', {
           detail,
           composed: true,
           bubbles: true,
@@ -317,13 +334,7 @@ s   */
         if (req.errFn) {
           req.errFn.call(undefined, null, err);
         } else {
-          this.dispatchEvent(
-            new CustomEvent('network-error', {
-              detail: {error: err},
-              composed: true,
-              bubbles: true,
-            })
-          );
+          fireNetworkError(err);
         }
         throw err;
       });
@@ -352,13 +363,7 @@ s   */
           req.errFn.call(null, response);
           return;
         }
-        this.dispatchEvent(
-          new CustomEvent('server-error', {
-            detail: {request: req, response},
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireServerError(response, req);
         return;
       }
       return this.getResponseObject(response);
@@ -371,11 +376,7 @@ s   */
     }
 
     const params: Array<string | number | boolean> = [];
-    for (const p in fetchParams) {
-      if (!hasOwnProperty(fetchParams, p)) {
-        continue;
-      }
-      const paramValue = fetchParams[p];
+    for (const [p, paramValue] of Object.entries(fetchParams)) {
       // TODO(TS): Replace == null with === and check for null and undefined
       // eslint-disable-next-line eqeqeq
       if (paramValue == null) {
@@ -405,30 +406,7 @@ s   */
   }
 
   getResponseObject(response: Response): Promise<ParsedJSON> {
-    return this.readResponsePayload(response).then(payload => payload.parsed);
-  }
-
-  readResponsePayload(response: Response): Promise<ResponsePayload> {
-    return response.text().then(text => {
-      let result;
-      try {
-        result = this.parsePrefixedJSON(text);
-      } catch (_) {
-        result = null;
-      }
-      // TODO(TS): readResponsePayload can assign null to the parsed property if
-      // it can't parse input data. However polygerrit assumes in many places
-      // that the parsed property can't be null. We should update
-      // readResponsePayload method and reject a promise instead of assigning
-      // null to the parsed property
-      return {parsed: result!, raw: text};
-    });
-  }
-
-  parsePrefixedJSON(jsonWithPrefix: string): ParsedJSON {
-    return JSON.parse(
-      jsonWithPrefix.substring(JSON_PREFIX.length)
-    ) as ParsedJSON;
+    return readResponsePayload(response).then(payload => payload.parsed);
   }
 
   addAcceptJsonHeader(req: FetchJSONRequest) {
@@ -438,10 +416,6 @@ s   */
       req.fetchOptions.headers.append('Accept', 'application/json');
     }
     return req;
-  }
-
-  dispatchEvent(type: Event, detail?: unknown): boolean {
-    return this._restApiInterface.dispatchEvent(type, detail);
   }
 
   fetchCacheURL(req: FetchJSONRequest): Promise<ParsedJSON | undefined> {
@@ -483,7 +457,7 @@ s   */
    * Send an XHR.
    *
    * @return Promise resolves to Response/ParsedJSON only if the request is successful
-   *     (i.e. no exception and response.ok is trsue). If response fails then
+   *     (i.e. no exception and response.ok is true). If response fails then
    *     promise resolves either to void if errFn is set or rejects if errFn
    *     is not set   */
   send(req: SendRequest): Promise<Response | ParsedJSON | undefined> {
@@ -501,11 +475,8 @@ s   */
       if (!options.headers) {
         options.headers = new Headers();
       }
-      for (const header in req.headers) {
-        if (!hasOwnProperty(req.headers, header)) {
-          continue;
-        }
-        options.headers.set(header, req.headers[header]);
+      for (const [name, value] of Object.entries(req.headers)) {
+        options.headers.set(name, value);
       }
     }
     const url = req.url.startsWith('http') ? req.url : getBaseUrl() + req.url;
@@ -515,35 +486,23 @@ s   */
       anonymizedUrl: req.reportUrlAsIs ? url : req.anonymizedUrl,
     };
     const xhr = this.fetch(fetchReq)
-      .then(response => {
-        if (!response.ok) {
-          if (req.errFn) {
-            req.errFn.call(undefined, response);
-            return;
-          }
-          this.dispatchEvent(
-            new CustomEvent('server-error', {
-              detail: {request: fetchReq, response},
-              composed: true,
-              bubbles: true,
-            })
-          );
-        }
-        return response;
-      })
       .catch(err => {
-        this.dispatchEvent(
-          new CustomEvent('network-error', {
-            detail: {error: err},
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireNetworkError(err);
         if (req.errFn) {
           return req.errFn.call(undefined, null, err);
         } else {
           throw err;
         }
+      })
+      .then(response => {
+        if (response && !response.ok) {
+          if (req.errFn) {
+            req.errFn.call(undefined, response);
+            return;
+          }
+          fireServerError(response, fetchReq);
+        }
+        return response;
       });
 
     if (req.parseResponse) {

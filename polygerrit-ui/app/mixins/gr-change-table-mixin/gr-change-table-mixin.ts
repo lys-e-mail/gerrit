@@ -48,14 +48,6 @@ export const ChangeTableMixin = dedupingMixin(
         'Size',
       ];
 
-      /**
-       * Returns the complement to the given column array
-       *
-       */
-      getComplementColumns(columns: string[]) {
-        return this.columnNames.filter(column => !columns.includes(column));
-      }
-
       isColumnHidden(columnToCheck?: string, columnsToDisplay?: string[]) {
         if (!columnsToDisplay || !columnToCheck) {
           return false;
@@ -103,7 +95,7 @@ export const ChangeTableMixin = dedupingMixin(
        * @return If the column was renamed, returns a new array
        * with the corrected name. Otherwise, it returns the original param.
        */
-      getVisibleColumns(columns: string[]) {
+      renameProjectToRepoColumn(columns: string[]) {
         const projectIndex = columns.indexOf('Project');
         if (projectIndex === -1) {
           return columns;
@@ -120,7 +112,6 @@ export const ChangeTableMixin = dedupingMixin(
 
 export interface ChangeTableMixinInterface {
   readonly columnNames: string[];
-  getComplementColumns(columns: string[]): string[];
   isColumnHidden(columnToCheck?: string, columnsToDisplay?: string[]): boolean;
   isColumnEnabled(
     column: string,
@@ -132,5 +123,5 @@ export interface ChangeTableMixinInterface {
     config: ServerInfo,
     experiments: string[]
   ): string[];
-  getVisibleColumns(columns: string[]): string[];
+  renameProjectToRepoColumn(columns: string[]): string[];
 }

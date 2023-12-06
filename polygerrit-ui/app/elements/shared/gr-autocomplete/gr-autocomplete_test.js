@@ -46,7 +46,7 @@ suite('gr-autocomplete tests', () => {
     ]));
     element.query = queryStub;
     assert.isTrue(element.$.suggestions.isHidden);
-    assert.equal(element.$.suggestions.$.cursor.index, -1);
+    assert.equal(element.$.suggestions.cursor.index, -1);
 
     focusOnInput(element);
     element.text = 'blah';
@@ -64,7 +64,7 @@ suite('gr-autocomplete tests', () => {
         assert.equal(suggestions[i].innerText.trim(), 'blah ' + i);
       }
 
-      assert.notEqual(element.$.suggestions.$.cursor.index, -1);
+      assert.notEqual(element.$.suggestions.cursor.index, -1);
     });
   });
 
@@ -121,7 +121,7 @@ suite('gr-autocomplete tests', () => {
     element.query = queryStub;
 
     assert.isTrue(element.$.suggestions.isHidden);
-    assert.equal(element.$.suggestions.$.cursor.index, -1);
+    assert.equal(element.$.suggestions.cursor.index, -1);
     element._focused = true;
     element.text = 'blah';
 
@@ -131,21 +131,21 @@ suite('gr-autocomplete tests', () => {
       const commitHandler = sinon.spy();
       element.addEventListener('commit', commitHandler);
 
-      assert.equal(element.$.suggestions.$.cursor.index, 0);
+      assert.equal(element.$.suggestions.cursor.index, 0);
 
       MockInteractions.pressAndReleaseKeyOn(element.$.input, 40, null,
           'down');
 
-      assert.equal(element.$.suggestions.$.cursor.index, 1);
+      assert.equal(element.$.suggestions.cursor.index, 1);
 
       MockInteractions.pressAndReleaseKeyOn(element.$.input, 40, null,
           'down');
 
-      assert.equal(element.$.suggestions.$.cursor.index, 2);
+      assert.equal(element.$.suggestions.cursor.index, 2);
 
       MockInteractions.pressAndReleaseKeyOn(element.$.input, 38, null, 'up');
 
-      assert.equal(element.$.suggestions.$.cursor.index, 1);
+      assert.equal(element.$.suggestions.cursor.index, 1);
 
       MockInteractions.pressAndReleaseKeyOn(element.$.input, 13, null,
           'enter');
@@ -215,19 +215,18 @@ suite('gr-autocomplete tests', () => {
   });
 
   test('noDebounce=false debounces the query', () => {
+    const clock = sinon.useFakeTimers();
     const queryStub = sinon.spy(() => Promise.resolve([]));
-    let callback;
-    const debounceStub = sinon.stub(element, 'debounce').callsFake(
-        (name, cb) => { callback = cb; });
     element.query = queryStub;
     element.noDebounce = false;
     focusOnInput(element);
     element.text = 'a';
+
+    // not called right away
     assert.isFalse(queryStub.called);
-    assert.isTrue(debounceStub.called);
-    assert.equal(debounceStub.lastCall.args[2], 200);
-    assert.isFunction(callback);
-    callback();
+
+    // but called after a while
+    clock.tick(1000);
     assert.isTrue(queryStub.called);
   });
 

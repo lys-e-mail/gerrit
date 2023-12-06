@@ -16,32 +16,23 @@
  */
 
 import '../../../styles/shared-styles';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-dashboards_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {RepoName, DashboardId, DashboardInfo} from '../../../types/common';
-import {ErrorCallback} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {firePageError} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 interface DashboardRef {
   section: string;
   dashboards: DashboardInfo[];
 }
 
-export interface GrRepoDashboards {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-repo-dashboards')
-export class GrRepoDashboards extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRepoDashboards extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -55,6 +46,8 @@ export class GrRepoDashboards extends GestureEventListeners(
   @property({type: Array})
   _dashboards?: DashboardRef[];
 
+  private readonly restApiService = appContext.restApiService;
+
   _repoChanged(repo?: RepoName) {
     this._loading = true;
     if (!repo) {
@@ -62,16 +55,10 @@ export class GrRepoDashboards extends GestureEventListeners(
     }
 
     const errFn: ErrorCallback = response => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
 
-    return this.$.restAPI
+    return this.restApiService
       .getRepoDashboards(repo, errFn)
       .then((res?: DashboardInfo[]) => {
         if (!res) {

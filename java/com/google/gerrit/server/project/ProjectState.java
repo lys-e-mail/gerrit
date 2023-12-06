@@ -14,7 +14,10 @@
 
 package com.google.gerrit.server.project;
 
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.gerrit.entities.PermissionRule.Action.ALLOW;
+import static java.util.Comparator.comparing;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.FluentIterable;
@@ -174,8 +177,9 @@ public class ProjectState {
   }
 
   public ProjectLevelConfig getConfig(String fileName) {
-    Optional<Config> rawConfig = cachedConfig.getProjectLevelConfig(fileName);
-    return new ProjectLevelConfig(fileName, this, rawConfig.orElse(new Config()));
+    checkState(fileName.endsWith(".config"), "file name must end in .config. is: " + fileName);
+    return new ProjectLevelConfig(
+        fileName, this, cachedConfig.getParsedProjectLevelConfigs().get(fileName));
   }
 
   public long getMaxObjectSizeLimit() {
@@ -262,32 +266,22 @@ public class ProjectState {
 
   /** Get the sections that pertain only to this project. */
   List<SectionMatcher> getLocalAccessSections() {
-    List<SectionMatcher> sm = localAccessSections;
-    if (sm == null) {
-      Collection<AccessSection> fromConfig = cachedConfig.getAccessSections().values();
-      sm = new ArrayList<>(fromConfig.size());
-      for (AccessSection section : fromConfig) {
-        if (isAllProjects) {
-          List<Permission.Builder> copy = new ArrayList<>();
-          for (Permission p : section.getPermissions()) {
-            if (Permission.canBeOnAllProjects(section.getName(), p.getName())) {
-              copy.add(p.toBuilder());
-            }
-          }
-          section =
-              AccessSection.builder(section.getName())
-                  .modifyPermissions(permissions -> permissions.addAll(copy))
-                  .build();
-        }
-
-        SectionMatcher matcher = SectionMatcher.wrap(getNameKey(), section);
-        if (matcher != null) {
-          sm.add(matcher);
-        }
-      }
-      localAccessSections = sm;
+    if (localAccessSections != null) {
+      return localAccessSections;
     }
-    return sm;
+    ImmutableList<AccessSection> fromConfig =
+        cachedConfig.getAccessSections().values().stream()
+            .sorted(comparing(AccessSection::getName))
+            .collect(toImmutableList());
+    List<SectionMatcher> sm = new ArrayList<>(fromConfig.size());
+    for (AccessSection section : fromConfig) {
+      SectionMatcher matcher = SectionMatcher.wrap(getNameKey(), section);
+      if (matcher != null) {
+        sm.add(matcher);
+      }
+    }
+    localAccessSections = sm;
+    return localAccessSections;
   }
 
   /**

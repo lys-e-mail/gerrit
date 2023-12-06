@@ -255,7 +255,7 @@ export const htmlTemplate = html`
           class="navLink"
           title="[[createTitle(Shortcut.PREV_FILE,
                     ShortcutSection.NAVIGATION)]]"
-          href$="[[_computeNavLinkURL(_change, _path, _fileList, -1, 1)]]"
+          href$="[[_computeNavLinkURL(_change, _path, _fileList, -1)]]"
         >
           Prev</a
         >
@@ -273,7 +273,7 @@ export const htmlTemplate = html`
           class="navLink"
           title="[[createTitle(Shortcut.NEXT_FILE,
                 ShortcutSection.NAVIGATION)]]"
-          href$="[[_computeNavLinkURL(_change, _path, _fileList, 1, 1)]]"
+          href$="[[_computeNavLinkURL(_change, _path, _fileList, 1)]]"
         >
           Next</a
         >
@@ -302,9 +302,7 @@ export const htmlTemplate = html`
             items="[[_computeDownloadDropdownLinks(_change.project, _changeNum, _patchRange, _path, _diff)]]"
             horizontal-align="left"
           >
-            <span class="downloadTitle">
-              Download
-            </span>
+            <span class="downloadTitle"> Download </span>
           </gr-dropdown>
         </span>
       </div>
@@ -376,14 +374,14 @@ export const htmlTemplate = html`
     <div class="fileNav mobile">
       <a
         class="mobileNavLink"
-        href$="[[_computeNavLinkURL(_change, _path, _fileList, -1, 1)]]"
+        href$="[[_computeNavLinkURL(_change, _path, _fileList, -1)]]"
       >
         &lt;</a
       >
       <div class="fullFileName mobile">[[_computeDisplayPath(_path)]]</div>
       <a
         class="mobileNavLink"
-        href$="[[_computeNavLinkURL(_change, _path, _fileList, 1, 1)]]"
+        href$="[[_computeNavLinkURL(_change, _path, _fileList, 1)]]"
       >
         &gt;</a
       >
@@ -425,11 +423,11 @@ export const htmlTemplate = html`
     on-reload-diff-preference="_handleReloadingDiffPreference"
   >
   </gr-diff-preferences-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
   <gr-diff-cursor
     id="cursor"
-    on-navigate-to-next-unreviewed-file="_handleNextUnreviewedFile"
+    on-navigate-to-next-unreviewed-file="_navigateToNextUnreviewedFile"
+    on-navigate-to-previous-unreviewed-file="_navigateToPreviousUnreviewedFile"
+    on-navigate-to-next-file-with-comments="_navigateToNextFileWithCommentThread"
   ></gr-diff-cursor>
   <gr-comment-api id="commentAPI"></gr-comment-api>
 `;

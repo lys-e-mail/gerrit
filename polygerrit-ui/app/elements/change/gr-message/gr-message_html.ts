@@ -39,10 +39,23 @@ export const htmlTemplate = html`
     .contentContainer {
       padding: var(--spacing-m) var(--spacing-l);
     }
+    .expanded .contentContainer {
+      background-color: var(--background-color-secondary);
+    }
     .collapsed .contentContainer {
-      /* For expanded state we inherit the alternating background color
-           that is set in gr-messages-list. */
       background-color: var(--background-color-primary);
+    }
+    div.serviceUser.expanded div.contentContainer {
+      background-color: var(
+        --background-color-service-user,
+        var(--background-color-secondary)
+      );
+    }
+    div.serviceUser.collapsed div.contentContainer {
+      background-color: var(
+        --background-color-service-user,
+        var(--background-color-primary)
+      );
     }
     .name {
       font-weight: var(--font-weight-bold);
@@ -96,7 +109,9 @@ export const htmlTemplate = html`
       margin-right: var(--spacing-s);
     }
     .authorLabel {
-      width: 140px;
+      min-width: 130px;
+      --account-max-length: 120px;
+      margin-right: var(--spacing-s);
     }
     .expanded .author {
       cursor: pointer;
@@ -111,12 +126,16 @@ export const htmlTemplate = html`
       right: var(--spacing-l);
       top: var(--spacing-m);
     }
-    .dateContainer .patchset {
+    .dateContainer gr-button {
       margin-right: var(--spacing-m);
       color: var(--deemphasized-text-color);
     }
     .dateContainer .patchset:before {
       content: 'Patchset ';
+    }
+    .dateContainer .patchsetDiffButton {
+      margin-right: var(--spacing-m);
+      --padding: 0 var(--spacing-m);
     }
     span.date {
       color: var(--deemphasized-text-color);
@@ -151,15 +170,29 @@ export const htmlTemplate = html`
     }
     .score.negative {
       background-color: var(--vote-color-disliked);
+      border: 1px solid var(--vote-outline-disliked);
+      line-height: calc(var(--line-height-normal) - 2px);
+      color: var(--chip-color);
     }
     .score.negative.min {
       background-color: var(--vote-color-rejected);
+      border: none;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      color: var(--vote-text-color);
     }
     .score.positive {
       background-color: var(--vote-color-recommended);
+      border: 1px solid var(--vote-outline-recommended);
+      line-height: calc(var(--line-height-normal) - 2px);
+      color: var(--chip-color);
     }
     .score.positive.max {
       background-color: var(--vote-color-approved);
+      border: none;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      color: var(--vote-text-color);
     }
     gr-account-label {
       --gr-account-label-text-style: {
@@ -182,7 +215,7 @@ export const htmlTemplate = html`
       }
     }
   </style>
-  <div class$="[[_computeClass(_expanded)]]">
+  <div class$="[[_computeClass(_expanded, author)]]">
     <div class="contentContainer">
       <div class="author" on-click="_handleAuthorClick">
         <span hidden$="[[!showOnBehalfOf]]">
@@ -253,7 +286,7 @@ export const htmlTemplate = html`
               change-num="[[changeNum]]"
               logged-in="[[_loggedIn]]"
               hide-toggle-buttons
-              on-thread-list-modified="_onThreadListModified"
+              show-comment-context
             >
             </gr-thread-list>
           </template>
@@ -269,15 +302,25 @@ export const htmlTemplate = html`
                 items="[[update.reviewers]]"
                 as="reviewer"
               >
-                <gr-account-chip account="[[reviewer]]"> </gr-account-chip>
+                <gr-account-chip account="[[reviewer]]" change="[[change]]">
+                </gr-account-chip>
               </template>
             </div>
           </template>
         </div>
       </template>
       <span class="dateContainer">
+        <template is="dom-if" if="[[_showViewDiffButton(message)]]">
+          <gr-button
+            class="patchsetDiffButton"
+            on-click="_handleViewPatchsetDiff"
+            link
+          >
+            View Diff
+          </gr-button>
+        </template>
         <template is="dom-if" if="[[message._revision_number]]">
-          <span class="patchset">[[message._revision_number]]</span>
+          <span class="patchset">[[message._revision_number]] |</span>
         </template>
         <template is="dom-if" if="[[!message.id]]">
           <span class="date">
@@ -306,5 +349,4 @@ export const htmlTemplate = html`
       </span>
     </div>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

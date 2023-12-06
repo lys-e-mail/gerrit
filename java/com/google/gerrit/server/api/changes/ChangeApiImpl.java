@@ -46,6 +46,7 @@ import com.google.gerrit.extensions.api.changes.TopicInput;
 import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
+import com.google.gerrit.extensions.common.ChangeInfoDifference;
 import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.CommitMessageInput;
@@ -80,6 +81,7 @@ import com.google.gerrit.server.restapi.change.DeletePrivate;
 import com.google.gerrit.server.restapi.change.GetAssignee;
 import com.google.gerrit.server.restapi.change.GetChange;
 import com.google.gerrit.server.restapi.change.GetHashtags;
+import com.google.gerrit.server.restapi.change.GetMetaDiff;
 import com.google.gerrit.server.restapi.change.GetPastAssignees;
 import com.google.gerrit.server.restapi.change.GetPureRevert;
 import com.google.gerrit.server.restapi.change.GetTopic;
@@ -149,6 +151,7 @@ class ChangeApiImpl implements ChangeApi {
   private final ChangeIncludedIn includedIn;
   private final PostReviewers postReviewers;
   private final Provider<GetChange> getChangeProvider;
+  private final Provider<GetMetaDiff> getMetaDiffProvider;
   private final PostHashtags postHashtags;
   private final GetHashtags getHashtags;
   private final AttentionSet attentionSet;
@@ -160,7 +163,7 @@ class ChangeApiImpl implements ChangeApi {
   private final DeleteAssignee deleteAssignee;
   private final Provider<ListChangeComments> listCommentsProvider;
   private final ListChangeRobotComments listChangeRobotComments;
-  private final ListChangeDrafts listDrafts;
+  private final Provider<ListChangeDrafts> listDraftsProvider;
   private final ChangeEditApiImpl.Factory changeEditApi;
   private final Check check;
   private final Index index;
@@ -177,6 +180,8 @@ class ChangeApiImpl implements ChangeApi {
   private final Provider<GetPureRevert> getPureRevertProvider;
   private final StarredChangesUtil stars;
   private final DynamicOptionParser dynamicOptionParser;
+  private final Injector injector;
+  private final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
 
   @Inject
   ChangeApiImpl(
@@ -202,6 +207,7 @@ class ChangeApiImpl implements ChangeApi {
       ChangeIncludedIn includedIn,
       PostReviewers postReviewers,
       Provider<GetChange> getChangeProvider,
+      Provider<GetMetaDiff> getMetaDiffProvider,
       PostHashtags postHashtags,
       GetHashtags getHashtags,
       AttentionSet attentionSet,
@@ -213,7 +219,7 @@ class ChangeApiImpl implements ChangeApi {
       DeleteAssignee deleteAssignee,
       Provider<ListChangeComments> listCommentsProvider,
       ListChangeRobotComments listChangeRobotComments,
-      ListChangeDrafts listDrafts,
+      Provider<ListChangeDrafts> listDraftsProvider,
       ChangeEditApiImpl.Factory changeEditApi,
       Check check,
       Index index,
@@ -230,7 +236,9 @@ class ChangeApiImpl implements ChangeApi {
       Provider<GetPureRevert> getPureRevertProvider,
       StarredChangesUtil stars,
       DynamicOptionParser dynamicOptionParser,
-      @Assisted ChangeResource change) {
+      @Assisted ChangeResource change,
+      Injector injector,
+      DynamicMap<DynamicOptions.DynamicBean> dynamicBeans) {
     this.changeApi = changeApi;
     this.revert = revert;
     this.revertSubmission = revertSubmission;
@@ -253,6 +261,7 @@ class ChangeApiImpl implements ChangeApi {
     this.includedIn = includedIn;
     this.postReviewers = postReviewers;
     this.getChangeProvider = getChangeProvider;
+    this.getMetaDiffProvider = getMetaDiffProvider;
     this.postHashtags = postHashtags;
     this.getHashtags = getHashtags;
     this.attentionSet = attentionSet;
@@ -264,7 +273,7 @@ class ChangeApiImpl implements ChangeApi {
     this.deleteAssignee = deleteAssignee;
     this.listCommentsProvider = listCommentsProvider;
     this.listChangeRobotComments = listChangeRobotComments;
-    this.listDrafts = listDrafts;
+    this.listDraftsProvider = listDraftsProvider;
     this.changeEditApi = changeEditApi;
     this.check = check;
     this.index = index;
@@ -282,6 +291,8 @@ class ChangeApiImpl implements ChangeApi {
     this.stars = stars;
     this.dynamicOptionParser = dynamicOptionParser;
     this.change = change;
+    this.injector = injector;
+    this.dynamicBeans = dynamicBeans;
   }
 
   @Override
@@ -500,13 +511,32 @@ class ChangeApiImpl implements ChangeApi {
   public ChangeInfo get(
       EnumSet<ListChangesOption> options, ImmutableListMultimap<String, String> pluginOptions)
       throws RestApiException {
-    try {
+    try (DynamicOptions dynamicOptions = new DynamicOptions(injector, dynamicBeans)) {
       GetChange getChange = getChangeProvider.get();
       options.forEach(getChange::addOption);
-      dynamicOptionParser.parseDynamicOptions(getChange, pluginOptions);
+      dynamicOptionParser.parseDynamicOptions(getChange, pluginOptions, dynamicOptions);
       return getChange.apply(change).value();
     } catch (Exception e) {
       throw asRestApiException("Cannot retrieve change", e);
+    }
+  }
+
+  @Override
+  public ChangeInfoDifference metaDiff(
+      @Nullable String oldMetaRevId,
+      @Nullable String newMetaRevId,
+      EnumSet<ListChangesOption> options,
+      ImmutableListMultimap<String, String> pluginOptions)
+      throws RestApiException {
+    try (DynamicOptions dynamicOptions = new DynamicOptions(injector, dynamicBeans)) {
+      GetMetaDiff metaDiff = getMetaDiffProvider.get();
+      metaDiff.setOldMetaRevId(oldMetaRevId);
+      metaDiff.setNewMetaRevId(newMetaRevId);
+      options.forEach(metaDiff::addOption);
+      dynamicOptionParser.parseDynamicOptions(metaDiff, pluginOptions, dynamicOptions);
+      return metaDiff.apply(change).value();
+    } catch (Exception e) {
+      throw asRestApiException("Cannot retrieve metaDiff", e);
     }
   }
 
@@ -599,13 +629,14 @@ class ChangeApiImpl implements ChangeApi {
   }
 
   @Override
-  public CommentsRequest commentsRequest() throws RestApiException {
+  public CommentsRequest commentsRequest() {
     return new CommentsRequest() {
       @Override
       public Map<String, List<CommentInfo>> get() throws RestApiException {
         try {
           ListChangeComments listComments = listCommentsProvider.get();
           listComments.setContext(this.getContext());
+          listComments.setContextPadding(this.getContextPadding());
           return listComments.apply(change).value();
         } catch (Exception e) {
           throw asRestApiException("Cannot get comments", e);
@@ -617,6 +648,7 @@ class ChangeApiImpl implements ChangeApi {
         try {
           ListChangeComments listComments = listCommentsProvider.get();
           listComments.setContext(this.getContext());
+          listComments.setContextPadding(this.getContextPadding());
           return listComments.getComments(change);
         } catch (Exception e) {
           throw asRestApiException("Cannot get comments", e);
@@ -635,21 +667,32 @@ class ChangeApiImpl implements ChangeApi {
   }
 
   @Override
-  public Map<String, List<CommentInfo>> drafts() throws RestApiException {
-    try {
-      return listDrafts.apply(change).value();
-    } catch (Exception e) {
-      throw asRestApiException("Cannot get drafts", e);
-    }
-  }
+  public DraftsRequest draftsRequest() {
+    return new DraftsRequest() {
+      @Override
+      public Map<String, List<CommentInfo>> get() throws RestApiException {
+        try {
+          ListChangeDrafts listDrafts = listDraftsProvider.get();
+          listDrafts.setContext(this.getContext());
+          listDrafts.setContextPadding(this.getContextPadding());
+          return listDrafts.apply(change).value();
+        } catch (Exception e) {
+          throw asRestApiException("Cannot get drafts", e);
+        }
+      }
 
-  @Override
-  public List<CommentInfo> draftsAsList() throws RestApiException {
-    try {
-      return listDrafts.getComments(change);
-    } catch (Exception e) {
-      throw asRestApiException("Cannot get drafts", e);
-    }
+      @Override
+      public List<CommentInfo> getAsList() throws RestApiException {
+        try {
+          ListChangeDrafts listDrafts = listDraftsProvider.get();
+          listDrafts.setContext(this.getContext());
+          listDrafts.setContextPadding(this.getContextPadding());
+          return listDrafts.getComments(change);
+        } catch (Exception e) {
+          throw asRestApiException("Cannot get drafts", e);
+        }
+      }
+    };
   }
 
   @Override
@@ -759,23 +802,18 @@ class ChangeApiImpl implements ChangeApi {
   @Singleton
   static class DynamicOptionParser {
     private final CmdLineParser.Factory cmdLineParserFactory;
-    private final Injector injector;
-    private final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
 
     @Inject
-    DynamicOptionParser(
-        CmdLineParser.Factory cmdLineParserFactory,
-        Injector injector,
-        DynamicMap<DynamicOptions.DynamicBean> dynamicBeans) {
+    DynamicOptionParser(CmdLineParser.Factory cmdLineParserFactory) {
       this.cmdLineParserFactory = cmdLineParserFactory;
-      this.injector = injector;
-      this.dynamicBeans = dynamicBeans;
     }
 
-    void parseDynamicOptions(Object bean, ListMultimap<String, String> pluginOptions)
+    void parseDynamicOptions(
+        Object bean, ListMultimap<String, String> pluginOptions, DynamicOptions dynamicOptions)
         throws BadRequestException {
       CmdLineParser clp = cmdLineParserFactory.create(bean);
-      DynamicOptions dynamicOptions = new DynamicOptions(bean, injector, dynamicBeans);
+      dynamicOptions.setBean(bean);
+      dynamicOptions.startLifecycleListeners();
       dynamicOptions.parseDynamicBeans(clp);
       dynamicOptions.setDynamicBeans();
       dynamicOptions.onBeanParseStart();

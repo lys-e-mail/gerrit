@@ -68,13 +68,33 @@ export const htmlTemplate = html`
       }
       --paper-input-container-focus-color: var(--link-color);
     }
+    gr-button iron-icon {
+      color: inherit;
+      --iron-icon-height: 18px;
+      --iron-icon-width: 18px;
+    }
+    gr-button.pencil {
+      --padding: 0px 0px;
+    }
   </style>
-  <label
-    class$="[[_computeLabelClass(readOnly, value, placeholder)]]"
-    title$="[[_computeLabel(value, placeholder)]]"
-    on-click="_showDropdown"
-    >[[_computeLabel(value, placeholder)]]</label
-  >
+  <template is="dom-if" if="[[!showAsEditPencil]]">
+    <label
+      class$="[[_computeLabelClass(readOnly, value, placeholder)]]"
+      title$="[[_computeLabel(value, placeholder)]]"
+      aria-label$="[[_computeLabel(value, placeholder)]]"
+      on-click="_showDropdown"
+      >[[_computeLabel(value, placeholder)]]</label
+    >
+  </template>
+  <template is="dom-if" if="[[showAsEditPencil]]">
+    <gr-button
+      link=""
+      class$="pencil [[_computeLabelClass(readOnly, value, placeholder)]]"
+      on-click="_showDropdown"
+      title="[[_computeLabel(value, placeholder)]]"
+      ><iron-icon icon="gr-icons:edit"></iron-icon
+    ></gr-button>
+  </template>
   <iron-dropdown
     id="dropdown"
     vertical-align="auto"
@@ -85,12 +105,24 @@ export const htmlTemplate = html`
   >
     <div class="dropdown-content" slot="dropdown-content">
       <div class="inputContainer">
-        <paper-input
-          id="input"
-          label="[[labelText]]"
-          maxlength="[[maxLength]]"
-          value="{{_inputText}}"
-        ></paper-input>
+        <template is="dom-if" if="[[!autocomplete]]">
+          <paper-input
+            id="input"
+            label="[[labelText]]"
+            maxlength="[[maxLength]]"
+            value="{{_inputText}}"
+          ></paper-input>
+        </template>
+        <template is="dom-if" if="[[autocomplete]]">
+          <gr-autocomplete
+            label="[[labelText]]"
+            id="autocomplete"
+            text="{{_inputText}}"
+            query="[[query]]"
+            on-commit="_handleCommit"
+          >
+          </gr-autocomplete>
+        </template>
         <div class="buttons">
           <gr-button link="" id="cancelBtn" on-click="_cancel"
             >cancel</gr-button

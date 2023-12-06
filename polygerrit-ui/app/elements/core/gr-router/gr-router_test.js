@@ -19,7 +19,7 @@ import '../../../test/common-test-setup-karma.js';
 import './gr-router.js';
 import {page} from '../../../utils/page-wrapper-utils.js';
 import {GerritNav} from '../gr-navigation/gr-navigation.js';
-import {stubBaseUrl} from '../../../test/test-utils.js';
+import {stubBaseUrl, stubRestApi, addListenerForTest} from '../../../test/test-utils.js';
 import {_testOnly_RoutePattern} from './gr-router.js';
 
 const basicFixture = fixtureFromElement('gr-router');
@@ -229,7 +229,7 @@ suite('gr-router tests', () => {
   });
 
   test('_redirectIfNotLoggedIn while logged in', () => {
-    sinon.stub(element.$.restAPI, 'getLoggedIn')
+    stubRestApi('getLoggedIn')
         .returns(Promise.resolve(true));
     const data = {canonicalPath: ''};
     const redirectStub = sinon.stub(element, '_redirectToLogin');
@@ -239,7 +239,7 @@ suite('gr-router tests', () => {
   });
 
   test('_redirectIfNotLoggedIn while logged out', () => {
-    sinon.stub(element.$.restAPI, 'getLoggedIn')
+    stubRestApi('getLoggedIn')
         .returns(Promise.resolve(false));
     const redirectStub = sinon.stub(element, '_redirectToLogin');
     const data = {canonicalPath: ''};
@@ -267,12 +267,12 @@ suite('gr-router tests', () => {
       };
       assert.equal(element._generateUrl(params),
           '/q/owner:a%2525b+project:c%2525d+branch:e%2525f+' +
-          'topic:"g%2525h"+status:op%2525en');
+          'topic:g%2525h+status:op%2525en');
 
       params.offset = 100;
       assert.equal(element._generateUrl(params),
           '/q/owner:a%2525b+project:c%2525d+branch:e%2525f+' +
-          'topic:"g%2525h"+status:op%2525en,100');
+          'topic:g%2525h+status:op%2525en,100');
       delete params.offset;
 
       // The presence of the query param overrides other params.
@@ -288,6 +288,19 @@ suite('gr-router tests', () => {
       };
       assert.equal(element._generateUrl(params),
           '/q/(status:a OR status:b OR status:c)');
+
+      params = {
+        view: GerritNav.View.SEARCH,
+        topic: 'test',
+      };
+      assert.equal(element._generateUrl(params),
+          '/q/topic:test');
+      params = {
+        view: GerritNav.View.SEARCH,
+        topic: 'test test',
+      };
+      assert.equal(element._generateUrl(params),
+          '/q/topic:"test+test"');
     });
 
     test('change', () => {
@@ -523,8 +536,7 @@ suite('gr-router tests', () => {
     let generateUrlStub;
 
     setup(() => {
-      projectLookupStub = sinon
-          .stub(element.$.restAPI, 'getFromProjectLookup');
+      projectLookupStub = stubRestApi('getFromProjectLookup');
       generateUrlStub = sinon.stub(element, '_generateUrl');
     });
 
@@ -664,13 +676,11 @@ suite('gr-router tests', () => {
     });
 
     test('_handleDefaultRoute on first load', () => {
-      const appElementStub = {dispatchEvent: sinon.stub()};
-      element._appElement = () => appElementStub;
+      const spy = sinon.spy();
+      addListenerForTest(document, 'page-error', spy);
       element._handleDefaultRoute();
-      assert.isTrue(appElementStub.dispatchEvent.calledOnce);
-      assert.equal(
-          appElementStub.dispatchEvent.lastCall.args[0].detail.response.status,
-          404);
+      assert.isTrue(spy.calledOnce);
+      assert.equal(spy.lastCall.args[0].detail.response.status, 404);
     });
 
     test('_handleDefaultRoute after internal navigation', () => {
@@ -684,8 +694,6 @@ suite('gr-router tests', () => {
       sinon.stub(page, 'base');
       element._startRouter();
 
-      const appElementStub = {dispatchEvent: sinon.stub()};
-      element._appElement = () => appElementStub;
       element._handleDefaultRoute();
 
       onExit('', () => {}); // we left page;
@@ -794,8 +802,6 @@ suite('gr-router tests', () => {
       });
 
       test('redirects to dashboard if logged in', () => {
-        sinon.stub(element.$.restAPI, 'getLoggedIn')
-            .returns(Promise.resolve(true));
         const data = {
           canonicalPath: '/', path: '/', querystring: '', hash: '',
         };
@@ -807,8 +813,7 @@ suite('gr-router tests', () => {
       });
 
       test('redirects to open changes if not logged in', () => {
-        sinon.stub(element.$.restAPI, 'getLoggedIn')
-            .returns(Promise.resolve(false));
+        stubRestApi('getLoggedIn').returns(Promise.resolve(false));
         const data = {
           canonicalPath: '/', path: '/', querystring: '', hash: '',
         };
@@ -905,8 +910,7 @@ suite('gr-router tests', () => {
       });
 
       test('own dashboard but signed out redirects to login', () => {
-        sinon.stub(element.$.restAPI, 'getLoggedIn')
-            .returns(Promise.resolve(false));
+        stubRestApi('getLoggedIn').returns(Promise.resolve(false));
         const data = {canonicalPath: '/dashboard/', params: {0: 'seLF'}};
         return element._handleDashboardRoute(data, '').then(() => {
           assert.isTrue(redirectToLoginStub.calledOnce);
@@ -916,8 +920,7 @@ suite('gr-router tests', () => {
       });
 
       test('non-self dashboard but signed out does not redirect', () => {
-        sinon.stub(element.$.restAPI, 'getLoggedIn')
-            .returns(Promise.resolve(false));
+        stubRestApi('getLoggedIn').returns(Promise.resolve(false));
         const data = {canonicalPath: '/dashboard/', params: {0: 'foo'}};
         return element._handleDashboardRoute(data, '').then(() => {
           assert.isFalse(redirectToLoginStub.called);
@@ -928,8 +931,6 @@ suite('gr-router tests', () => {
       });
 
       test('dashboard while signed in sets params', () => {
-        sinon.stub(element.$.restAPI, 'getLoggedIn')
-            .returns(Promise.resolve(true));
         const data = {canonicalPath: '/dashboard/', params: {0: 'foo'}};
         return element._handleDashboardRoute(data, '').then(() => {
           assert.isFalse(redirectToLoginStub.called);
@@ -1444,7 +1445,7 @@ suite('gr-router tests', () => {
         setup(() => {
           normalizeRangeStub = sinon.stub(element,
               '_normalizePatchRangeParams');
-          sinon.stub(element.$.restAPI, 'setInProjectLookup');
+          stubRestApi('setInProjectLookup');
         });
 
         test('needs redirect', () => {
@@ -1498,7 +1499,7 @@ suite('gr-router tests', () => {
         setup(() => {
           normalizeRangeStub = sinon.stub(element,
               '_normalizePatchRangeParams');
-          sinon.stub(element.$.restAPI, 'setInProjectLookup');
+          stubRestApi('setInProjectLookup');
         });
 
         test('needs redirect', () => {
@@ -1540,7 +1541,7 @@ suite('gr-router tests', () => {
           ]);
           assertDataToParams({params: groups.slice(1)}, '_handleCommentRoute', {
             project: 'gerrit',
-            changeNum: '264833',
+            changeNum: 264833,
             commentId: '00049681_f34fd6a9',
             commentLink: true,
             view: GerritNav.View.DIFF,
@@ -1551,7 +1552,7 @@ suite('gr-router tests', () => {
       test('_handleDiffEditRoute', () => {
         const normalizeRangeSpy =
             sinon.spy(element, '_normalizePatchRangeParams');
-        sinon.stub(element.$.restAPI, 'setInProjectLookup');
+        stubRestApi('setInProjectLookup');
         const ctx = {
           params: [
             'foo/bar', // 0 Project
@@ -1580,7 +1581,7 @@ suite('gr-router tests', () => {
       test('_handleDiffEditRoute with lineNum', () => {
         const normalizeRangeSpy =
             sinon.spy(element, '_normalizePatchRangeParams');
-        sinon.stub(element.$.restAPI, 'setInProjectLookup');
+        stubRestApi('setInProjectLookup');
         const ctx = {
           params: [
             'foo/bar', // 0 Project
@@ -1610,7 +1611,7 @@ suite('gr-router tests', () => {
       test('_handleChangeEditRoute', () => {
         const normalizeRangeSpy =
             sinon.spy(element, '_normalizePatchRangeParams');
-        sinon.stub(element.$.restAPI, 'setInProjectLookup');
+        stubRestApi('setInProjectLookup');
         const ctx = {
           params: [
             'foo/bar', // 0 Project

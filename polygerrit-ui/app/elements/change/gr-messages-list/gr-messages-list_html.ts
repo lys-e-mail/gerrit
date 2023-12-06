@@ -24,7 +24,6 @@ export const htmlTemplate = html`
     }
     .header {
       align-items: center;
-      border-top: 1px solid var(--border-color);
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
@@ -51,9 +50,6 @@ export const htmlTemplate = html`
     gr-message:not(:last-of-type) {
       border-bottom: 1px solid var(--border-color);
     }
-    gr-message {
-      background-color: var(--background-color-secondary);
-    }
   </style>
   <div class="header">
     <div id="showAllActivityToggleContainer" class="container">
@@ -66,7 +62,7 @@ export const htmlTemplate = html`
           checked="{{_showAllActivity}}"
           aria-labelledby="showAllEntriesLabel"
           role="switch"
-          on-tap="_onTapShowAllActivityToggle"
+          on-click="_onTapShowAllActivityToggle"
         ></paper-toggle-button>
         <div id="showAllEntriesLabel" aria-hidden="true">
           <span>Show all entries</span>

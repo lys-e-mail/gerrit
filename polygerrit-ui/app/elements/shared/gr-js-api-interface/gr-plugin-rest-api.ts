@@ -14,57 +14,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  ErrorCallback,
-  RestApiService,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {HttpMethod} from '../../../constants/constants';
 import {RequestPayload} from '../../../types/common';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback, RestPluginApi} from '../../../api/rest';
+import {PluginApi} from '../../../api/plugin';
 
-let restApi: RestApiService | null = null;
-
-export function _testOnlyResetRestApi() {
-  restApi = null;
+async function getErrorMessage(response: Response): Promise<string> {
+  const text = await response.text();
+  return text || `${response.status}`;
 }
 
-function getRestApi(): RestApiService {
-  if (!restApi) {
-    restApi = (document.createElement(
-      'gr-rest-api-interface'
-    ) as unknown) as RestApiService;
+// This is an internal error, that must never be visible outside of this
+// file. It is used only inside GrPluginRestApi.send method. See detailed
+// explanation in the GrPluginRestApi.send method.
+class ResponseError extends Error {
+  public constructor(readonly response: Response) {
+    super();
   }
-  return restApi;
 }
 
-export class GrPluginRestApi {
-  constructor(private readonly prefix = '') {}
+export class GrPluginRestApi implements RestPluginApi {
+  private readonly restApi = appContext.restApiService;
+
+  private readonly reporting = appContext.reportingService;
+
+  constructor(readonly plugin: PluginApi, private readonly prefix = '') {
+    this.reporting.trackApi(this.plugin, 'rest', 'constructor');
+  }
 
   getLoggedIn() {
-    return getRestApi().getLoggedIn();
+    this.reporting.trackApi(this.plugin, 'rest', 'getLoggedIn');
+    return this.restApi.getLoggedIn();
   }
 
   getVersion() {
-    return getRestApi().getVersion();
+    this.reporting.trackApi(this.plugin, 'rest', 'getVersion');
+    return this.restApi.getVersion();
   }
 
   getConfig() {
-    return getRestApi().getConfig();
+    this.reporting.trackApi(this.plugin, 'rest', 'getConfig');
+    return this.restApi.getConfig();
   }
 
   invalidateReposCache() {
-    getRestApi().invalidateReposCache();
+    this.reporting.trackApi(this.plugin, 'rest', 'invalidateReposCache');
+    this.restApi.invalidateReposCache();
   }
 
   getAccount() {
-    return getRestApi().getAccount();
+    this.reporting.trackApi(this.plugin, 'rest', 'getAccount');
+    return this.restApi.getAccount();
   }
 
   getAccountCapabilities(capabilities: string[]) {
-    return getRestApi().getAccountCapabilities(capabilities);
+    this.reporting.trackApi(this.plugin, 'rest', 'getAccountCapabilities');
+    return this.restApi.getAccountCapabilities(capabilities);
   }
 
   getRepos(filter: string, reposPerPage: number, offset?: number) {
-    return getRestApi().getRepos(filter, reposPerPage, offset);
+    this.reporting.trackApi(this.plugin, 'rest', 'getRepos');
+    return this.restApi.getRepos(filter, reposPerPage, offset);
   }
 
   fetch(
@@ -101,7 +112,8 @@ export class GrPluginRestApi {
     errFn?: ErrorCallback,
     contentType?: string
   ): Promise<Response | void> {
-    return getRestApi().send(
+    this.reporting.trackApi(this.plugin, 'rest', 'fetch');
+    return this.restApi.send(
       method,
       this.prefix + url,
       payload,
@@ -120,30 +132,56 @@ export class GrPluginRestApi {
     errFn?: ErrorCallback,
     contentType?: string
   ) {
-    return this.fetch(method, url, payload, errFn, contentType).then(
-      response => {
+    this.reporting.trackApi(this.plugin, 'rest', 'send');
+    // Plugins typically don't want Gerrit to show error dialogs for failed
+    // requests. So we are defining a default errFn here, even if it is not
+    // explicitly set by the caller.
+    // TODO: We are soon getting rid of the `errFn` altogether. There are only
+    // 2 known usages of errFn in plugins: delete-project and verify-status.
+    errFn =
+      errFn ??
+      ((response: Response | null | undefined, error?: Error) => {
+        if (error) throw error;
+        // Some plugins show an error message if send is failed, smth like:
+        // pluginApi.send(...).catch(err => showError(err));
+        // The response can contain an error text, but getting this text is
+        // an asynchronous operation. At the same time, the errFn must be a
+        // synchronous function.
+        // As a workaround, we throw an ResponseError here and then catch
+        // it inside a catch block below and read the message.
+        if (response) throw new ResponseError(response);
+        throw new Error('Generic REST API error.');
+      });
+    return this.fetch(method, url, payload, errFn, contentType)
+      .then(response => {
+        // Will typically not happen. The response can only be unset, if the
+        // errFn handles the error and then returns void or undefined or null.
+        // But the errFn above always throws.
         if (!response) {
-          // TODO(TS): Fix method definition
-          // If errFn exists and doesn't throw an exception, the fetch method
-          // returns empty response
-          throw new Error('errFn must throw an exception');
+          throw new Error('plugin rest-api call failed');
         }
+        // Will typically not happen. errFn will have dealt with that and the
+        // caller will get a rejected promise already.
         if (response.status < 200 || response.status >= 300) {
-          return response.text().then(text => {
-            if (text) {
-              return Promise.reject(new Error(text));
-            } else {
-              return Promise.reject(new Error(`${response.status}`));
-            }
-          });
+          return getErrorMessage(response).then(msg =>
+            Promise.reject(new Error(msg))
+          );
         } else {
-          return getRestApi().getResponseObject(response);
+          return this.restApi.getResponseObject(response);
         }
-      }
-    );
+      })
+      .catch(err => {
+        if (err instanceof ResponseError) {
+          return getErrorMessage(err.response).then(msg => {
+            throw new Error(msg);
+          });
+        }
+        throw err;
+      });
   }
 
   get(url: string) {
+    this.reporting.trackApi(this.plugin, 'rest', 'get');
     return this.send(HttpMethod.GET, url);
   }
 
@@ -153,6 +191,7 @@ export class GrPluginRestApi {
     errFn?: ErrorCallback,
     contentType?: string
   ) {
+    this.reporting.trackApi(this.plugin, 'rest', 'post');
     return this.send(HttpMethod.POST, url, payload, errFn, contentType);
   }
 
@@ -162,10 +201,12 @@ export class GrPluginRestApi {
     errFn?: ErrorCallback,
     contentType?: string
   ) {
+    this.reporting.trackApi(this.plugin, 'rest', 'put');
     return this.send(HttpMethod.PUT, url, payload, errFn, contentType);
   }
 
   delete(url: string) {
+    this.reporting.trackApi(this.plugin, 'rest', 'delete');
     return this.fetch(HttpMethod.DELETE, url).then(response => {
       if (response.status !== 204) {
         return response.text().then(text => {

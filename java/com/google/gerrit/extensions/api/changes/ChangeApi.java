@@ -21,6 +21,7 @@ import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.client.ReviewerState;
 import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.ChangeInfo;
+import com.google.gerrit.extensions.common.ChangeInfoDifference;
 import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.CommentInfo;
 import com.google.gerrit.extensions.common.CommitMessageInput;
@@ -32,6 +33,7 @@ import com.google.gerrit.extensions.common.SuggestedReviewerInfo;
 import com.google.gerrit.extensions.restapi.NotImplementedException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -260,6 +262,46 @@ public interface ChangeApi {
         EnumSet.complementOf(EnumSet.of(ListChangesOption.CHECK, ListChangesOption.SKIP_DIFFSTAT)));
   }
 
+  default ChangeInfoDifference metaDiff(
+      @Nullable String oldMetaRevId, @Nullable String newMetaRevId) throws RestApiException {
+    return metaDiff(
+        oldMetaRevId,
+        newMetaRevId,
+        EnumSet.noneOf(ListChangesOption.class),
+        ImmutableListMultimap.of());
+  }
+
+  default ChangeInfoDifference metaDiff(
+      @Nullable String oldMetaRevId, @Nullable String newMetaRevId, ListChangesOption... options)
+      throws RestApiException {
+    return metaDiff(oldMetaRevId, newMetaRevId, Arrays.asList(options));
+  }
+
+  default ChangeInfoDifference metaDiff(
+      @Nullable String oldMetaRevId,
+      @Nullable String newMetaRevId,
+      Collection<ListChangesOption> options)
+      throws RestApiException {
+    return metaDiff(
+        oldMetaRevId,
+        newMetaRevId,
+        Sets.newEnumSet(options, ListChangesOption.class),
+        ImmutableListMultimap.of());
+  }
+
+  /**
+   * Gets the diff between a change's metadata with the two given refs.
+   *
+   * @param oldMetaRevId the SHA-1 of the 'before' metadata diffed against {@code newMetaRevId}
+   * @param newMetaRevId the SHA-1 of the 'after' metadata diffed against {@code oldMetaRevId}
+   */
+  ChangeInfoDifference metaDiff(
+      @Nullable String oldMetaRevId,
+      @Nullable String newMetaRevId,
+      EnumSet<ListChangesOption> options,
+      ImmutableListMultimap<String, String> pluginOptions)
+      throws RestApiException;
+
   /** {@link #get(ListChangesOption...)} with no options included. */
   default ChangeInfo info() throws RestApiException {
     return get(EnumSet.noneOf(ListChangesOption.class));
@@ -370,7 +412,9 @@ public interface ChangeApi {
    *     their patch set.
    * @throws RestApiException
    */
-  Map<String, List<CommentInfo>> drafts() throws RestApiException;
+  default Map<String, List<CommentInfo>> drafts() throws RestApiException {
+    return draftsRequest().get();
+  }
 
   /**
    * Get all draft comments for the current user on a change as a list.
@@ -379,7 +423,17 @@ public interface ChangeApi {
    *     set.
    * @throws RestApiException
    */
-  List<CommentInfo> draftsAsList() throws RestApiException;
+  default List<CommentInfo> draftsAsList() throws RestApiException {
+    return draftsRequest().getAsList();
+  }
+
+  /**
+   * Get a {@link DraftsRequest} entity that can be used to retrieve draft comments.
+   *
+   * @return A {@link DraftsRequest} entity that can be used to retrieve the draft comments using
+   *     {@link DraftsRequest#get()} or {@link DraftsRequest#getAsList()}.
+   */
+  DraftsRequest draftsRequest() throws RestApiException;
 
   ChangeInfo check() throws RestApiException;
 
@@ -413,6 +467,7 @@ public interface ChangeApi {
 
   abstract class CommentsRequest {
     private boolean enableContext;
+    private int contextPadding;
 
     /**
      * Get all published comments on a change.
@@ -436,6 +491,11 @@ public interface ChangeApi {
       return this;
     }
 
+    public CommentsRequest contextPadding(int contextPadding) {
+      this.contextPadding = contextPadding;
+      return this;
+    }
+
     public CommentsRequest withContext() {
       this.enableContext = true;
       return this;
@@ -444,7 +504,13 @@ public interface ChangeApi {
     public boolean getContext() {
       return enableContext;
     }
+
+    public int getContextPadding() {
+      return contextPadding;
+    }
   }
+
+  abstract class DraftsRequest extends CommentsRequest {}
 
   abstract class SuggestedReviewersRequest {
     private String query;
@@ -604,6 +670,16 @@ public interface ChangeApi {
     }
 
     @Override
+    public ChangeInfoDifference metaDiff(
+        @Nullable String oldMetaRevId,
+        @Nullable String newMetaRevId,
+        EnumSet<ListChangesOption> options,
+        ImmutableListMultimap<String, String> pluginOptions)
+        throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
     public void setMessage(CommitMessageInput in) throws RestApiException {
       throw new NotImplementedException();
     }
@@ -682,6 +758,11 @@ public interface ChangeApi {
 
     @Override
     public List<CommentInfo> draftsAsList() throws RestApiException {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public DraftsRequest draftsRequest() throws RestApiException {
       throw new NotImplementedException();
     }
 

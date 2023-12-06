@@ -20,9 +20,10 @@ import static com.google.common.truth.Truth8.assertThat;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.LabelType;
+import com.google.gerrit.entities.LegacySubmitRequirement;
 import com.google.gerrit.entities.SubmitRecord;
-import com.google.gerrit.entities.SubmitRequirement;
 import com.google.gerrit.server.rules.IgnoreSelfApprovalRule;
 import com.google.inject.Inject;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class IgnoreSelfApprovalRuleIT extends AbstractDaemonTest {
 
   @Test
   public void blocksWhenUploaderIsOnlyApprover() throws Exception {
-    enableRule("Code-Review", true);
+    enableRule(LabelId.CODE_REVIEW, true);
 
     PushOneCommit.Result r = createChange();
     approve(r.getChangeId());
@@ -50,7 +51,7 @@ public class IgnoreSelfApprovalRuleIT extends AbstractDaemonTest {
     assertThat(result.labels).isNotEmpty();
     assertThat(result.requirements)
         .containsExactly(
-            SubmitRequirement.builder()
+            LegacySubmitRequirement.builder()
                 .setFallbackText("Approval from non-uploader required")
                 .setType("non_uploader_approval")
                 .build());
@@ -58,7 +59,7 @@ public class IgnoreSelfApprovalRuleIT extends AbstractDaemonTest {
 
   @Test
   public void allowsSubmissionWhenChangeHasNonUploaderApproval() throws Exception {
-    enableRule("Code-Review", true);
+    enableRule(LabelId.CODE_REVIEW, true);
 
     // Create change as user
     TestRepository<InMemoryRepository> userTestRepo = cloneProject(project, user);
@@ -74,7 +75,7 @@ public class IgnoreSelfApprovalRuleIT extends AbstractDaemonTest {
 
   @Test
   public void doesNothingByDefault() throws Exception {
-    enableRule("Code-Review", false);
+    enableRule(LabelId.CODE_REVIEW, false);
 
     PushOneCommit.Result r = createChange();
     approve(r.getChangeId());

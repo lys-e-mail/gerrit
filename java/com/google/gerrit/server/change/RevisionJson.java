@@ -164,7 +164,12 @@ public class RevisionJson {
    * RevWalk and assumes it is backed by an open repository.
    */
   public CommitInfo getCommitInfo(
-      Project.NameKey project, RevWalk rw, RevCommit commit, boolean addLinks, boolean fillCommit)
+      Project.NameKey project,
+      RevWalk rw,
+      RevCommit commit,
+      boolean addLinks,
+      boolean fillCommit,
+      String branchName)
       throws IOException {
     CommitInfo info = new CommitInfo();
     if (fillCommit) {
@@ -177,7 +182,8 @@ public class RevisionJson {
     info.message = commit.getFullMessage();
 
     if (addLinks) {
-      ImmutableList<WebLinkInfo> links = webLinks.getPatchSetLinks(project, commit.name());
+      ImmutableList<WebLinkInfo> links =
+          webLinks.getPatchSetLinks(project, commit.name(), commit.getFullMessage(), branchName);
       info.webLinks = links.isEmpty() ? null : links;
     }
 
@@ -187,7 +193,8 @@ public class RevisionJson {
       i.commit = parent.name();
       i.subject = parent.getShortMessage();
       if (addLinks) {
-        ImmutableList<WebLinkInfo> parentLinks = webLinks.getParentLinks(project, parent.name());
+        ImmutableList<WebLinkInfo> parentLinks =
+            webLinks.getParentLinks(project, parent.name(), parent.getFullMessage(), branchName);
         i.webLinks = parentLinks.isEmpty() ? null : parentLinks;
       }
       info.parents.add(i);
@@ -288,11 +295,12 @@ public class RevisionJson {
       String rev = in.commitId().name();
       RevCommit commit = rw.parseCommit(ObjectId.fromString(rev));
       rw.parseBody(commit);
+      String branchName = cd.change().getDest().branch();
       if (setCommit) {
-        out.commit = getCommitInfo(project, rw, commit, has(WEB_LINKS), fillCommit);
+        out.commit = getCommitInfo(project, rw, commit, has(WEB_LINKS), fillCommit, branchName);
       }
       if (addFooters) {
-        Ref ref = repo.exactRef(cd.change().getDest().branch());
+        Ref ref = repo.exactRef(branchName);
         RevCommit mergeTip = null;
         if (ref != null) {
           mergeTip = rw.parseCommit(ref.getObjectId());
@@ -307,7 +315,7 @@ public class RevisionJson {
 
     if (has(ALL_FILES) || (out.isCurrent && has(CURRENT_FILES))) {
       try {
-        out.files = fileInfoJson.toFileInfoMap(c, in);
+        out.files = fileInfoJson.getFileInfoMap(c, in);
         out.files.remove(Patch.COMMIT_MSG);
         out.files.remove(Patch.MERGE_LIST);
       } catch (ResourceConflictException e) {
@@ -319,7 +327,7 @@ public class RevisionJson {
       actionJson.addRevisionActions(
           changeInfo,
           out,
-          new RevisionResource(changeResourceFactory.create(cd.notes(), userProvider.get()), in));
+          new RevisionResource(changeResourceFactory.create(cd, userProvider.get()), in));
     }
 
     if (gpgApi.isEnabled() && has(PUSH_CERTIFICATES)) {
