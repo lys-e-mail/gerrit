@@ -37,10 +37,6 @@ import './plugins/gr-plugin-host/gr-plugin-host';
 import './settings/gr-cla-view/gr-cla-view';
 import './settings/gr-registration-dialog/gr-registration-dialog';
 import './settings/gr-settings-view/gr-settings-view';
-import './shared/gr-lib-loader/gr-lib-loader';
-import './shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-app-element_html';
 import {getBaseUrl} from '../utils/url-util';
@@ -49,11 +45,10 @@ import {
   Shortcut,
   SPECIAL_SHORTCUT,
 } from '../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
-import {GerritNav, GerritView} from './core/gr-navigation/gr-navigation';
+import {GerritNav} from './core/gr-navigation/gr-navigation';
 import {appContext} from '../services/app-context';
 import {flush} from '@polymer/polymer/lib/utils/flush';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../services/services/gr-rest-api/gr-rest-api';
 import {GrRouter} from './core/gr-router/gr-router';
 import {
   AccountDetailInfo,
@@ -77,8 +72,14 @@ import {
   RpcLogEvent,
   ShortcutTriggeredEvent,
   TitleChangeEventDetail,
+  DialogChangeEventDetail,
+  EventType,
 } from '../types/events';
 import {ViewState} from '../types/types';
+import {GerritView} from '../services/router/router-model';
+import {windowLocationReload} from '../utils/dom-util';
+import {LifeCycle} from '../constants/reporting';
+import {fireIronAnnounce} from '../utils/event-util';
 
 interface ErrorInfo {
   text: string;
@@ -88,7 +89,6 @@ interface ErrorInfo {
 
 export interface GrAppElement {
   $: {
-    restAPI: RestApiService & Element;
     router: GrRouter;
     errorManager: GrErrorManager;
     errorView: HTMLDivElement;
@@ -98,9 +98,7 @@ export interface GrAppElement {
 
 // TODO(TS): implement AppElement interface from gr-app-types.ts
 @customElement('gr-app-element')
-export class GrAppElement extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrAppElement extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -192,7 +190,21 @@ export class GrAppElement extends KeyboardShortcutMixin(
   @property({type: Boolean})
   loadKeyboardShortcutsDialog = false;
 
+  // TODO(milutin) - remove once new gr-dialog will do it out of the box
+  // This removes footer, header from a11y tree, when a dialog on view
+  // (e.g. reply dialog) is open
+  @property({type: Boolean})
+  _footerHeaderAriaHidden = false;
+
+  // TODO(milutin) - remove once new gr-dialog will do it out of the box
+  // This removes main page from a11y tree, when a dialog on gr-app-element
+  // (e.g. shortcut dialog) is open
+  @property({type: Boolean})
+  _mainAriaHidden = false;
+
   private reporting = appContext.reportingService;
+
+  private readonly restApiService = appContext.restApiService;
 
   keyboardShortcuts() {
     return {
@@ -205,23 +217,33 @@ export class GrAppElement extends KeyboardShortcutMixin(
     };
   }
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
+    // We just want to instantiate this service somewhere. It is reacting to
+    // model changes and updates the config model, but at the moment the service
+    // is not called from anywhere.
+    appContext.configService;
     this._bindKeyboardShortcuts();
-    this.addEventListener('page-error', e => this._handlePageError(e));
-    this.addEventListener('title-change', e => this._handleTitleChange(e));
+    document.addEventListener(EventType.PAGE_ERROR, e => {
+      this._handlePageError(e);
+    });
+    this.addEventListener(EventType.TITLE_CHANGE, e => {
+      this._handleTitleChange(e);
+    });
+    this.addEventListener(EventType.DIALOG_CHANGE, e => {
+      this._handleDialogChange(e as CustomEvent<DialogChangeEventDetail>);
+    });
     this.addEventListener('location-change', e =>
       this._handleLocationChange(e)
     );
-    this.addEventListener('rpc-log', e => this._handleRpcLog(e));
+    document.addEventListener('gr-rpc-log', e => this._handleRpcLog(e));
     this.addEventListener('shortcut-triggered', e =>
       this._handleShortcutTriggered(e)
     );
     // Ideally individual views should handle this event and respond with a soft
     // reload. This is a catch-all for all views that cannot or have not
     // implemented that.
-    this.addEventListener('reload', () => window.location.reload());
+    this.addEventListener('reload', () => windowLocationReload());
   }
 
   /** @override */
@@ -231,19 +253,22 @@ export class GrAppElement extends KeyboardShortcutMixin(
     this.reporting.appStarted();
     this.$.router.start();
 
-    this.$.restAPI.getAccount().then(account => {
+    this.restApiService.getAccount().then(account => {
       this._account = account;
-      const role = account ? 'user' : 'guest';
-      this.reporting.reportLifeCycle(`Started as ${role}`);
+      if (account) {
+        this.reporting.reportLifeCycle(LifeCycle.STARTED_AS_USER);
+      } else {
+        this.reporting.reportLifeCycle(LifeCycle.STARTED_AS_GUEST);
+      }
     });
-    this.$.restAPI.getConfig().then(config => {
+    this.restApiService.getConfig().then(config => {
       this._serverConfig = config;
 
       if (config && config.gerrit && config.gerrit.report_bug_url) {
         this._feedbackUrl = config.gerrit.report_bug_url;
       }
     });
-    this.$.restAPI.getVersion().then(version => {
+    this.restApiService.getVersion().then(version => {
       this._version = version;
       this._logWelcome();
     });
@@ -272,9 +297,7 @@ export class GrAppElement extends KeyboardShortcutMixin(
         offset: 0,
         selectedChangeIndex: 0,
       },
-      dashboardView: {
-        selectedChangeIndex: 0,
-      },
+      dashboardView: {},
     };
   }
 
@@ -373,7 +396,7 @@ export class GrAppElement extends KeyboardShortcutMixin(
     }
     this.bindShortcut(Shortcut.NEXT_CHUNK, 'n');
     this.bindShortcut(Shortcut.PREV_CHUNK, 'p');
-    this.bindShortcut(Shortcut.EXPAND_ALL_DIFF_CONTEXT, 'shift+x');
+    this.bindShortcut(Shortcut.TOGGLE_ALL_DIFF_CONTEXT, 'shift+x');
     this.bindShortcut(Shortcut.NEXT_COMMENT_THREAD, 'shift+n');
     this.bindShortcut(Shortcut.PREV_COMMENT_THREAD, 'shift+p');
     this.bindShortcut(
@@ -433,9 +456,9 @@ export class GrAppElement extends KeyboardShortcutMixin(
     if (!account) return;
 
     // Preferences are cached when a user is logged in; warm them.
-    this.$.restAPI.getPreferences();
-    this.$.restAPI.getDiffPreferences();
-    this.$.restAPI.getEditPreferences();
+    this.restApiService.getPreferences();
+    this.restApiService.getDiffPreferences();
+    this.restApiService.getEditPreferences();
     this.$.errorManager.knownAccountId =
       (this._account && this._account._account_id) || null;
   }
@@ -463,7 +486,7 @@ export class GrAppElement extends KeyboardShortcutMixin(
     // because _showPluginScreen value does not change. To force restamp,
     // change _showPluginScreen value between true and false.
     if (isPluginScreen) {
-      this.async(() => this.set('_showPluginScreen', true), 1);
+      setTimeout(() => this.set('_showPluginScreen', true), 1);
     }
     this.set(
       '_showDocumentationSearch',
@@ -487,6 +510,9 @@ export class GrAppElement extends KeyboardShortcutMixin(
         registrationOverlay.refit();
       });
     }
+    // To fix bug announce read after each new view, we reset announce with
+    // empty space
+    fireIronAnnounce(this, ' ');
   }
 
   _handleShortcutTriggered(event: ShortcutTriggeredEvent) {
@@ -499,11 +525,10 @@ export class GrAppElement extends KeyboardShortcutMixin(
     if (e.ctrlKey) key = 'ctrl+' + key;
     if (e.metaKey) key = 'meta+' + key;
     if (e.altKey) key = 'alt+' + key;
+    const path = event.composedPath();
     this.reporting.reportInteraction('shortcut-triggered', {
       key,
-      from:
-        (event.path && event.path[0] && (event.path[0] as Element).nodeName) ??
-        'unknown',
+      from: (path && path[0] && (path[0] as Element).nodeName) ?? 'unknown',
     });
   }
 
@@ -523,17 +548,19 @@ export class GrAppElement extends KeyboardShortcutMixin(
     this.$.errorView.classList.add('show');
     const response = e.detail.response;
     const err: ErrorInfo = {
-      text: [response.status, response.statusText].join(' '),
+      text: [response?.status, response?.statusText].join(' '),
     };
-    if (response.status === 404) {
+    if (response?.status === 404) {
       err.emoji = '¯\\_(ツ)_/¯';
       this._lastError = err;
     } else {
       err.emoji = 'o_O';
-      response.text().then(text => {
-        err.moreInfo = text;
-        this._lastError = err;
-      });
+      if (response) {
+        response.text().then(text => {
+          err.moreInfo = text;
+          this._lastError = err;
+        });
+      }
     }
   }
 
@@ -592,6 +619,14 @@ export class GrAppElement extends KeyboardShortcutMixin(
     }
   }
 
+  _handleDialogChange(e: CustomEvent<DialogChangeEventDetail>) {
+    if (e.detail.canceled) {
+      this._footerHeaderAriaHidden = false;
+    } else if (e.detail.opened) {
+      this._footerHeaderAriaHidden = true;
+    }
+  }
+
   handleShowKeyboardShortcuts() {
     this.loadKeyboardShortcutsDialog = true;
     flush();
@@ -608,17 +643,26 @@ export class GrAppElement extends KeyboardShortcutMixin(
     ) as GrOverlay;
     if (!keyboardShortcuts) return;
     if (keyboardShortcuts.opened) {
-      keyboardShortcuts.close();
+      keyboardShortcuts.cancel();
       return;
     }
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
     keyboardShortcuts.open();
+    this._footerHeaderAriaHidden = true;
+    this._mainAriaHidden = true;
   }
 
   _handleKeyboardShortcutDialogClose() {
-    (this.shadowRoot!.querySelector('#keyboardShortcuts') as GrOverlay).close();
+    (this.shadowRoot!.querySelector(
+      '#keyboardShortcuts'
+    ) as GrOverlay).cancel();
+  }
+
+  onOverlayCanceled() {
+    this._footerHeaderAriaHidden = false;
+    this._mainAriaHidden = false;
   }
 
   _handleAccountDetailUpdate() {

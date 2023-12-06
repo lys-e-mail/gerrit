@@ -17,6 +17,7 @@ package com.google.gerrit.server.query.group;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gerrit.server.query.group.GroupQueryBuilder.FIELD_LIMIT;
 
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.index.IndexConfig;
 import com.google.gerrit.index.query.AndSource;
 import com.google.gerrit.index.query.IndexPredicate;
@@ -26,7 +27,6 @@ import com.google.gerrit.metrics.MetricMaker;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.account.AccountLimits;
 import com.google.gerrit.server.account.GroupControl;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.index.group.GroupIndexCollection;
 import com.google.gerrit.server.index.group.GroupIndexRewriter;
 import com.google.gerrit.server.index.group.GroupSchemaDefinitions;
@@ -44,6 +44,7 @@ public class GroupQueryProcessor extends QueryProcessor<InternalGroup> {
   private final Provider<CurrentUser> userProvider;
   private final GroupControl.GenericFactory groupControlFactory;
   private final Sequences sequences;
+  private final IndexConfig indexConfig;
 
   static {
     // It is assumed that basic rewrites do not touch visibleto predicates.
@@ -73,12 +74,16 @@ public class GroupQueryProcessor extends QueryProcessor<InternalGroup> {
     this.userProvider = userProvider;
     this.groupControlFactory = groupControlFactory;
     this.sequences = sequences;
+    this.indexConfig = indexConfig;
   }
 
   @Override
   protected Predicate<InternalGroup> enforceVisibility(Predicate<InternalGroup> pred) {
     return new AndSource<>(
-        pred, new GroupIsVisibleToPredicate(groupControlFactory, userProvider.get()), start);
+        pred,
+        new GroupIsVisibleToPredicate(groupControlFactory, userProvider.get()),
+        start,
+        indexConfig);
   }
 
   @Override

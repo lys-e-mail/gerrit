@@ -27,6 +27,7 @@ import com.google.gerrit.acceptance.NoHttpd;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.LabelFunction;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.Permission;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
@@ -65,7 +66,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
   @Test
   public void allProjectsLabels() throws Exception {
     List<LabelDefinitionInfo> labels = gApi.projects().name(allProjects.get()).labels().get();
-    assertThat(labelNames(labels)).containsExactly("Code-Review");
+    assertThat(labelNames(labels)).containsExactly(LabelId.CODE_REVIEW);
 
     LabelDefinitionInfo codeReviewLabel = Iterables.getOnlyElement(labels);
     LabelAssert.assertCodeReviewLabel(codeReviewLabel);
@@ -135,6 +136,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
     assertThat(fooLabel.copyAnyScore).isNull();
     assertThat(fooLabel.copyMinScore).isNull();
     assertThat(fooLabel.copyMaxScore).isNull();
+    assertThat(fooLabel.copyAllScoresIfListOfFilesDidNotChange).isNull();
     assertThat(fooLabel.copyAllScoresIfNoChange).isNull();
     assertThat(fooLabel.copyAllScoresIfNoCodeChange).isNull();
     assertThat(fooLabel.copyAllScoresOnTrivialRebase).isNull();
@@ -157,6 +159,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
                 labelType.setCopyAnyScore(true);
                 labelType.setCopyMinScore(true);
                 labelType.setCopyMaxScore(true);
+                labelType.setCopyAllScoresIfListOfFilesDidNotChange(true);
                 labelType.setCopyAllScoresIfNoCodeChange(true);
                 labelType.setCopyAllScoresOnTrivialRebase(true);
                 labelType.setCopyAllScoresOnMergeFirstParentUpdate(true);
@@ -174,6 +177,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
     assertThat(fooLabel.copyAnyScore).isTrue();
     assertThat(fooLabel.copyMinScore).isTrue();
     assertThat(fooLabel.copyMaxScore).isTrue();
+    assertThat(fooLabel.copyAllScoresIfListOfFilesDidNotChange).isTrue();
     assertThat(fooLabel.copyAllScoresIfNoChange).isTrue();
     assertThat(fooLabel.copyAllScoresIfNoCodeChange).isTrue();
     assertThat(fooLabel.copyAllScoresOnTrivialRebase).isTrue();
@@ -210,7 +214,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
   public void inheritedLabelsOnly() throws Exception {
     List<LabelDefinitionInfo> labels =
         gApi.projects().name(project.get()).labels().withInherited(true).get();
-    assertThat(labelNames(labels)).containsExactly("Code-Review");
+    assertThat(labelNames(labels)).containsExactly(LabelId.CODE_REVIEW);
 
     LabelDefinitionInfo codeReviewLabel = Iterables.getOnlyElement(labels);
     LabelAssert.assertCodeReviewLabel(codeReviewLabel);
@@ -224,7 +228,9 @@ public class ListLabelsIT extends AbstractDaemonTest {
 
     List<LabelDefinitionInfo> labels =
         gApi.projects().name(project.get()).labels().withInherited(true).get();
-    assertThat(labelNames(labels)).containsExactly("Code-Review", "bar", "baz", "foo").inOrder();
+    assertThat(labelNames(labels))
+        .containsExactly(LabelId.CODE_REVIEW, "bar", "baz", "foo")
+        .inOrder();
 
     LabelAssert.assertCodeReviewLabel(labels.get(0));
     assertThat(labels.get(1).name).isEqualTo("bar");
@@ -237,14 +243,14 @@ public class ListLabelsIT extends AbstractDaemonTest {
 
   @Test
   public void withInheritedLabelsAndOverriddenLabel() throws Exception {
-    configLabel("Code-Review", LabelFunction.NO_OP);
+    configLabel(LabelId.CODE_REVIEW, LabelFunction.NO_OP);
 
     List<LabelDefinitionInfo> labels =
         gApi.projects().name(project.get()).labels().withInherited(true).get();
-    assertThat(labelNames(labels)).containsExactly("Code-Review", "Code-Review");
+    assertThat(labelNames(labels)).containsExactly(LabelId.CODE_REVIEW, LabelId.CODE_REVIEW);
 
     LabelAssert.assertCodeReviewLabel(labels.get(0));
-    assertThat(labels.get(1).name).isEqualTo("Code-Review");
+    assertThat(labels.get(1).name).isEqualTo(LabelId.CODE_REVIEW);
     assertThat(labels.get(1).projectName).isEqualTo(project.get());
     assertThat(labels.get(1).function).isEqualTo(LabelFunction.NO_OP.getFunctionName());
   }
@@ -259,7 +265,7 @@ public class ListLabelsIT extends AbstractDaemonTest {
 
     List<LabelDefinitionInfo> labels =
         gApi.projects().name(childProject.get()).labels().withInherited(true).get();
-    assertThat(labelNames(labels)).containsExactly("Code-Review", "foo", "bar").inOrder();
+    assertThat(labelNames(labels)).containsExactly(LabelId.CODE_REVIEW, "foo", "bar").inOrder();
 
     LabelAssert.assertCodeReviewLabel(labels.get(0));
     assertThat(labels.get(1).name).isEqualTo("foo");

@@ -17,17 +17,14 @@
 import {html} from '@polymer/polymer/lib/utils/html-tag';
 
 export const htmlTemplate = html`
-  <style include="shared-styles">
+  <style>
     :host {
       display: inline-block;
       vertical-align: top;
       position: relative;
       border-radius: var(--label-border-radius);
-      max-width: var(--account-max-length, 200px);
       box-sizing: border-box;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       padding: 0 var(--account-label-padding-horizontal, 0);
     }
     /* If the first element is the avatar, then we cancel the left padding, so
@@ -75,15 +72,25 @@ export const htmlTemplate = html`
       vertical-align: top;
     }
     iron-icon.attention {
+      color: var(--deemphasized-text-color);
       width: 12px;
       height: 12px;
+      vertical-align: top;
     }
     iron-icon.status {
+      color: var(--deemphasized-text-color);
       width: 14px;
       height: 14px;
       vertical-align: top;
       position: relative;
       top: 2px;
+    }
+    .name {
+      display: inline-block;
+      vertical-align: top;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: var(--account-max-length, 180px);
     }
     .hasAttention .name {
       font-weight: var(--font-weight-bold);
@@ -109,9 +116,9 @@ export const htmlTemplate = html`
         link=""
         aria-label="Remove user from attention set"
         on-click="_handleRemoveAttentionClick"
-        disabled="[[!_hasUnforcedAttention(_config, highlightAttention, account, change)]]"
-        has-tooltip="[[_hasUnforcedAttention(_config, highlightAttention, account, change)]]"
-        title="[[_computeAttentionIconTitle(_config, highlightAttention, account, change)]]"
+        disabled="[[!_computeAttentionButtonEnabled(_config, highlightAttention, account, change, _selfAccount, selected)]]"
+        has-tooltip="[[_computeAttentionButtonEnabled(_config, highlightAttention, account, change, _selfAccount, false)]]"
+        title="[[_computeAttentionIconTitle(_config, highlightAttention, account, change, _selfAccount, forceAttention, selected)]]"
         ><iron-icon class="attention" icon="gr-icons:attention"></iron-icon>
       </gr-button>
     </template>
@@ -132,5 +139,4 @@ export const htmlTemplate = html`
       </template>
     </span>
   </span>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

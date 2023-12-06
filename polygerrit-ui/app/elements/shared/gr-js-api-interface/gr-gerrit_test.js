@@ -16,12 +16,11 @@
  */
 
 import '../../../test/common-test-setup-karma.js';
-import './gr-js-api-interface.js';
 import {getPluginLoader} from './gr-plugin-loader.js';
 import {resetPlugins} from '../../../test/test-utils.js';
 import {_testOnly_initGerritPluginApi} from './gr-gerrit.js';
-
-const basicFixture = fixtureFromElement('gr-js-api-interface');
+import {stubRestApi} from '../../../test/test-utils.js';
+import {appContext} from '../../../services/app-context.js';
 
 const pluginApi = _testOnly_initGerritPluginApi();
 
@@ -29,21 +28,13 @@ suite('gr-gerrit tests', () => {
   let element;
 
   let clock;
-  let sendStub;
 
   setup(() => {
     clock = sinon.useFakeTimers();
 
-    sendStub = sinon.stub().returns(Promise.resolve({status: 200}));
-    stub('gr-rest-api-interface', {
-      getAccount() {
-        return Promise.resolve({name: 'Judy Hopps'});
-      },
-      send(...args) {
-        return sendStub(...args);
-      },
-    });
-    element = basicFixture.instantiate();
+    stubRestApi('getAccount').returns(Promise.resolve({name: 'Judy Hopps'}));
+    stubRestApi('send').returns(Promise.resolve({status: 200}));
+    element = appContext.jsApiService;
   });
 
   teardown(() => {

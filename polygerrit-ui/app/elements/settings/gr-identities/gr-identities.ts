@@ -19,31 +19,25 @@ import '../../../styles/gr-form-styles';
 import '../../admin/gr-confirm-delete-item-dialog/gr-confirm-delete-item-dialog';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-identities_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {AccountExternalIdInfo, ServerInfo} from '../../../types/common';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {PolymerDomRepeatEvent} from '../../../types/types';
+import {appContext} from '../../../services/app-context';
 
 const AUTH = ['OPENID', 'OAUTH'];
 
 export interface GrIdentities {
   $: {
-    restAPI: RestApiService & Element;
     overlay: GrOverlay;
   };
 }
 
 @customElement('gr-identities')
-export class GrIdentities extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrIdentities extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -63,8 +57,10 @@ export class GrIdentities extends GestureEventListeners(
   })
   _showLinkAnotherIdentity?: boolean;
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
-    return this.$.restAPI.getExternalIds().then(id => {
+    return this.restApiService.getExternalIds().then(id => {
       this._identities = id ?? [];
     });
   }
@@ -79,9 +75,11 @@ export class GrIdentities extends GestureEventListeners(
 
   _handleDeleteItemConfirm() {
     this.$.overlay.close();
-    return this.$.restAPI.deleteAccountIdentity([this._idName!]).then(() => {
-      this.loadData();
-    });
+    return this.restApiService
+      .deleteAccountIdentity([this._idName!])
+      .then(() => {
+        this.loadData();
+      });
   }
 
   _handleConfirmDialogCancel() {

@@ -21,8 +21,6 @@ import '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior';
 import '@polymer/iron-autogrow-textarea/iron-autogrow-textarea';
 import '../../../styles/shared-styles';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-textarea_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
@@ -38,32 +36,23 @@ const ALL_SUGGESTIONS: EmojiSuggestion[] = [
   {value: '😊', match: 'smile :)'},
   {value: '👍', match: 'thumbs up'},
   {value: '😄', match: 'laugh :D'},
-  {value: '🎉', match: 'party'},
-  {value: '😞', match: 'sad :('},
+  {value: '❤️', match: 'heart <3'},
   {value: '😂', match: "tears :')"},
-  {value: '🙏', match: 'pray'},
+  {value: '🎉', match: 'party'},
+  {value: '😎', match: 'cool |;)'},
+  {value: '😞', match: 'sad :('},
   {value: '😐', match: 'neutral :|'},
   {value: '😮', match: 'shock :O'},
-  {value: '👎', match: 'thumbs down'},
-  {value: '😎', match: 'cool |;)'},
+  {value: '🙏', match: 'pray'},
   {value: '😕', match: 'confused'},
   {value: '👌', match: 'ok'},
   {value: '🔥', match: 'fire'},
-  {value: '👊', match: 'fistbump'},
   {value: '💯', match: '100'},
-  {value: '💔', match: 'broken heart'},
-  {value: '🍺', match: 'beer'},
   {value: '✔', match: 'check'},
   {value: '😋', match: 'tongue'},
   {value: '😭', match: "crying :'("},
-  {value: '🐨', match: 'koala'},
   {value: '🤓', match: 'glasses'},
-  {value: '😆', match: 'grin'},
-  {value: '💩', match: 'poop'},
   {value: '😢', match: 'tear'},
-  {value: '😒', match: 'unamused'},
-  {value: '😉', match: 'wink ;)'},
-  {value: '🍷', match: 'wine'},
   {value: '😜', match: 'winking tongue ;)'},
 ];
 
@@ -86,13 +75,9 @@ export interface GrTextarea {
     hiddenText: HTMLDivElement;
   };
 }
-/**
- * @extends PolymerElement
- */
+
 @customElement('gr-textarea')
-export class GrTextarea extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrTextarea extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -121,7 +106,7 @@ export class GrTextarea extends KeyboardShortcutMixin(
   @property({type: Boolean})
   hideBorder = false;
 
-  /** Text input should be rendered in monspace font.  */
+  /** Text input should be rendered in monospace font.  */
   @property({type: Boolean})
   monospace = false;
 
@@ -195,7 +180,7 @@ export class GrTextarea extends KeyboardShortcutMixin(
     // Put the cursor at the end always.
     textarea.selectionStart = textarea.value.length;
     textarea.selectionEnd = textarea.selectionStart;
-    this.async(() => {
+    setTimeout(() => {
       textarea.focus();
     });
   }

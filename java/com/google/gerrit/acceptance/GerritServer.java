@@ -50,6 +50,7 @@ import com.google.gerrit.pgm.Init;
 import com.google.gerrit.server.config.GerritRuntime;
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.SitePath;
+import com.google.gerrit.server.experiments.ConfigExperimentFeatures;
 import com.google.gerrit.server.git.receive.AsyncReceiveCommits;
 import com.google.gerrit.server.index.options.AutoFlush;
 import com.google.gerrit.server.schema.JdbcAccountPatchReviewStore;
@@ -398,7 +399,12 @@ public class GerritServer implements AutoCloseable {
     if (testSshModule != null) {
       daemon.addAdditionalSshModuleForTesting(testSshModule);
     }
-    daemon.setEnableSshd(desc.useSsh());
+    daemon.setEnableHttpd(desc.httpd());
+    // Assure that SSHD is enabled if HTTPD is not required, otherwise the Gerrit server would not
+    // even start.
+    daemon.setEnableSshd(!desc.httpd() || desc.useSsh());
+    daemon.setReplica(
+        ReplicaUtil.isReplica(baseConfig) || ReplicaUtil.isReplica(desc.buildConfig(baseConfig)));
 
     if (desc.memory()) {
       checkArgument(additionalArgs.length == 0, "cannot pass args to in-memory server");
@@ -415,7 +421,6 @@ public class GerritServer implements AutoCloseable {
       @Nullable InMemoryRepositoryManager inMemoryRepoManager)
       throws Exception {
     Config cfg = desc.buildConfig(baseConfig);
-    daemon.setReplica(ReplicaUtil.isReplica(baseConfig) || ReplicaUtil.isReplica(cfg));
     mergeTestConfig(cfg);
     // Set the log4j configuration to an invalid one to prevent system logs
     // from getting configured and creating log files.
@@ -427,7 +432,6 @@ public class GerritServer implements AutoCloseable {
     cfg.setString("gitweb", null, "cgi", "");
     cfg.setString(
         "accountPatchReviewDb", null, "url", JdbcAccountPatchReviewStore.TEST_IN_MEMORY_URL);
-    daemon.setEnableHttpd(desc.httpd());
     daemon.setLuceneModule(
         LuceneIndexModule.singleVersionAllLatest(
             0, ReplicaUtil.isReplica(baseConfig), AutoFlush.ENABLED));
@@ -439,7 +443,8 @@ public class GerritServer implements AutoCloseable {
               protected void configure() {
                 bind(GerritRuntime.class).toInstance(GerritRuntime.DAEMON);
               }
-            }));
+            },
+            new ConfigExperimentFeatures.Module()));
     daemon.addAdditionalSysModuleForTesting(
         new ReindexProjectsAtStartup.Module(), new ReindexGroupsAtStartup.Module());
     daemon.start();
@@ -592,7 +597,7 @@ public class GerritServer implements AutoCloseable {
     httpAddress = new InetSocketAddress(uri.getHost(), uri.getPort());
   }
 
-  String getUrl() {
+  public String getUrl() {
     return url;
   }
 
@@ -669,5 +674,9 @@ public class GerritServer implements AutoCloseable {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this).addValue(desc).toString();
+  }
+
+  public boolean isReplica() {
+    return daemon.isReplica();
   }
 }

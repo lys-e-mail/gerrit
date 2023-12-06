@@ -14,19 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {DiffViewMode, Side} from '../constants/constants';
+import {DiffLayer as DiffLayerApi} from '../api/diff';
+import {DiffViewMode, MessageTag, Side} from '../constants/constants';
 import {IronA11yAnnouncer} from '@polymer/iron-a11y-announcer/iron-a11y-announcer';
-import {GrDiffLine} from '../elements/diff/gr-diff/gr-diff-line';
 import {FlattenedNodesObserver} from '@polymer/polymer/lib/utils/flattened-nodes-observer';
 import {PaperInputElement} from '@polymer/paper-input/paper-input';
 import {
+  AccountInfo,
+  BasePatchSetNum,
   ChangeId,
+  ChangeViewChangeInfo,
   CommitId,
+  CommitInfo,
   NumericChangeId,
   PatchRange,
   PatchSetNum,
+  ReviewerUpdateInfo,
+  RevisionInfo,
+  Timestamp,
 } from './common';
 import {PolymerSpliceChange} from '@polymer/polymer/interfaces';
+import {AuthRequestInit} from '../services/gr-auth/gr-auth';
 
 export function notUndefined<T>(x: T | undefined): x is T {
   return x !== undefined;
@@ -41,31 +49,7 @@ export interface CommitRange {
   commit: CommitId;
 }
 
-export interface CoverageRange {
-  type: CoverageType;
-  side: Side;
-  code_range: {end_line: number; start_line: number};
-}
-
-export enum CoverageType {
-  /**
-   * start_character and end_character of the range will be ignored for this
-   * type.
-   */
-  COVERED = 'COVERED',
-  /**
-   * start_character and end_character of the range will be ignored for this
-   * type.
-   */
-  NOT_COVERED = 'NOT_COVERED',
-  PARTIALLY_COVERED = 'PARTIALLY_COVERED',
-  /**
-   * You don't have to use this. If there is no coverage information for a
-   * range, then it implicitly means NOT_INSTRUMENTED. start_character and
-   * end_character of the range will be ignored for this type.
-   */
-  NOT_INSTRUMENTED = 'NOT_INSTRUMENTED',
-}
+export {CoverageRange, CoverageType} from '../api/diff';
 
 export enum ErrorType {
   AUTH = 'AUTH',
@@ -167,8 +151,7 @@ export type DiffLayerListener = (
   side: Side
 ) => void;
 
-export interface DiffLayer {
-  annotate(el: HTMLElement, lineEl: HTMLElement, line: GrDiffLine): void;
+export interface DiffLayer extends DiffLayerApi {
   addListener?(listener: DiffLayerListener): void;
   removeListener?(listener: DiffLayerListener): void;
 }
@@ -201,7 +184,7 @@ export interface ChangeListViewState {
 }
 
 export interface DashboardViewState {
-  selectedChangeIndex: number;
+  [key: string]: number;
 }
 
 export interface ViewState {
@@ -236,4 +219,31 @@ export function isPolymerSpliceChange<
   U extends Array<{} | null | undefined>
 >(x: T | PolymerSpliceChange<U>): x is PolymerSpliceChange<U> {
   return (x as PolymerSpliceChange<U>).indexSplices !== undefined;
+}
+
+export interface FetchRequest {
+  url: string;
+  fetchOptions?: AuthRequestInit;
+  anonymizedUrl?: string;
+}
+
+export interface FormattedReviewerUpdateInfo {
+  author: AccountInfo;
+  date: Timestamp;
+  type: 'REVIEWER_UPDATE';
+  tag: MessageTag.TAG_REVIEWER_UPDATE;
+  updates: {message: string; reviewers: AccountInfo[]}[];
+}
+
+export interface EditRevisionInfo extends Partial<RevisionInfo> {
+  // EditRevisionInfo has less required properties then RevisionInfo
+  _number: PatchSetNum;
+  basePatchNum: BasePatchSetNum;
+  commit: CommitInfo;
+}
+
+export interface ParsedChangeInfo
+  extends Omit<ChangeViewChangeInfo, 'reviewer_updates' | 'revisions'> {
+  revisions: {[revisionId: string]: RevisionInfo | EditRevisionInfo};
+  reviewer_updates?: ReviewerUpdateInfo[] | FormattedReviewerUpdateInfo[];
 }

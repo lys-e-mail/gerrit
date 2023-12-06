@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 import {ReportingService, Timer} from './gr-reporting';
+import {EventDetails} from '../../api/reporting';
+import {PluginApi} from '../../api/plugin';
+import {Execution} from '../../constants/reporting';
 
 export class MockTimer implements Timer {
   end(): this {
@@ -30,6 +33,10 @@ export class MockTimer implements Timer {
   }
 }
 
+const log = function (msg: string) {
+  console.info(`ReportingMock.${msg}`);
+};
+
 export const grReportingMock: ReportingService = {
   appStarted: () => {},
   beforeLocationChanged: () => {},
@@ -40,21 +47,38 @@ export const grReportingMock: ReportingService = {
   diffViewDisplayed: () => {},
   diffViewFullyLoaded: () => {},
   fileListDisplayed: () => {},
-  getTimer: () => {
-    return new MockTimer();
+  getTimer: () => new MockTimer(),
+  locationChanged: (page: string) => {
+    log(`locationChanged: ${page}`);
   },
-  locationChanged: () => {},
-  onVisibilityChange: () => {},
+  onVisibilityChange: () => {
+    log('onVisibilityChange');
+  },
   pluginLoaded: () => {},
   pluginsLoaded: () => {},
   recordDraftInteraction: () => {},
   reporter: () => {},
-  reportErrorDialog: () => {},
+  reportErrorDialog: (message: string) => {
+    log(`reportErrorDialog: ${message}`);
+  },
+  error: () => {
+    log('error');
+  },
+  reportExecution: (id: Execution, details?: EventDetails) => {
+    log(`reportExecution '${id}': ${JSON.stringify(details)}`);
+  },
+  trackApi: (pluginApi: PluginApi, object: string, method: string) => {
+    const plugin = pluginApi?.getPluginName() ?? 'unknown';
+    log(`trackApi '${plugin}', ${object}, ${method}`);
+  },
   reportExtension: () => {},
-  reportInteraction: () => {},
+  reportInteraction: (eventName: string, details?: EventDetails) => {
+    log(`reportInteraction '${eventName}': ${JSON.stringify(details)}`);
+  },
   reportLifeCycle: () => {},
   reportRpcTiming: () => {},
   setRepoName: () => {},
+  setChangeId: () => {},
   time: () => {},
   timeEnd: () => {},
   timeEndWithAverage: () => {},

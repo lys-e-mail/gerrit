@@ -25,7 +25,7 @@ export const htmlTemplate = html`
       margin-bottom: var(--spacing-l);
     }
     .warningBeforeSubmit {
-      color: var(--error-text-color);
+      color: var(--warning-foreground);
       vertical-align: top;
       margin-right: var(--spacing-s);
     }
@@ -43,43 +43,57 @@ export const htmlTemplate = html`
     on-cancel="_handleCancelTap"
     on-confirm="_handleConfirmTap"
   >
-    <div class="header" slot="header">
-      [[action.label]]
-    </div>
-    <div class="main" slot="main">
-      <gr-endpoint-decorator name="confirm-submit-change">
-        <p>Ready to submit “<strong>[[change.subject]]</strong>”?</p>
-        <template is="dom-if" if="[[change.is_private]]">
-          <p>
+    <template is="dom-if" if="[[_initialised]]">
+      <div class="header" slot="header">[[action.label]]</div>
+      <div class="main" slot="main">
+        <gr-endpoint-decorator name="confirm-submit-change">
+          <p>Ready to submit “<strong>[[change.subject]]</strong>”?</p>
+          <template is="dom-if" if="[[change.is_private]]">
+            <p>
+              <iron-icon
+                icon="gr-icons:warning"
+                class="warningBeforeSubmit"
+              ></iron-icon>
+              <strong>Heads Up!</strong>
+              Submitting this private change will also make it public.
+            </p>
+          </template>
+          <template is="dom-if" if="[[change.unresolved_comment_count]]">
+            <p>
+              <iron-icon
+                icon="gr-icons:warning"
+                class="warningBeforeSubmit"
+              ></iron-icon>
+              [[_computeUnresolvedCommentsWarning(change)]]
+            </p>
+            <gr-thread-list
+              id="commentList"
+              threads="[[_computeUnresolvedThreads(commentThreads)]]"
+              change="[[change]]"
+              change-num="[[change._number]]"
+              logged-in="true"
+              hide-toggle-buttons
+            >
+            </gr-thread-list>
+          </template>
+          <template is="dom-if" if="[[_computeHasChangeEdit(change)]]">
             <iron-icon
-              icon="gr-icons:error"
+              icon="gr-icons:warning"
               class="warningBeforeSubmit"
             ></iron-icon>
-            <strong>Heads Up!</strong>
-            Submitting this private change will also make it public.
-          </p>
-        </template>
-        <template is="dom-if" if="[[change.unresolved_comment_count]]">
-          <p>
-            <iron-icon
-              icon="gr-icons:error"
-              class="warningBeforeSubmit"
-            ></iron-icon>
-            [[_computeUnresolvedCommentsWarning(change)]]
-          </p>
-        </template>
-        <template is="dom-if" if="[[_computeHasChangeEdit(change)]]">
-          <iron-icon
-            icon="gr-icons:error"
-            class="warningBeforeSubmit"
-          ></iron-icon>
-          Your unpublished edit will not be submitted. Did you forget to click
-          <b>PUBLISH</b>?
-        </template>
-        <gr-endpoint-param name="change" value="[[change]]"></gr-endpoint-param>
-        <gr-endpoint-param name="action" value="[[action]]"></gr-endpoint-param>
-      </gr-endpoint-decorator>
-    </div>
+            Your unpublished edit will not be submitted. Did you forget to click
+            <b>PUBLISH</b>?
+          </template>
+          <gr-endpoint-param
+            name="change"
+            value="[[change]]"
+          ></gr-endpoint-param>
+          <gr-endpoint-param
+            name="action"
+            value="[[action]]"
+          ></gr-endpoint-param>
+        </gr-endpoint-decorator>
+      </div>
+    </template>
   </gr-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

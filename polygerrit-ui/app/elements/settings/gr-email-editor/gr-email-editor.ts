@@ -16,27 +16,16 @@
  */
 import '@polymer/iron-input/iron-input';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-email-editor_html';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {EmailInfo} from '../../../types/common';
-
-export interface GrEmailEditor {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 @customElement('gr-email-editor')
-export class GrEmailEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrEmailEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -53,8 +42,10 @@ export class GrEmailEditor extends GestureEventListeners(
   @property({type: String})
   _newPreferred: string | null = null;
 
+  readonly restApiService = appContext.restApiService;
+
   loadData() {
-    return this.$.restAPI.getAccountEmails().then(emails => {
+    return this.restApiService.getAccountEmails().then(emails => {
       this._emails = emails ?? [];
     });
   }
@@ -63,12 +54,12 @@ export class GrEmailEditor extends GestureEventListeners(
     const promises: Promise<unknown>[] = [];
 
     for (const emailObj of this._emailsToRemove) {
-      promises.push(this.$.restAPI.deleteAccountEmail(emailObj.email));
+      promises.push(this.restApiService.deleteAccountEmail(emailObj.email));
     }
 
     if (this._newPreferred) {
       promises.push(
-        this.$.restAPI.setPreferredAccountEmail(this._newPreferred)
+        this.restApiService.setPreferredAccountEmail(this._newPreferred)
       );
     }
 

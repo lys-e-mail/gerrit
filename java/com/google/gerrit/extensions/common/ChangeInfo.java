@@ -14,6 +14,8 @@
 
 package com.google.gerrit.extensions.common;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.ReviewerState;
 import com.google.gerrit.extensions.client.SubmitType;
@@ -70,6 +72,7 @@ public class ChangeInfo {
   public String submissionId;
   public Integer cherryPickOfChange;
   public Integer cherryPickOfPatchSet;
+  public String metaRevId;
 
   /**
    * Whether the change contains conflicts.
@@ -83,11 +86,12 @@ public class ChangeInfo {
    * com.google.gerrit.server.restapi.change.CreateChange}, {@link
    * com.google.gerrit.server.restapi.change.CreateMergePatchSet}, {@link
    * com.google.gerrit.server.restapi.change.CherryPick}, {@link
-   * com.google.gerrit.server.restapi.change.CherryPickCommit}
+   * com.google.gerrit.server.restapi.change.CherryPickCommit}, {@link
+   * com.google.gerrit.server.restapi.change.Rebase}
    */
   public Boolean containsGitConflicts;
 
-  public int _number;
+  public Integer _number;
 
   public AccountInfo owner;
 
@@ -107,5 +111,15 @@ public class ChangeInfo {
   public List<ProblemInfo> problems;
   public List<PluginDefinedInfo> plugins;
   public Collection<TrackingIdInfo> trackingIds;
-  public Collection<SubmitRequirementInfo> requirements;
+  public Collection<LegacySubmitRequirementInfo> requirements;
+
+  public ChangeInfo() {}
+
+  public ChangeInfo(ChangeMessageInfo... messages) {
+    this.messages = ImmutableList.copyOf(messages);
+  }
+
+  public ChangeInfo(Map<String, RevisionInfo> revisions) {
+    this.revisions = ImmutableMap.copyOf(revisions);
+  }
 }

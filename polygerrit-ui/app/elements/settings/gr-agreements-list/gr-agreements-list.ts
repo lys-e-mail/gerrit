@@ -17,25 +17,15 @@
 
 import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-agreements-list_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {ContributorAgreementInfo} from '../../../types/common';
+import {appContext} from '../../../services/app-context';
 
-export interface GrAgreementsList {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-agreements-list')
-export class GrAgreementsList extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAgreementsList extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -43,14 +33,16 @@ export class GrAgreementsList extends GestureEventListeners(
   @property({type: Array})
   _agreements?: ContributorAgreementInfo[];
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this.loadData();
   }
 
   loadData() {
-    return this.$.restAPI.getAccountAgreements().then(agreements => {
+    return this.restApiService.getAccountAgreements().then(agreements => {
       this._agreements = agreements;
     });
   }

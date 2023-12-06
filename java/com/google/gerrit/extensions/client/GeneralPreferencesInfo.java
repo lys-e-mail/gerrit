@@ -27,11 +27,12 @@ public class GeneralPreferencesInfo {
 
   /** Preferred method to download a change. */
   public enum DownloadCommand {
-    REPO_DOWNLOAD,
     PULL,
     CHECKOUT,
     CHERRY_PICK,
-    FORMAT_PATCH
+    FORMAT_PATCH,
+    BRANCH,
+    RESET,
   }
 
   public enum DateFormat {
@@ -146,6 +147,7 @@ public class GeneralPreferencesInfo {
   public EmailFormat emailFormat;
   public DefaultBase defaultBaseForMerges;
   public Boolean publishCommentsOnPush;
+  public Boolean disableKeyboardShortcuts;
   public Boolean workInProgressByDefault;
   public List<MenuItem> my;
   public List<String> changeTable;
@@ -204,6 +206,7 @@ public class GeneralPreferencesInfo {
     p.emailFormat = EmailFormat.HTML_PLAINTEXT;
     p.defaultBaseForMerges = DefaultBase.FIRST_PARENT;
     p.publishCommentsOnPush = false;
+    p.disableKeyboardShortcuts = false;
     p.workInProgressByDefault = false;
     return p;
   }

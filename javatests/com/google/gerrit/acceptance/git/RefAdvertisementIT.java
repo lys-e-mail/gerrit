@@ -47,6 +47,7 @@ import com.google.gerrit.extensions.api.changes.DraftInput;
 import com.google.gerrit.extensions.api.groups.GroupInput;
 import com.google.gerrit.extensions.api.projects.BranchInput;
 import com.google.gerrit.extensions.restapi.RestApiException;
+import com.google.gerrit.server.account.ServiceUserClassifier;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.git.receive.ReceiveCommitsAdvertiseRefsHookChain;
 import com.google.gerrit.server.git.receive.testing.TestRefAdvertiser;
@@ -116,7 +117,7 @@ public class RefAdvertisementIT extends AbstractDaemonTest {
   @Before
   public void setUp() throws Exception {
     admins = adminGroupUuid();
-    nonInteractiveUsers = groupUuid("Service Users");
+    nonInteractiveUsers = groupUuid(ServiceUserClassifier.SERVICE_USERS);
     setUpPermissions();
     setUpChanges();
   }
@@ -396,6 +397,39 @@ public class RefAdvertisementIT extends AbstractDaemonTest {
         "refs/heads/master",
         "refs/tags/master-tag",
         "refs/users/01/1000001/edit-" + cd3.getId() + "/1");
+    // tree-tag not visible. See comment in subsetOfBranchesVisibleIncludingHead.
+  }
+
+  @Test
+  public void uploadPackSubsetOfBranchesVisibleAllPatchsets() throws Exception {
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(allow(Permission.READ).ref("refs/heads/master").group(REGISTERED_USERS))
+        .update();
+
+    PushOneCommit.Result pushResult =
+        pushFactory.create(admin.newIdent(), testRepo).to("refs/for/master");
+    pushResult.assertOkStatus();
+    String firstPatchSetRef = RefNames.patchSetRef(pushResult.getPatchSetId());
+
+    pushResult = amendChange(pushResult.getChangeId());
+    pushResult.assertOkStatus();
+
+    String secondPatchSetRef = RefNames.patchSetRef(pushResult.getPatchSetId());
+
+    assertUploadPackRefs(
+        "HEAD",
+        psRef1,
+        metaRef1,
+        psRef3,
+        metaRef3,
+        RefNames.changeMetaRef(pushResult.getChange().getId()),
+        firstPatchSetRef,
+        // include all patchsets of the visible changes
+        secondPatchSetRef,
+        "refs/heads/master",
+        "refs/tags/master-tag");
     // tree-tag not visible. See comment in subsetOfBranchesVisibleIncludingHead.
   }
 

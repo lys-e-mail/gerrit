@@ -17,13 +17,14 @@ package com.google.gerrit.acceptance;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.gerrit.common.Nullable;
+import com.google.gerrit.entities.Change;
 import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.common.PluginDefinedInfo;
 import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.server.DynamicOptions;
-import com.google.gerrit.server.change.ChangeAttributeFactory;
+import com.google.gerrit.server.change.ChangePluginDefinedInfoFactory;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangeQueryBuilder;
 import com.google.gerrit.server.restapi.change.QueryChanges;
@@ -33,8 +34,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.kohsuke.args4j.Option;
 
 public abstract class AbstractPredicateTest extends AbstractDaemonTest {
@@ -50,7 +54,7 @@ public abstract class AbstractPredicateTest extends AbstractDaemonTest {
       bind(DynamicOptions.DynamicBean.class)
           .annotatedWith(Exports.named(QueryChanges.class))
           .to(MyQueryOptions.class);
-      bind(ChangeAttributeFactory.class)
+      bind(ChangePluginDefinedInfoFactory.class)
           .annotatedWith(Exports.named("sample"))
           .to(AttributeFactory.class);
     }
@@ -61,7 +65,7 @@ public abstract class AbstractPredicateTest extends AbstractDaemonTest {
     public boolean sample;
   }
 
-  protected static class AttributeFactory implements ChangeAttributeFactory {
+  protected static class AttributeFactory implements ChangePluginDefinedInfoFactory {
     private final Provider<ChangeQueryBuilder> queryBuilderProvider;
 
     @Inject
@@ -70,23 +74,27 @@ public abstract class AbstractPredicateTest extends AbstractDaemonTest {
     }
 
     @Override
-    public PluginDefinedInfo create(
-        ChangeData cd, DynamicOptions.BeanProvider beanProvider, String plugin) {
+    public Map<Change.Id, PluginDefinedInfo> createPluginDefinedInfos(
+        Collection<ChangeData> cds, DynamicOptions.BeanProvider beanProvider, String plugin) {
       MyQueryOptions options = (MyQueryOptions) beanProvider.getDynamicBean(plugin);
-      PluginDefinedInfo myInfo = new PluginDefinedInfo();
+      Map<Change.Id, PluginDefinedInfo> res = new HashMap<>();
       if (options.sample) {
         try {
           Predicate<ChangeData> predicate = queryBuilderProvider.get().parse("label:Code-Review+2");
-          if (predicate.isMatchable() && predicate.asMatchable().match(cd)) {
-            myInfo.message = "matched";
-          } else {
-            myInfo.message = "not matched";
+          for (ChangeData cd : cds) {
+            PluginDefinedInfo myInfo = new PluginDefinedInfo();
+            if (predicate.isMatchable() && predicate.asMatchable().match(cd)) {
+              myInfo.message = "matched";
+            } else {
+              myInfo.message = "not matched";
+            }
+            res.put(cd.getId(), myInfo);
           }
         } catch (QueryParseException e) {
           // ignored
         }
       }
-      return myInfo;
+      return res;
     }
   }
 

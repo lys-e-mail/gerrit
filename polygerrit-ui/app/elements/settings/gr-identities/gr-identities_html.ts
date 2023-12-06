@@ -64,9 +64,7 @@ export const htmlTemplate = html`
             filter="filterIdentities"
           >
             <tr>
-              <td class="statusColumn">
-                [[_computeIsTrusted(item.trusted)]]
-              </td>
+              <td class="statusColumn">[[_computeIsTrusted(item.trusted)]]</td>
               <td class="emailAddressColumn">[[item.email_address]]</td>
               <td class="identityColumn">
                 [[_computeIdentity(item.identity)]]
@@ -103,5 +101,4 @@ export const htmlTemplate = html`
       item-type="id"
     ></gr-confirm-delete-item-dialog>
   </gr-overlay>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

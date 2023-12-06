@@ -17,19 +17,20 @@
 import {GrDiffLine, GrDiffLineType} from '../gr-diff/gr-diff-line';
 import {GrDiffBuilder} from './gr-diff-builder';
 import {GrDiffGroup, GrDiffGroupType} from '../gr-diff/gr-diff-group';
-import {DiffInfo, DiffPreferencesInfo} from '../../../types/common';
+import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
 import {DiffViewMode, Side} from '../../../constants/constants';
+import {DiffLayer} from '../../../types/types';
+import {RenderPreferences} from '../../../api/diff';
 
 export class GrDiffBuilderUnified extends GrDiffBuilder {
   constructor(
     diff: DiffInfo,
     prefs: DiffPreferencesInfo,
     outputEl: HTMLElement,
-    // TODO(TS): Replace any by a layer interface.
-    readonly layers: any[] = [],
-    useNewContextControls = false
+    readonly layers: DiffLayer[] = [],
+    renderPrefs?: RenderPreferences
   ) {
-    super(diff, prefs, outputEl, layers, useNewContextControls);
+    super(diff, prefs, outputEl, layers, renderPrefs);
   }
 
   _getMoveControlsConfig() {
@@ -49,7 +50,7 @@ export class GrDiffBuilderUnified extends GrDiffBuilder {
     if (group.dueToRebase) {
       sectionEl.classList.add('dueToRebase');
     }
-    if (group.dueToMove) {
+    if (group.moveDetails) {
       sectionEl.classList.add('dueToMove');
       sectionEl.appendChild(this._buildMoveControls(group));
     }
@@ -104,6 +105,7 @@ export class GrDiffBuilderUnified extends GrDiffBuilder {
   _createRow(line: GrDiffLine) {
     const row = this._createElement('tr', line.type);
     row.classList.add('diff-row', 'unified');
+    // TabIndex makes screen reader read a row when navigating with j/k
     row.tabIndex = -1;
     row.appendChild(this._createBlameCell(line.beforeNumber));
     let lineNumberEl = this._createLineEl(

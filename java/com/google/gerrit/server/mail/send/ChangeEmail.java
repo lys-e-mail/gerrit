@@ -91,12 +91,14 @@ public abstract class ChangeEmail extends NotificationEmail {
   protected ProjectState projectState;
   protected Set<Account.Id> authors;
   protected boolean emailOnlyAuthors;
+  protected boolean emailOnlyAttentionSetIfEnabled;
 
   protected ChangeEmail(EmailArguments args, String messageClass, ChangeData changeData) {
     super(args, messageClass, changeData.change().getDest());
     this.changeData = changeData;
     this.change = changeData.change();
     this.emailOnlyAuthors = false;
+    this.emailOnlyAttentionSetIfEnabled = true;
     this.currentAttentionSet = getAttentionSet();
   }
 
@@ -409,7 +411,8 @@ public abstract class ChangeEmail extends NotificationEmail {
   private void addRecipient(RecipientType rt, Account.Id to, boolean isWatcher) {
     if (!isWatcher) {
       Optional<AccountState> accountState = args.accountCache.get(to);
-      if (accountState.isPresent()
+      if (emailOnlyAttentionSetIfEnabled
+          && accountState.isPresent()
           && accountState.get().generalPreferences().getEmailStrategy()
               == EmailStrategy.ATTENTION_SET_ONLY
           && !currentAttentionSet.contains(to)) {

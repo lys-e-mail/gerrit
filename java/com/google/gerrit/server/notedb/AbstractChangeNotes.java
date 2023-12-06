@@ -124,6 +124,10 @@ public abstract class AbstractChangeNotes<T> {
     this.revision = metaSha1;
   }
 
+  protected AbstractChangeNotes(Args args, Change.Id changeId) {
+    this(args, changeId, null);
+  }
+
   public Change.Id getChangeId() {
     return changeId;
   }
@@ -175,7 +179,8 @@ public abstract class AbstractChangeNotes<T> {
    * <p>Implementations may override this method to provide auto-rebuilding behavior.
    *
    * @param repo open repository.
-   * @param id version SHA1 of the change notes to load
+   * @param id SHA1 of the entity to read from the repository. The SHA1 is not sanity checked and is
+   *     assumed to be valid. If null, lookup SHA1 from the /meta ref.
    * @return handle for reading the entity.
    * @throws NoSuchChangeException change does not exist.
    * @throws IOException a repo-level error occurred.
@@ -185,6 +190,7 @@ public abstract class AbstractChangeNotes<T> {
     if (id == null) {
       id = readRef(repo);
     }
+
     return new LoadHandle(repo, id);
   }
 

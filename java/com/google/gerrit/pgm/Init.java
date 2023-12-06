@@ -92,6 +92,9 @@ public class Init extends BaseInit {
   @Option(name = "--skip-download", usage = "Don't download given library")
   private List<String> skippedDownloads;
 
+  @Option(name = "--reindex-threads", usage = "Number of threads to use for reindex after init")
+  private int reindexThreads = 1;
+
   @Option(name = "--show-cache-stats", usage = "Show cache statistics at the end")
   private boolean showCacheStats;
 
@@ -286,7 +289,7 @@ public class Init extends BaseInit {
     }
     List<String> reindexArgs =
         Lists.newArrayList(
-            "--site-path", getSitePath().toString(), "--threads", Integer.toString(1));
+            "--site-path", getSitePath().toString(), "--threads", Integer.toString(reindexThreads));
     for (String index : indices) {
       reindexArgs.add("--index");
       reindexArgs.add(index);

@@ -14,38 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {getBaseUrl} from '../../../utils/url-util';
-import {getSharedApiEl} from '../../../utils/dom-util';
 import {GrAttributeHelper} from '../../plugins/gr-attribute-helper/gr-attribute-helper';
 import {GrChangeActionsInterface} from './gr-change-actions-js-api';
 import {GrChangeReplyInterface} from './gr-change-reply-js-api';
 import {GrDomHooksManager} from '../../plugins/gr-dom-hooks/gr-dom-hooks';
-import {GrThemeApi} from '../../plugins/gr-theme-api/gr-theme-api';
 import {GrPopupInterface} from '../../plugins/gr-popup-interface/gr-popup-interface';
 import {GrAdminApi} from '../../plugins/gr-admin-api/gr-admin-api';
 import {GrAnnotationActionsInterface} from './gr-annotation-actions-js-api';
-import {GrChangeMetadataApi} from '../../plugins/gr-change-metadata-api/gr-change-metadata-api';
 import {GrEventHelper} from '../../plugins/gr-event-helper/gr-event-helper';
 import {GrPluginRestApi} from './gr-plugin-rest-api';
-import {GrRepoApi} from '../../plugins/gr-repo-api/gr-repo-api';
-import {GrSettingsApi} from '../../plugins/gr-settings-api/gr-settings-api';
-import {GrStylesApi} from '../../plugins/gr-styles-api/gr-styles-api';
 import {getPluginEndpoints} from './gr-plugin-endpoints';
-
-import {PRELOADED_PROTOCOL, getPluginNameFromUrl, send} from './gr-api-utils';
-import {GrReporintJsApi} from './gr-reporting-js-api';
-import {
-  EventType,
-  HookApi,
-  PluginApi,
-  RegisterOptions,
-  TargetElement,
-} from '../../plugins/gr-plugin-types';
+import {getPluginNameFromUrl, PRELOADED_PROTOCOL, send} from './gr-api-utils';
+import {GrReportingJsApi} from './gr-reporting-js-api';
+import {EventType, PluginApi, TargetElement} from '../../../api/plugin';
 import {RequestPayload} from '../../../types/common';
 import {HttpMethod} from '../../../constants/constants';
-import {JsApiService} from './gr-js-api-types';
 import {GrChangeActions} from '../../change/gr-change-actions/gr-change-actions';
+import {GrChecksApi} from '../../plugins/gr-checks-api/gr-checks-api';
+import {appContext} from '../../../services/app-context';
+import {AdminPluginApi} from '../../../api/admin';
+import {AnnotationPluginApi} from '../../../api/annotation';
+import {EventHelperPluginApi} from '../../../api/event-helper';
+import {PopupPluginApi} from '../../../api/popup';
+import {ReportingPluginApi} from '../../../api/reporting';
+import {ChangeActionsPluginApi} from '../../../api/change-actions';
+import {ChangeReplyPluginApi} from '../../../api/change-reply';
+import {RestPluginApi} from '../../../api/rest';
+import {HookApi, RegisterOptions} from '../../../api/hook';
+import {AttributeHelperPluginApi} from '../../../api/attribute-helper';
 
 /**
  * Plugin-provided custom components can affect content in extension
@@ -70,16 +67,16 @@ export type SendCallback = (response: unknown) => void;
 export class Plugin implements PluginApi {
   readonly _url?: URL;
 
-  private _domHooks: GrDomHooksManager;
+  private domHooks: GrDomHooksManager;
 
   private readonly _name: string = PLUGIN_NAME_NOT_SET;
 
-  // TODO(TS): Change type to GrJsApiInterface
-  private readonly sharedApiElement: JsApiService;
+  private readonly jsApi = appContext.jsApiService;
+
+  private readonly report = appContext.reportingService;
 
   constructor(url?: string) {
-    this.sharedApiElement = getSharedApiEl();
-    this._domHooks = new GrDomHooksManager(this);
+    this.domHooks = new GrDomHooksManager(this);
 
     if (!url) {
       console.warn(
@@ -91,6 +88,7 @@ export class Plugin implements PluginApi {
 
     this._url = new URL(url);
     this._name = getPluginNameFromUrl(this._url) ?? 'NULL';
+    this.report.trackApi(this, 'plugin', 'constructor');
   }
 
   getPluginName() {
@@ -98,6 +96,7 @@ export class Plugin implements PluginApi {
   }
 
   registerStyleModule(endpoint: string, moduleName: string) {
+    this.report.trackApi(this, 'plugin', 'registerStyleModule');
     getPluginEndpoints().registerModule(this, {
       endpoint,
       type: EndpointType.STYLE,
@@ -113,6 +112,7 @@ export class Plugin implements PluginApi {
     moduleName?: string,
     options?: RegisterOptions
   ): HookApi {
+    this.report.trackApi(this, 'plugin', 'registerCustomComponent');
     return this._registerCustomComponent(endpointName, moduleName, options);
   }
 
@@ -127,6 +127,7 @@ export class Plugin implements PluginApi {
     moduleName?: string,
     options?: RegisterOptions
   ): HookApi {
+    this.report.trackApi(this, 'plugin', 'registerDynamicCustomComponent');
     const fullEndpointName = `${endpointName}-${this.getPluginName()}`;
     return this._registerCustomComponent(
       fullEndpointName,
@@ -145,7 +146,7 @@ export class Plugin implements PluginApi {
     const type =
       options && options.replace ? EndpointType.REPLACE : EndpointType.DECORATE;
     const slot = (options && options.slot) || '';
-    const domHook = this._domHooks.getDomHook(endpoint, moduleName);
+    const domHook = this.domHooks.getDomHook(endpoint, moduleName);
     moduleName = moduleName || domHook.getModuleName();
     getPluginEndpoints().registerModule(this, {
       slot,
@@ -163,18 +164,23 @@ export class Plugin implements PluginApi {
    * element for the first call.
    */
   hook(endpointName: string, options?: RegisterOptions) {
+    this.report.trackApi(this, 'plugin', 'hook');
     return this.registerCustomComponent(endpointName, undefined, options);
   }
 
   getServerInfo() {
-    return document.createElement('gr-rest-api-interface').getConfig();
+    this.report.trackApi(this, 'plugin', 'getServerInfo');
+    return appContext.restApiService.getConfig();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on(eventName: EventType, callback: (...args: any[]) => any) {
-    this.sharedApiElement.addEventCallback(eventName, callback);
+    this.report.trackApi(this, 'plugin', 'on');
+    this.jsApi.addEventCallback(eventName, callback);
   }
 
   url(path?: string) {
+    this.report.trackApi(this, 'plugin', 'url');
     if (!this._url) throw new Error('plugin url not set');
     const relPath = '/plugins/' + this._name + (path || '/');
     const sameOriginPath = window.location.origin + `${getBaseUrl()}${relPath}`;
@@ -193,6 +199,7 @@ export class Plugin implements PluginApi {
   }
 
   screenUrl(screenName?: string) {
+    this.report.trackApi(this, 'plugin', 'screenUrl');
     const origin = location.origin;
     const base = getBaseUrl();
     const tokenPart = screenName ? '/' + screenName : '';
@@ -208,100 +215,52 @@ export class Plugin implements PluginApi {
     return send(method, this.url(url), callback, payload);
   }
 
-  get(url: string, callback?: SendCallback) {
-    console.warn('.get() is deprecated! Use .restApi().get()');
-    return this._send(HttpMethod.GET, url, callback);
-  }
-
-  post(url: string, payload: RequestPayload, callback?: SendCallback) {
-    console.warn('.post() is deprecated! Use .restApi().post()');
-    return this._send(HttpMethod.POST, url, callback, payload);
-  }
-
-  put(url: string, payload: RequestPayload, callback?: SendCallback) {
-    console.warn('.put() is deprecated! Use .restApi().put()');
-    return this._send(HttpMethod.PUT, url, callback, payload);
-  }
-
-  delete(url: string, callback?: SendCallback) {
-    console.warn('.delete() is deprecated! Use plugin.restApi().delete()');
-    return this.restApi()
-      .delete(this.url(url))
-      .then(res => {
-        if (callback) callback(res);
-        return res;
-      });
-  }
-
-  annotationApi() {
+  annotationApi(): AnnotationPluginApi {
     return new GrAnnotationActionsInterface(this);
   }
 
-  changeActions() {
+  changeActions(): ChangeActionsPluginApi {
     return new GrChangeActionsInterface(
       this,
-      (this.sharedApiElement.getElement(
+      (this.jsApi.getElement(
         TargetElement.CHANGE_ACTIONS
       ) as unknown) as GrChangeActions
     );
   }
 
-  changeReply() {
-    return new GrChangeReplyInterface(this, this.sharedApiElement);
+  changeReply(): ChangeReplyPluginApi {
+    return new GrChangeReplyInterface(this, this.jsApi);
   }
 
-  reporting() {
-    return new GrReporintJsApi(this);
+  checks(): GrChecksApi {
+    return new GrChecksApi(this);
   }
 
-  theme() {
-    return new GrThemeApi(this);
+  reporting(): ReportingPluginApi {
+    return new GrReportingJsApi(this);
   }
 
-  project() {
-    return new GrRepoApi(this);
-  }
-
-  changeMetadata() {
-    return new GrChangeMetadataApi(this);
-  }
-
-  admin() {
+  admin(): AdminPluginApi {
     return new GrAdminApi(this);
   }
 
-  settings() {
-    return new GrSettingsApi(this);
+  restApi(prefix?: string): RestPluginApi {
+    return new GrPluginRestApi(this, prefix);
   }
 
-  styles() {
-    return new GrStylesApi();
+  attributeHelper(element: HTMLElement): AttributeHelperPluginApi {
+    return new GrAttributeHelper(this, element);
   }
 
-  /**
-   * To make REST requests for plugin-provided endpoints, use
-   *
-   * @example
-   * const pluginRestApi = plugin.restApi(plugin.url());
-   * @param prefix url for subsequent .get(), .post() etc requests.
-   */
-  restApi(prefix?: string) {
-    return new GrPluginRestApi(prefix);
+  eventHelper(element: HTMLElement): EventHelperPluginApi {
+    return new GrEventHelper(this, element);
   }
 
-  attributeHelper(element: HTMLElement) {
-    return new GrAttributeHelper(element);
-  }
+  popup(): Promise<PopupPluginApi>;
 
-  eventHelper(element: HTMLElement) {
-    return new GrEventHelper(element);
-  }
+  popup(moduleName: string): Promise<PopupPluginApi>;
 
-  popup(): Promise<GrPopupInterface>;
-
-  popup(moduleName: string): Promise<GrPopupInterface>;
-
-  popup(moduleName?: string): Promise<GrPopupInterface | null> {
+  popup(moduleName?: string): Promise<PopupPluginApi | null> {
     if (moduleName !== undefined && typeof moduleName !== 'string') {
       console.error('.popup(element) deprecated, use .popup(moduleName)!');
       return Promise.resolve(null);
@@ -310,6 +269,7 @@ export class Plugin implements PluginApi {
   }
 
   screen(screenName: string, moduleName?: string) {
+    this.report.trackApi(this, 'plugin', 'screen');
     if (moduleName && typeof moduleName !== 'string') {
       console.error(
         '.screen(pattern, callback) deprecated, use ' +
@@ -324,6 +284,7 @@ export class Plugin implements PluginApi {
   }
 
   _getScreenName(screenName: string) {
+    this.report.trackApi(this, 'plugin', '_getScreenName');
     return `${this.getPluginName()}-screen-${screenName}`;
   }
 }

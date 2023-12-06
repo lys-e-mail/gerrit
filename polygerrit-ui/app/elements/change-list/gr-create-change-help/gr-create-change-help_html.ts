@@ -21,10 +21,10 @@ export const htmlTemplate = html`
     :host {
       display: block;
     }
-    #graphic,
-    #help {
+    #graphic {
       display: inline-block;
       margin: var(--spacing-m);
+      margin-left: 0;
     }
     #graphic #circle {
       align-items: center;
@@ -36,7 +36,7 @@ export const htmlTemplate = html`
       width: 10em;
     }
     #graphic iron-icon {
-      color: #9e9e9e;
+      color: var(--gray-foreground);
       height: 5em;
       width: 5em;
     }
@@ -45,6 +45,8 @@ export const htmlTemplate = html`
       text-align: center;
     }
     #help {
+      display: inline-block;
+      margin: var(--spacing-m);
       padding-top: var(--spacing-xl);
       vertical-align: top;
     }
@@ -62,9 +64,7 @@ export const htmlTemplate = html`
     <div id="circle">
       <iron-icon id="icon" icon="gr-icons:zeroState"></iron-icon>
     </div>
-    <p>
-      No outgoing changes yet
-    </p>
+    <p>No outgoing changes yet</p>
   </div>
   <div id="help">
     <h2 class="heading-3">Push your first change for code review</h2>

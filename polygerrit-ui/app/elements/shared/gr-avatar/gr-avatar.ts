@@ -15,27 +15,16 @@
  * limitations under the License.
  */
 import '../../../styles/shared-styles';
-import '../gr-js-api-interface/gr-js-api-interface';
-import '../gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-avatar_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {getPluginLoader} from '../gr-js-api-interface/gr-plugin-loader';
 import {customElement, property} from '@polymer/decorators';
 import {AccountInfo} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
-export interface GrAvatar {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-avatar')
-export class GrAvatar extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAvatar extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -49,9 +38,11 @@ export class GrAvatar extends GestureEventListeners(
   @property({type: Boolean})
   _hasAvatars = false;
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     Promise.all([
       this._getConfig(),
       getPluginLoader().awaitPluginsLoaded(),
@@ -63,7 +54,7 @@ export class GrAvatar extends GestureEventListeners(
   }
 
   _getConfig() {
-    return this.$.restAPI.getConfig();
+    return this.restApiService.getConfig();
   }
 
   _accountChanged() {
@@ -94,6 +85,11 @@ export class GrAvatar extends GestureEventListeners(
       return '';
     }
     const avatars = account.avatars || [];
+    // if there is no avatar url in account, there is no avatar set on server,
+    // and request /avatar?s will be 404.
+    if (avatars.length === 0) {
+      return '';
+    }
     for (let i = 0; i < avatars.length; i++) {
       if (avatars[i].height === this.imageSize) {
         return avatars[i].url;

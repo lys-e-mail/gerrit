@@ -22,10 +22,13 @@ import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperationsImpl;
+import com.google.gerrit.auth.AuthModule;
 import com.google.gerrit.extensions.client.AuthType;
 import com.google.gerrit.extensions.config.FactoryModule;
+import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.extensions.systemstatus.ServerInformation;
 import com.google.gerrit.gpg.GpgModule;
+import com.google.gerrit.httpd.auth.restapi.OAuthRestModule;
 import com.google.gerrit.index.IndexType;
 import com.google.gerrit.index.SchemaDefinitions;
 import com.google.gerrit.index.project.ProjectSchemaDefinitions;
@@ -36,17 +39,20 @@ import com.google.gerrit.server.FanOutExecutor;
 import com.google.gerrit.server.GerritPersonIdent;
 import com.google.gerrit.server.GerritPersonIdentProvider;
 import com.google.gerrit.server.PluginUser;
+import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.api.GerritApiModule;
 import com.google.gerrit.server.api.PluginApiModule;
 import com.google.gerrit.server.audit.AuditModule;
 import com.google.gerrit.server.cache.h2.H2CacheModule;
 import com.google.gerrit.server.cache.mem.DefaultMemoryCacheModule;
+import com.google.gerrit.server.change.FileInfoJsonModule;
 import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.AllProjectsNameProvider;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.config.AllUsersNameProvider;
 import com.google.gerrit.server.config.AnonymousCowardName;
 import com.google.gerrit.server.config.AnonymousCowardNameProvider;
+import com.google.gerrit.server.config.AuthConfig;
 import com.google.gerrit.server.config.CanonicalWebUrlModule;
 import com.google.gerrit.server.config.CanonicalWebUrlProvider;
 import com.google.gerrit.server.config.DefaultUrlFormatter;
@@ -67,6 +73,7 @@ import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.PerThreadRequestScope;
 import com.google.gerrit.server.git.SearchingChangeCacheImpl;
 import com.google.gerrit.server.git.WorkQueue;
+import com.google.gerrit.server.group.testing.TestGroupBackend;
 import com.google.gerrit.server.index.account.AccountSchemaDefinitions;
 import com.google.gerrit.server.index.account.AllAccountsIndexer;
 import com.google.gerrit.server.index.change.AllChangesIndexer;
@@ -170,6 +177,9 @@ public class InMemoryModule extends FactoryModule {
     bind(GerritRuntime.class).toInstance(GerritRuntime.DAEMON);
     bind(MetricMaker.class).to(DisabledMetricMaker.class);
     install(cfgInjector.getInstance(GerritGlobalModule.class));
+
+    AuthConfig authConfig = cfgInjector.getInstance(AuthConfig.class);
+    install(new AuthModule(authConfig));
     install(new GerritApiModule());
     factory(PluginUser.Factory.class);
     install(new PluginApiModule());
@@ -239,9 +249,13 @@ public class InMemoryModule extends FactoryModule {
     bind(ServerInformationImpl.class);
     bind(ServerInformation.class).to(ServerInformationImpl.class);
     install(new RestApiModule());
+    install(new OAuthRestModule());
     install(new DefaultProjectNameLockManager.Module());
+    install(new FileInfoJsonModule(cfg));
 
     bind(ProjectOperations.class).to(ProjectOperationsImpl.class);
+    bind(TestGroupBackend.class).in(SINGLETON);
+    DynamicSet.bind(binder(), GroupBackend.class).to(TestGroupBackend.class);
   }
 
   /** Copy of SchemaModule with a slightly different server ID provider. */

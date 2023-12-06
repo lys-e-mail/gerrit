@@ -45,17 +45,21 @@ export const htmlTemplate = html`
   <style include="gr-form-styles">
     /* Workaround for empty style block - see https://github.com/Polymer/tools/issues/408 */
   </style>
-  <main class="gr-form-styles read-only">
+  <div class="main gr-form-styles read-only">
     <style include="shared-styles">
       /* Workaround for empty style block - see https://github.com/Polymer/tools/issues/408 */
     </style>
     <div class="info">
-      <h1 id="Title" class="heading-1">
-        [[repo]]
-      </h1>
+      <h1 id="Title" class="heading-1">[[repo]]</h1>
       <hr />
       <div>
-        <a href$="[[_computeChangesUrl(repo)]]">(view changes)</a>
+        <a href$="[[_computeBrowseUrl(weblinks)]]"
+          ><gr-button link disabled="[[!_computeBrowseUrl(weblinks)]]"
+            >Browse</gr-button
+          ></a
+        ><a href$="[[_computeChangesUrl(repo)]]"
+          ><gr-button link>View Changes</gr-button></a
+        >
       </div>
     </div>
     <div id="loading" class$="[[_computeLoadingClass(_loading)]]">
@@ -436,6 +440,5 @@ export const htmlTemplate = html`
         </gr-endpoint-decorator>
       </div>
     </div>
-  </main>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
+  </div>
 `;

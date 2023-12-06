@@ -25,12 +25,14 @@ import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.TestProjectInput;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.common.FooterConstants;
+import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.extensions.api.changes.SubmitInput;
 import com.google.gerrit.extensions.client.ChangeStatus;
 import com.google.gerrit.extensions.client.InheritableBoolean;
 import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.client.SubmitType;
 import com.google.gerrit.extensions.common.ChangeInfo;
+import com.google.gerrit.server.git.ChangeMessageModifier;
 import com.google.gerrit.server.submit.CommitMergeStatus;
 import com.google.inject.Inject;
 import java.util.List;
@@ -88,12 +90,18 @@ public class SubmitByCherryPickIT extends AbstractSubmit {
   @Test
   public void changeMessageOnSubmit() throws Throwable {
     PushOneCommit.Result change = createChange();
-    try (Registration registration =
-        extensionRegistry
-            .newRegistration()
-            .add(
-                (newCommitMessage, original, mergeTip, destination) ->
-                    newCommitMessage + "Custom: " + destination.branch())) {
+    ChangeMessageModifier link =
+        new ChangeMessageModifier() {
+          @Override
+          public String onSubmit(
+              String newCommitMessage,
+              RevCommit original,
+              RevCommit mergeTip,
+              BranchNameKey destination) {
+            return newCommitMessage + "Custom: " + destination.branch();
+          }
+        };
+    try (Registration registration = extensionRegistry.newRegistration().add(link)) {
       submit(change.getChangeId());
     }
     testRepo.git().fetch().setRemote("origin").call();
@@ -372,5 +380,27 @@ public class SubmitByCherryPickIT extends AbstractSubmit {
         headAfterFirstSubmit.name(),
         change2.getChangeId(),
         headAfterFirstSubmit.name());
+  }
+
+  @Test
+  public void dependencyOnOutdatedPatchSetNotPreventingCherryPick() throws Throwable {
+    // Create a change
+    PushOneCommit change = pushFactory.create(user.newIdent(), testRepo, "fix", "a.txt", "foo");
+    PushOneCommit.Result changeResult = change.to("refs/for/master");
+
+    // Create a successor change.
+    PushOneCommit change2 =
+        pushFactory.create(user.newIdent(), testRepo, "feature", "b.txt", "bar");
+    PushOneCommit.Result change2Result = change2.to("refs/for/master");
+
+    // Create new patch set for first change.
+    testRepo.reset(changeResult.getCommit().name());
+    amendChange(changeResult.getChangeId());
+
+    // Approve both changes
+    approve(changeResult.getChangeId());
+    approve(change2Result.getChangeId());
+
+    assertSubmittable(change2Result.getChangeId());
   }
 }

@@ -19,8 +19,6 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-icons/gr-icons';
 import '../gr-message/gr-message';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-messages-list_html';
 import {
@@ -48,9 +46,9 @@ import {ChangeComments} from '../../diff/gr-comment-api/gr-comment-api';
 import {CommentThread, isRobot} from '../../../utils/comment-util';
 import {GrMessage, MessageAnchorTapDetail} from '../gr-message/gr-message';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
-import {FormattedReviewerUpdateInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
 import {DomRepeat} from '@polymer/polymer/lib/elements/dom-repeat';
 import {getVotingRange} from '../../../utils/label-util';
+import {FormattedReviewerUpdateInfo} from '../../../types/types';
 
 /**
  * The content of the enum is also used in the UI for the button text.
@@ -118,7 +116,7 @@ function computeThreads(
 
 /**
  * If messages have the same tag, then that influences grouping and whether
- * a message is initally hidden or not, see isImportant(). So we are applying
+ * a message is initially hidden or not, see isImportant(). So we are applying
  * some "magic" rules here in order to hide exactly the right messages.
  *
  * 1. If a message does not have a tag, but is associated with robot comments,
@@ -213,9 +211,7 @@ export interface GrMessagesList {
 }
 
 @customElement('gr-messages-list')
-export class GrMessagesList extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrMessagesList extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -263,7 +259,7 @@ export class GrMessagesList extends KeyboardShortcutMixin(
   _combinedMessages: CombinedMessage[] = [];
 
   @property({type: Object, computed: '_computeLabelExtremes(labels.*)'})
-  _labelExtremes: {[lableName: string]: VotingRangeInfo} = {};
+  _labelExtremes: {[labelName: string]: VotingRangeInfo} = {};
 
   private readonly reporting = appContext.reportingService;
 
@@ -466,7 +462,7 @@ export class GrMessagesList extends KeyboardShortcutMixin(
       LabelNameToInfoMap
     >
   ) {
-    const extremes: {[lableName: string]: VotingRangeInfo} = {};
+    const extremes: {[labelName: string]: VotingRangeInfo} = {};
     const labels = labelRecord.base;
     if (!labels) {
       return extremes;

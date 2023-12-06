@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 import {appContext} from '../../../services/app-context';
-import {importHref} from '../../../scripts/import-href';
 import {
   PLUGIN_LOADING_TIMEOUT_MS,
   PRELOADED_PROTOCOL,
@@ -24,9 +23,10 @@ import {
 import {Plugin} from './gr-public-js-api';
 import {getBaseUrl} from '../../../utils/url-util';
 import {getPluginEndpoints} from './gr-plugin-endpoints';
-import {PluginApi} from '../../plugins/gr-plugin-types';
+import {PluginApi} from '../../../api/plugin';
 import {ReportingService} from '../../../services/gr-reporting/gr-reporting';
 import {hasOwnProperty} from '../../../utils/common-util';
+import {ShowAlertEventDetail} from '../../../types/events';
 
 enum PluginState {
   /** State that indicates the plugin is pending to be loaded. */
@@ -68,12 +68,12 @@ interface GerritGlobal {
 
 // Prefix for any unrecognized plugin urls.
 // Url should match following patterns:
-// /plugins/PLUGINNAME/static/SCRIPTNAME.(html|js)
-// /plugins/PLUGINNAME.(js|html)
+// /plugins/PLUGINNAME/static/SCRIPTNAME.js
+// /plugins/PLUGINNAME.js
 const UNKNOWN_PLUGIN_PREFIX = '__$$__';
 
 // Current API version for Plugin,
-// plugins with incompatible version will not be laoded.
+// plugins with incompatible version will not be loaded.
 const API_VERSION = '0.1';
 
 /**
@@ -115,7 +115,7 @@ export class PluginLoader {
   /**
    * Load multiple plugins with certain options.
    */
-  loadPlugins(plugins: string[] = [], opts: PluginOptionMap = {}) {
+  loadPlugins(plugins: string[] = []) {
     this._pluginListLoaded = true;
 
     plugins.forEach(path => {
@@ -133,9 +133,7 @@ export class PluginLoader {
         plugin: null,
       });
 
-      if (this._isPathEndsWith(url, '.html')) {
-        this._importHtmlPlugin(path, opts && opts[path]);
-      } else if (this._isPathEndsWith(url, '.js')) {
+      if (this._isPathEndsWith(url, '.js')) {
         this._loadJsPlugin(path);
       } else {
         this._failToLoad(`Unrecognized plugin path ${path}`, path);
@@ -143,7 +141,6 @@ export class PluginLoader {
     });
 
     this.awaitPluginsLoaded().then(() => {
-      console.info('Plugins loaded');
       this._getReporting().pluginsLoaded(this._getAllInstalledPluginNames());
     });
   }
@@ -249,7 +246,7 @@ export class PluginLoader {
   _failToLoad(message: string, pluginUrl?: string) {
     // Show an alert with the error
     document.dispatchEvent(
-      new CustomEvent('show-alert', {
+      new CustomEvent<ShowAlertEventDetail>('show-alert', {
         detail: {
           message: `Plugin install error: ${message} from ${pluginUrl}`,
         },
@@ -336,26 +333,6 @@ export class PluginLoader {
       : false;
   }
 
-  _importHtmlPlugin(pluginUrl: string, opts: PluginOption = {}) {
-    const urlWithAP = this._urlFor(pluginUrl, window.ASSETS_PATH);
-    const urlWithoutAP = this._urlFor(pluginUrl);
-    let onerror = undefined;
-    if (urlWithAP !== urlWithoutAP) {
-      onerror = () => this._loadHtmlPlugin(urlWithoutAP, opts.sync);
-    }
-    this._loadHtmlPlugin(urlWithAP, opts.sync, onerror);
-  }
-
-  _loadHtmlPlugin(url: string, sync?: boolean, onerror?: (e: Event) => void) {
-    if (!onerror) {
-      onerror = () => {
-        this._failToLoad(`${url} import error`, url);
-      };
-    }
-
-    importHref(url, () => {}, onerror, !sync);
-  }
-
   _loadJsPlugin(pluginUrl: string) {
     const urlWithAP = this._urlFor(pluginUrl, window.ASSETS_PATH);
     const urlWithoutAP = this._urlFor(pluginUrl);
@@ -385,9 +362,7 @@ export class PluginLoader {
 
   _urlFor(pathOrUrl: string, assetsPath?: string): string {
     // theme is per host, should always load from assetsPath
-    const isThemeFile =
-      pathOrUrl.endsWith('static/gerrit-theme.html') ||
-      pathOrUrl.endsWith('static/gerrit-theme.js');
+    const isThemeFile = pathOrUrl.endsWith('static/gerrit-theme.js');
     const shouldTryLoadFromAssetsPathFirst = !isThemeFile && assetsPath;
     if (
       pathOrUrl.startsWith(PRELOADED_PROTOCOL) ||
@@ -424,14 +399,15 @@ export class PluginLoader {
       return Promise.resolve();
     }
     if (!this._loadingPromise) {
-      // TODO(TS): Should be a number, but TS thinks that is must be some weird
-      // NodeJS.Timeout object.
-      let timerId: any;
+      // specify window here so that TS pulls the correct setTimeout method
+      // if window is not specified, then the function is pulled from node
+      // and the return type is NodeJS.Timeout object
+      let timerId: number;
       this._loadingPromise = Promise.race([
-        new Promise(resolve => (this._loadingResolver = resolve)),
+        new Promise<void>(resolve => (this._loadingResolver = resolve)),
         new Promise(
           (_, reject) =>
-            (timerId = setTimeout(() => {
+            (timerId = window.setTimeout(() => {
               reject(new Error(this._timeout()));
             }, PLUGIN_LOADING_TIMEOUT_MS))
         ),

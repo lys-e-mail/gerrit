@@ -18,7 +18,9 @@ package gerrit.cache;
 
 option java_package = "com.google.gerrit.server.cache.proto";
 
-// Serialized form of com.google.gerrit.server.change.CHangeKindCacheImpl.Key.
+import "proto/entities.proto";
+
+// Serialized form of com.google.gerrit.server.change.ChangeKindCacheImpl.Key.
 // Next ID: 4
 message ChangeKindKeyProto {
   bytes prior = 1;
@@ -76,7 +78,7 @@ message ChangeNotesKeyProto {
 // Instead, we just take the tedious yet simple approach of having a "has_foo"
 // field for each nullable field "foo", indicating whether or not foo is null.
 //
-// Next ID: 24
+// Next ID: 27
 message ChangeNotesStateProto {
   // Effectively required, even though the corresponding ChangeNotesState field
   // is optional, since the field is only absent when NoteDb is disabled, in
@@ -140,11 +142,9 @@ message ChangeNotesStateProto {
 
   repeated string hashtag = 5;
 
-  // Raw PatchSet proto as produced by PatchSetProtoConverter.
-  repeated bytes patch_set = 6;
+  repeated devtools.gerritcodereview.PatchSet patch_set = 6;
 
-  // Raw PatchSetApproval proto as produced by PatchSetApprovalProtoConverter.
-  repeated bytes approval = 7;
+  repeated devtools.gerritcodereview.PatchSetApproval approval = 7;
 
   // Next ID: 4
   message ReviewerSetEntryProto {
@@ -184,8 +184,7 @@ message ChangeNotesStateProto {
   // com.google.gerrit.server.index.change.ChangeField.StoredSubmitRecord.
   repeated string submit_record = 14;
 
-  // Raw ChangeMessage proto as produced by ChangeMessageProtoConverter.
-  repeated bytes change_message = 15;
+  repeated devtools.gerritcodereview.ChangeMessage change_message = 15;
 
   // JSON produced from com.google.gerrit.entities.Comment.
   repeated string published_comment = 16;
@@ -218,7 +217,15 @@ message ChangeNotesStateProto {
     string operation = 3;
     string reason = 4;
   }
+  // Only includes the most recent attention set update for each user.
   repeated AttentionSetUpdateProto attention_set_update = 23;
+
+  // Includes all attention set updates.
+  repeated AttentionSetUpdateProto all_attention_set_update = 24;
+
+  // Epoch millis.
+  int64 merged_on_millis = 25;
+  bool has_merged_on = 26;
 }
 
 // Serialized form of com.google.gerrit.server.query.change.ConflictKey
@@ -277,6 +284,29 @@ message AllExternalGroupsProto {
     string groupUuid = 1;
   }
   repeated ExternalGroupProto external_group = 1;
+}
+
+// Serialized key for com.google.gerrit.server.account.GroupCacheImpl.
+// Next ID: 3
+message GroupKeyProto {
+  string uuid = 1;
+  bytes revision = 2;
+}
+
+
+// Serialized form of com.google.gerrit.entities.InternalGroup.
+// Next ID: 11
+message InternalGroupProto {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  string owner_group_uuid = 4;
+  bool is_visible_to_all = 5;
+  string group_uuid = 6;
+  int64 created_on = 7;
+  repeated int32 members_ids = 8;
+  repeated string subgroup_uuids = 9;
+  bytes ref_state = 10;
 }
 
 // Key for com.google.gerrit.server.git.PureRevertCache.
@@ -435,6 +465,7 @@ message LabelTypeProto {
   int32 max_positive = 16;
   bool can_override = 17;
   repeated string ref_patterns = 18;
+  bool copy_all_scores_if_list_of_files_did_not_change = 19;
 }
 
 // Serialized form of com.google.gerrit.server.project.ConfiguredMimeTypes.
@@ -499,4 +530,146 @@ message ProjectCacheKeyProto {
   bytes revision = 2;
   bytes global_config_revision = 3; // Hash of All-Projects-projects.config. This
                                     // will only be populated for All-Projects.
+}
+
+// Serialized form of com.google.gerrit.server.comment.CommentContextCacheImpl.Key
+// Next ID: 7
+message CommentContextKeyProto {
+  string project = 1;
+  string change_id = 2;
+  int32 patchset = 3;
+  string commentId = 4;
+
+  // hashed with the murmur3_128 hash function
+  string path_hash = 5;
+
+  int32 context_padding = 6;
+}
+
+// Serialized form of a list of com.google.gerrit.extensions.common.ContextLineInfo
+// Next ID: 3
+message AllCommentContextProto {
+  message CommentContextProto {
+    int32 line_number = 1;
+    string context_line = 2;
+  }
+  repeated CommentContextProto context = 1;
+  string content_type = 2;
+}
+
+// Serialized key for
+// com.google.gerrit.server.patch.gitdiff.GitModifiedFilesCacheKey
+// Next ID: 5
+message GitModifiedFilesKeyProto {
+  string project = 1;
+  bytes a_tree = 2; // SHA-1 hash of the left git tree ID in the diff
+  bytes b_tree = 3; // SHA-1 hash of the right git tree ID in the diff
+  int32 rename_score = 4;
+}
+
+// Serialized key for
+// com.google.gerrit.server.patch.diff.ModifiedFilesCacheKey
+// Next ID: 5
+message ModifiedFilesKeyProto {
+  string project = 1;
+  bytes a_commit = 2; // SHA-1 hash of the left commit ID in the diff
+  bytes b_commit = 3; // SHA-1 hash of the right commit ID in the diff
+  int32 rename_score = 4;
+}
+
+// Serialized form of com.google.gerrit.server.patch.gitdiff.ModifiedFile
+// Next ID: 4
+message ModifiedFileProto {
+  string change_type = 1; // ENUM as string
+  string old_path = 2;
+  string new_path = 3;
+}
+
+// Serialized form of a collection of
+// com.google.gerrit.server.patch.gitdiff.ModifiedFile
+// Next ID: 2
+message ModifiedFilesProto {
+  repeated ModifiedFileProto modifiedFile = 1;
+}
+
+// Serialized form of a collection of
+// com.google.gerrit.server.patch.gitfilediff.GitFileDiffCacheImpl.Key
+// Next ID: 8
+message GitFileDiffKeyProto {
+  string project = 1;
+  bytes a_tree = 2;
+  bytes b_tree = 3;
+  string file_path = 4;
+  int32 rename_score = 5;
+  string diff_algorithm = 6; // ENUM as string
+  string whitepsace = 7; // ENUM as string
+}
+
+// Serialized form of com.google.gerrit.server.patch.gitfilediff.GitFileDiff
+// Next ID: 11
+message GitFileDiffProto {
+  message Edit {
+    int32 begin_a = 1;
+    int32 end_a = 2;
+    int32 begin_b = 3;
+    int32 end_b = 4;
+  }
+  repeated Edit edits = 1;
+  string file_header = 2;
+  string old_path = 3;
+  string new_path = 4;
+  bytes old_id = 5;
+  bytes new_id = 6;
+  string old_mode = 7; // ENUM as string
+  string new_mode = 8; // ENUM as string
+  string change_type = 9; // ENUM as string
+  string patch_type = 10; // ENUM as string
+}
+
+// Serialized form of
+// com.google.gerrit.server.patch.fileDiff.FileDiffCacheKey
+// Next ID: 8
+message FileDiffKeyProto {
+  string project = 1;
+  bytes old_commit = 2;
+  bytes new_commit = 3;
+  string file_path = 4;
+  int32 rename_score = 5;
+  string diff_algorithm = 6;
+  string whitespace = 7;
+}
+
+// Serialized form of
+// com.google.gerrit.server.patch.filediff.FileDiffOutput
+// Next ID: 12
+message FileDiffOutputProto {
+  // Next ID: 5
+  message Edit {
+    int32 begin_a = 1;
+    int32 end_a = 2;
+    int32 begin_b = 3;
+    int32 end_b = 4;
+  }
+  // Serialized form  of com.google.gerrit.server.patch.filediff.TaggedEdit
+  // Next ID: 3
+  message TaggedEdit {
+    Edit edit = 1;
+    bool due_to_rebase = 2;
+  }
+  // Next ID: 3
+  message ComparisonType {
+    int32 parent_num = 1;
+    bool auto_merge = 2;
+  }
+  string old_path = 1;
+  string new_path = 2;
+  string change_type = 3;
+  string patch_type = 4;
+  repeated string header_lines = 5;
+  int64 size = 6;
+  int64 size_delta = 7;
+  repeated TaggedEdit edits = 8;
+  bytes old_commit = 9;
+  bytes new_commit = 10;
+  ComparisonType comparison_type = 11;
 }

@@ -29,7 +29,6 @@ export const htmlTemplate = html`
     }
     .patchInfo-header {
       align-items: center;
-      border-top: 1px solid var(--border-color);
       display: flex;
       padding: var(--spacing-s) var(--spacing-l);
     }
@@ -48,11 +47,11 @@ export const htmlTemplate = html`
     .patchInfoOldPatchSet .container.latestPatchContainer {
       display: initial;
     }
+    .editMode.patchInfoOldPatchSet .container.latestPatchContainer {
+      display: none;
+    }
     .latestPatchContainer a {
       text-decoration: none;
-    }
-    gr-editable-label.descriptionLabel {
-      max-width: 100%;
     }
     .mobile {
       display: none;
@@ -80,17 +79,15 @@ export const htmlTemplate = html`
       justify-content: flex-end;
     }
     #collapseBtn,
-    .expanded #expandBtn,
+    .allExpanded #expandBtn,
     .fileViewActions {
       display: none;
     }
-    .expanded #expandBtn {
-      display: none;
+    .someExpanded #expandBtn {
+      margin-right: 8px;
     }
-    gr-linked-chip {
-      --linked-chip-text-color: var(--primary-text-color);
-    }
-    .expanded #collapseBtn,
+    .someExpanded #collapseBtn,
+    .allExpanded #collapseBtn,
     .openFile .fileViewActions {
       align-items: center;
       display: flex;
@@ -162,29 +159,6 @@ export const htmlTemplate = html`
           <span class="separator"></span>
           <a href$="[[changeUrl]]">Go to latest patch set</a>
         </span>
-        <span class="container descriptionContainer hideOnEdit">
-          <span class="separator"></span>
-          <template is="dom-if" if="[[_patchsetDescription]]">
-            <gr-linked-chip
-              id="descriptionChip"
-              text="[[_patchsetDescription]]"
-              removable="[[!_descriptionReadOnly]]"
-              on-remove="_handleDescriptionRemoved"
-            ></gr-linked-chip>
-          </template>
-          <template is="dom-if" if="[[!_patchsetDescription]]">
-            <gr-editable-label
-              id="descriptionLabel"
-              uppercase=""
-              class="descriptionLabel"
-              label-text="Add patchset description"
-              value="[[_patchsetDescription]]"
-              placeholder="[[_computeDescriptionPlaceholder(_descriptionReadOnly)]]"
-              read-only="[[_descriptionReadOnly]]"
-              on-changed="_handleDescriptionChanged"
-            ></gr-editable-label>
-          </template>
-        </span>
       </div>
     </div>
     <div class$="rightControls [[_computeExpandedClass(filesExpanded)]]">
@@ -198,11 +172,6 @@ export const htmlTemplate = html`
           <span class="separator"></span>
         </span>
       </template>
-      <span class$="[[_computeUploadHelpContainerClass(change, account)]]">
-        <gr-button link="" class="upload" on-click="_handleUploadTap"
-          >Update Change</gr-button
-        >
-      </span>
       <span class="downloadContainer desktop">
         <gr-button
           link=""
@@ -273,5 +242,4 @@ export const htmlTemplate = html`
       </div>
     </div>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

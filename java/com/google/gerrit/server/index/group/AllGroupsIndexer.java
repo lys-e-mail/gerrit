@@ -24,9 +24,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.index.SiteIndexer;
 import com.google.gerrit.server.account.GroupCache;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.db.Groups;
 import com.google.gerrit.server.group.db.GroupsNoteDbConsistencyChecker;
 import com.google.gerrit.server.index.IndexExecutor;
@@ -36,7 +36,7 @@ import com.google.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -92,6 +92,8 @@ public class AllGroupsIndexer extends SiteIndexer<AccountGroup.UUID, InternalGro
     AtomicInteger done = new AtomicInteger();
     AtomicInteger failed = new AtomicInteger();
     Stopwatch sw = Stopwatch.createStarted();
+    groupCache.evict(uuids);
+    Map<AccountGroup.UUID, InternalGroup> reindexedGroups = groupCache.get(uuids);
     for (AccountGroup.UUID uuid : uuids) {
       String desc = "group " + uuid;
       ListenableFuture<?> future =
@@ -99,12 +101,12 @@ public class AllGroupsIndexer extends SiteIndexer<AccountGroup.UUID, InternalGro
               () -> {
                 try {
                   groupCache.evict(uuid);
-                  Optional<InternalGroup> internalGroup = groupCache.get(uuid);
-                  if (internalGroup.isPresent()) {
+                  InternalGroup internalGroup = reindexedGroups.get(uuid);
+                  if (internalGroup != null) {
                     if (isFirstInsertForEntry.equals(isFirstInsertForEntry.YES)) {
-                      index.insert(internalGroup.get());
+                      index.insert(internalGroup);
                     } else {
-                      index.replace(internalGroup.get());
+                      index.replace(internalGroup);
                     }
                   } else {
                     index.delete(uuid);

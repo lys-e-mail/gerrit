@@ -37,6 +37,7 @@ import com.google.gerrit.entities.converter.PatchSetProtoConverter;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.index.FieldDef;
 import com.google.gerrit.index.QueryOptions;
+import com.google.gerrit.index.RefState;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.index.query.DataSource;
 import com.google.gerrit.index.query.Predicate;
@@ -57,6 +58,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -133,12 +137,22 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
 
   private JsonArray getSortArray() {
     JsonObject properties = new JsonObject();
-    properties.addProperty(ORDER, "desc");
+    properties.addProperty(ORDER, DESC_SORT_ORDER);
 
     JsonArray sortArray = new JsonArray();
     addNamedElement(ChangeField.UPDATED.getName(), properties, sortArray);
+    addNamedElement(ChangeField.MERGED_ON.getName(), getMergedOnSortOptions(), sortArray);
     addNamedElement(idField.getName(), properties, sortArray);
     return sortArray;
+  }
+
+  private JsonObject getMergedOnSortOptions() {
+    JsonObject sortOptions = new JsonObject();
+    sortOptions.addProperty(ORDER, DESC_SORT_ORDER);
+    // Ignore the sort field if it does not exist in index. Otherwise the search would fail on open
+    // changes, because the corresponding documents do not have mergedOn field.
+    sortOptions.addProperty(UNMAPPED_TYPE, ElasticMapping.TIMESTAMP_FIELD_TYPE);
+    return sortOptions;
   }
 
   @Override
@@ -341,7 +355,7 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
 
     // Ref-state.
     if (fields.contains(ChangeField.REF_STATE.getName())) {
-      cd.setRefStates(getByteArray(source, ChangeField.REF_STATE.getName()));
+      cd.setRefStates(RefState.parseStates(getByteArray(source, ChangeField.REF_STATE.getName())));
     }
 
     // Ref-state-pattern.
@@ -359,6 +373,10 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
               .transform(ElasticChangeIndex::decodeBase64JsonElement)
               .toSet(),
           cd);
+    }
+
+    if (fields.contains(ChangeField.MERGED_ON.getName())) {
+      decodeMergedOn(source, cd);
     }
 
     return cd;
@@ -395,5 +413,19 @@ class ElasticChangeIndex extends AbstractElasticIndex<Change.Id, ChangeData>
       return;
     }
     out.setUnresolvedCommentCount(count.getAsInt());
+  }
+
+  private void decodeMergedOn(JsonObject doc, ChangeData out) {
+    JsonElement mergedOnField = doc.get(ChangeField.MERGED_ON.getName());
+
+    Timestamp mergedOn = null;
+    if (mergedOnField != null) {
+      // Parse from ElasticMapping.TIMESTAMP_FIELD_FORMAT.
+      // We currently use built-in ISO-based dateOptionalTime.
+      // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#built-in-date-formats
+      DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_INSTANT;
+      mergedOn = Timestamp.from(Instant.from(isoFormatter.parse(mergedOnField.getAsString())));
+    }
+    out.setMergedOn(mergedOn);
   }
 }

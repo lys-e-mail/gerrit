@@ -14,6 +14,9 @@
 
 package com.google.gerrit.entities;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +53,11 @@ public class SubmitRecord {
     FORCED,
 
     /**
-     * An internal server error occurred preventing computation.
+     * A rule error caused by user misconfiguration.
+     *
+     * <p>This status should only be used to signal that the user has misconfigured the submit rule.
+     * In case plugins encounter server exceptions while evaluating the rule, they should throw a
+     * {@link RuntimeException} such as {@link IllegalStateException}.
      *
      * <p>Additional detail may be available in {@link SubmitRecord#errorMessage}.
      */
@@ -63,7 +70,7 @@ public class SubmitRecord {
 
   public Status status;
   public List<Label> labels;
-  public List<SubmitRequirement> requirements;
+  public List<LegacySubmitRequirement> requirements;
   public String errorMessage;
 
   public static class Label {
@@ -107,6 +114,17 @@ public class SubmitRecord {
     public Status status;
     public Account.Id appliedBy;
 
+    /**
+     * Returns a new instance of {@link Label} that contains a new instance for each mutable field.
+     */
+    public Label deepCopy() {
+      Label copy = new Label();
+      copy.label = label;
+      copy.status = status;
+      copy.appliedBy = appliedBy;
+      return copy;
+    }
+
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
@@ -134,6 +152,23 @@ public class SubmitRecord {
     }
   }
 
+  /**
+   * Returns a new instance of {@link SubmitRecord} that contains a new instance for each mutable
+   * field.
+   */
+  public SubmitRecord deepCopy() {
+    SubmitRecord copy = new SubmitRecord();
+    copy.status = status;
+    copy.errorMessage = errorMessage;
+    if (labels != null) {
+      copy.labels = labels.stream().map(Label::deepCopy).collect(toImmutableList());
+    }
+    if (requirements != null) {
+      copy.requirements = ImmutableList.copyOf(requirements);
+    }
+    return copy;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -152,7 +187,7 @@ public class SubmitRecord {
     sb.append("],[");
     if (requirements != null) {
       String delimiter = "";
-      for (SubmitRequirement requirement : requirements) {
+      for (LegacySubmitRequirement requirement : requirements) {
         sb.append(delimiter).append(requirement);
         delimiter = ", ";
       }

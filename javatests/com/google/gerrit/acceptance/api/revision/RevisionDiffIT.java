@@ -30,6 +30,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
+import com.google.gerrit.acceptance.ExtensionRegistry;
+import com.google.gerrit.acceptance.ExtensionRegistry.Registration;
 import com.google.gerrit.acceptance.GitUtil;
 import com.google.gerrit.acceptance.PushOneCommit;
 import com.google.gerrit.acceptance.PushOneCommit.Result;
@@ -40,9 +42,11 @@ import com.google.gerrit.extensions.client.DiffPreferencesInfo;
 import com.google.gerrit.extensions.common.ChangeType;
 import com.google.gerrit.extensions.common.DiffInfo;
 import com.google.gerrit.extensions.common.FileInfo;
+import com.google.gerrit.extensions.common.WebLinkInfo;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.BinaryResult;
-import com.google.gerrit.testing.ConfigSuite;
+import com.google.gerrit.extensions.webui.FileWebLink;
+import com.google.inject.Inject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,7 +59,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -66,7 +69,8 @@ import org.junit.Test;
 public class RevisionDiffIT extends AbstractDaemonTest {
   // @RunWith(Parameterized.class) can't be used as AbstractDaemonTest is annotated with another
   // runner. Using different configs is a workaround to achieve the same.
-  private static final String TEST_PARAMETER_MARKER = "test_only_parameter";
+  protected static final String TEST_PARAMETER_MARKER = "test_only_parameter";
+
   private static final String CURRENT = "current";
   private static final String FILE_NAME = "some_file.txt";
   private static final String FILE_NAME2 = "another_file.txt";
@@ -76,17 +80,15 @@ public class RevisionDiffIT extends AbstractDaemonTest {
           .collect(joining());
   private static final String FILE_CONTENT2 = "1st line\n2nd line\n3rd line\n";
 
+  @Inject private ExtensionRegistry extensionRegistry;
+
   private boolean intraline;
+  private boolean useNewDiffCacheListFiles;
+  private boolean useNewDiffCacheGetDiff;
+
   private ObjectId commit1;
   private String changeId;
   private String initialPatchSetId;
-
-  @ConfigSuite.Config
-  public static Config intralineConfig() {
-    Config config = new Config();
-    config.setBoolean(TEST_PARAMETER_MARKER, null, "intraline", true);
-    return config;
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -96,6 +98,10 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     baseConfig.setString("cache", "diff_intraline", "timeout", "1 minute");
 
     intraline = baseConfig.getBoolean(TEST_PARAMETER_MARKER, "intraline", false);
+    useNewDiffCacheListFiles =
+        baseConfig.getBoolean("cache", "diff_cache", "runNewDiffCache_ListFiles", false);
+    useNewDiffCacheGetDiff =
+        baseConfig.getBoolean("cache", "diff_cache", "runNewDiffCache_GetDiff", false);
 
     ObjectId headCommit = testRepo.getRepository().resolve("HEAD");
     commit1 =
@@ -118,6 +124,12 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     assertDiffForNewFile(result, COMMIT_MSG, result.getCommit().getFullMessage());
   }
 
+  @Ignore
+  @Test
+  public void diffWithRootCommit() throws Exception {
+    // TODO(ghareeb): Implement this test
+  }
+
   @Test
   public void patchsetLevelFileDiffIsEmpty() throws Exception {
     PushOneCommit.Result result = createChange();
@@ -134,6 +146,26 @@ public class RevisionDiffIT extends AbstractDaemonTest {
     assertThat(diffForPatchsetLevelFile).metaA().isNull();
     assertThat(diffForPatchsetLevelFile).metaB().isNull();
     assertThat(diffForPatchsetLevelFile).webLinks().isNull();
+  }
+
+  @Test
+  public void gitwebFileWebLinkIncludedInDiff() throws Exception {
+    try (Registration registration = newGitwebFileWebLink()) {
+      String fileName = "foo.txt";
+      String fileContent = "bar\n";
+      PushOneCommit.Result result = createChange("Add a file", fileName, fileContent);
+      DiffInfo info =
+          gApi.changes()
+              .id(result.getChangeId())
+              .revision(result.getCommit().name())
+              .file(fileName)
+              .diff();
+      assertThat(info.metaB.webLinks).hasSize(1);
+      assertThat(info.metaB.webLinks.get(0).url)
+          .isEqualTo(
+              String.format(
+                  "http://gitweb/?p=%s;hb=%s;f=%s", project, result.getCommit().name(), fileName));
+    }
   }
 
   @Test
@@ -446,6 +478,57 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void diffWithThreeParentsMergeCommitChange() throws Exception {
+    // Create a merge commit of 3 files: foo, bar, baz. The merge commit is pointing to 3 different
+    // parents: the merge commit contains foo of parent1, bar of parent2 and baz of parent3.
+    PushOneCommit.Result r =
+        createNParentsMergeCommitChange("refs/for/master", ImmutableList.of("foo", "bar", "baz"));
+
+    DiffInfo diff;
+
+    // parent 1
+    Map<String, FileInfo> changedFiles = gApi.changes().id(r.getChangeId()).current().files(1);
+    assertThat(changedFiles.keySet()).containsExactly(COMMIT_MSG, MERGE_LIST, "bar", "baz");
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "foo").withParent(1).get();
+    assertThat(diff.diffHeader).isNull();
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "bar").withParent(1).get();
+    assertThat(diff.diffHeader).hasSize(4);
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "baz").withParent(1).get();
+    assertThat(diff.diffHeader).hasSize(4);
+
+    // parent 2
+    changedFiles = gApi.changes().id(r.getChangeId()).current().files(2);
+    assertThat(changedFiles.keySet()).containsExactly(COMMIT_MSG, MERGE_LIST, "foo", "baz");
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "foo").withParent(2).get();
+    assertThat(diff.diffHeader).hasSize(4);
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "bar").withParent(2).get();
+    assertThat(diff.diffHeader).isNull();
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "baz").withParent(2).get();
+    assertThat(diff.diffHeader).hasSize(4);
+
+    // parent 3
+    changedFiles = gApi.changes().id(r.getChangeId()).current().files(3);
+    assertThat(changedFiles.keySet()).containsExactly(COMMIT_MSG, MERGE_LIST, "foo", "bar");
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "foo").withParent(3).get();
+    assertThat(diff.diffHeader).hasSize(4);
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "bar").withParent(3).get();
+    assertThat(diff.diffHeader).hasSize(4);
+    diff = getDiffRequest(r.getChangeId(), r.getCommit().name(), "baz").withParent(3).get();
+    assertThat(diff.diffHeader).isNull();
+  }
+
+  @Test
+  public void diffWithThreeParentsMergeCommitAgainstAutoMergeReturnsCommitMsgAndMergeListOnly()
+      throws Exception {
+    PushOneCommit.Result r =
+        createNParentsMergeCommitChange("refs/for/master", ImmutableList.of("foo", "bar", "baz"));
+
+    // Diff against auto-merge returns COMMIT_MSG and MERGE_LIST only
+    Map<String, FileInfo> changedFiles = gApi.changes().id(r.getChangeId()).current().files();
+    assertThat(changedFiles.keySet()).containsExactly(COMMIT_MSG, MERGE_LIST);
+  }
+
+  @Test
   public void diffBetweenPatchSetsOfMergeCommitCanBeRetrievedForCommitMessageAndMergeList()
       throws Exception {
     PushOneCommit.Result result = createMergeCommitChange("refs/for/master", "my_file.txt");
@@ -461,6 +544,32 @@ public class RevisionDiffIT extends AbstractDaemonTest {
 
     assertThat(commitMessageDiffInfo).content().hasSize(3);
     assertThat(mergeListDiffInfo).content().hasSize(1);
+  }
+
+  @Test
+  public void diffAgainstAutoMergeCanBeRetrievedForCommitMessageAndMergeList() throws Exception {
+    PushOneCommit.Result result = createMergeCommitChange("refs/for/master", "my_file.txt");
+    String changeId = result.getChangeId();
+    addModifiedPatchSet(changeId, "my_file.txt", content -> content.concat("Line I\nLine II\n"));
+
+    DiffInfo commitMessageDiffInfo =
+        getDiffRequest(changeId, CURRENT, COMMIT_MSG)
+            .get(); // diff latest PS against base (auto-merge)
+    DiffInfo mergeListDiffInfo =
+        getDiffRequest(changeId, CURRENT, MERGE_LIST)
+            .get(); // diff latest PS against base (auto-merge)
+
+    assertThat(commitMessageDiffInfo).changeType().isEqualTo(ChangeType.ADDED);
+    assertThat(commitMessageDiffInfo).content().hasSize(1);
+
+    assertThat(mergeListDiffInfo).changeType().isEqualTo(ChangeType.ADDED);
+    assertThat(mergeListDiffInfo).content().hasSize(1);
+    assertThat(mergeListDiffInfo)
+        .content()
+        .element(0)
+        .linesOfB()
+        .element(0)
+        .isEqualTo("Merge List:");
   }
 
   @Test
@@ -874,6 +983,37 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void intralineEditsAreIdentified() throws Exception {
+    // TODO(ghareeb): This test asserts the wrong behavior due to the following issue
+    // bugs.chromium.org/p/gerrit/issues/detail?id=13563
+    // Please remove this comment and assert the correct behavior when the bug is fixed.
+
+    assume().that(intraline).isTrue();
+
+    String orig = "[-9999,9999]";
+    String replace = "[-999,999]";
+
+    addModifiedPatchSet(changeId, FILE_NAME, fileContent -> fileContent.concat(orig));
+    String previousPatchSetId = gApi.changes().id(changeId).get().currentRevision;
+    addModifiedPatchSet(changeId, FILE_NAME, fileContent -> fileContent.replace(orig, replace));
+
+    // TODO(ghareeb): remove this comment when the issue is fixed.
+    // The returned diff incorrectly contains:
+    // replace [-9999{,99}99] with [-999{,}999].
+    // If this replace edit is done, the resulting string incorrectly becomes [-9999,99].
+
+    DiffInfo diffInfo =
+        getDiffRequest(changeId, CURRENT, FILE_NAME).withBase(previousPatchSetId).get();
+
+    List<List<Integer>> editsA = diffInfo.content.get(1).editA;
+    List<List<Integer>> editsB = diffInfo.content.get(1).editB;
+    String reconstructed = transformStringUsingEditList(orig, replace, editsA, editsB);
+
+    // TODO(ghareeb): assert equals when the issue is fixed.
+    assertThat(reconstructed).isNotEqualTo(replace);
+  }
+
+  @Test
   public void intralineEditsForModifiedLastLineArePreservedWhenNewlineIsAlsoAddedAtEnd()
       throws Exception {
     assume().that(intraline).isTrue();
@@ -1189,6 +1329,9 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   @Test
   public void renamedUnrelatedFileIsIgnored_ForPatchSetDiffWithRebase_WhenEquallyModifiedInBoth()
       throws Exception {
+    // TODO(ghareeb): fix this test for the new diff cache implementation
+    assume().that(useNewDiffCacheListFiles).isFalse();
+
     Function<String, String> contentModification =
         fileContent -> fileContent.replace("1st line\n", "First line\n");
     addModifiedPatchSet(changeId, FILE_NAME2, contentModification);
@@ -1279,6 +1422,9 @@ public class RevisionDiffIT extends AbstractDaemonTest {
 
   @Test
   public void filesTouchedByPatchSetsAndContainingOnlyRebaseHunksAreIgnored() throws Exception {
+    // TODO(ghareeb): fix this test for the new diff cache implementation
+    assume().that(useNewDiffCacheListFiles).isFalse();
+
     addModifiedPatchSet(
         changeId, FILE_NAME, fileContent -> fileContent.replace("Line 50\n", "Line fifty\n"));
     addModifiedPatchSet(
@@ -2657,6 +2803,58 @@ public class RevisionDiffIT extends AbstractDaemonTest {
   }
 
   @Test
+  public void symlinkConvertedToRegularFileIsIdentifiedAsAdded() throws Exception {
+    // TODO(ghareeb): fix this test for the new diff cache implementation
+    assume().that(useNewDiffCacheListFiles).isFalse();
+    assume().that(useNewDiffCacheGetDiff).isFalse();
+
+    String target = "file.txt";
+    String symlink = "link.lnk";
+
+    // Create a change adding file "FileName" and a symlink "symLink" pointing to the file
+    PushOneCommit push =
+        pushFactory
+            .create(admin.newIdent(), testRepo, "Commit Subject", target, "content")
+            .addSymlink(symlink, target);
+
+    PushOneCommit.Result result = push.to("refs/for/master");
+    String initialRev = gApi.changes().id(result.getChangeId()).get().currentRevision;
+
+    // Delete the symlink with patchset 2
+    gApi.changes().id(result.getChangeId()).edit().deleteFile(symlink);
+    gApi.changes().id(result.getChangeId()).edit().publish();
+
+    // Re-add the symlink as a regular file with patchset 3
+    gApi.changes()
+        .id(result.getChangeId())
+        .edit()
+        .modifyFile(symlink, RawInputUtil.create("Content of the new file named 'symlink'"));
+    gApi.changes().id(result.getChangeId()).edit().publish();
+
+    Map<String, FileInfo> changedFiles =
+        gApi.changes().id(result.getChangeId()).current().files(initialRev);
+
+    assertThat(changedFiles.keySet()).containsExactly("/COMMIT_MSG", symlink);
+    assertThat(changedFiles.get(symlink).status).isEqualTo('W'); // Rewrite
+
+    DiffInfo diffInfo =
+        gApi.changes().id(result.getChangeId()).current().file(symlink).diff(initialRev);
+
+    // The diff logic identifies two entries for the file:
+    // 1. One entry as 'DELETED' for the symlink.
+    // 2. Another entry as 'ADDED' for the new regular file.
+    // Since the diff logic returns a single entry, we prioritize returning the 'ADDED' entry in
+    // this case so that the client is able to see the new content that was added to the file.
+    assertThat(diffInfo.changeType).isEqualTo(ChangeType.ADDED);
+    assertThat(diffInfo.content).hasSize(1);
+    assertThat(diffInfo)
+        .content()
+        .element(0)
+        .linesOfB()
+        .containsExactly("Content of the new file named 'symlink'");
+  }
+
+  @Test
   public void diffOfNonExistentFileIsAnEmptyDiffResult() throws Exception {
     addModifiedPatchSet(changeId, FILE_NAME, content -> content.replace("Line 2\n", "Line two\n"));
 
@@ -2702,6 +2900,21 @@ public class RevisionDiffIT extends AbstractDaemonTest {
             BadRequestException.class,
             () -> getDiffRequest(changeId, CURRENT, FILE_NAME).withBase("0").get());
     assertThat(e).hasMessageThat().isEqualTo("edit not allowed as base");
+  }
+
+  private Registration newGitwebFileWebLink() {
+    FileWebLink fileWebLink =
+        new FileWebLink() {
+          @Override
+          public WebLinkInfo getFileWebLink(
+              String projectName, String revision, String hash, String fileName) {
+            return new WebLinkInfo(
+                "name",
+                "imageURL",
+                String.format("http://gitweb/?p=%s;hb=%s;f=%s", projectName, hash, fileName));
+          }
+        };
+    return extensionRegistry.newRegistration().add(fileWebLink);
   }
 
   private String updatedCommitMessage() {
@@ -2842,5 +3055,30 @@ public class RevisionDiffIT extends AbstractDaemonTest {
         .file(fileName)
         .diffRequest()
         .withIntraline(intraline);
+  }
+
+  /**
+   * This method transforms the {@code orig} input String using the list of replace edits {@code
+   * editsA}, {@code editsB} and the resulting {@code replace} String. This method currently assumes
+   * that all input edits are replace edits, and that the edits are sorted according to their
+   * indices.
+   *
+   * @return The transformed String after applying the list of replace edits to the original String.
+   */
+  private String transformStringUsingEditList(
+      String orig, String replace, List<List<Integer>> editsA, List<List<Integer>> editsB) {
+    assertThat(editsA).hasSize(editsB.size());
+    StringBuilder process = new StringBuilder(orig);
+    // The edits are processed right to left to avoid recomputation of indices when characters
+    // are removed.
+    for (int i = editsA.size() - 1; i >= 0; i--) {
+      List<Integer> leftEdit = editsA.get(i);
+      List<Integer> rightEdit = editsB.get(i);
+      process.replace(
+          leftEdit.get(0),
+          leftEdit.get(0) + leftEdit.get(1),
+          replace.substring(rightEdit.get(0), rightEdit.get(0) + rightEdit.get(1)));
+    }
+    return process.toString();
   }
 }

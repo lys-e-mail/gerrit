@@ -17,8 +17,6 @@
 import '../../../styles/shared-styles';
 import '../gr-selection-action-box/gr-selection-action-box';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-highlight_html';
 import {GrAnnotation} from './gr-annotation';
@@ -30,6 +28,8 @@ import {CommentRange} from '../../../types/common';
 import {GrSelectionActionBox} from '../gr-selection-action-box/gr-selection-action-box';
 import {GrDiffBuilderElement} from '../gr-diff-builder/gr-diff-builder-element';
 import {FILE} from '../gr-diff/gr-diff-line';
+import {getRange, getSide} from '../gr-diff/gr-diff-utils';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 
 interface SidedRange {
   side: Side;
@@ -54,9 +54,7 @@ interface CommentThreadElement extends HTMLElement {
 }
 
 @customElement('gr-diff-highlight')
-export class GrDiffHighlight extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffHighlight extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -73,9 +71,10 @@ export class GrDiffHighlight extends GestureEventListeners(
   @property({type: Object, notify: true})
   selectedRange?: SidedRange;
 
-  /** @override */
-  created() {
-    super.created();
+  private selectionChangeTask?: DelayedTask;
+
+  constructor() {
+    super();
     this.addEventListener('comment-thread-mouseleave', e =>
       this._handleCommentThreadMouseleave(e)
     );
@@ -85,6 +84,12 @@ export class GrDiffHighlight extends GestureEventListeners(
     this.addEventListener('create-comment-requested', e =>
       this._handleRangeCommentRequest(e)
     );
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.selectionChangeTask?.cancel();
+    super.disconnectedCallback();
   }
 
   get diffBuilder() {
@@ -124,8 +129,8 @@ export class GrDiffHighlight extends GestureEventListeners(
     // quick 'c' press after the selection change. If you wait less than 10
     // ms, then you will have about 50 _handleSelection calls when doing a
     // simple drag for select.
-    this.debounce(
-      'selectionChange',
+    this.selectionChangeTask = debounce(
+      this.selectionChangeTask,
       () => this._handleSelection(selection, isMouseUp),
       10
     );
@@ -164,17 +169,35 @@ export class GrDiffHighlight extends GestureEventListeners(
           `.range.${strToClassName(threadEl.rootId)}`
         );
         rangeNodes.forEach(rangeNode => {
-          rangeNode.classList.add('rangeHighlight');
-          rangeNode.classList.remove('range');
+          rangeNode.classList.add('rangeHoverHighlight');
         });
+        const hintNode = threadEl.parentElement?.querySelector(
+          `gr-ranged-comment-hint[threadElRootId="${threadEl.rootId}"]`
+        );
+        if (hintNode) {
+          hintNode.shadowRoot
+            ?.querySelectorAll('.rangeHighlight')
+            .forEach(highlightNode =>
+              highlightNode.classList.add('rangeHoverHighlight')
+            );
+        }
       } else {
         const rangeNodes = curNode.querySelectorAll(
-          `.rangeHighlight.${strToClassName(threadEl.rootId)}`
+          `.rangeHoverHighlight.${strToClassName(threadEl.rootId)}`
         );
         rangeNodes.forEach(rangeNode => {
-          rangeNode.classList.remove('rangeHighlight');
-          rangeNode.classList.add('range');
+          rangeNode.classList.remove('rangeHoverHighlight');
         });
+        const hintNode = threadEl.parentElement?.querySelector(
+          `gr-ranged-comment-hint[threadElRootId="${threadEl.rootId}"]`
+        );
+        if (hintNode) {
+          hintNode.shadowRoot
+            ?.querySelectorAll('.rangeHoverHighlight')
+            .forEach(highlightNode =>
+              highlightNode.classList.remove('rangeHoverHighlight')
+            );
+        }
       }
     }
   }
@@ -202,13 +225,9 @@ export class GrDiffHighlight extends GestureEventListeners(
   }
 
   _indexForThreadEl(threadEl: HTMLElement) {
-    const side = threadEl.getAttribute('comment-side') as Side;
-    const rangeString = threadEl.getAttribute('range');
-    if (!rangeString) return undefined;
-    const range = JSON.parse(rangeString) as CommentRange;
-
-    if (!range) return undefined;
-
+    const side = getSide(threadEl);
+    const range = getRange(threadEl);
+    if (!side || !range) return undefined;
     return this._indexOfCommentRange(side, range);
   }
 
@@ -345,7 +364,7 @@ export class GrDiffHighlight extends GestureEventListeners(
     const side = this.diffBuilder.getSideByLineEl(lineEl);
     if (!side) return null;
     const line = this.diffBuilder.getLineNumberByChild(lineEl);
-    if (!line || line === FILE) return null;
+    if (!line || line === FILE || line === 'LOST') return null;
     const contentTd = this.diffBuilder.getContentTdByLineEl(lineEl);
     if (!contentTd) return null;
     const contentText = contentTd.querySelector('.contentText');

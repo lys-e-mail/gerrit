@@ -35,13 +35,15 @@ import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.Change.Status;
 import com.google.gerrit.entities.ChangeMessage;
+import com.google.gerrit.entities.LegacySubmitRequirement;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.SubmissionId;
 import com.google.gerrit.entities.SubmitRecord;
-import com.google.gerrit.entities.SubmitRequirement;
 import com.google.gerrit.entities.SubmitTypeRecord;
+import com.google.gerrit.exceptions.InternalServerWithUserMessageException;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.extensions.api.changes.NotifyHandling;
 import com.google.gerrit.extensions.api.changes.SubmitInput;
@@ -118,7 +120,7 @@ public class MergeOp implements AutoCloseable {
 
   private static final SubmitRuleOptions SUBMIT_RULE_OPTIONS = SubmitRuleOptions.builder().build();
   private static final SubmitRuleOptions SUBMIT_RULE_OPTIONS_ALLOW_CLOSED =
-      SUBMIT_RULE_OPTIONS.toBuilder().allowClosed(true).build();
+      SUBMIT_RULE_OPTIONS.toBuilder().recomputeOnClosedChanges(true).build();
 
   public static class CommitStatus {
     private final ImmutableMap<Change.Id, ChangeData> changes;
@@ -187,7 +189,7 @@ public class MergeOp implements AutoCloseable {
       // date by this point.
       ChangeData cd = requireNonNull(changes.get(id), () -> String.format("ChangeData for %s", id));
       return requireNonNull(
-          cd.getSubmitRecords(submitRuleOptions(allowClosed)),
+          cd.submitRecords(submitRuleOptions(allowClosed)),
           "getSubmitRecord only valid after submit rules are evalutated");
     }
 
@@ -232,7 +234,7 @@ public class MergeOp implements AutoCloseable {
   private final SubmitStrategyFactory submitStrategyFactory;
   private final SubscriptionGraph.Factory subscriptionGraphFactory;
   private final SubmoduleCommits.Factory submoduleCommitsFactory;
-  private final SubmissionListener superprojectUpdateSubmissionListener;
+  private final ImmutableList<SubmissionListener> superprojectUpdateSubmissionListeners;
   private final Provider<MergeOpRepoManager> ormProvider;
   private final NotifyResolver notifyResolver;
   private final RetryHelper retryHelper;
@@ -264,7 +266,8 @@ public class MergeOp implements AutoCloseable {
       SubmitStrategyFactory submitStrategyFactory,
       SubmoduleCommits.Factory submoduleCommitsFactory,
       SubscriptionGraph.Factory subscriptionGraphFactory,
-      @SuperprojectUpdateOnSubmission SubmissionListener superprojectUpdateSubmissionListener,
+      @SuperprojectUpdateOnSubmission
+          ImmutableList<SubmissionListener> superprojectUpdateSubmissionListeners,
       Provider<MergeOpRepoManager> ormProvider,
       NotifyResolver notifyResolver,
       TopicMetrics topicMetrics,
@@ -279,7 +282,7 @@ public class MergeOp implements AutoCloseable {
     this.submitStrategyFactory = submitStrategyFactory;
     this.submoduleCommitsFactory = submoduleCommitsFactory;
     this.subscriptionGraphFactory = subscriptionGraphFactory;
-    this.superprojectUpdateSubmissionListener = superprojectUpdateSubmissionListener;
+    this.superprojectUpdateSubmissionListeners = superprojectUpdateSubmissionListeners;
     this.ormProvider = ormProvider;
     this.notifyResolver = notifyResolver;
     this.retryHelper = retryHelper;
@@ -388,8 +391,9 @@ public class MergeOp implements AutoCloseable {
     return Joiner.on("; ").join(labelResults);
   }
 
-  private static String describeSubmitRequirement(SubmitRequirement submitRequirement) {
-    return String.format("Submit requirement not fulfilled: %s", submitRequirement.fallbackText());
+  private static String describeSubmitRequirement(LegacySubmitRequirement legacySubmitRequirement) {
+    return String.format(
+        "Submit requirement not fulfilled: %s", legacySubmitRequirement.fallbackText());
   }
 
   private void checkSubmitRulesAndState(ChangeSet cs, boolean allowMerged)
@@ -491,18 +495,35 @@ public class MergeOp implements AutoCloseable {
         logger.atFine().log("Calculated to merge %s", indexBackedChangeSet);
 
         // Reload ChangeSet so that we don't rely on (potentially) stale index data for merging
-        ChangeSet cs = reloadChanges(indexBackedChangeSet);
+        ChangeSet noteDbChangeSet = reloadChanges(indexBackedChangeSet);
+
+        // At this point, any change that isn't new can be filtered out since they were only here
+        // in the first place due to stale index.
+        List<ChangeData> filteredChanges = new ArrayList<>();
+        for (ChangeData changeData : noteDbChangeSet.changes()) {
+          if (!changeData.change().getStatus().equals(Status.NEW)) {
+            logger.atFine().log(
+                "Change %s has status %s due to stale index, so it is skipped during submit",
+                changeData.getId().toString(), changeData.change().getStatus().name());
+            continue;
+          }
+          filteredChanges.add(changeData);
+        }
+
+        // There are no hidden changes (or else we would have thrown AuthException above).
+        ChangeSet filteredNoteDbChangeSet =
+            new ChangeSet(filteredChanges, /* hiddenChanges= */ ImmutableList.of());
 
         // Count cross-project submissions outside of the retry loop. The chance of a single project
         // failing increases with the number of projects, so the failure count would be inflated if
         // this metric were incremented inside of integrateIntoHistory.
-        int projects = cs.projects().size();
+        int projects = filteredNoteDbChangeSet.projects().size();
         if (projects > 1) {
           topicMetrics.topicSubmissions.increment();
         }
 
         SubmissionExecutor submissionExecutor =
-            new SubmissionExecutor(dryrun, superprojectUpdateSubmissionListener);
+            new SubmissionExecutor(dryrun, superprojectUpdateSubmissionListeners);
         RetryTracker retryTracker = new RetryTracker();
         retryHelper
             .changeUpdate(
@@ -515,22 +536,25 @@ public class MergeOp implements AutoCloseable {
                     this.ts = TimeUtil.nowTs();
                     openRepoManager();
                   }
-                  this.commitStatus = new CommitStatus(cs, isRetry);
+                  this.commitStatus = new CommitStatus(filteredNoteDbChangeSet, isRetry);
                   if (checkSubmitRules) {
                     logger.atFine().log("Checking submit rules and state");
-                    checkSubmitRulesAndState(cs, isRetry);
+                    checkSubmitRulesAndState(filteredNoteDbChangeSet, isRetry);
                   } else {
                     logger.atFine().log("Bypassing submit rules");
-                    bypassSubmitRules(cs, isRetry);
+                    bypassSubmitRules(filteredNoteDbChangeSet, isRetry);
                   }
-                  integrateIntoHistory(cs, submissionExecutor);
+                  integrateIntoHistory(filteredNoteDbChangeSet, submissionExecutor);
                   return null;
                 })
             .listener(retryTracker)
             // Up to the entire submit operation is retried, including possibly many projects.
             // Multiply the timeout by the number of projects we're actually attempting to
-            // submit.
-            .defaultTimeoutMultiplier(cs.projects().size())
+            // submit. Times 2 to retry more persistently, to increase success rate.
+            .defaultTimeoutMultiplier(filteredNoteDbChangeSet.projects().size() * 2)
+            // By default, we only retry lock failures. Here it's better to also retry unexpected
+            // runtime exceptions.
+            .retryOn(t -> t instanceof RuntimeException)
             .call();
         submissionExecutor.afterExecutions(orm);
 
@@ -672,7 +696,7 @@ public class MergeOp implements AutoCloseable {
       if (e.getCause() instanceof IntegrationConflictException) {
         throw (IntegrationConflictException) e.getCause();
       }
-      throw new StorageException(genericMergeError(cs), e);
+      throw new InternalServerWithUserMessageException(genericMergeError(cs), e);
     }
   }
 

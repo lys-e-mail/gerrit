@@ -14,7 +14,8 @@
 
 package com.google.gerrit.server.patch;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -31,6 +32,8 @@ import com.google.gerrit.server.fixes.FixCalculator;
 import com.google.gerrit.server.mime.FileTypeRegistry;
 import com.google.gerrit.server.patch.DiffContentCalculator.DiffCalculatorResult;
 import com.google.gerrit.server.patch.DiffContentCalculator.TextSource;
+import com.google.gerrit.server.patch.filediff.FileDiffOutput;
+import com.google.gerrit.server.patch.filediff.TaggedEdit;
 import com.google.inject.Inject;
 import eu.medsea.mimeutil.MimeType;
 import eu.medsea.mimeutil.MimeUtil2;
@@ -68,7 +71,8 @@ class PatchScriptBuilder {
     intralineDiffCalculator = calculator;
   }
 
-  PatchScript toPatchScript(Repository git, PatchList list, PatchListEntry content)
+  /** Convert into {@link PatchScript} using the old diff cache output. */
+  PatchScript toPatchScriptOld(Repository git, PatchList list, PatchListEntry content)
       throws IOException {
 
     PatchFileChange change =
@@ -84,6 +88,32 @@ class PatchScriptBuilder {
     ResolvedSides sides =
         resolveSides(
             git, sidesResolver, oldName(change), newName(change), list.getOldId(), list.getNewId());
+    return build(sides.a, sides.b, change);
+  }
+
+  /** Convert into {@link PatchScript} using the new diff cache output. */
+  PatchScript toPatchScriptNew(Repository git, FileDiffOutput content) throws IOException {
+    PatchFileChange change =
+        new PatchFileChange(
+            content.edits().stream().map(TaggedEdit::jgitEdit).collect(toImmutableList()),
+            content.edits().stream()
+                .filter(TaggedEdit::dueToRebase)
+                .map(TaggedEdit::jgitEdit)
+                .collect(toImmutableSet()),
+            content.headerLines(),
+            FilePathAdapter.getOldPath(content.oldPath(), content.changeType()),
+            FilePathAdapter.getNewPath(content.oldPath(), content.newPath(), content.changeType()),
+            content.changeType(),
+            content.patchType().orElse(null));
+    SidesResolver sidesResolver = new SidesResolver(git, content.comparisonType());
+    ResolvedSides sides =
+        resolveSides(
+            git,
+            sidesResolver,
+            oldName(change),
+            newName(change),
+            content.oldCommitId(),
+            content.newCommitId());
     return build(sides.a, sides.b, change);
   }
 
@@ -352,16 +382,8 @@ class PatchScriptBuilder {
         byte[] srcContent;
         if (reuse) {
           srcContent = other.srcContent;
-
-        } else if (mode.getObjectType() == Constants.OBJ_BLOB) {
-          srcContent = Text.asByteArray(db.open(id, Constants.OBJ_BLOB));
-
-        } else if (mode.getObjectType() == Constants.OBJ_COMMIT) {
-          String strContent = "Subproject commit " + ObjectId.toString(id);
-          srcContent = strContent.getBytes(UTF_8);
-
         } else {
-          srcContent = Text.NO_BYTES;
+          srcContent = SrcContentResolver.getSourceContent(db, id, mode);
         }
         String mimeType = MimeUtil2.UNKNOWN_MIME_TYPE.toString();
         DisplayMethod displayMethod = DisplayMethod.DIFF;
@@ -405,12 +427,7 @@ class PatchScriptBuilder {
       if (mode == FileMode.MISSING) {
         displayMethod = DisplayMethod.NONE;
       }
-      PatchScript.FileMode fileMode = PatchScript.FileMode.FILE;
-      if (mode == FileMode.SYMLINK) {
-        fileMode = PatchScript.FileMode.SYMLINK;
-      } else if (mode == FileMode.GITLINK) {
-        fileMode = PatchScript.FileMode.GITLINK;
-      }
+      PatchScript.FileMode fileMode = PatchScript.FileMode.fromJgitFileMode(mode);
       return new PatchSide(
           treeId, path, id, mode, srcContent, src, mimeType, displayMethod, fileMode);
     }

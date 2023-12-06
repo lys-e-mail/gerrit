@@ -21,11 +21,8 @@ import '../../../styles/gr-menu-page-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-rule-editor/gr-rule-editor';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-permission_html';
 import {
@@ -34,8 +31,6 @@ import {
   PermissionArray,
 } from '../../../utils/access-util';
 import {customElement, property, observe} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {
   LabelNameToLabelTypeInfoMap,
   LabelTypeInfoValues,
@@ -57,6 +52,8 @@ import {
   EditableProjectAccessGroups,
 } from '../gr-repo-access/gr-repo-access-interfaces';
 import {PolymerDomRepeatEvent} from '../../../types/types';
+import {appContext} from '../../../services/app-context';
+import {fireEvent} from '../../../utils/event-util';
 
 const MAX_AUTOCOMPLETE_RESULTS = 20;
 
@@ -66,7 +63,6 @@ type GroupsWithRulesMap = {[ruleId: string]: boolean};
 
 export interface GrPermission {
   $: {
-    restAPI: RestApiService & Element;
     groupAutocomplete: GrAutocomplete;
   };
 }
@@ -97,9 +93,7 @@ interface GroupSuggestion {
  * @event added-permission-removed
  */
 @customElement('gr-permission')
-export class GrPermission extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrPermission extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -146,14 +140,11 @@ export class GrPermission extends GestureEventListeners(
   @property({type: Boolean})
   _originalExclusiveValue?: boolean;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._query = () => this._getGroupSuggestions();
-  }
-
-  /** @override */
-  created() {
-    super.created();
     this.addEventListener('access-saved', () => this._handleAccessSaved());
   }
 
@@ -226,9 +217,7 @@ export class GrPermission extends GestureEventListeners(
     }
     this.permission.value.modified = true;
     // Allows overall access page to know a change has been made.
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   _handleRemovePermission() {
@@ -236,18 +225,11 @@ export class GrPermission extends GestureEventListeners(
       return;
     }
     if (this.permission.value.added) {
-      this.dispatchEvent(
-        new CustomEvent('added-permission-removed', {
-          bubbles: true,
-          composed: true,
-        })
-      );
+      fireEvent(this, 'added-permission-removed');
     }
     this._deleted = true;
     this.permission.value.deleted = true;
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   @observe('_rules.splices')
@@ -341,7 +323,7 @@ export class GrPermission extends GestureEventListeners(
   }
 
   _getGroupSuggestions(): Promise<AutocompleteSuggestion[]> {
-    return this.$.restAPI
+    return this.restApiService
       .getSuggestedGroups(
         this._groupFilter || '',
         this.repo,
@@ -349,14 +331,8 @@ export class GrPermission extends GestureEventListeners(
       )
       .then(response => {
         const groups: GroupSuggestion[] = [];
-        for (const key in response) {
-          if (!hasOwnProperty(response, key)) {
-            continue;
-          }
-          groups.push({
-            name: key,
-            value: response[key],
-          });
+        for (const [name, value] of Object.entries(response ?? {})) {
+          groups.push({name, value});
         }
         // Does not return groups in which we already have rules for.
         return groups
@@ -415,9 +391,7 @@ export class GrPermission extends GestureEventListeners(
     value.added = true;
     // See comment above for why we cannot use "this.set(...)" here.
     this.permission.value.rules[groupId] = value;
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   _computeHasRange(name: string) {

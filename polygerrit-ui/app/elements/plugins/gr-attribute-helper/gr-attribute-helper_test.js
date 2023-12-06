@@ -17,10 +17,10 @@
 
 import '../../../test/common-test-setup-karma.js';
 import {Polymer} from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import {GrAttributeHelper} from './gr-attribute-helper.js';
+import {_testOnly_initGerritPluginApi} from '../../shared/gr-js-api-interface/gr-gerrit.js';
 
 Polymer({
-  is: 'gr-attrubute-helper-some-element',
+  is: 'gr-attribute-helper-some-element',
   properties: {
     fooBar: {
       type: Object,
@@ -29,15 +29,20 @@ Polymer({
   },
 });
 
-const basicFixture = fixtureFromElement('gr-attrubute-helper-some-element');
+const basicFixture = fixtureFromElement('gr-attribute-helper-some-element');
+
+const pluginApi = _testOnly_initGerritPluginApi();
 
 suite('gr-attribute-helper tests', () => {
   let element;
   let instance;
 
   setup(() => {
+    let plugin;
+    pluginApi.install(p => { plugin = p; }, '0.1',
+        'http://test.com/plugins/testplugin/static/test.js');
     element = basicFixture.instantiate();
-    instance = new GrAttributeHelper(element);
+    instance = plugin.attributeHelper(element);
   });
 
   test('resolved on value change from undefined', () => {

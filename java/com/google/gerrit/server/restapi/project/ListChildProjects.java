@@ -23,9 +23,7 @@ import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.restapi.RestReadView;
-import com.google.gerrit.server.permissions.PermissionBackend;
 import com.google.gerrit.server.permissions.PermissionBackendException;
-import com.google.gerrit.server.permissions.ProjectPermission;
 import com.google.gerrit.server.project.ChildProjects;
 import com.google.gerrit.server.project.ProjectResource;
 import com.google.inject.Inject;
@@ -41,16 +39,11 @@ public class ListChildProjects implements RestReadView<ProjectResource> {
   @Option(name = "--limit", usage = "maximum number of parents projects to list")
   private int limit;
 
-  private final PermissionBackend permissionBackend;
   private final ChildProjects childProjects;
   private final Provider<QueryProjects> queryProvider;
 
   @Inject
-  ListChildProjects(
-      PermissionBackend permissionBackend,
-      ChildProjects childProjects,
-      Provider<QueryProjects> queryProvider) {
-    this.permissionBackend = permissionBackend;
+  ListChildProjects(ChildProjects childProjects, Provider<QueryProjects> queryProvider) {
     this.childProjects = childProjects;
     this.queryProvider = queryProvider;
   }
@@ -83,10 +76,7 @@ public class ListChildProjects implements RestReadView<ProjectResource> {
   }
 
   private List<ProjectInfo> directChildProjects(Project.NameKey parent) throws RestApiException {
-    PermissionBackend.WithUser currentUser = permissionBackend.currentUser();
     return queryProvider.get().withQuery("parent:" + parent.get()).withLimit(limit).apply().stream()
-        .filter(
-            p -> currentUser.project(Project.nameKey(p.name)).testOrFalse(ProjectPermission.ACCESS))
         .collect(toList());
   }
 }

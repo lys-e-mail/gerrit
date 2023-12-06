@@ -19,9 +19,7 @@ import '../../../styles/gr-page-nav-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-dropdown-list/gr-dropdown-list';
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
 import '../../shared/gr-page-nav/gr-page-nav';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-admin-group-list/gr-admin-group-list';
 import '../gr-group/gr-group';
 import '../gr-group-audit-log/gr-group-audit-log';
@@ -33,14 +31,11 @@ import '../gr-repo-commands/gr-repo-commands';
 import '../gr-repo-dashboards/gr-repo-dashboards';
 import '../gr-repo-detail-list/gr-repo-detail-list';
 import '../gr-repo-list/gr-repo-list';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-admin-view_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {
   GerritNav,
-  GerritView,
   GroupDetailView,
   RepoDetailView,
 } from '../../core/gr-navigation/gr-navigation';
@@ -52,7 +47,6 @@ import {
   SubsectionInterface,
 } from '../../../utils/admin-nav-util';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AppElementAdminParams,
   AppElementGroupParams,
@@ -66,16 +60,10 @@ import {
 } from '../../../types/common';
 import {GroupNameChangedDetail} from '../gr-group/gr-group';
 import {ValueChangeDetail} from '../../shared/gr-dropdown-list/gr-dropdown-list';
-import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {appContext} from '../../../services/app-context';
+import {GerritView} from '../../../services/router/router-model';
 
 const INTERNAL_GROUP_REGEX = /^[\da-f]{40}$/;
-
-export interface GrAdminView {
-  $: {
-    restAPI: RestApiService & Element;
-    jsAPI: GrJsApiInterface;
-  };
-}
 
 interface AdminSubsectionLink {
   text: string;
@@ -102,14 +90,12 @@ function getAdminViewParamsDetail(
 }
 
 @customElement('gr-admin-view')
-export class GrAdminView extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAdminView extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
 
-  private _account?: AccountDetailInfo;
+  private account?: AccountDetailInfo;
 
   @property({type: Object})
   params?: AdminViewParams;
@@ -183,19 +169,23 @@ export class GrAdminView extends GestureEventListeners(
   @property({type: Boolean})
   _showPluginList?: boolean;
 
+  private readonly restApiService = appContext.restApiService;
+
+  private readonly jsAPI = appContext.jsApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this.reload();
   }
 
   reload() {
     const promises: [Promise<AccountDetailInfo | undefined>, Promise<void>] = [
-      this.$.restAPI.getAccount(),
+      this.restApiService.getAccount(),
       getPluginLoader().awaitPluginsLoaded(),
     ];
     return Promise.all(promises).then(result => {
-      this._account = result[0];
+      this.account = result[0];
       let options: AdminNavLinksOption | undefined = undefined;
       if (this._repoName) {
         options = {repoName: this._repoName};
@@ -210,15 +200,15 @@ export class GrAdminView extends GestureEventListeners(
       }
 
       return getAdminLinks(
-        this._account,
+        this.account,
         () =>
-          this.$.restAPI.getAccountCapabilities().then(capabilities => {
+          this.restApiService.getAccountCapabilities().then(capabilities => {
             if (!capabilities) {
               throw new Error('getAccountCapabilities returns undefined');
             }
             return capabilities;
           }),
-        () => this.$.jsAPI.getAdminMenuLinks(),
+        () => this.jsAPI.getAdminMenuLinks(),
         options
       ).then(res => {
         this._filteredLinks = res.links;
@@ -406,7 +396,7 @@ export class GrAdminView extends GestureEventListeners(
       }
       return '';
     }
-    // TODO(TS): The following condtion seems always false, because params
+    // TODO(TS): The following condition seems always false, because params
     // never has detailType property. Remove it.
     if (
       ((params as unknown) as AdminSubsectionLink).detailType &&
@@ -423,7 +413,7 @@ export class GrAdminView extends GestureEventListeners(
     if (!groupId) return;
 
     const promises: Array<Promise<void>> = [];
-    this.$.restAPI.getGroupConfig(groupId).then(group => {
+    this.restApiService.getGroupConfig(groupId).then(group => {
       if (!group || !group.name) {
         return;
       }
@@ -433,13 +423,13 @@ export class GrAdminView extends GestureEventListeners(
       this.reload();
 
       promises.push(
-        this.$.restAPI.getIsAdmin().then(isAdmin => {
+        this.restApiService.getIsAdmin().then(isAdmin => {
           this._isAdmin = !!isAdmin;
         })
       );
 
       promises.push(
-        this.$.restAPI.getIsGroupOwner(group.name).then(isOwner => {
+        this.restApiService.getIsGroupOwner(group.name).then(isOwner => {
           this._groupOwner = isOwner;
         })
       );

@@ -14,60 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-comment-api_html';
-import {
-  getParentIndex,
-  isMergeParent,
-  patchNumEquals,
-} from '../../../utils/patch-set-util';
+import {CURRENT} from '../../../utils/patch-set-util';
 import {customElement, property} from '@polymer/decorators';
 import {
   CommentBasics,
-  ConfigInfo,
-  ParentPatchSetNum,
   PatchRange,
   PatchSetNum,
   PathToRobotCommentsInfoMap,
   RobotCommentInfo,
   UrlEncodedCommentId,
   NumericChangeId,
+  PathToCommentsInfoMap,
+  FileInfo,
+  ParentPatchSetNum,
 } from '../../../types/common';
-import {hasOwnProperty} from '../../../utils/common-util';
-import {CommentSide} from '../../../constants/constants';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   Comment,
   CommentMap,
   CommentThread,
   DraftInfo,
   isUnresolved,
-  sortComments,
   UIComment,
   UIDraft,
   UIHuman,
   UIRobot,
+  createCommentThreads,
+  isInPatchRange,
+  isDraftThread,
+  isInBaseOfPatchRange,
+  isInRevisionOfPatchRange,
+  isPatchsetLevel,
 } from '../../../utils/comment-util';
 import {PatchSetFile, PatchNumOnly, isPatchSetFile} from '../../../types/types';
+import {appContext} from '../../../services/app-context';
+import {CommentSide, Side} from '../../../constants/constants';
+import {pluralize} from '../../../utils/string-util';
 
 export type CommentIdToCommentThreadMap = {
   [urlEncodedCommentId: string]: CommentThread;
 };
-
-export interface TwoSidesComments {
-  // TODO(TS): remove meta - it is not used anywhere
-  meta: {
-    changeNum: NumericChangeId;
-    path: string;
-    patchRange: PatchRange;
-    projectConfig?: ConfigInfo;
-  };
-  left: UIComment[];
-  right: UIComment[];
-}
 
 export class ChangeComments {
   private readonly _comments: {[path: string]: UIHuman[]};
@@ -76,7 +63,9 @@ export class ChangeComments {
 
   private readonly _drafts: {[path: string]: UIDraft[]};
 
-  private readonly _changeNum: NumericChangeId;
+  private readonly _portedComments: PathToCommentsInfoMap;
+
+  private readonly _portedDrafts: PathToCommentsInfoMap;
 
   /**
    * Construct a change comments object, which can be data-bound to child
@@ -86,13 +75,14 @@ export class ChangeComments {
     comments: {[path: string]: UIHuman[]} | undefined,
     robotComments: {[path: string]: UIRobot[]} | undefined,
     drafts: {[path: string]: UIDraft[]} | undefined,
-    changeNum: NumericChangeId
+    portedComments: PathToCommentsInfoMap | undefined,
+    portedDrafts: PathToCommentsInfoMap | undefined
   ) {
     this._comments = this._addPath(comments);
     this._robotComments = this._addPath(robotComments);
     this._drafts = this._addPath(drafts);
-    // TODO(TS): remove changeNum param - it is not used anywhere
-    this._changeNum = changeNum;
+    this._portedComments = portedComments || {};
+    this._portedDrafts = portedDrafts || {};
   }
 
   /**
@@ -117,16 +107,8 @@ export class ChangeComments {
     return updatedComments;
   }
 
-  get comments() {
-    return this._comments;
-  }
-
   get drafts() {
     return this._drafts;
-  }
-
-  get robotComments() {
-    return this._robotComments;
   }
 
   findCommentById(commentId?: UrlEncodedCommentId): UIComment | undefined {
@@ -158,23 +140,15 @@ export class ChangeComments {
    */
   getPaths(patchRange?: PatchRange): CommentMap {
     const responses: {[path: string]: UIComment[]}[] = [
-      this.comments,
+      this._comments,
       this.drafts,
-      this.robotComments,
+      this._robotComments,
     ];
     const commentMap: CommentMap = {};
     for (const response of responses) {
-      for (const path in response) {
-        if (
-          hasOwnProperty(response, path) &&
-          response[path].some(c => {
-            // If don't care about patch range, we know that the path exists.
-            if (!patchRange) {
-              return true;
-            }
-            return this._isInPatchRange(c, patchRange);
-          })
-        ) {
+      for (const [path, comments] of Object.entries(response)) {
+        // If don't care about patch range, we know that the path exists.
+        if (comments.some(c => !patchRange || isInPatchRange(c, patchRange))) {
           commentMap[path] = true;
         }
       }
@@ -251,9 +225,7 @@ export class ChangeComments {
       allComments = allComments.concat(drafts);
     }
     if (patchNum) {
-      allComments = allComments.filter(c =>
-        patchNumEquals(c.patch_set, patchNum)
-      );
+      allComments = allComments.filter(c => c.patch_set === patchNum);
     }
     return allComments.map(c => {
       return {...c};
@@ -281,6 +253,29 @@ export class ChangeComments {
     return allComments;
   }
 
+  cloneWithUpdatedDrafts(drafts: {[path: string]: UIDraft[]} | undefined) {
+    return new ChangeComments(
+      this._comments,
+      this._robotComments,
+      drafts,
+      this._portedComments,
+      this._portedDrafts
+    );
+  }
+
+  cloneWithUpdatedPortedComments(
+    portedComments?: PathToCommentsInfoMap,
+    portedDrafts?: PathToCommentsInfoMap
+  ) {
+    return new ChangeComments(
+      this._comments,
+      this._robotComments,
+      this._drafts,
+      portedComments,
+      portedDrafts
+    );
+  }
+
   /**
    * Get the drafts for a path and optional patch num.
    *
@@ -290,7 +285,7 @@ export class ChangeComments {
   getAllDraftsForPath(path: string, patchNum?: PatchSetNum): Comment[] {
     let comments = this._drafts[path] || [];
     if (patchNum) {
-      comments = comments.filter(c => patchNumEquals(c.patch_set, patchNum));
+      comments = comments.filter(c => c.patch_set === patchNum);
     }
     return comments.map(c => {
       return {...c, __draft: true};
@@ -322,52 +317,142 @@ export class ChangeComments {
    * @param projectConfig Optional project config object to
    * include in the meta sub-object.
    */
-  getCommentsBySideForPath(
-    path: string,
-    patchRange: PatchRange,
-    projectConfig?: ConfigInfo
-  ): TwoSidesComments {
+  getCommentsForPath(path: string, patchRange: PatchRange): Comment[] {
     let comments: Comment[] = [];
     let drafts: DraftInfo[] = [];
     let robotComments: RobotCommentInfo[] = [];
-    if (this.comments && this.comments[path]) {
-      comments = this.comments[path];
+    if (this._comments && this._comments[path]) {
+      comments = this._comments[path];
     }
     if (this.drafts && this.drafts[path]) {
       drafts = this.drafts[path];
     }
-    if (this.robotComments && this.robotComments[path]) {
-      robotComments = this.robotComments[path];
+    if (this._robotComments && this._robotComments[path]) {
+      robotComments = this._robotComments[path];
     }
 
     drafts.forEach(d => {
       d.__draft = true;
     });
 
-    const all: Comment[] = comments
+    return comments
       .concat(drafts)
       .concat(robotComments)
+      .filter(c => isInPatchRange(c, patchRange))
       .map(c => {
         return {...c};
       });
+  }
 
-    const baseComments = all.filter(c =>
-      this._isInBaseOfPatchRange(c, patchRange)
-    );
-    const revisionComments = all.filter(c =>
-      this._isInRevisionOfPatchRange(c, patchRange)
-    );
+  /**
+   * Get the ported threads for given patch range.
+   * Ported threads are comment threads that were posted on an older patchset
+   * and are displayed on a later patchset.
+   * It is simply the original thread displayed on a newer patchset.
+   *
+   * Threads are ported over to all subsequent patchsets. So, a thread created
+   * on patchset 5 say will be ported over to patchsets 6,7,8 and beyond.
+   *
+   * Ported threads add a boolean property ported true to the thread object
+   * to indicate to the user that this is a ported thread.
+   *
+   * Any interactions with ported threads are reflected on the original threads.
+   * Replying to a ported thread ported from Patchset 6 shown on Patchset 10
+   * say creates a draft reply associated with Patchset 6, since the user is
+   * interacting with the original thread.
+   *
+   * Only threads with unresolved comments or drafts are ported over.
+   * If the thread is associated with either the left patchset or the right
+   * patchset, then we filter that ported thread from the return value
+   * as it will be rendered by default.
+   *
+   * If there is no appropriate range for the ported comments, then the backend
+   * does not return the range of the ported thread and it becomes a file level
+   * thread.
+   *
+   * If a comment was created with Side=PARENT, then we only show this ported
+   * comment if Base is part of the patch range, always on the left side of
+   * the diff.
+   *
+   * @return only the ported threads for the specified file and patch range
+   */
+  _getPortedCommentThreads(
+    file: PatchSetFile,
+    patchRange: PatchRange
+  ): CommentThread[] {
+    const portedComments = this._portedComments[file.path] || [];
+    portedComments.push(...(this._portedDrafts[file.path] || []));
+    if (file.basePath) {
+      portedComments.push(...(this._portedComments[file.basePath] || []));
+      portedComments.push(...(this._portedDrafts[file.basePath] || []));
+    }
+    if (!portedComments.length) return [];
 
-    return {
-      meta: {
-        changeNum: this._changeNum,
-        path,
-        patchRange,
-        projectConfig,
-      },
-      left: baseComments,
-      right: revisionComments,
-    };
+    // when forming threads in diff view, we filter for current patchrange but
+    // ported comments will involve comments that may not belong to the
+    // current patchrange, so we need to form threads for them using all
+    // comments
+    const allComments: UIComment[] = this.getAllCommentsForFile(file, true);
+
+    return createCommentThreads(allComments).filter(thread => {
+      // Robot comments and drafts are not ported over. A human reply to
+      // the robot comment will be ported over, thefore it's possible to
+      // have the root comment of the thread not be ported, hence loop over
+      // entire thread
+      const portedComment = portedComments.find(portedComment =>
+        thread.comments.some(c => portedComment.id === c.id)
+      );
+      if (!portedComment) return false;
+
+      const originalComment = thread.comments.find(
+        comment => comment.id === portedComment.id
+      )!;
+
+      if (
+        (originalComment.line && !portedComment.line) ||
+        (originalComment.range && !portedComment.range)
+      ) {
+        thread.rangeInfoLost = true;
+      }
+
+      if (
+        isInBaseOfPatchRange(thread.comments[0], patchRange) ||
+        isInRevisionOfPatchRange(thread.comments[0], patchRange)
+      ) {
+        // no need to port this thread as it will be rendered by default
+        return false;
+      }
+
+      thread.diffSide = Side.RIGHT;
+      if (thread.commentSide === CommentSide.PARENT) {
+        // TODO(dhruvsri): Add handling for merge parents
+        if (
+          patchRange.basePatchNum !== ParentPatchSetNum ||
+          !!thread.mergeParentNum
+        )
+          return false;
+        thread.diffSide = Side.LEFT;
+      }
+
+      if (!isUnresolved(thread) && !isDraftThread(thread)) return false;
+
+      thread.range = portedComment.range;
+      thread.line = portedComment.line;
+      thread.ported = true;
+      return true;
+    });
+  }
+
+  getThreadsBySideForFile(
+    file: PatchSetFile,
+    patchRange: PatchRange
+  ): CommentThread[] {
+    const threads = createCommentThreads(
+      this.getCommentsForFile(file, patchRange),
+      patchRange
+    );
+    threads.push(...this._getPortedCommentThreads(file, patchRange));
+    return threads;
   }
 
   /**
@@ -382,62 +467,28 @@ export class ChangeComments {
    * @param projectConfig Optional project config object to
    * include in the meta sub-object.
    */
-  getCommentsBySideForFile(
-    file: PatchSetFile,
-    patchRange: PatchRange,
-    projectConfig?: ConfigInfo
-  ): TwoSidesComments {
-    const comments = this.getCommentsBySideForPath(
-      file.path,
-      patchRange,
-      projectConfig
-    );
+  getCommentsForFile(file: PatchSetFile, patchRange: PatchRange): Comment[] {
+    const comments = this.getCommentsForPath(file.path, patchRange);
     if (file.basePath) {
-      const commentsForBasePath = this.getCommentsBySideForPath(
-        file.basePath,
-        patchRange,
-        projectConfig
-      );
-      // merge in the left and right
-      comments.left = comments.left.concat(commentsForBasePath.left);
-      comments.right = comments.right.concat(commentsForBasePath.right);
+      comments.push(...this.getCommentsForPath(file.basePath, patchRange));
     }
     return comments;
   }
 
-  /**
-   * @param comments Object keyed by file, with a value of an array
-   * of comments left on that file.
-   * @return A flattened list of all comments, where each comment
-   * also includes the file that it was left on, which was the key of the
-   * originall object.
-   */
-  _commentObjToArrayWithFile<T>(comments: {
-    [path: string]: T[];
-  }): Array<T & {__path: string}> {
-    let commentArr: Array<T & {__path: string}> = [];
-    for (const file of Object.keys(comments)) {
-      const commentsForFile: Array<T & {__path: string}> = [];
-      for (const comment of comments[file]) {
-        commentsForFile.push({...comment, __path: file});
-      }
-      commentArr = commentArr.concat(commentsForFile);
-    }
-    return commentArr;
-  }
-
   _commentObjToArray<T>(comments: {[path: string]: T[]}): T[] {
-    let commentArr: T[] = [];
-    for (const file of Object.keys(comments)) {
-      commentArr = commentArr.concat(comments[file]);
-    }
-    return commentArr;
+    return Object.keys(comments).reduce((commentArr: T[], file) => {
+      comments[file].forEach(c => commentArr.push({...c}));
+      return commentArr;
+    }, []);
   }
 
   /**
    * Computes the number of comment threads in a given file or patch.
    */
-  computeCommentThreadCount(file: PatchSetFile | PatchNumOnly) {
+  computeCommentThreadCount(
+    file: PatchSetFile | PatchNumOnly,
+    ignorePatchsetLevelComments?: boolean
+  ) {
     let comments: Comment[] = [];
     if (isPatchSetFile(file)) {
       comments = this.getAllCommentsForFile(file);
@@ -446,8 +497,10 @@ export class ChangeComments {
         this.getAllPublishedComments(file.patchNum)
       );
     }
-
-    return this.getCommentThreads(comments).length;
+    let threads = createCommentThreads(comments);
+    if (ignorePatchsetLevelComments)
+      threads = threads.filter(thread => !isPatchsetLevel(thread));
+    return threads.length;
   }
 
   /**
@@ -462,10 +515,59 @@ export class ChangeComments {
     return this._commentObjToArray(allDrafts).length;
   }
 
+  // TODO(dhruvsri): merge with computeDraftCount
+  computePortedDraftCount(patchRange: PatchRange, path: string) {
+    const threads = this.getThreadsBySideForFile({path}, patchRange);
+    return threads.filter(thread => isDraftThread(thread) && thread.ported)
+      .length;
+  }
+
+  /**
+   * @param includeUnmodified Included unmodified status of the file in the
+   * comment string or not. For files we opt of chip instead of a string.
+   * @param filterPatchset Only count threads which belong to this patchset
+   */
+  computeCommentsString(
+    patchRange?: PatchRange,
+    path?: string,
+    changeFileInfo?: FileInfo,
+    includeUnmodified?: boolean
+  ) {
+    if (!path) return '';
+    if (!patchRange) return '';
+
+    const threads = this.getThreadsBySideForFile({path}, patchRange);
+    const commentThreadCount = threads.filter(thread => !isDraftThread(thread))
+      .length;
+    const unresolvedCount = threads.reduce((cnt, thread) => {
+      if (isUnresolved(thread)) cnt += 1;
+      return cnt;
+    }, 0);
+
+    const commentThreadString = pluralize(commentThreadCount, 'comment');
+    const unresolvedString =
+      unresolvedCount === 0 ? '' : `${unresolvedCount} unresolved`;
+
+    const unmodifiedString =
+      includeUnmodified && changeFileInfo?.status === 'U' ? 'no changes' : '';
+
+    return (
+      commentThreadString +
+      // Add a space if both comments and unresolved
+      (commentThreadString && unresolvedString ? ' ' : '') +
+      // Add parentheses around unresolved if it exists.
+      (unresolvedString ? `(${unresolvedString})` : '') +
+      (unmodifiedString ? `(${unmodifiedString})` : '')
+    );
+  }
+
   /**
    * Computes a number of unresolved comment threads in a given file and path.
    */
-  computeUnresolvedNum(file: PatchSetFile | PatchNumOnly) {
+  computeUnresolvedNum(
+    file: PatchSetFile | PatchNumOnly,
+    ignorePatchsetLevelComments?: boolean
+  ) {
     let comments: Comment[] = [];
     let drafts: Comment[] = [];
 
@@ -479,108 +581,18 @@ export class ChangeComments {
     }
 
     comments = comments.concat(drafts);
-    const threads = this.getCommentThreads(sortComments(comments));
-    const unresolvedThreads = threads.filter(isUnresolved);
+    const threads = createCommentThreads(comments);
+    let unresolvedThreads = threads.filter(isUnresolved);
+    if (ignorePatchsetLevelComments)
+      unresolvedThreads = unresolvedThreads.filter(
+        thread => !isPatchsetLevel(thread)
+      );
     return unresolvedThreads.length;
   }
 
   getAllThreadsForChange() {
-    const comments = this._commentObjToArrayWithFile(this.getAllComments(true));
-    const sortedComments = sortComments(comments);
-    return this.getCommentThreads(sortedComments);
-  }
-
-  /**
-   * Computes all of the comments in thread format.
-   *
-   * @param comments sorted by updated timestamp.
-   */
-  getCommentThreads(comments: UIComment[]) {
-    const threads: CommentThread[] = [];
-    const idThreadMap: CommentIdToCommentThreadMap = {};
-    for (const comment of comments) {
-      if (!comment.id) continue;
-      // If the comment is in reply to another comment, find that comment's
-      // thread and append to it.
-      if (comment.in_reply_to) {
-        const thread = idThreadMap[comment.in_reply_to];
-        if (thread) {
-          thread.comments.push(comment);
-          idThreadMap[comment.id] = thread;
-          continue;
-        }
-      }
-
-      // Otherwise, this comment starts its own thread.
-      if (!comment.__path && !comment.path) {
-        throw new Error('Comment missing required "path".');
-      }
-      const newThread: CommentThread = {
-        comments: [comment],
-        patchNum: comment.patch_set,
-        path: comment.__path || comment.path!,
-        line: comment.line,
-        rootId: comment.id,
-      };
-      if (comment.side) {
-        newThread.commentSide = comment.side;
-      }
-      threads.push(newThread);
-      idThreadMap[comment.id] = newThread;
-    }
-    return threads;
-  }
-
-  /**
-   * Whether the given comment should be included in the base side of the
-   * given patch range.
-   */
-  _isInBaseOfPatchRange(comment: CommentBasics, range: PatchRange) {
-    // If the base of the patch range is a parent of a merge, and the comment
-    // appears on a specific parent then only show the comment if the parent
-    // index of the comment matches that of the range.
-    if (comment.parent && comment.side === CommentSide.PARENT) {
-      return (
-        isMergeParent(range.basePatchNum) &&
-        comment.parent === getParentIndex(range.basePatchNum)
-      );
-    }
-
-    // If the base of the range is the parent of the patch:
-    if (
-      range.basePatchNum === ParentPatchSetNum &&
-      comment.side === CommentSide.PARENT &&
-      patchNumEquals(comment.patch_set, range.patchNum)
-    ) {
-      return true;
-    }
-    // If the base of the range is not the parent of the patch:
-    return (
-      range.basePatchNum !== ParentPatchSetNum &&
-      comment.side !== CommentSide.PARENT &&
-      patchNumEquals(comment.patch_set, range.basePatchNum)
-    );
-  }
-
-  /**
-   * Whether the given comment should be included in the revision side of the
-   * given patch range.
-   */
-  _isInRevisionOfPatchRange(comment: CommentBasics, range: PatchRange) {
-    return (
-      comment.side !== CommentSide.PARENT &&
-      patchNumEquals(comment.patch_set, range.patchNum)
-    );
-  }
-
-  /**
-   * Whether the given comment should be included in the given patch range.
-   */
-  _isInPatchRange(comment: CommentBasics, range: PatchRange): boolean {
-    return (
-      this._isInBaseOfPatchRange(comment, range) ||
-      this._isInRevisionOfPatchRange(comment, range)
-    );
+    const comments = this._commentObjToArray(this.getAllComments(true));
+    return createCommentThreads(comments);
   }
 }
 
@@ -588,16 +600,10 @@ export class ChangeComments {
 export const _testOnly_findCommentById =
   ChangeComments.prototype.findCommentById;
 
-export interface GrCommentApi {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
-
+export const _testOnly_getCommentsForPath =
+  ChangeComments.prototype.getCommentsForPath;
 @customElement('gr-comment-api')
-export class GrCommentApi extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrCommentApi extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -605,40 +611,36 @@ export class GrCommentApi extends GestureEventListeners(
   @property({type: Object})
   _changeComments?: ChangeComments;
 
-  /** @override */
-  created() {
-    super.created();
-    this.addEventListener('reload-drafts', changeNum =>
-      // TODO(TS): This is a wrong code, however keep it as is for now
-      // If changeNum param in ChangeComments is removed, this also must be
-      // removed
-      this.reloadDrafts((changeNum as unknown) as NumericChangeId)
-    );
-  }
+  private readonly restApiService = appContext.restApiService;
 
   /**
    * Load all comments (with drafts and robot comments) for the given change
    * number. The returned promise resolves when the comments have loaded, but
    * does not yield the comment data.
    */
-  loadAll(changeNum: NumericChangeId) {
-    const promises = [];
-    promises.push(this.$.restAPI.getDiffComments(changeNum));
-    promises.push(this.$.restAPI.getDiffRobotComments(changeNum));
-    promises.push(this.$.restAPI.getDiffDrafts(changeNum));
+  loadAll(changeNum: NumericChangeId, patchNum?: PatchSetNum) {
+    const revision = patchNum || CURRENT;
+    const commentsPromise = [
+      this.restApiService.getDiffComments(changeNum),
+      this.restApiService.getDiffRobotComments(changeNum),
+      this.restApiService.getDiffDrafts(changeNum),
+      this.restApiService.getPortedComments(changeNum, revision),
+      this.restApiService.getPortedDrafts(changeNum, revision),
+    ];
 
-    return Promise.all(promises).then(([comments, robotComments, drafts]) => {
-      this._changeComments = new ChangeComments(
-        comments,
-        // TODO(TS): Promise.all somehow resolve all types to
-        // PathToCommentsInfoMap given its PathToRobotCommentsInfoMap
-        // returned from the second promise
-        robotComments as PathToRobotCommentsInfoMap,
-        drafts,
-        changeNum
-      );
-      return this._changeComments;
-    });
+    return Promise.all(commentsPromise).then(
+      ([comments, robotComments, drafts, portedComments, portedDrafts]) => {
+        this._changeComments = new ChangeComments(
+          comments,
+          // TS 4.0.5 fails without 'as'
+          robotComments as PathToRobotCommentsInfoMap | undefined,
+          drafts,
+          portedComments,
+          portedDrafts
+        );
+        return this._changeComments;
+      }
+    );
   }
 
   /**
@@ -650,15 +652,28 @@ export class GrCommentApi extends GestureEventListeners(
     if (!this._changeComments) {
       return this.loadAll(changeNum);
     }
-    const oldChangeComments = this._changeComments;
-    return this.$.restAPI.getDiffDrafts(changeNum).then(drafts => {
-      this._changeComments = new ChangeComments(
-        oldChangeComments.comments,
-        (oldChangeComments.robotComments as unknown) as PathToRobotCommentsInfoMap,
-        drafts,
-        changeNum
+    return this.restApiService.getDiffDrafts(changeNum).then(drafts => {
+      this._changeComments = this._changeComments!.cloneWithUpdatedDrafts(
+        drafts
       );
       return this._changeComments;
+    });
+  }
+
+  reloadPortedComments(changeNum: NumericChangeId, patchNum: PatchSetNum) {
+    if (!this._changeComments) {
+      this.loadAll(changeNum);
+      return Promise.resolve();
+    }
+    return Promise.all([
+      this.restApiService.getPortedComments(changeNum, patchNum),
+      this.restApiService.getPortedDrafts(changeNum, patchNum),
+    ]).then(res => {
+      if (!this._changeComments) return;
+      this._changeComments = this._changeComments.cloneWithUpdatedPortedComments(
+        res[0],
+        res[1]
+      );
     });
   }
 }

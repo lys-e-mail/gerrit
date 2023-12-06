@@ -20,16 +20,15 @@ import '../gr-cursor-manager/gr-cursor-manager';
 import '../gr-icons/gr-icons';
 import '../../../styles/shared-styles';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-autocomplete_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {property, customElement, observe} from '@polymer/decorators';
 import {GrAutocompleteDropdown} from '../gr-autocomplete-dropdown/gr-autocomplete-dropdown';
-import {GrCursorManager} from '../gr-cursor-manager/gr-cursor-manager';
 import {PaperInputElementExt} from '../../../types/types';
 import {CustomKeyboardEvent} from '../../../types/events';
+import {fireEvent} from '../../../utils/event-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 
 const TOKENIZE_REGEX = /(?:[^\s"]+|"[^"]*")+/g;
 const DEBOUNCE_WAIT_MS = 200;
@@ -38,7 +37,6 @@ export interface GrAutocomplete {
   $: {
     input: PaperInputElementExt;
     suggestions: GrAutocompleteDropdown;
-    cursor: GrCursorManager;
   };
 }
 
@@ -55,9 +53,7 @@ declare global {
 export interface AutocompleteSuggestion {
   name?: string;
   label?: string;
-  // TODO(TS): this value can be string or arbitrary object (in gr-create-repo-dialog)
-  // probably should limit it to string only as it seems not used
-  value?: any;
+  value?: string;
   text?: string;
 }
 
@@ -65,14 +61,10 @@ export interface AutocompleteCommitEventDetail {
   value: string;
 }
 
-export type AutocompleteCommitEvent = CustomEvent<
-  AutocompleteCommitEventDetail
->;
+export type AutocompleteCommitEvent = CustomEvent<AutocompleteCommitEventDetail>;
 
 @customElement('gr-autocomplete')
-export class GrAutocomplete extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrAutocomplete extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -202,6 +194,8 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
   @property({type: Object})
   _selected: HTMLElement | null = null;
 
+  private updateSuggestionsTask?: DelayedTask;
+
   get _nativeInput() {
     // In Polymer 2 inputElement isn't nativeInput anymore
     return (this.$.input.$.nativeInput ||
@@ -209,16 +203,16 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
   }
 
   /** @override */
-  attached() {
-    super.attached();
-    this.listen(document.body, 'click', '_handleBodyClick');
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener('click', this.handleBodyClick);
   }
 
   /** @override */
-  detached() {
-    super.detached();
-    this.unlisten(document.body, 'click', '_handleBodyClick');
-    this.cancelDebouncer('update-suggestions');
+  disconnectedCallback() {
+    document.removeEventListener('click', this.handleBodyClick);
+    this.updateSuggestionsTask?.cancel();
+    super.disconnectedCallback();
   }
 
   get focusStart() {
@@ -331,7 +325,11 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
     if (noDebounce) {
       update();
     } else {
-      this.debounce('update-suggestions', update, DEBOUNCE_WAIT_MS);
+      this.updateSuggestionsTask = debounce(
+        this.updateSuggestionsTask,
+        update,
+        DEBOUNCE_WAIT_MS
+      );
     }
   }
 
@@ -406,12 +404,7 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
     if (this._suggestions.length) {
       this.set('_suggestions', []);
     } else {
-      this.dispatchEvent(
-        new CustomEvent('cancel', {
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireEvent(this, 'cancel');
     }
   }
 
@@ -449,7 +442,7 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
     }
   }
 
-  _handleBodyClick(e: Event) {
+  private readonly handleBodyClick = (e: Event) => {
     const eventPath = e.composedPath();
     if (!eventPath) return;
     for (let i = 0; i < eventPath.length; i++) {
@@ -458,7 +451,7 @@ export class GrAutocomplete extends KeyboardShortcutMixin(
       }
     }
     this._focused = false;
-  }
+  };
 
   /**
    * Commits the suggestion, optionally firing the commit event.

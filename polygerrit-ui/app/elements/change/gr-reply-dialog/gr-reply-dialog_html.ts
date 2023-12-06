@@ -176,13 +176,9 @@ export const htmlTemplate = html`
          great solution. */
       line-height: 26px;
     }
-    .attention-detail .peopleList .accountList {
-      display: flex;
-      flex-wrap: wrap;
-    }
     .attentionSummary gr-account-label,
     .attention-detail gr-account-label {
-      --account-max-length: 150px;
+      --account-max-length: 120px;
       display: inline-block;
       padding: var(--spacing-xs) var(--spacing-m);
       user-select: none;
@@ -193,8 +189,11 @@ export const htmlTemplate = html`
       line-height: var(--line-height-normal);
       vertical-align: top;
     }
+    .attention-detail .peopleListValues {
+      line-height: calc(var(--line-height-normal) + 10px);
+    }
     .attention-detail gr-account-label {
-      vertical-align: baseline;
+      line-height: var(--line-height-normal);
     }
     .attentionSummary gr-account-label:focus,
     .attention-detail gr-account-label:focus {
@@ -271,9 +270,7 @@ export const htmlTemplate = html`
             [[_pendingConfirmationDetails.group.name]]
           </span>
           has
-          <span class="groupSize">
-            [[_pendingConfirmationDetails.count]]
-          </span>
+          <span class="groupSize"> [[_pendingConfirmationDetails.count]] </span>
           members.
           <br />
           Are you sure you want to add them all?
@@ -303,16 +300,14 @@ export const htmlTemplate = html`
       </gr-endpoint-decorator>
     </section>
     <section class="previewContainer">
-      <template is="dom-if" if="[[_isPatchsetCommentsExperimentEnabled]]">
-        <label>
-          <input
-            id="resolvedPatchsetLevelCommentCheckbox"
-            type="checkbox"
-            checked="{{_isResolvedPatchsetLevelComment::change}}"
-          />
-          Resolved
-        </label>
-      </template>
+      <label>
+        <input
+          id="resolvedPatchsetLevelCommentCheckbox"
+          type="checkbox"
+          checked="{{_isResolvedPatchsetLevelComment::change}}"
+        />
+        Resolved
+      </label>
       <label class="preview-formatting">
         <input type="checkbox" checked="{{_previewFormatting::change}}" />
         Preview formatting
@@ -357,7 +352,6 @@ export const htmlTemplate = html`
         change-num="[[change._number]]"
         logged-in="true"
         hide-toggle-buttons=""
-        on-thread-list-modified="_onThreadListModified"
       >
       </gr-thread-list>
       <span
@@ -396,8 +390,8 @@ export const htmlTemplate = html`
                 <gr-account-label
                   account="[[account]]"
                   force-attention="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                  selected$="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                  deselected$="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
+                  selected="[[_computeHasNewAttention(account, _newAttentionSet)]]"
+                  deselected="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
                   hide-hovercard=""
                   on-click="_handleAttentionClick"
                 ></gr-account-label>
@@ -423,15 +417,6 @@ export const htmlTemplate = html`
           </div>
           <div>
             <a
-              href="https://bugs.chromium.org/p/gerrit/issues/entry?template=Attention+Set"
-              target="_blank"
-            >
-              <iron-icon
-                icon="gr-icons:bug"
-                title="report a problem"
-              ></iron-icon>
-            </a>
-            <a
               href="https://gerrit-review.googlesource.com/Documentation/user-attention-set.html"
               target="_blank"
             >
@@ -454,15 +439,6 @@ export const htmlTemplate = html`
           <div></div>
           <div>
             <a
-              href="https://bugs.chromium.org/p/gerrit/issues/entry?template=Attention+Set"
-              target="_blank"
-            >
-              <iron-icon
-                icon="gr-icons:bug"
-                title="report a problem"
-              ></iron-icon>
-            </a>
-            <a
               href="https://gerrit-review.googlesource.com/Documentation/user-attention-set.html"
               target="_blank"
             >
@@ -481,12 +457,12 @@ export const htmlTemplate = html`
         </div>
         <div class="peopleList">
           <div class="peopleListLabel">Owner</div>
-          <div>
+          <div class="peopleListValues">
             <gr-account-label
               account="[[_owner]]"
               force-attention="[[_computeHasNewAttention(_owner, _newAttentionSet)]]"
-              selected$="[[_computeHasNewAttention(_owner, _newAttentionSet)]]"
-              deselected$="[[!_computeHasNewAttention(_owner, _newAttentionSet)]]"
+              selected="[[_computeHasNewAttention(_owner, _newAttentionSet)]]"
+              deselected="[[!_computeHasNewAttention(_owner, _newAttentionSet)]]"
               hide-hovercard=""
               on-click="_handleAttentionClick"
             >
@@ -496,12 +472,12 @@ export const htmlTemplate = html`
         <template is="dom-if" if="[[_uploader]]">
           <div class="peopleList">
             <div class="peopleListLabel">Uploader</div>
-            <div>
+            <div class="peopleListValues">
               <gr-account-label
                 account="[[_uploader]]"
                 force-attention="[[_computeHasNewAttention(_uploader, _newAttentionSet)]]"
-                selected$="[[_computeHasNewAttention(_uploader, _newAttentionSet)]]"
-                deselected$="[[!_computeHasNewAttention(_uploader, _newAttentionSet)]]"
+                selected="[[_computeHasNewAttention(_uploader, _newAttentionSet)]]"
+                deselected="[[!_computeHasNewAttention(_uploader, _newAttentionSet)]]"
                 hide-hovercard=""
                 on-click="_handleAttentionClick"
               >
@@ -511,7 +487,7 @@ export const htmlTemplate = html`
         </template>
         <div class="peopleList">
           <div class="peopleListLabel">Reviewers</div>
-          <div>
+          <div class="peopleListValues">
             <template
               is="dom-repeat"
               items="[[_removeServiceUsers(_reviewers, _newAttentionSet)]]"
@@ -520,8 +496,8 @@ export const htmlTemplate = html`
               <gr-account-label
                 account="[[account]]"
                 force-attention="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                selected$="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                deselected$="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
+                selected="[[_computeHasNewAttention(account, _newAttentionSet)]]"
+                deselected="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
                 hide-hovercard=""
                 on-click="_handleAttentionClick"
               >
@@ -532,7 +508,7 @@ export const htmlTemplate = html`
         <template is="dom-if" if="[[_attentionCcsCount]]">
           <div class="peopleList">
             <div class="peopleListLabel">CC</div>
-            <div>
+            <div class="peopleListValues">
               <template
                 is="dom-repeat"
                 items="[[_removeServiceUsers(_ccs, _newAttentionSet)]]"
@@ -541,8 +517,8 @@ export const htmlTemplate = html`
                 <gr-account-label
                   account="[[account]]"
                   force-attention="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                  selected$="[[_computeHasNewAttention(account, _newAttentionSet)]]"
-                  deselected$="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
+                  selected="[[_computeHasNewAttention(account, _newAttentionSet)]]"
+                  deselected="[[!_computeHasNewAttention(account, _newAttentionSet)]]"
                   hide-hovercard=""
                   on-click="_handleAttentionClick"
                 >
@@ -599,7 +575,7 @@ export const htmlTemplate = html`
               has-tooltip=""
               title="[[_saveTooltip]]"
               on-click="_saveClickHandler"
-              >Save</gr-button
+              >Send As WIP</gr-button
             >
           </template>
           <gr-button
@@ -608,7 +584,7 @@ export const htmlTemplate = html`
             disabled="[[_sendDisabled]]"
             class="action send"
             has-tooltip=""
-            title$="[[_computeSendButtonTooltip(canBeStarted)]]"
+            title$="[[_computeSendButtonTooltip(canBeStarted, _commentEditing)]]"
             on-click="_sendTapHandler"
             >[[_sendButtonLabel]]</gr-button
           >
@@ -616,7 +592,4 @@ export const htmlTemplate = html`
       </section>
     </div>
   </div>
-  <gr-js-api-interface id="jsAPI"></gr-js-api-interface>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
 `;

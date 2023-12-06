@@ -16,14 +16,11 @@
  */
 import '../../shared/gr-account-chip/gr-account-chip';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-reviewer-list_html';
-import {isServiceUser} from '../../../utils/account-util';
+import {isSelf, isServiceUser} from '../../../utils/account-util';
 import {hasAttention} from '../../../utils/attention-set-util';
 import {customElement, property, computed, observe} from '@polymer/decorators';
 import {
@@ -36,24 +33,17 @@ import {
   AccountId,
   DetailedLabelInfo,
   EmailAddress,
+  AccountDetailInfo,
 } from '../../../types/common';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {GrAccountChip} from '../../shared/gr-account-chip/gr-account-chip';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {hasOwnProperty} from '../../../utils/common-util';
 import {isRemovableReviewer} from '../../../utils/change-util';
 import {ReviewerState} from '../../../constants/constants';
-
-export interface GrReviewerList {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 @customElement('gr-reviewer-list')
-export class GrReviewerList extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrReviewerList extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -66,6 +56,9 @@ export class GrReviewerList extends GestureEventListeners(
 
   @property({type: Object})
   change?: ChangeInfo;
+
+  @property({type: Object})
+  account?: AccountDetailInfo;
 
   @property({type: Object})
   serverConfig?: ServerInfo;
@@ -93,6 +86,8 @@ export class GrReviewerList extends GestureEventListeners(
 
   @property({type: Object})
   _xhrPromise?: Promise<Response | undefined>;
+
+  private readonly restApiService = appContext.restApiService;
 
   @computed('ccsOnly')
   get _addLabel() {
@@ -222,7 +217,7 @@ export class GrReviewerList extends GestureEventListeners(
     }
     let result: AccountInfo[] = [];
     const reviewers = changeRecord.base;
-    for (const key in reviewers) {
+    for (const key of Object.keys(reviewers)) {
       if (this.reviewersOnly && key !== 'REVIEWER') {
         continue;
       }
@@ -236,10 +231,15 @@ export class GrReviewerList extends GestureEventListeners(
     this._reviewers = result
       .filter(reviewer => reviewer._account_id !== owner._account_id)
       // Sort order:
-      // 1. Human users in the attention set.
-      // 2. Other human users.
-      // 3. Service users.
+      // 1. The user themselves
+      // 2. Human users in the attention set.
+      // 3. Other human users.
+      // 4. Service users.
       .sort((r1, r2) => {
+        if (this.account) {
+          if (isSelf(r1, this.account)) return -1;
+          if (isSelf(r2, this.account)) return 1;
+        }
         const a1 = hasAttention(serverConfig, r1, this.change!) ? 1 : 0;
         const a2 = hasAttention(serverConfig, r2, this.change!) ? 1 : 0;
         const s1 = isServiceUser(r1) ? -2 : 0;
@@ -323,6 +323,6 @@ export class GrReviewerList extends GestureEventListeners(
 
   _removeReviewer(id: AccountId | EmailAddress): Promise<Response | undefined> {
     if (!this.change) return Promise.resolve(undefined);
-    return this.$.restAPI.removeChangeReviewer(this.change._number, id);
+    return this.restApiService.removeChangeReviewer(this.change._number, id);
   }
 }

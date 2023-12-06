@@ -17,12 +17,9 @@
 import '@polymer/iron-input/iron-input';
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-watched-projects-editor_html';
 import {customElement, property} from '@polymer/decorators';
@@ -31,9 +28,9 @@ import {
   GrAutocomplete,
   AutocompleteSuggestion,
 } from '../../shared/gr-autocomplete/gr-autocomplete';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {hasOwnProperty} from '../../../utils/common-util';
 import {ProjectWatchInfo} from '../../../types/common';
+import {appContext} from '../../../services/app-context';
 
 const NOTIFICATION_TYPES = [
   {name: 'Changes', key: 'notify_new_changes'},
@@ -45,15 +42,12 @@ const NOTIFICATION_TYPES = [
 
 export interface GrWatchedProjectsEditor {
   $: {
-    restAPI: RestApiService & Element;
     newFilter: HTMLInputElement;
     newProject: GrAutocomplete;
   };
 }
 @customElement('gr-watched-projects-editor')
-export class GrWatchedProjectsEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrWatchedProjectsEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -70,21 +64,23 @@ export class GrWatchedProjectsEditor extends GestureEventListeners(
   @property({type: Object})
   _query?: AutocompleteQuery;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._query = input => this._getProjectSuggestions(input);
   }
 
   loadData() {
-    return this.$.restAPI.getWatchedProjects().then(projs => {
+    return this.restApiService.getWatchedProjects().then(projs => {
       this._projects = projs;
     });
   }
 
   save() {
-    let deletePromise;
+    let deletePromise: Promise<Response | undefined>;
     if (this._projectsToRemove.length) {
-      deletePromise = this.$.restAPI.deleteWatchedProjects(
+      deletePromise = this.restApiService.deleteWatchedProjects(
         this._projectsToRemove
       );
     } else {
@@ -94,7 +90,7 @@ export class GrWatchedProjectsEditor extends GestureEventListeners(
     return deletePromise
       .then(() => {
         if (this._projects) {
-          return this.$.restAPI.saveWatchedProjects(this._projects);
+          return this.restApiService.saveWatchedProjects(this._projects);
         } else {
           return Promise.resolve(undefined);
         }
@@ -119,16 +115,10 @@ export class GrWatchedProjectsEditor extends GestureEventListeners(
   }
 
   _getProjectSuggestions(input: string) {
-    return this.$.restAPI.getSuggestedProjects(input).then(response => {
+    return this.restApiService.getSuggestedProjects(input).then(response => {
       const projects: AutocompleteSuggestion[] = [];
-      for (const key in response) {
-        if (!hasOwnProperty(response, key)) {
-          continue;
-        }
-        projects.push({
-          name: key,
-          value: response[key].id,
-        });
+      for (const [name, project] of Object.entries(response ?? {})) {
+        projects.push({name, value: project.id});
       }
       return projects;
     });

@@ -27,13 +27,34 @@ export const htmlTemplate = html`
     }
     .container {
       display: block;
+      /* line-height-normal for the chips, 2px for the chip border, spacing-s
+         for the gap between lines, negative bottom margin for eliminating the
+         gap after the last line */
+      line-height: calc(var(--line-height-normal) + 2px + var(--spacing-s));
+      margin-bottom: calc(0px - var(--spacing-s));
+    }
+    .addReviewer iron-icon {
+      color: inherit;
+      --iron-icon-height: 18px;
+      --iron-icon-width: 18px;
+    }
+    .controlsContainer {
+      display: inline-block;
+    }
+    gr-button.addReviewer {
+      --padding: 1px 4px;
+      vertical-align: top;
+      top: 1px;
     }
     gr-button {
+      line-height: var(--line-height-normal);
       --gr-button: {
         padding: 0px 0px;
       }
     }
     gr-account-chip {
+      line-height: var(--line-height-normal);
+      vertical-align: top;
       display: inline-block;
     }
   </style>
@@ -51,6 +72,16 @@ export const htmlTemplate = html`
         >
         </gr-account-chip>
       </template>
+      <div class="controlsContainer" hidden$="[[!mutable]]">
+        <gr-button
+          link=""
+          id="addReviewer"
+          class="addReviewer"
+          on-click="_handleAddTap"
+          title="[[_addLabel]]"
+          ><iron-icon icon="gr-icons:edit"></iron-icon
+        ></gr-button>
+      </div>
     </div>
     <gr-button
       class="hiddenReviewers"
@@ -59,15 +90,5 @@ export const htmlTemplate = html`
       on-click="_handleViewAll"
       >and [[_hiddenReviewerCount]] more</gr-button
     >
-    <div class="controlsContainer" hidden$="[[!mutable]]">
-      <gr-button
-        link=""
-        id="addReviewer"
-        class="addReviewer"
-        on-click="_handleAddTap"
-        >[[_addLabel]]</gr-button
-      >
-    </div>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

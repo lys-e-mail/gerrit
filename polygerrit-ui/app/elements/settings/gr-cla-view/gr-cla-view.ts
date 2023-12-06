@@ -19,25 +19,17 @@ import '@polymer/iron-input/iron-input';
 import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-cla-view_html';
 import {getBaseUrl} from '../../../utils/url-util';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {customElement, property} from '@polymer/decorators';
 import {
   ServerInfo,
   GroupInfo,
   ContributorAgreementInfo,
 } from '../../../types/common';
-
-export interface GrClaView {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {fireAlert, fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -46,9 +38,7 @@ declare global {
 }
 
 @customElement('gr-cla-view')
-export class GrClaView extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrClaView extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -74,30 +64,26 @@ export class GrClaView extends GestureEventListeners(
   @property({type: String})
   _agreementsUrl?: string;
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this.loadData();
 
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'New Contributor Agreement'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, 'New Contributor Agreement');
   }
 
   loadData() {
     const promises = [];
     promises.push(
-      this.$.restAPI.getConfig(true).then(config => {
+      this.restApiService.getConfig(true).then(config => {
         this._serverConfig = config;
       })
     );
 
     promises.push(
-      this.$.restAPI.getAccountGroups().then(groups => {
+      this.restApiService.getAccountGroups().then(groups => {
         if (!groups) return;
         this._groups = groups.sort((a, b) =>
           (a.name || '').localeCompare(b.name || '')
@@ -106,7 +92,7 @@ export class GrClaView extends GestureEventListeners(
     );
 
     promises.push(
-      this.$.restAPI
+      this.restApiService
         .getAccountAgreements()
         .then((agreements: ContributorAgreementInfo[] | undefined) => {
           this._signedAgreements = agreements || [];
@@ -143,7 +129,7 @@ export class GrClaView extends GestureEventListeners(
     this._createToast('Agreement saving...');
 
     const name = this._agreementName;
-    return this.$.restAPI.saveAccountAgreement({name}).then(res => {
+    return this.restApiService.saveAccountAgreement({name}).then(res => {
       let message = 'Agreement failed to be submitted, please try again';
       if (res.status === 200) {
         message = 'Agreement has been successfully submitted.';
@@ -156,13 +142,7 @@ export class GrClaView extends GestureEventListeners(
   }
 
   _createToast(message: string) {
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {message},
-        bubbles: true,
-        composed: true,
-      })
-    );
+    fireAlert(this, message);
   }
 
   _computeShowAgreementsClass(showAgreements: boolean) {
@@ -171,16 +151,14 @@ export class GrClaView extends GestureEventListeners(
 
   _disableAgreements(
     item: ContributorAgreementInfo,
-    groups: GroupInfo[],
-    signedAgreements: ContributorAgreementInfo[]
+    groups?: GroupInfo[],
+    signedAgreements?: ContributorAgreementInfo[]
   ) {
     if (!groups) return false;
     for (const group of groups) {
       if (
-        (item &&
-          item.auto_verify_group &&
-          item.auto_verify_group.id === group.id) ||
-        signedAgreements.find(i => i.name === item.name)
+        item?.auto_verify_group?.id === group.id ||
+        signedAgreements?.find(i => i.name === item.name)
       ) {
         return true;
       }
@@ -191,7 +169,7 @@ export class GrClaView extends GestureEventListeners(
   _hideAgreements(
     item: ContributorAgreementInfo,
     groups: GroupInfo[],
-    signedAgreements: ContributorAgreementInfo[]
+    signedAgreements?: ContributorAgreementInfo[]
   ) {
     return this._disableAgreements(item, groups, signedAgreements)
       ? ''
@@ -207,7 +185,7 @@ export class GrClaView extends GestureEventListeners(
   // then hides the text box and submit button.
   _computeHideAgreementClass(
     name: string,
-    contributorAgreements: ContributorAgreementInfo[]
+    contributorAgreements?: ContributorAgreementInfo[]
   ) {
     if (!contributorAgreements) return '';
     return contributorAgreements.some(

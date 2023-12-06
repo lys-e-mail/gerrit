@@ -30,6 +30,7 @@ import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.HttpHeaders.ORIGIN;
 import static com.google.common.net.HttpHeaders.VARY;
+import static com.google.gerrit.server.experiments.ExperimentFeaturesConstants.GERRIT_BACKEND_REQUEST_FEATURE_REMOVE_REVISION_ETAG;
 import static java.math.RoundingMode.CEILING;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -102,6 +103,7 @@ import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.server.AccessPath;
 import com.google.gerrit.server.AnonymousUser;
 import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.DynamicOptions;
 import com.google.gerrit.server.ExceptionHook;
 import com.google.gerrit.server.OptionUtil;
 import com.google.gerrit.server.RequestInfo;
@@ -109,7 +111,9 @@ import com.google.gerrit.server.RequestListener;
 import com.google.gerrit.server.audit.ExtendedHttpAuditEvent;
 import com.google.gerrit.server.cache.PerThreadCache;
 import com.google.gerrit.server.change.ChangeFinder;
+import com.google.gerrit.server.change.RevisionResource;
 import com.google.gerrit.server.config.GerritServerConfig;
+import com.google.gerrit.server.experiments.ExperimentFeatures;
 import com.google.gerrit.server.group.GroupAuditService;
 import com.google.gerrit.server.logging.Metadata;
 import com.google.gerrit.server.logging.PerformanceLogContext;
@@ -144,6 +148,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
@@ -248,6 +253,9 @@ public class RestApiServlet extends HttpServlet {
     final ChangeFinder changeFinder;
     final RetryHelper retryHelper;
     final PluginSetContext<ExceptionHook> exceptionHooks;
+    final Injector injector;
+    final DynamicMap<DynamicOptions.DynamicBean> dynamicBeans;
+    final ExperimentFeatures experimentFeatures;
 
     @Inject
     Globals(
@@ -263,7 +271,10 @@ public class RestApiServlet extends HttpServlet {
         DynamicSet<PerformanceLogger> performanceLoggers,
         ChangeFinder changeFinder,
         RetryHelper retryHelper,
-        PluginSetContext<ExceptionHook> exceptionHooks) {
+        PluginSetContext<ExceptionHook> exceptionHooks,
+        Injector injector,
+        DynamicMap<DynamicOptions.DynamicBean> dynamicBeans,
+        ExperimentFeatures experimentFeatures) {
       this.currentUser = currentUser;
       this.webSession = webSession;
       this.paramParser = paramParser;
@@ -278,6 +289,9 @@ public class RestApiServlet extends HttpServlet {
       this.retryHelper = retryHelper;
       this.exceptionHooks = exceptionHooks;
       allowOrigin = makeAllowOrigin(config);
+      this.injector = injector;
+      this.dynamicBeans = dynamicBeans;
+      this.experimentFeatures = experimentFeatures;
     }
 
     private static Pattern makeAllowOrigin(Config cfg) {
@@ -496,105 +510,116 @@ public class RestApiServlet extends HttpServlet {
             return;
           }
 
-          if (!globals.paramParser.get().parse(viewData.view, qp.params(), req, res)) {
-            return;
+          try (DynamicOptions pluginOptions =
+              new DynamicOptions(globals.injector, globals.dynamicBeans)) {
+            if (!globals
+                .paramParser
+                .get()
+                .parse(viewData.view, pluginOptions, qp.params(), req, res)) {
+              return;
+            }
+
+            if (viewData.view instanceof RestReadView<?> && isRead(req)) {
+              response =
+                  invokeRestReadViewWithRetry(
+                      req,
+                      traceContext,
+                      viewData,
+                      (RestReadView<RestResource>) viewData.view,
+                      rsrc);
+            } else if (viewData.view instanceof RestModifyView<?, ?>) {
+              @SuppressWarnings("unchecked")
+              RestModifyView<RestResource, Object> m =
+                  (RestModifyView<RestResource, Object>) viewData.view;
+
+              Type type = inputType(m);
+              inputRequestBody = parseRequest(req, type);
+              response =
+                  invokeRestModifyViewWithRetry(
+                      req, traceContext, viewData, m, rsrc, inputRequestBody);
+
+              if (inputRequestBody instanceof RawInput) {
+                try (InputStream is = req.getInputStream()) {
+                  ServletUtils.consumeRequestBody(is);
+                }
+              }
+            } else if (viewData.view instanceof RestCollectionCreateView<?, ?, ?>) {
+              @SuppressWarnings("unchecked")
+              RestCollectionCreateView<RestResource, RestResource, Object> m =
+                  (RestCollectionCreateView<RestResource, RestResource, Object>) viewData.view;
+
+              Type type = inputType(m);
+              inputRequestBody = parseRequest(req, type);
+              response =
+                  invokeRestCollectionCreateViewWithRetry(
+                      req, traceContext, viewData, m, rsrc, path.get(0), inputRequestBody);
+              if (inputRequestBody instanceof RawInput) {
+                try (InputStream is = req.getInputStream()) {
+                  ServletUtils.consumeRequestBody(is);
+                }
+              }
+            } else if (viewData.view instanceof RestCollectionDeleteMissingView<?, ?, ?>) {
+              @SuppressWarnings("unchecked")
+              RestCollectionDeleteMissingView<RestResource, RestResource, Object> m =
+                  (RestCollectionDeleteMissingView<RestResource, RestResource, Object>)
+                      viewData.view;
+
+              Type type = inputType(m);
+              inputRequestBody = parseRequest(req, type);
+              response =
+                  invokeRestCollectionDeleteMissingViewWithRetry(
+                      req, traceContext, viewData, m, rsrc, path.get(0), inputRequestBody);
+              if (inputRequestBody instanceof RawInput) {
+                try (InputStream is = req.getInputStream()) {
+                  ServletUtils.consumeRequestBody(is);
+                }
+              }
+            } else if (viewData.view instanceof RestCollectionModifyView<?, ?, ?>) {
+              @SuppressWarnings("unchecked")
+              RestCollectionModifyView<RestResource, RestResource, Object> m =
+                  (RestCollectionModifyView<RestResource, RestResource, Object>) viewData.view;
+
+              Type type = inputType(m);
+              inputRequestBody = parseRequest(req, type);
+              response =
+                  invokeRestCollectionModifyViewWithRetry(
+                      req, traceContext, viewData, m, rsrc, inputRequestBody);
+              if (inputRequestBody instanceof RawInput) {
+                try (InputStream is = req.getInputStream()) {
+                  ServletUtils.consumeRequestBody(is);
+                }
+              }
+            } else {
+              throw new ResourceNotFoundException();
+            }
+
+            if (response instanceof Response.Redirect) {
+              CacheHeaders.setNotCacheable(res);
+              String location = ((Response.Redirect) response).location();
+              res.sendRedirect(location);
+              logger.atFinest().log("REST call redirected to: %s", location);
+              return;
+            } else if (response instanceof Response.Accepted) {
+              CacheHeaders.setNotCacheable(res);
+              res.setStatus(response.statusCode());
+              res.setHeader(HttpHeaders.LOCATION, ((Response.Accepted) response).location());
+              logger.atFinest().log("REST call succeeded: %d", response.statusCode());
+              return;
+            }
+
+            statusCode = response.statusCode();
+            configureCaching(req, res, traceContext, rsrc, viewData, response.caching());
+            res.setStatus(statusCode);
+            logger.atFinest().log("REST call succeeded: %d", statusCode);
           }
 
-          if (viewData.view instanceof RestReadView<?> && isRead(req)) {
-            response =
-                invokeRestReadViewWithRetry(
-                    req, traceContext, viewData, (RestReadView<RestResource>) viewData.view, rsrc);
-          } else if (viewData.view instanceof RestModifyView<?, ?>) {
-            @SuppressWarnings("unchecked")
-            RestModifyView<RestResource, Object> m =
-                (RestModifyView<RestResource, Object>) viewData.view;
-
-            Type type = inputType(m);
-            inputRequestBody = parseRequest(req, type);
-            response =
-                invokeRestModifyViewWithRetry(
-                    req, traceContext, viewData, m, rsrc, inputRequestBody);
-
-            if (inputRequestBody instanceof RawInput) {
-              try (InputStream is = req.getInputStream()) {
-                ServletUtils.consumeRequestBody(is);
-              }
+          if (response != Response.none()) {
+            Object value = Response.unwrap(response);
+            if (value instanceof BinaryResult) {
+              responseBytes = replyBinaryResult(req, res, (BinaryResult) value);
+            } else {
+              responseBytes = replyJson(req, res, false, qp.config(), value);
             }
-          } else if (viewData.view instanceof RestCollectionCreateView<?, ?, ?>) {
-            @SuppressWarnings("unchecked")
-            RestCollectionCreateView<RestResource, RestResource, Object> m =
-                (RestCollectionCreateView<RestResource, RestResource, Object>) viewData.view;
-
-            Type type = inputType(m);
-            inputRequestBody = parseRequest(req, type);
-            response =
-                invokeRestCollectionCreateViewWithRetry(
-                    req, traceContext, viewData, m, rsrc, path.get(0), inputRequestBody);
-            if (inputRequestBody instanceof RawInput) {
-              try (InputStream is = req.getInputStream()) {
-                ServletUtils.consumeRequestBody(is);
-              }
-            }
-          } else if (viewData.view instanceof RestCollectionDeleteMissingView<?, ?, ?>) {
-            @SuppressWarnings("unchecked")
-            RestCollectionDeleteMissingView<RestResource, RestResource, Object> m =
-                (RestCollectionDeleteMissingView<RestResource, RestResource, Object>) viewData.view;
-
-            Type type = inputType(m);
-            inputRequestBody = parseRequest(req, type);
-            response =
-                invokeRestCollectionDeleteMissingViewWithRetry(
-                    req, traceContext, viewData, m, rsrc, path.get(0), inputRequestBody);
-            if (inputRequestBody instanceof RawInput) {
-              try (InputStream is = req.getInputStream()) {
-                ServletUtils.consumeRequestBody(is);
-              }
-            }
-          } else if (viewData.view instanceof RestCollectionModifyView<?, ?, ?>) {
-            @SuppressWarnings("unchecked")
-            RestCollectionModifyView<RestResource, RestResource, Object> m =
-                (RestCollectionModifyView<RestResource, RestResource, Object>) viewData.view;
-
-            Type type = inputType(m);
-            inputRequestBody = parseRequest(req, type);
-            response =
-                invokeRestCollectionModifyViewWithRetry(
-                    req, traceContext, viewData, m, rsrc, inputRequestBody);
-            if (inputRequestBody instanceof RawInput) {
-              try (InputStream is = req.getInputStream()) {
-                ServletUtils.consumeRequestBody(is);
-              }
-            }
-          } else {
-            throw new ResourceNotFoundException();
-          }
-
-          if (response instanceof Response.Redirect) {
-            CacheHeaders.setNotCacheable(res);
-            String location = ((Response.Redirect) response).location();
-            res.sendRedirect(location);
-            logger.atFinest().log("REST call redirected to: %s", location);
-            return;
-          } else if (response instanceof Response.Accepted) {
-            CacheHeaders.setNotCacheable(res);
-            res.setStatus(response.statusCode());
-            res.setHeader(HttpHeaders.LOCATION, ((Response.Accepted) response).location());
-            logger.atFinest().log("REST call succeeded: %d", response.statusCode());
-            return;
-          }
-
-          statusCode = response.statusCode();
-          configureCaching(req, res, traceContext, rsrc, viewData, response.caching());
-          res.setStatus(statusCode);
-          logger.atFinest().log("REST call succeeded: %d", statusCode);
-        }
-
-        if (response != Response.none()) {
-          Object value = Response.unwrap(response);
-          if (value instanceof BinaryResult) {
-            responseBytes = replyBinaryResult(req, res, (BinaryResult) value);
-          } else {
-            responseBytes = replyJson(req, res, false, qp.config(), value);
           }
         }
       } catch (MalformedJsonException | JsonParseException e) {
@@ -756,6 +781,11 @@ public class RestApiServlet extends HttpServlet {
         TraceContext.newTimer(
             "RestApiServlet#getEtagWithRetry:resource",
             Metadata.builder().restViewName(rsrc.getClass().getSimpleName()).build())) {
+      if (rsrc instanceof RevisionResource
+          && globals.experimentFeatures.isFeatureEnabled(
+              GERRIT_BACKEND_REQUEST_FEATURE_REMOVE_REVISION_ETAG)) {
+        return null;
+      }
       return invokeRestEndpointWithRetry(
           req,
           traceContext,
@@ -1037,7 +1067,7 @@ public class RestApiServlet extends HttpServlet {
 
     if (rsrc instanceof RestResource.HasETag) {
       String have = req.getHeader(HttpHeaders.IF_NONE_MATCH);
-      if (have != null) {
+      if (!Strings.isNullOrEmpty(have)) {
         String eTag = getEtagWithRetry(req, traceContext, (RestResource.HasETag) rsrc);
         return have.equals(eTag);
       }
@@ -1115,7 +1145,9 @@ public class RestApiServlet extends HttpServlet {
       res.setHeader(HttpHeaders.ETAG, eTag);
     } else if (rsrc instanceof RestResource.HasETag) {
       String eTag = getEtagWithRetry(req, traceContext, (RestResource.HasETag) rsrc);
-      res.setHeader(HttpHeaders.ETAG, eTag);
+      if (!Strings.isNullOrEmpty(eTag)) {
+        res.setHeader(HttpHeaders.ETAG, eTag);
+      }
     }
     if (rsrc instanceof RestResource.HasLastModified) {
       res.setDateHeader(
@@ -1632,9 +1664,6 @@ public class RestApiServlet extends HttpServlet {
       throw new AuthException(
           "Invalid authentication method. In order to authenticate, "
               + "prefix the REST endpoint URL with /a/ (e.g. http://example.com/a/projects/).");
-    }
-    if (user.isIdentifiedUser()) {
-      user.setLastLoginExternalIdKey(globals.webSession.get().getLastLoginExternalId());
     }
   }
 

@@ -45,9 +45,7 @@ export const htmlTemplate = html`
   >
     <div class="header" slot="header">Revert Submission</div>
     <div class="main" slot="main">
-      <label for="messageInput">
-        Revert Commit Message
-      </label>
+      <label for="messageInput"> Revert Commit Message </label>
       <iron-autogrow-textarea
         id="messageInput"
         class="message"
@@ -57,5 +55,4 @@ export const htmlTemplate = html`
       ></iron-autogrow-textarea>
     </div>
   </gr-dialog>
-  <gr-js-api-interface id="jsAPI"></gr-js-api-interface>
 `;

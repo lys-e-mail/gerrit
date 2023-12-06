@@ -23,7 +23,7 @@ export const htmlTemplate = html`
       width: 100%;
     }
     .status {
-      color: #ffa62f;
+      color: var(--warning-foreground);
       display: inline-block;
       text-align: center;
       vertical-align: top;
@@ -81,13 +81,30 @@ export const htmlTemplate = html`
       color: var(--deemphasized-text-color);
       float: right;
     }
+    .show-all-button {
+      float: right;
+    }
+    .show-all-button iron-icon {
+      color: inherit;
+      --iron-icon-height: 18px;
+      --iron-icon-width: 18px;
+    }
     .spacer {
       height: var(--spacing-m);
     }
     gr-endpoint-param {
       display: none;
     }
+    .metadata-title {
+      font-weight: var(--font-weight-bold);
+      color: var(--deemphasized-text-color);
+      padding-left: var(--metadata-horizontal-padding);
+    }
+    .title .metadata-title {
+      padding-left: 0;
+    }
   </style>
+  <h3 class="metadata-title">Submit requirements</h3>
   <template is="dom-repeat" items="[[_requirements]]">
     <gr-endpoint-decorator
       class="submit-requirement-endpoints"
@@ -124,7 +141,7 @@ export const htmlTemplate = html`
         <gr-limited-text
           class="name"
           limit="25"
-          text="[[item.label]]"
+          text="[[item.labelName]]"
         ></gr-limited-text>
       </div>
       <div class="value">
@@ -132,7 +149,7 @@ export const htmlTemplate = html`
           change="{{change}}"
           account="[[account]]"
           mutable="[[mutable]]"
-          label="[[item.label]]"
+          label="[[item.labelName]]"
           label-info="[[item.labelInfo]]"
         ></gr-label-info>
       </div>
@@ -142,18 +159,22 @@ export const htmlTemplate = html`
   <section
     class$="spacer [[_computeShowOptional(_optionalLabels.*)]]"
   ></section>
-  <section
-    show-bottom-border$="[[_showOptionalLabels]]"
-    on-click="_handleShowHide"
-    class$="showHide [[_computeShowOptional(_optionalLabels.*)]]"
-  >
-    <div class="title">Other labels</div>
+  <section class$="showHide [[_computeShowOptional(_optionalLabels.*)]]">
+    <div class="title">
+      <h3 class="metadata-title">Other labels</h3>
+    </div>
     <div class="value">
-      <iron-icon
-        id="showHide"
-        icon="[[_computeShowHideIcon(_showOptionalLabels)]]"
-      >
-      </iron-icon>
+      <gr-button link="" class="show-all-button" on-click="_handleShowHide"
+        >[[_computeShowAllLabelText(_showOptionalLabels)]]
+        <iron-icon
+          icon="gr-icons:expand-more"
+          hidden$="[[_showOptionalLabels]]"
+        ></iron-icon
+        ><iron-icon
+          icon="gr-icons:expand-less"
+          hidden$="[[!_showOptionalLabels]]"
+        ></iron-icon>
+      </gr-button>
     </div>
   </section>
   <template is="dom-repeat" items="[[_optionalLabels]]">
@@ -170,7 +191,7 @@ export const htmlTemplate = html`
         <gr-limited-text
           class="name"
           limit="25"
-          text="[[item.label]]"
+          text="[[item.labelName]]"
         ></gr-limited-text>
       </div>
       <div class="value">
@@ -178,7 +199,7 @@ export const htmlTemplate = html`
           change="{{change}}"
           account="[[account]]"
           mutable="[[mutable]]"
-          label="[[item.label]]"
+          label="[[item.labelName]]"
           label-info="[[item.labelInfo]]"
         ></gr-label-info>
       </div>

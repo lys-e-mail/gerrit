@@ -16,13 +16,12 @@
  */
 import '../gr-icons/gr-icons';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-star_html';
 import {customElement, property} from '@polymer/decorators';
 import {ChangeInfo} from '../../../types/common';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
+import {fireAlert} from '../../../utils/event-util';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -36,9 +35,7 @@ export interface ChangeStarToggleStarDetail {
 }
 
 @customElement('gr-change-star')
-export class GrChangeStar extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrChangeStar extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -78,6 +75,7 @@ export class GrChangeStar extends KeyboardShortcutMixin(
       change: this.change,
       starred: newVal,
     };
+    if (newVal) fireAlert(this, 'Starring change...');
     this.dispatchEvent(
       new CustomEvent('toggle-star', {
         bubbles: true,

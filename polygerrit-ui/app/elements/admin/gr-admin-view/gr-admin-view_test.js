@@ -18,22 +18,27 @@
 import '../../../test/common-test-setup-karma.js';
 import './gr-admin-view.js';
 import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation.js';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader.js';
-import {stubBaseUrl} from '../../../test/test-utils.js';
+import {stubBaseUrl, stubRestApi} from '../../../test/test-utils.js';
+import {GerritView} from '../../../services/router/router-model.js';
 
 const basicFixture = fixtureFromElement('gr-admin-view');
+
+function createAdminCapabilities() {
+  return {
+    createGroup: true,
+    createProject: true,
+    viewPlugins: true,
+  };
+}
 
 suite('gr-admin-view tests', () => {
   let element;
 
   setup(done => {
     element = basicFixture.instantiate();
-    stub('gr-rest-api-interface', {
-      getProjectConfig() {
-        return Promise.resolve({});
-      },
-    });
+    stubRestApi('getProjectConfig').returns(Promise.resolve({}));
     const pluginsLoaded = Promise.resolve();
     sinon.stub(getPluginLoader(), 'awaitPluginsLoaded').returns(pluginsLoaded);
     pluginsLoaded.then(() => flush(done));
@@ -83,18 +88,11 @@ suite('gr-admin-view tests', () => {
   });
 
   test('_filteredLinks admin', done => {
-    sinon.stub(element.$.restAPI, 'getAccount').returns(Promise.resolve({
+    stubRestApi('getAccount').returns(Promise.resolve({
       name: 'test-user',
     }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        })
-        );
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
     element.reload().then(() => {
       assert.equal(element._filteredLinks.length, 3);
 
@@ -110,39 +108,26 @@ suite('gr-admin-view tests', () => {
     });
   });
 
-  test('_filteredLinks non admin authenticated', done => {
-    sinon.stub(element.$.restAPI, 'getAccount').returns(Promise.resolve({
-      name: 'test-user',
-    }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({})
-        );
-    element.reload().then(() => {
-      assert.equal(element._filteredLinks.length, 2);
-
-      // Repos
-      assert.isNotOk(element._filteredLinks[0].subsection);
-
-      // Groups
-      assert.isNotOk(element._filteredLinks[0].subsection);
-      done();
-    });
+  test('_filteredLinks non admin authenticated', async () => {
+    await element.reload();
+    assert.equal(element._filteredLinks.length, 2);
+    // Repos
+    assert.isNotOk(element._filteredLinks[0].subsection);
+    // Groups
+    assert.isNotOk(element._filteredLinks[0].subsection);
   });
 
-  test('_filteredLinks non admin unathenticated', done => {
-    element.reload().then(() => {
-      assert.equal(element._filteredLinks.length, 1);
-
-      // Repos
-      assert.isNotOk(element._filteredLinks[0].subsection);
-      done();
-    });
+  test('_filteredLinks non admin unathenticated', async () => {
+    stubRestApi('getAccount').returns(Promise.resolve(undefined));
+    await element.reload();
+    assert.equal(element._filteredLinks.length, 1);
+    // Repos
+    assert.isNotOk(element._filteredLinks[0].subsection);
   });
 
   test('_filteredLinks from plugin', () => {
-    sinon.stub(element.$.jsAPI, 'getAdminMenuLinks').returns([
+    stubRestApi('getAccount').returns(Promise.resolve(undefined));
+    sinon.stub(element.jsAPI, 'getAdminMenuLinks').returns([
       {text: 'internal link text', url: '/internal/link/url'},
       {text: 'external link text', url: 'http://external/link/url'},
     ]);
@@ -171,17 +156,11 @@ suite('gr-admin-view tests', () => {
 
   test('Repo shows up in nav', done => {
     element._repoName = 'Test Repo';
-    sinon.stub(element.$.restAPI, 'getAccount').returns(Promise.resolve({
+    stubRestApi('getAccount').returns(Promise.resolve({
       name: 'test-user',
     }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        }));
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
     element.reload().then(() => {
       flush();
       assert.equal(dom(element.root)
@@ -196,53 +175,31 @@ suite('gr-admin-view tests', () => {
     });
   });
 
-  test('Group shows up in nav', done => {
+  test('Group shows up in nav', async () => {
     element._groupId = 'a15262';
     element._groupName = 'my-group';
     element._groupIsInternal = true;
     element._isAdmin = true;
     element._groupOwner = false;
-    sinon.stub(element.$.restAPI, 'getAccount').returns(Promise.resolve({
-      name: 'test-user',
-    }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        }));
-    element.reload().then(() => {
-      flush();
-      assert.equal(element._filteredLinks.length, 3);
-
-      // Repos
-      assert.isNotOk(element._filteredLinks[0].subsection);
-
-      // Groups
-      assert.equal(element._filteredLinks[1].subsection.children.length, 2);
-      assert.equal(element._filteredLinks[1].subsection.name, 'my-group');
-
-      // Plugins
-      assert.isNotOk(element._filteredLinks[2].subsection);
-      done();
-    });
+    stubRestApi('getAccount').returns(Promise.resolve({name: 'test-user'}));
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
+    await element.reload();
+    await flush();
+    assert.equal(element._filteredLinks.length, 3);
+    // Repos
+    assert.isNotOk(element._filteredLinks[0].subsection);
+    // Groups
+    assert.equal(element._filteredLinks[1].subsection.children.length, 2);
+    assert.equal(element._filteredLinks[1].subsection.name, 'my-group');
+    // Plugins
+    assert.isNotOk(element._filteredLinks[2].subsection);
   });
 
   test('Nav is reloaded when repo changes', () => {
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccount')
-        .callsFake(() => Promise.resolve({_id: 1}));
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
+    stubRestApi('getAccount').returns(Promise.resolve({_id: 1}));
     sinon.stub(element, 'reload');
     element.params = {repo: 'Test Repo', view: GerritView.REPO};
     assert.equal(element.reload.callCount, 1);
@@ -253,18 +210,9 @@ suite('gr-admin-view tests', () => {
 
   test('Nav is reloaded when group changes', () => {
     sinon.stub(element, '_computeGroupName');
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccount')
-        .callsFake(() => Promise.resolve({_id: 1}));
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
+    stubRestApi('getAccount').returns(Promise.resolve({_id: 1}));
     sinon.stub(element, 'reload');
     element.params = {groupId: '1', view: GerritView.GROUP};
     assert.equal(element.reload.callCount, 1);
@@ -320,18 +268,9 @@ suite('gr-admin-view tests', () => {
       view: GerritNav.View.REPO,
       detail: GerritNav.RepoDetailView.ACCESS,
     };
-    sinon.stub(
-        element.$.restAPI,
-        'getAccountCapabilities')
-        .callsFake(() => Promise.resolve({
-          createGroup: true,
-          createProject: true,
-          viewPlugins: true,
-        }));
-    sinon.stub(
-        element.$.restAPI,
-        'getAccount')
-        .callsFake(() => Promise.resolve({_id: 1}));
+    stubRestApi('getAccountCapabilities').returns(
+        Promise.resolve(createAdminCapabilities()));
+    stubRestApi('getAccount').returns(Promise.resolve({_id: 1}));
     flush();
     const expectedFilteredLinks = [
       {
@@ -483,27 +422,15 @@ suite('gr-admin-view tests', () => {
 
   suite('_computeSelectedClass', () => {
     setup(() => {
-      sinon.stub(
-          element.$.restAPI,
-          'getAccountCapabilities')
-          .callsFake(() => Promise.resolve({
-            createGroup: true,
-            createProject: true,
-            viewPlugins: true,
-          }));
-      sinon.stub(
-          element.$.restAPI,
-          'getAccount')
-          .callsFake(() => Promise.resolve({_id: 1}));
-
+      stubRestApi('getAccountCapabilities').returns(
+          Promise.resolve(createAdminCapabilities()));
+      stubRestApi('getAccount').returns(Promise.resolve({_id: 1}));
       return element.reload();
     });
 
     suite('repos', () => {
       setup(() => {
-        stub('gr-repo-access', {
-          _repoChanged: () => {},
-        });
+        stub('gr-repo-access', '_repoChanged').callsFake(() => {});
       });
 
       test('repo list', () => {
@@ -568,20 +495,17 @@ suite('gr-admin-view tests', () => {
     });
 
     suite('groups', () => {
+      let getGroupConfigStub;
       setup(() => {
-        stub('gr-group', {
-          _loadGroup: () => Promise.resolve({}),
-        });
-        stub('gr-group-members', {
-          _loadGroupDetails: () => {},
-        });
+        stub('gr-group', '_loadGroup').callsFake(() => Promise.resolve({}));
+        stub('gr-group-members', '_loadGroupDetails').callsFake(() => {});
 
-        sinon.stub(element.$.restAPI, 'getGroupConfig')
-            .returns(Promise.resolve({
-              name: 'foo',
-              id: 'c0f83e941ce90caea30e6ad88f0d4ea0e841a7a9',
-            }));
-        sinon.stub(element.$.restAPI, 'getIsGroupOwner')
+        getGroupConfigStub = stubRestApi('getGroupConfig');
+        getGroupConfigStub.returns(Promise.resolve({
+          name: 'foo',
+          id: 'c0f83e941ce90caea30e6ad88f0d4ea0e841a7a9',
+        }));
+        stubRestApi('getIsGroupOwner')
             .returns(Promise.resolve(true));
         return element.reload();
       });
@@ -619,12 +543,10 @@ suite('gr-admin-view tests', () => {
       });
 
       test('external group', () => {
-        element.$.restAPI.getGroupConfig.restore();
-        sinon.stub(element.$.restAPI, 'getGroupConfig')
-            .returns(Promise.resolve({
-              name: 'foo',
-              id: 'external-id',
-            }));
+        getGroupConfigStub.returns(Promise.resolve({
+          name: 'foo',
+          id: 'external-id',
+        }));
         element.params = {
           view: GerritNav.View.GROUP,
           groupId: 1234,

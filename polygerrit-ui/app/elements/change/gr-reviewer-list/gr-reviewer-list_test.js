@@ -17,6 +17,7 @@
 
 import '../../../test/common-test-setup-karma.js';
 import './gr-reviewer-list.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-reviewer-list');
 
@@ -27,15 +28,11 @@ suite('gr-reviewer-list tests', () => {
     element = basicFixture.instantiate();
     element.serverConfig = {};
 
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-      removeChangeReviewer() {
-        return Promise.resolve({ok: true});
-      },
-    });
+    stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
   });
 
   test('controls hidden on immutable element', () => {
+    flush();
     element.mutable = false;
     assert.isTrue(element.shadowRoot
         .querySelector('.controlsContainer').hasAttribute('hidden'));
@@ -48,6 +45,7 @@ suite('gr-reviewer-list tests', () => {
     element.addEventListener('show-reply-dialog', () => {
       done();
     });
+    flush();
     MockInteractions.tap(element.shadowRoot
         .querySelector('.addReviewer'));
   });
@@ -300,6 +298,30 @@ suite('gr-reviewer-list tests', () => {
     assert.equal(element._reviewers.length, 4);
     assert.isTrue(element.shadowRoot
         .querySelector('.hiddenReviewers').hidden);
+  });
+
+  test('account owner comes first in list of reviewers', () => {
+    const reviewers = [];
+    element.maxReviewersDisplayed = 3;
+    for (let i = 0; i < 4; i++) {
+      reviewers.push(
+          {email: i+'reviewer@google.com', name: 'reviewer-' + i,
+            _account_id: i});
+    }
+    element.reviewersOnly = true;
+    element.account = {
+      _account_id: 1,
+    };
+    element.change = {
+      owner: {
+        _account_id: 111,
+      },
+      reviewers: {
+        REVIEWER: reviewers,
+      },
+    };
+    flush();
+    assert.equal(element._displayedReviewers[0]._account_id, 1);
   });
 
   test('show all reviewers button with 9 reviewers', () => {

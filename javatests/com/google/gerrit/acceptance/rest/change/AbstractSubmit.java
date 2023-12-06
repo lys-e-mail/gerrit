@@ -59,6 +59,7 @@ import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AttentionSetUpdate;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.Permission;
@@ -228,7 +229,9 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
                   "Cannot rebase "
                       + change2hash
                       + ": The change could "
-                      + "not be rebased due to a conflict during merge.");
+                      + "not be rebased due to a conflict during merge.\n\n"
+                      + "merge conflict(s):\n"
+                      + "a.txt");
           break;
         case MERGE_ALWAYS:
         case MERGE_IF_NECESSARY:
@@ -413,7 +416,7 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
         .forUpdate()
         .add(block(Permission.SUBMIT).ref("refs/*").group(CHANGE_OWNER))
         .add(allow(Permission.SUBMIT).ref("refs/heads/*").group(REGISTERED_USERS))
-        .add(allowLabel("Code-Review").ref("refs/*").group(REGISTERED_USERS).range(-2, +2))
+        .add(allowLabel(LabelId.CODE_REVIEW).ref("refs/*").group(REGISTERED_USERS).range(-2, +2))
         .update();
 
     TestRepository<InMemoryRepository> repo = cloneProject(p, admin);
@@ -439,7 +442,7 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
         .forUpdate()
         .add(block(Permission.SUBMIT).ref("refs/*").group(REGISTERED_USERS))
         .add(allow(Permission.SUBMIT).ref("refs/*").group(CHANGE_OWNER))
-        .add(allowLabel("Code-Review").ref("refs/*").group(REGISTERED_USERS).range(-2, +2))
+        .add(allowLabel(LabelId.CODE_REVIEW).ref("refs/*").group(REGISTERED_USERS).range(-2, +2))
         .update();
 
     TestRepository<InMemoryRepository> repo = cloneProject(p, admin);
@@ -1375,7 +1378,6 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     ChangeInfo info = get(change.getChangeId(), ListChangesOption.MESSAGES);
     assertThat(info.messages).isNotNull();
     Iterable<String> messages = Iterables.transform(info.messages, i -> i.message);
-    assertThat(messages).hasSize(3);
     String last = Iterables.getLast(messages);
     if (getSubmitType() == SubmitType.CHERRY_PICK) {
       assertThat(last).startsWith("Change has been successfully cherry-picked as");
@@ -1384,6 +1386,17 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     } else {
       assertThat(last).isEqualTo("Change has been successfully merged");
     }
+  }
+
+  @Test
+  public void submitSetsMergedOn() throws Throwable {
+    PushOneCommit.Result r = createChange();
+    assertThat(r.getChange().getMergedOn()).isEmpty();
+    submit(r.getChangeId());
+    assertThat(r.getChange().getMergedOn()).isPresent();
+    ChangeInfo change = gApi.changes().id(r.getChangeId()).get();
+    assertThat(r.getChange().getMergedOn().get()).isEqualTo(change.updated);
+    assertThat(r.getChange().getMergedOn().get()).isEqualTo(change.submitted);
   }
 
   @Override
@@ -1439,6 +1452,12 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     assertWithMessage("enabled bit on submit action").that(desc.isEnabled()).isTrue();
   }
 
+  protected void assertSubmitDisabled(String changeId) throws Throwable {
+    RevisionResource rsrc = parseCurrentRevisionResource(changeId);
+    UiAction.Description desc = submitHandler.getDescription(rsrc);
+    assertWithMessage("enabled bit on submit action").that(desc.isEnabled()).isFalse();
+  }
+
   protected void assertChangeMergedEvents(String... expected) throws Throwable {
     eventRecorder.assertChangeMergedEvents(project.get(), "refs/heads/master", expected);
   }
@@ -1470,7 +1489,7 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
 
   protected void assertApproved(String changeId, TestAccount user) throws Throwable {
     ChangeInfo c = get(changeId, DETAILED_LABELS);
-    LabelInfo cr = c.labels.get("Code-Review");
+    LabelInfo cr = c.labels.get(LabelId.CODE_REVIEW);
     assertThat(cr.all).hasSize(1);
     assertThat(cr.all.get(0).value).isEqualTo(2);
     assertThat(Account.id(cr.all.get(0)._accountId)).isEqualTo(user.id());

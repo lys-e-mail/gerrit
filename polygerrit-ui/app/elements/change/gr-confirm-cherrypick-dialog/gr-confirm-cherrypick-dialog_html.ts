@@ -46,11 +46,12 @@ export const htmlTemplate = html`
     }
     .cherryPickTopicLayout {
       display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-m);
     }
     .cherryPickSingleChange,
     .cherryPickTopic {
       margin-left: var(--spacing-m);
-      margin-bottom: var(--spacing-m);
     }
     .cherry-pick-topic-message {
       margin-bottom: var(--spacing-m);
@@ -85,7 +86,7 @@ export const htmlTemplate = html`
   <gr-dialog
     confirm-label="Cherry Pick"
     cancel-label="[[_computeCancelLabel(_statuses)]]"
-    disabled$="[[_computeDisableCherryPick(_cherryPickType, _duplicateProjectChanges, _statuses)]]"
+    disabled$="[[_computeDisableCherryPick(_cherryPickType, _duplicateProjectChanges, _statuses, branch)]]"
     on-confirm="_handleConfirmTap"
     on-cancel="_handleCancelTap"
   >
@@ -119,9 +120,7 @@ export const htmlTemplate = html`
         </div></template
       >
 
-      <label for="branchInput">
-        Cherry Pick to branch
-      </label>
+      <label for="branchInput"> Cherry Pick to branch </label>
       <gr-autocomplete
         id="branchInput"
         text="{{branch}}"
@@ -152,9 +151,7 @@ export const htmlTemplate = html`
             bind-value="{{baseCommit}}"
           />
         </iron-input>
-        <label for="messageInput">
-          Cherry Pick Commit Message
-        </label>
+        <label for="messageInput"> Cherry Pick Commit Message </label>
       </template>
       <template
         is="dom-if"
@@ -179,10 +176,12 @@ export const htmlTemplate = html`
         <table>
           <thead>
             <tr>
+              <th></th>
               <th>Change</th>
+              <th>Status</th>
               <th>Subject</th>
               <th>Project</th>
-              <th>Status</th>
+              <th>Progress</th>
               <!-- Error Message -->
               <th></th>
             </tr>
@@ -190,7 +189,16 @@ export const htmlTemplate = html`
           <tbody>
             <template is="dom-repeat" items="[[changes]]">
               <tr>
+                <td>
+                  <input
+                    type="checkbox"
+                    data-item$="[[item.id]]"
+                    on-change="_toggleChangeSelected"
+                    checked="[[_isChangeSelected(item.id)]]"
+                  />
+                </td>
                 <td><span> [[_getChangeId(item)]] </span></td>
+                <td><span> [[item.status]] </span></td>
                 <td>
                   <span> [[_getTrimmedChangeSubject(item.subject)]] </span>
                 </td>
@@ -212,5 +220,4 @@ export const htmlTemplate = html`
       </template>
     </div>
   </gr-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

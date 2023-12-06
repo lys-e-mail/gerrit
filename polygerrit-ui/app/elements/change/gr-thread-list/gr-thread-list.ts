@@ -18,8 +18,6 @@ import '@polymer/paper-toggle-button/paper-toggle-button';
 import '../../../styles/shared-styles';
 import '../../shared/gr-comment-thread/gr-comment-thread';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-thread-list_html';
 import {parseDate} from '../../../utils/date-util';
@@ -31,7 +29,18 @@ import {
   PolymerDeepPropertyChange,
 } from '@polymer/polymer/interfaces';
 import {ChangeInfo} from '../../../types/common';
-import {CommentThread, isDraft, UIRobot} from '../../../utils/comment-util';
+import {
+  CommentThread,
+  isDraft,
+  isUnresolved,
+  isDraftThread,
+  isRobotThread,
+  hasHumanReply,
+} from '../../../utils/comment-util';
+import {pluralize} from '../../../utils/string-util';
+import {fireThreadListModifiedEvent} from '../../../utils/event-util';
+import {assertNever} from '../../../utils/common-util';
+import {CommentTabState} from '../../../types/events';
 
 interface CommentThreadWithInfo {
   thread: CommentThread;
@@ -44,9 +53,7 @@ interface CommentThreadWithInfo {
 }
 
 @customElement('gr-thread-list')
-export class GrThreadList extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrThreadList extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -65,6 +72,9 @@ export class GrThreadList extends GestureEventListeners(
 
   @property({type: Array})
   _sortedThreads: CommentThread[] = [];
+
+  @property({type: Boolean})
+  showCommentContext = false;
 
   @property({
     computed:
@@ -89,9 +99,8 @@ export class GrThreadList extends GestureEventListeners(
   @property({type: Boolean})
   hideToggleButtons = false;
 
-  _computeShowDraftToggle(loggedIn?: boolean) {
-    return loggedIn ? 'show' : '';
-  }
+  @property({type: Object, observer: '_commentTabStateChange'})
+  commentTabState?: CommentTabState;
 
   _showEmptyThreadsMessage(
     threads: CommentThread[],
@@ -113,13 +122,14 @@ export class GrThreadList extends GestureEventListeners(
   _computeResolvedCommentsMessage(
     threads: CommentThread[],
     displayedThreads: CommentThread[],
-    unresolvedOnly: boolean
+    unresolvedOnly: boolean,
+    onlyShowRobotCommentsWithHumanReply: boolean
   ) {
+    if (onlyShowRobotCommentsWithHumanReply) {
+      threads = this.filterRobotThreadsWithoutHumanReply(threads) ?? [];
+    }
     if (unresolvedOnly && threads.length && !displayedThreads.length) {
-      return (
-        `Show ${threads.length} resolved comment` +
-        (threads.length > 1 ? 's' : '')
-      );
+      return `Show ${pluralize(threads.length, 'resolved comment')}`;
     }
     return '';
   }
@@ -161,7 +171,9 @@ export class GrThreadList extends GestureEventListeners(
     if (c1.thread.patchNum !== c2.thread.patchNum) {
       if (!c1.thread.patchNum) return 1;
       if (!c2.thread.patchNum) return -1;
-      // TODO(TS): Explicit comparison for 'edit' and 'PARENT' missing?
+      // Threads left on Base when comparing Base vs X have patchNum = X
+      // and CommentSide = PARENT
+      // Threads left on 'edit' have patchNum set as latestPatchNum
       return c1.thread.patchNum > c2.thread.patchNum ? -1 : 1;
     }
 
@@ -379,15 +391,9 @@ export class GrThreadList extends GestureEventListeners(
     const lastComment = comments.length
       ? comments[comments.length - 1]
       : undefined;
-    let hasRobotComment = false;
-    let hasHumanReplyToRobotComment = false;
-    comments.forEach(comment => {
-      if ((comment as UIRobot).robot_id) {
-        hasRobotComment = true;
-      } else if (hasRobotComment) {
-        hasHumanReplyToRobotComment = true;
-      }
-    });
+    const hasRobotComment = isRobotThread(thread);
+    const hasHumanReplyToRobotComment =
+      hasRobotComment && hasHumanReply(thread);
     let updated = undefined;
     if (lastComment) {
       if (isDraft(lastComment)) updated = lastComment.__date;
@@ -399,7 +405,7 @@ export class GrThreadList extends GestureEventListeners(
       hasRobotComment,
       hasHumanReplyToRobotComment,
       unresolved: !!lastComment && !!lastComment.unresolved,
-      isEditing: !!lastComment && !!lastComment.__editing,
+      isEditing: isDraft(lastComment) && !!lastComment.__editing,
       hasDraft: !!lastComment && isDraft(lastComment),
       updated,
     };
@@ -421,11 +427,7 @@ export class GrThreadList extends GestureEventListeners(
   }
 
   _handleCommentsChanged(e: CustomEvent) {
-    this.dispatchEvent(
-      new CustomEvent('thread-list-modified', {
-        detail: {rootId: e.detail.rootId, path: e.detail.path},
-      })
-    );
+    fireThreadListModifiedEvent(this, e.detail.rootId, e.detail.path);
   }
 
   _isOnParent(side?: CommentSide) {
@@ -434,11 +436,75 @@ export class GrThreadList extends GestureEventListeners(
     return !!side;
   }
 
-  /**
-   * Work around a issue on iOS when clicking turns into double tap
-   */
-  _onTapUnresolvedToggle(e: Event) {
-    e.preventDefault();
+  _handleOnlyUnresolved() {
+    this.unresolvedOnly = true;
+    this._draftsOnly = false;
+  }
+
+  _handleOnlyDrafts() {
+    this._draftsOnly = true;
+    this.unresolvedOnly = false;
+  }
+
+  _handleAllComments() {
+    this._draftsOnly = false;
+    this.unresolvedOnly = false;
+  }
+
+  _showAllComments(draftsOnly?: boolean, unresolvedOnly?: boolean) {
+    return !draftsOnly && !unresolvedOnly;
+  }
+
+  _countUnresolved(threads?: CommentThread[]) {
+    return (
+      this.filterRobotThreadsWithoutHumanReply(threads)?.filter(isUnresolved)
+        .length ?? 0
+    );
+  }
+
+  _countAllThreads(threads?: CommentThread[]) {
+    return this.filterRobotThreadsWithoutHumanReply(threads)?.length ?? 0;
+  }
+
+  _countDrafts(threads?: CommentThread[]) {
+    return (
+      this.filterRobotThreadsWithoutHumanReply(threads)?.filter(isDraftThread)
+        .length ?? 0
+    );
+  }
+
+  filterRobotThreadsWithoutHumanReply(threads?: CommentThread[]) {
+    return threads?.filter(t => !isRobotThread(t) || hasHumanReply(t));
+  }
+
+  _commentTabStateChange(
+    newValue?: CommentTabState,
+    oldValue?: CommentTabState
+  ) {
+    if (!newValue || newValue === oldValue) return;
+    let focusTo: string | undefined;
+    switch (newValue) {
+      case CommentTabState.UNRESOLVED:
+        this._handleOnlyUnresolved();
+        // input is null because it's not rendered yet.
+        focusTo = '#unresolvedRadio';
+        break;
+      case CommentTabState.DRAFTS:
+        this._handleOnlyDrafts();
+        focusTo = '#draftsRadio';
+        break;
+      case CommentTabState.SHOW_ALL:
+        this._handleAllComments();
+        focusTo = '#allRadio';
+        break;
+      default:
+        assertNever(newValue, 'Unsupported preferred state');
+    }
+    const selector = focusTo;
+    window.setTimeout(() => {
+      const input = this.shadowRoot?.querySelector<HTMLInputElement>(selector);
+      input?.focus();
+    }, 0);
   }
 }
 

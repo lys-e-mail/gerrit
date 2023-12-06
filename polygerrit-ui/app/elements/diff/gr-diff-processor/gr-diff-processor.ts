@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {
   GrDiffLine,
   GrDiffLineType,
   FILE,
   Highlights,
+  LineNumber,
 } from '../gr-diff/gr-diff-line';
 import {
   GrDiffGroup,
@@ -30,8 +29,9 @@ import {
 } from '../gr-diff/gr-diff-group';
 import {CancelablePromise, util} from '../../../scripts/util';
 import {customElement, property} from '@polymer/decorators';
-import {DiffContent} from '../../../types/common';
+import {DiffContent} from '../../../types/diff';
 import {Side} from '../../../constants/constants';
+import {debounce, DelayedTask} from '../../../utils/async-util';
 
 const WHOLE_FILE = -1;
 
@@ -89,9 +89,7 @@ const MAX_GROUP_SIZE = 120;
  *    the rest is not.
  */
 @customElement('gr-diff-processor')
-export class GrDiffProcessor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffProcessor extends PolymerElement {
   @property({type: Number})
   context = 3;
 
@@ -113,29 +111,30 @@ export class GrDiffProcessor extends GestureEventListeners(
   @property({type: Boolean})
   _isScrolling?: boolean;
 
+  private resetIsScrollingTask?: DelayedTask;
+
   /** @override */
-  attached() {
-    super.attached();
-    this.listen(window, 'scroll', '_handleWindowScroll');
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('scroll', this.handleWindowScroll);
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
+    this.resetIsScrollingTask?.cancel();
     this.cancel();
-    this.unlisten(window, 'scroll', '_handleWindowScroll');
+    window.removeEventListener('scroll', this.handleWindowScroll);
+    super.disconnectedCallback();
   }
 
-  _handleWindowScroll() {
+  private readonly handleWindowScroll = () => {
     this._isScrolling = true;
-    this.debounce(
-      'resetIsScrolling',
-      () => {
-        this._isScrolling = false;
-      },
+    this.resetIsScrollingTask = debounce(
+      this.resetIsScrollingTask,
+      () => (this._isScrolling = false),
       50
     );
-  }
+  };
 
   /**
    * Asynchronously process the diff chunks into groups. As it processes, it
@@ -150,7 +149,8 @@ export class GrDiffProcessor extends GestureEventListeners(
     this.cancel();
 
     this.groups = [];
-    this.push('groups', this._makeFileComments());
+    this.push('groups', this._makeGroup('LOST'));
+    this.push('groups', this._makeGroup(FILE));
 
     // If it's a binary diff, we won't be rendering hunks of text differences
     // so finish processing.
@@ -171,7 +171,7 @@ export class GrDiffProcessor extends GestureEventListeners(
         let currentBatch = 0;
         const nextStep = () => {
           if (this._isScrolling) {
-            this._nextStepHandle = this.async(nextStep, 100);
+            this._nextStepHandle = window.setTimeout(nextStep, 100);
             return;
           }
           // If we are done, resolve the promise.
@@ -194,7 +194,7 @@ export class GrDiffProcessor extends GestureEventListeners(
           state.chunkIndex = stateUpdate.newChunkIndex;
           if (currentBatch >= this._asyncThreshold) {
             currentBatch = 0;
-            this._nextStepHandle = this.async(nextStep, 1);
+            this._nextStepHandle = window.setTimeout(nextStep, 1);
           } else {
             nextStep.call(this);
           }
@@ -213,7 +213,7 @@ export class GrDiffProcessor extends GestureEventListeners(
    */
   cancel() {
     if (this._nextStepHandle !== null) {
-      this.cancelAsync(this._nextStepHandle);
+      window.clearTimeout(this._nextStepHandle);
       this._nextStepHandle = null;
     }
     if (this._processPromise) {
@@ -366,13 +366,16 @@ export class GrDiffProcessor extends GestureEventListeners(
     const group = new GrDiffGroup(type, lines);
     group.keyLocation = !!chunk.keyLocation;
     group.dueToRebase = !!chunk.due_to_rebase;
-    group.dueToMove = !!chunk.due_to_move;
+    group.moveDetails = chunk.move_details;
     group.skip = chunk.skip;
     group.ignoredWhitespaceOnly = !!chunk.common;
     if (chunk.skip) {
       group.lineRange = {
-        left: {start: offsetLeft, end: offsetLeft + chunk.skip - 1},
-        right: {start: offsetRight, end: offsetRight + chunk.skip - 1},
+        left: {start_line: offsetLeft, end_line: offsetLeft + chunk.skip - 1},
+        right: {
+          start_line: offsetRight,
+          end_line: offsetRight + chunk.skip - 1,
+        },
       };
     }
     return group;
@@ -447,10 +450,10 @@ export class GrDiffProcessor extends GestureEventListeners(
     return line;
   }
 
-  _makeFileComments() {
+  _makeGroup(number: LineNumber) {
     const line = new GrDiffLine(GrDiffLineType.BOTH);
-    line.beforeNumber = FILE;
-    line.afterNumber = FILE;
+    line.beforeNumber = number;
+    line.afterNumber = number;
     return new GrDiffGroup(GrDiffGroupType.BOTH, [line]);
   }
 
@@ -679,15 +682,18 @@ export class GrDiffProcessor extends GestureEventListeners(
    */
   _breakdownChunk(chunk: DiffContent): DiffContent[] {
     let key: 'a' | 'b' | 'ab' | null = null;
-    if (chunk.a && !chunk.b) {
+    const {a, b, ab, move_details} = chunk;
+    if (a?.length && !b?.length) {
       key = 'a';
-    } else if (chunk.b && !chunk.a) {
+    } else if (b?.length && !a?.length) {
       key = 'b';
-    } else if (chunk.ab) {
+    } else if (ab?.length) {
       key = 'ab';
     }
 
-    if (!key) {
+    // Move chunks should not be divided because of move label
+    // positioned in the top of the chunk
+    if (!key || move_details) {
       return [chunk];
     }
 
@@ -697,8 +703,8 @@ export class GrDiffProcessor extends GestureEventListeners(
       if (chunk.due_to_rebase) {
         subChunk.due_to_rebase = true;
       }
-      if (chunk.due_to_move) {
-        subChunk.due_to_move = true;
+      if (chunk.move_details) {
+        subChunk.move_details = chunk.move_details;
       }
       return subChunk;
     });

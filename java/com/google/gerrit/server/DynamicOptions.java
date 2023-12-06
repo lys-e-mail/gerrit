@@ -15,6 +15,7 @@
 package com.google.gerrit.server;
 
 import com.google.gerrit.extensions.registration.DynamicMap;
+import com.google.gerrit.lifecycle.LifecycleManager;
 import com.google.gerrit.server.plugins.DelegatingClassLoader;
 import com.google.gerrit.util.cli.CmdLineParser;
 import com.google.inject.Injector;
@@ -29,7 +30,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /** Helper class to define and parse options from plugins on ssh and RestAPI commands. */
-public class DynamicOptions {
+public class DynamicOptions implements AutoCloseable {
   /**
    * To provide additional options, bind a DynamicBean. For example:
    *
@@ -98,7 +99,9 @@ public class DynamicOptions {
    *
    * <p>Do this by binding to the name of the command you are going to bind to and providing an
    * Iterable of Module names to instantiate and add to the Injector used to instantiate the
-   * DynamicBean in the other classLoader. For example:
+   * DynamicBean in the other classLoader. This interface supports running LifecycleListeners which
+   * are defined by the Modules being provided. The duration of the lifecycle starts when a ssh or
+   * http request starts and ends when the request completes. For example:
    *
    * <pre>
    *   bind(com.google.gerrit.server.DynamicOptions.DynamicBean.class)
@@ -106,7 +109,7 @@ public class DynamicOptions {
    *           "com.google.gerrit.plugins.otherplugin.command"))
    *       .to(MyOptionsModulesClassNamesProvider.class);
    *
-   *   static class MyOptionsModulesClassNamesProvider implements DynamicOptions.ClassNameProvider {
+   *   static class MyOptionsModulesClassNamesProvider implements DynamicOptions.ModulesClassNamesProvider {
    *     {@literal @}Override
    *     public String getClassName() {
    *       return "com.googlesource.gerrit.plugins.myplugin.CommandOptions";
@@ -190,13 +193,17 @@ public class DynamicOptions {
   protected Object bean;
   protected Map<String, DynamicBean> beansByPlugin;
   protected Injector injector;
+  protected DynamicMap<DynamicBean> dynamicBeans;
+  protected LifecycleManager lifecycleManager;
 
   /**
    * Internal: For Gerrit to include options from DynamicBeans, setup a DynamicMap and instantiate
    * this class so the following methods can be called if desired:
    *
    * <pre>
-   *    DynamicOptions pluginOptions = new DynamicOptions(bean, injector, dynamicBeans);
+   *    DynamicOptions pluginOptions = new DynamicOptions(injector, dynamicBeans);
+   *    pluginOptions.setBean(bean);
+   *    pluginOptions.startLifecycleListeners();
    *    pluginOptions.parseDynamicBeans(clp);
    *    pluginOptions.setDynamicBeans();
    *    pluginOptions.onBeanParseStart();
@@ -206,10 +213,15 @@ public class DynamicOptions {
    *    pluginOptions.onBeanParseEnd();
    * </pre>
    */
-  public DynamicOptions(Object bean, Injector injector, DynamicMap<DynamicBean> dynamicBeans) {
-    this.bean = bean;
+  public DynamicOptions(Injector injector, DynamicMap<DynamicBean> dynamicBeans) {
     this.injector = injector;
+    this.dynamicBeans = dynamicBeans;
+    lifecycleManager = new LifecycleManager();
     beansByPlugin = new HashMap<>();
+  }
+
+  public void setBean(Object bean) {
+    this.bean = bean;
     Class<?> beanClass =
         (bean instanceof BeanReceiver)
             ? ((BeanReceiver) bean).getExportedBeanReceiver()
@@ -255,9 +267,10 @@ public class DynamicOptions {
             modules.add(modulesInjector.getInstance(mClass));
           }
         }
-        return modulesInjector
-            .createChildInjector(modules)
-            .getInstance((Class<DynamicOptions.DynamicBean>) loader.loadClass(className));
+        Injector childModulesInjector = modulesInjector.createChildInjector(modules);
+        lifecycleManager.add(childModulesInjector);
+        return childModulesInjector.getInstance(
+            (Class<DynamicOptions.DynamicBean>) loader.loadClass(className));
       } catch (ClassNotFoundException e) {
         throw new RuntimeException(e);
       }
@@ -300,6 +313,14 @@ public class DynamicOptions {
     }
   }
 
+  public void startLifecycleListeners() {
+    lifecycleManager.start();
+  }
+
+  public void stopLifecycleListeners() {
+    lifecycleManager.stop();
+  }
+
   public void onBeanParseStart() {
     for (Map.Entry<String, DynamicBean> e : beansByPlugin.entrySet()) {
       DynamicBean instance = e.getValue();
@@ -318,5 +339,10 @@ public class DynamicOptions {
         listener.onBeanParseEnd(e.getKey(), bean);
       }
     }
+  }
+
+  @Override
+  public void close() {
+    stopLifecycleListeners();
   }
 }

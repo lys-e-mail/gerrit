@@ -19,10 +19,7 @@ import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-create-change-dialog_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
@@ -35,17 +32,15 @@ import {
   InheritedBooleanInfo,
 } from '../../../types/common';
 import {InheritedBooleanInfoConfiguredValue} from '../../../constants/constants';
-import {hasOwnProperty} from '../../../utils/common-util';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrAutocomplete} from '../../shared/gr-autocomplete/gr-autocomplete';
 import {IronAutogrowTextareaElement} from '@polymer/iron-autogrow-textarea/iron-autogrow-textarea';
+import {appContext} from '../../../services/app-context';
 
 const SUGGESTIONS_LIMIT = 15;
 const REF_PREFIX = 'refs/heads/';
 
 export interface GrCreateChangeDialog {
   $: {
-    restAPI: RestApiService & Element;
     privateChangeCheckBox: HTMLInputElement;
     branchInput: GrAutocomplete;
     tagNameInput: HTMLInputElement;
@@ -53,9 +48,7 @@ export interface GrCreateChangeDialog {
   };
 }
 @customElement('gr-create-change-dialog')
-export class GrCreateChangeDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrCreateChangeDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -93,14 +86,16 @@ export class GrCreateChangeDialog extends GestureEventListeners(
   @property({type: Boolean})
   _privateChangesEnabled?: boolean;
 
+  restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._query = (input: string) => this._getRepoBranchesSuggestions(input);
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     if (!this.repoName) {
       return Promise.resolve();
     }
@@ -108,14 +103,14 @@ export class GrCreateChangeDialog extends GestureEventListeners(
     const promises = [];
 
     promises.push(
-      this.$.restAPI.getProjectConfig(this.repoName).then(config => {
+      this.restApiService.getProjectConfig(this.repoName).then(config => {
         if (!config) return;
         this.privateByDefault = config.private_by_default;
       })
     );
 
     promises.push(
-      this.$.restAPI.getConfig().then(config => {
+      this.restApiService.getConfig().then(config => {
         if (!config) {
           return;
         }
@@ -143,7 +138,7 @@ export class GrCreateChangeDialog extends GestureEventListeners(
     }
     const isPrivate = this.$.privateChangeCheckBox.checked;
     const isWip = true;
-    return this.$.restAPI
+    return this.restApiService
       .createChange(
         this.repoName,
         this.branch,
@@ -169,24 +164,17 @@ export class GrCreateChangeDialog extends GestureEventListeners(
     if (input.startsWith(REF_PREFIX)) {
       input = input.substring(REF_PREFIX.length);
     }
-    return this.$.restAPI
+    return this.restApiService
       .getRepoBranches(input, this.repoName, SUGGESTIONS_LIMIT)
       .then(response => {
         if (!response) return [];
         const branches = [];
-        let branch;
-        for (const key in response) {
-          if (!hasOwnProperty(response, key)) {
-            continue;
+        for (const branchInfo of response) {
+          let name: string = branchInfo.ref;
+          if (name.startsWith('refs/heads/')) {
+            name = name.substring('refs/heads/'.length);
           }
-          if (response[key].ref.startsWith('refs/heads/')) {
-            branch = response[key].ref.substring('refs/heads/'.length);
-          } else {
-            branch = response[key].ref;
-          }
-          branches.push({
-            name: branch,
-          });
+          branches.push({name});
         }
         return branches;
       });
@@ -205,7 +193,7 @@ export class GrCreateChangeDialog extends GestureEventListeners(
       return false;
     } else if (
       config &&
-      config.configured_value === InheritedBooleanInfoConfiguredValue.INHERITED
+      config.configured_value === InheritedBooleanInfoConfiguredValue.INHERIT
     ) {
       return !!(config && config.inherited_value);
     } else {

@@ -17,7 +17,7 @@
 import {html} from '@polymer/polymer/lib/utils/html-tag';
 
 export const htmlTemplate = html`
-  <style include="shared-styles">
+  <style>
     :host {
       color: inherit;
       display: inline;
@@ -25,7 +25,6 @@ export const htmlTemplate = html`
   </style>
   <span>
     [[_computeDateStr(dateStr, _timeFormat, _dateFormat, _relative,
-    showDateAndTime)]]
+    showDateAndTime, showYesterday)]]
   </span>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

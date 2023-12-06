@@ -45,7 +45,7 @@ suite('gr-editable-content tests', () => {
     element.addEventListener('editable-content-cancel', handler);
 
     MockInteractions.tap(element.shadowRoot
-        .querySelector('gr-button:not([primary])'));
+        .querySelector('gr-button.cancel-button'));
 
     assert.isTrue(handler.called);
   });
@@ -99,34 +99,34 @@ suite('gr-editable-content tests', () => {
     });
 
     test('editing toggled to true, has stored data', () => {
-      sinon.stub(element.$.storage, 'getEditableContentItem')
+      sinon.stub(element.storage, 'getEditableContentItem')
           .returns({message: 'stored content'});
       element.editing = true;
 
       assert.equal(element._newContent, 'stored content');
       assert.isTrue(dispatchSpy.called);
-      assert.equal(dispatchSpy.lastCall.args[0].type, 'show-alert');
+      assert.equal(dispatchSpy.firstCall.args[0].type, 'show-alert');
     });
 
     test('editing toggled to true, has no stored data', () => {
-      sinon.stub(element.$.storage, 'getEditableContentItem')
+      sinon.stub(element.storage, 'getEditableContentItem')
           .returns({});
       element.editing = true;
 
       assert.equal(element._newContent, 'current content');
-      assert.isFalse(dispatchSpy.called);
+      assert.equal(dispatchSpy.firstCall.args[0].type, 'editing-changed');
     });
 
     test('edits are cached', () => {
       const storeStub =
-          sinon.stub(element.$.storage, 'setEditableContentItem');
+          sinon.stub(element.storage, 'setEditableContentItem');
       const eraseStub =
-          sinon.stub(element.$.storage, 'eraseEditableContentItem');
+          sinon.stub(element.storage, 'eraseEditableContentItem');
       element.editing = true;
 
       element._newContent = 'new content';
       flush();
-      element.flushDebouncer('store');
+      element.storeTask.flush();
 
       assert.isTrue(storeStub.called);
       assert.deepEqual(
@@ -135,7 +135,7 @@ suite('gr-editable-content tests', () => {
 
       element._newContent = '';
       flush();
-      element.flushDebouncer('store');
+      element.storeTask.flush();
 
       assert.isTrue(eraseStub.called);
       assert.deepEqual([element.storageKey], eraseStub.lastCall.args);

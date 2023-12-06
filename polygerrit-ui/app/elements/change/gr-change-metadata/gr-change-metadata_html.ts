@@ -49,7 +49,15 @@ export const htmlTemplate = html`
       pointer-events: none;
     }
     .hashtagChip {
-      margin-bottom: var(--spacing-m);
+      padding-bottom: var(--spacing-s);
+    }
+    /* consistent with section .title, .value */
+    .hashtagChip:not(last-of-type) {
+      padding-bottom: var(--spacing-s);
+    }
+    .hashtagChip:last-of-type {
+      display: inline;
+      vertical-align: top;
     }
     #externalStyle {
       display: block;
@@ -70,7 +78,7 @@ export const htmlTemplate = html`
     }
     .icon.help,
     .icon.notTrusted {
-      color: #ffa62f;
+      color: var(--warning-foreground);
     }
     .icon.invalid {
       color: var(--negative-red-text-color);
@@ -79,7 +87,7 @@ export const htmlTemplate = html`
       color: var(--positive-green-text-color);
     }
     .parentList.notCurrent.nonMerge #parentNotCurrentMessage {
-      --arrow-color: #ffa62f;
+      --arrow-color: var(--warning-foreground);
       display: inline-block;
     }
     .separatedSection {
@@ -91,21 +99,79 @@ export const htmlTemplate = html`
       --linked-chip-text-color: var(--link-color);
     }
     gr-reviewer-list {
-      --account-max-length: 120px;
+      --account-max-length: 100px;
       max-width: 285px;
+    }
+    .metadata-title {
+      font-weight: var(--font-weight-bold);
+      color: var(--deemphasized-text-color);
+      padding-left: var(--metadata-horizontal-padding);
+    }
+    .metadata-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      /* The goal is to achieve alignment of the owner account chip and the
+         commit message box. Their top border should be on the same line. */
+      margin-bottom: var(--spacing-s);
+    }
+    .show-all-button iron-icon {
+      color: inherit;
+      --iron-icon-height: 18px;
+      --iron-icon-width: 18px;
     }
   </style>
   <gr-external-style id="externalStyle" name="change-metadata">
-    <section>
-      <span class="title">Updated</span>
+    <div class="metadata-header">
+      <h3 class="metadata-title">Change Info</h3>
+      <gr-button link="" class="show-all-button" on-click="_onShowAllClick"
+        >[[_computeShowAllLabelText(_showAllSections)]]
+        <iron-icon
+          icon="gr-icons:expand-more"
+          hidden$="[[_showAllSections]]"
+        ></iron-icon
+        ><iron-icon
+          icon="gr-icons:expand-less"
+          hidden$="[[!_showAllSections]]"
+        ></iron-icon>
+      </gr-button>
+    </div>
+    <template is="dom-if" if="[[change.submitted]]">
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.SUBMITTED)]]"
+      >
+        <span class="title">Submitted</span>
+        <span class="value">
+          <gr-date-formatter
+            has-tooltip=""
+            date-str="[[change.submitted]]"
+            show-yesterday=""
+          ></gr-date-formatter>
+        </span>
+      </section>
+    </template>
+    <section
+      class$="[[_computeDisplayState(_showAllSections, change, _SECTION.UPDATED)]]"
+    >
+      <span class="title">
+        <gr-tooltip-content
+          has-tooltip=""
+          title="Last update of (meta)data for this change."
+        >
+          Updated
+        </gr-tooltip-content>
+      </span>
       <span class="value">
         <gr-date-formatter
           has-tooltip=""
           date-str="[[change.updated]]"
+          show-yesterday=""
         ></gr-date-formatter>
       </span>
     </section>
-    <section>
+    <section
+      class$="[[_computeDisplayState(_showAllSections, change, _SECTION.OWNER)]]"
+    >
       <span class="title">Owner</span>
       <span class="value">
         <gr-account-chip
@@ -156,7 +222,9 @@ export const htmlTemplate = html`
       </span>
     </section>
     <template is="dom-if" if="[[_isAssigneeEnabled(serverConfig)]]">
-      <section class="assignee">
+      <section
+        class$="assignee [[_computeDisplayState(_showAllSections, change, _SECTION.ASSIGNEE)]]"
+      >
         <span class="title">Assignee</span>
         <span class="value">
           <gr-account-list
@@ -172,24 +240,30 @@ export const htmlTemplate = html`
         </span>
       </section>
     </template>
-    <section>
+    <section
+      class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REVIEWERS)]]"
+    >
       <span class="title">Reviewers</span>
       <span class="value">
         <gr-reviewer-list
           change="{{change}}"
           mutable="[[_mutable]]"
           reviewers-only=""
+          account="[[account]]"
           server-config="[[serverConfig]]"
         ></gr-reviewer-list>
       </span>
     </section>
-    <section>
+    <section
+      class$="[[_computeDisplayState(_showAllSections, change, _SECTION.CC)]]"
+    >
       <span class="title">CC</span>
       <span class="value">
         <gr-reviewer-list
           change="{{change}}"
           mutable="[[_mutable]]"
           ccs-only=""
+          account="[[account]]"
           server-config="[[serverConfig]]"
         ></gr-reviewer-list>
       </span>
@@ -198,7 +272,9 @@ export const htmlTemplate = html`
       is="dom-if"
       if="[[_computeShowRepoBranchTogether(change.project, change.branch)]]"
     >
-      <section>
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REPO_BRANCH)]]"
+      >
         <span class="title">Repo | Branch</span>
         <span class="value">
           <a href$="[[_computeProjectUrl(change.project)]]"
@@ -215,7 +291,9 @@ export const htmlTemplate = html`
       is="dom-if"
       if="[[!_computeShowRepoBranchTogether(change.project, change.branch)]]"
     >
-      <section>
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REPO_BRANCH)]]"
+      >
         <span class="title">Repo</span>
         <span class="value">
           <a href$="[[_computeProjectUrl(change.project)]]">
@@ -226,7 +304,9 @@ export const htmlTemplate = html`
           </a>
         </span>
       </section>
-      <section>
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.REPO_BRANCH)]]"
+      >
         <span class="title">Branch</span>
         <span class="value">
           <a href$="[[_computeBranchUrl(change.project, change.branch)]]">
@@ -238,7 +318,9 @@ export const htmlTemplate = html`
         </span>
       </section>
     </template>
-    <section>
+    <section
+      class$="[[_computeDisplayState(_showAllSections, change, _SECTION.PARENT)]]"
+    >
       <span class="title">[[_computeParentsLabel(_currentParents)]]</span>
       <span class="value">
         <ol
@@ -262,7 +344,23 @@ export const htmlTemplate = html`
         </ol>
       </span>
     </section>
-    <section class="topic">
+    <template is="dom-if" if="[[_isChangeMerged(change)]]">
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.MERGED_AS)]]"
+      >
+        <span class="title">Merged As</span>
+        <span class="value">
+          <gr-commit-info
+            change="[[change]]"
+            commit-info="[[_computeMergedCommitInfo(change.current_revision, change.revisions)]]"
+            server-config="[[serverConfig]]"
+          ></gr-commit-info>
+        </span>
+      </section>
+    </template>
+    <section
+      class$="topic [[_computeDisplayState(_showAllSections, change, _SECTION.TOPIC)]]"
+    >
       <span class="title">Topic</span>
       <span class="value">
         <template is="dom-if" if="[[_showTopicChip(change.*, _settingTopic)]]">
@@ -283,12 +381,17 @@ export const htmlTemplate = html`
             placeholder="[[_computeTopicPlaceholder(_topicReadOnly)]]"
             read-only="[[_topicReadOnly]]"
             on-changed="_handleTopicChanged"
+            show-as-edit-pencil="true"
+            autocomplete="true"
+            query="[[queryTopic]]"
           ></gr-editable-label>
         </template>
       </span>
     </section>
     <template is="dom-if" if="[[_showCherryPickOf(change.*)]]">
-      <section>
+      <section
+        class$="[[_computeDisplayState(_showAllSections, change, _SECTION.CHERRY_PICK_OF)]]"
+      >
         <span class="title">Cherry pick of</span>
         <span class="value">
           <a
@@ -304,14 +407,16 @@ export const htmlTemplate = html`
       </section>
     </template>
     <section
-      class="strategy"
+      class$="strategy [[_computeDisplayState(_showAllSections, change, _SECTION.STRATEGY)]]"
       hidden$="[[_computeHideStrategy(change)]]"
       hidden=""
     >
       <span class="title">Strategy</span>
       <span class="value">[[_computeStrategy(change)]]</span>
     </section>
-    <section class="hashtag">
+    <section
+      class$="hashtag [[_computeDisplayState(_showAllSections, change, _SECTION.HASHTAGS)]]"
+    >
       <span class="title">Hashtags</span>
       <span class="value">
         <template is="dom-repeat" items="[[change.hashtags]]">
@@ -333,12 +438,12 @@ export const htmlTemplate = html`
             placeholder="[[_computeHashtagPlaceholder(_hashtagReadOnly)]]"
             read-only="[[_hashtagReadOnly]]"
             on-changed="_handleHashtagChanged"
+            show-as-edit-pencil="true"
           ></gr-editable-label>
         </template>
       </span>
     </section>
     <div class="separatedSection">
-      <h3 class="assistive-tech-only">Label Scores</h3>
       <gr-change-requirements
         change="{{change}}"
         account="[[account]]"
@@ -371,5 +476,4 @@ export const htmlTemplate = html`
       ></gr-endpoint-param>
     </gr-endpoint-decorator>
   </gr-external-style>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

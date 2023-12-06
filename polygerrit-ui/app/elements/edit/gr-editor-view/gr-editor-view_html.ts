@@ -125,6 +125,4 @@ export const htmlTemplate = html`
       ></gr-default-editor>
     </gr-endpoint-decorator>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
 `;

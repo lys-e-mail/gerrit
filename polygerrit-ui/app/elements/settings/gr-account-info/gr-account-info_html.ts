@@ -41,9 +41,7 @@ export const htmlTemplate = html`
     <section class$="[[_hideAvatarChangeUrl(_avatarChangeUrl)]]">
       <span class="title"></span>
       <span class="value">
-        <a href$="[[_avatarChangeUrl]]">
-          Change avatar
-        </a>
+        <a href$="[[_avatarChangeUrl]]"> Change avatar </a>
       </span>
     </section>
     <section>
@@ -67,34 +65,40 @@ export const htmlTemplate = html`
       <span class="title">Username</span>
       <span hidden$="[[usernameMutable]]" class="value">[[_username]]</span>
       <span hidden$="[[!usernameMutable]]" class="value">
-        <iron-input on-keydown="_handleKeydown" bind-value="{{_username}}">
+        <iron-input
+          on-keydown="_handleKeydown"
+          bind-value="{{_username}}"
+          id="usernameIronInput"
+        >
           <input
             is="iron-input"
             id="usernameInput"
             disabled="[[_saving]]"
             on-keydown="_handleKeydown"
-            bind-value="{{_username}}"
           />
         </iron-input>
       </span>
     </section>
     <section id="nameSection">
-      <span class="title">Full name</span>
+      <label class="title" for="nameInput">Full name</label>
       <span hidden$="[[nameMutable]]" class="value">[[_account.name]]</span>
       <span hidden$="[[!nameMutable]]" class="value">
-        <iron-input on-keydown="_handleKeydown" bind-value="{{_account.name}}">
+        <iron-input
+          on-keydown="_handleKeydown"
+          bind-value="{{_account.name}}"
+          id="nameIronInput"
+        >
           <input
             is="iron-input"
             id="nameInput"
             disabled="[[_saving]]"
             on-keydown="_handleKeydown"
-            bind-value="{{_account.name}}"
           />
         </iron-input>
       </span>
     </section>
     <section>
-      <span class="title">Display name</span>
+      <label class="title" for="displayNameInput">Display name</label>
       <span class="value">
         <iron-input
           on-keydown="_handleKeydown"
@@ -105,13 +109,12 @@ export const htmlTemplate = html`
             id="displayNameInput"
             disabled="[[_saving]]"
             on-keydown="_handleKeydown"
-            bind-value="{{_account.display_name}}"
           />
         </iron-input>
       </span>
     </section>
     <section>
-      <span class="title">Status (e.g. "Vacation")</span>
+      <label class="title" for="statusInput">Status (e.g. "Vacation")</label>
       <span class="value">
         <iron-input
           on-keydown="_handleKeydown"
@@ -122,11 +125,9 @@ export const htmlTemplate = html`
             id="statusInput"
             disabled="[[_saving]]"
             on-keydown="_handleKeydown"
-            bind-value="{{_account.status}}"
           />
         </iron-input>
       </span>
     </section>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

@@ -50,9 +50,6 @@ export const htmlTemplate = html`
     #emptyOutgoing {
       display: block;
     }
-    #emptyYourTurn {
-      text-align: center;
-    }
     @media only screen and (max-width: 50em) {
       .loading {
         padding: 0 var(--spacing-l);
@@ -84,7 +81,7 @@ export const htmlTemplate = html`
       show-reviewed-state=""
       account="[[account]]"
       preferences="[[preferences]]"
-      selected-index="{{viewState.selectedChangeIndex}}"
+      selected-index="{{_selectedChangeIndex}}"
       sections="[[_results]]"
       on-toggle-star="_handleToggleStar"
       on-toggle-reviewed="_handleToggleReviewed"
@@ -95,12 +92,10 @@ export const htmlTemplate = html`
             on-create-tap="_handleCreateChangeTap"
           ></gr-create-change-help>
         </template>
-        <template is="dom-if" if="[[!_showNewUserHelp]]">
-          No changes
-        </template>
+        <template is="dom-if" if="[[!_showNewUserHelp]]"> No changes </template>
       </div>
       <div id="emptyYourTurn" slot="empty-your-turn">
-        <span>&#x1f389; No changes need your attention &#x1f389;</span>
+        <span>No changes need your attention &nbsp;&#x1f389;</span>
       </div>
     </gr-change-list>
   </div>
@@ -111,9 +106,7 @@ export const htmlTemplate = html`
       on-confirm="_handleConfirmDelete"
       on-cancel="_closeConfirmDeleteOverlay"
     >
-      <div class="header" slot="header">
-        Delete comments
-      </div>
+      <div class="header" slot="header">Delete comments</div>
       <div class="main" slot="main">
         Are you sure you want to delete all your draft comments in closed
         changes? This action cannot be undone.
@@ -125,5 +118,4 @@ export const htmlTemplate = html`
     on-confirm="_handleDestinationConfirm"
   ></gr-create-destination-dialog>
   <gr-create-commands-dialog id="commandsDialog"></gr-create-commands-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

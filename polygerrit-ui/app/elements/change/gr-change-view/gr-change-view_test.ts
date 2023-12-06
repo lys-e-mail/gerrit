@@ -29,21 +29,21 @@ import {
 } from '../../../constants/constants';
 import {GrEditConstants} from '../../edit/gr-edit-constants';
 import {_testOnly_resetEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-endpoints';
-import {getComputedStyleValue} from '../../../utils/dom-util';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {_testOnly_initGerritPluginApi} from '../../shared/gr-js-api-interface/gr-gerrit';
-import {EventType, PluginApi} from '../../plugins/gr-plugin-types';
+import {EventType, PluginApi} from '../../../api/plugin';
 
 import 'lodash/lodash';
-import {TestKeyboardShortcutBinder} from '../../../test/test-utils';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util';
+import {
+  stubRestApi,
+  TestKeyboardShortcutBinder,
+} from '../../../test/test-utils';
 import {Shortcut} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {
   createAppElementChangeViewParams,
   createApproval,
   createChange,
-  createChangeConfig,
   createChangeMessages,
   createCommit,
   createMergeable,
@@ -54,14 +54,16 @@ import {
   createUserConfig,
   TEST_NUMERIC_CHANGE_ID,
   TEST_PROJECT_NAME,
-  getCurrentRevision,
   createEditRevision,
   createAccountWithIdNameAndEmail,
+  createChangeViewChange,
+  createRelatedChangeAndCommitInfo,
 } from '../../../test/test-data-generators';
 import {ChangeViewPatchRange, GrChangeView} from './gr-change-view';
 import {
   AccountId,
   ApprovalInfo,
+  BasePatchSetNum,
   ChangeId,
   ChangeInfo,
   CommitId,
@@ -72,10 +74,11 @@ import {
   GitRef,
   NumericChangeId,
   ParentPatchSetNum,
-  ParsedJSON,
   PatchRange,
   PatchSetNum,
+  RelatedChangeAndCommitInfo,
   RevisionInfo,
+  RevisionPatchSetNum,
   RobotId,
   Timestamp,
   UrlEncodedCommentId,
@@ -86,12 +89,8 @@ import {
 } from '@polymer/iron-test-helpers/mock-interactions';
 import {GrEditControls} from '../../edit/gr-edit-controls/gr-edit-controls';
 import {AppElementChangeViewParams} from '../../gr-app-types';
-import {
-  SinonFakeTimers,
-  SinonSpy,
-  SinonStubbedMember,
-} from 'sinon/pkg/sinon-esm';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {SinonFakeTimers, SinonStubbedMember} from 'sinon/pkg/sinon-esm';
+import {RestApiService} from '../../../services/gr-rest-api/gr-rest-api';
 import {CustomKeyboardEvent} from '../../../types/events';
 import {
   CommentThread,
@@ -99,22 +98,21 @@ import {
   UIDraft,
   UIRobot,
 } from '../../../utils/comment-util';
-import 'lodash/lodash';
-import {ParsedChangeInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
 import {ChangeComments} from '../../diff/gr-comment-api/gr-comment-api';
+import {GerritView} from '../../../services/router/router-model';
+import {ParsedChangeInfo} from '../../../types/types';
+import {GrRelatedChangesList} from '../gr-related-changes-list/gr-related-changes-list';
+import {appContext} from '../../../services/app-context';
 
 const pluginApi = _testOnly_initGerritPluginApi();
 const fixture = fixtureFromElement('gr-change-view');
 
-type SinonSpyMember<F extends (...args: any) => any> = SinonSpy<
-  Parameters<F>,
-  ReturnType<F>
->;
-
 suite('gr-change-view tests', () => {
   let element: GrChangeView;
 
-  let navigateToChangeStub: SinonStubbedMember<typeof GerritNav.navigateToChange>;
+  let navigateToChangeStub: SinonStubbedMember<
+    typeof GerritNav.navigateToChange
+  >;
 
   suiteSetup(() => {
     const kb = TestKeyboardShortcutBinder.push();
@@ -144,7 +142,7 @@ suite('gr-change-view tests', () => {
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -159,7 +157,7 @@ suite('gr-change-view tests', () => {
           unresolved: true,
         },
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -186,15 +184,16 @@ suite('gr-change-view tests', () => {
           patch_set: 2 as PatchSetNum,
         },
       ],
-      patchNum: 4 as PatchSetNum,
+      patchNum: 4 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 5,
       rootId: 'ecf0b9fa_fe1a5f62' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -209,7 +208,7 @@ suite('gr-change-view tests', () => {
           unresolved: true,
         },
         {
-          __path: 'test.txt',
+          path: 'test.txt',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -231,7 +230,7 @@ suite('gr-change-view tests', () => {
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -245,15 +244,16 @@ suite('gr-change-view tests', () => {
           unresolved: true,
         },
       ],
-      patchNum: 2 as PatchSetNum,
+      patchNum: 2 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 4,
       rootId: '8caddf38_44770ec1' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -267,10 +267,11 @@ suite('gr-change-view tests', () => {
           unresolved: true,
         },
       ],
-      patchNum: 2 as PatchSetNum,
+      patchNum: 2 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 4,
       rootId: 'scaddf38_44770ec1' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
     {
       comments: [
@@ -287,15 +288,16 @@ suite('gr-change-view tests', () => {
           patch_set: 2 as PatchSetNum,
         },
       ],
-      patchNum: 4 as PatchSetNum,
+      patchNum: 4 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 6,
       rootId: 'zcf0b9fa_fe1a5f62' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -310,15 +312,16 @@ suite('gr-change-view tests', () => {
           robot_id: 'rc1' as RobotId,
         },
       ],
-      patchNum: 4 as PatchSetNum,
+      patchNum: 4 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 5,
       rootId: 'rc1' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
     {
       comments: [
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -333,7 +336,7 @@ suite('gr-change-view tests', () => {
           robot_id: 'rc2' as RobotId,
         },
         {
-          __path: '/COMMIT_MSG',
+          path: '/COMMIT_MSG',
           author: {
             _account_id: 1000000 as AccountId,
             name: 'user',
@@ -347,10 +350,11 @@ suite('gr-change-view tests', () => {
           unresolved: true,
         },
       ],
-      patchNum: 4 as PatchSetNum,
+      patchNum: 4 as RevisionPatchSetNum,
       path: '/COMMIT_MSG',
       line: 5,
       rootId: 'rc2' as UrlEncodedCommentId,
+      commentSide: CommentSide.REVISION,
     },
   ];
 
@@ -359,29 +363,19 @@ suite('gr-change-view tests', () => {
     _testOnly_resetEndpoints();
     navigateToChangeStub = sinon.stub(GerritNav, 'navigateToChange');
 
-    function getCommentsStub() {
-      return Promise.resolve({});
-    }
-    stub('gr-rest-api-interface', {
-      getConfig() {
-        return Promise.resolve({
-          ...createServerInfo(),
-          user: {
-            ...createUserConfig(),
-            anonymous_coward_name: 'test coward name',
-          },
-        });
-      },
-      getAccount() {
-        return Promise.resolve(undefined);
-      },
-      getDiffComments: (getCommentsStub as unknown) as RestApiService['getDiffComments'],
-      getDiffRobotComments: (getCommentsStub as unknown) as RestApiService['getDiffRobotComments'],
-      getDiffDrafts: (getCommentsStub as unknown) as RestApiService['getDiffDrafts'],
-      _fetchSharedCacheURL() {
-        return Promise.resolve({} as ParsedJSON);
-      },
-    });
+    stubRestApi('getConfig').returns(
+      Promise.resolve({
+        ...createServerInfo(),
+        user: {
+          ...createUserConfig(),
+          anonymous_coward_name: 'test coward name',
+        },
+      })
+    );
+    stubRestApi('getAccount').returns(Promise.resolve(undefined));
+    stubRestApi('getDiffComments').returns(Promise.resolve({}));
+    stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+    stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
     element = fixture.instantiate();
     element._changeNum = 1 as NumericChangeId;
     sinon.stub(element.$.actions, 'reload').returns(Promise.resolve());
@@ -398,7 +392,7 @@ suite('gr-change-view tests', () => {
         );
       },
       '0.1',
-      'http://some/plugins/url.html'
+      'http://some/plugins/url.js'
     );
   });
 
@@ -408,16 +402,13 @@ suite('gr-change-view tests', () => {
     });
   });
 
-  const getCustomCssValue = (cssParam: string) =>
-    getComputedStyleValue(cssParam, element);
-
   test('_handleMessageAnchorTap', () => {
     element._changeNum = 1 as NumericChangeId;
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 1 as PatchSetNum,
+      patchNum: 1 as RevisionPatchSetNum,
     };
-    element._change = createChange();
+    element._change = createChangeViewChange();
     const getUrlStub = sinon.stub(GerritNav, 'getUrlForChange');
     const replaceStateStub = sinon.stub(history, 'replaceState');
     element._handleMessageAnchorTap(
@@ -430,12 +421,12 @@ suite('gr-change-view tests', () => {
 
   test('_handleDiffAgainstBase', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: createRevisions(10),
     };
     element._patchRange = {
-      patchNum: 3 as PatchSetNum,
-      basePatchNum: 1 as PatchSetNum,
+      patchNum: 3 as RevisionPatchSetNum,
+      basePatchNum: 1 as BasePatchSetNum,
     };
     sinon.stub(element, 'shouldSuppressKeyboardShortcut').returns(false);
     element._handleDiffAgainstBase(new CustomEvent('') as CustomKeyboardEvent);
@@ -447,12 +438,12 @@ suite('gr-change-view tests', () => {
 
   test('_handleDiffAgainstLatest', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: createRevisions(10),
     };
     element._patchRange = {
-      basePatchNum: 1 as PatchSetNum,
-      patchNum: 3 as PatchSetNum,
+      basePatchNum: 1 as BasePatchSetNum,
+      patchNum: 3 as RevisionPatchSetNum,
     };
     sinon.stub(element, 'shouldSuppressKeyboardShortcut').returns(false);
     element._handleDiffAgainstLatest(
@@ -467,12 +458,12 @@ suite('gr-change-view tests', () => {
 
   test('_handleDiffBaseAgainstLeft', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: createRevisions(10),
     };
     element._patchRange = {
-      patchNum: 3 as PatchSetNum,
-      basePatchNum: 1 as PatchSetNum,
+      patchNum: 3 as RevisionPatchSetNum,
+      basePatchNum: 1 as BasePatchSetNum,
     };
     sinon.stub(element, 'shouldSuppressKeyboardShortcut').returns(false);
     element._handleDiffBaseAgainstLeft(
@@ -486,12 +477,12 @@ suite('gr-change-view tests', () => {
 
   test('_handleDiffRightAgainstLatest', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: createRevisions(10),
     };
     element._patchRange = {
-      basePatchNum: 1 as PatchSetNum,
-      patchNum: 3 as PatchSetNum,
+      basePatchNum: 1 as BasePatchSetNum,
+      patchNum: 3 as RevisionPatchSetNum,
     };
     sinon.stub(element, 'shouldSuppressKeyboardShortcut').returns(false);
     element._handleDiffRightAgainstLatest(
@@ -505,12 +496,12 @@ suite('gr-change-view tests', () => {
 
   test('_handleDiffBaseAgainstLatest', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: createRevisions(10),
     };
     element._patchRange = {
-      basePatchNum: 1 as PatchSetNum,
-      patchNum: 3 as PatchSetNum,
+      basePatchNum: 1 as BasePatchSetNum,
+      patchNum: 3 as RevisionPatchSetNum,
     };
     sinon.stub(element, 'shouldSuppressKeyboardShortcut').returns(false);
     element._handleDiffBaseAgainstLatest(
@@ -693,14 +684,14 @@ suite('gr-change-view tests', () => {
     test('A toggles overlay when logged in', done => {
       sinon.stub(element, '_getLoggedIn').returns(Promise.resolve(true));
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: createRevisions(1),
         messages: createChangeMessages(1),
       };
       element._change.labels = {};
-      sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
+      stubRestApi('getChangeDetail').callsFake(() =>
         Promise.resolve({
-          ...createChange(),
+          ...createChangeViewChange(),
           // element has latest info
           revisions: createRevisions(1),
           messages: createChangeMessages(1),
@@ -730,7 +721,7 @@ suite('gr-change-view tests', () => {
       element._loggedIn = true;
       element._loading = false;
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         labels: {},
         actions: {
           abandon: {
@@ -757,7 +748,7 @@ suite('gr-change-view tests', () => {
       element._loggedIn = true;
       element._loading = false;
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         labels: {},
         actions: {
           abandon: {
@@ -841,10 +832,10 @@ suite('gr-change-view tests', () => {
       element._changeNum = TEST_NUMERIC_CHANGE_ID;
       element._patchRange = {
         basePatchNum: ParentPatchSetNum,
-        patchNum: 1 as PatchSetNum,
+        patchNum: 1 as RevisionPatchSetNum,
       };
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {
           rev1: createRevision(),
         },
@@ -909,7 +900,9 @@ suite('gr-change-view tests', () => {
   });
 
   suite('reloading drafts', () => {
-    let reloadStub: SinonStubbedMember<typeof element.$.commentAPI.reloadDrafts>;
+    let reloadStub: SinonStubbedMember<
+      typeof element.$.commentAPI.reloadDrafts
+    >;
     const drafts: {[path: string]: UIDraft[]} = {
       'testfile.txt': [
         {
@@ -965,7 +958,7 @@ suite('gr-change-view tests', () => {
   suite('_recomputeComments', () => {
     setup(() => {
       element._changeNum = TEST_NUMERIC_CHANGE_ID;
-      element._change = createChange();
+      element._change = createChangeViewChange();
       flush();
       // Fake computeDraftCount as its required for ChangeComments,
       // see gr-comment-api#reloadDrafts.
@@ -976,7 +969,7 @@ suite('gr-change-view tests', () => {
           computeDraftCount: () => 0,
         } as ChangeComments)
       );
-      element._change = createChange();
+      element._change = createChangeViewChange();
       element._changeNum = element._change._number;
     });
 
@@ -1084,10 +1077,10 @@ suite('gr-change-view tests', () => {
       element._changeNum = TEST_NUMERIC_CHANGE_ID;
       element._patchRange = {
         basePatchNum: ParentPatchSetNum,
-        patchNum: 1 as PatchSetNum,
+        patchNum: 1 as RevisionPatchSetNum,
       };
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {
           rev2: createRevision(2),
           rev1: createRevision(1),
@@ -1105,7 +1098,10 @@ suite('gr-change-view tests', () => {
           },
         },
       };
-      sinon.stub(element.$.relatedChanges, 'reload');
+      const relatedChanges = element.shadowRoot!.querySelector(
+        '#relatedChanges'
+      ) as GrRelatedChangesList;
+      sinon.stub(relatedChanges, 'reload');
       sinon.stub(element, '_reload').returns(Promise.resolve([]));
       sinon.spy(element, '_paramsChanged');
       element.params = createAppElementChangeViewParams();
@@ -1116,7 +1112,7 @@ suite('gr-change-view tests', () => {
     setup(done => {
       element._changeNum = TEST_NUMERIC_CHANGE_ID;
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {
           rev2: createRevision(2),
           rev1: createRevision(1),
@@ -1240,7 +1236,7 @@ suite('gr-change-view tests', () => {
   test('_changeStatuses', () => {
     element._loading = false;
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: {
         rev2: createRevision(2),
         rev1: createRevision(1),
@@ -1262,7 +1258,6 @@ suite('gr-change-view tests', () => {
     element._mergeable = true;
     const expectedStatuses = ['Merged', 'WIP'];
     assert.deepEqual(element._changeStatuses, expectedStatuses);
-    assert.equal(element._changeStatus, expectedStatuses.join(', '));
     flush();
     const statusChips = element.shadowRoot!.querySelectorAll(
       'gr-change-status'
@@ -1311,10 +1306,10 @@ suite('gr-change-view tests', () => {
     element._changeNum = TEST_NUMERIC_CHANGE_ID;
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 1 as PatchSetNum,
+      patchNum: 1 as RevisionPatchSetNum,
     };
     const change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       owner: createAccountWithIdNameAndEmail(),
       revisions: {
         rev2: createRevision(2),
@@ -1373,7 +1368,7 @@ suite('gr-change-view tests', () => {
   test('comment events properly update diff drafts', () => {
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 2 as PatchSetNum,
+      patchNum: 2 as RevisionPatchSetNum,
     };
     const draft: DraftInfo = {
       __draft: true,
@@ -1413,15 +1408,17 @@ suite('gr-change-view tests', () => {
   });
 
   test('change num change', () => {
+    const change = {
+      ...createChangeViewChange(),
+      labels: {},
+    } as ParsedChangeInfo;
+    stubRestApi('getChangeDetail').returns(Promise.resolve(change));
     element._changeNum = undefined;
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 2 as PatchSetNum,
+      patchNum: 2 as RevisionPatchSetNum,
     };
-    element._change = {
-      ...createChange(),
-      labels: {},
-    };
+    element._change = change;
     element.viewState.changeNum = null;
     element.viewState.diffMode = DiffViewMode.UNIFIED;
     assert.equal(element.viewState.numFilesShown, 200);
@@ -1467,9 +1464,7 @@ suite('gr-change-view tests', () => {
   });
 
   test('diffMode defaults to side by side without preferences', done => {
-    sinon
-      .stub(element.$.restAPI, 'getPreferences')
-      .returns(Promise.resolve(createPreferences()));
+    stubRestApi('getPreferences').returns(Promise.resolve(createPreferences()));
     // No user prefs or diff view mode set.
 
     element._setDiffViewMode()!.then(() => {
@@ -1479,7 +1474,7 @@ suite('gr-change-view tests', () => {
   });
 
   test('diffMode defaults to preference when not already set', done => {
-    sinon.stub(element.$.restAPI, 'getPreferences').returns(
+    stubRestApi('getPreferences').returns(
       Promise.resolve({
         ...createPreferences(),
         default_diff_view: DiffViewMode.UNIFIED,
@@ -1494,7 +1489,7 @@ suite('gr-change-view tests', () => {
 
   test('existing diffMode overrides preference', done => {
     element.viewState.diffMode = DiffViewMode.SIDE_BY_SIDE;
-    sinon.stub(element.$.restAPI, 'getPreferences').returns(
+    stubRestApi('getPreferences').returns(
       Promise.resolve({
         ...createPreferences(),
         default_diff_view: DiffViewMode.UNIFIED,
@@ -1512,28 +1507,52 @@ suite('gr-change-view tests', () => {
       .callsFake(() => Promise.resolve([]));
     const reloadPatchDependentStub = sinon
       .stub(element, '_reloadPatchNumDependentResources')
-      .callsFake(() => Promise.resolve([undefined, undefined]));
-    const relatedClearSpy = sinon.spy(element.$.relatedChanges, 'clear');
+      .callsFake(() => Promise.resolve([undefined, undefined, undefined]));
+    flush();
     const collapseStub = sinon.stub(element.$.fileList, 'collapseAllDiffs');
 
     const value: AppElementChangeViewParams = {
       ...createAppElementChangeViewParams(),
       view: GerritView.CHANGE,
-      patchNum: 1 as PatchSetNum,
+      patchNum: 1 as RevisionPatchSetNum,
     };
     element._paramsChanged(value);
     assert.isTrue(reloadStub.calledOnce);
-    assert.isTrue(relatedClearSpy.calledOnce);
 
     element._initialLoadComplete = true;
 
-    value.basePatchNum = 1 as PatchSetNum;
-    value.patchNum = 2 as PatchSetNum;
+    value.basePatchNum = 1 as BasePatchSetNum;
+    value.patchNum = 2 as RevisionPatchSetNum;
     element._paramsChanged(value);
     assert.isFalse(reloadStub.calledTwice);
     assert.isTrue(reloadPatchDependentStub.calledOnce);
-    assert.isTrue(relatedClearSpy.calledOnce);
     assert.isTrue(collapseStub.calledTwice);
+  });
+
+  test('reload ported comments when patchNum changes', () => {
+    sinon.stub(element, '_reload').callsFake(() => Promise.resolve([]));
+    sinon.stub(element, '_getCommitInfo');
+    sinon.stub(element.$.fileList, 'reload');
+    flush();
+    const reloadPortedCommentsStub = sinon.stub(
+      element.$.commentAPI,
+      'reloadPortedComments'
+    );
+    sinon.stub(element.$.fileList, 'collapseAllDiffs');
+
+    const value: AppElementChangeViewParams = {
+      ...createAppElementChangeViewParams(),
+      view: GerritView.CHANGE,
+      patchNum: 1 as RevisionPatchSetNum,
+    };
+    element._paramsChanged(value);
+
+    element._initialLoadComplete = true;
+
+    value.basePatchNum = 1 as BasePatchSetNum;
+    value.patchNum = 2 as RevisionPatchSetNum;
+    element._paramsChanged(value);
+    assert.isTrue(reloadPortedCommentsStub.calledOnce);
   });
 
   test('reload entire page when patchRange doesnt change', () => {
@@ -1552,36 +1571,20 @@ suite('gr-change-view tests', () => {
 
   test('related changes are not updated after other action', done => {
     sinon.stub(element, '_reload').callsFake(() => Promise.resolve([]));
-    sinon.stub(element.$.relatedChanges, 'reload');
+    flush();
+    const relatedChanges = element.shadowRoot!.querySelector(
+      '#relatedChanges'
+    ) as GrRelatedChangesList;
+    sinon.stub(relatedChanges, 'reload');
     element._reload(true).then(() => {
       assert.isFalse(navigateToChangeStub.called);
       done();
     });
   });
 
-  test('_computeMergedCommitInfo', () => {
-    const dummyRevs: {[revisionId: string]: RevisionInfo} = {
-      1: createRevision(1),
-      2: createRevision(2),
-    };
-    assert.deepEqual(
-      element._computeMergedCommitInfo('0' as CommitId, dummyRevs),
-      {}
-    );
-    assert.deepEqual(
-      element._computeMergedCommitInfo('1' as CommitId, dummyRevs),
-      dummyRevs[1].commit
-    );
-
-    // Regression test for issue 5337.
-    const commit = element._computeMergedCommitInfo('2' as CommitId, dummyRevs);
-    assert.notDeepEqual(commit, dummyRevs[2]);
-    assert.deepEqual(commit, dummyRevs[2].commit);
-  });
-
   test('_computeCopyTextForTitle', () => {
     const change: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       _number: 123 as NumericChangeId,
       subject: 'test subject',
       revisions: {
@@ -1612,6 +1615,7 @@ suite('gr-change-view tests', () => {
       revisions: {
         rev1: createRevision(1),
       },
+      current_revision: undefined,
     };
     assert.equal(element._getLatestRevisionSHA(change), 'rev1');
   });
@@ -1619,7 +1623,7 @@ suite('gr-change-view tests', () => {
   test('show commit message edit button', () => {
     const change = createChange();
     const mergedChanged: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       status: ChangeStatus.MERGED,
     };
     assert.isTrue(element._computeHideEditCommitMessage(false, false, change));
@@ -1638,15 +1642,14 @@ suite('gr-change-view tests', () => {
   });
 
   test('_handleCommitMessageSave trims trailing whitespace', () => {
-    element._change = createChange();
+    element._change = createChangeViewChange();
     // Response code is 500, because we want to avoid window reloading
-    const putStub = sinon
-      .stub(element.$.restAPI, 'putChangeCommitMessage')
-      .returns(Promise.resolve(new Response(null, {status: 500})));
+    const putStub = stubRestApi('putChangeCommitMessage').returns(
+      Promise.resolve(new Response(null, {status: 500}))
+    );
 
-    const mockEvent = (content: string) => {
-      return new CustomEvent('', {detail: {content}});
-    };
+    const mockEvent = (content: string) =>
+      new CustomEvent('', {detail: {content}});
 
     element._handleCommitMessageSave(mockEvent('test \n  test '));
     assert.equal(putStub.lastCall.args[1], 'test\n  test');
@@ -1661,7 +1664,7 @@ suite('gr-change-view tests', () => {
   test('_computeChangeIdCommitMessageError', () => {
     let commitMessage = 'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483';
     let change: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
     };
     assert.equal(
@@ -1670,7 +1673,7 @@ suite('gr-change-view tests', () => {
     );
 
     change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
     };
     assert.equal(
@@ -1691,7 +1694,7 @@ suite('gr-change-view tests', () => {
       'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483',
     ].join('\n');
     let change: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
     };
     assert.equal(
@@ -1699,7 +1702,7 @@ suite('gr-change-view tests', () => {
       null
     );
     change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
     };
     assert.equal(
@@ -1714,7 +1717,7 @@ suite('gr-change-view tests', () => {
       'Change-Id: I4ce18b2395bca69d7a9aa48bf4554faa56282483',
     ].join(' and ');
     let change: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282484' as ChangeId,
     };
     assert.equal(
@@ -1722,7 +1725,7 @@ suite('gr-change-view tests', () => {
       null
     );
     change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       change_id: 'I4ce18b2395bca69d7a9aa48bf4554faa56282483' as ChangeId,
     };
     assert.equal(
@@ -1758,9 +1761,9 @@ suite('gr-change-view tests', () => {
 
   test('topic is coalesced to null', done => {
     sinon.stub(element, '_changeChanged');
-    sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
+    stubRestApi('getChangeDetail').returns(
       Promise.resolve({
-        ...createChange(),
+        ...createChangeViewChange(),
         labels: {},
         current_revision: 'foo' as CommitId,
         revisions: {foo: createRevision()},
@@ -1775,9 +1778,9 @@ suite('gr-change-view tests', () => {
 
   test('commit sha is populated from getChangeDetail', done => {
     sinon.stub(element, '_changeChanged');
-    sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
+    stubRestApi('getChangeDetail').callsFake(() =>
       Promise.resolve({
-        ...createChange(),
+        ...createChangeViewChange(),
         labels: {},
         current_revision: 'foo' as CommitId,
         revisions: {foo: createRevision()},
@@ -1793,9 +1796,9 @@ suite('gr-change-view tests', () => {
   test('edit is added to change', () => {
     sinon.stub(element, '_changeChanged');
     const changeRevision = createRevision();
-    sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
+    stubRestApi('getChangeDetail').callsFake(() =>
       Promise.resolve({
-        ...createChange(),
+        ...createChangeViewChange(),
         labels: {},
         current_revision: 'foo' as CommitId,
         revisions: {foo: {...changeRevision}},
@@ -1807,7 +1810,7 @@ suite('gr-change-view tests', () => {
     };
     sinon.stub(element, '_getEdit').callsFake(() =>
       Promise.resolve({
-        base_patch_set_number: 1 as PatchSetNum,
+        base_patch_set_number: 1 as BasePatchSetNum,
         commit: {...editCommit},
         base_revision: 'abc',
         ref: 'some/ref' as GitRef,
@@ -1829,7 +1832,7 @@ suite('gr-change-view tests', () => {
 
   test('_getBasePatchNum', () => {
     const _change: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: {
         '98da160735fb81604b4c40e93c368f380539dd0e': createRevision(),
       },
@@ -1845,7 +1848,7 @@ suite('gr-change-view tests', () => {
     };
 
     const _change2: ChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: {
         '98da160735fb81604b4c40e93c368f380539dd0e': {
           ...createRevision(1),
@@ -1867,7 +1870,7 @@ suite('gr-change-view tests', () => {
     };
     assert.equal(element._getBasePatchNum(_change2, _patchRange), -1);
 
-    _patchRange.patchNum = 1 as PatchSetNum;
+    _patchRange.patchNum = 1 as RevisionPatchSetNum;
     assert.equal(element._getBasePatchNum(_change2, _patchRange), 'PARENT');
   });
 
@@ -1950,19 +1953,16 @@ suite('gr-change-view tests', () => {
   });
 
   test('revert dialog opened with revert param', done => {
-    sinon
-      .stub(element.$.restAPI, 'getLoggedIn')
-      .callsFake(() => Promise.resolve(true));
     const awaitPluginsLoadedStub = sinon
       .stub(getPluginLoader(), 'awaitPluginsLoaded')
       .callsFake(() => Promise.resolve());
 
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 2 as PatchSetNum,
+      patchNum: 2 as RevisionPatchSetNum,
     };
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       revisions: {
         rev1: createRevision(1),
         rev2: createRevision(2),
@@ -1987,14 +1987,14 @@ suite('gr-change-view tests', () => {
   suite('scroll related tests', () => {
     test('document scrolling calls function to set scroll height', done => {
       const originalHeight = document.body.scrollHeight;
-      const scrollStub = sinon.stub(element, '_handleScroll').callsFake(() => {
+      const scrollStub = sinon.stub(element, 'handleScroll').callsFake(() => {
         assert.isTrue(scrollStub.called);
         document.body.style.height = `${originalHeight}px`;
         scrollStub.restore();
         done();
       });
       document.body.style.height = '10000px';
-      element._handleScroll();
+      element.handleScroll();
     });
 
     test('scrollTop is set correctly', () => {
@@ -2023,14 +2023,14 @@ suite('gr-change-view tests', () => {
     setup(() => {
       sinon.stub(element.$.replyDialog, '_draftChanged');
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: createRevisions(1),
         messages: createChangeMessages(1),
       };
       element._change.labels = {};
-      sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
+      stubRestApi('getChangeDetail').callsFake(() =>
         Promise.resolve({
-          ...createChange(),
+          ...createChangeViewChange(),
           // element has latest info
           revisions: {rev1: createRevision()},
           messages: createChangeMessages(1),
@@ -2112,353 +2112,6 @@ suite('gr-change-view tests', () => {
     });
   });
 
-  suite('commit message expand/collapse', () => {
-    setup(() => {
-      element._change = {
-        ...createChange(),
-        revisions: createRevisions(1),
-        messages: createChangeMessages(1),
-      };
-      element._change.labels = {};
-      sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
-        Promise.resolve({
-          ...createChange(),
-          // new patchset was uploaded
-          revisions: createRevisions(2),
-          current_revision: getCurrentRevision(2),
-          messages: createChangeMessages(1),
-        })
-      );
-    });
-
-    test('commitCollapseToggle hidden for short commit message', () => {
-      element._latestCommitMessage = '';
-      assert.isTrue(element.$.commitCollapseToggle.hasAttribute('hidden'));
-    });
-
-    test('commitCollapseToggle shown for long commit message', () => {
-      element._latestCommitMessage = _.times(31, String).join('\n');
-      assert.isFalse(element.$.commitCollapseToggle.hasAttribute('hidden'));
-    });
-
-    test('commitCollapseToggle functions', () => {
-      element._latestCommitMessage = _.times(35, String).join('\n');
-      assert.isTrue(element._commitCollapsed);
-      assert.isTrue(element._commitCollapsible);
-      assert.isTrue(element.$.commitMessageEditor.hasAttribute('collapsed'));
-      tap(element.$.commitCollapseToggleButton);
-      assert.isFalse(element._commitCollapsed);
-      assert.isTrue(element._commitCollapsible);
-      assert.isFalse(element.$.commitMessageEditor.hasAttribute('collapsed'));
-    });
-  });
-
-  suite('related changes expand/collapse', () => {
-    let updateHeightSpy: SinonSpyMember<typeof element._updateRelatedChangeMaxHeight>;
-    setup(() => {
-      updateHeightSpy = sinon.spy(element, '_updateRelatedChangeMaxHeight');
-    });
-
-    test('relatedChangesToggle shown height greater than changeInfo height', () => {
-      assert.isFalse(
-        element.$.relatedChangesToggle.classList.contains('showToggle')
-      );
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getScrollHeight').callsFake(() => 60);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 5);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: true} as MediaQueryList;
-      });
-      element.$.relatedChanges.dispatchEvent(
-        new CustomEvent('new-section-loaded')
-      );
-      assert.isTrue(
-        element.$.relatedChangesToggle.classList.contains('showToggle')
-      );
-      assert.equal(updateHeightSpy.callCount, 1);
-    });
-
-    test('relatedChangesToggle hidden height less than changeInfo height', () => {
-      assert.isFalse(
-        element.$.relatedChangesToggle.classList.contains('showToggle')
-      );
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getScrollHeight').callsFake(() => 40);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 5);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: true} as MediaQueryList;
-      });
-      element.$.relatedChanges.dispatchEvent(
-        new CustomEvent('new-section-loaded')
-      );
-      assert.isFalse(
-        element.$.relatedChangesToggle.classList.contains('showToggle')
-      );
-      assert.equal(updateHeightSpy.callCount, 1);
-    });
-
-    test('relatedChangesToggle functions', () => {
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: false} as MediaQueryList;
-      });
-      assert.isTrue(element._relatedChangesCollapsed);
-      assert.isTrue(element.$.relatedChanges.classList.contains('collapsed'));
-      tap(element.$.relatedChangesToggleButton);
-      assert.isFalse(element._relatedChangesCollapsed);
-      assert.isFalse(element.$.relatedChanges.classList.contains('collapsed'));
-    });
-
-    test('_updateRelatedChangeMaxHeight without commit toggle', () => {
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 12);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: false} as MediaQueryList;
-      });
-
-      // 50 (existing height) - 30 (extra height) = 20 (adjusted height).
-      // 20 (max existing height)  % 12 (line height) = 6 (remainder).
-      // 20 (adjusted height) - 8 (remainder) = 12 (max height to set).
-
-      element._updateRelatedChangeMaxHeight();
-      assert.equal(getCustomCssValue('--relation-chain-max-height'), '12px');
-      assert.equal(getCustomCssValue('--related-change-btn-top-padding'), '');
-    });
-
-    test('_updateRelatedChangeMaxHeight with commit toggle', () => {
-      element._latestCommitMessage = _.times(31, String).join('\n');
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 12);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: false} as MediaQueryList;
-      });
-
-      // 50 (existing height) % 12 (line height) = 2 (remainder).
-      // 50 (existing height)  - 2 (remainder) = 48 (max height to set).
-
-      element._updateRelatedChangeMaxHeight();
-      assert.equal(getCustomCssValue('--relation-chain-max-height'), '48px');
-      assert.equal(
-        getCustomCssValue('--related-change-btn-top-padding'),
-        '2px'
-      );
-    });
-
-    test('_updateRelatedChangeMaxHeight in small screen mode', () => {
-      element._latestCommitMessage = _.times(31, String).join('\n');
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 12);
-      sinon.stub(window, 'matchMedia').callsFake(() => {
-        return {matches: true} as MediaQueryList;
-      });
-
-      element._updateRelatedChangeMaxHeight();
-
-      // 400 (new height) % 12 (line height) = 4 (remainder).
-      // 400 (new height) - 4 (remainder) = 396.
-
-      assert.equal(getCustomCssValue('--relation-chain-max-height'), '396px');
-    });
-
-    test('_updateRelatedChangeMaxHeight in medium screen mode', () => {
-      element._latestCommitMessage = _.times(31, String).join('\n');
-      sinon.stub(element, '_getOffsetHeight').callsFake(() => 50);
-      sinon.stub(element, '_getLineHeight').callsFake(() => 12);
-      const matchMediaStub = sinon.stub(window, 'matchMedia').callsFake(() => {
-        if (matchMediaStub.lastCall.args[0] === '(max-width: 75em)') {
-          return {matches: true} as MediaQueryList;
-        } else {
-          return {matches: false} as MediaQueryList;
-        }
-      });
-
-      // 100 (new height) % 12 (line height) = 4 (remainder).
-      // 100 (new height) - 4 (remainder) = 96.
-      element._updateRelatedChangeMaxHeight();
-      assert.equal(getCustomCssValue('--relation-chain-max-height'), '96px');
-    });
-
-    suite('update checks', () => {
-      let startUpdateCheckTimerSpy: SinonSpyMember<typeof element._startUpdateCheckTimer>;
-      let asyncStub: SinonStubbedMember<typeof element.async>;
-      setup(() => {
-        startUpdateCheckTimerSpy = sinon.spy(element, '_startUpdateCheckTimer');
-        asyncStub = sinon.stub(element, 'async').callsFake(f => {
-          // Only fire the async callback one time.
-          if (asyncStub.callCount > 1) {
-            return 1;
-          }
-          f.call(element);
-          return 1;
-        });
-        element._change = {
-          ...createChange(),
-          revisions: createRevisions(1),
-          messages: createChangeMessages(1),
-        };
-      });
-
-      test('_startUpdateCheckTimer negative delay', () => {
-        const getChangeDetailStub = sinon
-          .stub(element.$.restAPI, 'getChangeDetail')
-          .callsFake(() =>
-            Promise.resolve({
-              ...createChange(),
-              // element has latest info
-              revisions: {rev1: createRevision()},
-              messages: createChangeMessages(1),
-              current_revision: 'rev1' as CommitId,
-            })
-          );
-
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: -1},
-        };
-
-        assert.isTrue(startUpdateCheckTimerSpy.called);
-        assert.isFalse(getChangeDetailStub.called);
-      });
-
-      test('_startUpdateCheckTimer up-to-date', async () => {
-        const getChangeDetailStub = sinon
-          .stub(element.$.restAPI, 'getChangeDetail')
-          .callsFake(() =>
-            Promise.resolve({
-              ...createChange(),
-              // element has latest info
-              revisions: {rev1: createRevision()},
-              messages: createChangeMessages(1),
-              current_revision: 'rev1' as CommitId,
-            })
-          );
-
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: 12345},
-        };
-        await flush();
-
-        assert.equal(startUpdateCheckTimerSpy.callCount, 2);
-        assert.isTrue(getChangeDetailStub.called);
-        assert.equal(asyncStub.lastCall.args[1], 12345 * 1000);
-      });
-
-      test('_startUpdateCheckTimer out-of-date shows an alert', done => {
-        sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
-          Promise.resolve({
-            ...createChange(),
-            // new patchset was uploaded
-            revisions: createRevisions(2),
-            current_revision: getCurrentRevision(2),
-            messages: createChangeMessages(1),
-          })
-        );
-
-        element.addEventListener('show-alert', e => {
-          assert.equal(e.detail.message, 'A newer patch set has been uploaded');
-          done();
-        });
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: 12345},
-        };
-
-        assert.equal(startUpdateCheckTimerSpy.callCount, 1);
-      });
-
-      test('_startUpdateCheckTimer respects _loading', async () => {
-        sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
-          Promise.resolve({
-            ...createChange(),
-            // new patchset was uploaded
-            revisions: createRevisions(2),
-            current_revision: getCurrentRevision(2),
-            messages: createChangeMessages(1),
-          })
-        );
-
-        element._loading = true;
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: 12345},
-        };
-        await flush();
-
-        // No toast, instead a second call to _startUpdateCheckTimer().
-        assert.equal(startUpdateCheckTimerSpy.callCount, 2);
-      });
-
-      test('_startUpdateCheckTimer new status shows an alert', done => {
-        sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
-          Promise.resolve({
-            ...createChange(),
-            // element has latest info
-            revisions: {rev1: createRevision()},
-            messages: createChangeMessages(1),
-            current_revision: 'rev1' as CommitId,
-            status: ChangeStatus.MERGED,
-          })
-        );
-
-        element.addEventListener('show-alert', e => {
-          assert.equal(e.detail.message, 'This change has been merged');
-          done();
-        });
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: 12345},
-        };
-      });
-
-      test('_startUpdateCheckTimer new messages shows an alert', done => {
-        sinon.stub(element.$.restAPI, 'getChangeDetail').callsFake(() =>
-          Promise.resolve({
-            ...createChange(),
-            revisions: {rev1: createRevision()},
-            // element has new message
-            messages: createChangeMessages(2),
-            current_revision: 'rev1' as CommitId,
-          })
-        );
-        element.addEventListener('show-alert', e => {
-          assert.equal(
-            e.detail.message,
-            'There are new messages on this change'
-          );
-          done();
-        });
-        element._serverConfig = {
-          ...createServerInfo(),
-          change: {...createChangeConfig(), update_delay: 12345},
-        };
-      });
-    });
-
-    test('canStartReview computation', () => {
-      const change1: ChangeInfo = createChange();
-      const change2: ChangeInfo = {
-        ...createChange(),
-        actions: {
-          ready: {
-            enabled: true,
-          },
-        },
-      };
-      const change3: ChangeInfo = {
-        ...createChange(),
-        actions: {
-          ready: {
-            label: 'Ready for Review',
-          },
-        },
-      };
-      assert.isFalse(element._computeCanStartReview(change1));
-      assert.isTrue(element._computeCanStartReview(change2));
-      assert.isFalse(element._computeCanStartReview(change3));
-    });
-  });
-
   test('header class computation', () => {
     assert.equal(element._computeHeaderClass(), 'header');
     assert.equal(element._computeHeaderClass(true), 'header editMode');
@@ -2480,7 +2133,11 @@ suite('gr-change-view tests', () => {
   });
 
   test('topic update reloads related changes', () => {
-    const reloadStub = sinon.stub(element.$.relatedChanges, 'reload');
+    flush();
+    const relatedChanges = element.shadowRoot!.querySelector(
+      '#relatedChanges'
+    ) as GrRelatedChangesList;
+    const reloadStub = sinon.stub(relatedChanges, 'reload');
     element.dispatchEvent(new CustomEvent('topic-changed'));
     assert.isTrue(reloadStub.calledOnce);
   });
@@ -2496,25 +2153,19 @@ suite('gr-change-view tests', () => {
       );
     assert.isTrue(
       callCompute(
-        {basePatchNum: ParentPatchSetNum, patchNum: 1 as PatchSetNum},
+        {basePatchNum: ParentPatchSetNum, patchNum: 1 as RevisionPatchSetNum},
         {...createAppElementChangeViewParams(), edit: true}
       )
     );
     assert.isFalse(
       callCompute(
-        {basePatchNum: ParentPatchSetNum, patchNum: 1 as PatchSetNum},
-        createAppElementChangeViewParams()
-      )
-    );
-    assert.isFalse(
-      callCompute(
-        {basePatchNum: EditPatchSetNum, patchNum: 1 as PatchSetNum},
+        {basePatchNum: ParentPatchSetNum, patchNum: 1 as RevisionPatchSetNum},
         createAppElementChangeViewParams()
       )
     );
     assert.isTrue(
       callCompute(
-        {basePatchNum: 1 as PatchSetNum, patchNum: EditPatchSetNum},
+        {basePatchNum: 1 as BasePatchSetNum, patchNum: EditPatchSetNum},
         createAppElementChangeViewParams()
       )
     );
@@ -2523,7 +2174,7 @@ suite('gr-change-view tests', () => {
   test('_processEdit', () => {
     element._patchRange = {};
     const change: ParsedChangeInfo = {
-      ...createChange(),
+      ...createChangeViewChange(),
       current_revision: 'foo' as CommitId,
       revisions: {
         foo: {...createRevision(), actions: {cherrypick: {enabled: true}}},
@@ -2544,7 +2195,7 @@ suite('gr-change-view tests', () => {
     const edit: EditInfo = {
       ref: 'ref/test/abc' as GitRef,
       base_revision: 'abc',
-      base_patch_set_number: 1 as PatchSetNum,
+      base_patch_set_number: 1 as BasePatchSetNum,
       commit: {...editCommit},
       fetch: {},
     };
@@ -2565,20 +2216,20 @@ suite('gr-change-view tests', () => {
     );
 
     // If _patchRange.patchNum is defined, do not load edit.
-    element._patchRange.patchNum = 5 as PatchSetNum;
+    element._patchRange.patchNum = 5 as RevisionPatchSetNum;
     change.current_revision = 'baz' as CommitId;
     element._processEdit((mockChange = _.cloneDeep(change)), edit);
-    assert.equal(element._patchRange.patchNum, 5 as PatchSetNum);
+    assert.equal(element._patchRange.patchNum, 5 as RevisionPatchSetNum);
     assert.notOk(mockChange.revisions.bar.actions);
   });
 
   test('file-action-tap handling', () => {
     element._patchRange = {
       basePatchNum: ParentPatchSetNum,
-      patchNum: 1 as PatchSetNum,
+      patchNum: 1 as RevisionPatchSetNum,
     };
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
     };
     const fileList = element.$.fileList;
     const Actions = GrEditConstants.Actions;
@@ -2654,9 +2305,9 @@ suite('gr-change-view tests', () => {
   test('_selectedRevision updates when patchNum is changed', () => {
     const revision1: RevisionInfo = createRevision(1);
     const revision2: RevisionInfo = createRevision(2);
-    sinon.stub(element.$.restAPI, 'getChangeDetail').returns(
+    stubRestApi('getChangeDetail').returns(
       Promise.resolve({
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {
           aaa: revision1,
           bbb: revision2,
@@ -2670,7 +2321,7 @@ suite('gr-change-view tests', () => {
     sinon
       .stub(element, '_getPreferences')
       .returns(Promise.resolve(createPreferences()));
-    element._patchRange = {patchNum: 2 as PatchSetNum};
+    element._patchRange = {patchNum: 2 as RevisionPatchSetNum};
     return element._getChangeDetail().then(() => {
       assert.strictEqual(element._selectedRevision, revision2);
 
@@ -2683,9 +2334,9 @@ suite('gr-change-view tests', () => {
     const revision1 = createRevision(1);
     const revision2 = createRevision(2);
     const revision3 = createEditRevision();
-    sinon.stub(element.$.restAPI, 'getChangeDetail').returns(
+    stubRestApi('getChangeDetail').returns(
       Promise.resolve({
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {
           aaa: revision1,
           bbb: revision2,
@@ -2707,11 +2358,11 @@ suite('gr-change-view tests', () => {
   });
 
   test('_sendShowChangeEvent', () => {
-    const change = {...createChange(), labels: {}};
+    const change = {...createChangeViewChange(), labels: {}};
     element._change = {...change};
-    element._patchRange = {patchNum: 4 as PatchSetNum};
+    element._patchRange = {patchNum: 4 as RevisionPatchSetNum};
     element._mergeable = true;
-    const showStub = sinon.stub(element.$.jsAPI, 'handleEvent');
+    const showStub = sinon.stub(appContext.jsApiService, 'handleEvent');
     element._sendShowChangeEvent();
     assert.isTrue(showStub.calledOnce);
     assert.equal(showStub.lastCall.args[0], EventType.SHOW_CHANGE);
@@ -2732,7 +2383,7 @@ suite('gr-change-view tests', () => {
       navigateToChangeStub.restore();
 
       element._change = {
-        ...createChange(),
+        ...createChangeViewChange(),
         revisions: {rev1: createRevision()},
       };
     });
@@ -2745,7 +2396,7 @@ suite('gr-change-view tests', () => {
       });
 
       element.set('_change.revisions.rev2', {
-        _number: SPECIAL_PATCH_SET_NUM.EDIT,
+        _number: EditPatchSetNum,
       });
       flush();
 
@@ -2761,7 +2412,7 @@ suite('gr-change-view tests', () => {
       });
 
       element.set('_change.revisions.rev2', {_number: 2});
-      element._patchRange = {patchNum: 1 as PatchSetNum};
+      element._patchRange = {patchNum: 1 as RevisionPatchSetNum};
       flush();
 
       fireEdit();
@@ -2777,7 +2428,7 @@ suite('gr-change-view tests', () => {
       });
 
       element.set('_change.revisions.rev2', {_number: 2});
-      element._patchRange = {patchNum: 2 as PatchSetNum};
+      element._patchRange = {patchNum: 2 as RevisionPatchSetNum};
       flush();
 
       fireEdit();
@@ -2786,7 +2437,7 @@ suite('gr-change-view tests', () => {
 
   test('_handleStopEditTap', done => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
     };
     sinon.stub(element.$.metadata, '_computeLabelNames');
     navigateToChangeStub.restore();
@@ -2796,7 +2447,7 @@ suite('gr-change-view tests', () => {
       done();
     });
 
-    element._patchRange = {patchNum: 1 as PatchSetNum};
+    element._patchRange = {patchNum: 1 as RevisionPatchSetNum};
     element.$.actions.dispatchEvent(
       new CustomEvent('stop-edit-tap', {bubbles: false})
     );
@@ -2804,7 +2455,7 @@ suite('gr-change-view tests', () => {
 
   suite('plugin endpoints', () => {
     test('endpoint params', done => {
-      element._change = {...createChange(), labels: {}};
+      element._change = {...createChangeViewChange(), labels: {}};
       element._selectedRevision = createRevision();
       let hookEl: HTMLElement;
       let plugin: PluginApi;
@@ -2817,7 +2468,7 @@ suite('gr-change-view tests', () => {
             .then(el => (hookEl = el));
         },
         '0.1',
-        'http://some/plugins/url.html'
+        'http://some/plugins/url.js'
       );
       flush(() => {
         assert.strictEqual((hookEl as any).plugin, plugin);
@@ -2831,10 +2482,10 @@ suite('gr-change-view tests', () => {
   suite('_getMergeability', () => {
     let getMergeableStub: SinonStubbedMember<RestApiService['getMergeable']>;
     setup(() => {
-      element._change = {...createChange(), labels: {}};
-      getMergeableStub = sinon
-        .stub(element.$.restAPI, 'getMergeable')
-        .returns(Promise.resolve({...createMergeable(), mergeable: true}));
+      element._change = {...createChangeViewChange(), labels: {}};
+      getMergeableStub = stubRestApi('getMergeable').returns(
+        Promise.resolve({...createMergeable(), mergeable: true})
+      );
     });
 
     test('merged change', () => {
@@ -2865,23 +2516,25 @@ suite('gr-change-view tests', () => {
   });
 
   test('_paramsChanged sets in projectLookup', () => {
-    sinon.stub(element.$.relatedChanges, 'reload');
+    flush();
+    const relatedChanges = element.shadowRoot!.querySelector(
+      '#relatedChanges'
+    ) as GrRelatedChangesList;
+    sinon.stub(relatedChanges, 'reload');
     sinon.stub(element, '_reload').returns(Promise.resolve([]));
-    const setStub = sinon.stub(element.$.restAPI, 'setInProjectLookup');
+    const setStub = stubRestApi('setInProjectLookup');
     element._paramsChanged({
       view: GerritNav.View.CHANGE,
       changeNum: 101 as NumericChangeId,
       project: TEST_PROJECT_NAME,
     });
     assert.isTrue(setStub.calledOnce);
-    assert.isTrue(
-      setStub.calledWith(101 as NumericChangeId, TEST_PROJECT_NAME)
-    );
+    assert.isTrue(setStub.calledWith(101 as never, TEST_PROJECT_NAME as never));
   });
 
   test('_handleToggleStar called when star is tapped', () => {
     element._change = {
-      ...createChange(),
+      ...createChangeViewChange(),
       owner: {_account_id: 1 as AccountId},
       starred: false,
     };
@@ -2897,22 +2550,25 @@ suite('gr-change-view tests', () => {
     setup(() => {
       element._patchRange = {
         basePatchNum: ParentPatchSetNum,
-        patchNum: 1 as PatchSetNum,
+        patchNum: 1 as RevisionPatchSetNum,
       };
       sinon.stub(element, '_getChangeDetail').returns(Promise.resolve(false));
       sinon.stub(element, '_getProjectConfig').returns(Promise.resolve());
       sinon.stub(element, '_reloadComments').returns(Promise.resolve());
       sinon.stub(element, '_getMergeability').returns(Promise.resolve());
       sinon.stub(element, '_getLatestCommitMessage').returns(Promise.resolve());
+      sinon
+        .stub(element, '_reloadPatchNumDependentResources')
+        .returns(Promise.resolve([undefined, undefined, undefined]));
     });
 
-    test("don't report changedDisplayed on reply", done => {
+    test("don't report changeDisplayed on reply", done => {
       const changeDisplayStub = sinon.stub(
-        element.reporting,
+        appContext.reportingService,
         'changeDisplayed'
       );
       const changeFullyLoadedStub = sinon.stub(
-        element.reporting,
+        appContext.reportingService,
         'changeFullyLoaded'
       );
       element._handleReplySent();
@@ -2923,13 +2579,13 @@ suite('gr-change-view tests', () => {
       });
     });
 
-    test('report changedDisplayed on _paramsChanged', done => {
+    test('report changeDisplayed on _paramsChanged', done => {
       const changeDisplayStub = sinon.stub(
-        element.reporting,
+        appContext.reportingService,
         'changeDisplayed'
       );
       const changeFullyLoadedStub = sinon.stub(
-        element.reporting,
+        appContext.reportingService,
         'changeFullyLoaded'
       );
       element._paramsChanged({
@@ -2943,5 +2599,24 @@ suite('gr-change-view tests', () => {
         done();
       });
     });
+  });
+
+  test('_calculateHasParent', () => {
+    const changeId = '123' as ChangeId;
+    const relatedChanges: RelatedChangeAndCommitInfo[] = [];
+
+    assert.equal(element._calculateHasParent(changeId, relatedChanges), false);
+
+    relatedChanges.push({
+      ...createRelatedChangeAndCommitInfo(),
+      change_id: '123' as ChangeId,
+    });
+    assert.equal(element._calculateHasParent(changeId, relatedChanges), false);
+
+    relatedChanges.push({
+      ...createRelatedChangeAndCommitInfo(),
+      change_id: '234' as ChangeId,
+    });
+    assert.equal(element._calculateHasParent(changeId, relatedChanges), true);
   });
 });

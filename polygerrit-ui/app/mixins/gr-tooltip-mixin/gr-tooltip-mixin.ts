@@ -69,16 +69,16 @@ export const TooltipMixin = dedupingMixin(
       // Handler for mouseenter event
       private mouseenterHandler?: (e: MouseEvent) => void;
 
-      // Hanlder for scrolling on window
+      // Handler for scrolling on window
       private readonly windowScrollHandler: () => void;
 
-      // Hanlder for showing the tooltip, will be attached to certain events
+      // Handler for showing the tooltip, will be attached to certain events
       private readonly showHandler: () => void;
 
-      // Hanlder for hiding the tooltip, will be attached to certain events
+      // Handler for hiding the tooltip, will be attached to certain events
       private readonly hideHandler: () => void;
 
-      // tslint:disable-next-line:no-any Required for constructor signature.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
       constructor(..._: any[]) {
         super();
         this.windowScrollHandler = () => this._handleWindowScroll();
@@ -88,7 +88,6 @@ export const TooltipMixin = dedupingMixin(
 
       /** @override */
       disconnectedCallback() {
-        super.disconnectedCallback();
         // NOTE: if you define your own `detached` in your component
         // then this won't take affect (as its not a class yet)
         this._handleHideTooltip();
@@ -96,6 +95,7 @@ export const TooltipMixin = dedupingMixin(
           this.removeEventListener('mouseenter', this.mouseenterHandler);
         }
         window.removeEventListener('scroll', this.windowScrollHandler);
+        super.disconnectedCallback();
       }
 
       @observe('hasTooltip')

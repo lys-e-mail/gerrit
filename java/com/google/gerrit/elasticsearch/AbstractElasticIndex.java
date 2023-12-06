@@ -42,6 +42,7 @@ import com.google.gerrit.index.QueryOptions;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.index.query.DataSource;
 import com.google.gerrit.index.query.FieldBundle;
+import com.google.gerrit.index.query.HasCardinality;
 import com.google.gerrit.index.query.ListResultSet;
 import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
@@ -84,6 +85,9 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
   protected static final String BULK = "_bulk";
   protected static final String MAPPINGS = "mappings";
   protected static final String ORDER = "order";
+  protected static final String DESC_SORT_ORDER = "desc";
+  protected static final String ASC_SORT_ORDER = "asc";
+  protected static final String UNMAPPED_TYPE = "unmapped_type";
   protected static final String SEARCH = "_search";
   protected static final String SETTINGS = "settings";
 
@@ -294,7 +298,7 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
 
   protected JsonArray getSortArray(String idFieldName) {
     JsonObject properties = new JsonObject();
-    properties.addProperty(ORDER, "asc");
+    properties.addProperty(ORDER, ASC_SORT_ORDER);
 
     JsonArray sortArray = new JsonArray();
     addNamedElement(idFieldName, properties, sortArray);
@@ -348,23 +352,31 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
 
   protected class ElasticQuerySource implements DataSource<V> {
     private final QueryOptions opts;
+    private final Predicate<V> predicate;
     private final String search;
 
     ElasticQuerySource(Predicate<V> p, QueryOptions opts, JsonArray sortArray)
         throws QueryParseException {
       this.opts = opts;
+      this.predicate = p;
       QueryBuilder qb = queryBuilder.toQueryBuilder(p);
       SearchSourceBuilder searchSource =
           new SearchSourceBuilder(client.adapter())
               .query(qb)
-              .from(opts.start())
-              .size(opts.limit())
+              .size(opts.pageSize())
               .fields(Lists.newArrayList(opts.fields()));
+      searchSource =
+          opts.searchAfter() != null
+              ? searchSource.searchAfter((JsonArray) opts.searchAfter()).trackTotalHits(false)
+              : searchSource.from(opts.start());
       search = getSearch(searchSource, sortArray);
     }
 
     @Override
     public int getCardinality() {
+      if (predicate instanceof HasCardinality) {
+        return ((HasCardinality) predicate).getCardinality();
+      }
       return 10;
     }
 
@@ -381,6 +393,7 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
     private <T> ResultSet<T> readImpl(Function<JsonObject, T> mapper) {
       try {
         String uri = getURI(SEARCH);
+        JsonArray searchAfter = null;
         Response response =
             performRequest(HttpPost.METHOD_NAME, uri, search, Collections.emptyMap());
         StatusLine statusLine = response.getStatusLine();
@@ -391,13 +404,24 @@ abstract class AbstractElasticIndex<K, V> implements Index<K, V> {
           if (obj.get("hits") != null) {
             JsonArray json = obj.getAsJsonArray("hits");
             ImmutableList.Builder<T> results = ImmutableList.builderWithExpectedSize(json.size());
+            JsonObject hit = null;
             for (int i = 0; i < json.size(); i++) {
-              T mapperResult = mapper.apply(json.get(i).getAsJsonObject());
+              hit = json.get(i).getAsJsonObject();
+              T mapperResult = mapper.apply(hit);
               if (mapperResult != null) {
                 results.add(mapperResult);
               }
             }
-            return new ListResultSet<>(results.build());
+            if (hit != null && hit.get("sort") != null) {
+              searchAfter = hit.getAsJsonArray("sort");
+            }
+            JsonArray finalSearchAfter = searchAfter;
+            return new ListResultSet<T>(results.build()) {
+              @Override
+              public Object searchAfter() {
+                return finalSearchAfter;
+              }
+            };
           }
         } else {
           logger.atSevere().log(statusLine.getReasonPhrase());

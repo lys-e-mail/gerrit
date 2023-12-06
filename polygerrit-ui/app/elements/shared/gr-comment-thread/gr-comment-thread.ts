@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 import '../../../styles/shared-styles';
-import '../gr-rest-api-interface/gr-rest-api-interface';
-import '../gr-storage/gr-storage';
 import '../gr-comment/gr-comment';
+import '../../diff/gr-diff/gr-diff';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-comment-thread_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {
+  computeDiffFromContext,
   isDraft,
   isRobot,
   sortComments,
@@ -34,10 +32,14 @@ import {
 } from '../../../utils/comment-util';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {appContext} from '../../../services/app-context';
-import {CommentSide, Side, SpecialFilePath} from '../../../constants/constants';
+import {
+  CommentSide,
+  createDefaultDiffPrefs,
+  Side,
+  SpecialFilePath,
+} from '../../../constants/constants';
 import {computeDisplayPath} from '../../../utils/path-list-util';
-import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {computed, customElement, observe, property} from '@polymer/decorators';
 import {
   CommentRange,
   ConfigInfo,
@@ -48,23 +50,28 @@ import {
 } from '../../../types/common';
 import {GrComment} from '../gr-comment/gr-comment';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
-import {GrStorage, StorageLocation} from '../gr-storage/gr-storage';
 import {CustomKeyboardEvent} from '../../../types/events';
+import {LineNumber, FILE} from '../../diff/gr-diff/gr-diff-line';
+import {GrButton} from '../gr-button/gr-button';
+import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
+import {RenderPreferences} from '../../../api/diff';
+import {check, assertIsDefined} from '../../../utils/common-util';
+import {waitForEventOnce} from '../../../utils/event-util';
+import {GrSyntaxLayer} from '../../diff/gr-syntax-layer/gr-syntax-layer';
+import {StorageLocation} from '../../../services/storage/gr-storage';
 
 const UNRESOLVED_EXPAND_COUNT = 5;
 const NEWLINE_PATTERN = /\n/g;
 
 export interface GrCommentThread {
   $: {
-    restAPI: RestApiService & Element;
-    storage: GrStorage;
+    replyBtn: GrButton;
+    quoteBtn: GrButton;
   };
 }
 
 @customElement('gr-comment-thread')
-export class GrCommentThread extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrCommentThread extends KeyboardShortcutMixin(PolymerElement) {
   // KeyboardShortcutMixin Not used in this element rather other elements tests
 
   static get template() {
@@ -88,9 +95,9 @@ export class GrCommentThread extends KeyboardShortcutMixin(
    * diff widget like gr-diff to show the thread in the right location:
    *
    * line-num:
-   *     1-based line number or undefined if it refers to the entire file.
+   *     1-based line number or 'FILE' if it refers to the entire file.
    *
-   * comment-side:
+   * diff-side:
    *     "left" or "right". These indicate which of the two diffed versions
    *     the comment relates to. In the case of unified diff, the left
    *     version is the one whose line number column is further to the left.
@@ -116,13 +123,13 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   keyEventTarget: HTMLElement = document.body;
 
   @property({type: String, reflectToAttribute: true})
-  commentSide?: Side;
+  diffSide?: Side;
 
   @property({type: String})
   patchNum?: PatchSetNum;
 
   @property({type: String})
-  path?: string;
+  path: string | undefined;
 
   @property({type: String, observer: '_projectNameChanged'})
   projectName?: RepoName;
@@ -146,8 +153,8 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   @property({type: Boolean})
   showFilePath = false;
 
-  @property({type: Number, reflectToAttribute: true})
-  lineNum?: number;
+  @property({type: Object, reflectToAttribute: true})
+  lineNum?: LineNumber;
 
   @property({type: Boolean, notify: true, reflectToAttribute: true})
   unresolved?: boolean;
@@ -164,6 +171,17 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   @property({type: Object})
   _projectConfig?: ConfigInfo;
 
+  @property({type: Object})
+  _prefs: DiffPreferencesInfo = createDefaultDiffPrefs();
+
+  @property({type: Object})
+  _renderPrefs: RenderPreferences = {
+    hide_left_side: true,
+    disable_context_control_buttons: true,
+    show_file_comment_button: false,
+    hide_line_length_indicator: true,
+  };
+
   @property({type: Boolean, reflectToAttribute: true})
   isRobotComment = false;
 
@@ -171,7 +189,13 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   showFileName = true;
 
   @property({type: Boolean})
+  showPortedComment = false;
+
+  @property({type: Boolean})
   showPatchset = true;
+
+  @property({type: Boolean})
+  showCommentContext = false;
 
   get keyBindings() {
     return {
@@ -183,24 +207,59 @@ export class GrCommentThread extends KeyboardShortcutMixin(
 
   flagsService = appContext.flagsService;
 
-  /** @override */
-  created() {
-    super.created();
+  readonly storage = appContext.storageService;
+
+  private readonly syntaxLayer = new GrSyntaxLayer();
+
+  readonly restApiService = appContext.restApiService;
+
+  constructor() {
+    super();
     this.addEventListener('comment-update', e =>
       this._handleCommentUpdate(e as CustomEvent)
     );
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._getLoggedIn().then(loggedIn => {
       this._showActions = loggedIn;
+    });
+    this.restApiService.getDiffPreferences().then(prefs => {
+      if (!prefs) return;
+      this._prefs = {
+        ...prefs,
+        // set line_wrapping to true so that the context can take all the
+        // remaining space after comment card has rendered
+        line_wrapping: true,
+      };
+      this.syntaxLayer.setEnabled(!!prefs.syntax_highlighting);
     });
     this._setInitialExpandedState();
   }
 
-  addOrEditDraft(lineNum?: number, rangeParam?: CommentRange) {
+  @computed('comments', 'path')
+  get _diff() {
+    if (this.comments === undefined || this.path === undefined) return;
+    if (!this.comments[0]?.context_lines?.length) return;
+    waitForEventOnce(this, 'render').then(() => {
+      this.syntaxLayer.process();
+    });
+    const diff = computeDiffFromContext(
+      this.comments[0].context_lines,
+      this.path,
+      this.comments[0].source_content_type
+    );
+    this.syntaxLayer.init(diff);
+    return diff;
+  }
+
+  _shouldShowCommentContext(diff?: DiffInfo) {
+    return this.showCommentContext && !!diff;
+  }
+
+  addOrEditDraft(lineNum?: LineNumber, rangeParam?: CommentRange) {
     const lastComment = this.comments[this.comments.length - 1] || {};
     if (isDraft(lastComment)) {
       const commentEl = this._commentElWithDraftID(
@@ -223,7 +282,7 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     }
   }
 
-  addDraft(lineNum?: number, range?: CommentRange, unresolved?: boolean) {
+  addDraft(lineNum?: LineNumber, range?: CommentRange, unresolved?: boolean) {
     const draft = this._newDraft(lineNum, range);
     draft.__editing = true;
     draft.unresolved = unresolved === false ? unresolved : true;
@@ -239,20 +298,55 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     );
   }
 
-  _getDiffUrlForPath(path: string) {
-    if (!this.changeNum) throw new Error('changeNum is missing');
-    if (!this.projectName) throw new Error('projectName is missing');
+  _getDiffUrlForPath(
+    projectName?: RepoName,
+    changeNum?: NumericChangeId,
+    path?: string,
+    patchNum?: PatchSetNum
+  ) {
+    if (!changeNum || !projectName || !path) return undefined;
     if (isDraft(this.comments[0])) {
       return GerritNav.getUrlForDiffById(
-        this.changeNum,
-        this.projectName,
+        changeNum,
+        projectName,
         path,
-        this.patchNum
+        patchNum
       );
     }
     const id = this.comments[0].id;
     if (!id) throw new Error('A published comment is missing the id.');
-    return GerritNav.getUrlForComment(this.changeNum, this.projectName, id);
+    return GerritNav.getUrlForComment(changeNum, projectName, id);
+  }
+
+  getHighlightRange() {
+    const comment = this.comments?.[0];
+    if (!comment) return undefined;
+    if (comment.range) return comment.range;
+    if (comment.line) {
+      return {
+        start_line: comment.line,
+        start_character: 0,
+        end_line: comment.line,
+        end_character: 0,
+      };
+    }
+    return undefined;
+  }
+
+  _getLayers(diff?: DiffInfo) {
+    if (!diff) return [];
+    return [this.syntaxLayer];
+  }
+
+  _getUrlForViewDiff(comments: UIComment[]) {
+    assertIsDefined(this.changeNum, 'changeNum');
+    assertIsDefined(this.projectName, 'projectName');
+    check(comments.length > 0, 'comment not found');
+    return GerritNav.getUrlForComment(
+      this.changeNum,
+      this.projectName,
+      comments[0].id!
+    );
   }
 
   _getDiffUrlForComment(
@@ -266,13 +360,14 @@ export class GrCommentThread extends KeyboardShortcutMixin(
       (this.comments.length && this.comments[0].side === 'PARENT') ||
       isDraft(this.comments[0])
     ) {
+      if (this.lineNum === 'LOST') throw new Error('invalid lineNum lost');
       return GerritNav.getUrlForDiffById(
         changeNum,
         projectName,
         path,
         patchNum,
         undefined,
-        this.lineNum
+        this.lineNum === FILE ? undefined : this.lineNum
       );
     }
     const id = this.comments[0].id;
@@ -284,6 +379,11 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     return path === SpecialFilePath.PATCHSET_LEVEL_COMMENTS;
   }
 
+  _computeShowPortedComment(comment: UIComment) {
+    if (this._orderedComments.length === 0) return false;
+    return this.showPortedComment && comment.id === this._orderedComments[0].id;
+  }
+
   _computeDisplayPath(path: string) {
     const displayPath = computeDisplayPath(path);
     if (displayPath === SpecialFilePath.PATCHSET_LEVEL_COMMENTS) {
@@ -293,20 +393,24 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   }
 
   _computeDisplayLine() {
-    if (this.lineNum) return `#${this.lineNum}`;
-    // If range is set, then lineNum equals the end line of the range.
-    if (!this.lineNum && !this.range) {
+    if (this.lineNum === FILE) {
       if (this.path === SpecialFilePath.PATCHSET_LEVEL_COMMENTS) {
         return '';
       }
-      return 'FILE';
+      return FILE;
     }
+    if (this.lineNum) return `#${this.lineNum}`;
+    // If range is set, then lineNum equals the end line of the range.
     if (this.range) return `#${this.range.end_line}`;
     return '';
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
+  }
+
+  _getUnresolvedLabel(unresolved?: boolean) {
+    return unresolved ? 'Unresolved' : 'Resolved';
   }
 
   @observe('comments.*')
@@ -397,15 +501,6 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     if (!id) throw new Error('Cannot reply to comment without id.');
     const reply = this._newReply(id, content, unresolved);
 
-    // If there is currently a comment in an editing state, add an attribute
-    // so that the gr-comment knows not to populate the draft text.
-    for (let i = 0; i < this.comments.length; i++) {
-      if (this.comments[i].__editing) {
-        reply.__otherEditing = true;
-        break;
-      }
-    }
-
     if (isEditing) {
       reply.__editing = true;
     }
@@ -414,7 +509,7 @@ export class GrCommentThread extends KeyboardShortcutMixin(
 
     if (!isEditing) {
       // Allow the reply to render in the dom-repeat.
-      this.async(() => {
+      setTimeout(() => {
         const commentEl = this._commentElWithDraftID(reply.__draftID);
         if (commentEl) commentEl.save();
       }, 1);
@@ -490,13 +585,13 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     return d;
   }
 
-  _newDraft(lineNum?: number, range?: CommentRange) {
+  _newDraft(lineNum?: LineNumber, range?: CommentRange) {
     const d: UIDraft = {
       __draft: true,
       __draftID: Math.random().toString(36),
       __date: new Date(),
     };
-
+    if (lineNum === 'LOST') throw new Error('invalid lineNum lost');
     // For replies, always use same meta info as root.
     if (this.comments && this.comments.length >= 1) {
       const rootComment = this.comments[0];
@@ -504,8 +599,6 @@ export class GrCommentThread extends KeyboardShortcutMixin(
       if (rootComment.patch_set !== undefined)
         d.patch_set = rootComment.patch_set;
       if (rootComment.side !== undefined) d.side = rootComment.side;
-      if (rootComment.__commentSide !== undefined)
-        d.__commentSide = rootComment.__commentSide;
       if (rootComment.line !== undefined) d.line = rootComment.line;
       if (rootComment.range !== undefined) d.range = rootComment.range;
       if (rootComment.parent !== undefined) d.parent = rootComment.parent;
@@ -514,9 +607,8 @@ export class GrCommentThread extends KeyboardShortcutMixin(
       d.path = this.path;
       d.patch_set = this.patchNum;
       d.side = this._getSide(this.isOnParent);
-      d.__commentSide = this.commentSide;
 
-      if (lineNum) {
+      if (lineNum && lineNum !== FILE) {
         d.line = lineNum;
       }
       if (range) {
@@ -546,8 +638,8 @@ export class GrCommentThread extends KeyboardShortcutMixin(
   }
 
   _handleCommentDiscard(e: Event) {
-    if (!this.changeNum) throw new Error('changeNum is missing');
-    if (!this.patchNum) throw new Error('patchNum is missing');
+    assertIsDefined(this.changeNum, 'changeNum');
+    assertIsDefined(this.patchNum, 'patchNum');
     const diffCommentEl = (dom(e) as EventApi).rootTarget as GrComment;
     const comment = diffCommentEl.comment;
     const idx = this._indexOf(comment, this.comments);
@@ -565,14 +657,14 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     // Check to see if there are any other open comments getting edited and
     // set the local storage value to its message value.
     for (const changeComment of this.comments) {
-      if (changeComment.__editing) {
+      if (isDraft(changeComment) && changeComment.__editing) {
         const commentLocation: StorageLocation = {
           changeNum: this.changeNum,
           patchNum: this.patchNum,
           path: changeComment.path,
           line: changeComment.line,
         };
-        this.$.storage.setDraftComment(
+        this.storage.setDraftComment(
           commentLocation,
           changeComment.message ?? ''
         );
@@ -635,7 +727,7 @@ export class GrCommentThread extends KeyboardShortcutMixin(
     if (!name) {
       return;
     }
-    this.$.restAPI.getProjectConfig(name).then(config => {
+    this.restApiService.getProjectConfig(name).then(config => {
       this._projectConfig = config;
     });
   }

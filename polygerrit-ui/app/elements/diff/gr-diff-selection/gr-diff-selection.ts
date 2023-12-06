@@ -17,8 +17,6 @@
 import '../../../styles/shared-styles';
 import {addListener} from '@polymer/polymer/lib/utils/gestures';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-selection_html';
 import {
@@ -27,9 +25,10 @@ import {
 } from '../gr-diff-highlight/gr-range-normalizer';
 import {descendedFromClass, querySelectorAll} from '../../../utils/dom-util';
 import {customElement, property, observe} from '@polymer/decorators';
-import {DiffInfo} from '../../../types/common';
+import {DiffInfo} from '../../../types/diff';
 import {Side} from '../../../constants/constants';
 import {GrDiffBuilderElement} from '../gr-diff-builder/gr-diff-builder-element';
+import {getSide, isThreadEl} from '../gr-diff/gr-diff-utils';
 
 /**
  * Possible CSS classes indicating the state of selection. Dynamically added/
@@ -52,9 +51,7 @@ function getNewCache(): LinesCache {
 }
 
 @customElement('gr-diff-selection')
-export class GrDiffSelection extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffSelection extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -68,16 +65,15 @@ export class GrDiffSelection extends GestureEventListeners(
   @property({type: Object})
   _linesCache: LinesCache = {left: null, right: null};
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('copy', e => this._handleCopy(e));
     addListener(this, 'down', e => this._handleDown(e));
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this.classList.add(SelectionClass.RIGHT);
   }
 
@@ -96,10 +92,10 @@ export class GrDiffSelection extends GestureEventListeners(
   }
 
   _handleDownOnRangeComment(node: Element) {
-    if (node?.nodeName?.toLowerCase() === 'gr-comment-thread') {
+    if (isThreadEl(node)) {
       this._setClasses([
         SelectionClass.COMMENT,
-        node.getAttribute('comment-side') === Side.LEFT
+        getSide(node) === Side.LEFT
           ? SelectionClass.LEFT
           : SelectionClass.RIGHT,
       ]);
@@ -198,7 +194,7 @@ export class GrDiffSelection extends GestureEventListeners(
     if (!diffHosts.length) return window.getSelection();
 
     const curDiffHost = diffHosts.find(diffHost => {
-      if (!diffHost || !diffHost.shadowRoot) return false;
+      if (!diffHost?.shadowRoot?.getSelection) return false;
       const selection = diffHost.shadowRoot.getSelection();
       // Pick the one with valid selection:
       // https://developer.mozilla.org/en-US/docs/Web/API/Selection/type

@@ -19,6 +19,7 @@ import '../../../test/common-test-setup-karma.js';
 import './gr-hovercard-account.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 import {ReviewerState} from '../../../constants/constants.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromTemplate(html`
 <gr-hovercard-account class="hovered"></gr-hovercard-account>
@@ -34,22 +35,20 @@ suite('gr-hovercard-account tests', () => {
     _account_id: '31415926535',
   };
 
-  setup(() => {
-    element = basicFixture.instantiate();
-    sinon.stub(element.$.restAPI, 'getAccount').returns(
-        new Promise(resolve => { '2'; })
+  setup(async () => {
+    stubRestApi('getAccount').returns(Promise.resolve({...ACCOUNT}));
+    stubRestApi('getConfig').returns(
+        Promise.resolve({change: {enable_attention_set: true}})
     );
-
-    element._selfAccount = {...ACCOUNT};
+    element = basicFixture.instantiate();
     element.account = {...ACCOUNT};
-    element._config = {
-      change: {enable_attention_set: true},
-    };
     element.change = {
       attention_set: {},
+      reviewers: {},
+      owner: {...ACCOUNT},
     };
     element.show({});
-    flush();
+    await flush();
   });
 
   teardown(() => {
@@ -110,8 +109,7 @@ suite('gr-hovercard-account tests', () => {
         [ReviewerState.REVIEWER]: [ACCOUNT],
       },
     };
-    sinon.stub(element.$.restAPI, 'removeChangeReviewer').returns(
-        Promise.resolve({ok: true}));
+    stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
     const reloadListener = sinon.spy();
     element._target.addEventListener('reload', reloadListener);
     flush();
@@ -130,11 +128,10 @@ suite('gr-hovercard-account tests', () => {
         [ReviewerState.REVIEWER]: [ACCOUNT],
       },
     };
-    const saveReviewStub = sinon.stub(element.$.restAPI,
+    const saveReviewStub = stubRestApi(
         'saveChangeReview').returns(
         Promise.resolve({ok: true}));
-    sinon.stub(element.$.restAPI, 'removeChangeReviewer').returns(
-        Promise.resolve({ok: true}));
+    stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
     const reloadListener = sinon.spy();
     element._target.addEventListener('reload', reloadListener);
 
@@ -157,11 +154,9 @@ suite('gr-hovercard-account tests', () => {
         [ReviewerState.REVIEWER]: [],
       },
     };
-    const saveReviewStub = sinon.stub(element.$.restAPI,
-        'saveChangeReview').returns(
-        Promise.resolve({ok: true}));
-    sinon.stub(element.$.restAPI, 'removeChangeReviewer').returns(
-        Promise.resolve({ok: true}));
+    const saveReviewStub = stubRestApi(
+        'saveChangeReview').returns(Promise.resolve({ok: true}));
+    stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
     const reloadListener = sinon.spy();
     element._target.addEventListener('reload', reloadListener);
     flush();
@@ -184,8 +179,7 @@ suite('gr-hovercard-account tests', () => {
         [ReviewerState.REVIEWER]: [],
       },
     };
-    sinon.stub(element.$.restAPI, 'removeChangeReviewer').returns(
-        Promise.resolve({ok: true}));
+    stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
     const reloadListener = sinon.spy();
     element._target.addEventListener('reload', reloadListener);
 
@@ -206,8 +200,7 @@ suite('gr-hovercard-account tests', () => {
     const apiPromise = new Promise(r => {
       apiResolve = r;
     });
-    sinon.stub(element.$.restAPI, 'addToAttentionSet')
-        .callsFake(() => apiPromise);
+    stubRestApi('addToAttentionSet').returns(apiPromise);
     element.highlightAttention = true;
     element._target = document.createElement('div');
     flush();
@@ -239,10 +232,13 @@ suite('gr-hovercard-account tests', () => {
     const apiPromise = new Promise(r => {
       apiResolve = r;
     });
-    sinon.stub(element.$.restAPI, 'removeFromAttentionSet')
-        .callsFake(() => apiPromise);
+    stubRestApi('removeFromAttentionSet').returns(apiPromise);
     element.highlightAttention = true;
-    element.change = {attention_set: {31415926535: {}}};
+    element.change = {
+      attention_set: {31415926535: {}},
+      reviewers: {},
+      owner: {...ACCOUNT},
+    };
     element._target = document.createElement('div');
     flush();
     const showAlertListener = sinon.spy();

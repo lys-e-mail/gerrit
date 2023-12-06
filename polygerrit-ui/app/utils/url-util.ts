@@ -1,5 +1,5 @@
 import {ServerInfo} from '../types/common';
-import {RestApiService} from '../services/services/gr-rest-api/gr-rest-api';
+import {RestApiService} from '../services/gr-rest-api/gr-rest-api';
 
 /**
  * @license
@@ -77,4 +77,34 @@ export function encodeURL(url: string, replaceSlashes?: boolean): string {
 export function singleDecodeURL(url: string): string {
   const withoutPlus = url.replace(/\+/g, '%20');
   return decodeURIComponent(withoutPlus);
+}
+
+/**
+ * @param path URL path including search params, but without host
+ */
+export function toPathname(path: string) {
+  const i = path.indexOf('?');
+  const hasQuery = i > -1;
+  const pathname = hasQuery ? path.slice(0, i) : path;
+  return pathname;
+}
+
+/**
+ * @param path URL path including search params, but without host
+ */
+export function toSearchParams(path: string) {
+  const i = path.indexOf('?');
+  const hasQuery = i > -1;
+  const querystring = hasQuery ? path.slice(i + 1) : '';
+  return new URLSearchParams(querystring);
+}
+
+/**
+ * @param pathname URL path without search params
+ * @param params
+ */
+export function toPath(pathname: string, searchParams: URLSearchParams) {
+  const paramString = searchParams.toString();
+  const middle = paramString ? '?' : '';
+  return pathname + middle + paramString;
 }

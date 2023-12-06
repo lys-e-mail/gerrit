@@ -23,18 +23,11 @@ import '../../shared/gr-account-link/gr-account-link';
 import '../../shared/gr-autocomplete/gr-autocomplete';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-confirm-delete-item-dialog/gr-confirm-delete-item-dialog';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-group-members_html';
 import {getBaseUrl} from '../../../utils/url-util';
 import {customElement, property} from '@polymer/decorators';
-import {
-  RestApiService,
-  ErrorCallback,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {
   GroupId,
@@ -43,9 +36,18 @@ import {
   GroupInfo,
   GroupName,
 } from '../../../types/common';
-import {AutocompleteQuery} from '../../shared/gr-autocomplete/gr-autocomplete';
+import {
+  AutocompleteQuery,
+  AutocompleteSuggestion,
+} from '../../shared/gr-autocomplete/gr-autocomplete';
 import {PolymerDomRepeatEvent} from '../../../types/types';
-import {hasOwnProperty} from '../../../utils/common-util';
+import {
+  fireAlert,
+  firePageError,
+  fireTitleChange,
+} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 const SUGGESTIONS_LIMIT = 15;
 const SAVING_ERROR_TEXT =
@@ -55,14 +57,11 @@ const URL_REGEX = '^(?:[a-z]+:)?//';
 
 export interface GrGroupMembers {
   $: {
-    restAPI: RestApiService & Element;
     overlay: GrOverlay;
   };
 }
 @customElement('gr-group-members')
-export class GrGroupMembers extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrGroupMembers extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -114,6 +113,8 @@ export class GrGroupMembers extends GestureEventListeners(
 
   _itemId?: AccountId | GroupId;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._queryMembers = input => this._getAccountSuggestions(input);
@@ -121,17 +122,11 @@ export class GrGroupMembers extends GestureEventListeners(
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadGroupDetails();
 
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Members'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, 'Members');
   }
 
   _loadGroupDetails() {
@@ -142,50 +137,48 @@ export class GrGroupMembers extends GestureEventListeners(
     const promises: Promise<void>[] = [];
 
     const errFn: ErrorCallback = response => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
 
-    return this.$.restAPI.getGroupConfig(this.groupId, errFn).then(config => {
-      if (!config || !config.name) {
-        return Promise.resolve();
-      }
+    return this.restApiService
+      .getGroupConfig(this.groupId, errFn)
+      .then(config => {
+        if (!config || !config.name) {
+          return Promise.resolve();
+        }
 
-      this._groupName = config.name;
+        this._groupName = config.name;
 
-      promises.push(
-        this.$.restAPI.getIsAdmin().then(isAdmin => {
-          this._isAdmin = !!isAdmin;
-        })
-      );
+        promises.push(
+          this.restApiService.getIsAdmin().then(isAdmin => {
+            this._isAdmin = !!isAdmin;
+          })
+        );
 
-      promises.push(
-        this.$.restAPI.getIsGroupOwner(this._groupName).then(isOwner => {
-          this._groupOwner = !!isOwner;
-        })
-      );
+        promises.push(
+          this.restApiService.getIsGroupOwner(this._groupName).then(isOwner => {
+            this._groupOwner = !!isOwner;
+          })
+        );
 
-      promises.push(
-        this.$.restAPI.getGroupMembers(this._groupName).then(members => {
-          this._groupMembers = members;
-        })
-      );
+        promises.push(
+          this.restApiService.getGroupMembers(this._groupName).then(members => {
+            this._groupMembers = members;
+          })
+        );
 
-      promises.push(
-        this.$.restAPI.getIncludedGroup(this._groupName).then(includedGroup => {
-          this._includedGroups = includedGroup;
-        })
-      );
+        promises.push(
+          this.restApiService
+            .getIncludedGroup(this._groupName)
+            .then(includedGroup => {
+              this._includedGroups = includedGroup;
+            })
+        );
 
-      return Promise.all(promises).then(() => {
-        this._loading = false;
+        return Promise.all(promises).then(() => {
+          this._loading = false;
+        });
       });
-    });
   }
 
   _computeLoadingClass(loading: boolean) {
@@ -217,13 +210,13 @@ export class GrGroupMembers extends GestureEventListeners(
     if (!this._groupName) {
       return Promise.reject(new Error('group name undefined'));
     }
-    return this.$.restAPI
+    return this.restApiService
       .saveGroupMember(this._groupName, this._groupMemberSearchId as AccountId)
       .then(config => {
         if (!config || !this._groupName) {
           return;
         }
-        this.$.restAPI.getGroupMembers(this._groupName).then(members => {
+        this.restApiService.getGroupMembers(this._groupName).then(members => {
           this._groupMembers = members;
         });
         this._groupMemberSearchName = '';
@@ -237,24 +230,26 @@ export class GrGroupMembers extends GestureEventListeners(
     }
     this.$.overlay.close();
     if (this._itemType === 'member') {
-      return this.$.restAPI
+      return this.restApiService
         .deleteGroupMember(this._groupName, this._itemId! as AccountId)
         .then(itemDeleted => {
           if (itemDeleted.status === 204 && this._groupName) {
-            this.$.restAPI.getGroupMembers(this._groupName).then(members => {
-              this._groupMembers = members;
-            });
+            this.restApiService
+              .getGroupMembers(this._groupName)
+              .then(members => {
+                this._groupMembers = members;
+              });
           }
         });
     } else if (this._itemType === 'includedGroup') {
-      return this.$.restAPI
+      return this.restApiService
         .deleteIncludedGroup(this._groupName, this._itemId! as GroupId)
         .then(itemDeleted => {
           if (
             (itemDeleted.status === 204 || itemDeleted.status === 205) &&
             this._groupName
           ) {
-            this.$.restAPI
+            this.restApiService
               .getIncludedGroup(this._groupName)
               .then(includedGroup => {
                 this._includedGroups = includedGroup;
@@ -290,20 +285,14 @@ export class GrGroupMembers extends GestureEventListeners(
         new Error('group name or includedGroupSearchId undefined')
       );
     }
-    return this.$.restAPI
+    return this.restApiService
       .saveIncludedGroup(
         this._groupName,
         this._includedGroupSearchId.replace(/\+/g, ' ') as GroupId,
         (errResponse, err) => {
           if (errResponse) {
             if (errResponse.status === 404) {
-              this.dispatchEvent(
-                new CustomEvent('show-alert', {
-                  detail: {message: SAVING_ERROR_TEXT},
-                  bubbles: true,
-                  composed: true,
-                })
-              );
+              fireAlert(this, SAVING_ERROR_TEXT);
               return errResponse;
             }
             throw Error(errResponse.statusText);
@@ -315,9 +304,11 @@ export class GrGroupMembers extends GestureEventListeners(
         if (!config || !this._groupName) {
           return;
         }
-        this.$.restAPI.getIncludedGroup(this._groupName).then(includedGroup => {
-          this._includedGroups = includedGroup;
-        });
+        this.restApiService
+          .getIncludedGroup(this._groupName)
+          .then(includedGroup => {
+            this._includedGroups = includedGroup;
+          });
         this._includedGroupSearchName = '';
         this._includedGroupSearchId = '';
       });
@@ -343,26 +334,21 @@ export class GrGroupMembers extends GestureEventListeners(
     if (input.length === 0) {
       return Promise.resolve([]);
     }
-    return this.$.restAPI
+    return this.restApiService
       .getSuggestedAccounts(input, SUGGESTIONS_LIMIT)
       .then(accounts => {
+        if (!accounts) return [];
         const accountSuggestions = [];
-        let nameAndEmail;
-        if (!accounts) {
-          return [];
-        }
-        for (const key in accounts) {
-          if (!hasOwnProperty(accounts, key)) {
-            continue;
-          }
-          if (accounts[key].email !== undefined) {
-            nameAndEmail = `${accounts[key].name} <${accounts[key].email}>`;
+        for (const account of accounts) {
+          let nameAndEmail;
+          if (account.email !== undefined) {
+            nameAndEmail = `${account.name} <${account.email}>`;
           } else {
-            nameAndEmail = accounts[key].name;
+            nameAndEmail = account.name;
           }
           accountSuggestions.push({
             name: nameAndEmail,
-            value: accounts[key]._account_id,
+            value: account._account_id?.toString(),
           });
         }
         return accountSuggestions;
@@ -370,16 +356,10 @@ export class GrGroupMembers extends GestureEventListeners(
   }
 
   _getGroupSuggestions(input: string) {
-    return this.$.restAPI.getSuggestedGroups(input).then(response => {
-      const groups = [];
-      for (const key in response) {
-        if (!hasOwnProperty(response, key)) {
-          continue;
-        }
-        groups.push({
-          name: key,
-          value: decodeURIComponent(response[key].id),
-        });
+    return this.restApiService.getSuggestedGroups(input).then(response => {
+      const groups: AutocompleteSuggestion[] = [];
+      for (const [name, group] of Object.entries(response ?? {})) {
+        groups.push({name, value: decodeURIComponent(group.id)});
       }
       return groups;
     });

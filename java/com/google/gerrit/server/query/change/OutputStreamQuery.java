@@ -265,7 +265,8 @@ public class OutputStreamQuery {
     }
 
     if (includeSubmitRecords) {
-      SubmitRuleOptions options = SubmitRuleOptions.builder().allowClosed(true).build();
+      SubmitRuleOptions options =
+          SubmitRuleOptions.builder().recomputeOnClosedChanges(true).build();
       eventFactory.addSubmitRecords(c, submitRuleEvaluatorFactory.create(options).evaluate(d));
     }
 
@@ -333,15 +334,9 @@ public class OutputStreamQuery {
       eventFactory.addDependencies(rw, c, d.change(), d.currentPatchSet());
     }
 
-    c.plugins = queryProcessor.getAttributesFactory().create(d);
     List<PluginDefinedInfo> pluginInfos = pluginInfosByChange.get(d.getId());
     if (!pluginInfos.isEmpty()) {
-      if (c.plugins == null) {
-        c.plugins = pluginInfos;
-      } else {
-        c.plugins = new ArrayList<>(c.plugins);
-        c.plugins.addAll(pluginInfos);
-      }
+      c.plugins = pluginInfos;
     }
     return c;
   }

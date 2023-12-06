@@ -56,8 +56,8 @@ export const htmlTemplate = html`
       display: none;
     }
   </style>
-  <main
-    class$="gr-form-styles [[_computeHideItemClass(_groupOwner, _isAdmin)]]"
+  <div
+    class$="main gr-form-styles [[_computeHideItemClass(_groupOwner, _isAdmin)]]"
   >
     <div id="loading" class$="[[_computeLoadingClass(_loading)]]">
       Loading...
@@ -136,9 +136,7 @@ export const htmlTemplate = html`
               <tr class="headerRow">
                 <th class="groupNameHeader">Group Name</th>
                 <th class="descriptionHeader">Description</th>
-                <th class="deleteIncludedHeader">
-                  Delete Group
-                </th>
+                <th class="deleteIncludedHeader">Delete Group</th>
               </tr>
             </tbody>
             <tbody>
@@ -170,7 +168,7 @@ export const htmlTemplate = html`
         </fieldset>
       </div>
     </div>
-  </main>
+  </div>
   <gr-overlay id="overlay" with-backdrop="">
     <gr-confirm-delete-item-dialog
       class="confirmDialog"
@@ -180,5 +178,4 @@ export const htmlTemplate = html`
       item-type="[[_itemType]]"
     ></gr-confirm-delete-item-dialog>
   </gr-overlay>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

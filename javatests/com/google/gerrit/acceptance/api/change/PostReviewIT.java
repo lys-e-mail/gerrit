@@ -29,9 +29,17 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.Correspondence;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
+import com.google.gerrit.acceptance.ExtensionRegistry;
+import com.google.gerrit.acceptance.ExtensionRegistry.Registration;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.acceptance.TestAccount;
 import com.google.gerrit.acceptance.config.GerritConfig;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
+import com.google.gerrit.common.Nullable;
+import com.google.gerrit.entities.Account;
+import com.google.gerrit.entities.Change;
+import com.google.gerrit.entities.LabelId;
+import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.DraftInput;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
@@ -44,11 +52,15 @@ import com.google.gerrit.extensions.common.AccountInfo;
 import com.google.gerrit.extensions.common.ChangeMessageInfo;
 import com.google.gerrit.extensions.common.RobotCommentInfo;
 import com.google.gerrit.extensions.config.FactoryModule;
+import com.google.gerrit.extensions.events.CommentAddedListener;
 import com.google.gerrit.extensions.restapi.BadRequestException;
 import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.extensions.validators.CommentForValidation;
 import com.google.gerrit.extensions.validators.CommentValidationContext;
 import com.google.gerrit.extensions.validators.CommentValidator;
+import com.google.gerrit.server.IdentifiedUser;
+import com.google.gerrit.server.notedb.ChangeNotes;
+import com.google.gerrit.server.restapi.change.OnPostReview;
 import com.google.gerrit.server.restapi.change.PostReview;
 import com.google.gerrit.server.update.CommentsRejectedException;
 import com.google.gerrit.testing.TestCommentHelper;
@@ -58,6 +70,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -69,6 +82,7 @@ public class PostReviewIT extends AbstractDaemonTest {
   @Inject private CommentValidator mockCommentValidator;
   @Inject private TestCommentHelper testCommentHelper;
   @Inject private RequestScopeOperations requestScopeOperations;
+  @Inject private ExtensionRegistry extensionRegistry;
 
   private static final String COMMENT_TEXT = "The comment text";
   private static final CommentForValidation FILE_COMMENT_FOR_VALIDATION =
@@ -447,7 +461,7 @@ public class PostReviewIT extends AbstractDaemonTest {
     // User adds themselves and changes state
     requestScopeOperations.setApiUser(user.id());
 
-    ReviewInput input = new ReviewInput().label("Code-Review", 1);
+    ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
     gApi.changes().id(r.getChangeId()).current().review(input);
 
     Map<ReviewerState, Collection<AccountInfo>> reviewers =
@@ -474,6 +488,204 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(reviewer._accountId).isEqualTo(user.id().get());
   }
 
+  @Test
+  public void extendChangeMessageFromPlugin() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    String testMessage = "hello from plugin";
+    TestOnPostReview testOnPostReview = new TestOnPostReview(testMessage);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      Collection<ChangeMessageInfo> messages = gApi.changes().id(r.getChangeId()).get().messages;
+      assertThat(Iterables.getLast(messages).message)
+          .isEqualTo(String.format("Patch Set 1: Code-Review+1\n\n%s\n", testMessage));
+    }
+  }
+
+  @Test
+  public void extendChangeMessageFromMultiplePlugins() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    String testMessage1 = "hello from plugin 1";
+    String testMessage2 = "message from plugin 2";
+    TestOnPostReview testOnPostReview1 = new TestOnPostReview(testMessage1);
+    TestOnPostReview testOnPostReview2 = new TestOnPostReview(testMessage2);
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(testOnPostReview1).add(testOnPostReview2)) {
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      Collection<ChangeMessageInfo> messages = gApi.changes().id(r.getChangeId()).get().messages;
+      assertThat(Iterables.getLast(messages).message)
+          .isEqualTo(
+              String.format(
+                  "Patch Set 1: Code-Review+1\n\n%s\n\n%s\n", testMessage1, testMessage2));
+    }
+  }
+
+  @Test
+  public void onPostReviewExtensionThatDoesntExtendTheChangeMessage() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    TestOnPostReview testOnPostReview = new TestOnPostReview(/* message= */ null);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      Collection<ChangeMessageInfo> messages = gApi.changes().id(r.getChangeId()).get().messages;
+      assertThat(Iterables.getLast(messages).message).isEqualTo("Patch Set 1: Code-Review+1");
+    }
+  }
+
+  @Test
+  public void onPostReviewCallbackGetsCorrectChangeAndPatchSet() throws Exception {
+    PushOneCommit.Result r = createChange();
+    amendChange(r.getChangeId());
+
+    TestOnPostReview testOnPostReview = new TestOnPostReview(/* message= */ null);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+
+      // Vote on current patch set.
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertChangeAndPatchSet(r.getChange().getId(), 2);
+
+      // Vote on old patch set.
+      gApi.changes().id(r.getChangeId()).revision(1).review(input);
+      testOnPostReview.assertChangeAndPatchSet(r.getChange().getId(), 1);
+    }
+  }
+
+  @Test
+  public void onPostReviewCallbackGetsCorrectUser() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    TestOnPostReview testOnPostReview = new TestOnPostReview(/* message= */ null);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+
+      // Vote from admin.
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertUser(admin);
+
+      // Vote from user.
+      requestScopeOperations.setApiUser(user.id());
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertUser(user);
+    }
+  }
+
+  @Test
+  public void onPostReviewCallbackGetsCorrectApprovals() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    TestOnPostReview testOnPostReview = new TestOnPostReview(/* message= */ null);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      // Add a new vote.
+      ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 1);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertApproval(
+          LabelId.CODE_REVIEW, /* expectedOldValue= */ 0, /* expectedNewValue= */ 1);
+
+      // Update an existing vote.
+      input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertApproval(
+          LabelId.CODE_REVIEW, /* expectedOldValue= */ 1, /* expectedNewValue= */ 2);
+
+      // Post without changing the vote.
+      input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertApproval(
+          LabelId.CODE_REVIEW, /* expectedOldValue= */ null, /* expectedNewValue= */ 2);
+
+      // Delete the vote.
+      input = new ReviewInput().label(LabelId.CODE_REVIEW, 0);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+      testOnPostReview.assertApproval(
+          LabelId.CODE_REVIEW, /* expectedOldValue= */ 2, /* expectedNewValue= */ 0);
+    }
+  }
+
+  @Test
+  public void votingTheSameVoteSecondTime() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    gApi.changes().id(r.getChangeId()).addReviewer(user.email());
+    sender.clear();
+
+    // Add a new vote.
+    ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+    gApi.changes().id(r.getChangeId()).current().review(input);
+    assertThat(r.getChange().approvals().values()).hasSize(1);
+
+    // Post without changing the vote.
+    input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+    gApi.changes().id(r.getChangeId()).current().review(input);
+
+    // Second vote replaced the original vote, so still only one vote.
+    assertThat(r.getChange().approvals().values()).hasSize(1);
+    List<ChangeMessageInfo> changeMessages = gApi.changes().id(r.getChangeId()).messages();
+
+    // Only the last change message is about Code-Review+2
+    assertThat(Iterables.getLast(changeMessages).message).isEqualTo("Patch Set 1: Code-Review+2");
+    changeMessages.remove(changeMessages.size() - 1);
+    assertThat(Iterables.getLast(changeMessages).message)
+        .isNotEqualTo("Patch Set 1: Code-Review+2");
+
+    // Only one email is about Code-Review +2 was sent.
+    assertThat(Iterables.getOnlyElement(sender.getMessages()).body())
+        .contains("Patch Set 1: Code-Review+2");
+  }
+
+  @Test
+  public void votingTheSameVoteSecondTimeExtendsOnPostReviewWithOldNullValue() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    // Add a new vote.
+    ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+    gApi.changes().id(r.getChangeId()).current().review(input);
+    assertThat(r.getChange().approvals().values()).hasSize(1);
+
+    TestOnPostReview testOnPostReview = new TestOnPostReview(/* message= */ null);
+    try (Registration registration = extensionRegistry.newRegistration().add(testOnPostReview)) {
+      // Post without changing the vote.
+      input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+
+      testOnPostReview.assertApproval(
+          LabelId.CODE_REVIEW, /* expectedOldValue= */ null, /* expectedNewValue= */ 2);
+    }
+  }
+
+  @Test
+  public void votingTheSameVoteSecondTimeDoesNotFireOnCommentAdded() throws Exception {
+    PushOneCommit.Result r = createChange();
+
+    // Add a new vote.
+    ReviewInput input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+    gApi.changes().id(r.getChangeId()).current().review(input);
+    assertThat(r.getChange().approvals().values()).hasSize(1);
+
+    TestListener testListener = new TestListener();
+    try (Registration registration = extensionRegistry.newRegistration().add(testListener)) {
+      // Post without changing the vote.
+      input = new ReviewInput().label(LabelId.CODE_REVIEW, 2);
+      gApi.changes().id(r.getChangeId()).current().review(input);
+
+      // Event not fired.
+      assertThat(testListener.lastCommentAddedEvent).isNull();
+    }
+  }
+
+  private static class TestListener implements CommentAddedListener {
+    public CommentAddedListener.Event lastCommentAddedEvent;
+
+    @Override
+    public void onCommentAdded(Event event) {
+      lastCommentAddedEvent = event;
+    }
+  }
+
   private List<RobotCommentInfo> getRobotComments(String changeId) throws RestApiException {
     return gApi.changes().id(changeId).robotComments().values().stream()
         .flatMap(Collection::stream)
@@ -494,5 +706,51 @@ public class PostReviewIT extends AbstractDaemonTest {
     assertThat(captor.getValue())
         .comparingElementsUsing(COMMENT_CORRESPONDENCE)
         .containsExactly(commentsForValidation);
+  }
+
+  private static class TestOnPostReview implements OnPostReview {
+    private final Optional<String> message;
+
+    private Change.Id changeId;
+    private PatchSet.Id patchSetId;
+    private Account.Id accountId;
+    private Map<String, Short> oldApprovals;
+    private Map<String, Short> approvals;
+
+    TestOnPostReview(@Nullable String message) {
+      this.message = Optional.ofNullable(message);
+    }
+
+    @Override
+    public Optional<String> getChangeMessageAddOn(
+        IdentifiedUser user,
+        ChangeNotes changeNotes,
+        PatchSet patchSet,
+        Map<String, Short> oldApprovals,
+        Map<String, Short> approvals) {
+      this.changeId = changeNotes.getChangeId();
+      this.patchSetId = patchSet.id();
+      this.accountId = user.getAccountId();
+      this.oldApprovals = oldApprovals;
+      this.approvals = approvals;
+      return message;
+    }
+
+    public void assertChangeAndPatchSet(Change.Id expectedChangeId, int expectedPatchSetNum) {
+      assertThat(changeId).isEqualTo(expectedChangeId);
+      assertThat(patchSetId.get()).isEqualTo(expectedPatchSetNum);
+    }
+
+    public void assertUser(TestAccount expectedUser) {
+      assertThat(accountId).isEqualTo(expectedUser.id());
+    }
+
+    public void assertApproval(
+        String labelName, @Nullable Integer expectedOldValue, int expectedNewValue) {
+      assertThat(oldApprovals)
+          .containsExactly(
+              labelName, expectedOldValue != null ? expectedOldValue.shortValue() : null);
+      assertThat(approvals).containsExactly(labelName, (short) expectedNewValue);
+    }
   }
 }

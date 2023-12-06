@@ -222,7 +222,6 @@ public class GetServerInfo implements RestReadView<ConfigResource> {
     info.showAssigneeInChangesTable =
         toBoolean(
             config.getBoolean("change", "showAssigneeInChangesTable", false) && hasAssigneeInIndex);
-    info.largeChange = config.getInt("change", "largeChange", 500);
     info.replyTooltip =
         Optional.ofNullable(config.getString("change", null, "replyTooltip"))
                 .orElse("Reply and score")
@@ -305,6 +304,7 @@ public class GetServerInfo implements RestReadView<ConfigResource> {
     info.editGpgKeys =
         toBoolean(enableSignedPush && config.getBoolean("gerrit", null, "editGpgKeys", true));
     info.primaryWeblinkName = config.getString("gerrit", null, "primaryWeblinkName");
+    info.instanceId = config.getString("gerrit", null, "instanceId");
     return info;
   }
 
@@ -320,17 +320,12 @@ public class GetServerInfo implements RestReadView<ConfigResource> {
     PluginConfigInfo info = new PluginConfigInfo();
     info.hasAvatars = toBoolean(avatar.hasImplementation());
     info.jsResourcePaths = new ArrayList<>();
-    info.htmlResourcePaths = new ArrayList<>();
     plugins.runEach(
         plugin -> {
           String path =
               String.format(
                   "plugins/%s/%s", plugin.getPluginName(), plugin.getJavaScriptResourcePath());
-          if (path.endsWith(".html")) {
-            info.htmlResourcePaths.add(path);
-          } else {
-            info.jsResourcePaths.add(path);
-          }
+          info.jsResourcePaths.add(path);
         });
     return info;
   }

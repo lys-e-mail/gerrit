@@ -49,6 +49,7 @@ import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.BranchNameKey;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.LabelId;
 import com.google.gerrit.entities.LabelType;
 import com.google.gerrit.entities.Patch;
 import com.google.gerrit.entities.PatchSet;
@@ -84,7 +85,9 @@ import com.google.gerrit.extensions.restapi.RestApiException;
 import com.google.gerrit.httpd.raw.IndexPreloadingUtil;
 import com.google.gerrit.index.FieldDef;
 import com.google.gerrit.index.IndexConfig;
+import com.google.gerrit.index.PaginationType;
 import com.google.gerrit.index.Schema;
+import com.google.gerrit.index.query.IndexPredicate;
 import com.google.gerrit.index.query.Predicate;
 import com.google.gerrit.index.query.QueryParseException;
 import com.google.gerrit.lifecycle.LifecycleManager;
@@ -99,17 +102,21 @@ import com.google.gerrit.server.account.AccountManager;
 import com.google.gerrit.server.account.Accounts;
 import com.google.gerrit.server.account.AccountsUpdate;
 import com.google.gerrit.server.account.AuthRequest;
+import com.google.gerrit.server.account.ListGroupMembership;
 import com.google.gerrit.server.account.VersionedAccountQueries;
 import com.google.gerrit.server.account.externalids.ExternalId;
 import com.google.gerrit.server.change.ChangeInserter;
 import com.google.gerrit.server.change.ChangeTriplet;
 import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.change.PatchSetInserter;
+import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.git.meta.MetaDataUpdate;
+import com.google.gerrit.server.group.testing.TestGroupBackend;
 import com.google.gerrit.server.index.change.ChangeField;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.ChangeIndexer;
+import com.google.gerrit.server.index.change.IndexedChangeQuery;
 import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.Sequences;
 import com.google.gerrit.server.project.ProjectCache;
@@ -164,6 +171,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Inject protected AccountManager accountManager;
   @Inject protected AllUsersName allUsersName;
   @Inject protected BatchUpdate.Factory updateFactory;
+  @Inject protected AllProjectsName allProjectsName;
   @Inject protected ChangeInserter.Factory changeFactory;
   @Inject protected Provider<ChangeQueryBuilder> queryBuilderProvider;
   @Inject protected GerritApi gApi;
@@ -183,12 +191,13 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Inject protected SchemaCreator schemaCreator;
   @Inject protected Sequences seq;
   @Inject protected ThreadLocalRequestContext requestContext;
+  @Inject protected TestGroupBackend testGroupBackend;
   @Inject protected ProjectCache projectCache;
   @Inject protected MetaDataUpdate.Server metaDataUpdateFactory;
   @Inject protected IdentifiedUser.GenericFactory identifiedUserFactory;
+  @Inject protected ProjectOperations projectOperations;
 
   @Inject private ProjectConfig.Factory projectConfigFactory;
-  @Inject private ProjectOperations projectOperations;
 
   protected Injector injector;
   protected LifecycleManager lifecycle;
@@ -719,6 +728,24 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+  public void byParentOf() throws Exception {
+    TestRepository<Repo> repo1 = createProject("repo1");
+    RevCommit commit1 = repo1.parseBody(repo1.commit().message("message").create());
+    Change change1 = insert(repo1, newChangeForCommit(repo1, commit1));
+    RevCommit commit2 = repo1.parseBody(repo1.commit(commit1));
+    Change change2 = insert(repo1, newChangeForCommit(repo1, commit2));
+    RevCommit commit3 = repo1.parseBody(repo1.commit(commit1, commit2));
+    Change change3 = insert(repo1, newChangeForCommit(repo1, commit3));
+
+    assertQuery("parentof:" + change1.getId().get());
+    assertQuery("parentof:" + change1.getKey().get());
+    assertQuery("parentof:" + change2.getId().get(), change1);
+    assertQuery("parentof:" + change2.getKey().get(), change1);
+    assertQuery("parentof:" + change3.getId().get(), change2, change1);
+    assertQuery("parentof:" + change3.getKey().get(), change2, change1);
+  }
+
+  @Test
   public void byParentProject() throws Exception {
     TestRepository<Repo> repo1 = createProject("repo1");
     TestRepository<Repo> repo2 = createProject("repo2", "repo1");
@@ -1023,7 +1050,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         Project.nameKey(repo.getRepository().getDescription().getRepositoryName());
 
     LabelType verified =
-        label("Verified", value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
+        label(LabelId.VERIFIED, value(1, "Passes"), value(0, "No score"), value(-1, "Failed"));
     try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
       ProjectConfig cfg = projectConfigFactory.create(project);
       cfg.load(md);
@@ -1039,7 +1066,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .add(allowLabel(verified.getName()).ref(heads).group(REGISTERED_USERS).range(-1, 1))
         .update();
 
-    ReviewInput reviewVerified = new ReviewInput().label("Verified", 1);
+    ReviewInput reviewVerified = new ReviewInput().label(LabelId.VERIFIED, 1);
     ChangeInserter ins = newChange(repo);
     ChangeInserter ins2 = newChange(repo);
     ChangeInserter ins3 = newChange(repo);
@@ -1151,6 +1178,44 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("label:Code-Review=+1,user=user1", change1);
     assertQuery("label:Code-Review=+1,user=user2");
     assertQuery("label:Code-Review=+1,group=group2");
+  }
+
+  @Test
+  public void byLabelExternalGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    TestRepository<InMemoryRepositoryManager.Repo> repo = createProject("repo");
+
+    // create group and add users
+    AccountGroup.UUID external_group1 = AccountGroup.uuid("testbackend:group1");
+    AccountGroup.UUID external_group2 = AccountGroup.uuid("testbackend:group2");
+    testGroupBackend.create(external_group1);
+    testGroupBackend.create(external_group2);
+    testGroupBackend.setMembershipsOf(
+        user1, new ListGroupMembership(ImmutableList.of(external_group1)));
+    testGroupBackend.setMembershipsOf(
+        user2, new ListGroupMembership(ImmutableList.of(external_group2)));
+
+    Change change1 = insert(repo, newChange(repo), user1);
+    Change change2 = insert(repo, newChange(repo), user1);
+
+    // post a review with user1 and other_user
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+    requestContext.setContext(newRequestContext(userId));
+    gApi.changes()
+        .id(change2.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    assertQuery("label:Code-Review=+1," + external_group1.get(), change1);
+    assertQuery("label:Code-Review=+1,group=" + external_group1.get(), change1);
+    assertQuery("label:Code-Review=+1,user=user1", change1);
+    assertQuery("label:Code-Review=+1,user=user2");
+    assertQuery("label:Code-Review=+1,group=" + external_group2.get());
   }
 
   @Test
@@ -1590,6 +1655,10 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertThat(nowMs - lastUpdatedMs(change2)).isEqualTo(thirtyHoursInMs);
     assertThat(TimeUtil.nowMs()).isEqualTo(nowMs);
 
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    // The endpoint is 2009-10-03 09:00:00 -0000
+
     assertQuery("-age:1d");
     assertQuery("-age:" + (30 * 60 - 1) + "m");
     assertQuery("-age:2d", change2);
@@ -1597,6 +1666,15 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("age:3d");
     assertQuery("age:2d", change1);
     assertQuery("age:1d", change2, change1);
+
+    // Same test as above, but using filter code path.
+    assertQuery(makeIndexedPredicateFilterQuery("-age:1d"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:" + (30 * 60 - 1) + "m"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:2d"), change2);
+    assertQuery(makeIndexedPredicateFilterQuery("-age:3d"), change2, change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:3d"));
+    assertQuery(makeIndexedPredicateFilterQuery("age:2d"), change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:1d"), change2, change1);
   }
 
   @Test
@@ -1608,6 +1686,9 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(repo, newChange(repo), null, new Timestamp(startMs));
     Change change2 = insert(repo, newChange(repo), null, new Timestamp(startMs + thirtyHoursInMs));
     TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
 
     for (String predicate : Lists.newArrayList("before:", "until:")) {
       assertQuery(predicate + "2009-09-29");
@@ -1621,6 +1702,22 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       assertQuery(predicate + "2009-10-01", change1);
       assertQuery(predicate + "2009-10-03", change2, change1);
     }
+
+    // Same test as above, but using filter code path.
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-29"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-30"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 16:59:00 -0400\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00 -0000\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00\""));
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 17:02:00 -0400\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00 -0000\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-01"), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-03"), change2, change1);
+    }
   }
 
   @Test
@@ -1633,6 +1730,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change2 = insert(repo, newChange(repo), null, new Timestamp(startMs + thirtyHoursInMs));
     TestTimeUtil.setClockStep(0, MILLISECONDS);
 
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
     for (String predicate : Lists.newArrayList("after:", "since:")) {
       assertQuery(predicate + "2009-10-03");
       assertQuery(predicate + "\"2009-10-01 20:59:59 -0400\"", change2);
@@ -1640,6 +1739,197 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       assertQuery(predicate + "2009-10-01", change2);
       assertQuery(predicate + "2009-09-30", change2, change1);
     }
+
+    // Same test as above, but using filter code path.
+    for (String predicate : Lists.newArrayList("after:", "since:")) {
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-03"));
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 20:59:59 -0400\""), change2);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 20:59:59 -0000\""), change2);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-01"), change2);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-30"), change2, change1);
+    }
+  }
+
+  @Test
+  public void mergedOperatorSupportedByIndexVersion() throws Exception {
+    if (getSchemaVersion() < 61) {
+      assertMissingField(ChangeField.MERGED_ON);
+      assertFailingQuery(
+          "mergedbefore:2009-10-01",
+          "'mergedbefore' operator is not supported by change index version");
+      assertFailingQuery(
+          "mergedafter:2009-10-01",
+          "'mergedafter' operator is not supported by change index version");
+    } else {
+      assertThat(getSchema().hasField(ChangeField.MERGED_ON)).isTrue();
+    }
+  }
+
+  @Test
+  public void byMergedBefore() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGED_ON)).isTrue();
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+
+    // Stop the clock, will set time to specific test values.
+    resetTimeWithClockStep(0, MILLISECONDS);
+    TestRepository<Repo> repo = createProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    TestTimeUtil.setClock(new Timestamp(startMs));
+    Change change1 = insert(repo, newChange(repo));
+    Change change2 = insert(repo, newChange(repo));
+    Change change3 = insert(repo, newChange(repo));
+
+    TestTimeUtil.setClock(new Timestamp(startMs + thirtyHoursInMs));
+    submit(change3);
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    submit(change2);
+    TestTimeUtil.setClock(new Timestamp(startMs + 3 * thirtyHoursInMs));
+    // Put another approval on the change, just to update it.
+    approve(change1);
+    approve(change3);
+
+    assertThat(TimeUtil.nowMs()).isEqualTo(startMs + 3 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change3)).isEqualTo(startMs + 3 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change2)).isEqualTo(startMs + 2 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change1)).isEqualTo(startMs + 3 * thirtyHoursInMs);
+
+    // Verify that:
+    // 1. Change1 was not submitted and should be never returned.
+    // 2. Change2 was merged on 2009-10-02 03:00:00 -0000
+    // 3. Change3 was merged on 2009-10-03 09:00:00.0 -0000
+    assertQuery("mergedbefore:2009-10-01");
+    // Changes excluded on the date submitted.
+    assertQuery("mergedbefore:2009-10-02");
+    assertQuery("mergedbefore:\"2009-10-01 22:59:00 -0400\"");
+    assertQuery("mergedbefore:\"2009-10-01 02:59:00\"");
+    assertQuery("mergedbefore:\"2009-10-01 23:02:00 -0400\"", change3);
+    assertQuery("mergedbefore:\"2009-10-02 03:02:00 -0000\"", change3);
+    assertQuery("mergedbefore:\"2009-10-02 03:02:00\"", change3);
+    assertQuery("mergedbefore:2009-10-03", change3);
+    // Changes are sorted by lastUpdatedOn first, then by mergedOn.
+    // Even though Change2 was merged after Change3, Change3 is returned first.
+    assertQuery("mergedbefore:2009-10-04", change3, change2);
+
+    // Same test as above, but using filter code path.
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:2009-10-01"));
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:2009-10-02"));
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:\"2009-10-01 22:59:00 -0400\""));
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:\"2009-10-01 02:59:00\""));
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedbefore:\"2009-10-01 23:02:00 -0400\""), change3);
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedbefore:\"2009-10-02 03:02:00 -0000\""), change3);
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:\"2009-10-02 03:02:00\""), change3);
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:2009-10-03"), change3);
+    assertQuery(makeIndexedPredicateFilterQuery("mergedbefore:2009-10-04"), change3, change2);
+  }
+
+  @Test
+  public void byMergedAfter() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGED_ON)).isTrue();
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+
+    // Stop the clock, will set time to specific test values.
+    resetTimeWithClockStep(0, MILLISECONDS);
+    TestRepository<Repo> repo = createProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    TestTimeUtil.setClock(new Timestamp(startMs));
+    Change change1 = insert(repo, newChange(repo));
+    Change change2 = insert(repo, newChange(repo));
+    Change change3 = insert(repo, newChange(repo));
+    assertThat(TimeUtil.nowMs()).isEqualTo(startMs);
+
+    TestTimeUtil.setClock(new Timestamp(startMs + thirtyHoursInMs));
+    submit(change3);
+
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    submit(change2);
+
+    TestTimeUtil.setClock(new Timestamp(startMs + 3 * thirtyHoursInMs));
+    // Put another approval on the change, just to update it.
+    approve(change1);
+    approve(change3);
+
+    assertThat(TimeUtil.nowMs()).isEqualTo(startMs + 3 * thirtyHoursInMs);
+
+    assertThat(lastUpdatedMsApi(change3)).isEqualTo(startMs + 3 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change2)).isEqualTo(startMs + 2 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change1)).isEqualTo(startMs + 3 * thirtyHoursInMs);
+
+    // Verify that:
+    // 1. Change1 was not submitted and should be never returned.
+    // 2. Change2 was merged on 2009-10-02 03:00:00 -0000
+    // 3. Change3 was merged on 2009-10-03 09:00:00.0 -0000
+    assertQuery("mergedafter:2009-10-01", change3, change2);
+    // Changes are sorted by lastUpdatedOn first, then by mergedOn.
+    // Even though Change2 was merged after Change3, Change3 is returned first.
+    assertQuery("mergedafter:\"2009-10-01 22:59:00 -0400\"", change3, change2);
+    assertQuery("mergedafter:\"2009-10-02 02:59:00 -0000\"", change3, change2);
+    assertQuery("mergedafter:\"2009-10-01 23:02:00 -0400\"", change2);
+    assertQuery("mergedafter:\"2009-10-02 03:02:00 -0000\"", change2);
+    // Changes included on the date submitted.
+    assertQuery("mergedafter:2009-10-02", change3, change2);
+    assertQuery("mergedafter:2009-10-03", change2);
+
+    // Same test as above, but using filter code path.
+
+    assertQuery(makeIndexedPredicateFilterQuery("mergedafter:2009-10-01"), change3, change2);
+    // Changes are sorted by lastUpdatedOn first, then by mergedOn.
+    // Even though Change2 was merged after Change3, Change3 is returned first.
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedafter:\"2009-10-01 22:59:00 -0400\""),
+        change3,
+        change2);
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedafter:\"2009-10-02 02:59:00 -0000\""),
+        change3,
+        change2);
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedafter:\"2009-10-01 23:02:00 -0400\""), change2);
+    assertQuery(
+        makeIndexedPredicateFilterQuery("mergedafter:\"2009-10-02 03:02:00 -0000\""), change2);
+    // Changes included on the date submitted.
+    assertQuery(makeIndexedPredicateFilterQuery("mergedafter:2009-10-02"), change3, change2);
+    assertQuery(makeIndexedPredicateFilterQuery("mergedafter:2009-10-03"), change2);
+  }
+
+  @Test
+  public void updatedThenMergedOrder() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGED_ON)).isTrue();
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+
+    // Stop the clock, will set time to specific test values.
+    resetTimeWithClockStep(0, MILLISECONDS);
+    TestRepository<Repo> repo = createProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    TestTimeUtil.setClock(new Timestamp(startMs));
+
+    Change change1 = insert(repo, newChange(repo));
+    Change change2 = insert(repo, newChange(repo));
+    Change change3 = insert(repo, newChange(repo));
+
+    TestTimeUtil.setClock(new Timestamp(startMs + thirtyHoursInMs));
+    submit(change2);
+    submit(change3);
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    // Approve post submit just to update lastUpdatedOn
+    approve(change3);
+    approve(change2);
+    submit(change1);
+
+    // All Changes were last updated at the same time.
+    assertThat(lastUpdatedMsApi(change3)).isEqualTo(startMs + 2 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change2)).isEqualTo(startMs + 2 * thirtyHoursInMs);
+    assertThat(lastUpdatedMsApi(change1)).isEqualTo(startMs + 2 * thirtyHoursInMs);
+
+    // Changes are sorted by lastUpdatedOn first, then by mergedOn, then by Id in reverse order.
+    // 1. Change3 and Change2 were merged at the same time, but Change3 ID > Change2 ID.
+    // 2. Change1 ID < Change3 ID & Change2 ID but it was merged last.
+    assertQuery("mergedbefore:2009-10-06", change1, change3, change2);
+    assertQuery("mergedafter:2009-09-30", change1, change3, change2);
+    assertQuery("status:merged", change1, change3, change2);
   }
 
   @Test
@@ -2141,21 +2431,24 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     TestRepository<Repo> repo = createProject("repo");
     RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
     RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().parent(commit2).add("file1", "contents3").create());
     Change change1 = insert(repo, newChangeForCommit(repo, commit1));
     Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+    Change change3 = insert(repo, newChangeForCommit(repo, commit3));
     RevCommit mergeCommit =
         repo.branch("master")
             .commit()
             .message("Merge commit")
             .parent(commit1)
-            .parent(commit2)
+            .parent(commit3)
             .insertChangeId()
             .create();
     Change mergeChange = insert(repo, newChangeForCommit(repo, mergeCommit));
 
     assertQuery("status:open is:merge", mergeChange);
-    assertQuery("status:open -is:merge", change2, change1);
-    assertQuery("status:open", mergeChange, change2, change1);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
   }
 
   @Test
@@ -3072,6 +3365,14 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
     Account.Id user2Id =
         accountManager.authenticate(AuthRequest.forUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    AddReviewerInput addReviewerInput = new AddReviewerInput();
+    addReviewerInput.reviewer = user2Id.toString();
+    addReviewerInput.state = ReviewerState.CC;
+    gApi.changes().id(change.getChangeId()).addReviewer(addReviewerInput);
+
     input = new AttentionSetInput(user2Id.toString(), "reason 2");
     gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
 
@@ -3102,6 +3403,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("-assignee:" + user.getUserName().get(), change2);
   }
 
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
   @Test
   public void userDestination() throws Exception {
     TestRepository<Repo> repo1 = createProject("repo1");
@@ -3113,6 +3415,8 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .hasMessageThat()
         .isEqualTo("Unknown named destination: foo");
 
+    Account.Id anotherUserId =
+        accountManager.authenticate(AuthRequest.forUser("anotheruser")).getAccountId();
     String destination1 = "refs/heads/master\trepo1";
     String destination2 = "refs/heads/master\trepo2";
     String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
@@ -3128,8 +3432,32 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
       allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
 
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
       Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
       assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
     }
 
     assertQuery("destination:destination1", change1);
@@ -3137,38 +3465,87 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("destination:destination3", change2, change1);
     assertQuery("destination:destination4");
     assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=test")
+        .hasMessageThat()
+        .isEqualTo("Account 'test' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("Account '1000000' not found");
   }
 
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
   @Test
   public void userQuery() throws Exception {
     TestRepository<Repo> repo = createProject("repo");
     Change change1 = insert(repo, newChange(repo));
     Change change2 = insert(repo, newChangeForBranch(repo, "stable"));
 
+    Account.Id anotherUserId =
+        accountManager.authenticate(AuthRequest.forUser("anotheruser")).getAccountId();
     String queryListText =
         "query1\tproject:repo\n"
             + "query2\tproject:repo status:open\n"
             + "query3\tproject:repo branch:stable\n"
             + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
 
     try (TestRepository<Repo> allUsers =
             new TestRepository<>(repoManager.openRepository(allUsersName));
-        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName)) {
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
       VersionedAccountQueries queries = VersionedAccountQueries.forUser(userId);
       queries.load(md);
       queries.setQueryList(queryListText);
       queries.commit(md);
+      VersionedAccountQueries anotherQueries = VersionedAccountQueries.forUser(anotherUserId);
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
     }
 
     assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=test")
+        .hasMessageThat()
+        .isEqualTo("Account 'test' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("Account '1000000' not found");
+    requestContext.setContext(newRequestContext(userId));
 
     assertQuery("query:query1", change2, change1);
     assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
     gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(change1.getChangeId()).current().submit();
     assertQuery("query:query2", change2);
     assertQuery("query:query3", change2);
     assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+    assertQuery("query:user=" + anotherUserId + ",query7", change2);
+    assertQuery("query:query8,user=" + anotherUserId);
   }
 
   @Test
@@ -3522,6 +3899,62 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     return c.getLastUpdatedOn().getTime();
   }
 
+  // Get the last  updated time from ChangeApi
+  protected long lastUpdatedMsApi(Change c) throws Exception {
+    return gApi.changes().id(c.getChangeId()).get().updated.getTime();
+  }
+
+  protected void approve(Change change) throws Exception {
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+  }
+
+  protected void submit(Change change) throws Exception {
+    approve(change);
+    gApi.changes().id(change.getChangeId()).current().submit();
+  }
+
+  /**
+   * Generates a search query to test {@link com.google.gerrit.index.query.Matchable} implementation
+   * of change {@link IndexPredicate}
+   *
+   * <p>This code path requires triggering the condition, when
+   *
+   * <ol>
+   *   <li>The query is rewritten into multiple {@link IndexedChangeQuery} by {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriter#rewrite}
+   *   <li>The changes are returned from the index by the first {@link IndexedChangeQuery}
+   *   <li>Then constrained in {@link com.google.gerrit.index.query.AndSource#match} by applying all
+   *       parsed predicates from the search query
+   *   <li>Thus, the rest of {@link IndexedChangeQuery} work as filters on the index results, see
+   *       {@link IndexedChangeQuery#match}
+   * </ol>
+   *
+   * The constructed query only constrains by the passed searchTerm for the operator that is being
+   * tested (for all changes without a reviewer):
+   *
+   * <ul>
+   *   <li>The search term 'status:new OR status:merged OR status:abandoned' is used to return all
+   *       changes from the search index.
+   *   <li>The non-indexed search term 'reviewerin:"Empty Group"' is only used to make the right AND
+   *       operand work as a filter (not a data source).
+   *   <li>See how it is rewritten in {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
   private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
     ReviewInput input = new ReviewInput();
     ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
@@ -3579,5 +4012,9 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
   protected Schema<ChangeData> getSchema() {
     return indexes.getSearchIndex().getSchema();
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
   }
 }

@@ -43,7 +43,6 @@ import com.google.gerrit.server.account.externalids.ExternalIdModule;
 import com.google.gerrit.server.cache.CacheRemovalListener;
 import com.google.gerrit.server.cache.h2.H2CacheModule;
 import com.google.gerrit.server.cache.mem.DefaultMemoryCacheModule;
-import com.google.gerrit.server.change.ChangeAttributeFactory;
 import com.google.gerrit.server.change.ChangeJson;
 import com.google.gerrit.server.change.ChangeKindCacheImpl;
 import com.google.gerrit.server.change.MergeabilityCacheImpl;
@@ -54,8 +53,9 @@ import com.google.gerrit.server.config.CanonicalWebUrl;
 import com.google.gerrit.server.config.CanonicalWebUrlProvider;
 import com.google.gerrit.server.config.DefaultPreferencesCacheImpl;
 import com.google.gerrit.server.config.DefaultUrlFormatter;
-import com.google.gerrit.server.config.EnableReverseDnsLookup;
-import com.google.gerrit.server.config.EnableReverseDnsLookupProvider;
+import com.google.gerrit.server.config.EnablePeerIPInReflogRecord;
+import com.google.gerrit.server.config.EnablePeerIPInReflogRecordProvider;
+import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.GitReceivePackGroups;
 import com.google.gerrit.server.config.GitUploadPackGroups;
 import com.google.gerrit.server.config.SysExecutorModule;
@@ -88,6 +88,7 @@ import com.google.gerrit.server.rules.PrologModule;
 import com.google.gerrit.server.rules.SubmitRule;
 import com.google.gerrit.server.update.BatchUpdate;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
@@ -95,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.jgit.lib.Config;
 
 /** Module for programs that perform batch operations on a site. */
 public class BatchProgramModule extends FactoryModule {
@@ -131,16 +133,14 @@ public class BatchProgramModule extends FactoryModule {
     bind(new TypeLiteral<List<CommentLinkInfo>>() {})
         .toProvider(CommentLinkProvider.class)
         .in(SINGLETON);
-    bind(new TypeLiteral<DynamicSet<ChangeAttributeFactory>>() {})
-        .toInstance(DynamicSet.emptySet());
     bind(new TypeLiteral<DynamicMap<RestView<CommitResource>>>() {})
         .toInstance(DynamicMap.emptyMap());
     bind(String.class)
         .annotatedWith(CanonicalWebUrl.class)
         .toProvider(CanonicalWebUrlProvider.class);
     bind(Boolean.class)
-        .annotatedWith(EnableReverseDnsLookup.class)
-        .toProvider(EnableReverseDnsLookupProvider.class)
+        .annotatedWith(EnablePeerIPInReflogRecord.class)
+        .toProvider(EnablePeerIPInReflogRecordProvider.class)
         .in(SINGLETON);
     bind(Realm.class).to(FakeRealm.class);
     bind(IdentifiedUser.class).toProvider(Providers.of(null));
@@ -190,7 +190,7 @@ public class BatchProgramModule extends FactoryModule {
     // Submit rules
     DynamicSet.setOf(binder(), SubmitRule.class);
     factory(SubmitRuleEvaluator.Factory.class);
-    modules.add(new PrologModule());
+    modules.add(new PrologModule(getConfig()));
     modules.add(new DefaultSubmitRule.Module());
     modules.add(new IgnoreSelfApprovalRule.Module());
 
@@ -205,5 +205,9 @@ public class BatchProgramModule extends FactoryModule {
             modules, LibModuleLoader.loadModules(parentInjector, LibModuleType.SYS_BATCH_MODULE))
         .stream()
         .forEach(this::install);
+  }
+
+  protected Config getConfig() {
+    return parentInjector.getInstance(Key.get(Config.class, GerritServerConfig.class));
   }
 }

@@ -18,27 +18,17 @@ import '@polymer/iron-icon/iron-icon';
 import '@polymer/iron-a11y-announcer/iron-a11y-announcer';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import {DiffViewMode} from '../../../constants/constants';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-mode-selector_html';
 import {customElement, property} from '@polymer/decorators';
 import {IronA11yAnnouncer} from '@polymer/iron-a11y-announcer/iron-a11y-announcer';
 import {FixIronA11yAnnouncer} from '../../../types/types';
-
-export interface GrDiffModeSelector {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
+import {fireIronAnnounce} from '../../../utils/event-util';
 
 @customElement('gr-diff-mode-selector')
-export class GrDiffModeSelector extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffModeSelector extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -53,7 +43,11 @@ export class GrDiffModeSelector extends GestureEventListeners(
   @property({type: Boolean})
   saveOnChange = false;
 
-  attached() {
+  private readonly restApiService = appContext.restApiService;
+
+  /** @override */
+  connectedCallback() {
+    super.connectedCallback();
     ((IronA11yAnnouncer as unknown) as FixIronA11yAnnouncer).requestAvailability();
   }
 
@@ -62,23 +56,17 @@ export class GrDiffModeSelector extends GestureEventListeners(
    */
   setMode(newMode: DiffViewMode) {
     if (this.saveOnChange && this.mode && this.mode !== newMode) {
-      this.$.restAPI.savePreferences({diff_view: newMode});
+      this.restApiService.savePreferences({diff_view: newMode});
     }
     this.mode = newMode;
-    let annoucement;
+    let announcement;
     if (this.isUnifiedSelected(newMode)) {
-      annoucement = 'Changed diff view to unified';
+      announcement = 'Changed diff view to unified';
     } else if (this.isSideBySideSelected(newMode)) {
-      annoucement = 'Changed diff view to side by side';
+      announcement = 'Changed diff view to side by side';
     }
-    if (annoucement) {
-      this.fire(
-        'iron-announce',
-        {
-          text: annoucement,
-        },
-        {bubbles: true}
-      );
+    if (announcement) {
+      fireIronAnnounce(this, announcement);
     }
   }
 

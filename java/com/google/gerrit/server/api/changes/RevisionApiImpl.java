@@ -106,7 +106,7 @@ import java.util.Set;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-class RevisionApiImpl implements RevisionApi {
+class RevisionApiImpl extends RevisionApi.NotImplemented {
   interface Factory {
     RevisionApiImpl create(RevisionResource r);
   }
@@ -282,7 +282,16 @@ class RevisionApiImpl implements RevisionApi {
   @Override
   public ChangeApi rebase(RebaseInput in) throws RestApiException {
     try {
-      return changes.id(rebase.apply(revision, in).value()._number);
+      return changes.id(rebaseAsInfo(in)._number);
+    } catch (Exception e) {
+      throw asRestApiException("Cannot rebase ps", e);
+    }
+  }
+
+  @Override
+  public ChangeInfo rebaseAsInfo(RebaseInput in) throws RestApiException {
+    try {
+      return rebase.apply(revision, in).value();
     } catch (Exception e) {
       throw asRestApiException("Cannot rebase ps", e);
     }
@@ -675,11 +684,6 @@ class RevisionApiImpl implements RevisionApi {
     } catch (Exception e) {
       throw asRestApiException("Cannot get description", e);
     }
-  }
-
-  @Override
-  public String etag() throws RestApiException {
-    return revisionActions.getETag(revision);
   }
 
   @Override

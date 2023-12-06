@@ -47,17 +47,16 @@ import com.google.gerrit.entities.Address;
 import com.google.gerrit.entities.AttentionSetUpdate;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.ChangeMessage;
+import com.google.gerrit.entities.LegacySubmitRequirement;
 import com.google.gerrit.entities.PatchSetApproval;
 import com.google.gerrit.entities.Project;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.entities.SubmitRecord;
-import com.google.gerrit.entities.SubmitRequirement;
 import com.google.gerrit.entities.converter.ChangeProtoConverter;
 import com.google.gerrit.entities.converter.PatchSetApprovalProtoConverter;
 import com.google.gerrit.entities.converter.PatchSetProtoConverter;
 import com.google.gerrit.entities.converter.ProtoConverter;
 import com.google.gerrit.index.FieldDef;
-import com.google.gerrit.index.RefState;
 import com.google.gerrit.index.SchemaUtil;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.proto.Protos;
@@ -66,9 +65,7 @@ import com.google.gerrit.server.ReviewerSet;
 import com.google.gerrit.server.StarredChangesUtil;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.index.change.StalenessChecker.RefStatePattern;
-import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
-import com.google.gerrit.server.notedb.RobotCommentNotes;
 import com.google.gerrit.server.project.SubmitRuleOptions;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.query.change.ChangeQueryBuilder;
@@ -151,6 +148,12 @@ public class ChangeField {
   /** Last update time since January 1, 1970. */
   public static final FieldDef<ChangeData, Timestamp> UPDATED =
       timestamp("updated2").stored().build(changeGetter(Change::getLastUpdatedOn));
+
+  /** When this change was merged, time since January 1, 1970. */
+  public static final FieldDef<ChangeData, Timestamp> MERGED_ON =
+      timestamp(ChangeQueryBuilder.FIELD_MERGED_ON)
+          .stored()
+          .build(cd -> cd.getMergedOn().orElse(null));
 
   /** List of full file paths modified in the current patch set. */
   public static final FieldDef<ChangeData, Iterable<String>> PATH =
@@ -812,7 +815,7 @@ public class ChangeField {
               });
 
   public static final SubmitRuleOptions SUBMIT_RULE_OPTIONS_LENIENT =
-      SubmitRuleOptions.builder().allowClosed(true).build();
+      SubmitRuleOptions.builder().recomputeOnClosedChanges(true).build();
 
   public static final SubmitRuleOptions SUBMIT_RULE_OPTIONS_STRICT =
       SubmitRuleOptions.builder().build();
@@ -856,12 +859,12 @@ public class ChangeField {
       }
       if (rec.requirements != null) {
         this.requirements = new ArrayList<>(rec.requirements.size());
-        for (SubmitRequirement requirement : rec.requirements) {
+        for (LegacySubmitRequirement requirement : rec.requirements) {
           StoredRequirement sr = new StoredRequirement();
           sr.type = requirement.type();
           sr.fallbackText = requirement.fallbackText();
           // For backwards compatibility, write an empty map to the index.
-          // This is required, because the SubmitRequirement AutoValue can't
+          // This is required, because the LegacySubmitRequirement AutoValue can't
           // handle null in the old code.
           // TODO(hiesel): Remove once we have rolled out the new code
           //  and waited long enough to not need to roll back.
@@ -888,8 +891,8 @@ public class ChangeField {
       if (requirements != null) {
         rec.requirements = new ArrayList<>(requirements.size());
         for (StoredRequirement req : requirements) {
-          SubmitRequirement sr =
-              SubmitRequirement.builder()
+          LegacySubmitRequirement sr =
+              LegacySubmitRequirement.builder()
                   .setType(req.type)
                   .setFallbackText(req.fallbackText)
                   .build();
@@ -914,11 +917,6 @@ public class ChangeField {
   public static void parseSubmitRecords(
       Collection<String> values, SubmitRuleOptions opts, ChangeData out) {
     List<SubmitRecord> records = parseSubmitRecords(values);
-    if (records.isEmpty()) {
-      // Assume no values means the field is not in the index;
-      // SubmitRuleEvaluator ensures the list is non-empty.
-      return;
-    }
     out.setSubmitRecords(opts, records);
   }
 
@@ -976,27 +974,9 @@ public class ChangeField {
           .buildRepeatable(
               cd -> {
                 List<byte[]> result = new ArrayList<>();
-                Project.NameKey project = cd.change().getProject();
-
-                cd.editRefs()
-                    .values()
-                    .forEach(r -> result.add(RefState.of(r).toByteArray(project)));
-                cd.starRefs()
-                    .values()
-                    .forEach(r -> result.add(RefState.of(r.ref()).toByteArray(allUsers(cd))));
-
-                ChangeNotes notes = cd.notes();
-                result.add(
-                    RefState.create(notes.getRefName(), notes.getMetaId()).toByteArray(project));
-                notes.getRobotComments(); // Force loading robot comments.
-                RobotCommentNotes robotNotes = notes.getRobotCommentNotes();
-                result.add(
-                    RefState.create(robotNotes.getRefName(), robotNotes.getMetaId())
-                        .toByteArray(project));
-                cd.draftRefs()
-                    .values()
-                    .forEach(r -> result.add(RefState.of(r).toByteArray(allUsers(cd))));
-
+                cd.getRefStates()
+                    .entries()
+                    .forEach(e -> result.add(e.getValue().toByteArray(e.getKey())));
                 return result;
               });
 

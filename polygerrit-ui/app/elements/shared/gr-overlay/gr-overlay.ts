@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-overlay_html';
 import {IronOverlayMixin} from '../../../mixins/iron-overlay-mixin/iron-overlay-mixin';
-import {customElement, property} from '@polymer/decorators';
+import {customElement} from '@polymer/decorators';
 import {IronOverlayBehavior} from '@polymer/iron-overlay-behavior/iron-overlay-behavior';
+import {findActiveElement} from '../../../utils/dom-util';
+import {fireEvent} from '../../../utils/event-util';
+import {getHovercardContainer} from '../gr-hovercard/gr-hovercard-behavior';
 
 const AWAIT_MAX_ITERS = 10;
 const AWAIT_STEP = 5;
@@ -35,7 +36,7 @@ declare global {
 
 @customElement('gr-overlay')
 export class GrOverlay extends IronOverlayMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement)),
+  PolymerElement,
   IronOverlayBehavior as IronOverlayBehavior
 ) {
   static get template() {
@@ -54,12 +55,13 @@ export class GrOverlay extends IronOverlayMixin(
    * @event fullscreen-overlay-opened
    */
 
-  @property({type: Boolean})
-  private _fullScreenOpen = false;
+  private fullScreenOpen = false;
 
   private _boundHandleClose: () => void = () => super.close();
 
-  private focusableNodes: Node[] | undefined;
+  private focusableNodes?: Node[];
+
+  private returnFocusTo?: HTMLElement;
 
   get _focusableNodes() {
     if (this.focusableNodes) {
@@ -76,12 +78,11 @@ export class GrOverlay extends IronOverlayMixin(
     // once the type contains the exported member,
     // should replace with:
     // import {IronFocusablesHelper} from '@polymer/iron-overlay-behavior/iron-focusables-helper';
-    return (window.Polymer as any).IronFocusablesHelper.getTabbableNodes(this);
+    return window.Polymer.IronFocusablesHelper.getTabbableNodes(this);
   }
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('iron-overlay-closed', () => this._overlayClosed());
     this.addEventListener('iron-overlay-cancelled', () =>
       this._overlayClosed()
@@ -89,17 +90,13 @@ export class GrOverlay extends IronOverlayMixin(
   }
 
   open() {
+    this.returnFocusTo = findActiveElement(document, true) ?? undefined;
     window.addEventListener('popstate', this._boundHandleClose);
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       super.open.apply(this);
       if (this._isMobile()) {
-        this.dispatchEvent(
-          new CustomEvent('fullscreen-overlay-opened', {
-            composed: true,
-            bubbles: true,
-          })
-        );
-        this._fullScreenOpen = true;
+        fireEvent(this, 'fullscreen-overlay-opened');
+        this.fullScreenOpen = true;
       }
       this._awaitOpen(resolve, reject);
     });
@@ -112,15 +109,28 @@ export class GrOverlay extends IronOverlayMixin(
   // called after iron-overlay is closed. Does not actually close the overlay
   _overlayClosed() {
     window.removeEventListener('popstate', this._boundHandleClose);
-    if (this._fullScreenOpen) {
-      this.dispatchEvent(
-        new CustomEvent('fullscreen-overlay-closed', {
-          composed: true,
-          bubbles: true,
-        })
-      );
-      this._fullScreenOpen = false;
+    if (this.fullScreenOpen) {
+      fireEvent(this, 'fullscreen-overlay-closed');
+      this.fullScreenOpen = false;
     }
+    if (this.returnFocusTo) {
+      this.returnFocusTo.focus();
+      this.returnFocusTo = undefined;
+    }
+  }
+
+  _onCaptureFocus(e: Event) {
+    const hovercardContainer = getHovercardContainer();
+    if (hovercardContainer) {
+      // Hovercard container is not a child of an overlay.
+      // When an overlay is opened and a user clicks inside hovercard,
+      // the IronOverlayBehavior doesn't allow to set focus inside a hovercard.
+      // As a result, user can't select a text (username) in the hovercard
+      // in a dialog. We should skip default _onCaptureFocus for hovercards.
+      const path = e.composedPath();
+      if (path.indexOf(hovercardContainer) >= 0) return;
+    }
+    super._onCaptureFocus(e);
   }
 
   /**
@@ -137,7 +147,7 @@ export class GrOverlay extends IronOverlayMixin(
   _awaitOpen(fn: (this: GrOverlay) => void, reject: (error: Error) => void) {
     let iters = 0;
     const step = () => {
-      this.async(() => {
+      setTimeout(() => {
         if (this.style.display !== 'none') {
           fn.call(this);
         } else if (iters++ < AWAIT_MAX_ITERS) {

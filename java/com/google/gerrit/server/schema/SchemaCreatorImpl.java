@@ -18,17 +18,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gerrit.common.Nullable;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.GroupReference;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.exceptions.DuplicateKeyException;
 import com.google.gerrit.git.RefUpdateUtil;
 import com.google.gerrit.metrics.MetricMaker;
 import com.google.gerrit.server.GerritPersonIdent;
 import com.google.gerrit.server.account.GroupUuid;
+import com.google.gerrit.server.account.ServiceUserClassifier;
 import com.google.gerrit.server.config.AllProjectsName;
 import com.google.gerrit.server.config.AllUsersName;
 import com.google.gerrit.server.extensions.events.GitReferenceUpdated;
 import com.google.gerrit.server.git.GitRepositoryManager;
 import com.google.gerrit.server.git.meta.MetaDataUpdate;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.gerrit.server.group.db.AuditLogFormatter;
 import com.google.gerrit.server.group.db.GroupConfig;
 import com.google.gerrit.server.group.db.GroupNameNotes;
@@ -91,7 +92,7 @@ public class SchemaCreatorImpl implements SchemaCreator {
   @Override
   public void create() throws IOException, ConfigInvalidException {
     GroupReference admins = createGroupReference("Administrators");
-    GroupReference serviceUsers = createGroupReference("Service Users");
+    GroupReference serviceUsers = createGroupReference(ServiceUserClassifier.SERVICE_USERS);
 
     AllProjectsInput allProjectsInput =
         AllProjectsInput.builder()

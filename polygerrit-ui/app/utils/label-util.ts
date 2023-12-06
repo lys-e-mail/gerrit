@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 import {
+  AccountInfo,
   ApprovalInfo,
+  DetailedLabelInfo,
   isDetailedLabelInfo,
   LabelInfo,
   VotingRangeInfo,
@@ -25,7 +27,7 @@ import {
 export const CODE_REVIEW = 'Code-Review';
 
 export function getVotingRange(label?: LabelInfo): VotingRangeInfo | undefined {
-  if (!label || !isDetailedLabelInfo(label)) return undefined;
+  if (!label || !isDetailedLabelInfo(label) || !label.values) return undefined;
   const values = Object.keys(label.values).map(v => Number(v));
   values.sort((a, b) => a - b);
   if (!values.length) return undefined;
@@ -41,4 +43,19 @@ export function getMaxAccounts(label?: LabelInfo): ApprovalInfo[] {
   if (!label || !isDetailedLabelInfo(label) || !label.all) return [];
   const votingRange = getVotingRangeOrDefault(label);
   return label.all.filter(account => account.value === votingRange.max);
+}
+
+export function getApprovalInfo(
+  label: DetailedLabelInfo,
+  account: AccountInfo
+): ApprovalInfo | undefined {
+  return label.all?.filter(x => x._account_id === account._account_id)[0];
+}
+
+export function labelCompare(labelName1: string, labelName2: string) {
+  if (labelName1 === CODE_REVIEW && labelName2 === CODE_REVIEW) return 0;
+  if (labelName1 === CODE_REVIEW) return -1;
+  if (labelName2 === CODE_REVIEW) return 1;
+
+  return labelName1.localeCompare(labelName2);
 }
