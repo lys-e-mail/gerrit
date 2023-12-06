@@ -18,7 +18,7 @@
 import '../../../test/common-test-setup-karma.js';
 import './gr-search-bar.js';
 import '../../../scripts/util.js';
-import {TestKeyboardShortcutBinder} from '../../../test/test-utils.js';
+import {TestKeyboardShortcutBinder, stubRestApi} from '../../../test/test-utils.js';
 import {Shortcut} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin.js';
 import {_testOnly_clearDocsBaseUrlCache} from '../../../utils/url-util.js';
 
@@ -123,6 +123,11 @@ suite('gr-search-bar tests', () => {
   });
 
   suite('_getSearchSuggestions', () => {
+    setup(() => {
+      // Ensure that config.change.mergeability_computation_behavior is not set.
+      element = basicFixture.instantiate();
+    });
+
     test('Autocompletes accounts', () => {
       sinon.stub(element, 'accountSuggestions').callsFake(() =>
         Promise.resolve([{text: 'owner:fred@goog.co'}])
@@ -188,15 +193,11 @@ suite('gr-search-bar tests', () => {
   ].forEach(mergeability => {
     suite(`mergeability as ${mergeability}`, () => {
       setup(done => {
-        stub('gr-rest-api-interface', {
-          getConfig() {
-            return Promise.resolve({
-              change: {
-                mergeability_computation_behavior: mergeability,
-              },
-            });
+        stubRestApi('getConfig').returns(Promise.resolve({
+          change: {
+            mergeability_computation_behavior: mergeability,
           },
-        });
+        }));
 
         element = basicFixture.instantiate();
         flush(done);
@@ -217,15 +218,11 @@ suite('gr-search-bar tests', () => {
 
   suite('doc url', () => {
     setup(done => {
-      stub('gr-rest-api-interface', {
-        getConfig() {
-          return Promise.resolve({
-            gerrit: {
-              doc_url: 'https://doc.com/',
-            },
-          });
+      stubRestApi('getConfig').returns(Promise.resolve({
+        gerrit: {
+          doc_url: 'https://doc.com/',
         },
-      });
+      }));
 
       _testOnly_clearDocsBaseUrlCache();
       element = basicFixture.instantiate();

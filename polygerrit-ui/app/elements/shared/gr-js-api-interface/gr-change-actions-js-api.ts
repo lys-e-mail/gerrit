@@ -14,51 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  ActionType,
-  ActionPriority,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {JsApiService} from './gr-js-api-types';
-import {TargetElement} from '../../plugins/gr-plugin-types';
+import {PluginApi, TargetElement} from '../../../api/plugin';
 import {ActionInfo, RequireProperties} from '../../../types/common';
-
-interface Plugin {
-  getPluginName(): string;
-}
-
-export enum ChangeActions {
-  ABANDON = 'abandon',
-  DELETE = '/',
-  DELETE_EDIT = 'deleteEdit',
-  EDIT = 'edit',
-  FOLLOW_UP = 'followup',
-  IGNORE = 'ignore',
-  MOVE = 'move',
-  PRIVATE = 'private',
-  PRIVATE_DELETE = 'private.delete',
-  PUBLISH_EDIT = 'publishEdit',
-  REBASE = 'rebase',
-  REBASE_EDIT = 'rebaseEdit',
-  READY = 'ready',
-  RESTORE = 'restore',
-  REVERT = 'revert',
-  REVERT_SUBMISSION = 'revert_submission',
-  REVIEWED = 'reviewed',
-  STOP_EDIT = 'stopEdit',
-  SUBMIT = 'submit',
-  UNIGNORE = 'unignore',
-  UNREVIEWED = 'unreviewed',
-  WIP = 'wip',
-}
-
-export enum RevisionActions {
-  CHERRYPICK = 'cherrypick',
-  REBASE = 'rebase',
-  SUBMIT = 'submit',
-  DOWNLOAD = 'download',
-}
-
-export type PrimaryActionKey = ChangeActions | RevisionActions;
+import {appContext} from '../../../services/app-context';
+import {
+  ActionPriority,
+  ActionType,
+  ChangeActions,
+  ChangeActionsPluginApi,
+  PrimaryActionKey,
+  RevisionActions,
+} from '../../../api/change-actions';
 
 export interface UIActionInfo extends RequireProperties<ActionInfo, 'label'> {
   __key: string;
@@ -93,8 +59,8 @@ export interface GrChangeActionsElement extends Element {
   getActionDetails(actionName: string): ActionInfo | undefined;
 }
 
-export class GrChangeActionsInterface {
-  private _el?: GrChangeActionsElement;
+export class GrChangeActionsInterface implements ChangeActionsPluginApi {
+  private el?: GrChangeActionsElement;
 
   RevisionActions = RevisionActions;
 
@@ -102,7 +68,10 @@ export class GrChangeActionsInterface {
 
   ActionType = ActionType;
 
-  constructor(public plugin: Plugin, el?: GrChangeActionsElement) {
+  private readonly reporting = appContext.reportingService;
+
+  constructor(public plugin: PluginApi, el?: GrChangeActionsElement) {
+    this.reporting.trackApi(this.plugin, 'actions', 'constructor');
     this.setEl(el);
   }
 
@@ -114,7 +83,7 @@ export class GrChangeActionsInterface {
       console.warn('changeActions() is not ready');
       return;
     }
-    this._el = el;
+    this.el = el;
   }
 
   /**
@@ -122,20 +91,19 @@ export class GrChangeActionsInterface {
    * element and retrieve if the interface was created before element.
    */
   private ensureEl(): GrChangeActionsElement {
-    if (!this._el) {
-      const sharedApiElement = (document.createElement(
-        'gr-js-api-interface'
-      ) as unknown) as JsApiService;
+    if (!this.el) {
+      const sharedApiElement = appContext.jsApiService;
       this.setEl(
         (sharedApiElement.getElement(
           TargetElement.CHANGE_ACTIONS
         ) as unknown) as GrChangeActionsElement
       );
     }
-    return this._el!;
+    return this.el!;
   }
 
   addPrimaryActionKey(key: PrimaryActionKey) {
+    this.reporting.trackApi(this.plugin, 'actions', 'addPrimaryActionKey');
     const el = this.ensureEl();
     if (el.primaryActionKeys.includes(key)) {
       return;
@@ -145,63 +113,77 @@ export class GrChangeActionsInterface {
   }
 
   removePrimaryActionKey(key: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'removePrimaryActionKey');
     const el = this.ensureEl();
     el.primaryActionKeys = el.primaryActionKeys.filter(k => k !== key);
   }
 
   hideQuickApproveAction() {
+    this.reporting.trackApi(this.plugin, 'actions', 'hideQuickApproveAction');
     this.ensureEl().hideQuickApproveAction();
   }
 
   setActionOverflow(type: ActionType, key: string, overflow: boolean) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setActionOverflow');
     // TODO(TS): remove return, unclear why it was written
     return this.ensureEl().setActionOverflow(type, key, overflow);
   }
 
   setActionPriority(type: ActionType, key: string, priority: ActionPriority) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setActionPriority');
     // TODO(TS): remove return, unclear why it was written
     return this.ensureEl().setActionPriority(type, key, priority);
   }
 
   setActionHidden(type: ActionType, key: string, hidden: boolean) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setActionHidden');
     // TODO(TS): remove return, unclear why it was written
     return this.ensureEl().setActionHidden(type, key, hidden);
   }
 
   add(type: ActionType, label: string): string {
+    this.reporting.trackApi(this.plugin, 'actions', 'add');
     return this.ensureEl().addActionButton(type, label);
   }
 
   remove(key: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'remove');
     // TODO(TS): remove return, unclear why it was written
     return this.ensureEl().removeActionButton(key);
   }
 
   addTapListener(key: string, handler: EventListenerOrEventListenerObject) {
+    this.reporting.trackApi(this.plugin, 'actions', 'addTapListener');
     this.ensureEl().addEventListener(key + '-tap', handler);
   }
 
   removeTapListener(key: string, handler: EventListenerOrEventListenerObject) {
+    this.reporting.trackApi(this.plugin, 'actions', 'removeTapListener');
     this.ensureEl().removeEventListener(key + '-tap', handler);
   }
 
   setLabel(key: string, text: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setLabel');
     this.ensureEl().setActionButtonProp(key, 'label', text);
   }
 
   setTitle(key: string, text: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setTitle');
     this.ensureEl().setActionButtonProp(key, 'title', text);
   }
 
   setEnabled(key: string, enabled: boolean) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setEnabled');
     this.ensureEl().setActionButtonProp(key, 'enabled', enabled);
   }
 
   setIcon(key: string, icon: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'setIcon');
     this.ensureEl().setActionButtonProp(key, 'icon', icon);
   }
 
   getActionDetails(action: string) {
+    this.reporting.trackApi(this.plugin, 'actions', 'getActionDetails');
     const el = this.ensureEl();
     return (
       el.getActionDetails(action) ||

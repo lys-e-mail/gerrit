@@ -15,6 +15,7 @@
 package com.google.gerrit.extensions.common;
 
 import com.google.gerrit.extensions.webui.UiAction;
+import java.util.Objects;
 
 /**
  * Representation of an action in the REST API.
@@ -55,4 +56,23 @@ public class ActionInfo {
     title = d.getTitle();
     enabled = d.isEnabled() ? true : null;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof ActionInfo) {
+      ActionInfo actionInfo = (ActionInfo) o;
+      return Objects.equals(method, actionInfo.method)
+          && Objects.equals(label, actionInfo.label)
+          && Objects.equals(title, actionInfo.title)
+          && Objects.equals(enabled, actionInfo.enabled);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(method, label, title, enabled);
+  }
+
+  protected ActionInfo() {}
 }

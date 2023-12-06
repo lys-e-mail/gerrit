@@ -17,20 +17,16 @@
 import '@polymer/iron-input/iron-input';
 import '../../../styles/shared-styles';
 import '../gr-button/gr-button';
-import '../gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-select/gr-select';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-preferences_html';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {DiffPreferencesInfo} from '../../../types/common';
+import {DiffPreferencesInfo} from '../../../types/diff';
 import {GrSelect} from '../gr-select/gr-select';
+import {appContext} from '../../../services/app-context';
 
 export interface GrDiffPreferences {
   $: {
-    restAPI: RestApiService & Element;
     lineWrappingInput: HTMLInputElement;
     showTabsInput: HTMLInputElement;
     showTrailingWhitespaceInput: HTMLInputElement;
@@ -42,9 +38,7 @@ export interface GrDiffPreferences {
 }
 
 @customElement('gr-diff-preferences')
-export class GrDiffPreferences extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiffPreferences extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -55,8 +49,10 @@ export class GrDiffPreferences extends GestureEventListeners(
   @property({type: Object})
   diffPrefs?: DiffPreferencesInfo;
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
-    return this.$.restAPI.getDiffPreferences().then(prefs => {
+    return this.restApiService.getDiffPreferences().then(prefs => {
       this.diffPrefs = prefs;
     });
   }
@@ -99,7 +95,7 @@ export class GrDiffPreferences extends GestureEventListeners(
   save() {
     if (!this.diffPrefs)
       return Promise.reject(new Error('Missing diff preferences'));
-    return this.$.restAPI.saveDiffPreferences(this.diffPrefs).then(_ => {
+    return this.restApiService.saveDiffPreferences(this.diffPrefs).then(_ => {
       this.hasUnsavedChanges = false;
     });
   }

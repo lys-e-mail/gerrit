@@ -116,7 +116,7 @@ it patches the `config/server/info` response with plugin information provided on
 the command line:
 
 ```sh
-./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js,plugins/my_plugin/static/my_plugin.html
+./polygerrit-ui/run-server.sh --plugins=plugins/my_plugin/static/my_plugin.js
 ```
 
 If any issues occured, please refer to the Troubleshooting section at the bottom or contact the team!
@@ -194,6 +194,9 @@ npm run test:single async-foreach-behavior_test.js
 # Debug mode (doesn't compile code before run)
 npm run test:debug async-foreach-behavior_test.js
 ```
+
+When converting a test file to typescript, the command for running tests is
+still using the .js suffix and not the new .ts suffix.
 
 Commands `test:debug` and `test:single` assumes that compiled code is located
 in the `./ts-out/polygerrit-ui/app` directory. It's up to you how to achieve it.
@@ -301,7 +304,7 @@ Common errors and fixes are:
 existing helpers to create an object with all required properties:
 ```
 // Before:
-sinon.stub(element.$.restAPI, 'getPreferences').returns(
+sinon.stub(element.restApiService, 'getPreferences').returns(
     Promise.resolve({default_diff_view: 'UNIFIED'}));
 
 // After:
@@ -431,12 +434,10 @@ const reloadStub = sinon
     .stub(element, '_reload')
     .callsFake(() => Promise.resolve());
 
-stub('gr-rest-api-interface', {
-  getDiffComments() { return Promise.resolve({}); },
-  getDiffRobotComments() { return Promise.resolve({}); },
-  getDiffDrafts() { return Promise.resolve({}); },
-  _fetchSharedCacheURL() { return Promise.resolve({}); },
-});
+stubRestApi('getDiffComments').returns(Promise.resolve({}));
+stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
+stubRestApi('_fetchSharedCacheURL').returns(Promise.resolve({}));
 ```
 
 In such cases, validate the input and output of a stub/fake method. Quite often
@@ -448,61 +449,9 @@ const reloadStub = sinon
   // GrChangeView._reload method returns an array
   .callsFake(() => Promise.resolve([])); // return [] here
 
-stub('gr-rest-api-interface', {
   ...
   // Fix return type:
-  _fetchSharedCacheURL() { return Promise.resolve({} as ParsedJSON); },
-});
-```
-
-If a method has multiple overloads, you can use one of 2 options:
-```
-// Option 1: less accurate, but shorter:
-function getCommentsStub() {
-  return Promise.resolve({});
-}
-
-stub('gr-rest-api-interface', {
-  ...
-  getDiffComments: (getCommentsStub as unknown) as RestApiService['getDiffComments'],
-  getDiffRobotComments: (getCommentsStub as unknown) as RestApiService['getDiffRobotComments'],
-  getDiffDrafts: (getCommentsStub as unknown) as RestApiService['getDiffDrafts'],
-  ...
-});
-
-// Option 2: more accurate, but longer.
-// Step 1: define the same overloads for stub:
-function getDiffCommentsStub(
-  changeNum: NumericChangeId
-): Promise<PathToCommentsInfoMap | undefined>;
-function getDiffCommentsStub(
-  changeNum: NumericChangeId,
-  basePatchNum: PatchSetNum,
-  patchNum: PatchSetNum,
-  path: string
-): Promise<GetDiffCommentsOutput>;
-
-// Step 2: implement stub method for differnt input
-function getDiffCommentsStub(
-  _: NumericChangeId,
-  basePatchNum?: PatchSetNum,
-):
-  | Promise<PathToCommentsInfoMap | undefined>
-  | Promise<GetDiffCommentsOutput> {
-  if (basePatchNum) {
-    return Promise.resolve({
-      baseComments: [],
-      comments: [],
-    });
-  }
-  return Promise.resolve({});
-}
-
-// Step 3: use stubbed function:
-stub('gr-rest-api-interface', {
-  ...
-  getDiffComments: getDiffCommentsStub,
-  ...
+  stubRestApi('_fetchSharedCacheURL').returns(Promise.resolve({} as ParsedJSON));
 });
 ```
 

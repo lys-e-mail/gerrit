@@ -19,18 +19,14 @@ import '../gr-change-list/gr-change-list';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-create-commands-dialog/gr-create-commands-dialog';
 import '../gr-create-change-help/gr-create-change-help';
 import '../gr-create-destination-dialog/gr-create-destination-dialog';
 import '../gr-user-header/gr-user-header';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-dashboard-view_html';
 import {
   GerritNav,
-  GerritView,
   UserDashboard,
   YOUR_TURN,
 } from '../../core/gr-navigation/gr-navigation';
@@ -47,7 +43,6 @@ import {
   RepoName,
 } from '../../../types/common';
 import {AppElementDashboardParams, AppElementParams} from '../../gr-app-types';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrDialog} from '../../shared/gr-dialog/gr-dialog';
 import {GrCreateCommandsDialog} from '../gr-create-commands-dialog/gr-create-commands-dialog';
 import {
@@ -58,12 +53,14 @@ import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {ChangeListToggleReviewedDetail} from '../gr-change-list-item/gr-change-list-item';
 import {ChangeStarToggleStarDetail} from '../../shared/gr-change-star/gr-change-star';
 import {DashboardViewState} from '../../../types/types';
+import {firePageError, fireTitleChange} from '../../../utils/event-util';
+import {GerritView} from '../../../services/router/router-model';
 
-const PROJECT_PLACEHOLDER_PATTERN = /\$\{project\}/g;
+const PROJECT_PLACEHOLDER_PATTERN = /\${project}/g;
+const RELOAD_DASHBOARD_INTERVAL_MS = 10 * 1000;
 
 export interface GrDashboardView {
   $: {
-    restAPI: RestApiService & Element;
     confirmDeleteDialog: GrDialog;
     commandsDialog: GrCreateCommandsDialog;
     destinationDialog: GrCreateDestinationDialog;
@@ -80,9 +77,7 @@ interface DashboardChange {
 }
 
 @customElement('gr-dashboard-view')
-export class GrDashboardView extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDashboardView extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -117,26 +112,44 @@ export class GrDashboardView extends GestureEventListeners(
   @property({type: Boolean})
   _showNewUserHelp = false;
 
+  @property({type: Number})
+  _selectedChangeIndex?: number;
+
   private reporting = appContext.reportingService;
+
+  private readonly restApiService = appContext.restApiService;
+
+  private lastVisibleTimestampMs = 0;
 
   constructor() {
     super();
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadPreferences();
     this.addEventListener('reload', e => {
       e.stopPropagation();
-      this._reload();
+      this._reload(this.params);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (
+          Date.now() - this.lastVisibleTimestampMs >
+          RELOAD_DASHBOARD_INTERVAL_MS
+        )
+          this._reload(this.params);
+      } else {
+        this.lastVisibleTimestampMs = Date.now();
+      }
     });
   }
 
   _loadPreferences() {
-    return this.$.restAPI.getLoggedIn().then(loggedIn => {
+    return this.restApiService.getLoggedIn().then(loggedIn => {
       if (loggedIn) {
-        this.$.restAPI.getPreferences().then(preferences => {
+        this.restApiService.getPreferences().then(preferences => {
           this.preferences = preferences;
         });
       } else {
@@ -150,15 +163,9 @@ export class GrDashboardView extends GestureEventListeners(
     dashboard: DashboardId
   ): Promise<UserDashboard | undefined> {
     const errFn = (response?: Response | null) => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
-    return this.$.restAPI
+    return this.restApiService
       .getDashboard(project, dashboard, errFn)
       .then(response => {
         if (!response) {
@@ -191,12 +198,21 @@ export class GrDashboardView extends GestureEventListeners(
     return params.view === GerritView.DASHBOARD;
   }
 
+  @observe('_selectedChangeIndex')
+  _selectedChangeIndexChanged(selectedChangeIndex: number) {
+    if (!this.params || !this._isViewActive(this.params)) return;
+    if (!this.viewState) throw new Error('view state undefined');
+    if (!this.params.user) throw new Error('user for dashboard is undefined');
+    this.viewState[this.params.user] = selectedChangeIndex;
+  }
+
   @observe('params.*')
   _paramsChanged(
     paramsChangeRecord: ElementPropertyDeepChange<GrDashboardView, 'params'>
   ) {
     const params = paramsChangeRecord.base;
-
+    if (params && this._isViewActive(params) && params.user && this.viewState)
+      this._selectedChangeIndex = this.viewState[params.user] || 0;
     return this._reload(params);
   }
 
@@ -211,7 +227,7 @@ export class GrDashboardView extends GestureEventListeners(
     const {project, dashboard, title, user, sections} = params;
     const dashboardPromise: Promise<UserDashboard | undefined> = project
       ? this._getProjectDashboard(project, dashboard)
-      : this.$.restAPI
+      : this.restApiService
           .getConfig()
           .then(config =>
             Promise.resolve(
@@ -224,17 +240,13 @@ export class GrDashboardView extends GestureEventListeners(
             )
           );
 
-    const checkForNewUser = !project && user === 'self';
+    // Checking `this.account` to make sure that the user is logged in.
+    // Otherwise sending a query for 'owner:self' will result in an error.
+    const checkForNewUser = !project && !!this.account && user === 'self';
     return dashboardPromise
       .then(res => {
         if (res && res.title) {
-          this.dispatchEvent(
-            new CustomEvent('title-change', {
-              detail: {title: res.title},
-              composed: true,
-              bubbles: true,
-            })
-          );
+          fireTitleChange(this, res.title);
         }
         return this._fetchDashboardChanges(res, checkForNewUser);
       })
@@ -243,15 +255,7 @@ export class GrDashboardView extends GestureEventListeners(
         this.reporting.dashboardDisplayed();
       })
       .catch(err => {
-        this.dispatchEvent(
-          new CustomEvent('title-change', {
-            detail: {
-              title: title || this._computeTitle(user),
-            },
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireTitleChange(this, title || this._computeTitle(user));
         console.warn(err);
       })
       .then(() => {
@@ -289,7 +293,7 @@ export class GrDashboardView extends GestureEventListeners(
       }
     }
 
-    return this.$.restAPI.getChanges(undefined, queries).then(changes => {
+    return this.restApiService.getChanges(undefined, queries).then(changes => {
       if (!changes) {
         throw new Error('getChanges returns undefined');
       }
@@ -368,13 +372,42 @@ export class GrDashboardView extends GestureEventListeners(
   }
 
   _handleToggleStar(e: CustomEvent<ChangeStarToggleStarDetail>) {
-    this.$.restAPI.saveChangeStarred(e.detail.change._number, e.detail.starred);
+    this.restApiService.saveChangeStarred(
+      e.detail.change._number,
+      e.detail.starred
+    );
+    // When a change is updated the same change may appear elsewhere in the
+    // dashboard (but is not the same object), so we must update other
+    // occurrences of the same change.
+    this._results?.forEach((dashboardChange, dashboardIndex) =>
+      dashboardChange.results.forEach((change, changeIndex) => {
+        if (change.id === e.detail.change.id) {
+          this.set(
+            `_results.${dashboardIndex}.results.${changeIndex}.starred`,
+            e.detail.starred
+          );
+        }
+      })
+    );
   }
 
   _handleToggleReviewed(e: CustomEvent<ChangeListToggleReviewedDetail>) {
-    this.$.restAPI.saveChangeReviewed(
+    this.restApiService.saveChangeReviewed(
       e.detail.change._number,
       e.detail.reviewed
+    );
+    // When a change is updated the same change may appear elsewhere in the
+    // dashboard (but is not the same object), so we must update other
+    // occurrences of the same change.
+    this._results?.forEach((dashboardChange, dashboardIndex) =>
+      dashboardChange.results.forEach((change, changeIndex) => {
+        if (change.id === e.detail.change.id) {
+          this.set(
+            `_results.${dashboardIndex}.results.${changeIndex}.reviewed`,
+            e.detail.reviewed
+          );
+        }
+      })
     );
   }
 
@@ -419,7 +452,7 @@ export class GrDashboardView extends GestureEventListeners(
 
   _handleConfirmDelete() {
     this.$.confirmDeleteDialog.disabled = true;
-    return this.$.restAPI.deleteDraftComments('-is:open').then(() => {
+    return this.restApiService.deleteDraftComments('-is:open').then(() => {
       this._closeConfirmDeleteOverlay();
       this._reload(this.params);
     });

@@ -17,8 +17,8 @@ package com.google.gerrit.server.account;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
+import com.google.gerrit.entities.InternalGroup;
 import com.google.gerrit.server.IdentifiedUser;
-import com.google.gerrit.server.group.InternalGroup;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
@@ -63,7 +63,7 @@ public class ServiceUserClassifierImpl implements ServiceUserClassifier {
 
   @Override
   public boolean isServiceUser(Account.Id user) {
-    Optional<InternalGroup> maybeGroup = groupCache.get(AccountGroup.nameKey("Service Users"));
+    Optional<InternalGroup> maybeGroup = groupCache.get(AccountGroup.nameKey(SERVICE_USERS));
     if (!maybeGroup.isPresent()) {
       return false;
     }

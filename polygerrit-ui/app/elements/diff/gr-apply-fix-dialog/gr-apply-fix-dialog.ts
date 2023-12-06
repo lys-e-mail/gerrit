@@ -18,34 +18,33 @@ import '@polymer/iron-icon/iron-icon';
 import '../../../styles/shared-styles';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-diff/gr-diff';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-apply-fix-dialog_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
-import {ParsedChangeInfo} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
 import {
   NumericChangeId,
-  DiffInfo,
-  DiffPreferencesInfo,
   EditPatchSetNum,
   FixId,
   FixSuggestionInfo,
   PatchSetNum,
   RobotId,
+  BasePatchSetNum,
 } from '../../../types/common';
+import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {isRobot} from '../../../utils/comment-util';
 import {OpenFixPreviewEvent} from '../../../types/events';
+import {appContext} from '../../../services/app-context';
+import {fireCloseFixPreview, fireEvent} from '../../../utils/event-util';
+import {ParsedChangeInfo} from '../../../types/types';
+import {GrButton} from '../../shared/gr-button/gr-button';
 
 export interface GrApplyFixDialog {
   $: {
-    restAPI: RestApiService & Element;
     applyFixOverlay: GrOverlay;
+    nextFix: GrButton;
   };
 }
 
@@ -55,9 +54,7 @@ interface FilePreview {
 }
 
 @customElement('gr-apply-fix-dialog')
-export class GrApplyFixDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrApplyFixDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -102,6 +99,8 @@ export class GrApplyFixDialog extends GestureEventListeners(
 
   private refitOverlay?: () => void;
 
+  private readonly restApiService = appContext.restApiService;
+
   /**
    * Given robot comment CustomEvent object, fetch diffs associated
    * with first robot comment suggested fix and open dialog.
@@ -130,34 +129,24 @@ export class GrApplyFixDialog extends GestureEventListeners(
     );
     return Promise.all(promises).then(() => {
       // ensures gr-overlay repositions overlay in center
-      this.$.applyFixOverlay.dispatchEvent(
-        new CustomEvent('iron-resize', {
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireEvent(this.$.applyFixOverlay, 'iron-resize');
     });
   }
 
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this.refitOverlay = () => {
       // re-center the dialog as content changed
-      this.$.applyFixOverlay.dispatchEvent(
-        new CustomEvent('iron-resize', {
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireEvent(this.$.applyFixOverlay, 'iron-resize');
     };
     this.addEventListener('diff-context-expanded', this.refitOverlay);
   }
 
-  detached() {
-    super.detached();
+  disconnectedCallback() {
     if (this.refitOverlay) {
       this.removeEventListener('diff-context-expanded', this.refitOverlay);
     }
+    super.disconnectedCallback();
   }
 
   _showSelectedFixSuggestion(fixSuggestion: FixSuggestionInfo) {
@@ -171,7 +160,7 @@ export class GrApplyFixDialog extends GestureEventListeners(
         new Error('Both _patchNum and changeNum must be set')
       );
     }
-    return this.$.restAPI
+    return this.restApiService
       .getRobotCommentFixPreview(this.changeNum, this._patchNum, fixId)
       .then(res => {
         if (res) {
@@ -181,7 +170,7 @@ export class GrApplyFixDialog extends GestureEventListeners(
         }
       })
       .catch(err => {
-        this._close();
+        this._close(false);
         throw err;
       });
   }
@@ -199,7 +188,7 @@ export class GrApplyFixDialog extends GestureEventListeners(
     if (e) {
       e.stopPropagation();
     }
-    this._close();
+    this._close(false);
   }
 
   addOneTo(_selectedFixIdx: number) {
@@ -238,17 +227,12 @@ export class GrApplyFixDialog extends GestureEventListeners(
     return _selectedFixIdx === fixSuggestions.length - 1;
   }
 
-  _close() {
+  _close(fixApplied: boolean) {
     this._currentFix = undefined;
     this._currentPreviews = [];
     this._isApplyFixLoading = false;
 
-    this.dispatchEvent(
-      new CustomEvent('close-fix-preview', {
-        bubbles: true,
-        composed: true,
-      })
-    );
+    fireCloseFixPreview(this, fixApplied);
     this.$.applyFixOverlay.close();
   }
 
@@ -291,12 +275,16 @@ export class GrApplyFixDialog extends GestureEventListeners(
       return Promise.reject(new Error('Not all required properties are set.'));
     }
     this._isApplyFixLoading = true;
-    return this.$.restAPI
+    return this.restApiService
       .applyFixSuggestion(changeNum, patchNum, this._currentFix.fix_id)
       .then(res => {
         if (res && res.ok) {
-          GerritNav.navigateToChange(change, EditPatchSetNum, patchNum);
-          this._close();
+          GerritNav.navigateToChange(
+            change,
+            EditPatchSetNum,
+            patchNum as BasePatchSetNum
+          );
+          this._close(true);
         }
         this._isApplyFixLoading = false;
       });

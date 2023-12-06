@@ -17,17 +17,17 @@
 import '@polymer/iron-icon/iron-icon';
 import '../../shared/gr-icons/gr-icons';
 import '../../shared/gr-dialog/gr-dialog';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
+import '../gr-thread-list/gr-thread-list';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-confirm-submit-dialog_html';
 import {customElement, property} from '@polymer/decorators';
 import {ChangeInfo, ActionInfo} from '../../../types/common';
 import {GrDialog} from '../../shared/gr-dialog/gr-dialog';
+import {pluralize} from '../../../utils/string-util';
+import {CommentThread, isUnresolved} from '../../../utils/comment-util';
 
 export interface GrConfirmSubmitDialog {
   $: {
@@ -35,9 +35,7 @@ export interface GrConfirmSubmitDialog {
   };
 }
 @customElement('gr-confirm-submit-dialog')
-export class GrConfirmSubmitDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrConfirmSubmitDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -60,6 +58,16 @@ export class GrConfirmSubmitDialog extends GestureEventListeners(
   @property({type: Object})
   action?: ActionInfo;
 
+  @property({type: Array})
+  commentThreads?: CommentThread[] = [];
+
+  @property({type: Boolean})
+  _initialised = false;
+
+  init() {
+    this._initialised = true;
+  }
+
   resetFocus() {
     this.$.dialog.resetFocus();
   }
@@ -72,10 +80,15 @@ export class GrConfirmSubmitDialog extends GestureEventListeners(
     );
   }
 
+  _computeUnresolvedThreads(commentThreads?: CommentThread[]) {
+    if (!commentThreads) return [];
+    return commentThreads.filter(thread => isUnresolved(thread));
+  }
+
   _computeUnresolvedCommentsWarning(change: ChangeInfo) {
     const unresolvedCount = change.unresolved_comment_count;
-    const plural = unresolvedCount && unresolvedCount > 1 ? 's' : '';
-    return `Heads Up! ${unresolvedCount} unresolved comment${plural}.`;
+    if (!unresolvedCount) throw new Error('unresolved comments undefined or 0');
+    return `Heads Up! ${pluralize(unresolvedCount, 'unresolved comment')}.`;
   }
 
   _handleConfirmTap(e: MouseEvent) {

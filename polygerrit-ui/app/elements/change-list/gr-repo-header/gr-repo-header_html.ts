@@ -18,17 +18,28 @@ import {html} from '@polymer/polymer/lib/utils/html-tag';
 
 export const htmlTemplate = html`
   <style include="shared-styles">
+    .browse {
+      display: inline-block;
+      font-weight: var(--font-weight-bold);
+      text-align: right;
+      width: 4em;
+    }
     /* Workaround for empty style block - see https://github.com/Polymer/tools/issues/408 */
   </style>
   <style include="dashboard-header-styles">
     /* Workaround for empty style block - see https://github.com/Polymer/tools/issues/408 */
   </style>
   <div class="info">
-    <h1 class="heading-1">
-      [[repo]]
-    </h1>
+    <h1 class="heading-1">[[repo]]</h1>
     <hr />
     <div><span>Detail:</span> <a href$="[[_repoUrl]]">Repo settings</a></div>
+    <span is="dom-if" if="[[_webLinks]]">
+      <div>
+        <span class="browse">Browse:</span>
+        <template is="dom-repeat" items="[[_webLinks]]" as="weblink">
+          <a target="_blank" href$="[[weblink.url]]">[[weblink.name]]</a>
+        </template>
+      </div>
+    </span>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

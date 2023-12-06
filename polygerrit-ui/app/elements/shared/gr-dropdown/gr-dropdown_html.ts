@@ -28,8 +28,11 @@ export const htmlTemplate = html`
     .dropdown-content {
       background-color: var(--dropdown-background-color);
       box-shadow: var(--elevation-level-2);
+      min-width: 112px;
+      max-width: 280px;
     }
     gr-button {
+      vertical-align: top;
       @apply --gr-button;
     }
     gr-avatar {
@@ -103,6 +106,7 @@ export const htmlTemplate = html`
     allow-outside-scroll="true"
     horizontal-align="[[horizontalAlign]]"
     on-click="_handleDropdownClick"
+    on-opened-changed="handleOpenedChanged"
   >
     <div class="dropdown-content" slot="dropdown-content">
       <ul>
@@ -158,12 +162,4 @@ export const htmlTemplate = html`
       </ul>
     </div>
   </iron-dropdown>
-  <gr-cursor-manager
-    id="cursor"
-    cursor-target-class="selected"
-    scroll-mode="never"
-    focus-on-move=""
-    stops="[[_listElements]]"
-  ></gr-cursor-manager>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

@@ -322,7 +322,8 @@ suite('gr-reporting tests', () => {
   test('reportExtension', () => {
     service.reportExtension('foo');
     assert.isTrue(service.reporter.calledWithExactly(
-        'lifecycle', 'Extension detected', 'foo'
+        'lifecycle', 'Extension detected', 'Extension detected', undefined,
+        {name: 'foo'}
     ));
   });
 
@@ -338,6 +339,16 @@ suite('gr-reporting tests', () => {
           eventDetails: JSON.stringify({name: 'sendReply'}),
         }
     ));
+  });
+
+  test('trackApi reports same event only once', () => {
+    sinon.spy(service, '_reportEvent');
+    const pluginApi = {getPluginName: () => 'test'};
+    service.trackApi(pluginApi, 'object', 'method');
+    service.trackApi(pluginApi, 'object', 'method');
+    assert.isTrue(service.reporter.calledOnce);
+    service.trackApi(pluginApi, 'object', 'method2');
+    assert.isTrue(service.reporter.calledTwice);
   });
 
   test('report start time', () => {
@@ -463,23 +474,14 @@ suite('gr-reporting tests', () => {
       const error = new Error('bar');
       error.stack = undefined;
       emulateThrow('bar', 'http://url', 4, 2, error);
-      assert.isTrue(reporter.calledWith('error', 'exception', 'bar'));
-      const payload = reporter.lastCall.args[3];
-      assert.deepEqual(payload, {
-        url: 'http://url',
-        line: 4,
-        column: 2,
-        error,
-      });
+      assert.isTrue(reporter.calledWith('error', 'exception', 'onError: bar'));
     });
 
-    test('is reported with 3 lines of stack', () => {
+    test('is reported with stack', () => {
       const error = new Error('bar');
       emulateThrow('bar', 'http://url', 4, 2, error);
-      const expectedStack = error.stack.split('\n').slice(0, 3)
-          .join('\n');
-      assert.isTrue(reporter.calledWith('error', 'exception',
-          expectedStack));
+      const eventDetails = reporter.lastCall.args[4];
+      assert.equal(error.stack, eventDetails.stack);
     });
 
     test('prevent default event handler', () => {
@@ -487,12 +489,10 @@ suite('gr-reporting tests', () => {
     });
 
     test('unhandled rejection', () => {
-      fakeWindow.handlers['unhandledrejection']({
-        reason: {
-          message: 'bar',
-        },
-      });
-      assert.isTrue(reporter.calledWith('error', 'exception', 'bar'));
+      const newError = new Error('bar');
+      fakeWindow.handlers['unhandledrejection']({reason: newError});
+      assert.isTrue(reporter.calledWith('error', 'exception',
+          'unhandledrejection: bar'));
     });
   });
 });

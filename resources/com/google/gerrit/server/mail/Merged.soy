@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-{namespace com.google.gerrit.server.mail.template}
+{namespace com.google.gerrit.server.mail.template.Merged}
 
 /**
  * The .Merged template will determine the contents of the email related to
  * a change successfully merged to the head.
  */
-{template .Merged kind="text"}
+{template Merged kind="text"}
   {@param change: ?}
   {@param email: ?}
   {@param fromName: ?}
@@ -39,4 +39,5 @@
     {$email.unifiedDiff}
     {\n}
   {/if}
+  {$email.stickyApprovalDiff}
 {/template}

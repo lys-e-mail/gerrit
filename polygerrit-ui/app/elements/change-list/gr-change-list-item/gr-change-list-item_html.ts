@@ -54,7 +54,7 @@ export const htmlTemplate = html`
       white-space: nowrap;
     }
     .reviewers {
-      --account-max-length: 90px;
+      --account-max-length: 70px;
     }
     .spacer {
       height: 0;
@@ -82,6 +82,9 @@ export const htmlTemplate = html`
       text-decoration: none;
     }
     a:hover {
+      text-decoration: underline;
+    }
+    .subject:hover .content {
       text-decoration: underline;
     }
     .u-monospace {
@@ -130,21 +133,17 @@ export const htmlTemplate = html`
     class="cell subject"
     hidden$="[[isColumnHidden('Subject', visibleChangeTableColumns)]]"
   >
-    <div class="container">
-      <div class="content">
-        <a
-          title$="[[change.subject]]"
-          href$="[[changeURL]]"
-          on-click="_handleChangeClick"
-        >
-          [[change.subject]]
-        </a>
+    <a
+      title$="[[change.subject]]"
+      href$="[[changeURL]]"
+      on-click="_handleChangeClick"
+    >
+      <div class="container">
+        <div class="content">[[change.subject]]</div>
+        <div class="spacer">[[change.subject]]</div>
+        <span>&nbsp;</span>
       </div>
-      <div class="spacer">
-        [[change.subject]]
-      </div>
-      <span>&nbsp;</span>
-    </div>
+    </a>
   </td>
   <td
     class="cell status"
@@ -243,9 +242,7 @@ export const htmlTemplate = html`
     class="cell branch"
     hidden$="[[isColumnHidden('Branch', visibleChangeTableColumns)]]"
   >
-    <a href$="[[_computeRepoBranchURL(change)]]">
-      [[change.branch]]
-    </a>
+    <a href$="[[_computeRepoBranchURL(change)]]"> [[change.branch]] </a>
     <template is="dom-if" if="[[change.topic]]">
       (<a href$="[[_computeTopicURL(change)]]"
         ><!--

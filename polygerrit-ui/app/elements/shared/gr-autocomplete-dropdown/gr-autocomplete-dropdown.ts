@@ -18,19 +18,17 @@ import '@polymer/iron-dropdown/iron-dropdown';
 import '../gr-cursor-manager/gr-cursor-manager';
 import '../../../styles/shared-styles';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-autocomplete-dropdown_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {IronFitMixin} from '../../../mixins/iron-fit-mixin/iron-fit-mixin';
 import {customElement, property, observe} from '@polymer/decorators';
 import {IronFitBehavior} from '@polymer/iron-fit-behavior/iron-fit-behavior';
+import {GrCursorManager} from '../gr-cursor-manager/gr-cursor-manager';
+import {fireEvent} from '../../../utils/event-util';
 
-// TODO(TS): Update once GrCursorManager is upated
 export interface GrAutocompleteDropdown {
   $: {
-    cursor: any;
     suggestions: Element;
   };
 }
@@ -49,14 +47,9 @@ interface Item {
   value?: string;
 }
 
-/**
- * @extends PolymerElement
- */
 @customElement('gr-autocomplete-dropdown')
 export class GrAutocompleteDropdown extends IronFitMixin(
-  KeyboardShortcutMixin(
-    GestureEventListeners(LegacyElementMixin(PolymerElement))
-  ),
+  KeyboardShortcutMixin(PolymerElement),
   IronFitBehavior as IronFitBehavior
 ) {
   static get template() {
@@ -90,9 +83,6 @@ export class GrAutocompleteDropdown extends IronFitMixin(
   @property({type: Array})
   suggestions: Item[] = [];
 
-  @property({type: Array})
-  _suggestionEls: Element[] = [];
-
   get keyBindings() {
     return {
       up: '_handleUp',
@@ -101,6 +91,20 @@ export class GrAutocompleteDropdown extends IronFitMixin(
       esc: '_handleEscape',
       tab: '_handleTab',
     };
+  }
+
+  private cursor = new GrCursorManager();
+
+  constructor() {
+    super();
+    this.cursor.cursorTargetClass = 'selected';
+    this.cursor.focusOnMove = true;
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.cursor.unsetCursor();
+    super.disconnectedCallback();
   }
 
   close() {
@@ -115,7 +119,7 @@ export class GrAutocompleteDropdown extends IronFitMixin(
   }
 
   getCurrentText() {
-    return this.getCursorTarget().dataset['value'];
+    return this.getCursorTarget()?.dataset['value'] || '';
   }
 
   _handleUp(e: Event) {
@@ -136,13 +140,13 @@ export class GrAutocompleteDropdown extends IronFitMixin(
 
   cursorDown() {
     if (!this.isHidden) {
-      this.$.cursor.next();
+      this.cursor.next();
     }
   }
 
   cursorUp() {
     if (!this.isHidden) {
-      this.$.cursor.previous();
+      this.cursor.previous();
     }
   }
 
@@ -153,7 +157,7 @@ export class GrAutocompleteDropdown extends IronFitMixin(
       new CustomEvent('item-selected', {
         detail: {
           trigger: 'tab',
-          selected: this.$.cursor.target,
+          selected: this.cursor.target,
         },
         composed: true,
         bubbles: true,
@@ -168,7 +172,7 @@ export class GrAutocompleteDropdown extends IronFitMixin(
       new CustomEvent('item-selected', {
         detail: {
           trigger: 'enter',
-          selected: this.$.cursor.target,
+          selected: this.cursor.target,
         },
         composed: true,
         bubbles: true,
@@ -204,16 +208,11 @@ export class GrAutocompleteDropdown extends IronFitMixin(
   }
 
   _fireClose() {
-    this.dispatchEvent(
-      new CustomEvent('dropdown-closed', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'dropdown-closed');
   }
 
   getCursorTarget() {
-    return this.$.cursor.target;
+    return this.cursor.target;
   }
 
   @observe('suggestions')
@@ -221,18 +220,23 @@ export class GrAutocompleteDropdown extends IronFitMixin(
     if (this.suggestions.length > 0) {
       if (!this.isHidden) {
         flush();
-        this._suggestionEls = Array.from(
+        this.cursor.stops = Array.from(
           this.$.suggestions.querySelectorAll('li')
         );
         this._resetCursorIndex();
       }
     } else {
-      this._suggestionEls = [];
+      this.cursor.stops = [];
     }
   }
 
+  @observe('index')
+  _setIndex() {
+    this.cursor.index = this.index || -1;
+  }
+
   _resetCursorIndex() {
-    this.$.cursor.setCursorAtIndex(0);
+    this.cursor.setCursorAtIndex(0);
   }
 
   _computeLabelClass(item: Item) {

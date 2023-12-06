@@ -20,28 +20,17 @@ import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
 import '../../shared/gr-avatar/gr-avatar';
 import '../../shared/gr-date-formatter/gr-date-formatter';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/dashboard-header-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-user-header_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {AccountDetailInfo, AccountId} from '../../../types/common';
 import {getDisplayName} from '../../../utils/display-name-util';
-
-export interface GrUserHeader {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
+import {appContext} from '../../../services/app-context';
 
 @customElement('gr-user-header')
-export class GrUserHeader extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrUserHeader extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -61,6 +50,8 @@ export class GrUserHeader extends GestureEventListeners(
   @property({type: String})
   _status = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   _accountChanged(userId?: AccountId) {
     if (!userId) {
       this._accountDetails = null;
@@ -68,7 +59,7 @@ export class GrUserHeader extends GestureEventListeners(
       return;
     }
 
-    this.$.restAPI.getAccountDetails(userId).then(details => {
+    this.restApiService.getAccountDetails(userId).then(details => {
       this._accountDetails = details ?? null;
       this._status = details?.status ?? '';
     });

@@ -17,13 +17,15 @@
 import {html} from '@polymer/polymer/lib/utils/html-tag';
 
 export const htmlTemplate = html`
-  <style include="shared-styles">
+  <style>
+    :host([hidden]) {
+      display: none;
+    }
     :host {
       display: inline-block;
       border-radius: 50%;
       background-size: cover;
-      background-color: var(--avatar-background-color, #f1f2f3);
+      background-color: var(--avatar-background-color, var(--gray-background));
     }
   </style>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

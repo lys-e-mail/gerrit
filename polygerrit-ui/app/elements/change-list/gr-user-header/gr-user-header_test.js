@@ -17,6 +17,7 @@
 
 import '../../../test/common-test-setup-karma.js';
 import './gr-user-header.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-user-header');
 
@@ -28,7 +29,7 @@ suite('gr-user-header tests', () => {
   });
 
   test('loads and clears account info', done => {
-    sinon.stub(element.$.restAPI, 'getAccountDetails')
+    stubRestApi('getAccountDetails')
         .returns(Promise.resolve({
           name: 'foo',
           email: 'bar',

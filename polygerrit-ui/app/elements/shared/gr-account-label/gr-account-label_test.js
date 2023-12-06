@@ -17,6 +17,7 @@
 
 import '../../../test/common-test-setup-karma.js';
 import './gr-account-label.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-account-label');
 
@@ -28,10 +29,7 @@ suite('gr-account-label tests', () => {
   }
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-      getLoggedIn() { return Promise.resolve(false); },
-    });
+    stubRestApi('getLoggedIn').returns(Promise.resolve(false));
     element = basicFixture.instantiate();
     element._config = {
       user: {
@@ -82,16 +80,21 @@ suite('gr-account-label tests', () => {
   });
 
   suite('attention set', () => {
-    setup(() => {
+    setup(async () => {
+      const kermit = createAccount('kermit', 31);
       element.highlightAttention = true;
       element._config = {
         change: {enable_attention_set: true},
         user: {anonymous_coward_name: 'Anonymous Coward'},
       };
-      element._selfAccount = createAccount('kermit', 31);
+      element._selfAccount = kermit;
       element.account = createAccount('ernie', 42);
-      element.change = {attention_set: {42: {}}};
-      flush();
+      element.change = {
+        attention_set: {42: {}},
+        owner: kermit,
+        reviewers: {},
+      };
+      await flush();
     });
 
     test('show attention button', () => {
@@ -99,7 +102,8 @@ suite('gr-account-label tests', () => {
     });
 
     test('tap attention button', () => {
-      const apiStub = sinon.stub(element.$.restAPI, 'removeFromAttentionSet')
+      const apiStub = stubRestApi(
+          'removeFromAttentionSet')
           .callsFake(() => Promise.resolve());
       const button = element.shadowRoot.querySelector('#attentionButton');
       assert.ok(button);

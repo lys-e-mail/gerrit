@@ -18,9 +18,6 @@ import '@polymer/iron-icon/iron-icon';
 import '../../../styles/shared-styles';
 import '../gr-icons/gr-icons';
 import '../gr-labeled-autocomplete/gr-labeled-autocomplete';
-import '../gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-branch-picker_html';
 import {singleDecodeURL} from '../../../utils/url-util';
@@ -33,7 +30,7 @@ import {
   BranchInfo,
 } from '../../../types/common';
 import {GrLabeledAutocomplete} from '../gr-labeled-autocomplete/gr-labeled-autocomplete';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
 const SUGGESTIONS_LIMIT = 15;
 const REF_PREFIX = 'refs/heads/';
@@ -42,13 +39,10 @@ export interface GrRepoBranchPicker {
   $: {
     repoInput: GrLabeledAutocomplete;
     branchInput: GrLabeledAutocomplete;
-    restAPI: RestApiService & Element;
   };
 }
 @customElement('gr-repo-branch-picker')
-export class GrRepoBranchPicker extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRepoBranchPicker extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -68,6 +62,8 @@ export class GrRepoBranchPicker extends GestureEventListeners(
   @property({type: Object})
   _repoQuery?: AutocompleteQuery;
 
+  private readonly restApiService = appContext.restApiService;
+
   constructor() {
     super();
     this._query = input => this._getRepoBranchesSuggestions(input);
@@ -75,8 +71,8 @@ export class GrRepoBranchPicker extends GestureEventListeners(
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     if (this.repo) {
       this.$.repoInput.setText(this.repo);
     }
@@ -95,13 +91,13 @@ export class GrRepoBranchPicker extends GestureEventListeners(
     if (input.startsWith(REF_PREFIX)) {
       input = input.substring(REF_PREFIX.length);
     }
-    return this.$.restAPI
+    return this.restApiService
       .getRepoBranches(input, this.repo, SUGGESTIONS_LIMIT)
       .then(res => this._branchResponseToSuggestions(res));
   }
 
   _getRepoSuggestions(input: string) {
-    return this.$.restAPI
+    return this.restApiService
       .getRepos(input, SUGGESTIONS_LIMIT)
       .then(res => this._repoResponseToSuggestions(res));
   }

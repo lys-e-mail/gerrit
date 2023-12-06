@@ -58,6 +58,15 @@ import {
   TimezoneOffset,
   UserConfigInfo,
   AccountDetailInfo,
+  Requirement,
+  RequirementType,
+  UrlEncodedCommentId,
+  BasePatchSetNum,
+  RelatedChangeAndCommitInfo,
+  SubmittedTogetherInfo,
+  RelatedChangesInfo,
+  FixSuggestionInfo,
+  FixId,
 } from '../types/common';
 import {
   AccountsVisibility,
@@ -74,15 +83,19 @@ import {
   RevisionKind,
   SubmitType,
   TimeFormat,
+  RequirementStatus,
+  CommentSide,
 } from '../constants/constants';
 import {formatDate} from '../utils/date-util';
-import {GetDiffCommentsOutput} from '../services/services/gr-rest-api/gr-rest-api';
+import {GetDiffCommentsOutput} from '../services/gr-rest-api/gr-rest-api';
 import {AppElementChangeViewParams} from '../elements/gr-app-types';
-import {GerritView} from '../elements/core/gr-navigation/gr-navigation';
-import {
-  EditRevisionInfo,
-  ParsedChangeInfo,
-} from '../elements/shared/gr-rest-api-interface/gr-reviewer-updates-parser';
+import {CommitInfoWithRequiredCommit} from '../elements/change/gr-change-metadata/gr-change-metadata';
+import {WebLinkInfo} from '../types/diff';
+import {UIComment, UIDraft, createCommentThreads} from '../utils/comment-util';
+import {GerritView} from '../services/router/router-model';
+import {ChangeComments} from '../elements/diff/gr-comment-api/gr-comment-api';
+import {EditRevisionInfo, ParsedChangeInfo} from '../types/types';
+import {ChangeMessage} from '../elements/change/gr-message/gr-message';
 
 export function dateToTimestamp(date: Date): Timestamp {
   const nanosecondSuffix = '.000000000';
@@ -194,6 +207,15 @@ export function createCommit(): CommitInfo {
   };
 }
 
+export function createCommitInfoWithRequiredCommit(
+  commit = 'commit'
+): CommitInfoWithRequiredCommit {
+  return {
+    ...createCommit(),
+    commit: commit as CommitId,
+  };
+}
+
 export function createRevision(patchSetNum = 1): RevisionInfo {
   return {
     _number: patchSetNum as PatchSetNum,
@@ -208,16 +230,25 @@ export function createRevision(patchSetNum = 1): RevisionInfo {
 export function createEditRevision(): EditRevisionInfo {
   return {
     _number: EditPatchSetNum,
-    basePatchNum: 1 as PatchSetNum,
+    basePatchNum: 1 as BasePatchSetNum,
     commit: createCommit(),
   };
 }
 
-export function createChangeMessage(id = 'cm_id_1'): ChangeMessageInfo {
+export function createChangeMessageInfo(id = 'cm_id_1'): ChangeMessageInfo {
   return {
     id: id as ChangeMessageId,
     date: dateToTimestamp(TEST_CHANGE_CREATED),
     message: `This is a message with id ${id}`,
+  };
+}
+
+export function createChangeMessage(id = 'cm_id_1'): ChangeMessage {
+  return {
+    ...createChangeMessageInfo(id),
+    type: '',
+    expanded: false,
+    commentThreads: [],
   };
 }
 
@@ -252,7 +283,7 @@ export function createChangeMessages(count: number): ChangeMessageInfo[] {
   const messageDate = TEST_CHANGE_CREATED;
   for (let i = 0; i < count; i++) {
     messages.push({
-      ...createChangeMessage((i + messageIdStart).toString(16)),
+      ...createChangeMessageInfo((i + messageIdStart).toString(16)),
       date: dateToTimestamp(messageDate),
     });
     messageDate.setDate(messageDate.getDate() + 1);
@@ -345,7 +376,6 @@ export function createPluginConfig(): PluginConfigInfo {
   return {
     has_avatars: false,
     js_resource_paths: [],
-    html_resource_paths: [],
   };
 }
 
@@ -388,6 +418,7 @@ export function createMergeable(): MergeableInfo {
   };
 }
 
+// TODO: Maybe reconcile with createDefaultPreferences() in constants.ts.
 export function createPreferences(): PreferencesInfo {
   return {
     changes_per_page: 10,
@@ -411,5 +442,185 @@ export function createAppElementChangeViewParams(): AppElementChangeViewParams {
     view: GerritView.CHANGE,
     changeNum: TEST_NUMERIC_CHANGE_ID,
     project: TEST_PROJECT_NAME,
+  };
+}
+
+export function createRequirement(): Requirement {
+  return {
+    status: RequirementStatus.OK,
+    fallbackText: '',
+    type: 'wip' as RequirementType,
+  };
+}
+
+export function createWebLinkInfo(): WebLinkInfo {
+  return {
+    name: 'gitiles',
+    url: '#',
+    image_url: 'gitiles.jpg',
+  };
+}
+
+export function createComment(): UIComment {
+  return {
+    patch_set: 1 as PatchSetNum,
+    id: '12345' as UrlEncodedCommentId,
+    side: CommentSide.REVISION,
+    line: 1,
+    message: 'hello world',
+    updated: '2018-02-13 22:48:48.018000000' as Timestamp,
+    unresolved: false,
+    path: 'abc.txt',
+  };
+}
+
+export function createDraft(): UIDraft {
+  return {
+    ...createComment(),
+    collapsed: false,
+    __draft: true,
+    __editing: false,
+  };
+}
+
+export function createChangeComments(): ChangeComments {
+  const comments = {
+    '/COMMIT_MSG': [
+      {
+        ...createComment(),
+        message: 'Done',
+        updated: '2017-02-08 16:40:49' as Timestamp,
+        id: '1' as UrlEncodedCommentId,
+      },
+      {
+        ...createComment(),
+        message: 'oh hay',
+        updated: '2017-02-09 16:40:49' as Timestamp,
+        id: '2' as UrlEncodedCommentId,
+      },
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'hello',
+        updated: '2017-02-10 16:40:49' as Timestamp,
+        id: '3' as UrlEncodedCommentId,
+      },
+    ],
+    'myfile.txt': [
+      {
+        ...createComment(),
+        message: 'good news!',
+        updated: '2017-02-08 16:40:49' as Timestamp,
+        id: '4' as UrlEncodedCommentId,
+      },
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'wat!?',
+        updated: '2017-02-09 16:40:49' as Timestamp,
+        id: '5' as UrlEncodedCommentId,
+      },
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'hi',
+        updated: '2017-02-10 16:40:49' as Timestamp,
+        id: '6' as UrlEncodedCommentId,
+      },
+    ],
+    'unresolved.file': [
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'wat!?',
+        updated: '2017-02-09 16:40:49' as Timestamp,
+        id: '7' as UrlEncodedCommentId,
+        unresolved: true,
+      },
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'hi',
+        updated: '2017-02-10 16:40:49' as Timestamp,
+        id: '8' as UrlEncodedCommentId,
+        in_reply_to: '7' as UrlEncodedCommentId,
+        unresolved: false,
+      },
+      {
+        ...createComment(),
+        patch_set: 2 as PatchSetNum,
+        message: 'good news!',
+        updated: '2017-02-08 16:40:49' as Timestamp,
+        id: '9' as UrlEncodedCommentId,
+        unresolved: true,
+      },
+    ],
+  };
+  const drafts = {
+    '/COMMIT_MSG': [
+      {
+        ...createDraft(),
+        message: 'hi',
+        updated: '2017-02-15 16:40:49' as Timestamp,
+        id: '10' as UrlEncodedCommentId,
+        unresolved: true,
+      },
+      {
+        ...createDraft(),
+        message: 'fyi',
+        updated: '2017-02-15 16:40:49' as Timestamp,
+        id: '11' as UrlEncodedCommentId,
+        unresolved: false,
+      },
+    ],
+    'unresolved.file': [
+      {
+        ...createDraft(),
+        message: 'hi',
+        updated: '2017-02-11 16:40:49' as Timestamp,
+        id: '12' as UrlEncodedCommentId,
+        unresolved: false,
+      },
+    ],
+  };
+  return new ChangeComments(comments, {}, drafts, {}, {});
+}
+
+export function createCommentThread(comments: UIComment[]) {
+  if (!comments.length) {
+    throw new Error('comment is required to create a thread');
+  }
+  comments = comments.map(comment => {
+    return {...createComment(), ...comment};
+  });
+  const threads = createCommentThreads(comments);
+  return threads[0];
+}
+
+export function createRelatedChangeAndCommitInfo(): RelatedChangeAndCommitInfo {
+  return {
+    project: TEST_PROJECT_NAME,
+    commit: createCommitInfoWithRequiredCommit(),
+  };
+}
+
+export function createRelatedChangesInfo(): RelatedChangesInfo {
+  return {
+    changes: [],
+  };
+}
+
+export function createSubmittedTogetherInfo(): SubmittedTogetherInfo {
+  return {
+    changes: [],
+    non_visible_changes: 0,
+  };
+}
+
+export function createFixSuggestionInfo(fixId = 'fix_1'): FixSuggestionInfo {
+  return {
+    fix_id: fixId as FixId,
+    description: `Fix ${fixId}`,
+    replacements: [],
   };
 }

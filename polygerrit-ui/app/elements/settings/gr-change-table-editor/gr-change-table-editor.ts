@@ -16,30 +16,48 @@
  */
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-date-formatter/gr-date-formatter';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import '../../../styles/gr-form-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-table-editor_html';
 import {ChangeTableMixin} from '../../../mixins/gr-change-table-mixin/gr-change-table-mixin';
-import {customElement, property} from '@polymer/decorators';
+import {customElement, property, observe} from '@polymer/decorators';
+import {ServerInfo} from '../../../types/common';
+import {appContext} from '../../../services/app-context';
 
 @customElement('gr-change-table-editor')
-class GrChangeTableEditor extends ChangeTableMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrChangeTableEditor extends ChangeTableMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
 
   @property({type: Array, notify: true})
-  displayedColumns?: string[];
+  displayedColumns: string[] = [];
 
   @property({type: Boolean, notify: true})
   showNumber?: boolean;
+
+  @property({type: Object})
+  serverConfig?: ServerInfo;
+
+  @property({type: Array})
+  defaultColumns: string[] = [];
+
+  flagsService = appContext.flagsService;
+
+  @observe('serverConfig')
+  _configChanged(config: ServerInfo) {
+    this.defaultColumns = this.getEnabledColumns(
+      this.columnNames,
+      config,
+      this.flagsService.enabledExperiments
+    );
+    if (!this.displayedColumns) return;
+    this.displayedColumns = this.displayedColumns.filter(column =>
+      this.isColumnEnabled(column, config, this.flagsService.enabledExperiments)
+    );
+  }
 
   /**
    * Get the list of enabled column names from whichever checkboxes are

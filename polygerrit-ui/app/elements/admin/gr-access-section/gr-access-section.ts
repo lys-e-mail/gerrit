@@ -19,11 +19,8 @@ import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-permission/gr-permission';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {htmlTemplate} from './gr-access-section_html';
 import {
   AccessPermissions,
@@ -44,6 +41,7 @@ import {
   RepoName,
 } from '../../../types/common';
 import {PolymerDomRepeatEvent} from '../../../types/types';
+import {fireEvent} from '../../../utils/event-util';
 
 /**
  * Fired when the section has been modified or removed.
@@ -72,9 +70,7 @@ export interface GrAccessSection {
 }
 
 @customElement('gr-access-section')
-export class GrAccessSection extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAccessSection extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -115,15 +111,14 @@ export class GrAccessSection extends GestureEventListeners(
   @property({type: Array})
   _permissions?: PermissionArray<EditablePermissionInfo>;
 
-  /** @override */
-  created() {
-    super.created();
+  constructor() {
+    super();
     this.addEventListener('access-saved', () => this._handleAccessSaved());
   }
 
   _updateSection(section: PermissionAccessSection) {
     this._permissions = toSortedPermissionsArray(section.value.permissions);
-    this._originalId = section.id as GitRef;
+    this._originalId = section.id;
   }
 
   _handleAccessSaved() {
@@ -145,9 +140,7 @@ export class GrAccessSection extends GestureEventListeners(
       // For a new section, this is not fired because new permissions and
       // rules have to be added in order to save, modifying the ref is not
       // enough.
-      this.dispatchEvent(
-        new CustomEvent('access-modified', {bubbles: true, composed: true})
-      );
+      fireEvent(this, 'access-modified');
     }
     this.section.value.updatedId = this.section.id;
   }
@@ -180,7 +173,9 @@ export class GrAccessSection extends GestureEventListeners(
   _computePermissions(
     name: string,
     capabilities?: CapabilityInfoMap,
-    labels?: LabelNameToLabelTypeInfoMap
+    labels?: LabelNameToLabelTypeInfoMap,
+    // This is just for triggering re-computation. We don't use the value.
+    _?: unknown
   ) {
     let allPermissions;
     const section = this.section;
@@ -241,12 +236,12 @@ export class GrAccessSection extends GestureEventListeners(
   _computePermissionName(
     name: string,
     permission: PermissionArrayItem<EditablePermissionInfo>,
-    capabilities: CapabilityInfoMap
-  ) {
+    capabilities?: CapabilityInfoMap
+  ): string | undefined {
     if (name === GLOBAL_NAME) {
-      return capabilities[permission.id].name;
+      return capabilities?.[permission.id]?.name;
     } else if (AccessPermissions[permission.id]) {
-      return AccessPermissions[permission.id].name;
+      return AccessPermissions[permission.id]?.name;
     } else if (permission.value.label) {
       let behalfOf = '';
       if (permission.id.startsWith('labelAs-')) {
@@ -280,18 +275,11 @@ export class GrAccessSection extends GestureEventListeners(
       return;
     }
     if (this.section.value.added) {
-      this.dispatchEvent(
-        new CustomEvent('added-section-removed', {
-          bubbles: true,
-          composed: true,
-        })
-      );
+      fireEvent(this, 'added-section-removed');
     }
     this._deleted = true;
     this.section.value.deleted = true;
-    this.dispatchEvent(
-      new CustomEvent('access-modified', {bubbles: true, composed: true})
-    );
+    fireEvent(this, 'access-modified');
   }
 
   _handleUndoRemove() {
@@ -334,7 +322,7 @@ export class GrAccessSection extends GestureEventListeners(
     if (
       editing &&
       this.section &&
-      this._isEditEnabled(canUpload, ownerOf, this.section.id as GitRef)
+      this._isEditEnabled(canUpload, ownerOf, this.section.id)
     ) {
       classList.push('editing');
     }
@@ -352,7 +340,7 @@ export class GrAccessSection extends GestureEventListeners(
   }
 
   _handleAddPermission() {
-    const value = this.$.permissionSelect.value;
+    const value = this.$.permissionSelect.value as GitRef;
     const permission: PermissionArrayItem<EditablePermissionInfo> = {
       id: value,
       value: {rules: {}, added: true},

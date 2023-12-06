@@ -71,5 +71,4 @@ export const htmlTemplate = html`
       ></gr-shell-command>
     </template>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

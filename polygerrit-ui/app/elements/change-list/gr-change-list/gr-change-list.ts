@@ -17,13 +17,10 @@
 
 import '../../../styles/gr-change-list-styles';
 import '../../shared/gr-cursor-manager/gr-cursor-manager';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-change-list-item/gr-change-list-item';
 import '../../../styles/shared-styles';
 import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-list_html';
 import {appContext} from '../../../services/app-context';
@@ -43,7 +40,6 @@ import {getPluginEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-end
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {changeIsOpen, isOwner} from '../../../utils/change-util';
 import {customElement, property, observe} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrCursorManager} from '../../shared/gr-cursor-manager/gr-cursor-manager';
 import {
   AccountInfo,
@@ -56,6 +52,9 @@ import {
   isAttentionSetEnabled,
 } from '../../../utils/attention-set-util';
 import {CustomKeyboardEvent} from '../../../types/events';
+import {fireEvent} from '../../../utils/event-util';
+import {windowLocationReload} from '../../../utils/dom-util';
+import {ScrollMode} from '../../../constants/constants';
 
 const NUMBER_FIXED_COLUMNS = 3;
 const CLOSED_STATUS = ['MERGED', 'ABANDONED'];
@@ -68,16 +67,11 @@ export interface ChangeListSection {
   results: ChangeInfo[];
 }
 export interface GrChangeList {
-  $: {
-    restAPI: RestApiService & Element;
-    cursor: GrCursorManager;
-  };
+  $: {};
 }
 @customElement('gr-change-list')
 export class GrChangeList extends ChangeTableMixin(
-  KeyboardShortcutMixin(
-    GestureEventListeners(LegacyElementMixin(PolymerElement))
-  )
+  KeyboardShortcutMixin(PolymerElement)
 ) {
   static get template() {
     return htmlTemplate;
@@ -142,10 +136,15 @@ export class GrChangeList extends ChangeTableMixin(
   @property({type: Object})
   preferences?: PreferencesInput;
 
+  @property({type: Boolean})
+  isCursorMoving = false;
+
   @property({type: Object})
   _config?: ServerInfo;
 
   flagsService = appContext.flagsService;
+
+  private readonly restApiService = appContext.restApiService;
 
   keyboardShortcuts() {
     return {
@@ -160,23 +159,26 @@ export class GrChangeList extends ChangeTableMixin(
     };
   }
 
-  /** @override */
-  created() {
-    super.created();
+  private cursor = new GrCursorManager();
+
+  constructor() {
+    super();
+    this.cursor.scrollMode = ScrollMode.KEEP_VISIBLE;
+    this.cursor.focusOnMove = true;
     this.addEventListener('keydown', e => this._scopedKeydownHandler(e));
   }
 
   /** @override */
   ready() {
     super.ready();
-    this.$.restAPI.getConfig().then(config => {
+    this.restApiService.getConfig().then(config => {
       this._config = config;
     });
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     getPluginLoader()
       .awaitPluginsLoaded()
       .then(() => {
@@ -184,6 +186,12 @@ export class GrChangeList extends ChangeTableMixin(
           'change-list-header'
         );
       });
+  }
+
+  /** @override */
+  disconnectedCallback() {
+    this.cursor.unsetCursor();
+    super.disconnectedCallback();
   }
 
   /**
@@ -227,7 +235,9 @@ export class GrChangeList extends ChangeTableMixin(
         preferences && preferences.legacycid_in_change_table
       );
       if (preferences.change_table && preferences.change_table.length > 0) {
-        const prefColumns = this.getVisibleColumns(preferences.change_table);
+        const prefColumns = this.renameProjectToRepoColumn(
+          preferences.change_table
+        );
         this.visibleChangeTableColumns = this.getEnabledColumns(
           prefColumns,
           config,
@@ -349,7 +359,13 @@ export class GrChangeList extends ChangeTableMixin(
     return idx === selectedIndex;
   }
 
-  _computeTabIndex(sectionIndex: number, index: number, selectedIndex: number) {
+  _computeTabIndex(
+    sectionIndex: number,
+    index: number,
+    selectedIndex: number,
+    isCursorMoving: boolean
+  ) {
+    if (isCursorMoving) return 0;
     return this._computeItemSelected(sectionIndex, index, selectedIndex)
       ? 0
       : undefined;
@@ -392,7 +408,10 @@ export class GrChangeList extends ChangeTableMixin(
     }
 
     e.preventDefault();
-    this.$.cursor.next();
+    this.isCursorMoving = true;
+    this.cursor.next();
+    this.isCursorMoving = false;
+    this.selectedIndex = this.cursor.index;
   }
 
   _prevChange(e: CustomKeyboardEvent) {
@@ -401,7 +420,10 @@ export class GrChangeList extends ChangeTableMixin(
     }
 
     e.preventDefault();
-    this.$.cursor.previous();
+    this.isCursorMoving = true;
+    this.cursor.previous();
+    this.isCursorMoving = false;
+    this.selectedIndex = this.cursor.index;
   }
 
   _openChange(e: CustomKeyboardEvent) {
@@ -424,12 +446,7 @@ export class GrChangeList extends ChangeTableMixin(
     }
 
     e.preventDefault();
-    this.dispatchEvent(
-      new CustomEvent('next-page', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'next-page');
   }
 
   _prevPage(e: CustomKeyboardEvent) {
@@ -479,7 +496,7 @@ export class GrChangeList extends ChangeTableMixin(
   }
 
   _reloadWindow() {
-    window.location.reload();
+    windowLocationReload();
   }
 
   _toggleChangeStar(e: CustomKeyboardEvent) {
@@ -519,8 +536,9 @@ export class GrChangeList extends ChangeTableMixin(
   _sectionsChanged() {
     // Flush DOM operations so that the list item elements will be loaded.
     afterNextRender(this, () => {
-      this.$.cursor.stops = this._getListItems();
-      this.$.cursor.moveToStart();
+      this.cursor.stops = this._getListItems();
+      this.cursor.moveToStart();
+      if (this.selectedIndex) this.cursor.setCursorAtIndex(this.selectedIndex);
     });
   }
 
@@ -532,6 +550,11 @@ export class GrChangeList extends ChangeTableMixin(
 
   _isEmpty(section: DashboardSection) {
     return !section.results?.length;
+  }
+
+  _computeAriaLabel(change?: ChangeInfo, sectionName?: string) {
+    if (!change) return '';
+    return change.subject + (sectionName ? `, section: ${sectionName}` : '');
   }
 }
 

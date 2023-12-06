@@ -21,8 +21,9 @@ import {
   PatchSetNum,
   ChangeInfo,
   AccountInfo,
+  RelatedChangeAndCommitInfo,
 } from '../types/common';
-import {ParsedChangeInfo} from '../elements/shared/gr-rest-api-interface/gr-reviewer-updates-parser';
+import {ParsedChangeInfo} from '../types/types';
 
 // This can be wrong! See WARNING above
 interface ChangeStatusesOptions {
@@ -182,13 +183,58 @@ export function changeStatuses(
   return states;
 }
 
-export function isOwner(change?: ChangeInfo, account?: AccountInfo) {
+export function isOwner(change?: ChangeInfo, account?: AccountInfo): boolean {
   if (!change || !account) return false;
   return change.owner?._account_id === account._account_id;
 }
 
-export function changeStatusString(change: ChangeInfo) {
-  return changeStatuses(change).join(', ');
+export function isReviewer(
+  change?: ChangeInfo,
+  account?: AccountInfo
+): boolean {
+  if (!change || !account) return false;
+  const reviewers = change.reviewers.REVIEWER ?? [];
+  return reviewers.some(r => r._account_id === account._account_id);
+}
+
+export function isCc(change?: ChangeInfo, account?: AccountInfo): boolean {
+  if (!change || !account) return false;
+  const ccs = change.reviewers.CC ?? [];
+  return ccs.some(r => r._account_id === account._account_id);
+}
+
+export function isUploader(
+  change?: ChangeInfo,
+  account?: AccountInfo
+): boolean {
+  if (!change || !account) return false;
+  const rev = getCurrentRevision(change);
+  return rev?.uploader?._account_id === account._account_id;
+}
+
+export function isInvolved(
+  change?: ChangeInfo,
+  account?: AccountInfo
+): boolean {
+  const owner = isOwner(change, account);
+  const uploader = isUploader(change, account);
+  const reviewer = isReviewer(change, account);
+  const cc = isCc(change, account);
+  return owner || uploader || reviewer || cc;
+}
+
+export function getCurrentRevision(change?: ChangeInfo | ParsedChangeInfo) {
+  if (!change?.revisions || !change?.current_revision) return undefined;
+  return change.revisions[change.current_revision];
+}
+
+export function getRevisionKey(
+  change: ChangeInfo | ParsedChangeInfo,
+  patchNum: PatchSetNum
+) {
+  return Object.keys(change.revisions ?? []).find(
+    rev => change?.revisions?.[rev]._number === patchNum
+  );
 }
 
 export function isRemovableReviewer(
@@ -201,4 +247,10 @@ export function isRemovableReviewer(
       account._account_id === reviewer._account_id ||
       (!reviewer._account_id && account.email === reviewer.email)
   );
+}
+
+export function isChangeInfo(
+  x: ChangeInfo | RelatedChangeAndCommitInfo | ParsedChangeInfo
+): x is ChangeInfo | ParsedChangeInfo {
+  return (x as ChangeInfo)._number !== undefined;
 }

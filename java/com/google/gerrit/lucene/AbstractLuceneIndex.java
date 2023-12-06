@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.flogger.FluentLogger;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -36,6 +37,7 @@ import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.index.FieldDef;
 import com.google.gerrit.index.FieldType;
 import com.google.gerrit.index.Index;
+import com.google.gerrit.index.PaginationType;
 import com.google.gerrit.index.QueryOptions;
 import com.google.gerrit.index.Schema;
 import com.google.gerrit.index.Schema.Values;
@@ -419,6 +421,10 @@ public abstract class AbstractLuceneIndex<K, V> implements Index<K, V> {
     return f.isStored() ? Field.Store.YES : Field.Store.NO;
   }
 
+  static int getLimitBasedOnPaginationType(QueryOptions opts, int pagesize) {
+    return PaginationType.NONE == opts.config().paginationType() ? opts.limit() : pagesize;
+  }
+
   private final class NrtFuture extends AbstractFuture<Void> {
     private final long gen;
 
@@ -535,20 +541,33 @@ public abstract class AbstractLuceneIndex<K, V> implements Index<K, V> {
 
     private <T> ResultSet<T> readImpl(Function<Document, T> mapper) {
       IndexSearcher searcher = null;
+      ScoreDoc scoreDoc = null;
       try {
         searcher = acquire();
-        int realLimit = opts.start() + opts.limit();
-        TopFieldDocs docs = searcher.search(query, realLimit, sort);
+        int realLimit =
+            Ints.saturatedCast(
+                (long) getLimitBasedOnPaginationType(opts, opts.pageSize()) + opts.start());
+        TopFieldDocs docs =
+            opts.searchAfter() != null
+                ? searcher.searchAfter(
+                    (ScoreDoc) opts.searchAfter(), query, realLimit, sort, false, false)
+                : searcher.search(query, realLimit, sort);
         ImmutableList.Builder<T> b = ImmutableList.builderWithExpectedSize(docs.scoreDocs.length);
         for (int i = opts.start(); i < docs.scoreDocs.length; i++) {
-          ScoreDoc sd = docs.scoreDocs[i];
-          Document doc = searcher.doc(sd.doc, opts.fields());
+          scoreDoc = docs.scoreDocs[i];
+          Document doc = searcher.doc(scoreDoc.doc, opts.fields());
           T mapperResult = mapper.apply(doc);
           if (mapperResult != null) {
             b.add(mapperResult);
           }
         }
-        return new ListResultSet<>(b.build());
+        ScoreDoc searchAfter = scoreDoc;
+        return new ListResultSet<T>(b.build()) {
+          @Override
+          public Object searchAfter() {
+            return searchAfter;
+          }
+        };
       } catch (IOException e) {
         throw new StorageException(e);
       } finally {

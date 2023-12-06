@@ -19,7 +19,8 @@ import '../../../test/common-test-setup-karma.js';
 import './gr-comment.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
 import {__testOnly_UNSAVED_MESSAGE} from './gr-comment.js';
-import {SpecialFilePath} from '../../../constants/constants.js';
+import {SpecialFilePath, Side} from '../../../constants/constants.js';
+import {stubRestApi, stubStorage} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-comment');
 
@@ -39,16 +40,12 @@ suite('gr-comment tests', () => {
     let openOverlaySpy;
 
     setup(() => {
-      stub('gr-rest-api-interface', {
-        getAccount() {
-          return Promise.resolve({
-            email: 'dhruvsri@google.com',
-            name: 'Dhruv Srivastava',
-            _account_id: 1083225,
-            avatars: [{url: 'abc', height: 32}],
-          });
-        },
-      });
+      stubRestApi('getAccount').returns(Promise.resolve({
+        email: 'dhruvsri@google.com',
+        name: 'Dhruv Srivastava',
+        _account_id: 1083225,
+        avatars: [{url: 'abc', height: 32}],
+      }));
       element = basicFixture.instantiate();
       element.comment = {
         author: {
@@ -118,7 +115,7 @@ suite('gr-comment tests', () => {
     });
 
     test('message is not retrieved from storage when other edits', done => {
-      const storageStub = sinon.stub(element.$.storage, 'getDraftComment');
+      const storageStub = stubStorage('getDraftComment');
       const loadSpy = sinon.spy(element, '_loadLocalDraft');
 
       element.changeNum = 1;
@@ -129,7 +126,6 @@ suite('gr-comment tests', () => {
           email: 'tenn1sballchaser@aol.com',
         },
         line: 5,
-        __otherEditing: true,
       };
       flush(() => {
         assert.isTrue(loadSpy.called);
@@ -139,7 +135,7 @@ suite('gr-comment tests', () => {
     });
 
     test('message is retrieved from storage when no other edits', done => {
-      const storageStub = sinon.stub(element.$.storage, 'getDraftComment');
+      const storageStub = stubStorage('getDraftComment');
       const loadSpy = sinon.spy(element, '_loadLocalDraft');
 
       element.changeNum = 1;
@@ -275,8 +271,7 @@ suite('gr-comment tests', () => {
     });
 
     test('delete comment', done => {
-      sinon.stub(
-          element.$.restAPI, 'deleteComment').returns(Promise.resolve({}));
+      const stub = stubRestApi('deleteComment').returns(Promise.resolve({}));
       sinon.spy(element.confirmDeleteOverlay, 'open');
       element.changeNum = 42;
       element.patchNum = 0xDEADBEEF;
@@ -293,7 +288,7 @@ suite('gr-comment tests', () => {
                   .querySelector('#confirmDeleteComment');
           dialog.message = 'removal reason';
           element._handleConfirmDeleteComment();
-          assert.isTrue(element.$.restAPI.deleteComment.calledWith(
+          assert.isTrue(stub.calledWith(
               42, 0xDEADBEEF, 'baf0414d_60047215', 'removal reason'));
           done();
         });
@@ -375,7 +370,7 @@ suite('gr-comment tests', () => {
       element.patchNum = 1;
       const updateRequestStub = sinon.stub(element, '_updateRequestToast');
       const diffDraftStub =
-        sinon.stub(element.$.restAPI, 'saveDiffDraft').returns(
+        stubRestApi('saveDiffDraft').returns(
             Promise.resolve({ok: false}));
       element._saveDraft({id: 'abc_123'});
       flush(() => {
@@ -411,7 +406,7 @@ suite('gr-comment tests', () => {
       element.patchNum = 1;
       const updateRequestStub = sinon.stub(element, '_updateRequestToast');
       const diffDraftStub =
-        sinon.stub(element.$.restAPI, 'saveDiffDraft').returns(
+        stubRestApi('saveDiffDraft').returns(
             Promise.reject(new Error()));
       element._saveDraft({id: 'abc_123'});
       flush(() => {
@@ -446,44 +441,35 @@ suite('gr-comment tests', () => {
     let element;
 
     setup(() => {
-      stub('gr-rest-api-interface', {
-        getAccount() { return Promise.resolve(null); },
-        getConfig() { return Promise.resolve({}); },
-        saveDiffDraft() {
-          return Promise.resolve({
-            ok: true,
-            text() {
-              return Promise.resolve(
-                  ')]}\'\n{' +
-                  '"id": "baf0414d_40572e03",' +
-                  '"path": "/path/to/file",' +
-                  '"line": 5,' +
-                  '"updated": "2015-12-08 21:52:36.177000000",' +
-                  '"message": "saved!"' +
-                '}'
-              );
-            },
-          });
+      stubRestApi('getAccount').returns(Promise.resolve(null));
+      stubRestApi('saveDiffDraft').returns(Promise.resolve({
+        ok: true,
+        text() {
+          return Promise.resolve(
+              ')]}\'\n{' +
+              '"id": "baf0414d_40572e03",' +
+              '"path": "/path/to/file",' +
+              '"line": 5,' +
+              '"updated": "2015-12-08 21:52:36.177000000",' +
+              '"message": "saved!"' +
+              '}'
+          );
         },
-        removeChangeReviewer() {
-          return Promise.resolve({ok: true});
-        },
-      });
-      stub('gr-storage', {
-        getDraftComment() { return null; },
-      });
+      }));
+      stubRestApi('removeChangeReviewer').returns(Promise.resolve({ok: true}));
       element = draftFixture.instantiate();
+      sinon.stub(element.storage, 'getDraftComment').returns(null);
       element.changeNum = 42;
       element.patchNum = 1;
       element.editing = false;
       element.comment = {
-        __commentSide: 'right',
+        diffSide: Side.RIGHT,
         __draft: true,
         __draftID: 'temp_draft_id',
         path: '/path/to/file',
         line: 5,
       };
-      element.commentSide = 'right';
+      element.diffSide = Side.RIGHT;
     });
 
     test('button visibility states', () => {
@@ -695,9 +681,8 @@ suite('gr-comment tests', () => {
         assert.isTrue(runDetailsLink.href.indexOf(element.comment.url) !== -1);
 
         const robotServiceName = element.shadowRoot
-            .querySelector('gr-account-label')
-            .shadowRoot.querySelector('span.name');
-        assert.equal(robotServiceName.textContent.trim(), 'Display name Robot');
+            .querySelector('.robotName');
+        assert.equal(robotServiceName.textContent.trim(), 'happy_robot_id');
 
         const authorName = element.shadowRoot
             .querySelector('.robotId');
@@ -733,13 +718,13 @@ suite('gr-comment tests', () => {
         path: SpecialFilePath.PATCHSET_LEVEL_COMMENTS, line: undefined,
         range: undefined};
       element.comment = comment;
-      flushAsynchronousOperations();
+      flush();
       MockInteractions.tap(element.shadowRoot
           .querySelector('.edit'));
       assert.isTrue(element.editing);
 
       element._messageText = 'hello world';
-      const eraseMessageDraftSpy = sinon.spy(element.$.storage,
+      const eraseMessageDraftSpy = sinon.spy(element.storage,
           'eraseDraftComment');
       const mockEvent = {preventDefault: sinon.stub()};
       element._handleSave(mockEvent);
@@ -783,7 +768,7 @@ suite('gr-comment tests', () => {
       });
       MockInteractions.tap(element.shadowRoot
           .querySelector('.cancel'));
-      element.flushDebouncer('fire-update');
+      element.fireUpdateTask.flush();
       element._messageText = '';
       flush();
       MockInteractions.pressAndReleaseKeyOn(element.textarea, 27); // esc
@@ -804,7 +789,7 @@ suite('gr-comment tests', () => {
     test('storage is cleared only after save success', () => {
       element._messageText = 'test';
       const eraseStub = sinon.stub(element, '_eraseDraftComment');
-      sinon.stub(element.$.restAPI, 'getResponseObject')
+      stubRestApi('getResponseObject')
           .returns(Promise.resolve({}));
 
       sinon.stub(element, '_saveDraft').returns(Promise.resolve({ok: false}));
@@ -882,21 +867,20 @@ suite('gr-comment tests', () => {
 
     test('draft saving/editing', done => {
       const dispatchEventStub = sinon.stub(element, 'dispatchEvent');
-      const cancelDebounce = sinon.stub(element, 'cancelDebouncer');
 
       element.draft = true;
       flush();
       MockInteractions.tap(element.shadowRoot
           .querySelector('.edit'));
       element._messageText = 'good news, everyone!';
-      element.flushDebouncer('fire-update');
-      element.flushDebouncer('store');
+      element.fireUpdateTask.flush();
+      element.storeTask.flush();
       assert.equal(dispatchEventStub.lastCall.args[0].type, 'comment-update');
       assert.isTrue(dispatchEventStub.calledTwice);
 
       element._messageText = 'good news, everyone!';
-      element.flushDebouncer('fire-update');
-      element.flushDebouncer('store');
+      element.fireUpdateTask.flush();
+      element.storeTask.flush();
       assert.isTrue(dispatchEventStub.calledTwice);
 
       MockInteractions.tap(element.shadowRoot
@@ -907,11 +891,10 @@ suite('gr-comment tests', () => {
 
       element._xhrPromise.then(draft => {
         assert.equal(dispatchEventStub.lastCall.args[0].type, 'comment-save');
-        assert(cancelDebounce.calledWith('store'));
+        assert.isFalse(element.storeTask.isActive());
 
         assert.deepEqual(dispatchEventStub.lastCall.args[0].detail, {
           comment: {
-            __commentSide: 'right',
             __draft: true,
             __draftID: 'temp_draft_id',
             id: 'baf0414d_40572e03',
@@ -956,8 +939,8 @@ suite('gr-comment tests', () => {
       MockInteractions.tap(element.shadowRoot
           .querySelector('.edit'));
       element._messageText = 'good news, everyone!';
-      element.flushDebouncer('fire-update');
-      element.flushDebouncer('store');
+      element.fireUpdateTask.flush();
+      element.storeTask.flush();
 
       element.disabled = true;
       MockInteractions.tap(element.shadowRoot
@@ -1039,11 +1022,11 @@ suite('gr-comment tests', () => {
 
     test('cancelling an unsaved draft discards, persists in storage', () => {
       const discardSpy = sinon.spy(element, '_fireDiscard');
-      const storeStub = sinon.stub(element.$.storage, 'setDraftComment');
-      const eraseStub = sinon.stub(element.$.storage, 'eraseDraftComment');
+      const storeStub = stubStorage('setDraftComment');
+      const eraseStub = stubStorage('eraseDraftComment');
       element._messageText = 'test text';
       flush();
-      element.flushDebouncer('store');
+      element.storeTask.flush();
 
       assert.isTrue(storeStub.called);
       assert.equal(storeStub.lastCall.args[1], 'test text');
@@ -1055,10 +1038,10 @@ suite('gr-comment tests', () => {
     test('cancelling edit on a saved draft does not store', () => {
       element.comment.id = 'foo';
       const discardSpy = sinon.spy(element, '_fireDiscard');
-      const storeStub = sinon.stub(element.$.storage, 'setDraftComment');
+      const storeStub = stubStorage('setDraftComment');
       element._messageText = 'test text';
       flush();
-      element.flushDebouncer('store');
+      if (element.storeTask) element.storeTask.flush();
 
       assert.isFalse(storeStub.called);
       element._handleCancel({preventDefault: () => {}});
@@ -1139,7 +1122,7 @@ suite('gr-comment tests', () => {
           updated: '2017-04-04 15:36:17.000000000',
           message: 'This is a robot comment with a fix.',
           unresolved: false,
-          __commentSide: 'right',
+          diffSide: Side.RIGHT,
           collapsed: false,
         },
         {
@@ -1149,7 +1132,7 @@ suite('gr-comment tests', () => {
           path: 'Documentation/config-gerrit.txt',
           patchNum: 1,
           side: 'REVISION',
-          __commentSide: 'right',
+          diffSide: Side.RIGHT,
           line: 10,
           in_reply_to: 'eb0d03fd_5e95904f',
           message: '> This is a robot comment with a fix.\n\nPlease fix.',
@@ -1214,7 +1197,7 @@ suite('gr-comment tests', () => {
           updated: '2017-04-04 15:36:17.000000000',
           message: 'This is a robot comment with a fix.',
           unresolved: false,
-          __commentSide: 'right',
+          diffSide: Side.RIGHT,
           collapsed: false,
         },
       ];
@@ -1243,9 +1226,7 @@ suite('gr-comment tests', () => {
 
     let clock;
     setup(() => {
-      stub('gr-rest-api-interface', {
-        getAccount() { return Promise.resolve(null); },
-      });
+      stubRestApi('getAccount').returns(Promise.resolve(null));
       clock = sinon.useFakeTimers();
     });
 
@@ -1255,18 +1236,15 @@ suite('gr-comment tests', () => {
     });
 
     test('show tip when no cached record', done => {
-      // fake stub for storage
-      const respectfulGetStub = sinon.stub();
-      const respectfulSetStub = sinon.stub();
-      stub('gr-storage', {
-        getRespectfulTipVisibility() { return respectfulGetStub(); },
-        setRespectfulTipVisibility() { return respectfulSetStub(); },
-      });
-      respectfulGetStub.returns(null);
       element = draftFixture.instantiate();
+      const respectfulGetStub =
+          sinon.stub(element.storage, 'getRespectfulTipVisibility');
+      const respectfulSetStub =
+          sinon.stub(element.storage, 'setRespectfulTipVisibility');
+      respectfulGetStub.returns(null);
       // fake random
       element.getRandomNum = () => 0;
-      element.comment = {__editing: true};
+      element.comment = {__editing: true, __draft: true};
       flush(() => {
         assert.isTrue(respectfulGetStub.called);
         assert.isTrue(respectfulSetStub.called);
@@ -1278,18 +1256,15 @@ suite('gr-comment tests', () => {
     });
 
     test('add 14-day delays once dismissed', done => {
-      // fake stub for storage
-      const respectfulGetStub = sinon.stub();
-      const respectfulSetStub = sinon.stub();
-      stub('gr-storage', {
-        getRespectfulTipVisibility() { return respectfulGetStub(); },
-        setRespectfulTipVisibility(days) { return respectfulSetStub(days); },
-      });
-      respectfulGetStub.returns(null);
       element = draftFixture.instantiate();
+      const respectfulGetStub =
+          sinon.stub(element.storage, 'getRespectfulTipVisibility');
+      const respectfulSetStub =
+          sinon.stub(element.storage, 'setRespectfulTipVisibility');
+      respectfulGetStub.returns(null);
       // fake random
       element.getRandomNum = () => 0;
-      element.comment = {__editing: true};
+      element.comment = {__editing: true, __draft: true};
       flush(() => {
         assert.isTrue(respectfulGetStub.called);
         assert.isTrue(respectfulSetStub.called);
@@ -1307,18 +1282,15 @@ suite('gr-comment tests', () => {
     });
 
     test('do not show tip when fall out of probability', done => {
-      // fake stub for storage
-      const respectfulGetStub = sinon.stub();
-      const respectfulSetStub = sinon.stub();
-      stub('gr-storage', {
-        getRespectfulTipVisibility() { return respectfulGetStub(); },
-        setRespectfulTipVisibility() { return respectfulSetStub(); },
-      });
-      respectfulGetStub.returns(null);
       element = draftFixture.instantiate();
+      const respectfulGetStub =
+          sinon.stub(element.storage, 'getRespectfulTipVisibility');
+      const respectfulSetStub =
+          sinon.stub(element.storage, 'setRespectfulTipVisibility');
+      respectfulGetStub.returns(null);
       // fake random
       element.getRandomNum = () => 3;
-      element.comment = {__editing: true};
+      element.comment = {__editing: true, __draft: true};
       flush(() => {
         assert.isTrue(respectfulGetStub.called);
         assert.isFalse(respectfulSetStub.called);
@@ -1330,15 +1302,12 @@ suite('gr-comment tests', () => {
     });
 
     test('show tip when editing changed to true', done => {
-      // fake stub for storage
-      const respectfulGetStub = sinon.stub();
-      const respectfulSetStub = sinon.stub();
-      stub('gr-storage', {
-        getRespectfulTipVisibility() { return respectfulGetStub(); },
-        setRespectfulTipVisibility() { return respectfulSetStub(); },
-      });
-      respectfulGetStub.returns(null);
       element = draftFixture.instantiate();
+      const respectfulGetStub =
+          sinon.stub(element.storage, 'getRespectfulTipVisibility');
+      const respectfulSetStub =
+          sinon.stub(element.storage, 'setRespectfulTipVisibility');
+      respectfulGetStub.returns(null);
       // fake random
       element.getRandomNum = () => 0;
       element.comment = {__editing: false};
@@ -1362,18 +1331,15 @@ suite('gr-comment tests', () => {
     });
 
     test('no tip when cached record', done => {
-      // fake stub for storage
-      const respectfulGetStub = sinon.stub();
-      const respectfulSetStub = sinon.stub();
-      stub('gr-storage', {
-        getRespectfulTipVisibility() { return respectfulGetStub(); },
-        setRespectfulTipVisibility() { return respectfulSetStub(); },
-      });
-      respectfulGetStub.returns({});
       element = draftFixture.instantiate();
+      const respectfulGetStub =
+          sinon.stub(element.storage, 'getRespectfulTipVisibility');
+      const respectfulSetStub =
+          sinon.stub(element.storage, 'setRespectfulTipVisibility');
+      respectfulGetStub.returns({});
       // fake random
       element.getRandomNum = () => 0;
-      element.comment = {__editing: true};
+      element.comment = {__editing: true, __draft: true};
       flush(() => {
         assert.isTrue(respectfulGetStub.called);
         assert.isFalse(respectfulSetStub.called);

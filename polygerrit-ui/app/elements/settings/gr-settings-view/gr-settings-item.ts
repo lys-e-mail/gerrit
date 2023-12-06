@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-settings-item_html';
 import {property, customElement} from '@polymer/decorators';
@@ -27,9 +25,7 @@ declare global {
 }
 
 @customElement('gr-settings-item')
-class GrSettingsItem extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+class GrSettingsItem extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }

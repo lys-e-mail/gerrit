@@ -18,7 +18,6 @@
 import '../../../test/common-test-setup-karma.js';
 import '../gr-diff/gr-diff-group.js';
 import './gr-diff-builder.js';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface.js';
 import {getMockDiffResponse} from '../../../test/mocks/diff-response.js';
 import './gr-diff-builder-element.js';
 import {stubBaseUrl} from '../../../test/test-utils.js';
@@ -29,6 +28,8 @@ import {GrDiffGroup, GrDiffGroupType} from '../gr-diff/gr-diff-group.js';
 import {GrDiffBuilder} from './gr-diff-builder.js';
 import {GrDiffBuilderSideBySide} from './gr-diff-builder-side-by-side.js';
 import {html} from '@polymer/polymer/lib/utils/html-tag.js';
+import {DiffViewMode} from '../../../api/diff.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromTemplate(html`
     <gr-diff-builder>
@@ -46,11 +47,6 @@ const mockDiffFixture = fixtureFromTemplate(html`
     </gr-diff-builder>
 `);
 
-const DiffViewMode = {
-  SIDE_BY_SIDE: 'SIDE_BY_SIDE',
-  UNIFIED: 'UNIFIED_DIFF',
-};
-
 suite('gr-diff-builder tests', () => {
   let prefs;
   let element;
@@ -60,10 +56,8 @@ suite('gr-diff-builder tests', () => {
 
   setup(() => {
     element = basicFixture.instantiate();
-    stub('gr-rest-api-interface', {
-      getLoggedIn() { return Promise.resolve(false); },
-      getProjectConfig() { return Promise.resolve({}); },
-    });
+    stubRestApi('getLoggedIn').returns(Promise.resolve(false));
+    stubRestApi('getProjectConfig').returns(Promise.resolve({}));
     stubBaseUrl('/r');
     prefs = {
       line_length: 10,
@@ -103,106 +97,57 @@ suite('gr-diff-builder tests', () => {
       return section;
     }
 
-    suite('old style', () => {
-      setup(() => {
-        builder = new GrDiffBuilder(
-            {content: []}, prefs, null, [], false /* useNewContextControls */);
-      });
-
-      test('no +10 buttons for 10 or less lines', () => {
-        const section = createContextSectionForGroups({count: 10});
-        const buttons = section.querySelectorAll('gr-button.showContext');
-
-        assert.equal(buttons.length, 1);
-        assert.equal(buttons[0].textContent, 'Show 10 common lines');
-      });
-
-      test('context control at the top', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 0, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
-
-        assert.equal(buttons.length, 2);
-        assert.equal(buttons[0].textContent, 'Show 20 common lines');
-        assert.equal(buttons[1].textContent, '+10 below');
-      });
-
-      test('context control in the middle', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 10, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
-
-        assert.equal(buttons.length, 3);
-        assert.equal(buttons[0].textContent, '+10 above');
-        assert.equal(buttons[1].textContent, 'Show 20 common lines');
-        assert.equal(buttons[2].textContent, '+10 below');
-      });
-
-      test('context control at the bottom', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 30, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
-
-        assert.equal(buttons.length, 2);
-        assert.equal(buttons[0].textContent, '+10 above');
-        assert.equal(buttons[1].textContent, 'Show 20 common lines');
-      });
+    setup(() => {
+      builder = new GrDiffBuilder({content: []}, prefs, null, []);
     });
 
-    suite('new style', () => {
-      setup(() => {
-        builder = new GrDiffBuilder(
-            {content: []}, prefs, null, [], true /* useNewContextControls */);
-      });
+    test('no +10 buttons for 10 or less lines', () => {
+      const section = createContextSectionForGroups({count: 10});
+      const buttons = section.querySelectorAll('gr-button.showContext');
 
-      test('no +10 buttons for 10 or less lines', () => {
-        const section = createContextSectionForGroups({count: 10});
-        const buttons = section.querySelectorAll('gr-button.showContext');
+      assert.equal(buttons.length, 1);
+      assert.equal(buttons[0].textContent, '+10 common lines');
+    });
 
-        assert.equal(buttons.length, 1);
-        assert.equal(buttons[0].textContent, '+10 common lines');
-      });
+    test('context control at the top', () => {
+      builder._numLinesLeft = 50;
+      const section = createContextSectionForGroups({offset: 0, count: 20});
+      const buttons = section.querySelectorAll('gr-button.showContext');
 
-      test('context control at the top', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 0, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
+      assert.equal(buttons.length, 2);
+      assert.equal(buttons[0].textContent, '+20 common lines');
+      assert.equal(buttons[1].textContent, '+10');
 
-        assert.equal(buttons.length, 2);
-        assert.equal(buttons[0].textContent, '+20 common lines');
-        assert.equal(buttons[1].textContent, '+10');
+      assert.include([...buttons[0].classList.values()], 'belowButton');
+      assert.include([...buttons[1].classList.values()], 'belowButton');
+    });
 
-        assert.include([...buttons[0].classList.values()], 'belowButton');
-        assert.include([...buttons[1].classList.values()], 'belowButton');
-      });
+    test('context control in the middle', () => {
+      builder._numLinesLeft = 50;
+      const section = createContextSectionForGroups({offset: 10, count: 20});
+      const buttons = section.querySelectorAll('gr-button.showContext');
 
-      test('context control in the middle', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 10, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
+      assert.equal(buttons.length, 3);
+      assert.equal(buttons[0].textContent, '+20 common lines');
+      assert.equal(buttons[1].textContent, '+10');
+      assert.equal(buttons[2].textContent, '+10');
 
-        assert.equal(buttons.length, 3);
-        assert.equal(buttons[0].textContent, '+20 common lines');
-        assert.equal(buttons[1].textContent, '+10');
-        assert.equal(buttons[2].textContent, '+10');
+      assert.include([...buttons[0].classList.values()], 'centeredButton');
+      assert.include([...buttons[1].classList.values()], 'aboveButton');
+      assert.include([...buttons[2].classList.values()], 'belowButton');
+    });
 
-        assert.include([...buttons[0].classList.values()], 'centeredButton');
-        assert.include([...buttons[1].classList.values()], 'aboveButton');
-        assert.include([...buttons[2].classList.values()], 'belowButton');
-      });
+    test('context control at the bottom', () => {
+      builder._numLinesLeft = 50;
+      const section = createContextSectionForGroups({offset: 30, count: 20});
+      const buttons = section.querySelectorAll('gr-button.showContext');
 
-      test('context control at the bottom', () => {
-        builder._numLinesLeft = 50;
-        const section = createContextSectionForGroups({offset: 30, count: 20});
-        const buttons = section.querySelectorAll('gr-button.showContext');
+      assert.equal(buttons.length, 2);
+      assert.equal(buttons[0].textContent, '+20 common lines');
+      assert.equal(buttons[1].textContent, '+10');
 
-        assert.equal(buttons.length, 2);
-        assert.equal(buttons[0].textContent, '+20 common lines');
-        assert.equal(buttons[1].textContent, '+10');
-
-        assert.include([...buttons[0].classList.values()], 'aboveButton');
-        assert.include([...buttons[1].classList.values()], 'aboveButton');
-      });
+      assert.include([...buttons[0].classList.values()], 'aboveButton');
+      assert.include([...buttons[1].classList.values()], 'aboveButton');
     });
   });
 
@@ -898,7 +843,7 @@ suite('gr-diff-builder tests', () => {
         },
       ];
       element = basicFixture.instantiate();
-      outputEl = element.queryEffectiveChildren('#diffTable');
+      outputEl = element.querySelector('#diffTable');
       keyLocations = {left: {}, right: {}};
       sinon.stub(element, '_getDiffBuilder').callsFake(() => {
         const builder = new GrDiffBuilderSideBySide({content}, prefs, outputEl);
@@ -921,7 +866,7 @@ suite('gr-diff-builder tests', () => {
     });
 
     test('getSectionsByLineRange one line', () => {
-      const section = outputEl.querySelector('stub:nth-of-type(2)');
+      const section = outputEl.querySelector('stub:nth-of-type(3)');
       const sections = element._builder.getSectionsByLineRange(1, 1, 'left');
       assert.equal(sections.length, 1);
       assert.strictEqual(sections[0], section);
@@ -929,8 +874,8 @@ suite('gr-diff-builder tests', () => {
 
     test('getSectionsByLineRange over diff', () => {
       const section = [
-        outputEl.querySelector('stub:nth-of-type(2)'),
         outputEl.querySelector('stub:nth-of-type(3)'),
+        outputEl.querySelector('stub:nth-of-type(4)'),
       ];
       const sections = element._builder.getSectionsByLineRange(1, 2, 'left');
       assert.equal(sections.length, 2);

@@ -39,28 +39,161 @@ const styleSheet = safeStyleSheet`
      * can be a breaking change that should go into the release notes.
      */
 
-    /* text colors */
-    --primary-text-color: black;
-    --link-color: #2a66d9;
-    --comment-text-color: black;
-    --deemphasized-text-color: #5F6368;
-    --default-button-text-color: #2a66d9;
-    --chip-selected-text-color: var(--default-button-text-color);
-    --error-text-color: red;
+    /* color palette */
+    --gerrit-blue-light: #1565c0;
+    --gerrit-blue-dark: #90caf9;
+    --red-900: #a50e0e;
+    --red-700: #c5221f;
+    --red-700-04: #c5221f0a;
+    --red-700-10: #c5221f1a;
+    --red-700-12: #c5221f1f;
+    --red-600: #d93025;
+    --red-300: #f28b82;
+    --red-200: #f6aea9;
+    --red-50: #fce8e6;
+    --red-tonal: #6c322f;
+    --blue-900: #174ea6;
+    --blue-800: #185abc;
+    --blue-700: #1967d2;
+    --blue-700-04: #1967d20a;
+    --blue-700-10: #1967d21a;
+    --blue-700-12: #1967d21f;
+    --blue-700-16: #1967d229;
+    --blue-700-24: #1967d23d;
+    --blue-400: #669df6;
+    --blue-200: #aecbfa;
+    --blue-200-16: #aecbfa29;
+    --blue-200-24: #aecbfa3d;
+    --blue-100: #d2e3fc;
+    --blue-50: #e8f0fe;
+    --blue-tonal: #314972;
+    --orange-900: #b06000;
+    --orange-700: #d56e0c;
+    --orange-700-04: #d56e0c0a;
+    --orange-700-10: #d56e0c1a;
+    --orange-700-12: #d56e0c1f;
+    --orange-200: #fdc69c;
+    --orange-50: #feefe3;
+    --orange-tonal: #714625;
+    --cyan-900: #007b83;
+    --cyan-700: #129eaf;
+    --cyan-200: #a1e4f2;
+    --cyan-100: #cbf0f8;
+    --cyan-50: #e4f7fb;
+    --cyan-tonal: #275e6b;
+    --green-900: #0d652d;
+    --green-700: #188038;
+    --green-700-04: #1880380a;
+    --green-700-10: #1880381a;
+    --green-700-12: #1880381f;
+    --green-400: #5bb974;
+    --green-300: #81c995;
+    --green-200: #a8dab5;
+    --green-50: #e6f4ea;
+    --green-tonal: #2c553a;
+    --gray-900: #202124;
+    --gray-800: #3c4043;
+    --gray-800-12: #3c40431f;
+    --gray-800-38: #3c404361;
+    --gray-700: #5f6368;
+    --gray-700-04: #5f63680a;
+    --gray-700-10: #5f63681a;
+    --gray-700-12: #5f63681f;
+    --gray-500: #9aa0a6;
+    --gray-300: #dadce0;
+    --gray-200: #e8eaed;
+    --gray-200-12: #e8eaed1f;
+    --gray-200-38: #e8eaed61;
+    --gray-100: #f1f3f4;
+    --gray-50: #f8f9fa;
+    --gray-tonal: #505357;
+    --purple-900: #681da8;
+    --purple-700: #8430ce;
+    --purple-500: #a142f4;
+    --purple-400: #af5cf7;
+    --purple-200: #d7aefb;
+    --purple-50: #f3e8fd;
+    --purple-tonal: #523272;
+    --pink-800: #b80672;
+    --pink-500: #f538a0;
+    --pink-50: #fde7f3;
+    --pink-tonal: #702f55;
+    --yellow-50: #fef7e0;
+    --yellow-tonal: #6a5619;
+    --brown-50: #efebe9;
+    --brown-tonal: #6d4c41;
+    --white-04: #ffffff0a;
+    --white-10: #ffffff1a;
+    --white-12: #ffffff1f;
+
+    --error-foreground: var(--red-700);
+    --error-background: var(--red-50);
+    --error-background-hover: linear-gradient(var(--red-700-04), var(--red-700-04)), var(--red-50);
+    --error-background-focus: linear-gradient(var(--red-700-12), var(--red-700-12)), var(--red-50);
+    --error-ripple: var(--red-700-10);
+
+    --warning-foreground: var(--orange-700);
+    --warning-background: var(--orange-50);
+    --warning-background-hover: linear-gradient(var(--orange-700-04), var(--orange-700-04)), var(--orange-50);
+    --warning-background-focus: linear-gradient(var(--orange-700-12), var(--orange-700-12)), var(--orange-50);
+    --warning-ripple: var(--orange-700-10);
+
+    --info-foreground: var(--blue-700);
+    --info-background: var(--blue-50);
+    --info-background-hover: linear-gradient(var(--blue-700-04), var(--blue-700-04)), var(--blue-50);
+    --info-background-focus: linear-gradient(var(--blue-700-12), var(--blue-700-12)), var(--blue-50);
+    --info-ripple: var(--blue-700-10);
+
     --primary-button-text-color: white;
-      /* Used on text color for change list that doesn't need user's attention. */
+    --primary-button-background-color: var(--gerrit-blue-light);
+    --primary-button-background-hover: var(--blue-700-16);
+    --primary-button-background-focus: var(--blue-700-24);
+
+    --selected-foreground: var(--blue-800);
+    --selected-background: var(--blue-50);
+
+    --success-foreground: var(--green-700);
+    --success-background: var(--green-50);
+    --success-background-hover: linear-gradient(var(--green-700-04), var(--green-700-04)), var(--green-50);
+    --success-background-focus: linear-gradient(var(--green-700-12), var(--green-700-12)), var(--green-50);
+    --success-ripple: var(--green-700-10);
+
+    --gray-foreground: var(--gray-700);
+    --gray-background: var(--gray-100);
+    --gray-background-hover: linear-gradient(var(--gray-700-04), var(--gray-700-04)), var(--gray-100);
+    --gray-background-focus: linear-gradient(var(--gray-700-12), var(--gray-700-12)), var(--gray-100);
+    --gray-ripple: var(--gray-700-10);
+
+    --disabled-foreground: var(--gray-800-38);
+    --disabled-background: var(--gray-800-12);
+
+    --chip-color: var(--gray-900);
+    --error-color: var(--red-900);
+    --tag-background: var(--cyan-100);
+    --label-background: var(--red-50);
+
+    /* text colors */
+    --primary-text-color: var(--gray-900);
+    --link-color: var(--gerrit-blue-light);
+    --comment-text-color: var(--gray-900);
+    --deemphasized-text-color: var(--gray-700);
+    --default-button-text-color: var(--gerrit-blue-light);
+    --chip-selected-text-color: var(--selected-foreground);
+    --error-text-color: var(--red-700);
+    /* Used on text color for change list that doesn't need user's attention. */
     --reviewed-text-color: black;
     --vote-text-color: black;
     --status-text-color: white;
     --tooltip-text-color: white;
-    --negative-red-text-color: #d93025;
-    --positive-green-text-color: #188038;
+    --negative-red-text-color: var(--red-600);
+    --positive-green-text-color: var(--green-700);
+    --indirect-ancestor-text-color: var(--green-700);
 
     /* background colors */
     /* primary background colors */
-    --background-color-primary: #ffffff;
-    --background-color-secondary: #f8f9fa;
-    --background-color-tertiary: #f1f3f4;
+    --background-color-primary: white;
+    --background-color-secondary: var(--gray-50);
+    --background-color-tertiary: var(--gray-100);
     /* directly derived from primary background colors */
     --chip-background-color: var(--background-color-tertiary);
     --default-button-background-color: var(--background-color-primary);
@@ -78,38 +211,56 @@ const styleSheet = safeStyleSheet`
     /* TODO: Find a nicer way to combine the --assignee-highlight-color and the
        --selection-background-color than to just invent another unique color. */
     --assignee-highlight-selection-color: #f6f4d0;
-    --chip-selected-background-color: #e8f0fe;
+    --chip-selected-background-color: var(--blue-50);
     --edit-mode-background-color: #ebf5fb;
     --emphasis-color: #fff9c4;
     --hover-background-color: rgba(161, 194, 250, 0.2);
-    --disabled-button-background-color: #e8eaed;
-    --primary-button-background-color: #2a66d9;
+    --disabled-button-background-color: var(--disabled-background);
     --selection-background-color: rgba(161, 194, 250, 0.1);
-    --tooltip-background-color: #333;
+    --tooltip-background-color: var(--gray-900);
+
     /* comment background colors */
-    --comment-background-color: #e8eaed;
-    --robot-comment-background-color: #e8f0fe;
+    --comment-background-color: var(--gray-200);
+    --robot-comment-background-color: var(--blue-50);
     --unresolved-comment-background-color: #fef7e0;
+
     /* vote background colors */
-    --vote-color-approved: #9fcc6b;
-    --vote-color-disliked: #f7c4cb;
-    --vote-color-neutral: #ebf5fb;
-    --vote-color-recommended: #c9dfaf;
-    --vote-color-rejected: #f7a1ad;
+    --vote-color-approved: var(--green-300);
+    --vote-color-disliked: var(--red-50);
+    --vote-outline-disliked: var(--red-700);
+    --vote-color-neutral: var(--gray-300);
+    --vote-color-recommended: var(--green-50);
+    --vote-outline-recommended: var(--green-700);
+    --vote-color-rejected: var(--red-300);
+
+    --outline-color-focus: var(--gray-900);
 
     /* misc colors */
-    --border-color: #e8e8e8;
-    --comment-separator-color: #dadce0;
+    --border-color: var(--gray-300);
+    --comment-separator-color: var(--gray-300);
+
+    /* checks tag colors */
+    --tag-gray: var(--gray-200);
+    --tag-yellow: var(--yellow-50);
+    --tag-pink: var(--pink-50);
+    --tag-purple: var(--purple-50);
+    --tag-cyan: var(--cyan-50);
+    --tag-brown: var(--brown-50);
 
     /* status colors */
-    --status-merged: #188038;
-    --status-abandoned: #5f6368;
+    --status-merged: var(--green-700);
+    --status-abandoned: var(--gray-700);
     --status-wip: #795548;
-    --status-private: #a142f4;
-    --status-conflict: #d93025;
-    --status-active: #1976d2;
-    --status-ready: #b80672;
-    --status-custom: #681da8;
+    --status-private: var(--purple-500);
+    --status-conflict: var(--red-600);
+    --status-active: var(--blue-700);
+    --status-ready: var(--pink-800);
+    --status-custom: var(--purple-900);
+
+    /* file status colors */
+    --file-status-added: var(--green-300);
+    --file-status-changed: var(--red-200);
+    --file-status-unchanged: var(--grey-300);
 
     /* fonts */
     --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
@@ -122,11 +273,10 @@ const styleSheet = safeStyleSheet`
     --font-size-h3: 1.143rem;   /* 16px */
     --font-size-h2: 1.429rem;   /* 20px */
     --font-size-h1: 1.714rem;   /* 24px */
-    --line-height-code: 1.143rem;   /* 16px */
     --line-height-mono: 1.286rem;   /* 18px */
     --line-height-small: 1.143rem;  /* 16px */
     --line-height-normal: 1.429rem; /* 20px */
-    --line-height-h3: 1.714rem;     /* 24px */
+    --line-height-h3: 1.715rem;     /* 24px */
     --line-height-h2: 2rem;         /* 28px */
     --line-height-h1: 2.286rem;     /* 32px */
     --font-weight-normal: 400; /* 400 is the same as 'normal' */
@@ -135,6 +285,8 @@ const styleSheet = safeStyleSheet`
     --font-weight-h2: 400;
     --font-weight-h3: 400;
     --context-control-button-font: var(--font-weight-normal) var(--font-size-normal) var(--font-family);
+    --code-hint-font-weight: 500;
+    --image-diff-button-font: var(--font-weight-normal) var(--font-size-normal) var(--font-family);
 
     /* spacing */
     --spacing-xxs: 1px;
@@ -167,7 +319,7 @@ const styleSheet = safeStyleSheet`
     --diff-blank-background-color: var(--background-color-secondary);
     --diff-context-control-background-color: #fff7d4;
     --diff-context-control-border-color: #f6e6a5;
-    --diff-context-control-color: var(--deemphasized-text-color);
+    --diff-context-control-color: var(--default-button-text-color);
     --diff-highlight-range-color: rgba(255, 213, 0, 0.5);
     --diff-highlight-range-hover-color: rgba(255, 255, 0, 0.5);
     --diff-selection-background-color: #c7dbf9;
@@ -175,11 +327,15 @@ const styleSheet = safeStyleSheet`
     --diff-trailing-whitespace-indicator: #ff9ad2;
     --light-add-highlight-color: #d8fed8;
     --light-rebased-add-highlight-color: #eef;
-    --light-moved-add-highlight-color: #eef;
+    --diff-moved-in-background: var(--cyan-50);
+    --diff-moved-out-background: var(--purple-50);
+    --diff-moved-in-label-color: var(--cyan-900);
+    --diff-moved-out-label-color: var(--purple-900);
     --light-remove-add-highlight-color: #fff8dc;
     --light-remove-highlight-color: #ffebee;
     --coverage-covered: #e0f2f1;
     --coverage-not-covered: #ffd1a4;
+    --ranged-comment-hint-text-color: var(--orange-900);
 
     /* syntax colors */
     --syntax-attr-color: #219;
@@ -207,7 +363,7 @@ const styleSheet = safeStyleSheet`
     --syntax-template-tag-color: #fa8602;
     --syntax-template-variable-color: #0000c0;
     --syntax-title-color: #0000c0;
-    --syntax-type-color: #2a66d9;
+    --syntax-type-color: var(--blue-700);
     --syntax-variable-color: var(--primary-text-color);
 
     /* elevation */
@@ -220,6 +376,8 @@ const styleSheet = safeStyleSheet`
     /* misc */
     --border-radius: 4px;
     --reply-overlay-z-index: 1000;
+    /* Base 64 encoded 1x1px of #681da8 */
+    --line-length-indicator: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2PIlF2xAgAD+AHXfBDdKAAAAABJRU5ErkJggg==');
 
     /* paper and iron component overrides */
     --iron-overlay-backdrop-background-color: black;
@@ -227,6 +385,16 @@ const styleSheet = safeStyleSheet`
     --iron-overlay-backdrop: {
       transition: none;
     };
+    --paper-tooltip-delay-in: 200ms;
+    --paper-tooltip-delay-out: 0;
+    --paper-tooltip-duration-in: 0;
+    --paper-tooltip-duration-out: 0;
+    --paper-tooltip-background: var(--tooltip-background-color);
+    --paper-tooltip-opacity: 1.0;
+    --paper-tooltip-text-color: var(--tooltip-text-color);
+    --paper-tooltip: {
+      font-size: var(--font-size-small);
+    }
   }
   @media screen and (max-width: 50em) {
     html {

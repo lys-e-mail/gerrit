@@ -58,7 +58,6 @@ public class ServerInfoIT extends AbstractDaemonTest {
   @GerritConfig(name = "auth.httpPasswordUrl", value = "https://example.com/password")
 
   // change
-  @GerritConfig(name = "change.largeChange", value = "300")
   @GerritConfig(name = "change.replyTooltip", value = "Publish votes and draft comments")
   @GerritConfig(name = "change.replyLabel", value = "Vote")
   @GerritConfig(name = "change.updateDelay", value = "50s")
@@ -75,6 +74,7 @@ public class ServerInfoIT extends AbstractDaemonTest {
   @GerritConfig(name = "gerrit.allProjects", value = "Root")
   @GerritConfig(name = "gerrit.allUsers", value = "Users")
   @GerritConfig(name = "gerrit.reportBugUrl", value = "https://example.com/report")
+  @GerritConfig(name = "gerrit.instanceId", value = "devops-instance")
 
   // suggest
   @GerritConfig(name = "suggest.from", value = "3")
@@ -102,7 +102,6 @@ public class ServerInfoIT extends AbstractDaemonTest {
     assertThat(i.auth.httpPasswordUrl).isNull();
 
     // change
-    assertThat(i.change.largeChange).isEqualTo(300);
     assertThat(i.change.replyTooltip).startsWith("Publish votes and draft comments");
     assertThat(i.change.replyLabel).isEqualTo("Vote\u2026");
     assertThat(i.change.updateDelay).isEqualTo(50);
@@ -118,6 +117,7 @@ public class ServerInfoIT extends AbstractDaemonTest {
     assertThat(i.gerrit.allProjects).isEqualTo("Root");
     assertThat(i.gerrit.allUsers).isEqualTo("Users");
     assertThat(i.gerrit.reportBugUrl).isEqualTo("https://example.com/report");
+    assertThat(i.gerrit.instanceId).isEqualTo("devops-instance");
 
     // plugin
     assertThat(i.plugin.jsResourcePaths).isEmpty();
@@ -170,14 +170,12 @@ public class ServerInfoIT extends AbstractDaemonTest {
     assertThat(i.auth.httpPasswordUrl).isNull();
 
     // change
-    assertThat(i.change.largeChange).isEqualTo(500);
     assertThat(i.change.replyTooltip).startsWith("Reply and score");
     assertThat(i.change.replyLabel).isEqualTo("Reply\u2026");
     assertThat(i.change.updateDelay).isEqualTo(300);
     assertThat(i.change.disablePrivateChanges).isNull();
     assertThat(i.change.submitWholeTopic).isNull();
-    assertThat(i.change.mergeabilityComputationBehavior)
-        .isEqualTo("API_REF_UPDATED_AND_CHANGE_REINDEX");
+    assertThat(i.change.mergeabilityComputationBehavior).isEqualTo("NEVER");
 
     // download
     assertThat(i.download.archives).containsExactly("tar", "tbz2", "tgz", "txz");
@@ -187,6 +185,7 @@ public class ServerInfoIT extends AbstractDaemonTest {
     assertThat(i.gerrit.allProjects).isEqualTo(AllProjectsNameProvider.DEFAULT);
     assertThat(i.gerrit.allUsers).isEqualTo(AllUsersNameProvider.DEFAULT);
     assertThat(i.gerrit.reportBugUrl).isNull();
+    assertThat(i.gerrit.instanceId).isNull();
 
     // plugin
     assertThat(i.plugin.jsResourcePaths).isEmpty();

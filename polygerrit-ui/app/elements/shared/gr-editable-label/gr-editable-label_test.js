@@ -45,11 +45,13 @@ suite('gr-editable-label tests', () => {
   setup(async () => {
     element = basicFixture.instantiate();
     elementNoPlaceholder = noPlaceholderFixture.instantiate();
+    flush();
     label = element.shadowRoot.querySelector('label');
 
     await flush();
     // In Polymer 2 inputElement isn't nativeInput anymore
-    input = element.$.input.$.nativeInput || element.$.input.inputElement;
+    const paperInput = element.shadowRoot.querySelector('#input');
+    input = paperInput.$.nativeInput || paperInput.inputElement;
   });
 
   test('element render', () => {
@@ -178,6 +180,7 @@ suite('gr-editable-label tests', () => {
 
     setup(() => {
       element = readOnlyFixture.instantiate();
+      flush();
       label = element.shadowRoot
           .querySelector('label');
     });

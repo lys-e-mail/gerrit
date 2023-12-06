@@ -19,11 +19,8 @@ import '../../../styles/gr-form-styles';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-copy-clipboard/gr-copy-clipboard';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-gpg-editor_html';
 import {customElement, property} from '@polymer/decorators';
@@ -31,11 +28,10 @@ import {GpgKeyInfo, GpgKeyId} from '../../../types/common';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {IronAutogrowTextareaElement} from '@polymer/iron-autogrow-textarea/iron-autogrow-textarea';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
 export interface GrGpgEditor {
   $: {
-    restAPI: RestApiService & Element;
     viewKeyOverlay: GrOverlay;
     addButton: GrButton;
     newKey: IronAutogrowTextareaElement;
@@ -48,9 +44,7 @@ declare global {
   }
 }
 @customElement('gr-gpg-editor')
-export class GrGpgEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrGpgEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -70,9 +64,11 @@ export class GrGpgEditor extends GestureEventListeners(
   @property({type: Array})
   _keysToRemove: GpgKeyInfo[] = [];
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
     this._keys = [];
-    return this.$.restAPI.getAccountGPGKeys().then(keys => {
+    return this.restApiService.getAccountGPGKeys().then(keys => {
       if (!keys) {
         return;
       }
@@ -86,7 +82,7 @@ export class GrGpgEditor extends GestureEventListeners(
 
   save() {
     const promises = this._keysToRemove.map(key =>
-      this.$.restAPI.deleteAccountGPGKey(key.id!)
+      this.restApiService.deleteAccountGPGKey(key.id!)
     );
 
     return Promise.all(promises).then(() => {
@@ -117,7 +113,7 @@ export class GrGpgEditor extends GestureEventListeners(
   _handleAddKey() {
     this.$.addButton.disabled = true;
     this.$.newKey.disabled = true;
-    return this.$.restAPI
+    return this.restApiService
       .addAccountGPGKey({add: [this._newKey.trim()]})
       .then(() => {
         this.$.newKey.disabled = false;

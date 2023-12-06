@@ -16,16 +16,14 @@
  */
 
 import '../../../test/common-test-setup-karma.js';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface.js';
 import {getMockDiffResponse} from '../../../test/mocks/diff-response.js';
 import './gr-diff.js';
-import {flush} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import {GrDiffBuilderImage} from '../gr-diff-builder/gr-diff-builder-image.js';
 import {getComputedStyleValue} from '../../../utils/dom-util.js';
 import {_setHiddenScroll} from '../../../scripts/hiddenscroll.js';
 import {runA11yAudit} from '../../../test/a11y-test-utils.js';
 import '@polymer/paper-button/paper-button.js';
-import {SPECIAL_PATCH_SET_NUM} from '../../../utils/patch-set-util.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-diff');
 
@@ -54,15 +52,17 @@ suite('gr-diff tests', () => {
       sinon.stub(element.$.highlights, 'handleSelectionChange');
     });
 
-    test('enabled if logged in', () => {
+    test('enabled if logged in', async () => {
       element.loggedIn = true;
       emulateSelection();
+      await flush();
       assert.isTrue(element.$.highlights.handleSelectionChange.called);
     });
 
-    test('ignored if logged out', () => {
+    test('ignored if logged out', async () => {
       element.loggedIn = false;
       emulateSelection();
+      await flush();
       assert.isFalse(element.$.highlights.handleSelectionChange.called);
     });
   });
@@ -88,97 +88,10 @@ suite('gr-diff tests', () => {
     assert.isNotOk(getComputedStyleValue('--line-limit', element));
   });
 
-  suite('_get{PatchNum|IsParentComment}ByLineAndContent', () => {
-    let lineEl;
-    let contentEl;
-
-    setup(() => {
-      element = basicFixture.instantiate();
-      lineEl = document.createElement('td');
-      contentEl = document.createElement('span');
-    });
-
-    suite('_getPatchNumByLineAndContent', () => {
-      test('right side', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        lineEl.classList.add('right');
-        assert.equal(element._getPatchNumByLineAndContent(lineEl, contentEl),
-            4);
-      });
-
-      test('left side parent by linenum', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        lineEl.classList.add('left');
-        assert.equal(element._getPatchNumByLineAndContent(lineEl, contentEl),
-            4);
-      });
-
-      test('left side parent by content', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        contentEl.classList.add('remove');
-        assert.equal(element._getPatchNumByLineAndContent(lineEl, contentEl),
-            4);
-      });
-
-      test('left side merge parent', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: -2};
-        contentEl.classList.add('remove');
-        assert.equal(element._getPatchNumByLineAndContent(lineEl, contentEl),
-            4);
-      });
-
-      test('left side non parent', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 3};
-        contentEl.classList.add('remove');
-        assert.equal(element._getPatchNumByLineAndContent(lineEl, contentEl),
-            3);
-      });
-    });
-
-    suite('_getIsParentCommentByLineAndContent', () => {
-      test('right side', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        lineEl.classList.add('right');
-        assert.isFalse(
-            element._getIsParentCommentByLineAndContent(lineEl, contentEl));
-      });
-
-      test('left side parent by linenum', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        lineEl.classList.add('left');
-        assert.isTrue(
-            element._getIsParentCommentByLineAndContent(lineEl, contentEl));
-      });
-
-      test('left side parent by content', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 'PARENT'};
-        contentEl.classList.add('remove');
-        assert.isTrue(
-            element._getIsParentCommentByLineAndContent(lineEl, contentEl));
-      });
-
-      test('left side merge parent', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: -2};
-        contentEl.classList.add('remove');
-        assert.isTrue(
-            element._getIsParentCommentByLineAndContent(lineEl, contentEl));
-      });
-
-      test('left side non parent', () => {
-        element.patchRange = {patchNum: 4, basePatchNum: 3};
-        contentEl.classList.add('remove');
-        assert.isFalse(
-            element._getIsParentCommentByLineAndContent(lineEl, contentEl));
-      });
-    });
-  });
-
   suite('not logged in', () => {
     setup(() => {
       const getLoggedInPromise = Promise.resolve(false);
-      stub('gr-rest-api-interface', {
-        getLoggedIn() { return getLoggedInPromise; },
-      });
+      stubRestApi('getLoggedIn').returns(getLoggedInPromise);
       element = basicFixture.instantiate();
       return getLoggedInPromise;
     });
@@ -188,14 +101,6 @@ suite('gr-diff tests', () => {
       assert.isTrue(element.classList.contains('no-left'));
       element.toggleLeftDiff();
       assert.isFalse(element.classList.contains('no-left'));
-    });
-
-    test('addDraftAtLine', () => {
-      sinon.stub(element, '_selectLine');
-      const loggedInErrorSpy = sinon.spy();
-      element.addEventListener('show-auth-required', loggedInErrorSpy);
-      element.addDraftAtLine();
-      assert.isTrue(loggedInErrorSpy.called);
     });
 
     test('view does not start with displayLine classList', () => {
@@ -258,12 +163,10 @@ suite('gr-diff tests', () => {
         element.patchRange = {basePatchNum: 'PARENT', patchNum: 1};
         element.isImageDiff = true;
         element.prefs = {
-          auto_hide_diff_table_header: true,
           context: 10,
           cursor_blink_rate: 0,
           font_size: 12,
           ignore_whitespace: 'IGNORE_NONE',
-          intraline_difference: true,
           line_length: 100,
           line_wrapping: false,
           show_line_endings: true,
@@ -305,7 +208,7 @@ suite('gr-diff tests', () => {
           leftImage.addEventListener('load', () => {
             assert.isOk(leftImage);
             assert.equal(leftImage.getAttribute('src'),
-                'data:image/bmp;base64, ' + mockFile1.body);
+                'data:image/bmp;base64,' + mockFile1.body);
             assert.equal(leftLabelContent.textContent, '1\u00d71 image/bmp');// \u00d7 - '×'
             leftLoaded = true;
             if (rightLoaded) {
@@ -317,7 +220,7 @@ suite('gr-diff tests', () => {
           rightImage.addEventListener('load', () => {
             assert.isOk(rightImage);
             assert.equal(rightImage.getAttribute('src'),
-                'data:image/bmp;base64, ' + mockFile2.body);
+                'data:image/bmp;base64,' + mockFile2.body);
             assert.equal(rightLabelContent.textContent, '1\u00d71 image/bmp');// \u00d7 - '×'
 
             rightLoaded = true;
@@ -399,7 +302,7 @@ suite('gr-diff tests', () => {
           leftImage.addEventListener('load', () => {
             assert.isOk(leftImage);
             assert.equal(leftImage.getAttribute('src'),
-                'data:image/bmp;base64, ' + mockFile1.body);
+                'data:image/bmp;base64,' + mockFile1.body);
             assert.equal(leftLabelContent.textContent, '1\u00d71 image/bmp');// \u00d7 - '×'
             leftLoaded = true;
             if (rightLoaded) {
@@ -411,7 +314,7 @@ suite('gr-diff tests', () => {
           rightImage.addEventListener('load', () => {
             assert.isOk(rightImage);
             assert.equal(rightImage.getAttribute('src'),
-                'data:image/bmp;base64, ' + mockFile2.body);
+                'data:image/bmp;base64,' + mockFile2.body);
             assert.equal(rightLabelContent.textContent, '1\u00d71 image/bmp');// \u00d7 - '×'
 
             rightLoaded = true;
@@ -559,7 +462,7 @@ suite('gr-diff tests', () => {
       const el = document.createElement('div');
       el.className = 'showContext';
       el.addEventListener('click', e => {
-        element._handleTap(e);
+        element._handleDiffContextExpanded(e);
         assert.isTrue(showContextStub.called);
         done();
       });
@@ -585,7 +488,7 @@ suite('gr-diff tests', () => {
     });
 
     suite('getCursorStops', () => {
-      const setupDiff = function() {
+      function setupDiff() {
         element.diff = getMockDiffResponse();
         element.prefs = {
           context: 10,
@@ -594,19 +497,19 @@ suite('gr-diff tests', () => {
           line_length: 100,
           cursor_blink_rate: 0,
           line_wrapping: false,
-          intraline_difference: true,
+
           show_line_endings: true,
           show_tabs: true,
           show_whitespace_errors: true,
           syntax_highlighting: true,
-          auto_hide_diff_table_header: true,
           theme: 'DEFAULT',
           ignore_whitespace: 'IGNORE_NONE',
         };
 
         element._renderDiffTable();
+        element._setLoading(false);
         flush();
-      };
+      }
 
       test('getCursorStops returns [] when hidden and noAutoRender', () => {
         element.noAutoRender = true;
@@ -654,28 +557,99 @@ suite('gr-diff tests', () => {
           .calledWithExactly(fakeLineEl, 42));
     });
 
-    test('addDraftAtLine on an edit', () => {
-      element.patchRange.basePatchNum = SPECIAL_PATCH_SET_NUM.EDIT;
-      sinon.stub(element, '_selectLine');
-      sinon.stub(element, '_createComment');
-      const alertSpy = sinon.spy();
-      element.addEventListener('show-alert', alertSpy);
-      element.addDraftAtLine(fakeLineEl);
-      assert.isTrue(alertSpy.called);
-      assert.isFalse(element._createComment.called);
+    test('adds long range comment hint', async () => {
+      const range = {
+        start_line: 1,
+        end_line: 12,
+        start_character: 0,
+        end_character: 0,
+      };
+      const threadEl = document.createElement('div');
+      threadEl.className = 'comment-thread';
+      threadEl.setAttribute('diff-side', 'right');
+      threadEl.setAttribute('line-num', 1);
+      threadEl.setAttribute('range', JSON.stringify(range));
+      threadEl.setAttribute('slot', 'right-1');
+      const content = [{
+        a: [],
+        b: [],
+      }, {
+        ab: Array(13).fill('text'),
+      }];
+      setupSampleDiff({content});
+
+      element.appendChild(threadEl);
+      await flush();
+
+      assert.deepEqual(
+          element.querySelector('gr-ranged-comment-hint').range, range);
     });
 
-    test('addDraftAtLine on an edit base', () => {
-      element.patchRange.patchNum = SPECIAL_PATCH_SET_NUM.EDIT;
-      element.patchRange.basePatchNum = SPECIAL_PATCH_SET_NUM.PARENT;
-      sinon.stub(element, '_selectLine');
-      sinon.stub(element, '_createComment');
-      const alertSpy = sinon.spy();
-      element.addEventListener('show-alert', alertSpy);
-      element.addDraftAtLine(fakeLineEl);
-      assert.isTrue(alertSpy.called);
-      assert.isFalse(element._createComment.called);
+    test('no duplicate range hint for same thread', async () => {
+      const range = {
+        start_line: 1,
+        end_line: 12,
+        start_character: 0,
+        end_character: 0,
+      };
+      const threadEl = document.createElement('div');
+      threadEl.className = 'comment-thread';
+      threadEl.setAttribute('diff-side', 'right');
+      threadEl.setAttribute('line-num', 1);
+      threadEl.setAttribute('range', JSON.stringify(range));
+      threadEl.setAttribute('slot', 'right-1');
+      const firstHint = document.createElement('gr-ranged-comment-hint');
+      firstHint.range = range;
+      firstHint.setAttribute('threadElRootId', threadEl.rootId);
+      firstHint.setAttribute('slot', 'right-1');
+      const content = [{
+        a: [],
+        b: [],
+      }, {
+        ab: Array(13).fill('text'),
+      }];
+      setupSampleDiff({content});
+
+      element.appendChild(firstHint);
+      await flush();
+      element._handleRenderContent();
+      await flush();
+      element.appendChild(threadEl);
+      await flush();
+
+      assert.equal(
+          element.querySelectorAll('gr-ranged-comment-hint').length, 1);
     });
+
+    test('removes long range comment hint when comment is discarded',
+        async () => {
+          const range = {
+            start_line: 1,
+            end_line: 7,
+            start_character: 0,
+            end_character: 0,
+          };
+          const threadEl = document.createElement('div');
+          threadEl.className = 'comment-thread';
+          threadEl.setAttribute('diff-side', 'right');
+          threadEl.setAttribute('line-num', 1);
+          threadEl.setAttribute('range', JSON.stringify(range));
+          threadEl.setAttribute('slot', 'right-1');
+          const content = [{
+            a: [],
+            b: [],
+          }, {
+            ab: Array(8).fill('text'),
+          }];
+          setupSampleDiff({content});
+          element.appendChild(threadEl);
+          await flush();
+
+          threadEl.remove();
+          await flush();
+
+          assert.isEmpty(element.querySelectorAll('gr-ranged-comment-hint'));
+        });
 
     suite('change in preferences', () => {
       setup(() => {
@@ -688,14 +662,14 @@ suite('gr-diff tests', () => {
           change_type: 'MODIFIED',
           content: [{skip: 66}],
         };
-        element.flushDebouncer('renderDiffTable');
+        element.renderDiffTableTask.flush();
       });
 
       test('change in preferences re-renders diff', () => {
         sinon.stub(element, '_renderDiffTable');
         element.prefs = {
           ...MINIMAL_PREFS, time_format: 'HHMM_12'};
-        element.flushDebouncer('renderDiffTable');
+        element.renderDiffTableTask.flush();
         assert.isTrue(element._renderDiffTable.called);
       });
 
@@ -704,14 +678,14 @@ suite('gr-diff tests', () => {
         const newPrefs1 = {...MINIMAL_PREFS,
           line_wrapping: true};
         element.prefs = newPrefs1;
-        element.flushDebouncer('renderDiffTable');
+        element.renderDiffTableTask.flush();
         assert.isTrue(element._renderDiffTable.called);
         stub.reset();
 
         const newPrefs2 = {...newPrefs1};
         delete newPrefs2.line_wrapping;
         element.prefs = newPrefs2;
-        element.flushDebouncer('renderDiffTable');
+        element.renderDiffTableTask.flush();
         assert.isTrue(element._renderDiffTable.called);
       });
 
@@ -721,7 +695,7 @@ suite('gr-diff tests', () => {
         element.noRenderOnPrefsChange = true;
         element.prefs = {
           ...MINIMAL_PREFS, time_format: 'HHMM_12'};
-        element.flushDebouncer('renderDiffTable');
+        element.renderDiffTableTask.flush();
         assert.isFalse(element._renderDiffTable.called);
       });
     });
@@ -821,6 +795,43 @@ suite('gr-diff tests', () => {
       }
       element.addEventListener('render', rendered);
       element._renderDiffTable();
+    });
+
+    test('toggles expand context using bypass', async () => {
+      element.prefs = {...MINIMAL_PREFS, context: 3};
+
+      element.toggleAllContext();
+      element._renderDiffTable();
+      await flush();
+
+      assert.equal(element.prefs.context, 3);
+      assert.equal(element._safetyBypass, -1);
+      assert.equal(renderStub.firstCall.args[1].context, -1);
+    });
+
+    test('toggles collapse context from bypass', async () => {
+      element.prefs = {...MINIMAL_PREFS, context: 3};
+      element._safetyBypass = -1;
+
+      element.toggleAllContext();
+      element._renderDiffTable();
+      await flush();
+
+      assert.equal(element.prefs.context, 3);
+      assert.isNull(element._safetyBypass);
+      assert.equal(renderStub.firstCall.args[1].context, 3);
+    });
+
+    test('toggles collapse context from pref using default', async () => {
+      element.prefs = {...MINIMAL_PREFS, context: -1};
+
+      element.toggleAllContext();
+      element._renderDiffTable();
+      await flush();
+
+      assert.equal(element.prefs.context, -1);
+      assert.equal(element._safetyBypass, 10);
+      assert.equal(renderStub.firstCall.args[1].context, 10);
     });
   });
 
@@ -949,7 +960,7 @@ suite('gr-diff tests', () => {
     test('line comments are key locations', () => {
       const threadEl = document.createElement('div');
       threadEl.className = 'comment-thread';
-      threadEl.setAttribute('comment-side', 'right');
+      threadEl.setAttribute('diff-side', 'right');
       threadEl.setAttribute('line-num', 3);
       element.appendChild(threadEl);
       flush();
@@ -965,7 +976,7 @@ suite('gr-diff tests', () => {
     test('file comments are key locations', () => {
       const threadEl = document.createElement('div');
       threadEl.className = 'comment-thread';
-      threadEl.setAttribute('comment-side', 'left');
+      threadEl.setAttribute('diff-side', 'left');
       element.appendChild(threadEl);
       flush();
 
@@ -984,11 +995,10 @@ suite('gr-diff tests', () => {
     element = basicFixture.instantiate();
     element.prefs = {
       ignore_whitespace: ignore_whitespace || 'IGNORE_ALL',
-      auto_hide_diff_table_header: true,
       context: 10,
       cursor_blink_rate: 0,
       font_size: 12,
-      intraline_difference: true,
+
       line_length: 100,
       line_wrapping: false,
       show_line_endings: true,

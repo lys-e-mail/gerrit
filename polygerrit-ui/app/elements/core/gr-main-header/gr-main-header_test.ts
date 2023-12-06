@@ -16,11 +16,12 @@
  */
 
 import '../../../test/common-test-setup-karma';
-import {isHidden, query} from '../../../test/test-utils';
+import {isHidden, query, stubRestApi} from '../../../test/test-utils';
 import './gr-main-header';
 import {GrMainHeader} from './gr-main-header';
 import {
   createAccountDetailWithId,
+  createGerritInfo,
   createServerInfo,
 } from '../../../test/test-data-generators';
 import {NavLink} from '../../../utils/admin-nav-util';
@@ -33,19 +34,8 @@ suite('gr-main-header tests', () => {
   let element: GrMainHeader;
 
   setup(() => {
-    stub('gr-rest-api-interface', {
-      getConfig() {
-        return Promise.resolve(createServerInfo());
-      },
-      probePath(_) {
-        return Promise.resolve(false);
-      },
-    });
-    stub('gr-main-header', {
-      _loadAccount() {
-        return Promise.resolve();
-      },
-    });
+    stubRestApi('probePath').returns(Promise.resolve(false));
+    stub('gr-main-header', '_loadAccount').callsFake(() => Promise.resolve());
     element = basicFixture.instantiate();
   });
 
@@ -480,6 +470,25 @@ suite('gr-main-header tests', () => {
         },
       ]
     );
+  });
+
+  test('shows feedback icon when URL provided', async () => {
+    assert.isEmpty(element._feedbackURL);
+    assert.isNotOk(query(element, '.feedbackButton'));
+
+    const url = 'report_bug_url';
+    const config: ServerInfo = {
+      ...createServerInfo(),
+      gerrit: {
+        ...createGerritInfo(),
+        report_bug_url: url,
+      },
+    };
+    element._retrieveFeedbackURL(config);
+    await flush();
+
+    assert.equal(element._feedbackURL, url);
+    assert.ok(query(element, '.feedbackButton'));
   });
 
   test('register URL', () => {

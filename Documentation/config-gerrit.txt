@@ -504,10 +504,10 @@ the "Switch Account" link is displayed next to "Sign Out".
 +
 When `auth.type` does not normally enable this URL administrators may
 set this to `login/`, allowing users to begin a new web session. This value
-is used as an href in PolyGerrit, so absolute URLs like
+is used as an href in the Gerrit web app, so absolute URLs like
 `https://someotherhost/login` work as well.
 +
-If a ${path} parameter is included, then PolyGerrit will substitute the
+If a ${path} parameter is included, then the Gerrit web app will substitute the
 currently viewed path in the link. Be aware that this path will include
 a leading slash, so a value like this might be appropriate: `/login${path}`.
 
@@ -839,11 +839,18 @@ Default is 1024 for most caches, except:
 * `"groups"`: default is unlimited
 * `"groups_byname"`: default is unlimited
 * `"groups_byuuid"`: default is unlimited
+* `"groups_byuuid_persisted"`: default is `1g` (1 GiB of disk space)
 * `"plugin_resources"`: default is 2m (2 MiB of memory)
 
 +
-If set to 0 the cache is disabled. Entries are removed immediately
-after being stored by the cache. This is primarily useful for testing.
+If set to 0 the cache is disabled; entries are loaded but not stored
+in-memory.
++
+**NOTE**: When the cache is disabled, there is no locking when accessing
+the same key/value, and therefore multiple threads may
+load the same value concurrently with a higher memory footprint.
+To keep a minimum caching and avoid concurrent loading of the same
+key/value, set `memoryLimit` to `1` and `maxAge` to `1`.
 
 [[cache.name.expireFromMemoryAfterAccess]]cache.<name>.expireFromMemoryAfterAccess::
 +
@@ -1018,6 +1025,11 @@ The cache is persisted to disk across server restarts as it can
 be expensive to compute (60 or more seconds for a large history
 like the Linux kernel repository).
 
+cache `"comment_context"`::
++
+Caches the context lines of comments, which are the lines of the source file
+highlighted by the user when the comment was written.
+
 cache `"groups"`::
 +
 Caches the basic group information of internal groups by group ID,
@@ -1053,6 +1065,17 @@ For this cache it is important to configure a size that is larger than
 the number of internal Gerrit groups, otherwise general Gerrit
 performance may be poor. This is why by default this cache is
 unlimited.
++
+External group membership obtained from LDAP is cached under
+`"ldap_groups"`.
+
+cache `"groups_byuuid_persisted"`::
++
+Caches the basic group information of internal groups by group UUID,
+including the group owner, name, and description.
++
+This is the persisted version of `groups_byuuid` cache. The intention of this
+cache is to have an in-memory size of 0.
 +
 External group membership obtained from LDAP is cached under
 `"ldap_groups"`.
@@ -1128,7 +1151,7 @@ a cache flush, as they will be read upon first reference.
 cache `"prolog_rules"`::
 +
 Caches parsed `rules.pl` contents for each project. This cache uses the same
-size as the `projects` cache, and cannot be configured independently.
+size as the `projects` cache when `cache.prolog_rules.memoryLimit` is not set.
 
 cache `"pure_revert"`::
 +
@@ -1241,6 +1264,21 @@ threads will die out after the cache is loaded.
 +
 Default is the number of CPUs.
 
+[[cache.project_list.interval]]cache.project_list.interval::
++
+The link:#schedule-configuration-interval[interval] for running
+the project_list cache warmer.
+
+By default, if `cache.project_list.maxAge` is set, `interval` will be set to
+half its value. If `cache.project_list.maxAge` is not set or `interval` is set
+to `-1`, it is disabled.
+
+[[cache.project_list.startTime]]cache.project_list.startTime::
++
+The link:#schedule-configuration-startTime[start time] for running
+the project_list cache warmer.
+
+Default is 00:00 if the project_list cache warmer is enabled.
 
 [[capability]]
 === Section capability
@@ -1338,23 +1376,26 @@ assignee are enabled.
 +
 The default is false.
 
-[[change.largeChange]]change.largeChange::
-+
-Number of changed lines from which on a change is considered as a large
-change. The number of changed lines of a change is the sum of the lines
-that were inserted and deleted in the change.
-+
-The specified value is used to visualize the change sizes in the Web UI
-in change tables and user dashboards.
-+
-By default 500.
-
 [[change.maxComments]]change.maxComments::
 +
 Maximum number of comments (regular plus robot) allowed per change. Additional
 comments are rejected.
 +
 By default 5,000.
+
+[[change.maxFiles]]change.maxFiles::
++
+Maximum number of files allowed per change. Larger changes are rejected and must
+be split up.
++
+By default 100,000.
+
+[[change.maxPatchSets]]change.maxPatchSets::
++
+Maximum number of patch sets allowed per change. If this is insufficient,
+recreate the change with a new Change-Id, then abandon the old change.
++
+By default 1,500.
 
 [[change.maxUpdates]]change.maxUpdates::
 +
@@ -1402,7 +1443,7 @@ This config can have the following states:
   query operator. Gerrit does not serve `mergeable` in
   link:rest-api-changes.html#change-info[ChangeInfo].
 
-Default is `REF_UPDATED_AND_CHANGE_REINDEX`.
+Default is `NEVER`.
 
 [[change.maxSubmittableAtOnce]]change.maxSubmittableAtOnce::
 +
@@ -1752,6 +1793,12 @@ configuration:
 ----
   javaOptions = -Dlog4j.configuration=file:///home/gerrit/site/etc/log4j.properties
 ----
++
+Gerrit built-in loggers are then ignored: error logger (`error_log` file),
+link:#httpd.requestLog[httpd.requestLog] and
+link:#sshd.requestLog[sshd.requestLog]. The
+link:#log.jsonLogging[log.jsonLogging] and
+link:#log.textLogging[log.textLogging] options are also ignored.
 
 [[container.daemonOpt]]container.daemonOpt::
 +
@@ -2137,7 +2184,17 @@ access controls and settings. These are inherited into every
 other project managed by the running server. The name is
 relative to `gerrit.basePath`.
 +
+The link:#cache_names[persisted_projects cache] must be
+flushed after this setting is changed.
++
 Defaults to `All-Projects` if not set.
+
+[[gerrit.defaultBranch]]gerrit.defaultBranch::
++
+Name of the link:project-configuration.html#default-branch[default branch]
+to use on the project creation, if no other branches were specified in the input.
++
+Defaults to `refs/heads/master` if not set.
 
 [[gerrit.allUsers]]gerrit.allUsers::
 +
@@ -2294,16 +2351,11 @@ URL to direct users to when they need to report a bug.
 By default unset, meaning no bug report URL will be displayed. Administrators
 should set this to the URL of their issue tracker, if necessary.
 
-[[gerrit.enableReverseDnsLookup]]gerrit.enableReverseDnsLookup::
-+
-Enable reverse DNS lookup during computing ref log entry for identified user,
-to record the actual hostname of the user's host in the ref log.
-+
-Enabling reverse DNS lookup can cause performance issues on git push when
-the reverse DNS lookup is slow.
-+
-Defaults to false, reverse DNS lookup is disabled. The user's IP address
-will be recorded in the ref log rather than their hostname.
+[[gerrit.enablePeerIPInReflogRecord]]gerrit.enablePeerIPInReflogRecord::
+
+Record actual peer IP address in ref log entry for identified user.
+
+Defaults to false.
 
 [[gerrit.secureStoreClass]]gerrit.secureStoreClass::
 +
@@ -2343,11 +2395,11 @@ By default SAMEORIGIN.
 
 [[gerrit.cdnPath]]gerrit.cdnPath::
 +
-Path prefix for PolyGerrit's static resources if using a CDN.
+Path prefix for Gerrit's static resources if using a CDN.
 
 [[gerrit.faviconPath]]gerrit.faviconPath::
 +
-Path for PolyGerrit's favicon after link:#gerrit.canonicalWebUrl[default URL],
+Path for Gerrit's favicon after link:#gerrit.canonicalWebUrl[default URL],
 including icon name and extension (.ico should be used).
 
 [[gerrit.instanceId]]gerrit.instanceId::
@@ -2449,7 +2501,7 @@ Optional pattern to use for constructing the gitweb URL when pointing
 at a specific commit when `gitweb.type` is set to `custom`.
 +
 Valid replacements are `${project}` for the project name in Gerrit
-and `${commit}` for the SHA1 hash for the commit.
+and `${commit}` for the SHA-1 hash for the commit.
 
 [[gitweb.project]]gitweb.project::
 +
@@ -2481,7 +2533,7 @@ at the contents of the root tree in a specific commit when `gitweb.type`
 is set to `custom`.
 +
 Valid replacements are `${project}` for the project name in Gerrit
-and `${commit}` for the SHA1 hash for the commit.
+and `${commit}` for the SHA-1 hash for the commit.
 
 [[gitweb.file]]gitweb.file::
 +
@@ -2490,8 +2542,9 @@ at the contents of a file in a specific commit when `gitweb.type` is
 set to `custom`.
 +
 Valid replacements are `${project}` for the project name in Gerrit,
-`${file}` for the file name and `${commit}` for the SHA1 hash for
-the commit.
+`${file}` for the file name, `${hash}` for the SHA-1 hash for the commit,
+and `${commit}` for the change ref or SHA-1 of the commit if no base
+patch set.
 
 [[gitweb.filehistory]]gitweb.filehistory::
 +
@@ -2542,6 +2595,18 @@ Valid values are `true` and `false`. The default is `true`.
 
 [[groups]]
 === Section groups
+
+[[groups.includeExternalUsersInRegisteredUsersGroup]]groups.includeExternalUsersInRegisteredUsersGroup::
++
+Controls whether external users (these are users we have sufficient
+knowledge about but who don't yet have a Gerrit account) are considered
+to be members of the `REGISTERED_USERS` group.
++
+This setting only makes sense if you run custom code (e.g. from a plugin
+or a custom authentication backend). By default, Gerrit core always requires
+users to register and doesn't use external users.
++
+By default, true.
 
 [[groups.newGroupsVisibleToAll]]groups.newGroupsVisibleToAll::
 +
@@ -3093,6 +3158,39 @@ advantage of new search features without restarting the server.
 +
 Defaults to true.
 
+[[index.paginationType]]index.paginationType::
++
+The pagination type to use when index queries are repeated to
+obtain the next set of results. Supported values are:
++
+* `OFFSET`
++
+Index queries are repeated with a non-zero offset to obtain the
+next set of results.
+_Note: Results may be inaccurate if the data-set is changing during the query
+execution._
++
+* `SEARCH_AFTER`
++
+Index queries are repeated using a search-after object. This type
+is supported for Lucene and ElasticSearch. Other index backends can
+provide their custom implementations for search-after. Note that,
+`SEARCH_AFTER` does not impact using offsets in Gerrit query APIs.
+_Note: Depending on the index backend and its settings, results may be
+inaccurate if the data-set is changing during the query execution._
++
+* `NONE`
++
+Index queries are executed returning all results, without internal
+pagination.
+_Note: Since the entire set of indexing results is kept in memory
+during the API execution, this option may lead to higher memory utilisation
+and overall reduced performance.
+Bear in mind that some indexing backends may not support unbounded queries;
+therefore, the NONE option is unavailable._
++
+Defaults to `OFFSET`.
+
 [[index.maxLimit]]index.maxLimit::
 +
 Maximum limit to allow for search queries. Requesting results above this
@@ -3113,6 +3211,57 @@ implementations may have to scan through large numbers of skipped
 results when searching with an offset. Requesting results starting past
 this threshold times the requested limit will result in an error. Set to
 0 for no limit.
++
+Defaults to no limit.
+
+[[index.pageSizeMultiplier]]index.pageSizeMultiplier::
++
+When index queries are repeated to obtain more results, this multiplier
+will be used to determine the limit for the next query. Using a page
+multiplier allows queries to start off small and thus provide good
+latency for queries which may end up only having very few results, and
+then scaling up to have better throughput to handle queries with larger
+result sets without incurring the overhead of making as many queries as
+would be required with a smaller limit. This strategy of using a multiplier
+attempts to create a balance between latency and throughput by dynamically
+adjusting the query size to the number of results being returned by each
+query in the pagination.
++
+The larger the multiplier, the better the throughput on large queries, and
+it also improves latency on large queries by scaling up quickly. However, a
+larger multiplier can hurt latencies a bit by making the "last" query in a
+series longer than needed. The impact of this depends on how much the backend
+latency goes up when specifying a large limit and few results are returned.
+Setting link:#index.maxPageSize[index.maxPageSize] that isn't too large, can
+likely help reduce the impacts of this.
++
+A large multiplier with an appropriate link:#index.maxPageSize[index.maxPageSize]
+should benefit external index backends such as Elasticsearch more, which have
+a relatively high query latency.
++
+For example, if the limit of the previous query was 500 and pageSizeMultiplier
+is configured to 5, the next query will have a limit of 2500.
++
+_Note: ignored when paginationType is `NONE`_
++
+Defaults to 1 which effectively turns this feature off.
+
+[[index.maxPageSize]]index.maxPageSize::
++
+Maximum size to allow when index queries are repeated to obtain more results. Note
+that, link:#index.maxLimit[index.maxLimit] will be used to limit page size if it
+is configured to a value lower than maxPageSize.
++
+For example, if the limit of previous query was 500, pageSizeMultiplier is
+configured to 5 and maxPageSize to 2000, the next query will have a limit of
+2000 (instead of 2500).
++
+When `index.type` is set to `ELASTICSEARCH`, this value should not exceed
+the `index.max_result_window` value configured on the Elasticsearch
+server. If a value is not configured during site initialization, defaults to
+10000, which is the default value of `index.max_result_window` in Elasticsearch.
++
+_Note: ignored when paginationType is `NONE`_
 +
 Defaults to no limit.
 
@@ -3359,6 +3508,19 @@ Elasticsearch documentation,role=external,window=_blank] for details.
 +
 Defaults to 10000.
 
+[[elasticsearch.connectTimeout]]elasticsearch.connectTimeout::
++
+Sets the timeout for connecting to elasticsearch.
++
+Defaults to `1 second`.
+
+[[elasticsearch.socketTimeout]]elasticsearch.socketTimeout::
++
+Sets the timeout for the underlying connection. For more information, refer to
+link:#httpd.idleTimeout[`httpd.idleTimeout`].
++
+Defaults to `30 seconds`.
+
 ==== Elasticsearch Security
 
 When security is enabled in Elasticsearch, the username and password must be provided.
@@ -3420,9 +3582,9 @@ By default, true.
 [[experiments]]
 === Section experiments
 
-This section covers experimental new features. Gerrit's frontend uses experiments
-to research new behavior. Once the research is done, the experimental feature
-either stays and the experimentation flag gets removed, or the feature as a whole
+This section covers experimental new features. Gerrit uses experiments
+to research new behavior in frontend and core backend. Once the research is done, the experimental
+feature either stays and the experimentation flag gets removed, or the feature as a whole
 gets removed
 
 [[experiments.enabled]]experiments.enabled::
@@ -3870,8 +4032,13 @@ By default unset.
 
 [[log.jsonLogging]]log.jsonLogging::
 +
-If set to true, enables error, ssh and http logging in JSON format (file name:
-"logs/{error|sshd|httpd}_log.json").
+If set to true, enables error, ssh and http logging in JSON format (file names:
+`logs/error_log.json`, `logs/sshd_log.json` and `logs/httpd_log.json`).
++
+The option only applies to Gerrit built-in loggers. It is ignored when a log4j
+configuration is specified via
+link:#container.javaOptions[container.javaOptions], for example
+`-Dlog4j.configuration=file://etc/log4j.properties`.
 +
 Defaults to false.
 
@@ -3879,6 +4046,11 @@ Defaults to false.
 +
 If set to true, enables error logging in regular plain text format. Can only be disabled
 if `jsonLogging` is enabled.
++
+The option only applies to Gerrit built-in loggers. It is ignored when a log4j
+configuration is specified via
+link:#container.javaOptions[container.javaOptions], for example
+`-Dlog4j.configuration=file://etc/log4j.properties`.
 +
 Defaults to true.
 
@@ -3894,6 +4066,46 @@ Defaults to true.
 If set to true, log files are rotated daily at midnight (GMT).
 +
 Defaults to true.
+
+[[metrics]]
+=== Section metrics
+
+[[metrics.reservoir]]metrics.reservoir::
++
+The type of data reservoir used by the metrics system to calculate the percentile
+values for timers and histograms.
+It can be set to one of the following values:
++
+* ExponentiallyDecaying: An exponentially-decaying random reservoir based on
+  Cormode et al's forward-decaying priority reservoir sampling method to produce
+  a statistically representative sampling reservoir, exponentially biased towards
+  newer entries.
+* SlidingTimeWindowArray: A sliding window that stores only the measurements made
+  in the last window using chunks of 512 samples.
+* SlidingTimeWindow: A sliding window that stores only the measurements made in
+  the last window using a skip list.
+* SlidingWindow: A sliding window that stores only the last measurements.
+* Uniform: A random sampling reservoir that uses Vitter's Algorithm R to produce
+  a statistically representative sample.
++
+Defaults to ExponentiallyDecaying.
+
+[[metrics.ExponentiallyDecaying.alpha]]metrics.ExponentiallyDecaying.alpha::
++
+The exponential decay factor; the higher this is, the more biased the reservoir
+will be towards newer values.
+
+[[metrics.reservoirType.size]]metrics.<reservoirType>.size::
++
+The number of samples to keep in the reservoir. Applies to all reservoir types
+except the sliding time-based ones.
++
+Defaults to 1028.
+
+[[metrics.reservoirType.window]]metrics.<reservoirType>.window::
++
+The window of time for keeping data in the reservoir. It only applies to sliding
+time-based reservoir types.
 
 [[mimetype]]
 === Section mimetype
@@ -4152,7 +4364,7 @@ Carrying out this check on gits with many refs and commits can be a
 very CPU-heavy operation. For non public Gerrit-servers this check may
 be overkill.
 +
-Only disable this check if you trust the clients not to forge SHA1
+Only disable this check if you trust the clients not to forge SHA-1
 references to access commits intended to be hidden from the user.
 +
 Default is true.
@@ -4792,6 +5004,16 @@ namespace. To alias `replication start` to `gerrit replicate`:
   replicate = replication start
 ----
 
+[[ssh]]
+=== Section ssh
+
+[[ssh.clientImplementation]]ssh.clientImplementation::
++
+JCraft JSch client is supported in addition to Apache MINA SSH client.
+To use JSch client set the value to `JSCH`.
++
+By default, `APACHE`.
+
 [[sshd]]
 === Section sshd
 
@@ -5048,6 +5270,16 @@ Supported MACs:
 +
 By default, all supported MACs are available.
 
+[[sshd.enableDeprecatedKexAlgorithms]]sshd.enableDeprecatedKexAlgorithms::
++
+Enable deprecated kex algorithms:
++
+* `diffie-hellman-group1-sha1`
+* `diffie-hellman-group14-sha1`
+* `diffie-hellman-group-exchange-sha1`
+
+By default, the deprecated kex algorithms are disabled.
+
 [[sshd.kex]]sshd.kex::
 +
 --
@@ -5058,24 +5290,20 @@ with `+` are enabled in addition to the default key exchange
 algorithms, key exchange algorithm names starting with `-` are
 removed from the default key exchange algorithms.
 
-In the following example configuration, support for the 1024-bit
-`diffie-hellman-group1-sha1` key exchange is disabled while leaving
-all of the other default algorithms enabled:
-
-----
-[sshd]
-  kex = -diffie-hellman-group1-sha1
-----
-
 Supported key exchange algorithms:
 
 * `ecdh-sha2-nistp521`
 * `ecdh-sha2-nistp384`
 * `ecdh-sha2-nistp256`
 * `diffie-hellman-group-exchange-sha256`
-* `diffie-hellman-group-exchange-sha1`
-* `diffie-hellman-group14-sha1`
-* `diffie-hellman-group1-sha1`
+* `diffie-hellman-group18-sha512`
+* `diffie-hellman-group17-sha512`
+* `diffie-hellman-group16-sha512`
+* `diffie-hellman-group15-sha512`
+* `diffie-hellman-group14-sha256`
+
+See link:#sshd.enableDeprecatedKexAlgorithms[sshd.enableDeprecatedKexAlgorithms]
+for deprecated key algorithms and how to enable them.
 
 By default, all supported key exchange algorithms are available.
 
@@ -5665,10 +5893,10 @@ and "never" suppresses expiration altogether.
 [[protocol.version]]protocol.version::
 +
 If set, the server will accept requests from a client attempting to communicate
-using the specified protocol version. Otherwise communication falls back to version 0.
-If set in file `etc/jgit.config` this option will be used for all repositories of
-the site. It can be overridden for a given repository by configuring a different
-value in the repository's `config` file.
+using the specified protocol version. Default is `2`. If set in file
+`etc/jgit.config` this option will be used for all repositories of the site.
+It can be overridden for a given repository by configuring a different value in
+the repository's `config` file.
 +
 Supported versions:
 0:: the original wire protocol.

@@ -26,22 +26,26 @@ import com.google.gerrit.extensions.events.GitReferenceUpdatedListener;
 import com.google.gerrit.extensions.events.GroupIndexedListener;
 import com.google.gerrit.extensions.events.ProjectIndexedListener;
 import com.google.gerrit.extensions.events.RevisionCreatedListener;
+import com.google.gerrit.extensions.events.TopicEditedListener;
 import com.google.gerrit.extensions.events.WorkInProgressStateChangedListener;
 import com.google.gerrit.extensions.registration.DynamicMap;
 import com.google.gerrit.extensions.registration.DynamicSet;
 import com.google.gerrit.extensions.registration.PrivateInternals_DynamicMapImpl;
 import com.google.gerrit.extensions.registration.RegistrationHandle;
 import com.google.gerrit.extensions.webui.FileHistoryWebLink;
+import com.google.gerrit.extensions.webui.FileWebLink;
 import com.google.gerrit.extensions.webui.PatchSetWebLink;
 import com.google.gerrit.server.ExceptionHook;
 import com.google.gerrit.server.account.GroupBackend;
 import com.google.gerrit.server.change.ChangeETagComputation;
 import com.google.gerrit.server.config.ProjectConfigEntry;
 import com.google.gerrit.server.git.ChangeMessageModifier;
+import com.google.gerrit.server.git.receive.PluginPushOption;
 import com.google.gerrit.server.git.validators.CommitValidationListener;
 import com.google.gerrit.server.git.validators.OnSubmitValidationListener;
 import com.google.gerrit.server.git.validators.RefOperationValidationListener;
 import com.google.gerrit.server.logging.PerformanceLogger;
+import com.google.gerrit.server.restapi.change.OnPostReview;
 import com.google.gerrit.server.rules.SubmitRule;
 import com.google.gerrit.server.validators.AccountActivationValidationListener;
 import com.google.gerrit.server.validators.ProjectCreationValidationListener;
@@ -58,6 +62,7 @@ public class ExtensionRegistry {
   private final DynamicSet<GroupIndexedListener> groupIndexedListeners;
   private final DynamicSet<ProjectIndexedListener> projectIndexedListeners;
   private final DynamicSet<CommitValidationListener> commitValidationListeners;
+  private final DynamicSet<TopicEditedListener> topicEditedListeners;
   private final DynamicSet<ExceptionHook> exceptionHooks;
   private final DynamicSet<PerformanceLogger> performanceLoggers;
   private final DynamicSet<ProjectCreationValidationListener> projectCreationValidationListeners;
@@ -71,6 +76,7 @@ public class ExtensionRegistry {
   private final DynamicSet<GitReferenceUpdatedListener> refUpdatedListeners;
   private final DynamicSet<FileHistoryWebLink> fileHistoryWebLinks;
   private final DynamicSet<PatchSetWebLink> patchSetWebLinks;
+  private final DynamicSet<FileWebLink> fileWebLinks;
   private final DynamicSet<RevisionCreatedListener> revisionCreatedListeners;
   private final DynamicSet<GroupBackend> groupBackends;
   private final DynamicSet<AccountActivationValidationListener>
@@ -81,6 +87,8 @@ public class ExtensionRegistry {
   private final DynamicMap<CapabilityDefinition> capabilityDefinitions;
   private final DynamicMap<PluginProjectPermissionDefinition> pluginProjectPermissionDefinitions;
   private final DynamicMap<ProjectConfigEntry> pluginConfigEntries;
+  private final DynamicSet<PluginPushOption> pluginPushOptions;
+  private final DynamicSet<OnPostReview> onPostReviews;
 
   @Inject
   ExtensionRegistry(
@@ -89,6 +97,7 @@ public class ExtensionRegistry {
       DynamicSet<GroupIndexedListener> groupIndexedListeners,
       DynamicSet<ProjectIndexedListener> projectIndexedListeners,
       DynamicSet<CommitValidationListener> commitValidationListeners,
+      DynamicSet<TopicEditedListener> topicEditedListeners,
       DynamicSet<ExceptionHook> exceptionHooks,
       DynamicSet<PerformanceLogger> performanceLoggers,
       DynamicSet<ProjectCreationValidationListener> projectCreationValidationListeners,
@@ -102,6 +111,7 @@ public class ExtensionRegistry {
       DynamicSet<GitReferenceUpdatedListener> refUpdatedListeners,
       DynamicSet<FileHistoryWebLink> fileHistoryWebLinks,
       DynamicSet<PatchSetWebLink> patchSetWebLinks,
+      DynamicSet<FileWebLink> fileWebLinks,
       DynamicSet<RevisionCreatedListener> revisionCreatedListeners,
       DynamicSet<GroupBackend> groupBackends,
       DynamicSet<AccountActivationValidationListener> accountActivationValidationListeners,
@@ -110,12 +120,15 @@ public class ExtensionRegistry {
       DynamicSet<WorkInProgressStateChangedListener> workInProgressStateChangedListeners,
       DynamicMap<CapabilityDefinition> capabilityDefinitions,
       DynamicMap<PluginProjectPermissionDefinition> pluginProjectPermissionDefinitions,
-      DynamicMap<ProjectConfigEntry> pluginConfigEntries) {
+      DynamicMap<ProjectConfigEntry> pluginConfigEntries,
+      DynamicSet<PluginPushOption> pluginPushOption,
+      DynamicSet<OnPostReview> onPostReviews) {
     this.accountIndexedListeners = accountIndexedListeners;
     this.changeIndexedListeners = changeIndexedListeners;
     this.groupIndexedListeners = groupIndexedListeners;
     this.projectIndexedListeners = projectIndexedListeners;
     this.commitValidationListeners = commitValidationListeners;
+    this.topicEditedListeners = topicEditedListeners;
     this.exceptionHooks = exceptionHooks;
     this.performanceLoggers = performanceLoggers;
     this.projectCreationValidationListeners = projectCreationValidationListeners;
@@ -129,6 +142,7 @@ public class ExtensionRegistry {
     this.refUpdatedListeners = refUpdatedListeners;
     this.fileHistoryWebLinks = fileHistoryWebLinks;
     this.patchSetWebLinks = patchSetWebLinks;
+    this.fileWebLinks = fileWebLinks;
     this.revisionCreatedListeners = revisionCreatedListeners;
     this.groupBackends = groupBackends;
     this.accountActivationValidationListeners = accountActivationValidationListeners;
@@ -138,6 +152,8 @@ public class ExtensionRegistry {
     this.capabilityDefinitions = capabilityDefinitions;
     this.pluginProjectPermissionDefinitions = pluginProjectPermissionDefinitions;
     this.pluginConfigEntries = pluginConfigEntries;
+    this.pluginPushOptions = pluginPushOption;
+    this.onPostReviews = onPostReviews;
   }
 
   public Registration newRegistration() {
@@ -166,6 +182,10 @@ public class ExtensionRegistry {
 
     public Registration add(CommitValidationListener commitValidationListener) {
       return add(commitValidationListeners, commitValidationListener);
+    }
+
+    public Registration add(TopicEditedListener topicEditedListener) {
+      return add(topicEditedListeners, topicEditedListener);
     }
 
     public Registration add(ExceptionHook exceptionHook) {
@@ -224,6 +244,10 @@ public class ExtensionRegistry {
       return add(patchSetWebLinks, patchSetWebLink);
     }
 
+    public Registration add(FileWebLink fileWebLink) {
+      return add(fileWebLinks, fileWebLink);
+    }
+
     public Registration add(RevisionCreatedListener revisionCreatedListener) {
       return add(revisionCreatedListeners, revisionCreatedListener);
     }
@@ -260,6 +284,14 @@ public class ExtensionRegistry {
 
     public Registration add(ProjectConfigEntry pluginConfigEntry, String exportName) {
       return add(pluginConfigEntries, pluginConfigEntry, exportName);
+    }
+
+    public Registration add(PluginPushOption pluginPushOption) {
+      return add(pluginPushOptions, pluginPushOption);
+    }
+
+    public Registration add(OnPostReview onPostReview) {
+      return add(onPostReviews, onPostReview);
     }
 
     private <T> Registration add(DynamicSet<T> dynamicSet, T extension) {

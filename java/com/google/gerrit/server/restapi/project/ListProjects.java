@@ -90,7 +90,11 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.kohsuke.args4j.Option;
 
-/** List projects visible to the calling user. */
+/**
+ * List projects visible to the calling user.
+ *
+ * <p>Implement {@code GET /projects/}, without a {@code query=} parameter.
+ */
 public class ListProjects implements RestReadView<TopLevelResource> {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
@@ -486,7 +490,7 @@ public class ListProjects implements RestReadView<TopLevelResource> {
                 continue;
               }
 
-              List<Ref> refs = retieveBranchRefs(e);
+              List<Ref> refs = retrieveBranchRefs(e);
               if (!hasValidRef(refs)) {
                 continue;
               }
@@ -574,7 +578,7 @@ public class ListProjects implements RestReadView<TopLevelResource> {
     }
   }
 
-  private List<Ref> retieveBranchRefs(ProjectState e) throws PermissionBackendException {
+  private List<Ref> retrieveBranchRefs(ProjectState e) throws PermissionBackendException {
     boolean canReadAllRefs = e.statePermitsRead();
     if (canReadAllRefs) {
       try {

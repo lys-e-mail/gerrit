@@ -49,8 +49,6 @@ import java.util.Set;
 public class DefaultPermissionBackend extends PermissionBackend {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  private static final CurrentUser.PropertyKey<Boolean> IS_ADMIN = CurrentUser.PropertyKey.create();
-
   private final Provider<CurrentUser> currentUser;
   private final ProjectCache projectCache;
   private final ProjectControl.Factory projectControlFactory;
@@ -84,13 +82,35 @@ public class DefaultPermissionBackend extends PermissionBackend {
 
   @Override
   public WithUser absentUser(Account.Id id) {
-    IdentifiedUser identifiedUser = identifiedUserFactory.create(requireNonNull(id, "user"));
-    return new WithUserImpl(identifiedUser);
+    requireNonNull(id, "user");
+    Optional<Account.Id> user = getAccountIdOfIdentifiedUser();
+    if (user.isPresent() && id.equals(user.get())) {
+      // What looked liked an absent user is actually the current caller. Use the per-request
+      // singleton IdentifiedUser instead of constructing a new object to leverage caching in member
+      // variables of IdentifiedUser.
+      return new WithUserImpl(currentUser.get().asIdentifiedUser());
+    }
+    return new WithUserImpl(identifiedUserFactory.create(requireNonNull(id, "user")));
   }
 
   @Override
   public boolean usesDefaultCapabilities() {
     return true;
+  }
+
+  /**
+   * Returns the {@link com.google.gerrit.entities.Account.Id} of the current user if a user is
+   * signed in. Catches exceptions so that background jobs don't get impacted.
+   */
+  private Optional<Account.Id> getAccountIdOfIdentifiedUser() {
+    try {
+      return currentUser.get().isIdentifiedUser()
+          ? Optional.of(currentUser.get().getAccountId())
+          : Optional.empty();
+    } catch (Exception e) {
+      logger.atFine().withCause(e).log("Unable to get current user");
+      return Optional.empty();
+    }
   }
 
   class WithUserImpl extends WithUser {
@@ -202,21 +222,13 @@ public class DefaultPermissionBackend extends PermissionBackend {
     }
 
     private Boolean computeAdmin() {
-      Optional<Boolean> r = user.get(IS_ADMIN);
-      if (r.isPresent()) {
-        return r.get();
-      }
-
-      boolean isAdmin;
       if (user.isImpersonating()) {
-        isAdmin = false;
-      } else if (user instanceof PeerDaemonUser) {
-        isAdmin = true;
-      } else {
-        isAdmin = allow(capabilities().administrateServer);
+        return false;
       }
-      user.put(IS_ADMIN, isAdmin);
-      return isAdmin;
+      if (user instanceof PeerDaemonUser) {
+        return true;
+      }
+      return allow(capabilities().administrateServer);
     }
 
     private boolean canEmailReviewers() {

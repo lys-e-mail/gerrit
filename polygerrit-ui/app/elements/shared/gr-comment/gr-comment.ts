@@ -24,35 +24,31 @@ import '../gr-date-formatter/gr-date-formatter';
 import '../gr-formatted-text/gr-formatted-text';
 import '../gr-icons/gr-icons';
 import '../gr-overlay/gr-overlay';
-import '../gr-rest-api-interface/gr-rest-api-interface';
-import '../gr-storage/gr-storage';
 import '../gr-textarea/gr-textarea';
 import '../gr-tooltip-content/gr-tooltip-content';
 import '../gr-confirm-delete-comment-dialog/gr-confirm-delete-comment-dialog';
 import '../gr-account-label/gr-account-label';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-comment_html';
 import {KeyboardShortcutMixin} from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {getRootElement} from '../../../scripts/rootElement';
 import {appContext} from '../../../services/app-context';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {GrTextarea} from '../gr-textarea/gr-textarea';
-import {GrStorage, StorageLocation} from '../gr-storage/gr-storage';
 import {GrOverlay} from '../gr-overlay/gr-overlay';
 import {
   AccountDetailInfo,
   NumericChangeId,
   ConfigInfo,
   PatchSetNum,
+  RepoName,
+  BasePatchSetNum,
 } from '../../../types/common';
 import {GrButton} from '../gr-button/gr-button';
 import {GrConfirmDeleteCommentDialog} from '../gr-confirm-delete-comment-dialog/gr-confirm-delete-comment-dialog';
 import {GrDialog} from '../gr-dialog/gr-dialog';
-import {Side} from '../../../constants/constants';
 import {
   isDraft,
   UIComment,
@@ -60,13 +56,15 @@ import {
   UIRobot,
 } from '../../../utils/comment-util';
 import {OpenFixPreviewEventDetail} from '../../../types/events';
+import {fireAlert} from '../../../utils/event-util';
+import {pluralize} from '../../../utils/string-util';
+import {assertIsDefined} from '../../../utils/common-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
+import {StorageLocation} from '../../../services/storage/gr-storage';
 
 const STORAGE_DEBOUNCE_INTERVAL = 400;
 const TOAST_DEBOUNCE_INTERVAL = 200;
 
-const SAVING_MESSAGE = 'Saving';
-const DRAFT_SINGULAR = 'draft...';
-const DRAFT_PLURAL = 'drafts...';
 const SAVED_MESSAGE = 'All changes saved';
 const UNSAVED_MESSAGE = 'Unable to save draft';
 
@@ -97,17 +95,13 @@ interface CommentOverlays {
 
 export interface GrComment {
   $: {
-    restAPI: RestApiService & Element;
-    storage: GrStorage;
     container: HTMLDivElement;
     resolvedCheckbox: HTMLInputElement;
   };
 }
 
 @customElement('gr-comment')
-export class GrComment extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrComment extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -157,11 +151,14 @@ export class GrComment extends KeyboardShortcutMixin(
   @property({type: Number})
   changeNum?: NumericChangeId;
 
+  @property({type: String})
+  projectName?: RepoName;
+
   @property({type: Object, notify: true, observer: '_commentChanged'})
-  comment?: UIComment | UIRobot;
+  comment?: UIComment;
 
   @property({type: Array})
-  comments?: (UIComment | UIRobot)[];
+  comments?: UIComment[];
 
   @property({type: Boolean, reflectToAttribute: true})
   isRobotComment = false;
@@ -213,13 +210,11 @@ export class GrComment extends KeyboardShortcutMixin(
   _isAdmin = false;
 
   @property({type: Object})
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _xhrPromise?: Promise<any>; // Used for testing.
 
   @property({type: String, observer: '_messageTextChanged'})
   _messageText = '';
-
-  @property({type: String})
-  commentSide?: Side;
 
   @property({type: String})
   side?: string;
@@ -261,6 +256,9 @@ export class GrComment extends KeyboardShortcutMixin(
   @property({type: Object})
   _selfAccount?: AccountDetailInfo;
 
+  @property({type: Boolean})
+  showPortedComment = false;
+
   get keyBindings() {
     return {
       'ctrl+enter meta+enter ctrl+s meta+s': '_handleSaveKey',
@@ -268,12 +266,22 @@ export class GrComment extends KeyboardShortcutMixin(
     };
   }
 
+  private readonly restApiService = appContext.restApiService;
+
+  private readonly storage = appContext.storageService;
+
   reporting = appContext.reportingService;
 
+  private fireUpdateTask?: DelayedTask;
+
+  private storeTask?: DelayedTask;
+
+  private draftToastTask?: DelayedTask;
+
   /** @override */
-  attached() {
-    super.attached();
-    this.$.restAPI.getAccount().then(account => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.restApiService.getAccount().then(account => {
       this._selfAccount = account;
     });
     if (this.editing) {
@@ -287,16 +295,36 @@ export class GrComment extends KeyboardShortcutMixin(
   }
 
   /** @override */
-  detached() {
-    super.detached();
-    this.cancelDebouncer('fire-update');
+  disconnectedCallback() {
+    this.fireUpdateTask?.cancel();
+    this.storeTask?.cancel();
+    this.draftToastTask?.cancel();
     if (this.textarea) {
       this.textarea.closeDropdown();
     }
+    super.disconnectedCallback();
   }
 
   _getAuthor(comment: UIComment) {
     return comment.author || this._selfAccount;
+  }
+
+  _getUrlForComment(comment: UIComment) {
+    if (!this.changeNum || !this.projectName) return '';
+    if (!comment.id) throw new Error('comment must have an id');
+    return GerritNav.getUrlForComment(
+      this.changeNum as NumericChangeId,
+      this.projectName,
+      comment.id
+    );
+  }
+
+  _handlePortedMessageClick() {
+    assertIsDefined(this.comment, 'comment');
+    this.reporting.reportInteraction('navigate-to-original-comment', {
+      line: this.comment.line,
+      range: this.comment.range,
+    });
   }
 
   @observe('editing')
@@ -311,7 +339,7 @@ export class GrComment extends KeyboardShortcutMixin(
     if (!editing) return;
     // visibility based on cache this will make sure we only and always show
     // a tip once every Math.max(a day, period between creating comments)
-    const cachedVisibilityOfRespectfulTip = this.$.storage.getRespectfulTipVisibility();
+    const cachedVisibilityOfRespectfulTip = this.storage.getRespectfulTipVisibility();
     if (!cachedVisibilityOfRespectfulTip) {
       // we still want to show the tip with a probability of 30%
       if (this.getRandomNum(0, 3) >= 1) return;
@@ -322,7 +350,7 @@ export class GrComment extends KeyboardShortcutMixin(
         tip: this._respectfulReviewTip,
       });
       // update cache
-      this.$.storage.setRespectfulTipVisibility();
+      this.storage.setRespectfulTipVisibility();
     }
   }
 
@@ -341,7 +369,7 @@ export class GrComment extends KeyboardShortcutMixin(
       tip: this._respectfulReviewTip,
     });
     // add a 14-day delay to the tip cache
-    this.$.storage.setRespectfulTipVisibility(/* delayDays= */ 14);
+    this.storage.setRespectfulTipVisibility(/* delayDays= */ 14);
   }
 
   _onRespectfulReadMoreClick() {
@@ -403,7 +431,7 @@ export class GrComment extends KeyboardShortcutMixin(
   }
 
   _getIsAdmin() {
-    return this.$.restAPI.getIsAdmin();
+    return this.restApiService.getIsAdmin();
   }
 
   _computeDraftTooltip(unableToSave: boolean) {
@@ -439,7 +467,7 @@ export class GrComment extends KeyboardShortcutMixin(
         }
 
         this._eraseDraftComment();
-        return this.$.restAPI.getResponseObject(response).then(obj => {
+        return this.restApiService.getResponseObject(response).then(obj => {
           const resComment = (obj as unknown) as UIDraft;
           if (!isDraft(this.comment)) throw new Error('Can only save drafts.');
           resComment.__draft = true;
@@ -448,7 +476,6 @@ export class GrComment extends KeyboardShortcutMixin(
           if (this.comment?.__draftID) {
             resComment.__draftID = this.comment.__draftID;
           }
-          resComment.__commentSide = this.commentSide;
           this.comment = resComment;
           this._fireSave();
           return obj;
@@ -465,13 +492,11 @@ export class GrComment extends KeyboardShortcutMixin(
   _eraseDraftComment() {
     // Prevents a race condition in which removing the draft comment occurs
     // prior to it being saved.
-    this.cancelDebouncer('store');
+    this.storeTask?.cancel();
 
-    if (!this.comment?.path) throw new Error('Cannot erase Draft Comment');
-    if (this.changeNum === undefined) {
-      throw new Error('undefined changeNum');
-    }
-    this.$.storage.eraseDraftComment({
+    assertIsDefined(this.comment?.path, 'comment.path');
+    assertIsDefined(this.changeNum, 'changeNum');
+    this.storage.eraseDraftComment({
       changeNum: this.changeNum,
       patchNum: this._getPatchNum(),
       path: this.comment.path,
@@ -481,7 +506,7 @@ export class GrComment extends KeyboardShortcutMixin(
   }
 
   _commentChanged(comment: UIComment) {
-    this.editing = !!comment.__editing;
+    this.editing = isDraft(comment) && !!comment.__editing;
     this.resolved = !comment.unresolved;
     if (this.editing) {
       // It's a new draft/reply, notify.
@@ -517,7 +542,7 @@ export class GrComment extends KeyboardShortcutMixin(
   }
 
   _fireUpdate() {
-    this.debounce('fire-update', () => {
+    this.fireUpdateTask = debounce(this.fireUpdateTask, () => {
       this.dispatchEvent(
         new CustomEvent('comment-update', {
           detail: this._getEventPayload(),
@@ -551,7 +576,7 @@ export class GrComment extends KeyboardShortcutMixin(
         cancelButton.hidden = !editing;
       }
     }
-    if (this.comment) {
+    if (isDraft(this.comment)) {
       this.comment.__editing = this.editing;
     }
     if (!!editing !== !!previousValue) {
@@ -559,7 +584,7 @@ export class GrComment extends KeyboardShortcutMixin(
       this._fireUpdate();
     }
     if (editing) {
-      this.async(() => {
+      setTimeout(() => {
         flush();
         this.textarea && this.textarea.putCursorAtEnd();
       }, 1);
@@ -625,8 +650,8 @@ export class GrComment extends KeyboardShortcutMixin(
       : this._getPatchNum();
     const {path, line, range} = this.comment;
     if (path) {
-      this.debounce(
-        'store',
+      this.storeTask = debounce(
+        this.storeTask,
         () => {
           const message = this._messageText;
           if (this.changeNum === undefined) {
@@ -643,9 +668,9 @@ export class GrComment extends KeyboardShortcutMixin(
           if ((!message || !message.length) && oldValue) {
             // If the draft has been modified to be empty, then erase the storage
             // entry.
-            this.$.storage.eraseDraftComment(commentLocation);
+            this.storage.eraseDraftComment(commentLocation);
           } else {
-            this.$.storage.setDraftComment(commentLocation, message);
+            this.storage.setDraftComment(commentLocation, message);
           }
         },
         STORAGE_DEBOUNCE_INTERVAL
@@ -708,7 +733,7 @@ export class GrComment extends KeyboardShortcutMixin(
   }
 
   _fireDiscard() {
-    this.cancelDebouncer('fire-update');
+    this.fireUpdateTask?.cancel();
     this.dispatchEvent(
       new CustomEvent('comment-discard', {
         detail: this._getEventPayload(),
@@ -813,11 +838,7 @@ export class GrComment extends KeyboardShortcutMixin(
     if (numPending === 0) {
       return SAVED_MESSAGE;
     }
-    return [
-      SAVING_MESSAGE,
-      numPending,
-      numPending === 1 ? DRAFT_SINGULAR : DRAFT_PLURAL,
-    ].join(' ');
+    return `Saving ${pluralize(numPending, 'draft')}...`;
   }
 
   _showStartRequest() {
@@ -835,7 +856,7 @@ export class GrComment extends KeyboardShortcutMixin(
 
     // Cancel the debouncer so that error toasts from the error-manager will
     // not be overridden.
-    this.cancelDebouncer('draft-toast');
+    this.draftToastTask?.cancel();
     this._updateRequestToast(
       this._numPendingDraftRequests.number,
       /* requestFailed=*/ true
@@ -844,19 +865,13 @@ export class GrComment extends KeyboardShortcutMixin(
 
   _updateRequestToast(numPending: number, requestFailed?: boolean) {
     const message = this._getSavingMessage(numPending, requestFailed);
-    this.debounce(
-      'draft-toast',
+    this.draftToastTask = debounce(
+      this.draftToastTask,
       () => {
         // Note: the event is fired on the body rather than this element because
         // this element may not be attached by the time this executes, in which
         // case the event would not bubble.
-        document.body.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {message},
-            bubbles: true,
-            composed: true,
-          })
-        );
+        fireAlert(document.body, message);
       },
       TOAST_DEBOUNCE_INTERVAL
     );
@@ -873,7 +888,7 @@ export class GrComment extends KeyboardShortcutMixin(
       throw new Error('undefined draft or changeNum or patchNum');
     }
     this._showStartRequest();
-    return this.$.restAPI
+    return this.restApiService
       .saveDiffDraft(this.changeNum, this.patchNum, draft)
       .then(result => {
         if (result.ok) {
@@ -898,7 +913,7 @@ export class GrComment extends KeyboardShortcutMixin(
     }
     this._showStartRequest();
     if (!draft.id) throw new Error('Missing id in comment draft.');
-    return this.$.restAPI
+    return this.restApiService
       .deleteDiffDraft(this.changeNum, this.patchNum, {id: draft.id})
       .then(result => {
         if (result.ok) {
@@ -912,7 +927,7 @@ export class GrComment extends KeyboardShortcutMixin(
 
   _getPatchNum(): PatchSetNum {
     const patchNum = this.isOnParent()
-      ? ('PARENT' as PatchSetNum)
+      ? ('PARENT' as BasePatchSetNum)
       : this.patchNum;
     if (patchNum === undefined) throw new Error('patchNum undefined');
     return patchNum;
@@ -931,21 +946,11 @@ export class GrComment extends KeyboardShortcutMixin(
 
     // Only apply local drafts to comments that haven't been saved
     // remotely, and haven't been given a default message already.
-    //
-    // Don't get local draft if there is another comment that is currently
-    // in an editing state.
-    if (
-      !comment ||
-      comment.id ||
-      comment.message ||
-      comment.__otherEditing ||
-      !comment.path
-    ) {
-      if (comment) delete comment.__otherEditing;
+    if (!comment || comment.id || comment.message || !comment.path) {
       return;
     }
 
-    const draft = this.$.storage.getDraftComment({
+    const draft = this.storage.getDraftComment({
       changeNum,
       patchNum: this._getPatchNum(),
       path: comment.path,
@@ -1024,7 +1029,7 @@ export class GrComment extends KeyboardShortcutMixin(
     ) {
       throw new Error('undefined comment or id or changeNum or patchNum');
     }
-    this.$.restAPI
+    this.restApiService
       .deleteComment(
         this.changeNum,
         this.patchNum,

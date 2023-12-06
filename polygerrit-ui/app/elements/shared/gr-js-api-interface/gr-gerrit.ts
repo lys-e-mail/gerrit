@@ -19,14 +19,10 @@
  * This defines the Gerrit instance. All methods directly attached to Gerrit
  * should be defined or linked here.
  */
-import {
-  getPluginLoader,
-  PluginOptionMap,
-  PluginLoader,
-} from './gr-plugin-loader';
-import {getRestAPI, send} from './gr-api-utils';
+import {getPluginLoader, PluginOptionMap} from './gr-plugin-loader';
+import {send} from './gr-api-utils';
 import {appContext} from '../../../services/app-context';
-import {PluginApi} from '../../plugins/gr-plugin-types';
+import {PluginApi} from '../../../api/plugin';
 import {HttpMethod} from '../../../constants/constants';
 import {RequestPayload} from '../../../types/common';
 import {
@@ -34,15 +30,8 @@ import {
   EventEmitterService,
 } from '../../../services/gr-event-interface/gr-event-interface';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
-import {getRootElement} from '../../../scripts/rootElement';
-import {GrPluginEndpoints} from './gr-plugin-endpoints';
-import {rangesEqual} from '../../diff/gr-diff/gr-diff-utils';
-import {SUGGESTIONS_PROVIDERS_USERS_TYPES} from '../../../scripts/gr-reviewer-suggestions-provider/gr-reviewer-suggestions-provider';
-import {CoverageType} from '../../../types/types';
-import {RevisionInfo} from '../revision-info/revision-info';
 
 export interface GerritGlobal extends EventEmitterService {
-  flushPreinstalls?(): void;
   css(rule: string): string;
   install(
     callback: (plugin: PluginApi) => void,
@@ -75,31 +64,10 @@ export interface GerritGlobal extends EventEmitterService {
   // exposed methods
   Nav: typeof GerritNav;
   Auth: typeof appContext.authService;
-  getRootElement: typeof getRootElement;
-  _pluginLoader: PluginLoader;
-  _endpoints: GrPluginEndpoints;
-  slotToContent(slot: unknown): unknown;
-  rangesEqual: typeof rangesEqual;
-  SUGGESTIONS_PROVIDERS_USERS_TYPES: typeof SUGGESTIONS_PROVIDERS_USERS_TYPES;
-  CoverageType: typeof CoverageType;
-  RevisionInfo: typeof RevisionInfo;
 }
-
-/**
- * Trigger the preinstalls for bundled plugins.
- * This needs to happen before Gerrit as plugin bundle overrides the Gerrit.
- */
-function flushPreinstalls() {
-  const Gerrit = window.Gerrit;
-  if (Gerrit?.flushPreinstalls) {
-    Gerrit.flushPreinstalls();
-  }
-}
-export const _testOnly_flushPreinstalls = flushPreinstalls;
 
 export function initGerritPluginApi() {
   window.Gerrit = window.Gerrit || {};
-  flushPreinstalls();
   initGerritPluginsMethods(window.Gerrit as GerritGlobal);
   // Preloaded plugins should be installed after Gerrit.install() is set,
   // since plugin preloader substitutes Gerrit.install() temporarily.
@@ -118,7 +86,7 @@ export function deprecatedDelete(
   callback?: (response: Response) => void
 ) {
   console.warn('.delete() is deprecated! Use plugin.restApi().delete()');
-  return getRestAPI()
+  return appContext.restApiService
     .send(HttpMethod.DELETE, url)
     .then(response => {
       if (response.status !== 204) {
@@ -135,12 +103,17 @@ export function deprecatedDelete(
     });
 }
 
+const fakeApi = {
+  getPluginName: () => 'global',
+};
+
 function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
   /**
    * @deprecated Use plugin.styles().css(rulesStr) instead. Please, consult
    * the documentation how to replace it accordingly.
    */
   globalGerritObj.css = (rulesStr: string) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'css');
     console.warn(
       'Gerrit.css(rulesStr) is deprecated!',
       'Use plugin.styles().css(rulesStr)'
@@ -164,17 +137,19 @@ function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
   };
 
   globalGerritObj.getLoggedIn = () => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'getLoggedIn');
     console.warn(
       'Gerrit.getLoggedIn() is deprecated! ' +
         'Use plugin.restApi().getLoggedIn()'
     );
-    return document.createElement('gr-rest-api-interface').getLoggedIn();
+    return appContext.restApiService.getLoggedIn();
   };
 
   globalGerritObj.get = (
     url: string,
     callback?: (response: unknown) => void
   ) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'get');
     console.warn('.get() is deprecated! Use plugin.restApi().get()');
     send(HttpMethod.GET, url, callback);
   };
@@ -184,6 +159,7 @@ function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
     payload?: RequestPayload,
     callback?: (response: unknown) => void
   ) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'post');
     console.warn('.post() is deprecated! Use plugin.restApi().post()');
     send(HttpMethod.POST, url, callback, payload);
   };
@@ -193,6 +169,7 @@ function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
     payload?: RequestPayload,
     callback?: (response: unknown) => void
   ) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'put');
     console.warn('.put() is deprecated! Use plugin.restApi().put()');
     send(HttpMethod.PUT, url, callback, payload);
   };
@@ -201,32 +178,51 @@ function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
     url: string,
     callback?: (response: Response) => void
   ) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'delete');
     deprecatedDelete(url, callback);
   };
 
   globalGerritObj.awaitPluginsLoaded = () => {
+    appContext.reportingService.trackApi(
+      fakeApi,
+      'global',
+      'awaitPluginsLoaded'
+    );
     return getPluginLoader().awaitPluginsLoaded();
   };
 
   // TODO(taoalpha): consider removing these proxy methods
   // and using getPluginLoader() directly
-  globalGerritObj._loadPlugins = (plugins, opt_option) => {
-    getPluginLoader().loadPlugins(plugins, opt_option);
+  globalGerritObj._loadPlugins = plugins => {
+    appContext.reportingService.trackApi(fakeApi, 'global', '_loadPlugins');
+    getPluginLoader().loadPlugins(plugins);
   };
 
   globalGerritObj._arePluginsLoaded = () => {
+    appContext.reportingService.trackApi(
+      fakeApi,
+      'global',
+      '_arePluginsLoaded'
+    );
     return getPluginLoader().arePluginsLoaded();
   };
 
   globalGerritObj._isPluginPreloaded = url => {
+    appContext.reportingService.trackApi(
+      fakeApi,
+      'global',
+      '_isPluginPreloaded'
+    );
     return getPluginLoader().isPluginPreloaded(url);
   };
 
   globalGerritObj._isPluginEnabled = pathOrUrl => {
+    appContext.reportingService.trackApi(fakeApi, 'global', '_isPluginEnabled');
     return getPluginLoader().isPluginEnabled(pathOrUrl);
   };
 
   globalGerritObj._isPluginLoaded = pathOrUrl => {
+    appContext.reportingService.trackApi(fakeApi, 'global', '_isPluginLoaded');
     return getPluginLoader().isPluginLoaded(pathOrUrl);
   };
 
@@ -250,27 +246,49 @@ function initGerritPluginsMethods(globalGerritObj: GerritGlobal) {
    *   });
    * });
    *
-   * // Listen on your-special-event from pluignB
+   * // Listen on your-special-event from pluginB
    * Gerrit.install(pluginB => {
    *   Gerrit.on("your-special-event", ({plugin}) => {
    *     // do something, plugin is pluginA
    *   });
    * });
    */
-  globalGerritObj.addListener = (eventName: string, cb: EventCallback) =>
-    eventEmitter.addListener(eventName, cb);
-  globalGerritObj.dispatch = (eventName: string, detail: any) =>
-    eventEmitter.dispatch(eventName, detail);
-  globalGerritObj.emit = (eventName: string, detail: any) =>
-    eventEmitter.emit(eventName, detail);
-  globalGerritObj.off = (eventName: string, cb: EventCallback) =>
-    eventEmitter.off(eventName, cb);
-  globalGerritObj.on = (eventName: string, cb: EventCallback) =>
-    eventEmitter.on(eventName, cb);
-  globalGerritObj.once = (eventName: string, cb: EventCallback) =>
-    eventEmitter.once(eventName, cb);
-  globalGerritObj.removeAllListeners = (eventName: string) =>
-    eventEmitter.removeAllListeners(eventName);
-  globalGerritObj.removeListener = (eventName: string, cb: EventCallback) =>
-    eventEmitter.removeListener(eventName, cb);
+  globalGerritObj.addListener = (eventName: string, cb: EventCallback) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'addListener');
+    return eventEmitter.addListener(eventName, cb);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  globalGerritObj.dispatch = (eventName: string, detail: any) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'dispatch');
+    return eventEmitter.dispatch(eventName, detail);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  globalGerritObj.emit = (eventName: string, detail: any) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'emit');
+    return eventEmitter.emit(eventName, detail);
+  };
+  globalGerritObj.off = (eventName: string, cb: EventCallback) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'off');
+    return eventEmitter.off(eventName, cb);
+  };
+  globalGerritObj.on = (eventName: string, cb: EventCallback) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'on');
+    return eventEmitter.on(eventName, cb);
+  };
+  globalGerritObj.once = (eventName: string, cb: EventCallback) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'once');
+    return eventEmitter.once(eventName, cb);
+  };
+  globalGerritObj.removeAllListeners = (eventName: string) => {
+    appContext.reportingService.trackApi(
+      fakeApi,
+      'global',
+      'removeAllListeners'
+    );
+    return eventEmitter.removeAllListeners(eventName);
+  };
+  globalGerritObj.removeListener = (eventName: string, cb: EventCallback) => {
+    appContext.reportingService.trackApi(fakeApi, 'global', 'removeListener');
+    return eventEmitter.removeListener(eventName, cb);
+  };
 }

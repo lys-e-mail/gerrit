@@ -25,21 +25,14 @@ import '../../shared/gr-date-formatter/gr-date-formatter';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-list-view/gr-list-view';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-create-pointer-dialog/gr-create-pointer-dialog';
 import '../gr-confirm-delete-item-dialog/gr-confirm-delete-item-dialog';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-detail-list_html';
 import {ListViewMixin} from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
 import {encodeURL} from '../../../utils/url-util';
 import {customElement, property} from '@polymer/decorators';
-import {
-  ErrorCallback,
-  RestApiService,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {GrCreatePointerDialog} from '../gr-create-pointer-dialog/gr-create-pointer-dialog';
 import {
@@ -53,21 +46,21 @@ import {
 import {AppElementRepoParams} from '../../gr-app-types';
 import {PolymerDomRepeatEvent} from '../../../types/types';
 import {RepoDetailView} from '../../core/gr-navigation/gr-navigation';
+import {firePageError} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 const PGP_START = '-----BEGIN PGP SIGNATURE-----';
 
 export interface GrRepoDetailList {
   $: {
-    restAPI: RestApiService & Element;
     overlay: GrOverlay;
     createOverlay: GrOverlay;
     createNewModal: GrCreatePointerDialog;
   };
 }
 @customElement('gr-repo-detail-list')
-export class GrRepoDetailList extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrRepoDetailList extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -120,10 +113,12 @@ export class GrRepoDetailList extends ListViewMixin(
   @property({type: String})
   _revisedRef?: GitRef;
 
+  private readonly restApiService = appContext.restApiService;
+
   _determineIfOwner(repo: RepoName) {
-    return this.$.restAPI
+    return this.restApiService
       .getRepoAccess(repo)
-      .then(access => (this._isOwner = !!access && !!access[repo].is_owner));
+      .then(access => (this._isOwner = !!access?.[repo]?.is_owner));
   }
 
   _paramsChanged(params?: AppElementRepoParams) {
@@ -182,16 +177,11 @@ export class GrRepoDetailList extends ListViewMixin(
     this._items = [];
     flush();
     const errFn: ErrorCallback = response => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
+
     if (detailType === RepoDetailView.BRANCHES) {
-      return this.$.restAPI
+      return this.restApiService
         .getRepoBranches(filter, repo, itemsPerPage, offset, errFn)
         .then(items => {
           if (!items) {
@@ -201,7 +191,7 @@ export class GrRepoDetailList extends ListViewMixin(
           this._loading = false;
         });
     } else if (detailType === RepoDetailView.TAGS) {
-      return this.$.restAPI
+      return this.restApiService
         .getRepoTags(filter, repo, itemsPerPage, offset, errFn)
         .then(items => {
           if (!items) {
@@ -249,7 +239,7 @@ export class GrRepoDetailList extends ListViewMixin(
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   _computeEditingClass(isEditing: boolean) {
@@ -277,7 +267,7 @@ export class GrRepoDetailList extends ListViewMixin(
   }
 
   _setRepoHead(repo: RepoName, ref: GitRef, e: PolymerDomRepeatEvent<GitRef>) {
-    return this.$.restAPI.setRepoHead(repo, ref).then(res => {
+    return this.restApiService.setRepoHead(repo, ref).then(res => {
       if (res.status < 400) {
         this._isEditing = false;
         e.model.set('item.revision', ref);
@@ -309,7 +299,7 @@ export class GrRepoDetailList extends ListViewMixin(
       return Promise.reject(new Error('undefined repo or refName'));
     }
     if (this.detailType === RepoDetailView.BRANCHES) {
-      return this.$.restAPI
+      return this.restApiService
         .deleteRepoBranches(this._repo, this._refName)
         .then(itemDeleted => {
           if (itemDeleted.status === 204) {
@@ -323,7 +313,7 @@ export class GrRepoDetailList extends ListViewMixin(
           }
         });
     } else if (this.detailType === RepoDetailView.TAGS) {
-      return this.$.restAPI
+      return this.restApiService
         .deleteRepoTags(this._repo, this._refName)
         .then(itemDeleted => {
           if (itemDeleted.status === 204) {

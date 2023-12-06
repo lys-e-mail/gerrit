@@ -65,7 +65,7 @@ export const htmlTemplate = html`
       margin-left: var(--spacing-s);
     }
     #replyBtn {
-      margin-bottom: var(--spacing-l);
+      margin-bottom: var(--spacing-m);
     }
     gr-change-star {
       margin-left: var(--spacing-s);
@@ -105,7 +105,7 @@ export const htmlTemplate = html`
       font-size: var(--font-size-mono);
       line-height: var(--line-height-mono);
       margin-right: var(--spacing-l);
-      margin-bottom: var(--spacing-l);
+      margin-bottom: var(--spacing-m);
       /* Account for border and padding and rounding errors. */
       max-width: calc(72ch + 2px + 2 * var(--spacing-m) + 0.4px);
     }
@@ -115,13 +115,7 @@ export const htmlTemplate = html`
     #commitMessageEditor {
       /* Account for border and padding and rounding errors. */
       min-width: calc(72ch + 2px + 2 * var(--spacing-m) + 0.4px);
-    }
-    .editCommitMessage {
-      margin-top: var(--spacing-l);
-
-      --gr-button: {
-        padding: 5px 0px;
-      }
+      --collapsed-max-height: 300px;
     }
     .changeStatuses,
     .commitActions,
@@ -145,15 +139,12 @@ export const htmlTemplate = html`
       overflow-x: hidden;
     }
     .relatedChanges {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       overflow: hidden;
       padding: var(--spacing-l) 0;
     }
     .mobile {
       display: none;
-    }
-    .warning {
-      color: var(--error-text-color);
     }
     hr {
       border: 0;
@@ -161,11 +152,8 @@ export const htmlTemplate = html`
       height: 0;
       margin-bottom: var(--spacing-l);
     }
-    #relatedChanges.collapsed {
-      margin-bottom: var(--spacing-l);
-      max-height: var(--relation-chain-max-height, 2em);
-      overflow: hidden;
-      position: relative; /* for arrowToCurrentChange to have position:absolute and be hidden */
+    .emptySpace {
+      flex-grow: 1;
     }
     .commitContainer {
       display: flex;
@@ -173,23 +161,6 @@ export const htmlTemplate = html`
       flex-shrink: 0;
       margin: var(--spacing-l) 0;
       padding: 0 var(--spacing-l);
-    }
-    .collapseToggleContainer {
-      display: flex;
-      margin-bottom: 8px;
-    }
-    #relatedChangesToggle {
-      display: none;
-    }
-    #relatedChangesToggle.showToggle {
-      display: flex;
-    }
-    .collapseToggleContainer gr-button {
-      display: block;
-    }
-    #relatedChangesToggle {
-      margin-left: var(--spacing-l);
-      padding-top: var(--related-change-btn-top-padding, 0);
     }
     .showOnEdit {
       display: none;
@@ -232,8 +203,10 @@ export const htmlTemplate = html`
       padding-top: var(--spacing-l);
       width: 100%;
     }
-    /* NOTE: If you update this breakpoint, also update the
-      BREAKPOINT_RELATED_MED in the JS */
+    gr-change-summary {
+      /* temporary for old checks status */
+      margin-bottom: var(--spacing-m);
+    }
     @media screen and (max-width: 75em) {
       .relatedChanges {
         padding: 0;
@@ -255,8 +228,6 @@ export const htmlTemplate = html`
         padding-right: 0;
       }
     }
-    /* NOTE: If you update this breakpoint, also update the
-      BREAKPOINT_RELATED_SMALL in the JS */
     @media screen and (max-width: 50em) {
       .mobile {
         display: block;
@@ -346,6 +317,7 @@ export const htmlTemplate = html`
     class="container"
     on-show-checks-table="_setActivePrimaryTab"
     hidden$="{{_loading}}"
+    aria-hidden="[[_changeViewAriaHidden]]"
   >
     <section class="changeInfoSection">
       <div class$="[[_computeHeaderClass(_editMode)]]">
@@ -359,19 +331,6 @@ export const htmlTemplate = html`
                 max-width="100"
                 status="[[status]]"
               ></gr-change-status>
-            </template>
-          </div>
-          <div class="statusText">
-            <template
-              is="dom-if"
-              if="[[_computeShowCommitInfo(_changeStatus, _change.current_revision)]]"
-            >
-              <span class="text"> as </span>
-              <gr-commit-info
-                change="[[_change]]"
-                commit-info="[[_computeMergedCommitInfo(_change.current_revision, _change.revisions)]]"
-                server-config="[[_serverConfig]]"
-              ></gr-commit-info>
             </template>
           </div>
           <gr-change-star
@@ -405,6 +364,7 @@ export const htmlTemplate = html`
             has-parent="[[hasParent]]"
             actions="[[_change.actions]]"
             revision-actions="{{_currentRevisionActions}}"
+            account="[[_account]]"
             change-num="[[_changeNum]]"
             change-status="[[_change.status]]"
             commit-num="[[_commitInfo.commit]]"
@@ -417,6 +377,7 @@ export const htmlTemplate = html`
             on-edit-tap="_handleEditTap"
             on-stop-edit-tap="_handleStopEditTap"
             on-download-tap="_handleOpenDownloadDialog"
+            comment-threads="[[_commentThreads]]"
           ></gr-change-actions>
         </div>
         <!-- end commit actions -->
@@ -433,6 +394,7 @@ export const htmlTemplate = html`
             commit-info="[[_commitInfo]]"
             server-config="[[_serverConfig]]"
             parent-is-current="[[_parentIsCurrent]]"
+            repo-config="[[_projectConfig]]"
             on-show-reply-dialog="_handleShowReplyDialog"
           >
           </gr-change-metadata>
@@ -457,11 +419,12 @@ export const htmlTemplate = html`
               <div id="commitMessage" class="commitMessage">
                 <gr-editable-content
                   id="commitMessageEditor"
-                  editing="[[_editingCommitMessage]]"
+                  editing="{{_editingCommitMessage}}"
                   content="{{_latestCommitMessage}}"
                   storage-key="[[_computeCommitMessageKey(_change._number, _change.current_revision)]]"
+                  hide-edit-commit-message="[[_hideEditCommitMessage]]"
+                  commit-collapsible="[[_commitCollapsible]]"
                   remove-zero-width-space=""
-                  collapsed$="[[_computeCommitMessageCollapsed(_commitCollapsed, _commitCollapsible)]]"
                 >
                   <gr-linked-text
                     pre=""
@@ -470,14 +433,6 @@ export const htmlTemplate = html`
                     remove-zero-width-space=""
                   ></gr-linked-text>
                 </gr-editable-content>
-                <gr-button
-                  link=""
-                  class="editCommitMessage"
-                  title="Edit commit message"
-                  on-click="_handleEditCommitMessage"
-                  hidden$="[[_hideEditCommitMessage]]"
-                  >Edit</gr-button
-                >
                 <div
                   class="changeId"
                   hidden$="[[!_changeIdCommitMessageError]]"
@@ -492,20 +447,12 @@ export const htmlTemplate = html`
                   </span>
                 </div>
               </div>
-              <div
-                id="commitCollapseToggle"
-                class="collapseToggleContainer"
-                hidden$="[[!_commitCollapsible]]"
+              <gr-change-summary
+                change-comments="[[_changeComments]]"
+                comment-threads="[[_commentThreads]]"
+                self-account="[[_account]]"
               >
-                <gr-button
-                  link=""
-                  id="commitCollapseToggleButton"
-                  class="collapseToggleButton"
-                  on-click="_toggleCommitCollapsed"
-                >
-                  [[_computeCollapseText(_commitCollapsed)]]
-                </gr-button>
-              </div>
+              </gr-change-summary>
               <gr-endpoint-decorator name="commit-container">
                 <gr-endpoint-param name="change" value="[[_change]]">
                 </gr-endpoint-param>
@@ -518,27 +465,13 @@ export const htmlTemplate = html`
             </div>
             <div class="relatedChanges">
               <gr-related-changes-list
-                id="relatedChanges"
-                class$="[[_computeRelatedChangesClass(_relatedChangesCollapsed)]]"
                 change="[[_change]]"
+                id="relatedChanges"
                 mergeable="[[_mergeable]]"
-                has-parent="{{hasParent}}"
-                on-update="_updateRelatedChangeMaxHeight"
                 patch-num="[[_computeLatestPatchNum(_allPatchSets)]]"
-                on-new-section-loaded="_computeShowRelatedToggle"
-              >
-              </gr-related-changes-list>
-              <div id="relatedChangesToggle" class="collapseToggleContainer">
-                <gr-button
-                  link=""
-                  id="relatedChangesToggleButton"
-                  class="collapseToggleButton"
-                  on-click="_toggleRelatedChangesCollapsed"
-                >
-                  [[_computeCollapseText(_relatedChangesCollapsed)]]
-                </gr-button>
-              </div>
+              ></gr-related-changes-list>
             </div>
+            <div class="emptySpace"></div>
           </div>
         </div>
       </div>
@@ -558,6 +491,11 @@ export const htmlTemplate = html`
           <span>Comments</span></gr-tooltip-content
         >
       </paper-tab>
+      <template is="dom-if" if="[[_showChecksTab]]">
+        <paper-tab data-name$="[[_constants.PrimaryTab.CHECKS]]"
+          >Checks</paper-tab
+        >
+      </template>
       <template
         is="dom-repeat"
         items="[[_dynamicTabHeaderEndpoints]]"
@@ -603,7 +541,6 @@ export const htmlTemplate = html`
           diff-prefs-disabled="[[_diffPrefsDisabled]]"
           on-open-diff-prefs="_handleOpenDiffPrefs"
           on-open-download-dialog="_handleOpenDownloadDialog"
-          on-open-upload-help-dialog="_handleOpenUploadHelpDialog"
           on-open-included-in-dialog="_handleOpenIncludedInDialog"
           on-expand-diffs="_expandAllDiffs"
           on-collapse-diffs="_collapseAllDiffs"
@@ -617,9 +554,7 @@ export const htmlTemplate = html`
           change-num="[[_changeNum]]"
           patch-range="{{_patchRange}}"
           change-comments="[[_changeComments]]"
-          drafts="[[_diffDrafts]]"
           revisions="[[_change.revisions]]"
-          project-config="[[_projectConfig]]"
           selected-index="{{viewState.selectedFileIndex}}"
           diff-view-mode="[[viewState.diffMode]]"
           edit-mode="[[_editMode]]"
@@ -641,10 +576,20 @@ export const htmlTemplate = html`
           change="[[_change]]"
           change-num="[[_changeNum]]"
           logged-in="[[_loggedIn]]"
+          comment-tab-state="[[_tabState.commentTab]]"
           only-show-robot-comments-with-human-reply=""
-          on-thread-list-modified="_handleReloadDiffComments"
           unresolved-only
+          show-comment-context
         ></gr-thread-list>
+      </template>
+      <template
+        is="dom-if"
+        if="[[_isTabActive(_constants.PrimaryTab.CHECKS, _activeTabs)]]"
+      >
+        <gr-checks-tab
+          id="checksTab"
+          tab-state="[[_tabState.checksTab]]"
+        ></gr-checks-tab>
       </template>
       <template
         is="dom-if"
@@ -664,7 +609,6 @@ export const htmlTemplate = html`
           logged-in="[[_loggedIn]]"
           hide-toggle-buttons
           empty-thread-msg="[[_messages.NO_ROBOT_COMMENTS_THREADS_MSG]]"
-          on-thread-list-modified="_handleReloadDiffComments"
         >
         </gr-thread-list>
         <template is="dom-if" if="[[_showRobotCommentsButton]]">
@@ -742,13 +686,6 @@ export const htmlTemplate = html`
       on-close="_handleDownloadDialogClose"
     ></gr-download-dialog>
   </gr-overlay>
-  <gr-overlay id="uploadHelpOverlay" with-backdrop="">
-    <gr-upload-help-dialog
-      revision="[[_currentRevision]]"
-      target-branch="[[_change.branch]]"
-      on-close="_handleCloseUploadHelpDialog"
-    ></gr-upload-help-dialog>
-  </gr-overlay>
   <gr-overlay id="includedInOverlay" with-backdrop="">
     <gr-included-in-dialog
       id="includedInDialog"
@@ -763,6 +700,7 @@ export const htmlTemplate = html`
     no-cancel-on-esc-key=""
     scroll-action="lock"
     with-backdrop=""
+    on-iron-overlay-canceled="onReplyOverlayCanceled"
   >
     <gr-reply-dialog
       id="replyDialog"
@@ -781,7 +719,5 @@ export const htmlTemplate = html`
     >
     </gr-reply-dialog>
   </gr-overlay>
-  <gr-js-api-interface id="jsAPI"></gr-js-api-interface>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
   <gr-comment-api id="commentAPI"></gr-comment-api>
 `;

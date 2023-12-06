@@ -19,13 +19,14 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.PushOneCommit;
+import com.google.gerrit.entities.LegacySubmitRequirement;
 import com.google.gerrit.entities.SubmitRecord;
-import com.google.gerrit.entities.SubmitRequirement;
 import com.google.gerrit.extensions.annotations.Exports;
 import com.google.gerrit.extensions.api.changes.ChangeApi;
 import com.google.gerrit.extensions.api.changes.ReviewInput;
+import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.common.ChangeInfo;
-import com.google.gerrit.extensions.common.SubmitRequirementInfo;
+import com.google.gerrit.extensions.common.LegacySubmitRequirementInfo;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.rules.SubmitRule;
@@ -35,13 +36,17 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 public class ChangeSubmitRequirementIT extends AbstractDaemonTest {
-  private static final SubmitRequirement req =
-      SubmitRequirement.builder().setType("custom_rule").setFallbackText("Fallback text").build();
-  private static final SubmitRequirementInfo reqInfo =
-      new SubmitRequirementInfo("NOT_READY", "Fallback text", "custom_rule");
+  private static final LegacySubmitRequirement req =
+      LegacySubmitRequirement.builder()
+          .setType("custom_rule")
+          .setFallbackText("Fallback text")
+          .build();
+  private static final LegacySubmitRequirementInfo reqInfo =
+      new LegacySubmitRequirementInfo("NOT_READY", "Fallback text", "custom_rule");
 
   @Override
   public Module createModule() {
@@ -55,7 +60,7 @@ public class ChangeSubmitRequirementIT extends AbstractDaemonTest {
     };
   }
 
-  @Inject CustomSubmitRule rule;
+  @Inject private CustomSubmitRule rule;
 
   @Test
   public void submitRequirementIsPropagated() throws Exception {
@@ -167,6 +172,35 @@ public class ChangeSubmitRequirementIT extends AbstractDaemonTest {
     assertThat(result.get(0).changeId).isEqualTo(change.info().changeId);
   }
 
+  @Test
+  public void submitRuleIsInvokedOnlyOnceWhenGettingChangeDetails() throws Exception {
+    PushOneCommit.Result r = createChange("Some Change", "foo.txt", "some content");
+    String changeId = r.getChangeId();
+
+    rule.numberOfEvaluations.set(0);
+    gApi.changes()
+        .id(changeId)
+        .get(ListChangesOption.ALL_REVISIONS, ListChangesOption.CURRENT_ACTIONS);
+
+    // Submit rules are computed freshly, but only once.
+    assertThat(rule.numberOfEvaluations.get()).isEqualTo(1);
+  }
+
+  @Test
+  public void submitRuleIsNotInvokedWhenQueryingChange() throws Exception {
+    PushOneCommit.Result r = createChange("Some Change", "foo.txt", "some content");
+    String changeId = r.getChangeId();
+
+    rule.numberOfEvaluations.set(0);
+    gApi.changes()
+        .query(changeId)
+        .withOptions(ListChangesOption.ALL_REVISIONS, ListChangesOption.CURRENT_ACTIONS)
+        .get();
+
+    // Submit rule evaluation results from the change index are reused
+    assertThat(rule.numberOfEvaluations.get()).isEqualTo(0);
+  }
+
   private List<ChangeInfo> queryIsSubmittable() throws Exception {
     return gApi.changes().query("is:submittable project:" + project.get()).get();
   }
@@ -186,6 +220,7 @@ public class ChangeSubmitRequirementIT extends AbstractDaemonTest {
   @Singleton
   private static class CustomSubmitRule implements SubmitRule {
     private Optional<SubmitRecord.Status> recordStatus = Optional.empty();
+    private AtomicInteger numberOfEvaluations = new AtomicInteger();
 
     public void block(boolean block) {
       this.status(block ? Optional.of(SubmitRecord.Status.NOT_READY) : Optional.empty());
@@ -197,6 +232,7 @@ public class ChangeSubmitRequirementIT extends AbstractDaemonTest {
 
     @Override
     public Optional<SubmitRecord> evaluate(ChangeData changeData) {
+      numberOfEvaluations.incrementAndGet();
       if (this.recordStatus.isPresent()) {
         SubmitRecord record = new SubmitRecord();
         record.labels = new ArrayList<>();

@@ -129,7 +129,7 @@ const THROTTLE_INTERVAL_MS = 500;
 export enum ShortcutSection {
   ACTIONS = 'Actions',
   DIFFS = 'Diffs',
-  EVERYWHERE = 'Everywhere',
+  EVERYWHERE = 'Global Shortcuts',
   FILE_LIST = 'File list',
   NAVIGATION = 'Navigation',
   REPLY_DIALOG = 'Reply dialog',
@@ -175,7 +175,7 @@ export enum Shortcut {
   VISIBLE_LINE = 'VISIBLE_LINE',
   NEXT_CHUNK = 'NEXT_CHUNK',
   PREV_CHUNK = 'PREV_CHUNK',
-  EXPAND_ALL_DIFF_CONTEXT = 'EXPAND_ALL_DIFF_CONTEXT',
+  TOGGLE_ALL_DIFF_CONTEXT = 'TOGGLE_ALL_DIFF_CONTEXT',
   NEXT_COMMENT_THREAD = 'NEXT_COMMENT_THREAD',
   PREV_COMMENT_THREAD = 'PREV_COMMENT_THREAD',
   EXPAND_ALL_COMMENT_THREADS = 'EXPAND_ALL_COMMENT_THREADS',
@@ -403,9 +403,9 @@ _describe(
   'Go to previous diff chunk'
 );
 _describe(
-  Shortcut.EXPAND_ALL_DIFF_CONTEXT,
+  Shortcut.TOGGLE_ALL_DIFF_CONTEXT,
   ShortcutSection.DIFFS,
-  'Expand all diff context'
+  'Toggle all diff context'
 );
 _describe(
   Shortcut.NEXT_COMMENT_THREAD,
@@ -544,7 +544,7 @@ function getKeyboardEvent(e: CustomKeyboardEvent): CustomKeyboardEvent {
 }
 
 /**
- * Shortcut manager, holds all hosts, bindings and listners.
+ * Shortcut manager, holds all hosts, bindings and listeners.
  */
 export class ShortcutManager {
   private readonly activeHosts = new Map<PolymerElement, Map<string, string>>();
@@ -773,6 +773,7 @@ export enum Modifier {
 
 interface IronA11yKeysMixinConstructor {
   // Note: this is needed to have same interface as other mixins
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   new (...args: any[]): IronA11yKeysBehavior;
 }
 /**
@@ -795,10 +796,10 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
       _shortcut_v_key_last_pressed: number | null = null;
 
       @property({type: Object})
-      _shortcut_go_table: Map<string, string> = new Map();
+      _shortcut_go_table: Map<string, string> = new Map<string, string>();
 
       @property({type: Object})
-      _shortcut_v_table: Map<string, string> = new Map();
+      _shortcut_v_table: Map<string, string> = new Map<string, string>();
 
       Shortcut = Shortcut;
 
@@ -836,8 +837,9 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
           // mark-reviewed and then press ] to go to the next file'.
           (tagName === 'INPUT' && type !== 'checkbox') ||
           tagName === 'TEXTAREA' ||
-          // Suppress shortcuts if the key is 'enter' and target is an anchor.
-          (e.keyCode === 13 && tagName === 'A')
+          // Suppress shortcuts if the key is 'enter'
+          // and target is an anchor or button.
+          (e.keyCode === 13 && (tagName === 'A' || tagName === 'BUTTON'))
         ) {
           return true;
         }
@@ -960,10 +962,10 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
 
       /** @override */
       disconnectedCallback() {
-        super.disconnectedCallback();
         if (shortcutManager.detachHost(this)) {
           this.removeOwnKeyBindings();
         }
+        super.disconnectedCallback();
       }
 
       keyboardShortcuts() {
@@ -1008,6 +1010,7 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
         const handler = this._shortcut_v_table.get(e.detail.key);
         if (handler) {
           // TODO(TS): should fix this
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this as any)[handler](e);
         }
       }
@@ -1044,6 +1047,7 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
         const handler = this._shortcut_go_table.get(e.detail.key);
         if (handler) {
           // TODO(TS): should fix this
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this as any)[handler](e);
         }
       }
@@ -1063,13 +1067,13 @@ const InternalKeyboardShortcutMixin = dedupingMixin(
 // This is a workaround
 export const KeyboardShortcutMixin = <T extends Constructor<PolymerElement>>(
   superClass: T
-): T & Constructor<KeyboardShortcutMixinInterface> => {
-  return InternalKeyboardShortcutMixin(
+): T & Constructor<KeyboardShortcutMixinInterface> =>
+  InternalKeyboardShortcutMixin(
     // TODO(TS): mixinBehaviors in some lib is returning: `new () => T` instead
     // which will fail the type check due to missing IronA11yKeysBehavior interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mixinBehaviors([IronA11yKeysBehavior], superClass) as any
   );
-};
 
 /** The interface corresponding to KeyboardShortcutMixin */
 export interface KeyboardShortcutMixinInterface {

@@ -16,32 +16,35 @@
  */
 import '../../../styles/shared-styles';
 import '../../shared/gr-button/gr-button';
+import '../../shared/gr-icons/gr-icons';
 import '../gr-diff-builder/gr-diff-builder-element';
 import '../gr-diff-highlight/gr-diff-highlight';
 import '../gr-diff-selection/gr-diff-selection';
 import '../gr-syntax-themes/gr-syntax-theme';
 import '../gr-ranged-comment-themes/gr-ranged-comment-theme';
+import '../gr-ranged-comment-hint/gr-ranged-comment-hint';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {htmlTemplate} from './gr-diff_html';
-import {FILE, LineNumber} from './gr-diff-line';
-import {getLineNumber, rangesEqual} from './gr-diff-utils';
-import {getHiddenScroll} from '../../../scripts/hiddenscroll';
-import {isMergeParent, patchNumEquals} from '../../../utils/patch-set-util';
-import {customElement, observe, property} from '@polymer/decorators';
+import {LineNumber} from './gr-diff-line';
 import {
-  BlameInfo,
-  CommentRange,
+  getLine,
+  getLineNumber,
+  getRange,
+  getSide,
+  GrDiffThreadElement,
+  isLongCommentRange,
+  isThreadEl,
+  rangesEqual,
+} from './gr-diff-utils';
+import {getHiddenScroll} from '../../../scripts/hiddenscroll';
+import {customElement, observe, property} from '@polymer/decorators';
+import {BlameInfo, CommentRange, ImageInfo} from '../../../types/common';
+import {
   DiffInfo,
   DiffPreferencesInfo,
   DiffPreferencesInfoKey,
-  EditPatchSetNum,
-  ImageInfo,
-  ParentPatchSetNum,
-  PatchRange,
-} from '../../../types/common';
+} from '../../../types/diff';
 import {GrDiffHighlight} from '../gr-diff-highlight/gr-diff-highlight';
 import {GrDiffBuilderElement} from '../gr-diff-builder/gr-diff-builder-element';
 import {
@@ -50,41 +53,33 @@ import {
   PolymerDomWrapper,
 } from '../../../types/types';
 import {CommentRangeLayer} from '../gr-ranged-comment-layer/gr-ranged-comment-layer';
-import {DiffViewMode, Side} from '../../../constants/constants';
+import {
+  createDefaultDiffPrefs,
+  DiffViewMode,
+  Side,
+} from '../../../constants/constants';
 import {KeyLocations} from '../gr-diff-processor/gr-diff-processor';
 import {FlattenedNodesObserver} from '@polymer/polymer/lib/utils/flattened-nodes-observer';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
+import {AbortStop} from '../../shared/gr-cursor-manager/gr-cursor-manager';
+import {fireAlert, fireEvent} from '../../../utils/event-util';
+import {MovedLinkClickedEvent} from '../../../types/events';
 import {getContentEditableRange} from '../../../utils/safari-selection-util';
 
-import {isSafari} from '../../../utils/dom-util';
+import {
+  CreateCommentEventDetail as CreateCommentEventDetailApi,
+  RenderPreferences,
+} from '../../../api/diff';
+import {isSafari, toggleClass} from '../../../utils/dom-util';
+import {assertIsDefined} from '../../../utils/common-util';
+import {debounce, DelayedTask} from '../../../utils/async-util';
+import {DiffContextExpandedEventDetail} from '../gr-diff-builder/gr-diff-builder';
 
 const NO_NEWLINE_BASE = 'No newline at end of base file.';
 const NO_NEWLINE_REVISION = 'No newline at end of revision file.';
 
 const LARGE_DIFF_THRESHOLD_LINES = 10000;
 const FULL_CONTEXT = -1;
-const LIMITED_CONTEXT = 10;
-
-function getSide(threadEl: GrCommentThread): Side {
-  const sideAtt = threadEl.getAttribute('comment-side');
-  if (!sideAtt) throw Error('comment thread without side');
-  if (sideAtt !== 'left' && sideAtt !== 'right')
-    throw Error(`unexpected value for side: ${sideAtt}`);
-  return sideAtt as Side;
-}
-
-function isThreadEl(node: Node): node is GrCommentThread {
-  return (
-    node.nodeType === Node.ELEMENT_NODE &&
-    (node as Element).classList.contains('comment-thread')
-  );
-}
-
-// TODO(TS): Replace by proper GrCommentThread once converted.
-type GrCommentThread = PolymerElement & {
-  rootId: string;
-  range: CommentRange;
-};
 
 const COMMIT_MSG_PATH = '/COMMIT_MSG';
 /**
@@ -95,8 +90,6 @@ const COMMIT_MSG_PATH = '/COMMIT_MSG';
  * 4 + 72 + 4
  */
 const COMMIT_MSG_LINE_LENGTH = 72;
-
-const RENDER_DIFF_TABLE_DEBOUNCE_NAME = 'renderDiffTable';
 
 export interface LineOfInterest {
   number: number;
@@ -111,10 +104,12 @@ export interface GrDiff {
   };
 }
 
+export interface CreateCommentEventDetail extends CreateCommentEventDetailApi {
+  path: string;
+}
+
 @customElement('gr-diff')
-export class GrDiff extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDiff extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -158,14 +153,14 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Boolean})
   noAutoRender = false;
 
-  @property({type: Object})
-  patchRange?: PatchRange;
-
   @property({type: String, observer: '_pathObserver'})
   path?: string;
 
   @property({type: Object, observer: '_prefsObserver'})
   prefs?: DiffPreferencesInfo;
+
+  @property({type: Object, observer: '_renderPrefsChanged'})
+  renderPrefs?: RenderPreferences;
 
   @property({type: Boolean})
   displayLine = false;
@@ -182,6 +177,10 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Array})
   _commentRanges: CommentRangeLayer[] = [];
 
+  // explicitly highlight a range if it is not associated with any comment
+  @property({type: Object})
+  highlightRange?: CommentRange;
+
   @property({type: Array})
   coverageRanges: CoverageRange[] = [];
 
@@ -194,9 +193,18 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Object})
   lineOfInterest?: LineOfInterest;
 
-  /** True when diff is changed, until the content is done rendering. */
-  @property({type: Boolean})
-  _loading = false;
+  /**
+   * True when diff is changed, until the content is done rendering.
+   *
+   * This is readOnly, meaning one can listen for the loading-changed event, but
+   * not write to it from the outside. Code in this class should use the
+   * "private" _setLoading method.
+   */
+  @property({type: Boolean, notify: true, readOnly: true})
+  loading!: boolean;
+
+  // Polymer generated when setting readOnly above.
+  _setLoading!: (loading: boolean) => void;
 
   @property({type: Boolean})
   loggedIn = false;
@@ -205,7 +213,7 @@ export class GrDiff extends GestureEventListeners(
   diff?: DiffInfo;
 
   @property({type: Array, computed: '_computeDiffHeaderItems(diff.*)'})
-  _diffHeaderItems: unknown[] = [];
+  _diffHeaderItems: string[] = [];
 
   @property({type: String})
   _diffTableClass = '';
@@ -251,8 +259,8 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Boolean})
   showNewlineWarningRight = false;
 
-  @property({type: Boolean})
-  useNewContextControls = false;
+  @property({type: String, observer: '_useNewImageDiffUiObserver'})
+  useNewImageDiffUi = false;
 
   @property({
     type: String,
@@ -283,26 +291,35 @@ export class GrDiff extends GestureEventListeners(
   @property({type: Array})
   layers?: DiffLayer[];
 
-  /** @override */
-  created() {
-    super.created();
+  @property({type: Boolean})
+  isAttached = false;
+
+  private renderDiffTableTask?: DelayedTask;
+
+  constructor() {
+    super();
+    this._setLoading(true);
     this.addEventListener('create-range-comment', (e: Event) =>
       this._handleCreateRangeComment(e as CustomEvent)
     );
     this.addEventListener('render-content', () => this._handleRenderContent());
+    this.addEventListener('moved-link-clicked', e => this._movedLinkClicked(e));
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._observeNodes();
+    this.isAttached = true;
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
+    this.isAttached = false;
+    this.renderDiffTableTask?.cancel();
     this._unobserveIncrementalNodes();
     this._unobserveNodes();
+    super.disconnectedCallback();
   }
 
   showNoChangeMessage(
@@ -322,36 +339,34 @@ export class GrDiff extends GestureEventListeners(
   }
 
   @observe('loggedIn', 'isAttached')
-  _enableSelectionObserver(loggedIn: boolean, isAttached?: boolean) {
-    // Polymer 2: check for undefined
-    if ([loggedIn, isAttached].includes(undefined)) {
-      return;
-    }
-
+  _enableSelectionObserver(loggedIn: boolean, isAttached: boolean) {
     if (loggedIn && isAttached) {
-      this.listen(document, 'selectionchange', '_handleSelectionChange');
-      this.listen(document, 'mouseup', '_handleMouseUp');
+      document.addEventListener('selectionchange', this.handleSelectionChange);
+      document.addEventListener('mouseup', this.handleMouseUp);
     } else {
-      this.unlisten(document, 'selectionchange', '_handleSelectionChange');
-      this.unlisten(document, 'mouseup', '_handleMouseUp');
+      document.removeEventListener(
+        'selectionchange',
+        this.handleSelectionChange
+      );
+      document.removeEventListener('mouseup', this.handleMouseUp);
     }
   }
 
-  _handleSelectionChange() {
+  private readonly handleSelectionChange = () => {
     // Because of shadow DOM selections, we handle the selectionchange here,
     // and pass the shadow DOM selection into gr-diff-highlight, where the
     // corresponding range is determined and normalized.
     const selection = this._getShadowOrDocumentSelection();
     this.$.highlights.handleSelectionChange(selection, false);
-  }
+  };
 
-  _handleMouseUp() {
+  private readonly handleMouseUp = () => {
     // To handle double-click outside of text creating comments, we check on
     // mouse-up if there's a selection that just covers a line change. We
     // can't do that on selection change since the user may still be dragging.
     const selection = this._getShadowOrDocumentSelection();
     this.$.highlights.handleSelectionChange(selection, true);
-  }
+  };
 
   /** Gets the current selection, preferring the shadow DOM selection. */
   _getShadowOrDocumentSelection() {
@@ -371,24 +386,25 @@ export class GrDiff extends GestureEventListeners(
       const addedThreadEls = info.addedNodes.filter(isThreadEl);
       const removedThreadEls = info.removedNodes.filter(isThreadEl);
       this._updateRanges(addedThreadEls, removedThreadEls);
-      this._redispatchHoverEvents(addedThreadEls);
+      addedThreadEls.forEach(threadEl =>
+        this._redispatchHoverEvents(threadEl, threadEl)
+      );
     });
   }
 
   // TODO(brohlfs): Rewrite gr-diff to be agnostic of GrCommentThread, because
   // other users of gr-diff may use different comment widgets.
   _updateRanges(
-    addedThreadEls: GrCommentThread[],
-    removedThreadEls: GrCommentThread[]
+    addedThreadEls: GrDiffThreadElement[],
+    removedThreadEls: GrDiffThreadElement[]
   ) {
     function commentRangeFromThreadEl(
-      threadEl: GrCommentThread
+      threadEl: GrDiffThreadElement
     ): CommentRangeLayer | undefined {
       const side = getSide(threadEl);
-
-      const rangeAtt = threadEl.getAttribute('range');
-      if (!rangeAtt) return undefined;
-      const range = JSON.parse(rangeAtt) as CommentRange;
+      if (!side) return undefined;
+      const range = getRange(threadEl);
+      if (!range) return undefined;
 
       return {side, range, hovering: false, rootId: threadEl.rootId};
     }
@@ -412,13 +428,20 @@ export class GrDiff extends GestureEventListeners(
     if (addedCommentRanges && addedCommentRanges.length) {
       this.push('_commentRanges', ...addedCommentRanges);
     }
+    if (this.highlightRange) {
+      this.push('_commentRanges', {
+        side: Side.RIGHT,
+        range: this.highlightRange,
+        hovering: true,
+        rootId: '',
+      });
+    }
   }
 
   /**
    * The key locations based on the comments and line of interests,
    * where lines should not be collapsed.
    *
-   * @return
    */
   _computeKeyLocations() {
     const keyLocations: KeyLocations = {left: {}, right: {}};
@@ -432,12 +455,13 @@ export class GrDiff extends GestureEventListeners(
 
     for (const threadEl of threadEls) {
       const side = getSide(threadEl);
-      const lineNum = Number(threadEl.getAttribute('line-num')) || FILE;
-      const commentRange = threadEl.range || {};
+      if (!side) continue;
+      const lineNum = getLine(threadEl);
+      const commentRange = getRange(threadEl);
       keyLocations[side][lineNum] = true;
       // Add start_line as well if exists,
       // the being and end of the range should not be collapsed.
-      if (commentRange.start_line) {
+      if (commentRange?.start_line) {
         keyLocations[side][commentRange.start_line] = true;
       }
     }
@@ -445,41 +469,32 @@ export class GrDiff extends GestureEventListeners(
   }
 
   // Dispatch events that are handled by the gr-diff-highlight.
-  _redispatchHoverEvents(addedThreadEls: GrCommentThread[]) {
-    for (const threadEl of addedThreadEls) {
-      threadEl.addEventListener('mouseenter', () => {
-        threadEl.dispatchEvent(
-          new CustomEvent('comment-thread-mouseenter', {
-            bubbles: true,
-            composed: true,
-          })
-        );
-      });
-      threadEl.addEventListener('mouseleave', () => {
-        threadEl.dispatchEvent(
-          new CustomEvent('comment-thread-mouseleave', {
-            bubbles: true,
-            composed: true,
-          })
-        );
-      });
-    }
+  _redispatchHoverEvents(hoverEl: HTMLElement, threadEl: GrDiffThreadElement) {
+    hoverEl.addEventListener('mouseenter', () => {
+      fireEvent(threadEl, 'comment-thread-mouseenter');
+    });
+    hoverEl.addEventListener('mouseleave', () => {
+      fireEvent(threadEl, 'comment-thread-mouseleave');
+    });
   }
 
   /** Cancel any remaining diff builder rendering work. */
   cancel() {
     this.$.diffBuilder.cancel();
-    this.cancelDebouncer(RENDER_DIFF_TABLE_DEBOUNCE_NAME);
+    this.renderDiffTableTask?.cancel();
   }
 
-  getCursorStops(): HTMLElement[] {
+  getCursorStops(): Array<HTMLElement | AbortStop> {
     if (this.hidden && this.noAutoRender) return [];
-    if (!this.root) return [];
+
+    if (this.loading) {
+      return [new AbortStop()];
+    }
 
     return Array.from(
-      this.root.querySelectorAll<HTMLElement>(
+      this.root?.querySelectorAll<HTMLElement>(
         ':not(.contextControl) > .diff-row'
-      )
+      ) || []
     ).filter(tr => tr.querySelector('button'));
   }
 
@@ -488,7 +503,7 @@ export class GrDiff extends GestureEventListeners(
   }
 
   toggleLeftDiff() {
-    this.toggleClass('no-left');
+    toggleClass(this, 'no-left');
   }
 
   _blameChanged(newValue?: BlameInfo[] | null) {
@@ -515,23 +530,18 @@ export class GrDiff extends GestureEventListeners(
     return classes.join(' ');
   }
 
+  _handleDiffContextExpanded(e: CustomEvent<DiffContextExpandedEventDetail>) {
+    // Don't stop propagation. The host may listen for reporting or resizing.
+    this.$.diffBuilder.showContext(e.detail.groups, e.detail.section);
+  }
+
   _handleTap(e: CustomEvent) {
     const el = (dom(e) as EventApi).localTarget as Element;
 
-    if (el.classList.contains('showContext')) {
-      this.dispatchEvent(
-        new CustomEvent('diff-context-expanded', {
-          detail: {
-            numLines: e.detail.numLines,
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
-      this.$.diffBuilder.showContext(e.detail.groups, e.detail.section);
-    } else if (
-      el.classList.contains('lineNum') ||
-      el.classList.contains('lineNumButton')
+    if (
+      el.getAttribute('data-value') !== 'LOST' &&
+      (el.classList.contains('lineNum') ||
+        el.classList.contains('lineNumButton'))
     ) {
       this.addDraftAtLine(el);
     } else if (
@@ -547,11 +557,17 @@ export class GrDiff extends GestureEventListeners(
   }
 
   _selectLine(el: Element) {
+    const lineNumber = Number(el.getAttribute('data-value'));
+    const side = el.classList.contains('left') ? Side.LEFT : Side.RIGHT;
+    this._dispatchSelectedLine(lineNumber, side);
+  }
+
+  _dispatchSelectedLine(number: LineNumber, side: Side) {
     this.dispatchEvent(
       new CustomEvent('line-selected', {
         detail: {
-          side: el.classList.contains('left') ? Side.LEFT : Side.RIGHT,
-          number: el.getAttribute('data-value'),
+          number,
+          side,
           path: this.path,
         },
         composed: true,
@@ -560,30 +576,20 @@ export class GrDiff extends GestureEventListeners(
     );
   }
 
+  _movedLinkClicked(e: MovedLinkClickedEvent) {
+    this._dispatchSelectedLine(e.detail.lineNum, e.detail.side);
+  }
+
   addDraftAtLine(el: Element) {
     this._selectLine(el);
-    if (!this._isValidElForComment(el)) {
-      return;
-    }
 
     const lineNum = getLineNumber(el);
     if (lineNum === null) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: 'Invalid line number'},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, 'Invalid line number');
       return;
     }
 
-    // TODO(TS): existing logic always pass undefined lineNum
-    // for file level comment, the drafts API will reject the
-    // request if file level draft contains the `line: 'FILE'` field
-    // probably should do this inside of the _createComment, this
-    // is just to keep existing behavior.
-    this._createComment(el, lineNum === FILE ? undefined : lineNum);
+    this._createComment(el, lineNum);
   }
 
   createRangeComment() {
@@ -599,7 +605,7 @@ export class GrDiff extends GestureEventListeners(
   _createCommentForSelection(side: Side, range: CommentRange) {
     const lineNum = range.end_line;
     const lineEl = this.$.diffBuilder.getLineElByNumber(lineNum, side);
-    if (lineEl && this._isValidElForComment(lineEl)) {
+    if (lineEl) {
       this._createComment(lineEl, lineNum, side, range);
     }
   }
@@ -610,86 +616,24 @@ export class GrDiff extends GestureEventListeners(
     this._createCommentForSelection(side, range);
   }
 
-  _isValidElForComment(el: Element) {
-    if (!this.loggedIn) {
-      this.dispatchEvent(
-        new CustomEvent('show-auth-required', {
-          composed: true,
-          bubbles: true,
-        })
-      );
-      return false;
-    }
-    if (!this.patchRange) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: 'Cannot create comment. Patch range undefined.'},
-          composed: true,
-          bubbles: true,
-        })
-      );
-      return false;
-    }
-    const patchNum = el.classList.contains(Side.LEFT)
-      ? this.patchRange.basePatchNum
-      : this.patchRange.patchNum;
-
-    const isEdit = patchNumEquals(patchNum, EditPatchSetNum);
-    const isEditBase =
-      patchNumEquals(patchNum, ParentPatchSetNum) &&
-      patchNumEquals(this.patchRange.patchNum, EditPatchSetNum);
-
-    if (isEdit) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: 'You cannot comment on an edit.'},
-          composed: true,
-          bubbles: true,
-        })
-      );
-      return false;
-    }
-    if (isEditBase) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'You cannot comment on the base patchset of an edit.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
-      return false;
-    }
-    return true;
-  }
-
   _createComment(
     lineEl: Element,
-    lineNum?: LineNumber,
+    lineNum: LineNumber,
     side?: Side,
     range?: CommentRange
   ) {
     const contentEl = this.$.diffBuilder.getContentTdByLineEl(lineEl);
-    if (!contentEl) throw Error('content el not found for line el');
-    side = side || this._getCommentSideByLineAndContent(lineEl, contentEl);
-    const patchForNewThreads = this._getPatchNumByLineAndContent(
-      lineEl,
-      contentEl
-    );
-    const isOnParent = this._getIsParentCommentByLineAndContent(
-      lineEl,
-      contentEl
-    );
+    if (!contentEl) throw new Error('content el not found for line el');
+    side = side ?? this._getCommentSideByLineAndContent(lineEl, contentEl);
+    assertIsDefined(this.path, 'path');
     this.dispatchEvent(
-      new CustomEvent('create-comment', {
+      new CustomEvent<CreateCommentEventDetail>('create-comment', {
         bubbles: true,
         composed: true,
         detail: {
-          lineNum,
+          path: this.path,
           side,
-          patchNum: patchForNewThreads,
-          isOnParent,
+          lineNum,
           range,
         },
       })
@@ -716,52 +660,11 @@ export class GrDiff extends GestureEventListeners(
     return threadGroupEl;
   }
 
-  /**
-   * The value to be used for the patch number of new comments created at the
-   * given line and content elements.
-   *
-   * In two cases of creating a comment on the left side, the patch number to
-   * be used should actually be right side of the patch range:
-   * - When the patch range is against the parent comment of a normal change.
-   * Such comments declare themmselves to be on the left using side=PARENT.
-   * - If the patch range is against the indexed parent of a merge change.
-   * Such comments declare themselves to be on the given parent by
-   * specifying the parent index via parent=i.
-   */
-  _getPatchNumByLineAndContent(lineEl: Element, contentEl: Element) {
-    if (!this.patchRange) throw Error('patch range not set');
-    let patchNum = this.patchRange.patchNum;
-
-    if (
-      (lineEl.classList.contains(Side.LEFT) ||
-        contentEl.classList.contains('remove')) &&
-      this.patchRange.basePatchNum !== 'PARENT' &&
-      !isMergeParent(this.patchRange.basePatchNum)
-    ) {
-      patchNum = this.patchRange.basePatchNum;
-    }
-    return patchNum;
-  }
-
-  _getIsParentCommentByLineAndContent(lineEl: Element, contentEl: Element) {
-    if (!this.patchRange) throw Error('patch range not set');
-    return (
-      (lineEl.classList.contains(Side.LEFT) ||
-        contentEl.classList.contains('remove')) &&
-      (this.patchRange.basePatchNum === 'PARENT' ||
-        isMergeParent(this.patchRange.basePatchNum))
-    );
-  }
-
   _getCommentSideByLineAndContent(lineEl: Element, contentEl: Element): Side {
-    let side = Side.RIGHT;
-    if (
-      lineEl.classList.contains(Side.LEFT) ||
+    return lineEl.classList.contains(Side.LEFT) ||
       contentEl.classList.contains('remove')
-    ) {
-      side = Side.LEFT;
-    }
-    return side;
+      ? Side.LEFT
+      : Side.RIGHT;
   }
 
   _prefsObserver(newPrefs: DiffPreferencesInfo, oldPrefs: DiffPreferencesInfo) {
@@ -808,6 +711,10 @@ export class GrDiff extends GestureEventListeners(
     this._prefsChanged(this.prefs);
   }
 
+  _useNewImageDiffUiObserver() {
+    this._prefsChanged(this.prefs);
+  }
+
   _prefsChanged(prefs?: DiffPreferencesInfo) {
     if (!prefs) return;
 
@@ -841,8 +748,21 @@ export class GrDiff extends GestureEventListeners(
     }
   }
 
+  _renderPrefsChanged(renderPrefs?: RenderPreferences) {
+    if (!renderPrefs) return;
+    if (renderPrefs.hide_left_side) {
+      this.classList.add('no-left');
+    }
+    if (renderPrefs.disable_context_control_buttons) {
+      this.classList.add('disable-context-control-buttons');
+    }
+    if (renderPrefs.hide_line_length_indicator) {
+      this.classList.add('hide-line-length-indicator');
+    }
+  }
+
   _diffChanged(newValue?: DiffInfo) {
-    this._loading = true;
+    this._setLoading(true);
     this._cleanup();
     if (newValue) {
       this._diffLength = this.getDiffLength(newValue);
@@ -861,16 +781,14 @@ export class GrDiff extends GestureEventListeners(
    * render once.
    */
   _debounceRenderDiffTable() {
-    this.debounce(RENDER_DIFF_TABLE_DEBOUNCE_NAME, () =>
+    this.renderDiffTableTask = debounce(this.renderDiffTableTask, () =>
       this._renderDiffTable()
     );
   }
 
   _renderDiffTable() {
     if (!this.prefs) {
-      this.dispatchEvent(
-        new CustomEvent('render', {bubbles: true, composed: true})
-      );
+      fireEvent(this, 'render');
       return;
     }
     if (
@@ -880,9 +798,7 @@ export class GrDiff extends GestureEventListeners(
       this._safetyBypass === null
     ) {
       this._showWarning = true;
-      this.dispatchEvent(
-        new CustomEvent('render', {bubbles: true, composed: true})
-      );
+      fireEvent(this, 'render');
       return;
     }
 
@@ -890,19 +806,24 @@ export class GrDiff extends GestureEventListeners(
 
     const keyLocations = this._computeKeyLocations();
     const bypassPrefs = this._getBypassPrefs(this.prefs);
-    this.$.diffBuilder.render(keyLocations, bypassPrefs).then(() => {
-      this.dispatchEvent(
-        new CustomEvent('render', {
-          bubbles: true,
-          composed: true,
-          detail: {contentRendered: true},
-        })
-      );
-    });
+    this.$.diffBuilder
+      .render(keyLocations, bypassPrefs, this.renderPrefs)
+      .then(() => {
+        this.dispatchEvent(
+          new CustomEvent('render', {
+            bubbles: true,
+            composed: true,
+            detail: {contentRendered: true},
+          })
+        );
+      });
   }
 
   _handleRenderContent() {
-    this._loading = false;
+    this.querySelectorAll('gr-ranged-comment-hint').forEach(element =>
+      element.remove()
+    );
+    this._setLoading(false);
     this._unobserveIncrementalNodes();
     this._incrementalNodeObserver = (dom(
       this
@@ -915,10 +836,12 @@ export class GrDiff extends GestureEventListeners(
       // for each line from the start.
       let lastEl;
       for (const threadEl of addedThreadEls) {
-        const lineNumString = threadEl.getAttribute('line-num') || 'FILE';
+        const lineNum = getLine(threadEl);
         const commentSide = getSide(threadEl);
+        const range = getRange(threadEl);
+        if (!commentSide) continue;
         const lineEl = this.$.diffBuilder.getLineElByNumber(
-          lineNumString,
+          lineNum,
           commentSide
         );
         // When the line the comment refers to does not exist, log an error
@@ -928,17 +851,33 @@ export class GrDiff extends GestureEventListeners(
           console.error(
             'thread attached to line ',
             commentSide,
-            lineNumString,
+            lineNum,
             ' which does not exist.'
           );
           continue;
         }
         const contentEl = this.$.diffBuilder.getContentTdByLineEl(lineEl);
         if (!contentEl) continue;
+        if (lineNum === 'LOST' && !contentEl.hasChildNodes()) {
+          contentEl.appendChild(this._portedCommentsWithoutRangeMessage());
+        }
         const threadGroupEl = this._getOrCreateThreadGroup(
           contentEl,
           commentSide
         );
+
+        const slotAtt = threadEl.getAttribute('slot');
+        if (range && isLongCommentRange(range) && slotAtt) {
+          const longRangeCommentHint = document.createElement(
+            'gr-ranged-comment-hint'
+          );
+          longRangeCommentHint.range = range;
+          longRangeCommentHint.setAttribute('threadElRootId', threadEl.rootId);
+          longRangeCommentHint.setAttribute('slot', slotAtt);
+          this.insertBefore(longRangeCommentHint, threadEl);
+          this._redispatchHoverEvents(longRangeCommentHint, threadEl);
+        }
+
         // Create a slot for the thread and attach it to the thread group.
         // The Polyfill has some bugs and this only works if the slot is
         // attached to the group after the group is attached to the DOM.
@@ -946,7 +885,6 @@ export class GrDiff extends GestureEventListeners(
         // that is okay because the first matching slot is used and the rest
         // are ignored.
         const slot = document.createElement('slot') as HTMLSlotElement;
-        const slotAtt = threadEl.getAttribute('slot');
         if (slotAtt) slot.name = slotAtt;
         threadGroupEl.appendChild(slot);
         lastEl = threadEl;
@@ -958,7 +896,25 @@ export class GrDiff extends GestureEventListeners(
       if (lastEl && lastEl.replaceWith) {
         lastEl.replaceWith(lastEl);
       }
+
+      const removedThreadEls = info.removedNodes.filter(isThreadEl);
+      for (const threadEl of removedThreadEls) {
+        this.querySelector(
+          `gr-ranged-comment-hint[threadElRootId="${threadEl.rootId}"]`
+        )?.remove();
+      }
     });
+  }
+
+  _portedCommentsWithoutRangeMessage() {
+    const div = document.createElement('div');
+    const icon = document.createElement('iron-icon');
+    icon.setAttribute('icon', 'gr-icons:info-outline');
+    div.appendChild(icon);
+    const span = document.createElement('span');
+    span.innerText = 'Original comment position not found in this patchset';
+    div.appendChild(span);
+    return div;
   }
 
   _unobserveIncrementalNodes() {
@@ -1020,8 +976,12 @@ export class GrDiff extends GestureEventListeners(
     this._debounceRenderDiffTable();
   }
 
-  _handleLimitedBypass() {
-    this._safetyBypass = LIMITED_CONTEXT;
+  _collapseContext() {
+    // Uses the default context amount if the preference is for the entire file.
+    this._safetyBypass =
+      this.prefs?.context && this.prefs.context >= 0
+        ? null
+        : createDefaultDiffPrefs().context;
     this._debounceRenderDiffTable();
   }
 
@@ -1033,8 +993,15 @@ export class GrDiff extends GestureEventListeners(
     return errorMessage ? 'showError' : '';
   }
 
-  expandAllContext() {
-    this._handleFullBypass();
+  toggleAllContext() {
+    if (!this.prefs) {
+      return;
+    }
+    if (this._getBypassPrefs(this.prefs).context < 0) {
+      this._collapseContext();
+    } else {
+      this._handleFullBypass();
+    }
   }
 
   _computeNewlineWarning(warnLeft: boolean, warnRight: boolean) {

@@ -16,27 +16,18 @@
  */
 import '../../shared/gr-dialog/gr-dialog';
 import '../../../styles/shared-styles';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-confirm-revert-submission-dialog_html';
 import {customElement, property} from '@polymer/decorators';
-import {JsApiService} from '../../shared/gr-js-api-interface/gr-js-api-types';
 import {ChangeInfo} from '../../../types/common';
+import {fireAlert} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
 
 const ERR_COMMIT_NOT_FOUND = 'Unable to find the commit hash of this change.';
 const CHANGE_SUBJECT_LIMIT = 50;
 
-export interface GrConfirmRevertSubmissionDialog {
-  $: {
-    jsAPI: JsApiService & Element;
-  };
-}
 @customElement('gr-confirm-revert-submission-dialog')
-export class GrConfirmRevertSubmissionDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrConfirmRevertSubmissionDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -59,6 +50,8 @@ export class GrConfirmRevertSubmissionDialog extends GestureEventListeners(
   @property({type: String})
   commitMessage?: string;
 
+  private readonly jsAPI = appContext.jsApiService;
+
   _getTrimmedChangeSubject(subject: string) {
     if (!subject) return '';
     if (subject.length < CHANGE_SUBJECT_LIMIT) return subject;
@@ -69,7 +62,7 @@ export class GrConfirmRevertSubmissionDialog extends GestureEventListeners(
     if (!change || !this.message || !this.commitMessage) {
       return this.message;
     }
-    return this.$.jsAPI.modifyRevertSubmissionMsg(
+    return this.jsAPI.modifyRevertSubmissionMsg(
       change,
       this.message,
       this.commitMessage
@@ -86,13 +79,7 @@ export class GrConfirmRevertSubmissionDialog extends GestureEventListeners(
     // Follow the same convention of the revert
     const commitHash = change.current_revision;
     if (!commitHash) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: ERR_COMMIT_NOT_FOUND},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, ERR_COMMIT_NOT_FOUND);
       return;
     }
     const revertTitle = `Revert submission ${change.submission_id}`;

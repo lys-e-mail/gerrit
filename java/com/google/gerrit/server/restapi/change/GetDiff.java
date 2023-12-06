@@ -36,6 +36,7 @@ import com.google.gerrit.extensions.restapi.ResourceConflictException;
 import com.google.gerrit.extensions.restapi.ResourceNotFoundException;
 import com.google.gerrit.extensions.restapi.Response;
 import com.google.gerrit.extensions.restapi.RestReadView;
+import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.WebLinks;
 import com.google.gerrit.server.change.FileResource;
 import com.google.gerrit.server.change.RevisionResource;
@@ -51,6 +52,7 @@ import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gerrit.server.project.ProjectCache;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.kohsuke.args4j.CmdLineParser;
@@ -67,6 +69,7 @@ public class GetDiff implements RestReadView<FileResource> {
   private final PatchScriptFactory.Factory patchScriptFactoryFactory;
   private final Revisions revisions;
   private final WebLinks webLinks;
+  private final Provider<CurrentUser> currentUser;
 
   @Option(name = "--base", metaVar = "REVISION")
   String base;
@@ -93,11 +96,13 @@ public class GetDiff implements RestReadView<FileResource> {
       ProjectCache projectCache,
       PatchScriptFactory.Factory patchScriptFactoryFactory,
       Revisions revisions,
-      WebLinks webLinks) {
+      WebLinks webLinks,
+      Provider<CurrentUser> currentUser) {
     this.projectCache = projectCache;
     this.patchScriptFactoryFactory = patchScriptFactoryFactory;
     this.revisions = revisions;
     this.webLinks = webLinks;
+    this.currentUser = currentUser;
   }
 
   @Override
@@ -132,11 +137,15 @@ public class GetDiff implements RestReadView<FileResource> {
       if (basePatchSet.id().get() == 0) {
         throw new BadRequestException("edit not allowed as base");
       }
-      psf = patchScriptFactoryFactory.create(notes, fileName, basePatchSet.id(), pId, prefs);
+      psf =
+          patchScriptFactoryFactory.create(
+              notes, fileName, basePatchSet.id(), pId, prefs, currentUser.get());
     } else if (parentNum > 0) {
-      psf = patchScriptFactoryFactory.create(notes, fileName, parentNum - 1, pId, prefs);
+      psf =
+          patchScriptFactoryFactory.create(
+              notes, fileName, parentNum - 1, pId, prefs, currentUser.get());
     } else {
-      psf = patchScriptFactoryFactory.create(notes, fileName, null, pId, prefs);
+      psf = patchScriptFactoryFactory.create(notes, fileName, null, pId, prefs, currentUser.get());
     }
 
     try {
@@ -174,6 +183,8 @@ public class GetDiff implements RestReadView<FileResource> {
     private final DiffSide sideB;
     private final String revA;
     private final String revB;
+    private final String hashA;
+    private final String hashB;
     private final FileResource resource;
     @Nullable private final PatchSet basePatchSet;
 
@@ -192,6 +203,7 @@ public class GetDiff implements RestReadView<FileResource> {
       this.sideB = sideB;
 
       revA = basePatchSet != null ? basePatchSet.refName() : sideA.fileInfo().commitId;
+      hashA = sideA.fileInfo().commitId;
 
       RevisionResource revision = resource.getRevision();
       revB =
@@ -199,8 +211,9 @@ public class GetDiff implements RestReadView<FileResource> {
               .getEdit()
               .map(edit -> edit.getRefName())
               .orElseGet(() -> revision.getPatchSet().refName());
+      hashB = sideB.fileInfo().commitId;
 
-      logger.atFine().log("revA = %s, revB = %s", revA, revB);
+      logger.atFine().log("revA = %s, hashA = %s, revB = %s, hashB = %s", revA, hashA, revB, hashB);
     }
 
     @Override
@@ -219,15 +232,18 @@ public class GetDiff implements RestReadView<FileResource> {
     @Override
     public ImmutableList<WebLinkInfo> getFileWebLinks(DiffSide.Type type) {
       String rev;
+      String hash;
       DiffSide side;
       if (type == DiffSide.Type.SIDE_A) {
         rev = revA;
+        hash = hashA;
         side = sideA;
       } else {
         rev = revB;
+        hash = hashB;
         side = sideB;
       }
-      return webLinks.getFileLinks(projectName.get(), rev, side.fileName());
+      return webLinks.getFileLinks(projectName.get(), rev, hash, side.fileName());
     }
   }
 

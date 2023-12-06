@@ -24,10 +24,23 @@ export const htmlTemplate = html`
     :host(.no-left) .sideBySide .right:not([data-value]) + td {
       display: none;
     }
+    :host(.disable-context-control-buttons) {
+      --context-control-display: none;
+    }
+    :host(.disable-context-control-buttons) .section {
+      border-right: none;
+    }
+    :host(.hide-line-length-indicator) .full-width td.content .contentText {
+      background-image: none;
+    }
+
     :host {
       font-family: var(--monospace-font-family, ''), 'Roboto Mono';
       font-size: var(--font-size, var(--font-size-code, 12px));
-      line-height: var(--line-height-code, 1.334);
+      /* usually 16px = 12px + 4px */
+      line-height: calc(
+        var(--font-size, var(--font-size-code, 12px)) + var(--spacing-s, 4px)
+      );
     }
 
     .thread-group {
@@ -56,7 +69,7 @@ export const htmlTemplate = html`
     .section {
       border-right: 1px solid var(--border-color);
     }
-    .section.contextControl.newStyle {
+    .section.contextControl {
       /*
        * Divider inside this section must not have border; we set borders on
        * the padding rows below.
@@ -64,9 +77,9 @@ export const htmlTemplate = html`
       border-right-width: 0;
     }
     /*
-     * Padding rows behind new style context controls. The diff is styled to be
-     * cut into two halves by the negative space of the divider on which the
-     * context control buttons are anchored.
+     * Padding rows behind context controls. The diff is styled to be cut into
+     * two halves by the negative space of the divider on which the context
+     * control buttons are anchored.
      */
     .contextBackground {
       border-right: 1px solid var(--border-color);
@@ -94,6 +107,12 @@ export const htmlTemplate = html`
       */
     .lineNumButton:focus {
       outline: none;
+    }
+    gr-image-viewer {
+      width: 100%;
+      height: 100%;
+      max-width: var(--image-viewer-max-width, 95vw);
+      max-height: var(--image-viewer-max-height, 90vh);
     }
     .image-diff .gr-diff {
       text-align: center;
@@ -146,7 +165,7 @@ export const htmlTemplate = html`
       width: 100%;
     }
     .full-width .contentText {
-      white-space: pre-wrap;
+      white-space: break-spaces;
       word-wrap: break-word;
     }
     .lineNumButton,
@@ -212,17 +231,45 @@ export const htmlTemplate = html`
 
     /* dueToMove */
     .dueToMove .content.add .contentText,
-    .dueToMove .moveControls.movedIn .moveDescription,
+    .dueToMove .moveControls.movedIn .moveLabel,
     .delta.total.dueToMove .content.add .contentText {
-      background-color: var(--light-moved-add-highlight-color);
+      background-color: var(--diff-moved-in-background);
     }
+
     .dueToMove .content.remove .contentText,
-    .dueToMove .moveControls.movedOut .moveDescription,
+    .dueToMove .moveControls.movedOut .moveLabel,
     .delta.total.dueToMove .content.remove .contentText {
-      background-color: var(--light-remove-add-highlight-color);
+      background-color: var(--diff-moved-out-background);
     }
-    .moveControls {
-      text-align: right;
+
+    .delta.dueToMove .movedIn .moveDescription {
+      color: var(--diff-moved-in-label-color);
+    }
+    .delta.dueToMove .movedOut .moveDescription {
+      color: var(--diff-moved-out-label-color);
+    }
+    .moveLabel {
+      font-family: var(--font-family, ''), 'Roboto Mono';
+      font-size: var(--font-size-small, 12px);
+      font-weight: var(--code-hint-font-weight, 500);
+      line-height: var(--line-height-small, 16px);
+      padding: var(--spacing-s) var(--spacing-m);
+      margin: var(--spacing-s);
+    }
+    .delta.dueToMove .moveDescription {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .moveDescription iron-icon {
+      color: inherit;
+      margin-right: var(--spacing-s);
+      height: var(--line-height-small, 16px);
+      width: var(--line-height-small, 16px);
+    }
+
+    .moveDescription a {
+      color: inherit;
     }
 
     /* ignoredWhitespaceOnly */
@@ -242,27 +289,11 @@ export const htmlTemplate = html`
 
     /* Context controls */
     .contextControl {
-      background-color: var(--diff-context-control-background-color);
-      border: 1px solid var(--diff-context-control-border-color);
-      color: var(--diff-context-control-color);
-      --divider-height: var(--spacing-s);
-      --divider-border: 1px;
-    }
-    .contextControl.newStyle {
+      display: var(--context-control-display, table-row-group);
       background-color: transparent;
       border: none;
-      /* Change to --diff-context-control-color once only new style exists. */
-      --diff-context-control-color: var(--default-button-text-color);
-    }
-    .contextControl:not(.newStyle) gr-button {
-      display: inline-block;
-      text-decoration: none;
-      vertical-align: top;
-      line-height: var(--line-height-mono, 18px);
-      --gr-button: {
-        color: var(--diff-context-control-color);
-        padding: var(--spacing-xxs) var(--spacing-l);
-      }
+      --divider-height: var(--spacing-s);
+      --divider-border: 1px;
     }
     .contextControl gr-button iron-icon {
       /* should match line-height of gr-button */
@@ -274,8 +305,8 @@ export const htmlTemplate = html`
     }
 
     /*
-     * Padding rows behind new style context controls. Styled as a continuation
-     * of the line gutters and code area.
+     * Padding rows behind context controls. Styled as a continuation of the
+     * line gutters and code area.
      */
     .contextBackground > .contextLineNum {
       background-color: var(--diff-blank-background-color);
@@ -284,81 +315,128 @@ export const htmlTemplate = html`
       background-color: var(--view-background-color);
     }
     .contextBackground {
-      /* 
-       * One line of background behind the context expanders which they can 
+      /*
+       * One line of background behind the context expanders which they can
        * render on top of, plus some padding.
        */
       height: calc(var(--line-height-normal) + var(--spacing-s));
     }
 
-    .contextDivider {
-      height: var(--divider-height);
-      /* Create a positioning context. */
-      transform: translateX(0px);
+    .dividerCell {
+      vertical-align: top;
     }
-    .contextDivider.collapsed {
-      /* Hide divider gap, but still show child elements (expansion buttons). */
+    .dividerRow.showBoth .dividerCell {
+      height: var(--divider-height);
+    }
+    .dividerRow.showAboveOnly .dividerCell,
+    .dividerRow.showBelowOnly .dividerCell {
       height: 0;
     }
-    .dividerCell {
-      width: 100%;
-      height: 100%;
+
+    .verticalFlex {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .dividerRow.showBoth .verticalFlex {
+      justify-content: center;
+      margin-top: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(
+        2 * var(--line-height-normal) + 2 * var(--spacing-s) +
+          var(--divider-height) - 1px
+      );
+    }
+    .dividerRow.showAboveOnly .verticalFlex {
+      justify-content: flex-end;
+      /* margin-top has to make room for height+1px. */
+      margin-top: calc(-1px - var(--line-height-normal) - var(--spacing-s));
+      height: calc(var(--line-height-normal) + var(--spacing-s));
+    }
+    .dividerRow.showBelowOnly .verticalFlex {
+      justify-content: flex-start;
+      /* This just pushes the container down 1 pixel as to render below the
+         1px border-top of the padding row below. The same could be achieved
+         by position:relative; top:1px.*/
+      margin-top: 1px;
+      margin-bottom: calc(0px - var(--line-height-normal) - var(--spacing-s));
+    }
+
+    .horizontalFlex {
       display: flex;
       justify-content: center;
-      position: absolute;
-      top: 0;
-      left: 0;
+    }
+    .dividerRow.showBoth .horizontalFlex {
+      align-items: center;
+    }
+    .dividerRow.showAboveOnly .horizontalFlex {
+      align-items: end;
+    }
+    .dividerRow.showBelowOnly .horizontalFlex {
+      align-items: start;
     }
     .contextControlButton {
       background-color: var(--default-button-background-color);
       font: var(--context-control-button-font, inherit);
-      /* All position is relative to container, so ignore sibling buttons. */
-      position: absolute;
-    }
-    .contextControlButton:first-child {
-      /* First button needs to claim width to display without text wrapping. */
-      position: relative;
     }
     .centeredButton {
-      /* Center over divider. */
-      top: 50%;
-      transform: translateY(-50%);
       --gr-button: {
         color: var(--diff-context-control-color);
-        border: solid var(--border-color);
-        border-width: 1px;
-        border-radius: var(--border-radius);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
         padding: var(--spacing-s) var(--spacing-l);
       }
     }
     .aboveBelowButtons {
       display: flex;
       flex-direction: column;
+      justify-content: center;
       margin-left: var(--spacing-m);
-      position: relative;
     }
     .aboveBelowButtons:first-child {
       margin-left: 0;
     }
+    .dividerRow.showBoth .aboveButton {
+      /* The size of the gap between the above and below button. */
+      margin-bottom: calc(var(--divider-height) + 1px);
+    }
     .aboveButton {
-      /* Display over preceding content / background placeholder. */
-      transform: translateY(-100%);
       --gr-button: {
         color: var(--diff-context-control-color);
-        border: solid var(--border-color);
-        border-width: 1px 1px 0 1px;
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 0;
+        border-left-width: 1px;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
         padding: var(--spacing-xxs) var(--spacing-l);
       }
     }
     .belowButton {
-      /* Display over following content / background placeholder. */
-      top: calc(100% + var(--divider-border));
       --gr-button: {
         color: var(--diff-context-control-color);
-        border: solid var(--border-color);
-        border-width: 0 1px 1px 1px;
-        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        border-style: solid;
+        border-color: var(--border-color);
+        border-top-width: 0;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
         padding: var(--spacing-xxs) var(--spacing-l);
       }
     }
@@ -435,6 +513,19 @@ export const htmlTemplate = html`
     .target-row td.blame {
       background: var(--diff-selection-background-color);
     }
+    td.lost div {
+      background-color: var(--info-background);
+      padding: var(--spacing-s) 0 0 0;
+    }
+    td.lost div:first-of-type {
+      font-family: var(--font-family, 'Roboto');
+      font-size: var(--font-size-normal, 14px);
+      line-height: var(--line-height-normal);
+    }
+    td.lost iron-icon {
+      padding: 0 var(--spacing-s) 0 var(--spacing-m);
+      color: var(--blue-700);
+    }
     col.blame {
       display: none;
     }
@@ -466,8 +557,7 @@ export const htmlTemplate = html`
     }
     /** Support the line length indicator **/
     .full-width td.content .contentText {
-      /* Base 64 encoded 1x1px of #ddd */
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mO8+x8AAr8B3gzOjaQAAAAASUVORK5CYII=');
+      background-image: var(--line-length-indicator);
       background-position: var(--line-limit) 0;
       background-repeat: repeat-y;
     }
@@ -542,9 +632,9 @@ export const htmlTemplate = html`
 
     /** Make comments selectable when selected */
     .selected-left.selected-comment
-      ::slotted(gr-comment-thread[comment-side='left']),
+      ::slotted(gr-comment-thread[diff-side='left']),
     .selected-right.selected-comment
-      ::slotted(gr-comment-thread[comment-side='right']) {
+      ::slotted(gr-comment-thread[diff-side='right']) {
       -webkit-user-select: text;
       -moz-user-select: text;
       -ms-user-select: text;
@@ -571,7 +661,8 @@ export const htmlTemplate = html`
   </div>
   <div
     class$="[[_computeContainerClass(loggedIn, viewMode, displayLine)]]"
-    on-tap="_handleTap"
+    on-click="_handleTap"
+    on-diff-context-expanded="_handleDiffContextExpanded"
   >
     <gr-diff-selection diff="[[diff]]">
       <gr-diff-highlight
@@ -592,7 +683,7 @@ export const htmlTemplate = html`
           base-image="[[baseImage]]"
           layers="[[layers]]"
           revision-image="[[revisionImage]]"
-          use-new-context-controls="[[useNewContextControls]]"
+          use-new-image-diff-ui="[[useNewImageDiffUi]]"
         >
           <table
             id="diffTable"
@@ -625,7 +716,7 @@ export const htmlTemplate = html`
       Prevented render because "Whole file" is enabled and this diff is very
       large (about [[_diffLength]] lines).
     </p>
-    <gr-button on-click="_handleLimitedBypass">
+    <gr-button on-click="_collapseContext">
       Render with limited context
     </gr-button>
     <gr-button on-click="_handleFullBypass">

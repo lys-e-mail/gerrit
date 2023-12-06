@@ -111,15 +111,6 @@ export const htmlTemplate = html`
               [[_computeText(account, _selfAccount)]] turn to take action.
             </span>
             <a
-              href="https://bugs.chromium.org/p/gerrit/issues/entry?template=Attention+Set"
-              target="_blank"
-            >
-              <iron-icon
-                icon="gr-icons:bug"
-                title="report a problem"
-              ></iron-icon>
-            </a>
-            <a
               href="https://gerrit-review.googlesource.com/Documentation/user-attention-set.html"
               target="_blank"
             >
@@ -144,7 +135,7 @@ export const htmlTemplate = html`
       </template>
       <template
         is="dom-if"
-        if="[[_computeShowActionAddToAttentionSet(_config, highlightAttention, account, change)]]"
+        if="[[_computeShowActionAddToAttentionSet(_config, highlightAttention, account, change, _selfAccount)]]"
       >
         <div class="action">
           <gr-button
@@ -159,7 +150,7 @@ export const htmlTemplate = html`
       </template>
       <template
         is="dom-if"
-        if="[[_computeShowActionRemoveFromAttentionSet(_config, highlightAttention, account, change)]]"
+        if="[[_computeShowActionRemoveFromAttentionSet(_config, highlightAttention, account, change, _selfAccount)]]"
       >
         <div class="action">
           <gr-button
@@ -172,7 +163,10 @@ export const htmlTemplate = html`
           </gr-button>
         </div>
       </template>
-      <template is="dom-if" if="[[_showReviewerOrCCActions(account, change)]]">
+      <template
+        is="dom-if"
+        if="[[_showReviewerOrCCActions(account, change, _selfAccount)]]"
+      >
         <div class="action">
           <gr-button
             class="removeReviewerOrCC"
@@ -196,5 +190,4 @@ export const htmlTemplate = html`
       </template>
     </template>
   </div>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

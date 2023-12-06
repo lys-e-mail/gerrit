@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-{namespace com.google.gerrit.server.mail.template}
+{namespace com.google.gerrit.server.mail.template.RegisterNewEmail}
 
 /**
  * The .RegisterNewEmail template will determine the contents of the email
  * related to registering new email accounts.
  */
-{template .RegisterNewEmail kind="text"}
+{template RegisterNewEmail kind="text"}
   {@param email: ?}
   Welcome to Gerrit Code Review at {$email.gerritHost}.{\n}
 

@@ -25,12 +25,11 @@ import '../../shared/gr-change-star/gr-change-star';
 import '../../shared/gr-change-status/gr-change-status';
 import '../../shared/gr-date-formatter/gr-date-formatter';
 import '../../shared/gr-editable-content/gr-editable-content';
-import '../../shared/gr-js-api-interface/gr-js-api-interface';
 import '../../shared/gr-linked-text/gr-linked-text';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-tooltip-content/gr-tooltip-content';
 import '../gr-change-actions/gr-change-actions';
+import '../gr-change-summary/gr-change-summary';
 import '../gr-change-metadata/gr-change-metadata';
 import '../../shared/gr-icons/gr-icons';
 import '../gr-commit-info/gr-commit-info';
@@ -42,10 +41,8 @@ import '../gr-related-changes-list/gr-related-changes-list';
 import '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
 import '../gr-reply-dialog/gr-reply-dialog';
 import '../gr-thread-list/gr-thread-list';
-import '../gr-upload-help-dialog/gr-upload-help-dialog';
+import '../../checks/gr-checks-tab';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-change-view_html';
 import {
@@ -53,13 +50,15 @@ import {
   Shortcut,
 } from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
 import {GrEditConstants} from '../../edit/gr-edit-constants';
-import {GrCountStringFormatter} from '../../shared/gr-count-string-formatter/gr-count-string-formatter';
-import {getComputedStyleValue} from '../../../utils/dom-util';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation';
+import {pluralize} from '../../../utils/string-util';
+import {windowLocationReload} from '../../../utils/dom-util';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {getPluginEndpoints} from '../../shared/gr-js-api-interface/gr-plugin-endpoints';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader';
 import {RevisionInfo as RevisionInfoClass} from '../../shared/revision-info/revision-info';
+import {DiffViewMode} from '../../../api/diff';
 import {PrimaryTab, SecondaryTab} from '../../../constants/constants';
+
 import {NO_ROBOT_COMMENTS_THREADS_MSG} from '../../../constants/messages';
 import {appContext} from '../../../services/app-context';
 import {ChangeStatus} from '../../../constants/constants';
@@ -69,19 +68,16 @@ import {
   fetchChangeUpdates,
   hasEditBasedOnCurrentPatchSet,
   hasEditPatchsetLoaded,
-  patchNumEquals,
   PatchSet,
 } from '../../../utils/patch-set-util';
-import {changeStatuses, changeStatusString} from '../../../utils/change-util';
-import {EventType} from '../../plugins/gr-plugin-types';
-import {customElement, property, observe} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {GrJsApiInterface} from '../../shared/gr-js-api-interface/gr-js-api-interface-element';
+import {changeStatuses} from '../../../utils/change-util';
 import {
   changeIsAbandoned,
   changeIsMerged,
   changeIsOpen,
 } from '../../../utils/change-util';
+import {EventType as PluginEventType} from '../../../api/plugin';
+import {customElement, property, observe} from '@polymer/decorators';
 import {GrApplyFixDialog} from '../../diff/gr-apply-fix-dialog/gr-apply-fix-dialog';
 import {GrFileListHeader} from '../gr-file-list-header/gr-file-list-header';
 import {GrEditableContent} from '../../shared/gr-editable-content/gr-editable-content';
@@ -103,7 +99,6 @@ import {
   ConfigInfo,
   PreferencesInfo,
   CommitInfo,
-  DiffPreferencesInfo,
   RevisionInfo,
   EditInfo,
   LabelNameToInfoMap,
@@ -111,7 +106,12 @@ import {
   QuickLabelInfo,
   ApprovalInfo,
   ElementPropertyDeepChange,
+  ChangeId,
+  RelatedChangeAndCommitInfo,
+  RelatedChangesInfo,
+  BasePatchSetNum,
 } from '../../../types/common';
+import {DiffPreferencesInfo} from '../../../types/diff';
 import {GrReplyDialog, FocusTarget} from '../gr-reply-dialog/gr-reply-dialog';
 import {GrIncludedInDialog} from '../gr-included-in-dialog/gr-included-in-dialog';
 import {GrDownloadDialog} from '../gr-download-dialog/gr-download-dialog';
@@ -120,7 +120,7 @@ import {
   GrCommentApi,
   ChangeComments,
 } from '../../diff/gr-comment-api/gr-comment-api';
-import {hasOwnProperty} from '../../../utils/common-util';
+import {assertIsDefined, hasOwnProperty} from '../../../utils/common-util';
 import {GrEditControls} from '../../edit/gr-edit-controls/gr-edit-controls';
 import {
   CommentThread,
@@ -138,24 +138,42 @@ import {AppElementChangeViewParams} from '../../gr-app-types';
 import {DropdownLink} from '../../shared/gr-dropdown/gr-dropdown';
 import {PaperTabsElement} from '@polymer/paper-tabs/paper-tabs';
 import {
-  EditRevisionInfo,
-  ParsedChangeInfo,
-} from '../../shared/gr-rest-api-interface/gr-reviewer-updates-parser';
-import {
   GrFileList,
   DEFAULT_NUM_FILES_SHOWN,
 } from '../gr-file-list/gr-file-list';
-import {ChangeViewState, isPolymerSpliceChange} from '../../../types/types';
+import {
+  ChangeViewState,
+  EditRevisionInfo,
+  isPolymerSpliceChange,
+  ParsedChangeInfo,
+} from '../../../types/types';
 import {
   CustomKeyboardEvent,
   EditableContentSaveEvent,
   OpenFixPreviewEvent,
   ShowAlertEventDetail,
   SwitchTabEvent,
+  ThreadListModifiedEvent,
+  TabState,
+  EventType,
+  CloseFixPreviewEvent,
 } from '../../../types/events';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrMessagesList} from '../gr-messages-list/gr-messages-list';
 import {GrThreadList} from '../gr-thread-list/gr-thread-list';
+import {
+  fireAlert,
+  fireEvent,
+  firePageError,
+  fireDialogChange,
+  fireTitleChange,
+} from '../../../utils/event-util';
+import {GerritView} from '../../../services/router/router-model';
+import {takeUntil} from 'rxjs/operators';
+import {aPluginHasRegistered$} from '../../../services/checks/checks-model';
+import {Subject} from 'rxjs';
+import {debounce, DelayedTask} from '../../../utils/async-util';
+import {Timing} from '../../../constants/reporting';
 
 const CHANGE_ID_ERROR = {
   MISMATCH: 'mismatch',
@@ -163,21 +181,10 @@ const CHANGE_ID_ERROR = {
 };
 const CHANGE_ID_REGEX_PATTERN = /^(Change-Id:\s|Link:.*\/id\/)(I[0-9a-f]{8,40})/gm;
 
-const MIN_LINES_FOR_COMMIT_COLLAPSE = 30;
+const MIN_LINES_FOR_COMMIT_COLLAPSE = 17;
 
 const REVIEWERS_REGEX = /^(R|CC)=/gm;
 const MIN_CHECK_INTERVAL_SECS = 0;
-
-// These are the same as the breakpoint set in CSS. Make sure both are changed
-// together.
-const BREAKPOINT_RELATED_SMALL = '50em';
-const BREAKPOINT_RELATED_MED = '75em';
-
-// In the event that the related changes medium width calculation is too close
-// to zero, provide some height.
-const MINIMUM_RELATED_MAX_HEIGHT = 100;
-
-const SMALL_RELATED_HEIGHT = 400;
 
 const REPLY_REFIT_DEBOUNCE_INTERVAL_MS = 500;
 
@@ -193,21 +200,11 @@ const ReloadToastMessage = {
   NEW_MESSAGE: 'There are new messages on this change',
 };
 
-enum DiffViewMode {
-  SIDE_BY_SIDE = 'SIDE_BY_SIDE',
-  UNIFIED = 'UNIFIED_DIFF',
-}
-
-const CHANGE_DATA_TIMING_LABEL = 'ChangeDataLoaded';
-const CHANGE_RELOAD_TIMING_LABEL = 'ChangeReloaded';
-const SEND_REPLY_TIMING_LABEL = 'SendReply';
 // Making the tab names more unique in case a plugin adds one with same name
 const ROBOT_COMMENTS_LIMIT = 10;
 
 export interface GrChangeView {
   $: {
-    restAPI: RestApiService & Element;
-    jsAPI: GrJsApiInterface;
     commentAPI: GrCommentApi;
     applyFixDialog: GrApplyFixDialog;
     fileList: GrFileList & Element;
@@ -217,21 +214,15 @@ export interface GrChangeView {
     includedInDialog: GrIncludedInDialog;
     downloadOverlay: GrOverlay;
     downloadDialog: GrDownloadDialog;
-    uploadHelpOverlay: GrOverlay;
     replyOverlay: GrOverlay;
     replyDialog: GrReplyDialog;
     mainContent: HTMLDivElement;
-    relatedChanges: GrRelatedChangesList;
     changeStar: GrChangeStar;
     actions: GrChangeActions;
     commitMessage: HTMLDivElement;
     commitAndRelated: HTMLDivElement;
     metadata: GrChangeMetadata;
-    relatedChangesToggle: HTMLDivElement;
     mainChangeInfo: HTMLDivElement;
-    commitCollapseToggleButton: GrButton;
-    commitCollapseToggle: HTMLDivElement;
-    relatedChangesToggleButton: GrButton;
     replyBtn: GrButton;
   };
 }
@@ -239,9 +230,7 @@ export interface GrChangeView {
 export type ChangeViewPatchRange = Partial<PatchRange>;
 
 @customElement('gr-change-view')
-export class GrChangeView extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrChangeView extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -264,7 +253,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
    * @event show-auth-required
    */
 
-  reporting = appContext.reportingService;
+  private readonly reporting = appContext.reportingService;
+
+  private readonly jsAPI = appContext.jsApiService;
+
+  private readonly changeService = appContext.changeService;
 
   /**
    * URL params passed from the router.
@@ -365,8 +358,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     type: Boolean,
     computed:
       '_computeHideEditCommitMessage(_loggedIn, ' +
-      '_editingCommitMessage, _change, _editMode, _commitCollapsed, ' +
-      '_commitCollapsible)',
+      '_editingCommitMessage, _change, _editMode)',
   })
   _hideEditCommitMessage?: boolean;
 
@@ -443,9 +435,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
   @property({type: Boolean})
   _replyDisabled = true;
 
-  @property({type: String, computed: '_changeStatusString(_change)'})
-  _changeStatus?: string;
-
   @property({
     type: String,
     computed: '_computeChangeStatusChips(_change, _mergeable, _submitEnabled)',
@@ -463,9 +452,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
   })
   _commitCollapsible?: boolean;
 
-  @property({type: Boolean})
-  _relatedChangesCollapsed = true;
-
   @property({type: Number})
   _updateCheckTimerHandle?: number | null;
 
@@ -474,9 +460,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
     computed: '_computeEditMode(_patchRange.*, params.*)',
   })
   _editMode?: boolean;
-
-  @property({type: Boolean, observer: '_updateToggleContainerClass'})
-  _showRelatedToggle = false;
 
   @property({
     type: Boolean,
@@ -520,6 +503,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
   @property({type: Number})
   _currentRobotCommentsPatchSet?: PatchSetNum;
 
+  // TODO(milutin) - remove once new gr-dialog will do it out of the box
+  // This removes rest of page from a11y tree, when reply dialog is open
+  @property({type: Boolean})
+  _changeViewAriaHidden = false;
+
   /**
    * this is a two-element tuple to always
    * hold the current active tab for both primary and secondary tabs
@@ -535,6 +523,16 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
   _throttledToggleChangeStar?: EventListener;
 
+  @property({type: Boolean})
+  _showChecksTab = false;
+
+  @property({type: String})
+  _tabState?: TabState;
+
+  restApiService = appContext.restApiService;
+
+  checksService = appContext.checksService;
+
   keyboardShortcuts() {
     return {
       [Shortcut.SEND_REPLY]: null, // DOC_ONLY binding
@@ -547,7 +545,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
       [Shortcut.UP_TO_DASHBOARD]: '_handleUpToDashboard',
       [Shortcut.EXPAND_ALL_MESSAGES]: '_handleExpandAllMessages',
       [Shortcut.COLLAPSE_ALL_MESSAGES]: '_handleCollapseAllMessages',
-      [Shortcut.EXPAND_ALL_DIFF_CONTEXT]: '_expandAllDiffs',
       [Shortcut.OPEN_DIFF_PREFS]: '_handleOpenDiffPrefsShortcut',
       [Shortcut.EDIT_TOPIC]: '_handleEditTopic',
       [Shortcut.DIFF_AGAINST_BASE]: '_handleDiffAgainstBase',
@@ -558,20 +555,23 @@ export class GrChangeView extends KeyboardShortcutMixin(
     };
   }
 
+  disconnected$ = new Subject();
+
+  private replyRefitTask?: DelayedTask;
+
+  private scrollTask?: DelayedTask;
+
   /** @override */
-  connectedCallback() {
-    super.connectedCallback();
-    this._throttledToggleChangeStar = this._throttleWrap(e =>
-      this._handleToggleChangeStar(e as CustomKeyboardEvent)
-    );
+  ready() {
+    super.ready();
+    aPluginHasRegistered$.pipe(takeUntil(this.disconnected$)).subscribe(b => {
+      this._showChecksTab = b;
+    });
   }
 
-  /** @override */
-  created() {
-    super.created();
-
+  constructor() {
+    super();
     this.addEventListener('topic-changed', () => this._handleTopicChanged());
-
     this.addEventListener(
       // When an overlay is opened in a mobile viewport, the overlay has a full
       // screen view. When it has a full screen view, we do not want the
@@ -590,12 +590,20 @@ export class GrChangeView extends KeyboardShortcutMixin(
       this._handleReloadCommentThreads()
     );
 
+    this.addEventListener(
+      'thread-list-modified',
+      (e: ThreadListModifiedEvent) => this._handleReloadDiffComments(e)
+    );
+
     this.addEventListener('open-reply-dialog', () => this._openReplyDialog());
   }
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
+    this._throttledToggleChangeStar = this._throttleWrap(e =>
+      this._handleToggleChangeStar(e as CustomKeyboardEvent)
+    );
     this._getServerConfig().then(config => {
       this._serverConfig = config;
       this._replyDisabled = false;
@@ -604,7 +612,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this._getLoggedIn().then(loggedIn => {
       this._loggedIn = loggedIn;
       if (loggedIn) {
-        this.$.restAPI.getAccount().then(acct => {
+        this.restApiService.getAccount().then(acct => {
           this._account = acct;
         });
       }
@@ -642,11 +650,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
       this._handleCommitMessageCancel()
     );
     this.addEventListener('open-fix-preview', e => this._onOpenFixPreview(e));
-    this.addEventListener('close-fix-preview', () => this._onCloseFixPreview());
-    this.listen(window, 'scroll', '_handleScroll');
-    this.listen(document, 'visibilitychange', '_handleVisibilityChange');
+    this.addEventListener('close-fix-preview', e => this._onCloseFixPreview(e));
+    window.addEventListener('scroll', this.handleScroll);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
 
-    this.addEventListener('show-primary-tab', e =>
+    this.addEventListener(EventType.SHOW_PRIMARY_TAB, e =>
       this._setActivePrimaryTab(e)
     );
     this.addEventListener('show-secondary-tab', e =>
@@ -662,26 +670,28 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   /** @override */
-  detached() {
-    super.detached();
-    this.unlisten(window, 'scroll', '_handleScroll');
-    this.unlisten(document, 'visibilitychange', '_handleVisibilityChange');
+  disconnectedCallback() {
+    this.disconnected$.next();
+    window.removeEventListener('scroll', this.handleScroll);
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange
+    );
+    this.replyRefitTask?.cancel();
+    this.scrollTask?.cancel();
 
     if (this._updateCheckTimerHandle) {
       this._cancelUpdateCheckTimer();
     }
+    super.disconnectedCallback();
   }
 
   get messagesList(): GrMessagesList | null {
-    return this.shadowRoot!.querySelector('gr-messages-list');
+    return this.shadowRoot!.querySelector<GrMessagesList>('gr-messages-list');
   }
 
   get threadList(): GrThreadList | null {
-    return this.shadowRoot!.querySelector('gr-thread-list');
-  }
-
-  _changeStatusString(change: ChangeInfo) {
-    return changeStatusString(change);
+    return this.shadowRoot!.querySelector<GrThreadList>('gr-thread-list');
   }
 
   _setDiffViewMode(opt_reset?: boolean) {
@@ -706,8 +716,8 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this.$.applyFixDialog.open(e);
   }
 
-  _onCloseFixPreview() {
-    this._reload();
+  _onCloseFixPreview(e: CloseFixPreviewEvent) {
+    if (e.detail.fixApplied) this._reload();
   }
 
   _handleToggleDiffMode(e: CustomKeyboardEvent) {
@@ -733,17 +743,18 @@ export class GrChangeView extends KeyboardShortcutMixin(
    * @param paperTabs - the parent tabs container
    */
   _setActiveTab(
-    paperTabs: PaperTabsElement,
+    paperTabs: PaperTabsElement | null,
     activeDetails: {
       activeTabName?: string;
       activeTabIndex?: number;
       scrollIntoView?: boolean;
     }
   ) {
+    if (!paperTabs) return;
     const {activeTabName, activeTabIndex, scrollIntoView} = activeDetails;
-    const tabs = paperTabs.querySelectorAll('paper-tab') as NodeListOf<
-      HTMLElement
-    >;
+    const tabs = paperTabs.querySelectorAll(
+      'paper-tab'
+    ) as NodeListOf<HTMLElement>;
     let activeIndex = -1;
     if (activeTabIndex !== undefined) {
       activeIndex = activeTabIndex;
@@ -762,11 +773,14 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
     const tabName = tabs[activeIndex].dataset['name'];
     if (scrollIntoView) {
-      paperTabs.scrollIntoView();
+      paperTabs.scrollIntoView({block: 'center'});
     }
     if (paperTabs.selected !== activeIndex) {
+      // paperTabs.selected is undefined during rendering
+      if (paperTabs.selected !== undefined) {
+        this.reporting.reportInteraction('show-tab', {tabName});
+      }
       paperTabs.selected = activeIndex;
-      this.reporting.reportInteraction('show-tab', {tabName});
     }
     return tabName;
   }
@@ -775,9 +789,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
    * Changes active primary tab.
    */
   _setActivePrimaryTab(e: SwitchTabEvent) {
-    const primaryTabs = this.shadowRoot!.querySelector(
+    const primaryTabs = this.shadowRoot!.querySelector<PaperTabsElement>(
       '#primaryTabs'
-    ) as PaperTabsElement;
+    );
     const activeTabName = this._setActiveTab(primaryTabs, {
       activeTabName: e.detail.tab,
       activeTabIndex: e.detail.value,
@@ -802,15 +816,16 @@ export class GrChangeView extends KeyboardShortcutMixin(
         this._selectedTabPluginHeader = '';
       }
     }
+    this._tabState = e.detail.tabState;
   }
 
   /**
    * Changes active secondary tab.
    */
   _setActiveSecondaryTab(e: SwitchTabEvent) {
-    const secondaryTabs = this.shadowRoot!.querySelector(
+    const secondaryTabs = this.shadowRoot!.querySelector<PaperTabsElement>(
       '#secondaryTabs'
-    ) as PaperTabsElement;
+    );
     const activeTabName = this._setActiveTab(secondaryTabs, {
       activeTabName: e.detail.tab,
       activeTabIndex: e.detail.value,
@@ -821,22 +836,17 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
   }
 
-  _handleEditCommitMessage() {
-    this._editingCommitMessage = true;
-    this.$.commitMessageEditor.focusTextarea();
-  }
-
   _handleCommitMessageSave(e: EditableContentSaveEvent) {
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._changeNum)
       throw new Error('missing required changeNum property');
     // Trim trailing whitespace from each line.
     const message = e.detail.content.replace(TRAILING_WHITESPACE_REGEX, '');
 
-    this.$.jsAPI.handleCommitMessage(this._change, message);
+    this.jsAPI.handleCommitMessage(this._change, message);
 
     this.$.commitMessageEditor.disabled = true;
-    this.$.restAPI
+    this.restApiService
       .putChangeCommitMessage(this._changeNum, message)
       .then(resp => {
         this.$.commitMessageEditor.disabled = false;
@@ -854,7 +864,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _reloadWindow() {
-    window.location.reload();
+    windowLocationReload();
   }
 
   _handleCommitMessageCancel() {
@@ -887,16 +897,13 @@ export class GrChangeView extends KeyboardShortcutMixin(
     loggedIn: boolean,
     editing: boolean,
     change: ChangeInfo,
-    editMode?: boolean,
-    collapsed?: boolean,
-    collapsible?: boolean
+    editMode?: boolean
   ) {
     if (
       !loggedIn ||
       editing ||
       (change && change.status === ChangeStatus.MERGED) ||
-      editMode ||
-      (collapsed && collapsible)
+      editMode
     ) {
       return true;
     }
@@ -923,8 +930,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     const commentCount = this._robotCommentCountPerPatchSet(commentThreads);
     const commentCnt = commentCount[patch._number] || 0;
     if (commentCnt === 0) return `Patchset ${patch._number}`;
-    const findingsText = commentCnt === 1 ? 'finding' : 'findings';
-    return `Patchset ${patch._number} (${commentCnt} ${findingsText})`;
+    return `Patchset ${patch._number} (${pluralize(commentCnt, 'finding')})`;
   }
 
   _computeRobotCommentsPatchSetDropdownItems(
@@ -1013,14 +1019,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
   ) {
     if (!changeComments) return undefined;
     const draftCount = changeComments.computeDraftCount();
-    const unresolvedString = GrCountStringFormatter.computeString(
-      unresolvedCount,
-      'unresolved'
-    );
-    const draftString = GrCountStringFormatter.computePluralString(
-      draftCount,
-      'draft'
-    );
+    const unresolvedString =
+      unresolvedCount === 0 ? '' : `${unresolvedCount} unresolved`;
+    const draftString = pluralize(draftCount, 'draft');
 
     return (
       unresolvedString +
@@ -1108,6 +1109,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this._openReplyDialog(this.$.replyDialog.FocusTarget.ANY);
   }
 
+  onReplyOverlayCanceled() {
+    fireDialogChange(this, {canceled: true});
+    this._changeViewAriaHidden = false;
+  }
+
   _handleOpenDiffPrefs() {
     this.$.fileList.openDiffPrefs();
   }
@@ -1137,14 +1143,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this.$.downloadOverlay.close();
   }
 
-  _handleOpenUploadHelpDialog() {
-    this.$.uploadHelpOverlay.open();
-  }
-
-  _handleCloseUploadHelpDialog() {
-    this.$.uploadHelpOverlay.close();
-  }
-
   _handleMessageReply(e: CustomEvent<{message: {message: string}}>) {
     const msg: string = e.detail.message.message;
     const quoteStr =
@@ -1168,25 +1166,23 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this.addEventListener(
       'change-details-loaded',
       () => {
-        this.reporting.timeEnd(SEND_REPLY_TIMING_LABEL);
+        this.reporting.timeEnd(Timing.SEND_REPLY);
       },
       {once: true}
     );
-    this.$.replyOverlay.close();
+    this.$.replyOverlay.cancel();
     this._reload();
   }
 
   _handleReplyCancel() {
-    this.$.replyOverlay.close();
+    this.$.replyOverlay.cancel();
   }
 
   _handleReplyAutogrow() {
     // If the textarea resizes, we need to re-fit the overlay.
-    this.debounce(
-      'reply-overlay-refit',
-      () => {
-        this.$.replyOverlay.refit();
-      },
+    this.replyRefitTask = debounce(
+      this.replyRefitTask,
+      () => this.$.replyOverlay.refit(),
       REPLY_REFIT_DEBOUNCE_INTERVAL_MS
     );
   }
@@ -1199,15 +1195,13 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this._openReplyDialog(target);
   }
 
-  _handleScroll() {
-    this.debounce(
-      'scroll',
-      () => {
-        this.viewState.scrollTop = document.body.scrollTop;
-      },
+  readonly handleScroll = () => {
+    this.scrollTask = debounce(
+      this.scrollTask,
+      () => (this.viewState.scrollTop = document.body.scrollTop),
       150
     );
-  }
+  };
 
   _setShownFiles(e: CustomEvent<{length: number}>) {
     this._shownFileCount = e.detail.length;
@@ -1231,7 +1225,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
 
     if (value.changeNum && value.project) {
-      this.$.restAPI.setInProjectLookup(value.changeNum, value.project);
+      this.restApiService.setInProjectLookup(value.changeNum, value.project);
     }
 
     const patchChanged =
@@ -1241,6 +1235,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
       (this._patchRange.patchNum !== value.patchNum ||
         this._patchRange.basePatchNum !== value.basePatchNum);
     const changeChanged = this._changeNum !== value.changeNum;
+
+    let rightPatchNumChanged =
+      this._patchRange &&
+      value.patchNum !== undefined &&
+      this._patchRange.patchNum !== value.patchNum;
 
     const patchRange: ChangeViewPatchRange = {
       patchNum: value.patchNum,
@@ -1255,8 +1254,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (!changeChanged && patchChanged) {
       if (!patchRange.patchNum) {
         patchRange.patchNum = computeLatestPatchNum(this._allPatchSets);
+        rightPatchNumChanged = true;
       }
-      this._reloadPatchNumDependentResources().then(() => {
+      this._reloadPatchNumDependentResources(rightPatchNumChanged).then(() => {
         this._sendShowChangeEvent();
       });
       return;
@@ -1264,8 +1264,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
     this._initialLoadComplete = false;
     this._changeNum = value.changeNum;
-    this.$.relatedChanges.clear();
-
     this._reload(true).then(() => {
       this._performPostLoadTasks();
     });
@@ -1301,7 +1299,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   _sendShowChangeEvent() {
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
-    this.$.jsAPI.handleEvent(EventType.SHOW_CHANGE, {
+    this.jsAPI.handleEvent(PluginEventType.SHOW_CHANGE, {
       change: this._change,
       patchNum: this._patchRange.patchNum,
       info: {mergeable: this._mergeable},
@@ -1315,7 +1313,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
     this._sendShowChangeEvent();
 
-    this.async(() => {
+    setTimeout(() => {
       if (this.viewState.scrollTop) {
         document.documentElement.scrollTop = document.body.scrollTop = this.viewState.scrollTop;
       } else {
@@ -1361,7 +1359,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _handleMessageAnchorTap(e: CustomEvent<{id: string}>) {
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     const hash = MSG_PREFIX + e.detail.id;
@@ -1427,10 +1425,10 @@ export class GrChangeView extends KeyboardShortcutMixin(
       if (this.viewState.showReplyDialog) {
         this._openReplyDialog(this.$.replyDialog.FocusTarget.ANY);
         // TODO(kaspern@): Find a better signal for when to call center.
-        this.async(() => {
+        setTimeout(() => {
           this.$.replyOverlay.center();
         }, 100);
-        this.async(() => {
+        setTimeout(() => {
           this.$.replyOverlay.center();
         }, 1000);
         this.set('viewState.showReplyDialog', false);
@@ -1478,13 +1476,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this.set('_patchRange.basePatchNum', parent);
 
     const title = change.subject + ' (' + change.change_id.substr(0, 9) + ')';
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, title);
   }
 
   /**
@@ -1521,24 +1513,15 @@ export class GrChangeView extends KeyboardShortcutMixin(
     return GerritNav.getUrlForChange(change);
   }
 
-  _computeShowCommitInfo(changeStatus: string, current_revision: RevisionInfo) {
-    return changeStatus === 'Merged' && current_revision;
-  }
-
-  _computeMergedCommitInfo(
-    current_revision: CommitId,
-    revisions: {[revisionId: string]: RevisionInfo}
+  _computeShowCommitInfo(
+    changeStatuses: string[],
+    current_revision: RevisionInfo
   ) {
-    const rev = revisions[current_revision];
-    if (!rev || !rev.commit) {
-      return {};
-    }
-    // CommitInfo.commit is optional. Set commit in all cases to avoid error
-    // in <gr-commit-info>. @see Issue 5337
-    if (!rev.commit.commit) {
-      rev.commit.commit = current_revision;
-    }
-    return rev.commit;
+    return (
+      changeStatuses.length === 1 &&
+      changeStatuses[0] === 'Merged' &&
+      current_revision
+    );
   }
 
   _computeChangeIdClass(displayChangeId: string) {
@@ -1618,12 +1601,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
     this._getLoggedIn().then(isLoggedIn => {
       if (!isLoggedIn) {
-        this.dispatchEvent(
-          new CustomEvent('show-auth-required', {
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireEvent(this, 'show-auth-required');
         return;
       }
 
@@ -1654,19 +1632,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
-    if (patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Base is already selected.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.basePatchNum === ParentPatchSetNum) {
+      fireAlert(this, 'Base is already selected.');
       return;
     }
     GerritNav.navigateToChange(this._change, this._patchRange.patchNum);
@@ -1676,19 +1646,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
-    if (patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Left is already base.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.basePatchNum === ParentPatchSetNum) {
+      fireAlert(this, 'Left is already base.');
       return;
     }
     GerritNav.navigateToChange(this._change, this._patchRange.basePatchNum);
@@ -1698,21 +1660,12 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
-    if (patchNumEquals(this._patchRange.patchNum, latestPatchNum)) {
-      const detail: ShowAlertEventDetail = {
-        message: 'Latest is already selected.',
-      };
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail,
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.patchNum === latestPatchNum) {
+      fireAlert(this, 'Latest is already selected.');
       return;
     }
     GerritNav.navigateToChange(
@@ -1726,26 +1679,18 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
-    if (patchNumEquals(this._patchRange.patchNum, latestPatchNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Right is already latest.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.patchNum === latestPatchNum) {
+      fireAlert(this, 'Right is already latest.');
       return;
     }
     GerritNav.navigateToChange(
       this._change,
       latestPatchNum,
-      this._patchRange.patchNum
+      this._patchRange.patchNum as BasePatchSetNum
     );
   }
 
@@ -1753,23 +1698,15 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
     if (
-      patchNumEquals(this._patchRange.patchNum, latestPatchNum) &&
-      patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)
+      this._patchRange.patchNum === latestPatchNum &&
+      this._patchRange.basePatchNum === ParentPatchSetNum
     ) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Already diffing base against latest.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, 'Already diffing base against latest.');
       return;
     }
     GerritNav.navigateToChange(this._change, latestPatchNum);
@@ -1877,12 +1814,13 @@ export class GrChangeView extends KeyboardShortcutMixin(
         changeRecord.path
       );
     }
-    this.$.jsAPI.handleEvent(EventType.LABEL_CHANGE, {
+    this.jsAPI.handleEvent(PluginEventType.LABEL_CHANGE, {
       change: this._change,
     });
   }
 
   _openReplyDialog(section?: FocusTarget) {
+    if (!this._change) return;
     this.$.replyOverlay.open().finally(() => {
       // the following code should be executed no matter open succeed or not
       this._resetReplyOverlayFocusStops();
@@ -1890,29 +1828,25 @@ export class GrChangeView extends KeyboardShortcutMixin(
       flush();
       this.$.replyOverlay.center();
     });
+    fireDialogChange(this, {opened: true});
+    this._changeViewAriaHidden = true;
   }
 
   _handleGetChangeDetailError(response?: Response | null) {
-    this.dispatchEvent(
-      new CustomEvent('page-error', {
-        detail: {response},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    firePageError(response);
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   _getServerConfig() {
-    return this.$.restAPI.getConfig();
+    return this.restApiService.getConfig();
   }
 
   _getProjectConfig() {
-    if (!this._change) throw new Error('missing required change property');
-    return this.$.restAPI
+    assertIsDefined(this._change, '_change');
+    return this.restApiService
       .getProjectConfig(this._change.project)
       .then(config => {
         this._projectConfig = config;
@@ -1920,7 +1854,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _getPreferences() {
-    return this.$.restAPI.getPreferences();
+    return this.restApiService.getPreferences();
   }
 
   _prepareCommitMsgForLinkify(msg: string) {
@@ -1940,15 +1874,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
       this._patchRange?.patchNum === EditPatchSetNum &&
       changeIsOpen(change)
     ) {
-      /* eslint-disable max-len */
-      const message = 'Change edit not found. Please create a change edit.';
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message},
-          bubbles: true,
-          composed: true,
-        })
-      );
+      fireAlert(this, 'Change edit not found. Please create a change edit.');
       GerritNav.navigateToChange(change);
       return;
     }
@@ -1958,14 +1884,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
       (changeIsMerged(change) || changeIsAbandoned(change)) &&
       this._editMode
     ) {
-      const message =
-        'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.';
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message},
-          bubbles: true,
-          composed: true,
-        })
+      fireAlert(
+        this,
+        'Change edits cannot be created if change is merged or abandoned. Redirected to non edit mode.'
       );
       GerritNav.navigateToChange(change);
       return;
@@ -2008,8 +1929,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
   _getChangeDetail() {
     if (!this._changeNum)
       throw new Error('missing required changeNum property');
-    const detailCompletes = this.$.restAPI.getChangeDetail(this._changeNum, r =>
-      this._handleGetChangeDetailError(r)
+    const detailCompletes = this.restApiService.getChangeDetail(
+      this._changeNum,
+      r => this._handleGetChangeDetailError(r)
     );
     const editCompletes = this._getEdit();
     const prefCompletes = this._getPreferences();
@@ -2049,10 +1971,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
         this._lineHeight = Number(lineHeight.slice(0, lineHeight.length - 2));
 
         this._change = change;
+        this.changeService.updateChange(change);
         if (
           !this._patchRange ||
           !this._patchRange.patchNum ||
-          patchNumEquals(this._patchRange.patchNum, currentRevision._number)
+          this._patchRange.patchNum === currentRevision._number
         ) {
           // CommitInfo.commit is optional, and may need patching.
           if (currentRevision.commit && !currentRevision.commit.commit) {
@@ -2074,7 +1997,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
             }
           );
         }
-        return false;
+        return true;
       }
     );
   }
@@ -2098,7 +2021,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   _getEdit() {
     if (!this._changeNum)
       return Promise.reject(new Error('missing required changeNum property'));
-    return this.$.restAPI.getChangeEdit(this._changeNum, true);
+    return this.restApiService.getChangeEdit(this._changeNum, true);
   }
 
   _getLatestCommitMessage() {
@@ -2107,7 +2030,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     const lastpatchNum = computeLatestPatchNum(this._allPatchSets);
     if (lastpatchNum === undefined)
       throw new Error('missing lastPatchNum property');
-    return this.$.restAPI
+    return this.restApiService
       .getChangeCommitInfo(this._changeNum, lastpatchNum)
       .then(commitInfo => {
         if (!commitInfo) return;
@@ -2118,21 +2041,15 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _getLatestRevisionSHA(change: ChangeInfo | ParsedChangeInfo) {
-    if (change.current_revision) {
-      return change.current_revision;
-    }
+    if (change.current_revision) return change.current_revision;
     // current_revision may not be present in the case where the latest rev is
     // a draft and the user doesn’t have permission to view that rev.
     let latestRev = null;
     let latestPatchNum = -1 as PatchSetNum;
-    for (const rev in change.revisions) {
-      if (!hasOwnProperty(change.revisions, rev)) {
-        continue;
-      }
-
-      if (change.revisions[rev]._number > latestPatchNum) {
+    for (const [rev, revInfo] of Object.entries(change.revisions ?? {})) {
+      if (revInfo._number > latestPatchNum) {
         latestRev = rev;
-        latestPatchNum = change.revisions[rev]._number;
+        latestPatchNum = revInfo._number;
       }
     }
     return latestRev;
@@ -2164,7 +2081,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _getChangeCommitInfo() {
-    return this.$.restAPI
+    return this.restApiService
       .getChangeCommitInfo(this._changeNum!, this._patchRange!.patchNum!)
       .then(commitInfo => {
         this._commitInfo = commitInfo;
@@ -2189,9 +2106,12 @@ export class GrChangeView extends KeyboardShortcutMixin(
     this._robotCommentThreads = undefined;
     if (!this._changeNum)
       throw new Error('missing required changeNum property');
+
     return this.$.commentAPI
-      .loadAll(this._changeNum)
-      .then(comments => this._recomputeComments(comments));
+      .loadAll(this._changeNum, this._patchRange?.patchNum)
+      .then(comments => {
+        this._recomputeComments(comments);
+      });
   }
 
   /**
@@ -2246,9 +2166,8 @@ export class GrChangeView extends KeyboardShortcutMixin(
       return Promise.resolve([]);
     }
     this._loading = true;
-    this._relatedChangesCollapsed = true;
-    this.reporting.time(CHANGE_RELOAD_TIMING_LABEL);
-    this.reporting.time(CHANGE_DATA_TIMING_LABEL);
+    this.reporting.time(Timing.CHANGE_RELOAD);
+    this.reporting.time(Timing.CHANGE_DATA);
 
     // Array to house all promises related to data requests.
     const allDataPromises: Promise<unknown>[] = [];
@@ -2257,30 +2176,27 @@ export class GrChangeView extends KeyboardShortcutMixin(
     // are loaded.
     const detailCompletes = this._getChangeDetail();
     allDataPromises.push(detailCompletes);
+    this.checksService.reloadAll();
 
     // Resolves when the loading flag is set to false, meaning that some
     // change content may start appearing.
     const loadingFlagSet = detailCompletes
       .then(() => {
         this._loading = false;
-        this.dispatchEvent(
-          new CustomEvent('change-details-loaded', {
-            bubbles: true,
-            composed: true,
-          })
-        );
+        fireEvent(this, 'change-details-loaded');
       })
       .then(() => {
-        this.reporting.timeEnd(CHANGE_RELOAD_TIMING_LABEL);
+        this.reporting.timeEnd(Timing.CHANGE_RELOAD);
         if (isLocationChange) {
           this.reporting.changeDisplayed();
         }
       });
 
-    // Resolves when the project config has loaded.
-    const projectConfigLoaded = detailCompletes.then(() =>
-      this._getProjectConfig()
-    );
+    // Resolves when the project config has successfully loaded.
+    const projectConfigLoaded = detailCompletes.then(success => {
+      if (!success) return Promise.resolve();
+      return this._getProjectConfig();
+    });
     allDataPromises.push(projectConfigLoaded);
 
     // Resolves when change comments have loaded (comments, drafts and robot
@@ -2346,14 +2262,32 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
     if (isLocationChange) {
       this._editingCommitMessage = false;
-      const relatedChangesLoaded = coreDataPromise.then(() =>
-        this.$.relatedChanges.reload()
-      );
+      const relatedChangesLoaded = coreDataPromise.then(() => {
+        let relatedChangesPromise:
+          | Promise<RelatedChangesInfo | undefined>
+          | undefined;
+        const patchNum = this._computeLatestPatchNum(this._allPatchSets);
+        if (this._change && patchNum) {
+          relatedChangesPromise = this.restApiService
+            .getRelatedChanges(this._change._number, patchNum)
+            .then(response => {
+              if (this._change && response) {
+                this.hasParent = this._calculateHasParent(
+                  this._change.change_id,
+                  response.changes
+                );
+              }
+              return response;
+            });
+        }
+        // TODO: use returned Promise
+        this.getRelatedChangesList()?.reload(relatedChangesPromise);
+      });
       allDataPromises.push(relatedChangesLoaded);
     }
 
     Promise.all(allDataPromises).then(() => {
-      this.reporting.timeEnd(CHANGE_DATA_TIMING_LABEL);
+      this.reporting.timeEnd(Timing.CHANGE_DATA);
       if (isLocationChange) {
         this.reporting.changeFullyLoaded();
       }
@@ -2363,11 +2297,36 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   /**
+   * Determines whether or not the given change has a parent change. If there
+   * is a relation chain, and the change id is not the last item of the
+   * relation chain, there is a parent.
+   */
+  _calculateHasParent(
+    currentChangeId: ChangeId,
+    relatedChanges: RelatedChangeAndCommitInfo[]
+  ) {
+    return (
+      relatedChanges.length > 0 &&
+      relatedChanges[relatedChanges.length - 1].change_id !== currentChangeId
+    );
+  }
+
+  /**
    * Kicks off requests for resources that rely on the patch range
    * (`this._patchRange`) being defined.
    */
-  _reloadPatchNumDependentResources() {
-    return Promise.all([this._getCommitInfo(), this.$.fileList.reload()]);
+  _reloadPatchNumDependentResources(rightPatchNumChanged?: boolean) {
+    assertIsDefined(this._changeNum, '_changeNum');
+    if (!this._patchRange?.patchNum) throw new Error('missing patchNum');
+    const promises = [this._getCommitInfo(), this.$.fileList.reload()];
+    if (rightPatchNumChanged)
+      promises.push(
+        this.$.commentAPI.reloadPortedComments(
+          this._changeNum,
+          this._patchRange?.patchNum
+        )
+      );
+    return Promise.all(promises);
   }
 
   _getMergeability() {
@@ -2397,11 +2356,13 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
 
     this._mergeable = null;
-    return this.$.restAPI.getMergeable(this._changeNum).then(mergableInfo => {
-      if (mergableInfo) {
-        this._mergeable = mergableInfo.mergeable;
-      }
-    });
+    return this.restApiService
+      .getMergeable(this._changeNum)
+      .then(mergableInfo => {
+        if (mergableInfo) {
+          this._mergeable = mergableInfo.mergeable;
+        }
+      });
   }
 
   _computeCanStartReview(change: ChangeInfo) {
@@ -2420,19 +2381,6 @@ export class GrChangeView extends KeyboardShortcutMixin(
     return `Change ${changeNum}`;
   }
 
-  _computeCommitMessageCollapsed(collapsed?: boolean, collapsible?: boolean) {
-    return collapsible && collapsed;
-  }
-
-  _computeRelatedChangesClass(collapsed: boolean) {
-    return collapsed ? 'collapsed' : '';
-  }
-
-  _computeCollapseText(collapsed: boolean) {
-    // Symbols are up and down triangles.
-    return collapsed ? '\u25bc Show more' : '\u25b2 Show less';
-  }
-
   /**
    * Returns the text to be copied when
    * click the copy icon next to change subject
@@ -2445,130 +2393,11 @@ export class GrChangeView extends KeyboardShortcutMixin(
     );
   }
 
-  _toggleCommitCollapsed() {
-    this._commitCollapsed = !this._commitCollapsed;
-    if (this._commitCollapsed) {
-      window.scrollTo(0, 0);
-    }
-  }
-
-  _toggleRelatedChangesCollapsed() {
-    this._relatedChangesCollapsed = !this._relatedChangesCollapsed;
-    if (this._relatedChangesCollapsed) {
-      window.scrollTo(0, 0);
-    }
-  }
-
   _computeCommitCollapsible(commitMessage?: string) {
     if (!commitMessage) {
       return false;
     }
     return commitMessage.split('\n').length >= MIN_LINES_FOR_COMMIT_COLLAPSE;
-  }
-
-  _getOffsetHeight(element: HTMLElement) {
-    return element.offsetHeight;
-  }
-
-  _getScrollHeight(element: HTMLElement) {
-    return element.scrollHeight;
-  }
-
-  /**
-   * Get the line height of an element to the nearest integer.
-   */
-  _getLineHeight(element: Element) {
-    const lineHeightStr = getComputedStyle(element).lineHeight;
-    return Math.round(Number(lineHeightStr.slice(0, lineHeightStr.length - 2)));
-  }
-
-  /**
-   * New max height for the related changes section, shorter than the existing
-   * change info height.
-   */
-  _updateRelatedChangeMaxHeight() {
-    // Takes into account approximate height for the expand button and
-    // bottom margin.
-    const EXTRA_HEIGHT = 30;
-    let newHeight;
-
-    if (window.matchMedia(`(max-width: ${BREAKPOINT_RELATED_SMALL})`).matches) {
-      // In a small (mobile) view, give the relation chain some space.
-      newHeight = SMALL_RELATED_HEIGHT;
-    } else if (
-      window.matchMedia(`(max-width: ${BREAKPOINT_RELATED_MED})`).matches
-    ) {
-      // Since related changes are below the commit message, but still next to
-      // metadata, the height should be the height of the metadata minus the
-      // height of the commit message to reduce jank. However, if that doesn't
-      // result in enough space, instead use the MINIMUM_RELATED_MAX_HEIGHT.
-      // Note: extraHeight is to take into account margin/padding.
-      const medRelatedHeight = Math.max(
-        this._getOffsetHeight(this.$.mainChangeInfo) -
-          this._getOffsetHeight(this.$.commitMessage) -
-          2 * EXTRA_HEIGHT,
-        MINIMUM_RELATED_MAX_HEIGHT
-      );
-      newHeight = medRelatedHeight;
-    } else {
-      if (this._commitCollapsible) {
-        // Make sure the content is lined up if both areas have buttons. If
-        // the commit message is not collapsed, instead use the change info
-        // height.
-        newHeight = this._getOffsetHeight(this.$.commitMessage);
-      } else {
-        newHeight =
-          this._getOffsetHeight(this.$.commitAndRelated) - EXTRA_HEIGHT;
-      }
-    }
-    const stylesToUpdate: {[key: string]: string} = {};
-
-    // Get the line height of related changes, and convert it to the nearest
-    // integer.
-    const lineHeight = this._getLineHeight(this.$.relatedChanges);
-
-    // Figure out a new height that is divisible by the rounded line height.
-    const remainder = newHeight % lineHeight;
-    newHeight = newHeight - remainder;
-
-    stylesToUpdate['--relation-chain-max-height'] = `${newHeight}px`;
-
-    // Update the max-height of the relation chain to this new height.
-    if (this._commitCollapsible) {
-      stylesToUpdate['--related-change-btn-top-padding'] = `${remainder}px`;
-    }
-
-    this.updateStyles(stylesToUpdate);
-  }
-
-  _computeShowRelatedToggle() {
-    // Make sure the max height has been applied, since there is now content
-    // to populate.
-    if (!getComputedStyleValue('--relation-chain-max-height', this)) {
-      this._updateRelatedChangeMaxHeight();
-    }
-    // Prevents showMore from showing when click on related change, since the
-    // line height would be positive, but related changes height is 0.
-    if (!this._getScrollHeight(this.$.relatedChanges)) {
-      return (this._showRelatedToggle = false);
-    }
-
-    if (
-      this._getScrollHeight(this.$.relatedChanges) >
-      this._getOffsetHeight(this.$.relatedChanges) +
-        this._getLineHeight(this.$.relatedChanges)
-    ) {
-      return (this._showRelatedToggle = true);
-    }
-    return (this._showRelatedToggle = false);
-  }
-
-  _updateToggleContainerClass(showRelatedToggle: boolean) {
-    if (showRelatedToggle) {
-      this.$.relatedChangesToggle.classList.add('showToggle');
-    } else {
-      this.$.relatedChangesToggle.classList.remove('showToggle');
-    }
   }
 
   _startUpdateCheckTimer() {
@@ -2581,10 +2410,10 @@ export class GrChangeView extends KeyboardShortcutMixin(
       return;
     }
 
-    this._updateCheckTimerHandle = this.async(() => {
-      if (!this._change) throw new Error('missing required change property');
+    this._updateCheckTimerHandle = window.setTimeout(() => {
+      assertIsDefined(this._change, '_change');
       const change = this._change;
-      fetchChangeUpdates(change, this.$.restAPI).then(result => {
+      fetchChangeUpdates(change, this.restApiService).then(result => {
         let toastMessage = null;
         if (!result.isLatest) {
           toastMessage = ReloadToastMessage.NEWER_REVISION;
@@ -2596,6 +2425,9 @@ export class GrChangeView extends KeyboardShortcutMixin(
           toastMessage = ReloadToastMessage.RESTORED;
         } else if (result.newMessages) {
           toastMessage = ReloadToastMessage.NEW_MESSAGE;
+          if (result.newMessages.author?.name) {
+            toastMessage += ` from ${result.newMessages.author.name}`;
+          }
         }
 
         // We have to make sure that the update is still relevant for the user.
@@ -2610,11 +2442,12 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
         this._cancelUpdateCheckTimer();
         this.dispatchEvent(
-          new CustomEvent('show-alert', {
+          new CustomEvent<ShowAlertEventDetail>('show-alert', {
             detail: {
               message: toastMessage,
               // Persist this alert.
               dismissOnNavigation: true,
+              showDismiss: true,
               action: 'Reload',
               callback: () => {
                 this._reload(
@@ -2633,21 +2466,21 @@ export class GrChangeView extends KeyboardShortcutMixin(
 
   _cancelUpdateCheckTimer() {
     if (this._updateCheckTimerHandle) {
-      this.cancelAsync(this._updateCheckTimerHandle);
+      window.clearTimeout(this._updateCheckTimerHandle);
     }
     this._updateCheckTimerHandle = null;
   }
 
-  _handleVisibilityChange() {
+  private readonly handleVisibilityChange = () => {
     if (document.hidden && this._updateCheckTimerHandle) {
       this._cancelUpdateCheckTimer();
     } else if (!this._updateCheckTimerHandle) {
       this._startUpdateCheckTimer();
     }
-  }
+  };
 
   _handleTopicChanged() {
-    this.$.relatedChanges.reload();
+    this.getRelatedChangesList()?.reload();
   }
 
   _computeHeaderClass(editMode?: boolean) {
@@ -2677,16 +2510,16 @@ export class GrChangeView extends KeyboardShortcutMixin(
     }
 
     const patchRange = patchRangeRecord.base || {};
-    return patchNumEquals(patchRange.patchNum, EditPatchSetNum);
+    return patchRange.patchNum === EditPatchSetNum;
   }
 
   _handleFileActionTap(e: CustomEvent<{path: string; action: string}>) {
     e.preventDefault();
-    const controls = this.$.fileListHeader.shadowRoot!.querySelector(
+    const controls = this.$.fileListHeader.shadowRoot!.querySelector<GrEditControls>(
       '#editControls'
-    ) as GrEditControls | null;
+    );
     if (!controls) throw new Error('Missing edit controls');
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     const path = e.detail.path;
@@ -2721,7 +2554,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
     if (!this._selectedRevision) {
       return;
     }
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
 
     let patchNum: PatchSetNum;
     if (patchNumStr === 'edit') {
@@ -2761,10 +2594,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
       throw new Error('missing required _patchRange property');
     let patchNum;
     if (
-      !patchNumEquals(
-        this._patchRange.patchNum,
-        computeLatestPatchNum(this._allPatchSets)
-      )
+      !(this._patchRange.patchNum === computeLatestPatchNum(this._allPatchSets))
     ) {
       patchNum = this._patchRange.patchNum;
     }
@@ -2772,7 +2602,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _handleStopEditTap() {
-    if (!this._change) throw new Error('missing required change property');
+    assertIsDefined(this._change, '_change');
     if (!this._patchRange)
       throw new Error('missing required _patchRange property');
     GerritNav.navigateToChange(this._change, this._patchRange.patchNum);
@@ -2783,7 +2613,10 @@ export class GrChangeView extends KeyboardShortcutMixin(
   }
 
   _handleToggleStar(e: CustomEvent<{change: ChangeInfo; starred: boolean}>) {
-    this.$.restAPI.saveChangeStarred(e.detail.change._number, e.detail.starred);
+    this.restApiService.saveChangeStarred(
+      e.detail.change._number,
+      e.detail.starred
+    );
   }
 
   _getRevisionInfo(change: ChangeInfo | ParsedChangeInfo) {
@@ -2804,7 +2637,7 @@ export class GrChangeView extends KeyboardShortcutMixin(
   /**
    * Wrapper for using in the element template and computed properties
    */
-  _computeLatestPatchNum(allPatchSets: PatchSet[]) {
+  _computeLatestPatchNum(allPatchSets?: PatchSet[]) {
     return computeLatestPatchNum(allPatchSets);
   }
 
@@ -2836,6 +2669,12 @@ export class GrChangeView extends KeyboardShortcutMixin(
    */
   _computeAllPatchSets(change: ChangeInfo) {
     return computeAllPatchSets(change);
+  }
+
+  getRelatedChangesList() {
+    return this.shadowRoot!.querySelector<GrRelatedChangesList>(
+      '#relatedChanges'
+    );
   }
 }
 

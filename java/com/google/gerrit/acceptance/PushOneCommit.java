@@ -43,8 +43,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.jgit.api.TagCommand;
+import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit;
+import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
@@ -274,6 +279,36 @@ public class PushOneCommit {
   public PushOneCommit setParent(RevCommit parent) throws Exception {
     commitBuilder.noParents();
     commitBuilder.parent(parent);
+    return this;
+  }
+
+  public PushOneCommit addSymlink(String path, String target) throws Exception {
+    RevBlob blobId = testRepo.blob(target);
+    commitBuilder.edit(
+        new PathEdit(path) {
+          @Override
+          public void apply(DirCacheEntry ent) {
+            ent.setFileMode(FileMode.SYMLINK);
+            ent.setObjectId(blobId);
+          }
+        });
+    return this;
+  }
+
+  public PushOneCommit addGitSubmodule(String modulePath, ObjectId commitId) {
+    commitBuilder.edit(
+        new PathEdit(modulePath) {
+          @Override
+          public void apply(DirCacheEntry ent) {
+            ent.setFileMode(FileMode.GITLINK);
+            ent.setObjectId(commitId);
+          }
+        });
+    return this;
+  }
+
+  public PushOneCommit rmFile(String filename) {
+    commitBuilder.rm(filename);
     return this;
   }
 

@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
+import {
+  GrDiffLine as GrDiffLineApi,
+  GrDiffLineType,
+  LineNumber,
+} from '../../../api/diff';
+
+export {GrDiffLineType, LineNumber};
+
 export const FILE = 'FILE';
-export type LineNumber = number | 'FILE';
 
-export enum GrDiffLineType {
-  ADD = 'add',
-  BOTH = 'both',
-  BLANK = 'blank',
-  REMOVE = 'remove',
-}
-
-export class GrDiffLine {
+export class GrDiffLine implements GrDiffLineApi {
   constructor(
     readonly type: GrDiffLineType,
     public beforeNumber: LineNumber = 0,

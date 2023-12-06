@@ -18,9 +18,14 @@
 import '../../../test/common-test-setup-karma.js';
 import {IronOverlayManager} from '@polymer/iron-overlay-behavior/iron-overlay-manager.js';
 import './gr-reply-dialog.js';
-import {mockPromise} from '../../../test/test-utils.js';
+import {mockPromise, stubStorage} from '../../../test/test-utils.js';
 import {SpecialFilePath} from '../../../constants/constants.js';
 import {appContext} from '../../../services/app-context.js';
+import {addListenerForTest} from '../../../test/test-utils.js';
+import {stubRestApi} from '../../../test/test-utils.js';
+import {JSON_PREFIX} from '../../shared/gr-rest-api-interface/gr-rest-apis/gr-rest-api-helper.js';
+import {CODE_REVIEW} from '../../../utils/label-util.js';
+import {createAccountWithId} from '../../../test/test-data-generators.js';
 
 const basicFixture = fixtureFromElement('gr-reply-dialog');
 
@@ -60,12 +65,9 @@ suite('gr-reply-dialog tests', () => {
     changeNum = 42;
     patchNum = 1;
 
-    stub('gr-rest-api-interface', {
-      getConfig() { return Promise.resolve({}); },
-      getAccount() { return Promise.resolve({}); },
-      getChange() { return Promise.resolve({}); },
-      getChangeSuggestedReviewers() { return Promise.resolve([]); },
-    });
+    stubRestApi('getAccount').returns(Promise.resolve({}));
+    stubRestApi('getChange').returns(Promise.resolve({}));
+    stubRestApi('getChangeSuggestedReviewers').returns(Promise.resolve([]));
 
     sinon.stub(appContext.flagsService, 'isEnabled').returns(true);
 
@@ -111,10 +113,9 @@ suite('gr-reply-dialog tests', () => {
       ],
     };
 
-    getDraftCommentStub = sinon.stub(element.$.storage, 'getDraftComment');
-    setDraftCommentStub = sinon.stub(element.$.storage, 'setDraftComment');
-    eraseDraftCommentStub = sinon.stub(element.$.storage,
-        'eraseDraftComment');
+    getDraftCommentStub = stubStorage('getDraftComment');
+    setDraftCommentStub = stubStorage('setDraftComment');
+    eraseDraftCommentStub = stubStorage('eraseDraftComment');
 
     // sinon.stub(patchSetUtilMockProxy, 'fetchChangeUpdates')
     //     .returns(Promise.resolve({isLatest: true}));
@@ -130,8 +131,7 @@ suite('gr-reply-dialog tests', () => {
         .callsFake(review => new Promise((resolve, reject) => {
           try {
             const result = jsonResponseProducer(review) || {};
-            const resultStr =
-            element.$.restAPI.JSON_PREFIX + JSON.stringify(result);
+            const resultStr = JSON_PREFIX + JSON.stringify(result);
             resolve({
               ok: true,
               text() {
@@ -311,6 +311,39 @@ suite('gr-reply-dialog tests', () => {
     element._computeNewAttention(
         user, reviewers, [], change, [], true, labelsChanged);
     assert.sameMembers([...element._newAttentionSet], [2, 5]);
+  });
+
+  test('computeNewAttention when sending wip change for review', () => {
+    const reviewers = {base: [
+      {_account_id: 2},
+      {_account_id: 3},
+    ]};
+    const change = {
+      owner: {_account_id: 1},
+      status: 'NEW',
+      attention_set: {},
+    };
+    element.change = change;
+    element._reviewers = reviewers.base;
+    flush();
+
+    // For an active change there is no reason to add anyone to the set.
+    let user = {_account_id: 1};
+    element._computeNewAttention(user, reviewers, [], change, [], false);
+    assert.sameMembers([...element._newAttentionSet], []);
+
+    // If the change is "work in progress" and the owner sends a reply, then
+    // add all reviewers.
+    element.canBeStarted = true;
+    flush();
+    user = {_account_id: 1};
+    element._computeNewAttention(user, reviewers, [], change, [], false);
+    assert.sameMembers([...element._newAttentionSet], [2, 3]);
+
+    // ... but not when someone else replies.
+    user = {_account_id: 4};
+    element._computeNewAttention(user, reviewers, [], change, [], false);
+    assert.sameMembers([...element._newAttentionSet], []);
   });
 
   test('computeNewAttentionAccounts', () => {
@@ -576,7 +609,7 @@ suite('gr-reply-dialog tests', () => {
     return false;
   }
 
-  function testConfirmationDialog(done, cc) {
+  async function testConfirmationDialog(cc) {
     const yesButton = element
         .shadowRoot
         .querySelector('.reviewerConfirmationButtons gr-button:first-child');
@@ -618,95 +651,90 @@ suite('gr-reply-dialog tests', () => {
           element._pendingConfirmationDetails);
     }
 
-    observer
-        .then(() => {
-          assert.isTrue(isVisible(element.$.reviewerConfirmationOverlay));
-          observer = overlayObserver('closed');
-          const expected = 'Group name has 10 members';
-          assert.notEqual(
-              element.$.reviewerConfirmationOverlay.innerText
-                  .indexOf(expected),
-              -1);
-          MockInteractions.tap(noButton); // close the overlay
-          return observer;
-        }).then(() => {
-          assert.isFalse(isVisible(element.$.reviewerConfirmationOverlay));
+    await observer;
+    assert.isTrue(isVisible(element.$.reviewerConfirmationOverlay));
+    observer = overlayObserver('closed');
+    const expected = 'Group name has 10 members';
+    assert.notEqual(
+        element.$.reviewerConfirmationOverlay.innerText
+            .indexOf(expected),
+        -1);
+    MockInteractions.tap(noButton); // close the overlay
 
-          // We should be focused on account entry input.
-          assert.isTrue(
-              isFocusInsideElement(
-                  element.$.reviewers.$.entry.$.input.$.input
-              )
-          );
+    await observer;
+    assert.isFalse(isVisible(element.$.reviewerConfirmationOverlay));
 
-          // No reviewer/CC should have been added.
-          assert.equal(element.$.ccs.additions().length, 0);
-          assert.equal(element.$.reviewers.additions().length, 0);
+    // We should be focused on account entry input.
+    assert.isTrue(
+        isFocusInsideElement(
+            element.$.reviewers.$.entry.$.input.$.input
+        )
+    );
 
-          // Reopen confirmation dialog.
-          observer = overlayObserver('opened');
-          if (cc) {
-            element._ccPendingConfirmation = {
-              group,
-              count: 10,
-            };
-          } else {
-            element._reviewerPendingConfirmation = {
-              group,
-              count: 10,
-            };
-          }
-          return observer;
-        })
-        .then(() => {
-          assert.isTrue(isVisible(element.$.reviewerConfirmationOverlay));
-          observer = overlayObserver('closed');
-          MockInteractions.tap(yesButton); // Confirm the group.
-          return observer;
-        })
-        .then(() => {
-          assert.isFalse(isVisible(element.$.reviewerConfirmationOverlay));
-          const additions = cc ?
-            element.$.ccs.additions() :
-            element.$.reviewers.additions();
-          assert.deepEqual(
-              additions,
-              [
-                {
-                  group: {
-                    id: 'id',
-                    name: 'name',
-                    confirmed: true,
-                    _group: true,
-                    _pendingAdd: true,
-                  },
-                },
-              ]);
+    // No reviewer/CC should have been added.
+    assert.equal(element.$.ccs.additions().length, 0);
+    assert.equal(element.$.reviewers.additions().length, 0);
 
-          // We should be focused on account entry input.
-          if (cc) {
-            assert.isTrue(
-                isFocusInsideElement(
-                    element.$.ccs.$.entry.$.input.$.input
-                )
-            );
-          } else {
-            assert.isTrue(
-                isFocusInsideElement(
-                    element.$.reviewers.$.entry.$.input.$.input
-                )
-            );
-          }
-        })
-        .then(done);
+    // Reopen confirmation dialog.
+    observer = overlayObserver('opened');
+    if (cc) {
+      element._ccPendingConfirmation = {
+        group,
+        count: 10,
+      };
+    } else {
+      element._reviewerPendingConfirmation = {
+        group,
+        count: 10,
+      };
+    }
+
+    await observer;
+    assert.isTrue(isVisible(element.$.reviewerConfirmationOverlay));
+    observer = overlayObserver('closed');
+    MockInteractions.tap(yesButton); // Confirm the group.
+
+    await observer;
+    assert.isFalse(isVisible(element.$.reviewerConfirmationOverlay));
+    const additions = cc ?
+      element.$.ccs.additions() :
+      element.$.reviewers.additions();
+    assert.deepEqual(
+        additions,
+        [
+          {
+            group: {
+              id: 'id',
+              name: 'name',
+              confirmed: true,
+              _group: true,
+              _pendingAdd: true,
+            },
+          },
+        ]);
+
+    // We should be focused on account entry input.
+    if (cc) {
+      assert.isTrue(
+          isFocusInsideElement(
+              element.$.ccs.$.entry.$.input.$.input
+          )
+      );
+    } else {
+      assert.isTrue(
+          isFocusInsideElement(
+              element.$.reviewers.$.entry.$.input.$.input
+          )
+      );
+    }
   }
 
-  test('cc confirmation', done => {
-    testConfirmationDialog(done, true);
+  test('cc confirmation', async () => {
+    testConfirmationDialog(true);
   });
 
-  test('reviewer confirmation', done => {
-    testConfirmationDialog(done, false);
+  test('reviewer confirmation', async () => {
+    testConfirmationDialog(false);
   });
 
   test('_getStorageLocation', () => {
@@ -768,50 +796,57 @@ suite('gr-reply-dialog tests', () => {
     const location = element._getStorageLocation();
 
     element.draft = firstEdit;
-    element.flushDebouncer('store');
+    element.storeTask.flush();
 
     assert.isTrue(setDraftCommentStub.calledWith(location, firstEdit));
 
     element.draft = '';
-    element.flushDebouncer('store');
+    element.storeTask.flush();
 
     assert.isTrue(eraseDraftCommentStub.calledWith(location));
   });
 
-  test('400 converts to human-readable server-error', async () => {
-    sinon.stub(window, 'fetch').callsFake(() => {
-      const text = '....{"reviewers":{"id1":{"error":"human readable"}}}';
-      return Promise.resolve(cloneableResponse(400, text));
-    });
+  test('400 converts to human-readable server-error', done => {
+    stubRestApi('saveChangeReview').callsFake(
+        (changeNum, patchNum, review, errFn) => {
+          errFn(cloneableResponse(
+              400,
+              '....{"reviewers":{"id1":{"error":"human readable"}}}'
+          ));
+          return Promise.resolve(undefined);
+        }
+    );
 
-    let resolver;
-    const promise = new Promise(r => resolver = r);
-    element.addEventListener('server-error', resolver);
+    const listener = event => {
+      if (event.target !== document) return;
+      event.detail.response.text().then(body => {
+        if (body === 'human readable') {
+          done();
+        }
+      });
+    };
+    addListenerForTest(document, 'server-error', listener);
 
-    await flush();
-    element.send();
-
-    const event = await promise;
-    assert.equal(event.target, element);
-    const text = await event.detail.response.text();
-    assert.equal(text, 'human readable');
+    flush(() => { element.send(); });
   });
 
   test('non-json 400 is treated as a normal server-error', done => {
-    sinon.stub(window, 'fetch').callsFake(() => {
-      const text = 'Comment validation error!';
-      return Promise.resolve(cloneableResponse(400, text));
-    });
+    stubRestApi('saveChangeReview').callsFake(
+        (changeNum, patchNum, review, errFn) => {
+          errFn(cloneableResponse(400, 'Comment validation error!'));
+          return Promise.resolve(undefined);
+        }
+    );
 
-    element.addEventListener('server-error', event => {
-      if (event.target !== element) {
-        return;
-      }
+    const listener = event => {
+      if (event.target !== document) return;
       event.detail.response.text().then(body => {
-        assert.equal(body, 'Comment validation error!');
-        done();
+        if (body === 'Comment validation error!') {
+          done();
+        }
       });
-    });
+    };
+    addListenerForTest(document, 'server-error', listener);
 
     // Async tick is needed because iron-selector content is distributed and
     // distributed content requires an observer to be set up.
@@ -847,42 +882,37 @@ suite('gr-reply-dialog tests', () => {
     assert.isFalse(filter({group: cc2}));
   });
 
-  test('_focusOn', () => {
+  test('_focusOn', async () => {
     sinon.spy(element, '_chooseFocusTarget');
-    flush();
-    const textareaStub = sinon.stub(element.$.textarea, 'async');
-    const reviewerEntryStub = sinon.stub(element.$.reviewers.focusStart,
-        'async');
-    const ccStub = sinon.stub(element.$.ccs.focusStart, 'async');
     element._focusOn();
+    await flush();
     assert.equal(element._chooseFocusTarget.callCount, 1);
-    assert.deepEqual(textareaStub.callCount, 1);
-    assert.deepEqual(reviewerEntryStub.callCount, 0);
-    assert.deepEqual(ccStub.callCount, 0);
+    assert.equal(element.shadowRoot.activeElement.tagName, 'GR-TEXTAREA');
+    assert.equal(element.shadowRoot.activeElement.id, 'textarea');
 
     element._focusOn(element.FocusTarget.ANY);
+    await flush();
     assert.equal(element._chooseFocusTarget.callCount, 2);
-    assert.deepEqual(textareaStub.callCount, 2);
-    assert.deepEqual(reviewerEntryStub.callCount, 0);
-    assert.deepEqual(ccStub.callCount, 0);
+    assert.equal(element.shadowRoot.activeElement.tagName, 'GR-TEXTAREA');
+    assert.equal(element.shadowRoot.activeElement.id, 'textarea');
 
     element._focusOn(element.FocusTarget.BODY);
+    await flush();
     assert.equal(element._chooseFocusTarget.callCount, 2);
-    assert.deepEqual(textareaStub.callCount, 3);
-    assert.deepEqual(reviewerEntryStub.callCount, 0);
-    assert.deepEqual(ccStub.callCount, 0);
+    assert.equal(element.shadowRoot.activeElement.tagName, 'GR-TEXTAREA');
+    assert.equal(element.shadowRoot.activeElement.id, 'textarea');
 
     element._focusOn(element.FocusTarget.REVIEWERS);
+    await flush();
     assert.equal(element._chooseFocusTarget.callCount, 2);
-    assert.deepEqual(textareaStub.callCount, 3);
-    assert.deepEqual(reviewerEntryStub.callCount, 1);
-    assert.deepEqual(ccStub.callCount, 0);
+    assert.equal(element.shadowRoot.activeElement.tagName, 'GR-ACCOUNT-LIST');
+    assert.equal(element.shadowRoot.activeElement.id, 'reviewers');
 
     element._focusOn(element.FocusTarget.CCS);
+    await flush();
     assert.equal(element._chooseFocusTarget.callCount, 2);
-    assert.deepEqual(textareaStub.callCount, 3);
-    assert.deepEqual(reviewerEntryStub.callCount, 1);
-    assert.deepEqual(ccStub.callCount, 1);
+    assert.equal(element.shadowRoot.activeElement.tagName, 'GR-ACCOUNT-LIST');
+    assert.equal(element.shadowRoot.activeElement.id, 'ccs');
   });
 
   test('_chooseFocusTarget', () => {
@@ -960,8 +990,8 @@ suite('gr-reply-dialog tests', () => {
       };
     };
     const checkObjEmpty = function(obj) {
-      for (const prop in obj) {
-        if (obj.hasOwnProperty(prop) && obj[prop].length) { return false; }
+      for (const prop of Object.keys(obj)) {
+        if (obj[prop].length) { return false; }
       }
       return true;
     };
@@ -977,7 +1007,7 @@ suite('gr-reply-dialog tests', () => {
   });
 
   test('_removeAccount', done => {
-    sinon.stub(element.$.restAPI, 'removeChangeReviewer')
+    stubRestApi('removeChangeReviewer')
         .returns(Promise.resolve({ok: true}));
     const arr = [makeAccount(), makeAccount()];
     element.change.reviewers = {
@@ -1235,7 +1265,7 @@ suite('gr-reply-dialog tests', () => {
         'Send and Start review');
   });
 
-  test('_handle400Error reviewrs and CCs', done => {
+  test('_handle400Error reviewers and CCs', done => {
     const error1 = 'error 1';
     const error2 = 'error 2';
     const error3 = 'error 3';
@@ -1255,12 +1285,13 @@ suite('gr-reply-dialog tests', () => {
         },
       },
     });
-    element.addEventListener('server-error', e => {
+    const listener = e => {
       e.detail.response.text().then(text => {
         assert.equal(text, [error1, error2, error3].join(', '));
         done();
       });
-    });
+    };
+    addListenerForTest(document, 'server-error', listener);
     element._handle400Error(cloneableResponse(400, text));
   });
 
@@ -1274,36 +1305,6 @@ suite('gr-reply-dialog tests', () => {
       flush(() => {
         assert.isTrue(autoGrowHandler.called);
         done();
-      });
-    });
-  });
-
-  suite('post review API', () => {
-    let startReviewStub;
-
-    setup(() => {
-      startReviewStub = sinon.stub(
-          element.$.restAPI,
-          'startReview')
-          .callsFake(() => Promise.resolve());
-    });
-
-    test('ready property in review input on start review', () => {
-      stubSaveReview(review => {
-        assert.isTrue(review.ready);
-        return {ready: true};
-      });
-      return element.send(true, true).then(() => {
-        assert.isFalse(startReviewStub.called);
-      });
-    });
-
-    test('no ready property in review input on save review', () => {
-      stubSaveReview(review => {
-        assert.isUndefined(review.ready);
-      });
-      return element.send(true, false).then(() => {
-        assert.isFalse(startReviewStub.called);
       });
     });
   });
@@ -1366,38 +1367,36 @@ suite('gr-reply-dialog tests', () => {
     });
 
     suite('pending diff drafts?', () => {
-      test('yes', () => {
+      test('yes', async () => {
         const promise = mockPromise();
-        const refreshHandler = sinon.stub();
+        const refreshSpy = sinon.spy();
+        element.addEventListener('comment-refresh', refreshSpy);
+        stubRestApi('hasPendingDiffDrafts').returns(true);
+        stubRestApi('awaitPendingDiffDrafts').returns(promise);
 
-        element.addEventListener('comment-refresh', refreshHandler);
-        sinon.stub(element.$.restAPI, 'hasPendingDiffDrafts').returns(true);
-        element.$.restAPI._pendingRequests.sendDiffDraft = [promise];
         element.open();
 
-        assert.isFalse(refreshHandler.called);
+        assert.isFalse(refreshSpy.called);
         assert.isTrue(element._savingComments);
 
         promise.resolve();
+        await flush();
 
-        return element.$.restAPI.awaitPendingDiffDrafts().then(() => {
-          assert.isTrue(refreshHandler.called);
-          assert.isFalse(element._savingComments);
-        });
+        assert.isTrue(refreshSpy.called);
+        assert.isFalse(element._savingComments);
       });
 
       test('no', () => {
-        sinon.stub(element.$.restAPI, 'hasPendingDiffDrafts').returns(false);
+        stubRestApi('hasPendingDiffDrafts').returns(false);
         element.open();
-        assert.notOk(element._savingComments);
+        assert.isFalse(element._savingComments);
       });
     });
   });
 
   test('_computeSendButtonDisabled_canBeStarted', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock canBeStarted
-    assert.isFalse(fn(
+    assert.isFalse(element._computeSendButtonDisabled(
         /* canBeStarted= */ true,
         /* draftCommentThreads= */ [],
         /* text= */ '',
@@ -1405,14 +1404,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_allFalse', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock everything false
-    assert.isTrue(fn(
+    assert.isTrue(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ [],
         /* text= */ '',
@@ -1420,14 +1420,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_draftCommentsSend', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock nonempty comment draft array, with sending comments.
-    assert.isFalse(fn(
+    assert.isFalse(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ [{comments: [{__draft: true}]}],
         /* text= */ '',
@@ -1435,14 +1436,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ true,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_draftCommentsDoNotSend', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock nonempty comment draft array, without sending comments.
-    assert.isTrue(fn(
+    assert.isTrue(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ [{comments: [{__draft: true}]}],
         /* text= */ '',
@@ -1450,14 +1452,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_changeMessage', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock nonempty change message.
-    assert.isFalse(fn(
+    assert.isFalse(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ {},
         /* text= */ 'test',
@@ -1465,14 +1468,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_reviewersChanged', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock reviewers mutated.
-    assert.isFalse(fn(
+    assert.isFalse(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ {},
         /* text= */ '',
@@ -1480,14 +1484,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ false,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_labelsChanged', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Mock labels changed.
-    assert.isFalse(fn(
+    assert.isFalse(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ {},
         /* text= */ '',
@@ -1495,14 +1500,15 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ true,
         /* includeComments= */ false,
         /* disabled= */ false,
-        /* commentEditing= */ false
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
   test('_computeSendButtonDisabled_dialogDisabled', () => {
-    const fn = element._computeSendButtonDisabled.bind(element);
     // Whole dialog is disabled.
-    assert.isTrue(fn(
+    assert.isTrue(element._computeSendButtonDisabled(
         /* canBeStarted= */ false,
         /* draftCommentThreads= */ {},
         /* text= */ '',
@@ -1510,27 +1516,40 @@ suite('gr-reply-dialog tests', () => {
         /* labelsChanged= */ true,
         /* includeComments= */ false,
         /* disabled= */ true,
-        /* commentEditing= */ false
-    ));
-    assert.isTrue(fn(
-        /* buttonLabel= */ 'Send',
-        /* draftCommentThreads= */ {},
-        /* text= */ '',
-        /* reviewersMutated= */ false,
-        /* labelsChanged= */ true,
-        /* includeComments= */ false,
-        /* disabled= */ false,
-        /* commentEditing= */ true
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ makeAccount()
     ));
   });
 
-  test('_submit blocked when no mutations exist', () => {
+  test('_computeSendButtonDisabled_existingVote', async () => {
+    const account = createAccountWithId();
+    element.change.labels[CODE_REVIEW].all = [account];
+    await flush();
+
+    // User has already voted.
+    assert.isFalse(element._computeSendButtonDisabled(
+        /* canBeStarted= */ false,
+        /* draftCommentThreads= */ {},
+        /* text= */ '',
+        /* reviewersMutated= */ false,
+        /* labelsChanged= */ false,
+        /* includeComments= */ false,
+        /* disabled= */ false,
+        /* commentEditing= */ false,
+        /* change= */ element.change,
+        /* account= */ account
+    ));
+  });
+
+  test('_submit blocked when no mutations exist', async () => {
     const sendStub = sinon.stub(element, 'send').returns(Promise.resolve());
     // Stub the below function to avoid side effects from the send promise
     // resolving.
     sinon.stub(element, '_purgeReviewersPendingRemove');
+    element.account = makeAccount();
     element.draftCommentThreads = [];
-    flush();
+    await flush();
 
     MockInteractions.tap(element.shadowRoot
         .querySelector('gr-button.send'));
@@ -1539,21 +1558,26 @@ suite('gr-reply-dialog tests', () => {
     element.draftCommentThreads = [{comments: [
       {__draft: true, path: 'test', line: 1, patch_set: 1},
     ]}];
-    flush();
+    await flush();
 
     MockInteractions.tap(element.shadowRoot
         .querySelector('gr-button.send'));
     assert.isTrue(sendStub.called);
   });
 
-  test('getFocusStops', () => {
+  test('getFocusStops', async () => {
     // Setting draftCommentThreads to an empty object causes _sendDisabled to be
     // computed to false.
     element.draftCommentThreads = [];
+    element.account = makeAccount();
+    await flush();
+
     assert.equal(element.getFocusStops().end, element.$.cancelButton);
-    element.draftCommentThreads = [{comments: [
-      {__draft: true, path: 'test', line: 1, patch_set: 1},
-    ]}];
+    element.draftCommentThreads = [
+      {comments: [{__draft: true, path: 'test', line: 1, patch_set: 1}]},
+    ];
+    await flush();
+
     assert.equal(element.getFocusStops().end, element.$.sendButton);
   });
 

@@ -21,9 +21,19 @@ import {
   RobotCommentInfo,
   Timestamp,
   UrlEncodedCommentId,
+  CommentRange,
+  PatchRange,
+  ParentPatchSetNum,
+  ContextLine,
+  BasePatchSetNum,
+  RevisionPatchSetNum,
 } from '../types/common';
-import {CommentSide, Side} from '../constants/constants';
+import {CommentSide, Side, SpecialFilePath} from '../constants/constants';
 import {parseDate} from './date-util';
+import {LineNumber} from '../elements/diff/gr-diff/gr-diff-line';
+import {CommentIdToCommentThreadMap} from '../elements/diff/gr-comment-api/gr-comment-api';
+import {isMergeParent, getParentIndex} from './patch-set-util';
+import {DiffInfo} from '../types/diff';
 
 export interface DraftCommentProps {
   __draft?: boolean;
@@ -39,19 +49,14 @@ export type DraftInfo = CommentBasics & DraftCommentProps;
 export type Comment = DraftInfo | CommentInfo | RobotCommentInfo;
 
 export interface UIStateCommentProps {
-  // The `side` of the comment is PARENT or REVISION, but this is LEFT or RIGHT.
-  // TODO(TS): Remove the naming confusion of commentSide being of type of Side,
-  // but side being of type CommentSide. :-)
-  __commentSide?: Side;
-  // TODO(TS): Remove this. Seems to be exactly the same as `path`??
-  __path?: string;
   collapsed?: boolean;
-  // TODO(TS): Consider allowing this only for drafts.
-  __editing?: boolean;
-  __otherEditing?: boolean;
 }
 
-export type UIDraft = DraftInfo & UIStateCommentProps;
+export interface UIStateDraftProps {
+  __editing?: boolean;
+}
+
+export type UIDraft = DraftInfo & UIStateCommentProps & UIStateDraftProps;
 
 export type UIHuman = CommentInfo & UIStateCommentProps;
 
@@ -97,17 +102,74 @@ export function sortComments<T extends SortableComment>(comments: T[]): T[] {
   });
 }
 
+export function createCommentThreads(
+  comments: UIComment[],
+  patchRange?: PatchRange
+) {
+  const sortedComments = sortComments(comments);
+  const threads: CommentThread[] = [];
+  const idThreadMap: CommentIdToCommentThreadMap = {};
+  for (const comment of sortedComments) {
+    if (!comment.id) continue;
+    // If the comment is in reply to another comment, find that comment's
+    // thread and append to it.
+    if (comment.in_reply_to) {
+      const thread = idThreadMap[comment.in_reply_to];
+      if (thread) {
+        thread.comments.push(comment);
+        idThreadMap[comment.id] = thread;
+        continue;
+      }
+    }
+
+    // Otherwise, this comment starts its own thread.
+    if (!comment.path) {
+      throw new Error('Comment missing required "path".');
+    }
+    const newThread: CommentThread = {
+      comments: [comment],
+      patchNum: comment.patch_set,
+      commentSide: comment.side ?? CommentSide.REVISION,
+      mergeParentNum: comment.parent,
+      path: comment.path,
+      line: comment.line,
+      range: comment.range,
+      rootId: comment.id,
+    };
+    if (patchRange) {
+      if (isInBaseOfPatchRange(comment, patchRange))
+        newThread.diffSide = Side.LEFT;
+      else if (isInRevisionOfPatchRange(comment, patchRange))
+        newThread.diffSide = Side.RIGHT;
+      else throw new Error('comment does not belong in given patchrange');
+    }
+    if (!comment.line && !comment.range) {
+      newThread.line = 'FILE';
+    }
+    threads.push(newThread);
+    idThreadMap[comment.id] = newThread;
+  }
+  return threads;
+}
+
 export interface CommentThread {
   comments: UIComment[];
-  patchNum?: PatchSetNum;
   path: string;
-  // TODO(TS): It would be nice to use LineNumber here, but the comment thread
-  // element actually relies on line to be undefined for file comments. Be
-  // aware of element attribute getters and setters, if you try to refactor
-  // this. :-) Still worthwhile to do ...
-  line?: number;
-  rootId: UrlEncodedCommentId;
-  commentSide?: CommentSide;
+  commentSide: CommentSide;
+  /* mergeParentNum is the merge parent number only valid for merge commits
+     when commentSide is PARENT.
+     mergeParentNum is undefined for auto merge commits
+  */
+  mergeParentNum?: number;
+  patchNum?: PatchSetNum;
+  line?: LineNumber;
+  /* rootId is optional since we create a empty comment thread element for
+     drafts and then create the draft which becomes the root */
+  rootId?: UrlEncodedCommentId;
+  diffSide?: Side;
+  range?: CommentRange;
+  ported?: boolean; // is the comment ported over from a previous patchset
+  rangeInfoLost?: boolean; // if BE was unable to determine a range for this
 }
 
 export function getLastComment(thread?: CommentThread): UIComment | undefined {
@@ -115,10 +177,156 @@ export function getLastComment(thread?: CommentThread): UIComment | undefined {
   return thread && len ? thread.comments[len - 1] : undefined;
 }
 
+export function getFirstComment(thread?: CommentThread): UIComment | undefined {
+  return thread?.comments?.[0];
+}
+
+export function countComments(thread?: CommentThread) {
+  return thread?.comments?.length ?? 0;
+}
+
+export function isPatchsetLevel(thread?: CommentThread): boolean {
+  return thread?.path === SpecialFilePath.PATCHSET_LEVEL_COMMENTS;
+}
+
 export function isUnresolved(thread?: CommentThread): boolean {
-  return !!getLastComment(thread)?.unresolved;
+  return !isResolved(thread);
+}
+
+export function isResolved(thread?: CommentThread): boolean {
+  return !getLastComment(thread)?.unresolved;
 }
 
 export function isDraftThread(thread?: CommentThread): boolean {
   return isDraft(getLastComment(thread));
+}
+
+export function isRobotThread(thread?: CommentThread): boolean {
+  return isRobot(getFirstComment(thread));
+}
+
+export function hasHumanReply(thread?: CommentThread): boolean {
+  return countComments(thread) > 1 && !isRobot(getLastComment(thread));
+}
+
+/**
+ * Whether the given comment should be included in the base side of the
+ * given patch range.
+ */
+export function isInBaseOfPatchRange(
+  comment: CommentBasics,
+  range: PatchRange
+) {
+  // If the base of the patch range is a parent of a merge, and the comment
+  // appears on a specific parent then only show the comment if the parent
+  // index of the comment matches that of the range.
+  if (comment.parent && comment.side === CommentSide.PARENT) {
+    return (
+      isMergeParent(range.basePatchNum) &&
+      comment.parent === getParentIndex(range.basePatchNum)
+    );
+  }
+
+  // If the base of the range is the parent of the patch:
+  if (
+    range.basePatchNum === ParentPatchSetNum &&
+    comment.side === CommentSide.PARENT &&
+    comment.patch_set === range.patchNum
+  ) {
+    return true;
+  }
+  // If the base of the range is not the parent of the patch:
+  return (
+    range.basePatchNum !== ParentPatchSetNum &&
+    comment.side !== CommentSide.PARENT &&
+    comment.patch_set === range.basePatchNum
+  );
+}
+
+/**
+ * Whether the given comment should be included in the revision side of the
+ * given patch range.
+ */
+export function isInRevisionOfPatchRange(
+  comment: CommentBasics,
+  range: PatchRange
+) {
+  return (
+    comment.side !== CommentSide.PARENT && comment.patch_set === range.patchNum
+  );
+}
+
+/**
+ * Whether the given comment should be included in the given patch range.
+ */
+export function isInPatchRange(
+  comment: CommentBasics,
+  range: PatchRange
+): boolean {
+  return (
+    isInBaseOfPatchRange(comment, range) ||
+    isInRevisionOfPatchRange(comment, range)
+  );
+}
+
+export function getPatchRangeForCommentUrl(
+  comment: UIComment,
+  latestPatchNum: RevisionPatchSetNum
+) {
+  if (!comment.patch_set) throw new Error('Missing comment.patch_set');
+
+  // TODO(dhruvsri): Add handling for comment left on parents of merge commits
+  if (comment.side === CommentSide.PARENT) {
+    if (comment.patch_set === ParentPatchSetNum)
+      throw new Error('diffSide cannot be PARENT');
+    return {
+      patchNum: comment.patch_set as RevisionPatchSetNum,
+      basePatchNum: ParentPatchSetNum,
+    };
+  } else if (latestPatchNum === comment.patch_set) {
+    return {
+      patchNum: latestPatchNum,
+      basePatchNum: ParentPatchSetNum,
+    };
+  } else {
+    return {
+      patchNum: latestPatchNum as RevisionPatchSetNum,
+      basePatchNum: comment.patch_set as BasePatchSetNum,
+    };
+  }
+}
+
+export function computeDiffFromContext(
+  context: ContextLine[],
+  path: string,
+  content_type?: string
+) {
+  // do not render more than 20 lines of context
+  context = context.slice(0, 20);
+  const diff: DiffInfo = {
+    meta_a: {
+      name: '',
+      content_type: '',
+      lines: 0,
+      web_links: [],
+    },
+    meta_b: {
+      name: path,
+      content_type: content_type || '',
+      lines: context.length + context?.[0].line_number,
+      web_links: [],
+    },
+    change_type: 'MODIFIED',
+    intraline_status: 'OK',
+    diff_header: [],
+    content: [
+      {
+        skip: context[0].line_number - 1,
+      },
+      {
+        b: context.map(line => line.context_line),
+      },
+    ],
+  };
+  return diff;
 }

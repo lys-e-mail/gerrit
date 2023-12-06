@@ -16,8 +16,6 @@
  */
 import '../gr-autocomplete/gr-autocomplete';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-labeled-autocomplete_html';
 import {customElement, property} from '@polymer/decorators';
@@ -32,9 +30,7 @@ export interface GrLabeledAutocomplete {
   };
 }
 @customElement('gr-labeled-autocomplete')
-export class GrLabeledAutocomplete extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrLabeledAutocomplete extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }

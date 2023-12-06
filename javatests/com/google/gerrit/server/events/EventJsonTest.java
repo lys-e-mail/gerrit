@@ -52,9 +52,42 @@ public class EventJsonTest {
 
   private final Gson gson = new EventGsonProvider().get();
 
+  static class CustomEvent extends Event {
+    static String TYPE = "custom-type";
+
+    public String customField;
+
+    protected CustomEvent() {
+      super(TYPE);
+    }
+  }
+
   @Before
   public void setTimeForTesting() {
     TestTimeUtil.resetWithClockStep(1, TimeUnit.SECONDS);
+  }
+
+  @Test
+  public void customEvent() {
+    CustomEvent event = new CustomEvent();
+    event.customField = "customValue";
+    String json = gson.toJson(event);
+    CustomEvent resullt = gson.fromJson(json, CustomEvent.class);
+    assertThat(resullt.type).isEqualTo(CustomEvent.TYPE);
+    assertThat(resullt.customField).isEqualTo(event.customField);
+  }
+
+  @Test
+  public void customEventSimulateClassloaderIssue() {
+    EventTypes.register(CustomEvent.TYPE, CustomEvent.class);
+    CustomEvent event = new CustomEvent();
+    event.customField = "customValue";
+    // Need to serialise using the Event interface instead of json.getClass()
+    // for simulating the serialisation of an object owned by another class loader
+    String json = gson.toJson(event, Event.class);
+    CustomEvent resullt = gson.fromJson(json, CustomEvent.class);
+    assertThat(resullt.type).isEqualTo(CustomEvent.TYPE);
+    assertThat(resullt.customField).isEqualTo(event.customField);
   }
 
   @Test

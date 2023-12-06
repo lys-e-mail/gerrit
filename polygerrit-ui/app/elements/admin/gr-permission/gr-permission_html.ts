@@ -93,7 +93,7 @@ export const htmlTemplate = html`
               checked="{{permission.value.exclusive}}"
               on-change="_handleValueChange"
               disabled$="[[!editing]]"
-              on-tap="_onTapExclusiveToggle"
+              on-click="_onTapExclusiveToggle"
             ></paper-toggle-button
             >Exclusive
           </template>
@@ -140,5 +140,4 @@ export const htmlTemplate = html`
     </div>
     <!-- end deletedContainer -->
   </section>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

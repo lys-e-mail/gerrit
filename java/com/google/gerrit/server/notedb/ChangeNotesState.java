@@ -47,7 +47,6 @@ import com.google.gerrit.entities.SubmitRecord;
 import com.google.gerrit.entities.converter.ChangeMessageProtoConverter;
 import com.google.gerrit.entities.converter.PatchSetApprovalProtoConverter;
 import com.google.gerrit.entities.converter.PatchSetProtoConverter;
-import com.google.gerrit.entities.converter.ProtoConverter;
 import com.google.gerrit.json.OutputFormat;
 import com.google.gerrit.proto.Protos;
 import com.google.gerrit.server.AssigneeStatusUpdate;
@@ -65,8 +64,6 @@ import com.google.gerrit.server.cache.serialize.CacheSerializer;
 import com.google.gerrit.server.cache.serialize.ObjectIdConverter;
 import com.google.gerrit.server.index.change.ChangeField.StoredSubmitRecord;
 import com.google.gson.Gson;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.MessageLite;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -81,9 +78,15 @@ import org.eclipse.jgit.lib.ObjectId;
  * <p>One instance is the output of a single {@link ChangeNotesParser}, and contains types required
  * to support public methods on {@link ChangeNotes}. It is intended to be cached in-process.
  *
+ * <p>When new fields are added to the {@link ChangeNotesState}, {@link
+ * ChangeNotesCache.Weigher#weigh} should be updated.
+ *
  * <p>Note that {@link ChangeNotes} contains more than just a single {@code ChangeNoteState}, such
  * as per-draft information, so that class is not cached directly.
  */
+// TODO(paiking): This class should be refactored to get rid of potentially duplicate or unneeded
+// variables, such as allAttentionSetUpdates, reviewerUpdates, and others.
+
 @AutoValue
 public abstract class ChangeNotesState {
 
@@ -120,6 +123,7 @@ public abstract class ChangeNotesState {
       List<Account.Id> allPastReviewers,
       List<ReviewerStatusUpdate> reviewerUpdates,
       Set<AttentionSetUpdate> attentionSetUpdates,
+      List<AttentionSetUpdate> allAttentionSetUpdates,
       List<AssigneeStatusUpdate> assigneeUpdates,
       List<SubmitRecord> submitRecords,
       List<ChangeMessage> changeMessages,
@@ -129,7 +133,8 @@ public abstract class ChangeNotesState {
       boolean reviewStarted,
       @Nullable Change.Id revertOf,
       @Nullable PatchSet.Id cherryPickOf,
-      int updateCount) {
+      int updateCount,
+      @Nullable Timestamp mergedOn) {
     requireNonNull(
         metaId,
         () ->
@@ -171,11 +176,13 @@ public abstract class ChangeNotesState {
         .allPastReviewers(allPastReviewers)
         .reviewerUpdates(reviewerUpdates)
         .attentionSet(attentionSetUpdates)
+        .allAttentionSetUpdates(allAttentionSetUpdates)
         .assigneeUpdates(assigneeUpdates)
         .submitRecords(submitRecords)
         .changeMessages(changeMessages)
         .publishedComments(publishedComments)
         .updateCount(updateCount)
+        .mergedOn(mergedOn)
         .build();
   }
 
@@ -305,8 +312,11 @@ public abstract class ChangeNotesState {
 
   abstract ImmutableList<ReviewerStatusUpdate> reviewerUpdates();
 
-  /** Returns the most recent update (i.e. current status status) per user. */
+  /** Returns the most recent update (i.e. current status) per user. */
   abstract ImmutableSet<AttentionSetUpdate> attentionSet();
+
+  /** Returns all attention set updates. */
+  abstract ImmutableList<AttentionSetUpdate> allAttentionSetUpdates();
 
   abstract ImmutableList<AssigneeStatusUpdate> assigneeUpdates();
 
@@ -317,6 +327,9 @@ public abstract class ChangeNotesState {
   abstract ImmutableListMultimap<ObjectId, HumanComment> publishedComments();
 
   abstract int updateCount();
+
+  @Nullable
+  abstract Timestamp mergedOn();
 
   Change newChange(Project.NameKey project) {
     ChangeColumns c = requireNonNull(columns(), "columns are required");
@@ -386,6 +399,7 @@ public abstract class ChangeNotesState {
           .allPastReviewers(ImmutableList.of())
           .reviewerUpdates(ImmutableList.of())
           .attentionSet(ImmutableSet.of())
+          .allAttentionSetUpdates(ImmutableList.of())
           .assigneeUpdates(ImmutableList.of())
           .submitRecords(ImmutableList.of())
           .changeMessages(ImmutableList.of())
@@ -421,6 +435,8 @@ public abstract class ChangeNotesState {
 
     abstract Builder attentionSet(Set<AttentionSetUpdate> attentionSetUpdates);
 
+    abstract Builder allAttentionSetUpdates(List<AttentionSetUpdate> attentionSetUpdates);
+
     abstract Builder assigneeUpdates(List<AssigneeStatusUpdate> assigneeUpdates);
 
     abstract Builder submitRecords(List<SubmitRecord> submitRecords);
@@ -431,9 +447,14 @@ public abstract class ChangeNotesState {
 
     abstract Builder updateCount(int updateCount);
 
+    abstract Builder mergedOn(Timestamp mergedOn);
+
     abstract ChangeNotesState build();
   }
 
+  /**
+   * Convert ChangeNotesState (which is AutoValue based) to byte[] and back, using protocol buffers.
+   */
   enum Serializer implements CacheSerializer<ChangeNotesState> {
     INSTANCE;
 
@@ -461,13 +482,11 @@ public abstract class ChangeNotesState {
       object.hashtags().forEach(b::addHashtag);
       object
           .patchSets()
-          .forEach(e -> b.addPatchSet(toByteString(e.getValue(), PatchSetProtoConverter.INSTANCE)));
+          .forEach(e -> b.addPatchSet(PatchSetProtoConverter.INSTANCE.toProto(e.getValue())));
       object
           .approvals()
           .forEach(
-              e ->
-                  b.addApproval(
-                      toByteString(e.getValue(), PatchSetApprovalProtoConverter.INSTANCE)));
+              e -> b.addApproval(PatchSetApprovalProtoConverter.INSTANCE.toProto(e.getValue())));
 
       object.reviewers().asTable().cellSet().forEach(c -> b.addReviewer(toReviewerSetEntry(c)));
       object
@@ -489,23 +508,24 @@ public abstract class ChangeNotesState {
       object.allPastReviewers().forEach(a -> b.addPastReviewer(a.get()));
       object.reviewerUpdates().forEach(u -> b.addReviewerUpdate(toReviewerStatusUpdateProto(u)));
       object.attentionSet().forEach(u -> b.addAttentionSetUpdate(toAttentionSetUpdateProto(u)));
+      object
+          .allAttentionSetUpdates()
+          .forEach(u -> b.addAllAttentionSetUpdate(toAttentionSetUpdateProto(u)));
       object.assigneeUpdates().forEach(u -> b.addAssigneeUpdate(toAssigneeStatusUpdateProto(u)));
       object
           .submitRecords()
           .forEach(r -> b.addSubmitRecord(GSON.toJson(new StoredSubmitRecord(r))));
       object
           .changeMessages()
-          .forEach(m -> b.addChangeMessage(toByteString(m, ChangeMessageProtoConverter.INSTANCE)));
+          .forEach(m -> b.addChangeMessage(ChangeMessageProtoConverter.INSTANCE.toProto(m)));
       object.publishedComments().values().forEach(c -> b.addPublishedComment(GSON.toJson(c)));
       b.setUpdateCount(object.updateCount());
+      if (object.mergedOn() != null) {
+        b.setMergedOnMillis(object.mergedOn().getTime());
+        b.setHasMergedOn(true);
+      }
 
       return Protos.toByteArray(b.build());
-    }
-
-    @VisibleForTesting
-    static <T> ByteString toByteString(T object, ProtoConverter<?, T> converter) {
-      MessageLite message = converter.toProto(object);
-      return Protos.toByteString(message);
     }
 
     private static ChangeColumnsProto toChangeColumnsProto(ChangeColumns cols) {
@@ -607,12 +627,12 @@ public abstract class ChangeNotesState {
               .hashtags(proto.getHashtagList())
               .patchSets(
                   proto.getPatchSetList().stream()
-                      .map(bytes -> parseProtoFrom(PatchSetProtoConverter.INSTANCE, bytes))
+                      .map(msg -> PatchSetProtoConverter.INSTANCE.fromProto(msg))
                       .map(ps -> Maps.immutableEntry(ps.id(), ps))
                       .collect(toImmutableList()))
               .approvals(
                   proto.getApprovalList().stream()
-                      .map(bytes -> parseProtoFrom(PatchSetApprovalProtoConverter.INSTANCE, bytes))
+                      .map(msg -> PatchSetApprovalProtoConverter.INSTANCE.fromProto(msg))
                       .map(a -> Maps.immutableEntry(a.patchSetId(), a))
                       .collect(toImmutableList()))
               .reviewers(toReviewerSet(proto.getReviewerList()))
@@ -623,6 +643,8 @@ public abstract class ChangeNotesState {
                   proto.getPastReviewerList().stream().map(Account::id).collect(toImmutableList()))
               .reviewerUpdates(toReviewerStatusUpdateList(proto.getReviewerUpdateList()))
               .attentionSet(toAttentionSetUpdates(proto.getAttentionSetUpdateList()))
+              .allAttentionSetUpdates(
+                  toAllAttentionSetUpdates(proto.getAllAttentionSetUpdateList()))
               .assigneeUpdates(toAssigneeStatusUpdateList(proto.getAssigneeUpdateList()))
               .submitRecords(
                   proto.getSubmitRecordList().stream()
@@ -630,20 +652,15 @@ public abstract class ChangeNotesState {
                       .collect(toImmutableList()))
               .changeMessages(
                   proto.getChangeMessageList().stream()
-                      .map(bytes -> parseProtoFrom(ChangeMessageProtoConverter.INSTANCE, bytes))
+                      .map(msg -> ChangeMessageProtoConverter.INSTANCE.fromProto(msg))
                       .collect(toImmutableList()))
               .publishedComments(
                   proto.getPublishedCommentList().stream()
                       .map(r -> GSON.fromJson(r, HumanComment.class))
                       .collect(toImmutableListMultimap(HumanComment::getCommitId, c -> c)))
-              .updateCount(proto.getUpdateCount());
+              .updateCount(proto.getUpdateCount())
+              .mergedOn(proto.getHasMergedOn() ? new Timestamp(proto.getMergedOnMillis()) : null);
       return b.build();
-    }
-
-    private static <P extends MessageLite, T> T parseProtoFrom(
-        ProtoConverter<P, T> converter, ByteString byteString) {
-      P message = Protos.parseUnchecked(converter.getParser(), byteString);
-      return converter.fromProto(message);
     }
 
     private static ChangeColumns toChangeColumns(Change.Id changeId, ChangeColumnsProto proto) {
@@ -724,6 +741,20 @@ public abstract class ChangeNotesState {
     private static ImmutableSet<AttentionSetUpdate> toAttentionSetUpdates(
         List<AttentionSetUpdateProto> protos) {
       ImmutableSet.Builder<AttentionSetUpdate> b = ImmutableSet.builder();
+      for (AttentionSetUpdateProto proto : protos) {
+        b.add(
+            AttentionSetUpdate.createFromRead(
+                Instant.ofEpochMilli(proto.getTimestampMillis()),
+                Account.id(proto.getAccount()),
+                AttentionSetUpdate.Operation.valueOf(proto.getOperation()),
+                proto.getReason()));
+      }
+      return b.build();
+    }
+
+    private static ImmutableList<AttentionSetUpdate> toAllAttentionSetUpdates(
+        List<AttentionSetUpdateProto> protos) {
+      ImmutableList.Builder<AttentionSetUpdate> b = ImmutableList.builder();
       for (AttentionSetUpdateProto proto : protos) {
         b.add(
             AttentionSetUpdate.createFromRead(

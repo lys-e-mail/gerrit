@@ -17,27 +17,18 @@
 import '@polymer/iron-input/iron-input';
 import '../../shared/gr-avatar/gr-avatar';
 import '../../shared/gr-date-formatter/gr-date-formatter';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/gr-form-styles';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-account-info_html';
 import {customElement, property, observe} from '@polymer/decorators';
 import {AccountInfo, ServerInfo} from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {EditableAccountField} from '../../../constants/constants';
+import {appContext} from '../../../services/app-context';
+import {fireEvent} from '../../../utils/event-util';
 
-export interface GrAccountInfo {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-account-info')
-export class GrAccountInfo extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAccountInfo extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -101,21 +92,23 @@ export class GrAccountInfo extends GestureEventListeners(
   @property({type: String})
   _avatarChangeUrl = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
     const promises = [];
 
     this._loading = true;
 
     promises.push(
-      this.$.restAPI.getConfig().then(config => {
+      this.restApiService.getConfig().then(config => {
         this._serverConfig = config;
       })
     );
 
-    promises.push(this.$.restAPI.invalidateAccountsDetailCache());
+    promises.push(this.restApiService.invalidateAccountsDetailCache());
 
     promises.push(
-      this.$.restAPI.getAccount().then(account => {
+      this.restApiService.getAccount().then(account => {
         if (!account) return;
         this._hasNameChange = false;
         this._hasUsernameChange = false;
@@ -130,7 +123,7 @@ export class GrAccountInfo extends GestureEventListeners(
     );
 
     promises.push(
-      this.$.restAPI.getAvatarChangeUrl().then(url => {
+      this.restApiService.getAvatarChangeUrl().then(url => {
         this._avatarChangeUrl = url || '';
       })
     );
@@ -157,12 +150,7 @@ export class GrAccountInfo extends GestureEventListeners(
         this._hasDisplayNameChange = false;
         this._hasStatusChange = false;
         this._saving = false;
-        this.dispatchEvent(
-          new CustomEvent('account-detail-update', {
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireEvent(this, 'account-detail-update');
       });
   }
 
@@ -170,7 +158,7 @@ export class GrAccountInfo extends GestureEventListeners(
     // Note that we are intentionally not acting on this._account.name being the
     // empty string (which is falsy).
     return this._hasNameChange && this.nameMutable && this._account?.name
-      ? this.$.restAPI.setAccountName(this._account.name)
+      ? this.restApiService.setAccountName(this._account.name)
       : Promise.resolve();
   }
 
@@ -178,20 +166,20 @@ export class GrAccountInfo extends GestureEventListeners(
     // Note that we are intentionally not acting on this._username being the
     // empty string (which is falsy).
     return this._hasUsernameChange && this.usernameMutable && this._username
-      ? this.$.restAPI.setAccountUsername(this._username)
+      ? this.restApiService.setAccountUsername(this._username)
       : Promise.resolve();
   }
 
   _maybeSetDisplayName() {
     return this._hasDisplayNameChange &&
       this._account?.display_name !== undefined
-      ? this.$.restAPI.setAccountDisplayName(this._account.display_name)
+      ? this.restApiService.setAccountDisplayName(this._account.display_name)
       : Promise.resolve();
   }
 
   _maybeSetStatus() {
     return this._hasStatusChange && this._account?.status !== undefined
-      ? this.$.restAPI.setAccountStatus(this._account.status)
+      ? this.restApiService.setAccountStatus(this._account.status)
       : Promise.resolve();
   }
 

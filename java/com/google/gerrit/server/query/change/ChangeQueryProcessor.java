@@ -17,7 +17,6 @@ package com.google.gerrit.server.query.change;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.gerrit.server.query.change.ChangeQueryBuilder.FIELD_LIMIT;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.extensions.common.PluginDefinedInfo;
@@ -33,10 +32,8 @@ import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.DynamicOptions;
 import com.google.gerrit.server.DynamicOptions.DynamicBean;
 import com.google.gerrit.server.account.AccountLimits;
-import com.google.gerrit.server.change.ChangeAttributeFactory;
 import com.google.gerrit.server.change.ChangePluginDefinedInfoFactory;
 import com.google.gerrit.server.change.PluginDefinedAttributesFactories;
-import com.google.gerrit.server.change.PluginDefinedAttributesFactory;
 import com.google.gerrit.server.change.PluginDefinedInfosFactory;
 import com.google.gerrit.server.index.change.ChangeIndexCollection;
 import com.google.gerrit.server.index.change.ChangeIndexRewriter;
@@ -61,12 +58,12 @@ import java.util.Set;
 public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
     implements DynamicOptions.BeanReceiver, DynamicOptions.BeanProvider, PluginDefinedInfosFactory {
   private final Provider<CurrentUser> userProvider;
-  private final ImmutableListMultimap<String, ChangeAttributeFactory> attributeFactoriesByPlugin;
   private final ChangeIsVisibleToPredicate.Factory changeIsVisibleToPredicateFactory;
   private final Map<String, DynamicBean> dynamicBeans = new HashMap<>();
   private final List<Extension<ChangePluginDefinedInfoFactory>>
       changePluginDefinedInfoFactoriesByPlugin = new ArrayList<>();
   private final Sequences sequences;
+  private final IndexConfig indexConfig;
 
   static {
     // It is assumed that basic rewrites do not touch visibleto predicates.
@@ -83,7 +80,6 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
       IndexConfig indexConfig,
       ChangeIndexCollection indexes,
       ChangeIndexRewriter rewriter,
-      DynamicSet<ChangeAttributeFactory> attributeFactories,
       Sequences sequences,
       ChangeIsVisibleToPredicate.Factory changeIsVisibleToPredicateFactory,
       DynamicSet<ChangePluginDefinedInfoFactory> changePluginDefinedInfoFactories) {
@@ -98,15 +94,8 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
     this.userProvider = userProvider;
     this.changeIsVisibleToPredicateFactory = changeIsVisibleToPredicateFactory;
     this.sequences = sequences;
+    this.indexConfig = indexConfig;
 
-    ImmutableListMultimap.Builder<String, ChangeAttributeFactory> factoriesBuilder =
-        ImmutableListMultimap.builder();
-    ImmutableListMultimap.Builder<String, ChangePluginDefinedInfoFactory> infosFactoriesBuilder =
-        ImmutableListMultimap.builder();
-    // Eagerly call Extension#get() rather than storing Extensions, since that method invokes the
-    // Provider on every call, which could be expensive if we invoke it once for every change.
-    attributeFactories.entries().forEach(e -> factoriesBuilder.put(e.getPluginName(), e.get()));
-    attributeFactoriesByPlugin = factoriesBuilder.build();
     changePluginDefinedInfoFactories
         .entries()
         .forEach(e -> changePluginDefinedInfoFactoriesByPlugin.add(e));
@@ -120,8 +109,14 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
 
   @Override
   protected QueryOptions createOptions(
-      IndexConfig indexConfig, int start, int limit, Set<String> requestedFields) {
-    return IndexedChangeQuery.createOptions(indexConfig, start, limit, requestedFields);
+      IndexConfig indexConfig,
+      int start,
+      int pageSize,
+      int pageSizeMultiplier,
+      int limit,
+      Set<String> requestedFields) {
+    return IndexedChangeQuery.createOptions(
+        indexConfig, start, pageSize, pageSizeMultiplier, limit, requestedFields);
   }
 
   @Override
@@ -132,18 +127,6 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
   @Override
   public DynamicBean getDynamicBean(String plugin) {
     return dynamicBeans.get(plugin);
-  }
-
-  public PluginDefinedAttributesFactory getAttributesFactory() {
-    return this::buildPluginInfo;
-  }
-
-  private ImmutableList<PluginDefinedInfo> buildPluginInfo(ChangeData cd) {
-    return PluginDefinedAttributesFactories.createAll(
-        cd,
-        this,
-        attributeFactoriesByPlugin.entries().stream()
-            .map(e -> new Extension<>(e.getKey(), e::getValue)));
   }
 
   public PluginDefinedInfosFactory getInfosFactory() {
@@ -160,7 +143,7 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
   @Override
   protected Predicate<ChangeData> enforceVisibility(Predicate<ChangeData> pred) {
     return new AndChangeSource(
-        pred, changeIsVisibleToPredicateFactory.forUser(userProvider.get()), start);
+        pred, changeIsVisibleToPredicateFactory.forUser(userProvider.get()), start, indexConfig);
   }
 
   @Override
@@ -176,5 +159,10 @@ public class ChangeQueryProcessor extends QueryProcessor<ChangeData>
   @Override
   protected int getBatchSize() {
     return sequences.changeBatchSize();
+  }
+
+  @Override
+  protected int getInitialPageSize(int limit) {
+    return Math.min(getUserQueryLimit().getAsInt(), limit);
   }
 }

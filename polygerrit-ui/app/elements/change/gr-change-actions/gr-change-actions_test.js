@@ -21,10 +21,14 @@ import {dom} from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation.js';
 import {getPluginLoader} from '../../shared/gr-js-api-interface/gr-plugin-loader.js';
 import {
+  createAccountWithId,
+  createApproval,
   createChange,
   createChangeMessages,
   createRevisions,
 } from '../../../test/test-data-generators.js';
+import {ChangeStatus} from '../../../constants/constants.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-change-actions');
 
@@ -38,56 +42,50 @@ suite('gr-change-actions tests', () => {
 
   suite('basic tests', () => {
     setup(() => {
-      stub('gr-rest-api-interface', {
-        getChangeRevisionActions() {
+      stubRestApi('getChangeRevisionActions').returns(Promise.resolve({
+        cherrypick: {
+          method: 'POST',
+          label: 'Cherry Pick',
+          title: 'Cherry pick change to a different branch',
+          enabled: true,
+        },
+        rebase: {
+          method: 'POST',
+          label: 'Rebase',
+          title: 'Rebase onto tip of branch or parent change',
+          enabled: true,
+        },
+        submit: {
+          method: 'POST',
+          label: 'Submit',
+          title: 'Submit patch set 2 into master',
+          enabled: true,
+        },
+        revert_submission: {
+          method: 'POST',
+          label: 'Revert submission',
+          title: 'Revert this submission',
+          enabled: true,
+        },
+      }));
+      stubRestApi('send').callsFake((method, url, payload) => {
+        if (method !== 'POST') {
+          return Promise.reject(new Error('bad method'));
+        }
+        if (url === '/changes/test~42/revisions/2/submit') {
           return Promise.resolve({
-            cherrypick: {
-              method: 'POST',
-              label: 'Cherry Pick',
-              title: 'Cherry pick change to a different branch',
-              enabled: true,
-            },
-            rebase: {
-              method: 'POST',
-              label: 'Rebase',
-              title: 'Rebase onto tip of branch or parent change',
-              enabled: true,
-            },
-            submit: {
-              method: 'POST',
-              label: 'Submit',
-              title: 'Submit patch set 2 into master',
-              enabled: true,
-            },
-            revert_submission: {
-              method: 'POST',
-              label: 'Revert submission',
-              title: 'Revert this submission',
-              enabled: true,
-            },
+            ok: true,
+            text() { return Promise.resolve(')]}\'\n{}'); },
           });
-        },
-        send(method, url, payload) {
-          if (method !== 'POST') {
-            return Promise.reject(new Error('bad method'));
-          }
-
-          if (url === '/changes/test~42/revisions/2/submit') {
-            return Promise.resolve({
-              ok: true,
-              text() { return Promise.resolve(')]}\'\n{}'); },
-            });
-          } else if (url === '/changes/test~42/revisions/2/rebase') {
-            return Promise.resolve({
-              ok: true,
-              text() { return Promise.resolve(')]}\'\n{}'); },
-            });
-          }
-
-          return Promise.reject(new Error('bad url'));
-        },
-        getProjectConfig() { return Promise.resolve({}); },
+        } else if (url === '/changes/test~42/revisions/2/rebase') {
+          return Promise.resolve({
+            ok: true,
+            text() { return Promise.resolve(')]}\'\n{}'); },
+          });
+        }
+        return Promise.reject(new Error('bad url'));
       });
+      stubRestApi('getProjectConfig').returns(Promise.resolve({}));
 
       sinon.stub(getPluginLoader(), 'awaitPluginsLoaded')
           .returns(Promise.resolve());
@@ -104,10 +102,10 @@ suite('gr-change-actions tests', () => {
           enabled: true,
         },
       };
-      sinon.stub(element.$.confirmCherrypick.$.restAPI,
-          'getRepoBranches').returns(Promise.resolve([]));
-      sinon.stub(element.$.confirmMove.$.restAPI,
-          'getRepoBranches').returns(Promise.resolve([]));
+      element.account = {
+        _account_id: 123,
+      };
+      stubRestApi('getRepoBranches').returns(Promise.resolve([]));
 
       return element.reload();
     });
@@ -143,14 +141,14 @@ suite('gr-change-actions tests', () => {
     });
 
     test('plugin revision actions', done => {
-      sinon.stub(element.$.restAPI, 'getChangeActionURL').returns(
+      const stub = stubRestApi('getChangeActionURL').returns(
           Promise.resolve('the-url'));
       element.revisionActions = {
         'plugin~action': {},
       };
       assert.isOk(element.revisionActions['plugin~action']);
       flush(() => {
-        assert.isTrue(element.$.restAPI.getChangeActionURL.calledWith(
+        assert.isTrue(stub.calledWith(
             element.changeNum, element.latestPatchNum, '/plugin~action'));
         assert.equal(element.revisionActions['plugin~action'].__url, 'the-url');
         done();
@@ -158,14 +156,14 @@ suite('gr-change-actions tests', () => {
     });
 
     test('plugin change actions', async () => {
-      sinon.stub(element.$.restAPI, 'getChangeActionURL').returns(
+      const stub = stubRestApi('getChangeActionURL').returns(
           Promise.resolve('the-url'));
       element.actions = {
         'plugin~action': {},
       };
       assert.isOk(element.actions['plugin~action']);
       await flush();
-      assert.isTrue(element.$.restAPI.getChangeActionURL.calledWith(
+      assert.isTrue(stub.calledWith(
           element.changeNum, undefined, '/plugin~action'));
       assert.equal(element.actions['plugin~action'].__url, 'the-url');
     });
@@ -253,7 +251,7 @@ suite('gr-change-actions tests', () => {
           rev2: revObj,
         },
       };
-      assert.deepEqual(element._getRevision(change, '2'), revObj);
+      assert.deepEqual(element._getRevision(change, 2), revObj);
     });
 
     test('_actionComparator sort order', () => {
@@ -273,7 +271,7 @@ suite('gr-change-actions tests', () => {
 
     test('submit change', () => {
       const showSpy = sinon.spy(element, '_showActionDialog');
-      sinon.stub(element.$.restAPI, 'getFromProjectLookup')
+      stubRestApi('getFromProjectLookup')
           .returns(Promise.resolve('test'));
       sinon.stub(element.$.overlay, 'open').returns(Promise.resolve());
       element.change = {
@@ -295,7 +293,7 @@ suite('gr-change-actions tests', () => {
 
     test('submit change, tap on icon', done => {
       sinon.stub(element.$.confirmSubmitDialog, 'resetFocus').callsFake( done);
-      sinon.stub(element.$.restAPI, 'getFromProjectLookup')
+      stubRestApi('getFromProjectLookup')
           .returns(Promise.resolve('test'));
       sinon.stub(element.$.overlay, 'open').returns(Promise.resolve());
       element.change = {
@@ -399,7 +397,7 @@ suite('gr-change-actions tests', () => {
 
     test('rebase change fires reload event', done => {
       const eventStub = sinon.stub(element, 'dispatchEvent');
-      sinon.stub(element.$.restAPI, 'getResponseObject').returns(
+      stubRestApi('getResponseObject').returns(
           Promise.resolve({}));
       element._handleResponse({__key: 'rebase'}, {});
       flush(() => {
@@ -429,24 +427,21 @@ suite('gr-change-actions tests', () => {
       });
     });
 
-    test('two dialogs are not shown at the same time', done => {
+    test('two dialogs are not shown at the same time', async () => {
       element._hasKnownChainState = true;
-      flush(() => {
-        const rebaseButton = element.shadowRoot
-            .querySelector('gr-button[data-action-key="rebase"]');
-        assert.ok(rebaseButton);
-        MockInteractions.tap(rebaseButton);
-        flush();
-        assert.isFalse(element.$.confirmRebase.hidden);
-        sinon.stub(element.$.restAPI, 'getChanges')
-            .returns(Promise.resolve([]));
-        element._handleCherrypickTap();
-        flush(() => {
-          assert.isTrue(element.$.confirmRebase.hidden);
-          assert.isFalse(element.$.confirmCherrypick.hidden);
-          done();
-        });
-      });
+      await flush();
+      const rebaseButton = element.shadowRoot
+          .querySelector('gr-button[data-action-key="rebase"]');
+      assert.ok(rebaseButton);
+      MockInteractions.tap(rebaseButton);
+      await flush();
+      assert.isFalse(element.$.confirmRebase.hidden);
+      stubRestApi('getChanges')
+          .returns(Promise.resolve([]));
+      element._handleCherrypickTap();
+      await flush();
+      assert.isTrue(element.$.confirmRebase.hidden);
+      assert.isFalse(element.$.confirmCherrypick.hidden);
     });
 
     test('fullscreen-overlay-opened hides content', () => {
@@ -469,16 +464,16 @@ suite('gr-change-actions tests', () => {
       assert.isFalse(element.$.mainContent.classList.contains('overlayOpen'));
     });
 
-    test('_setLabelValuesOnRevert', () => {
-      const labels = {'Foo': 1, 'Bar-Baz': -2};
+    test('_setReviewOnRevert', () => {
+      const review = {labels: {'Foo': 1, 'Bar-Baz': -2}};
       const changeId = 1234;
-      sinon.stub(element.$.jsAPI, 'getLabelValuesPostRevert').returns(labels);
-      const saveStub = sinon.stub(element.$.restAPI, 'saveChangeReview')
+      sinon.stub(element.jsAPI, 'getReviewPostRevert').returns(review);
+      const saveStub = stubRestApi('saveChangeReview')
           .returns(Promise.resolve());
-      return element._setLabelValuesOnRevert(changeId).then(() => {
+      return element._setReviewOnRevert(changeId).then(() => {
         assert.isTrue(saveStub.calledOnce);
         assert.equal(saveStub.lastCall.args[0], changeId);
-        assert.deepEqual(saveStub.lastCall.args[2], {labels});
+        assert.deepEqual(saveStub.lastCall.args[2], review);
       });
     });
 
@@ -740,15 +735,15 @@ suite('gr-change-actions tests', () => {
         const changes = [
           {
             change_id: '12345678901234', topic: 'T', subject: 'random',
-            project: 'A',
+            project: 'A', status: 'MERGED',
           },
           {
             change_id: '23456', topic: 'T', subject: 'a'.repeat(100),
-            project: 'B',
+            project: 'B', status: 'NEW',
           },
         ];
         setup(done => {
-          sinon.stub(element.$.restAPI, 'getChanges')
+          stubRestApi('getChanges')
               .returns(Promise.resolve(changes));
           element._handleCherrypickTap();
           flush(() => {
@@ -767,8 +762,8 @@ suite('gr-change-actions tests', () => {
           flush(() => {
             const changesTable = dialog.shadowRoot.querySelector('table');
             const headers = Array.from(changesTable.querySelectorAll('th'));
-            const expectedHeadings = ['Change', 'Subject', 'Project',
-              'Status', ''];
+            const expectedHeadings = ['', 'Change', 'Status', 'Subject',
+              'Project', 'Progress', ''];
             const headings = headers.map(header => header.innerText);
             assert.equal(headings.length, expectedHeadings.length);
             for (let i = 0; i < headings.length; i++) {
@@ -777,7 +772,7 @@ suite('gr-change-actions tests', () => {
             const changeRows = changesTable.querySelectorAll('tbody > tr');
             const change = Array.from(changeRows[0].querySelectorAll('td'))
                 .map(e => e.innerText);
-            const expectedChange = ['1234567890', 'random', 'A',
+            const expectedChange = ['', '1234567890', 'MERGED', 'random', 'A',
               'NOT STARTED', ''];
             for (let i = 0; i < change.length; i++) {
               assert.equal(change[i].trim(), expectedChange[i]);
@@ -994,7 +989,7 @@ suite('gr-change-actions tests', () => {
         element.change = {
           current_revision: 'abc1234',
         };
-        sinon.stub(element.$.restAPI, 'getChanges')
+        stubRestApi('getChanges')
             .returns(Promise.resolve([
               {change_id: '12345678901234', topic: 'T', subject: 'random'},
               {change_id: '23456', topic: 'T', subject: 'a'.repeat(100)},
@@ -1019,7 +1014,7 @@ suite('gr-change-actions tests', () => {
             submission_id: '199 0',
             current_revision: '2000',
           };
-          getChangesStub = sinon.stub(element.$.restAPI, 'getChanges')
+          getChangesStub = stubRestApi('getChanges')
               .returns(Promise.resolve([
                 {change_id: '12345678901234', topic: 'T', subject: 'random'},
                 {change_id: '23456', topic: 'T', subject: 'a'.repeat(100)},
@@ -1129,7 +1124,7 @@ suite('gr-change-actions tests', () => {
             submission_id: '199',
             current_revision: '2000',
           };
-          sinon.stub(element.$.restAPI, 'getChanges')
+          stubRestApi('getChanges')
               .returns(Promise.resolve([
                 {change_id: '12345678901234', topic: 'T', subject: 'random'},
               ]));
@@ -1529,9 +1524,6 @@ suite('gr-change-actions tests', () => {
       setup(() => {
         element.change = {
           current_revision: 'abc1234',
-        };
-        element.change = {
-          current_revision: 'abc1234',
           labels: {
             foo: {
               values: {
@@ -1576,6 +1568,16 @@ suite('gr-change-actions tests', () => {
         const approveButton = element.$.secondaryActions
             .querySelector('gr-button');
         assert.equal(approveButton.getAttribute('data-label'), 'foo+1');
+      });
+
+      test('not added when change is merged', () => {
+        element.change.status = ChangeStatus.MERGED;
+        flush(() => {
+          const approveButton =
+          element.shadowRoot
+              .querySelector('gr-button[data-action-key=\'review\']');
+          assert.isNull(approveButton);
+        });
       });
 
       test('not added when already approved', () => {
@@ -1627,23 +1629,52 @@ suite('gr-change-actions tests', () => {
         assert.deepEqual(payload.labels, {foo: 1});
       });
 
-      test('not added when multiple labels are required', () => {
+      test('not added when multiple labels are required without code review',
+          () => {
+            element.change = {
+              current_revision: 'abc1234',
+              labels: {
+                foo: {values: {}},
+                bar: {values: {}},
+              },
+              permitted_labels: {
+                foo: [' 0', '+1'],
+                bar: [' 0', '+1', '+2'],
+              },
+            };
+            flush();
+            const approveButton =
+            element.shadowRoot
+                .querySelector('gr-button[data-action-key=\'review\']');
+            assert.isNull(approveButton);
+          });
+
+      test('code review shown with multiple missing approval', () => {
         element.change = {
           current_revision: 'abc1234',
           labels: {
-            foo: {values: {}},
-            bar: {values: {}},
+            'foo': {values: {}},
+            'bar': {values: {}},
+            'Code-Review': {
+              approved: {},
+              values: {
+                ' 0': '',
+                '+1': '',
+                '+2': '',
+              },
+            },
           },
           permitted_labels: {
-            foo: [' 0', '+1'],
-            bar: [' 0', '+1', '+2'],
+            'foo': [' 0', '+1'],
+            'bar': [' 0', '+1', '+2'],
+            'Code-Review': [' 0', '+1', '+2'],
           },
         };
         flush();
         const approveButton =
             element.shadowRoot
                 .querySelector('gr-button[data-action-key=\'review\']');
-        assert.isNull(approveButton);
+        assert.isOk(approveButton);
       });
 
       test('button label for missing approval', () => {
@@ -1717,6 +1748,87 @@ suite('gr-change-actions tests', () => {
                 .querySelector('gr-button[data-action-key=\'review\']');
         assert.equal(approveButton.getAttribute('data-label'), 'bar+2');
       });
+
+      test('added when can approve an already-approved code review label',
+          () => {
+            element.change = {
+              current_revision: 'abc1234',
+              labels: {
+                'Code-Review': {
+                  approved: {},
+                  values: {
+                    ' 0': '',
+                    '+1': '',
+                    '+2': '',
+                  },
+                },
+              },
+              permitted_labels: {
+                'Code-Review': [' 0', '+1', '+2'],
+              },
+            };
+            flush();
+            const approveButton =
+                element.shadowRoot
+                    .querySelector('gr-button[data-action-key=\'review\']');
+            assert.isNotNull(approveButton);
+          });
+
+      test('not added when the user has already approved', () => {
+        const vote = {
+          ...createApproval(),
+          _account_id: 123,
+          name: 'name',
+          value: 2,
+        };
+        element.change = {
+          current_revision: 'abc1234',
+          labels: {
+            'Code-Review': {
+              approved: {},
+              values: {
+                ' 0': '',
+                '+1': '',
+                '+2': '',
+              },
+              all: [vote],
+            },
+          },
+          permitted_labels: {
+            'Code-Review': [' 0', '+1', '+2'],
+          },
+        };
+        flush();
+        const approveButton =
+            element.shadowRoot
+                .querySelector('gr-button[data-action-key=\'review\']');
+        assert.isNull(approveButton);
+      });
+
+      test('not added when user owns the change', () => {
+        element.change = {
+          current_revision: 'abc1234',
+          owner: createAccountWithId(123),
+          labels: {
+            'Code-Review': {
+              approved: {},
+              values: {
+                ' 0': '',
+                '+1': '',
+                '+2': '',
+              },
+            },
+          },
+          permitted_labels: {
+            'Code-Review': [' 0', '+1', '+2'],
+          },
+        };
+        flush();
+        const approveButton =
+            element.shadowRoot
+                .querySelector('gr-button[data-action-key=\'review\']');
+        assert.isNull(approveButton);
+      });
     });
 
     test('adds download revision action', () => {
@@ -1771,8 +1883,9 @@ suite('gr-change-actions tests', () => {
       });
 
       suite('_waitForChangeReachable', () => {
+        let clock;
         setup(() => {
-          sinon.stub(element, 'async').callsFake( fn => fn());
+          clock = sinon.useFakeTimers();
         });
 
         const makeGetChange = numTries => () => {
@@ -1784,20 +1897,27 @@ suite('gr-change-actions tests', () => {
           }
         };
 
-        test('succeed', () => {
-          sinon.stub(element.$.restAPI, 'getChange')
-              .callsFake( makeGetChange(5));
-          return element._waitForChangeReachable(123).then(success => {
-            assert.isTrue(success);
-          });
+        const tickAndFlush = async repetitions => {
+          for (let i = 1; i <= repetitions; i++) {
+            clock.tick(1000);
+            await flush();
+          }
+        };
+
+        test('succeed', async () => {
+          stubRestApi('getChange').callsFake(makeGetChange(5));
+          const promise = element._waitForChangeReachable(123);
+          tickAndFlush(5);
+          const success = await promise;
+          assert.isTrue(success);
         });
 
-        test('fail', () => {
-          sinon.stub(element.$.restAPI, 'getChange')
-              .callsFake( makeGetChange(6));
-          return element._waitForChangeReachable(123).then(success => {
-            assert.isFalse(success);
-          });
+        test('fail', async () => {
+          stubRestApi('getChange').callsFake(makeGetChange(6));
+          const promise = element._waitForChangeReachable(123);
+          tickAndFlush(6);
+          const success = await promise;
+          assert.isFalse(success);
         });
       });
     });
@@ -1830,16 +1950,16 @@ suite('gr-change-actions tests', () => {
       suite('happy path', () => {
         let sendStub;
         setup(() => {
-          sinon.stub(element.$.restAPI, 'getChangeDetail')
+          stubRestApi('getChangeDetail')
               .returns(Promise.resolve({
                 ...createChange(),
                 // element has latest info
                 revisions: createRevisions(element.latestPatchNum),
                 messages: createChangeMessages(1),
               }));
-          sendStub = sinon.stub(element.$.restAPI, 'executeChangeAction')
+          sendStub = stubRestApi('executeChangeAction')
               .returns(Promise.resolve({}));
-          getResponseObjectStub = sinon.stub(element.$.restAPI,
+          getResponseObjectStub = stubRestApi(
               'getResponseObject');
           sinon.stub(GerritNav,
               'navigateToChange').returns(Promise.resolve(true));
@@ -1857,7 +1977,7 @@ suite('gr-change-actions tests', () => {
           setup(() => {
             element.change.submission_id = '199';
             element.change.current_revision = '2000';
-            sinon.stub(element.$.restAPI, 'getChanges')
+            stubRestApi('getChanges')
                 .returns(Promise.resolve([
                   {change_id: '12345678901234', topic: 'T', subject: 'random'},
                   {change_id: '23456', topic: 'T', subject: 'a'.repeat(100)},
@@ -1949,14 +2069,14 @@ suite('gr-change-actions tests', () => {
 
       suite('failure modes', () => {
         test('non-latest', () => {
-          sinon.stub(element.$.restAPI, 'getChangeDetail')
+          stubRestApi('getChangeDetail')
               .returns(Promise.resolve({
                 ...createChange(),
                 // new patchset was uploaded
                 revisions: createRevisions(element.latestPatchNum + 1),
                 messages: createChangeMessages(1),
               }));
-          const sendStub = sinon.stub(element.$.restAPI,
+          const sendStub = stubRestApi(
               'executeChangeAction');
 
           return element._send('DELETE', payload, '/endpoint', true, cleanup)
@@ -1969,14 +2089,14 @@ suite('gr-change-actions tests', () => {
         });
 
         test('send fails', () => {
-          sinon.stub(element.$.restAPI, 'getChangeDetail')
+          stubRestApi('getChangeDetail')
               .returns(Promise.resolve({
                 ...createChange(),
                 // element has latest info
                 revisions: createRevisions(element.latestPatchNum),
                 messages: createChangeMessages(1),
               }));
-          const sendStub = sinon.stub(element.$.restAPI,
+          const sendStub = stubRestApi(
               'executeChangeAction').callsFake(
               (num, method, patchNum, endpoint, payload, onErr) => {
                 onErr();
@@ -2017,30 +2137,22 @@ suite('gr-change-actions tests', () => {
     let changeRevisionActions;
 
     setup(() => {
-      stub('gr-rest-api-interface', {
-        getChangeRevisionActions() {
-          return Promise.resolve(changeRevisionActions);
-        },
-        send(method, url, payload) {
-          return Promise.reject(new Error('error'));
-        },
-        getProjectConfig() { return Promise.resolve({}); },
-      });
+      stubRestApi('getChangeRevisionActions').returns(
+          Promise.resolve(changeRevisionActions));
+      stubRestApi('send').returns(Promise.reject(new Error('error')));
+      stubRestApi('getProjectConfig').returns(Promise.resolve({}));
 
       sinon.stub(getPluginLoader(), 'awaitPluginsLoaded')
           .returns(Promise.resolve());
 
       element = basicFixture.instantiate();
       // getChangeRevisionActions is not called without
-      // set the following properies
+      // set the following properties
       element.change = {};
       element.changeNum = '42';
       element.latestPatchNum = '2';
 
-      sinon.stub(element.$.confirmCherrypick.$.restAPI,
-          'getRepoBranches').returns(Promise.resolve([]));
-      sinon.stub(element.$.confirmMove.$.restAPI,
-          'getRepoBranches').returns(Promise.resolve([]));
+      stubRestApi('getRepoBranches').returns(Promise.resolve([]));
       return element.reload();
     });
 

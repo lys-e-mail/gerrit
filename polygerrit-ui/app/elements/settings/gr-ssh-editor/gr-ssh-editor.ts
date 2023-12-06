@@ -19,11 +19,8 @@ import '../../../styles/gr-form-styles';
 import '../../shared/gr-button/gr-button';
 import '../../shared/gr-copy-clipboard/gr-copy-clipboard';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../../styles/shared-styles';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-ssh-editor_html';
 import {property, customElement} from '@polymer/decorators';
@@ -31,11 +28,10 @@ import {SshKeyInfo} from '../../../types/common';
 import {GrButton} from '../../shared/gr-button/gr-button';
 import {IronAutogrowTextareaElement} from '@polymer/iron-autogrow-textarea/iron-autogrow-textarea';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
+import {appContext} from '../../../services/app-context';
 
 export interface GrSshEditor {
   $: {
-    restAPI: RestApiService & Element;
     addButton: GrButton;
     newKey: IronAutogrowTextareaElement;
     viewKeyOverlay: GrOverlay;
@@ -48,9 +44,7 @@ declare global {
   }
 }
 @customElement('gr-ssh-editor')
-export class GrSshEditor extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrSshEditor extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -70,8 +64,10 @@ export class GrSshEditor extends GestureEventListeners(
   @property({type: Array})
   _keysToRemove: SshKeyInfo[] = [];
 
+  private readonly restApiService = appContext.restApiService;
+
   loadData() {
-    return this.$.restAPI.getAccountSSHKeys().then(keys => {
+    return this.restApiService.getAccountSSHKeys().then(keys => {
       if (!keys) return;
       this._keys = keys;
     });
@@ -79,7 +75,7 @@ export class GrSshEditor extends GestureEventListeners(
 
   save() {
     const promises = this._keysToRemove.map(key =>
-      this.$.restAPI.deleteAccountSSHKey(`${key.seq}`)
+      this.restApiService.deleteAccountSSHKey(`${key.seq}`)
     );
     return Promise.all(promises).then(() => {
       this._keysToRemove = [];
@@ -113,7 +109,7 @@ export class GrSshEditor extends GestureEventListeners(
   _handleAddKey() {
     this.$.addButton.disabled = true;
     this.$.newKey.disabled = true;
-    return this.$.restAPI
+    return this.restApiService
       .addAccountSSHKey(this._newKey.trim())
       .then(key => {
         this.$.newKey.disabled = false;

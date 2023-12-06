@@ -16,12 +16,9 @@
  */
 import '../../../styles/shared-styles';
 import '../../shared/gr-download-commands/gr-download-commands';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-download-dialog_html';
-import {patchNumEquals} from '../../../utils/patch-set-util';
-import {changeBaseURL} from '../../../utils/change-util';
+import {changeBaseURL, getRevisionKey} from '../../../utils/change-util';
 import {customElement, property, computed, observe} from '@polymer/decorators';
 import {ChangeInfo, ServerInfo, PatchSetNum} from '../../../types/common';
 import {RevisionInfo} from '../../shared/revision-info/revision-info';
@@ -39,9 +36,7 @@ export interface GrDownloadDialog {
 }
 
 @customElement('gr-download-dialog')
-export class GrDownloadDialog extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrDownloadDialog extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -72,7 +67,7 @@ export class GrDownloadDialog extends GestureEventListeners(
     }
 
     for (const rev of Object.values(this.change.revisions || {})) {
-      if (patchNumEquals(rev._number, this.patchNum)) {
+      if (rev._number === this.patchNum) {
         const fetch = rev.fetch;
         if (fetch) {
           return Object.keys(fetch).sort();
@@ -113,7 +108,7 @@ export class GrDownloadDialog extends GestureEventListeners(
     if (!change || !selectedScheme) return [];
     for (const rev of Object.values(change.revisions || {})) {
       if (
-        patchNumEquals(rev._number, patchNum) &&
+        rev._number === patchNum &&
         rev &&
         rev.fetch &&
         hasOwnProperty(rev.fetch, selectedScheme)
@@ -123,14 +118,8 @@ export class GrDownloadDialog extends GestureEventListeners(
       }
     }
     const commands = [];
-    for (const title in commandObj) {
-      if (!commandObj || !hasOwnProperty(commandObj, title)) {
-        continue;
-      }
-      commands.push({
-        title,
-        command: commandObj[title],
-      });
+    for (const [title, command] of Object.entries(commandObj ?? {})) {
+      commands.push({title, command});
     }
     return commands;
   }
@@ -169,13 +158,9 @@ export class GrDownloadDialog extends GestureEventListeners(
       return '';
     }
 
-    let shortRev = '';
-    for (const rev in change.revisions) {
-      if (patchNumEquals(change.revisions[rev]._number, patchNum)) {
-        shortRev = rev.substr(0, 7);
-        break;
-      }
-    }
+    const rev = getRevisionKey(change, patchNum) ?? '';
+    const shortRev = rev.substr(0, 7);
+
     return shortRev + '.diff.' + (zip ? 'zip' : 'base64');
   }
 
@@ -185,7 +170,7 @@ export class GrDownloadDialog extends GestureEventListeners(
       return false;
     }
     for (const rev of Object.values(change.revisions || {})) {
-      if (patchNumEquals(rev._number, patchNum)) {
+      if (rev._number === patchNum) {
         const parentLength =
           rev.commit && rev.commit.parents ? rev.commit.parents.length : 0;
         return parentLength === 0 || parentLength > 1;

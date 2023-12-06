@@ -7,6 +7,7 @@ acceptance_tests(
     labels = ["api"],
     deps = [
         ":util",
+        "//java/com/google/gerrit/auth",
         "//java/com/google/gerrit/server/group/db/testing",
         "//java/com/google/gerrit/server/group/testing",
         "//java/com/google/gerrit/server/util/time",
@@ -19,6 +20,7 @@ java_library(
     name = "util",
     srcs = ["GroupAssert.java"],
     deps = [
+        "//java/com/google/gerrit/entities",
         "//java/com/google/gerrit/extensions:api",
         "//java/com/google/gerrit/server",
         "//lib/truth",

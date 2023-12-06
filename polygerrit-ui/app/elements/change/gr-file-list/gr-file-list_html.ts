@@ -80,27 +80,6 @@ export const htmlTemplate = html`
       text-align: left;
       width: 1.5em;
     }
-    .status {
-      display: inline-block;
-      border-radius: var(--border-radius);
-      margin-left: var(--spacing-s);
-      padding: 0 var(--spacing-m);
-      color: var(--primary-text-color);
-      font-size: var(--font-size-small);
-      background-color: var(--dark-add-highlight-color);
-    }
-    .status.invisible,
-    .status.M {
-      display: none;
-    }
-    .status.D,
-    .status.R,
-    .status.W {
-      background-color: var(--dark-remove-highlight-color);
-    }
-    .status.U {
-      background-color: var(--comment-background-color);
-    }
     .file-row {
       cursor: pointer;
     }
@@ -175,7 +154,7 @@ export const htmlTemplate = html`
       padding-left: var(--spacing-s);
     }
     .drafts {
-      color: #c62828;
+      color: var(--error-foreground);
       font-weight: var(--font-weight-bold);
     }
     .show-hide-icon:focus {
@@ -396,6 +375,8 @@ export const htmlTemplate = html`
                 </gr-endpoint-param>
                 <gr-endpoint-param name="path" value="[[file.__path]]">
                 </gr-endpoint-param>
+                <gr-endpoint-param name="oldPath" value="[[_getOldPath(file)]]">
+                </gr-endpoint-param>
               </gr-endpoint-decorator>
             </template>
           </template>
@@ -421,14 +402,7 @@ export const htmlTemplate = html`
               >
                 [[_computeTruncatedPath(file.__path)]]
               </span>
-              <span
-                class$="[[_computeStatusClass(file)]]"
-                tabindex="0"
-                title$="[[_computeFileStatusLabel(file.status)]]"
-                aria-label$="[[_computeFileStatusLabel(file.status)]]"
-              >
-                [[_computeFileStatusLabel(file.status)]]
-              </span>
+              <gr-file-status-chip file="[[file]]"></gr-file-status-chip>
               <gr-copy-clipboard
                 hide-input=""
                 text="[[file.__path]]"
@@ -456,8 +430,7 @@ export const htmlTemplate = html`
               >
               <span
                 ><!--
-              -->[[_computeCommentsString(changeComments, patchRange,
-                file.__path)]]<!--
+              -->[[_computeCommentsString(changeComments, patchRange, file)]]<!--
            --></span
               >
               <span class="noCommentsScreenReaderText">
@@ -763,13 +736,5 @@ export const htmlTemplate = html`
     on-reload-diff-preference="_handleReloadingDiffPreference"
   >
   </gr-diff-preferences-dialog>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
-  <gr-storage id="storage"></gr-storage>
   <gr-diff-cursor id="diffCursor"></gr-diff-cursor>
-  <gr-cursor-manager
-    id="fileCursor"
-    scroll-mode="keep-visible"
-    focus-on-move=""
-    cursor-target-class="selected"
-  ></gr-cursor-manager>
 `;

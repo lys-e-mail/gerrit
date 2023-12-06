@@ -19,21 +19,19 @@ import '../../../styles/shared-styles';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-list-view/gr-list-view';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-create-repo-dialog/gr-create-repo-dialog';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-list_html';
 import {ListViewMixin} from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property, observe, computed} from '@polymer/decorators';
 import {AppElementAdminParams} from '../../gr-app-types';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {RepoName, ProjectInfoWithName} from '../../../types/common';
 import {GrCreateRepoDialog} from '../gr-create-repo-dialog/gr-create-repo-dialog';
 import {ProjectState} from '../../../constants/constants';
+import {fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -43,16 +41,13 @@ declare global {
 
 export interface GrRepoList {
   $: {
-    restAPI: RestApiService & Element;
     createOverlay: GrOverlay;
     createNewModal: GrCreateRepoDialog;
   };
 }
 
 @customElement('gr-repo-list')
-export class GrRepoList extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrRepoList extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -89,17 +84,13 @@ export class GrRepoList extends ListViewMixin(
     return this.computeShownItems(this._repos);
   }
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._getCreateRepoCapability();
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Repos'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, 'Repos');
     this._maybeOpenCreateOverlay(this.params);
   }
 
@@ -130,11 +121,11 @@ export class GrRepoList extends ListViewMixin(
   }
 
   _getCreateRepoCapability() {
-    return this.$.restAPI.getAccount().then(account => {
+    return this.restApiService.getAccount().then(account => {
       if (!account) {
         return;
       }
-      return this.$.restAPI
+      return this.restApiService
         .getAccountCapabilities(['createProject'])
         .then(capabilities => {
           if (capabilities?.createProject) {
@@ -146,20 +137,20 @@ export class GrRepoList extends ListViewMixin(
 
   _getRepos(filter: string, reposPerPage: number, offset?: number) {
     this._repos = [];
-    return this.$.restAPI.getRepos(filter, reposPerPage, offset).then(repos => {
-      // Late response.
-      if (filter !== this._filter || !repos) {
-        return;
-      }
-      this._repos = repos.filter(repo =>
-        repo.name.toLowerCase().includes(filter.toLowerCase())
-      );
-      this._loading = false;
-    });
+    return this.restApiService
+      .getRepos(filter, reposPerPage, offset)
+      .then(repos => {
+        // Late response.
+        if (filter !== this._filter || !repos) {
+          return;
+        }
+        this._repos = repos;
+        this._loading = false;
+      });
   }
 
   _refreshReposList() {
-    this.$.restAPI.invalidateReposCache();
+    this.restApiService.invalidateReposCache();
     return this._getRepos(this._filter, this._reposPerPage, this._offset);
   }
 
@@ -174,7 +165,9 @@ export class GrRepoList extends ListViewMixin(
   }
 
   _handleCreateClicked() {
-    this.$.createOverlay.open();
+    this.$.createOverlay.open().then(() => {
+      this.$.createNewModal.focus();
+    });
   }
 
   _readOnly(repo: ProjectInfoWithName) {

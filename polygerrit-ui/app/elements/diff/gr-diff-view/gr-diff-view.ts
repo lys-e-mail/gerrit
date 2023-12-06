@@ -21,7 +21,6 @@ import '../../shared/gr-button/gr-button';
 import '../../shared/gr-dropdown/gr-dropdown';
 import '../../shared/gr-dropdown-list/gr-dropdown-list';
 import '../../shared/gr-icons/gr-icons';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../../shared/gr-select/gr-select';
 import '../../shared/revision-info/revision-info';
 import '../gr-comment-api/gr-comment-api';
@@ -32,21 +31,17 @@ import '../gr-diff-mode-selector/gr-diff-mode-selector';
 import '../gr-diff-preferences-dialog/gr-diff-preferences-dialog';
 import '../gr-patch-range-select/gr-patch-range-select';
 import {dom, EventApi} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-diff-view_html';
 import {
   KeyboardShortcutMixin,
   Shortcut,
 } from '../../../mixins/keyboard-shortcut-mixin/keyboard-shortcut-mixin';
-import {GrCountStringFormatter} from '../../shared/gr-count-string-formatter/gr-count-string-formatter';
-import {GerritNav, GerritView} from '../../core/gr-navigation/gr-navigation';
+import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {appContext} from '../../../services/app-context';
 import {
   computeAllPatchSets,
   computeLatestPatchNum,
-  patchNumEquals,
   PatchSet,
 } from '../../../utils/patch-set-util';
 import {
@@ -58,25 +53,19 @@ import {
 } from '../../../utils/path-list-util';
 import {changeBaseURL, changeIsOpen} from '../../../utils/change-util';
 import {customElement, observe, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {GrDiffHost} from '../gr-diff-host/gr-diff-host';
 import {
   DropdownItem,
   GrDropdownList,
 } from '../../shared/gr-dropdown-list/gr-dropdown-list';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
-import {
-  ChangeComments,
-  GrCommentApi,
-  TwoSidesComments,
-} from '../gr-comment-api/gr-comment-api';
+import {ChangeComments, GrCommentApi} from '../gr-comment-api/gr-comment-api';
 import {GrDiffModeSelector} from '../gr-diff-mode-selector/gr-diff-mode-selector';
 import {
+  BasePatchSetNum,
   ChangeInfo,
   CommitId,
   ConfigInfo,
-  DiffInfo,
-  DiffPreferencesInfo,
   EditInfo,
   EditPatchSetNum,
   ElementPropertyDeepChange,
@@ -88,20 +77,28 @@ import {
   PreferencesInfo,
   RepoName,
   RevisionInfo,
+  RevisionPatchSetNum,
 } from '../../../types/common';
+import {DiffInfo, DiffPreferencesInfo} from '../../../types/diff';
 import {ChangeViewState, CommitRange, FileRange} from '../../../types/types';
 import {FilesWebLinks} from '../gr-patch-range-select/gr-patch-range-select';
 import {PolymerDeepPropertyChange} from '@polymer/polymer/interfaces';
 import {GrDiffCursor} from '../gr-diff-cursor/gr-diff-cursor';
 import {CommentSide, DiffViewMode, Side} from '../../../constants/constants';
-import {hasOwnProperty} from '../../../utils/common-util';
 import {GrApplyFixDialog} from '../gr-apply-fix-dialog/gr-apply-fix-dialog';
 import {LineOfInterest} from '../gr-diff/gr-diff';
 import {RevisionInfo as RevisionInfoObj} from '../../shared/revision-info/revision-info';
-import {CommentMap} from '../../../utils/comment-util';
+import {
+  CommentMap,
+  isInBaseOfPatchRange,
+  getPatchRangeForCommentUrl,
+} from '../../../utils/comment-util';
 import {AppElementParams} from '../../gr-app-types';
 import {CustomKeyboardEvent, OpenFixPreviewEvent} from '../../../types/events';
-
+import {fireAlert, fireEvent, fireTitleChange} from '../../../utils/event-util';
+import {GerritView} from '../../../services/router/router-model';
+import {assertIsDefined} from '../../../utils/common-util';
+import {toggleClass} from '../../../utils/dom-util';
 const ERR_REVIEW_STATUS = 'Couldn’t change file review status.';
 const MSG_LOADING_BLAME = 'Loading blame...';
 const MSG_LOADED_BLAME = 'Blame loaded';
@@ -118,7 +115,6 @@ interface CommentSkips {
 
 export interface GrDiffView {
   $: {
-    restAPI: RestApiService & Element;
     commentAPI: GrCommentApi;
     cursor: GrDiffCursor;
     diffHost: GrDiffHost;
@@ -131,9 +127,7 @@ export interface GrDiffView {
 }
 
 @customElement('gr-diff-view')
-export class GrDiffView extends KeyboardShortcutMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrDiffView extends KeyboardShortcutMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -188,9 +182,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   @property({
     type: Array,
-    computed:
-      '_formatFilesForDropdown(_files, ' +
-      '_patchRange.patchNum, _changeComments)',
+    computed: '_formatFilesForDropdown(_files, _patchRange, _changeComments)',
   })
   _formattedFiles?: DropdownItem[];
 
@@ -238,9 +230,6 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   @property({type: Object})
   _commentMap?: CommentMap;
-
-  @property({type: Object})
-  _commentsForDiff?: TwoSidesComments;
 
   @property({
     type: Object,
@@ -302,7 +291,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
       [Shortcut.OPEN_DIFF_PREFS]: '_handleCommaKey',
       [Shortcut.TOGGLE_DIFF_MODE]: '_handleToggleDiffMode',
       [Shortcut.TOGGLE_FILE_REVIEWED]: '_throttledToggleFileReviewed',
-      [Shortcut.EXPAND_ALL_DIFF_CONTEXT]: '_handleExpandAllDiffContext',
+      [Shortcut.TOGGLE_ALL_DIFF_CONTEXT]: '_handleToggleAllDiffContext',
       [Shortcut.NEXT_UNREVIEWED_FILE]: '_handleNextUnreviewedFile',
       [Shortcut.TOGGLE_BLAME]: '_handleToggleBlame',
       [Shortcut.TOGGLE_HIDE_ALL_COMMENT_THREADS]:
@@ -324,6 +313,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   flagsService = appContext.flagsService;
 
+  private readonly restApiService = appContext.restApiService;
+
   _throttledToggleFileReviewed?: EventListener;
 
   _onRenderHandler?: EventListener;
@@ -334,11 +325,6 @@ export class GrDiffView extends KeyboardShortcutMixin(
     this._throttledToggleFileReviewed = this._throttleWrap(e =>
       this._handleToggleFileReviewed(e as CustomKeyboardEvent)
     );
-  }
-
-  /** @override */
-  attached() {
-    super.attached();
     this._getLoggedIn().then(loggedIn => {
       this._loggedIn = loggedIn;
     });
@@ -352,26 +338,27 @@ export class GrDiffView extends KeyboardShortcutMixin(
   }
 
   /** @override */
-  detached() {
+  disconnectedCallback() {
     if (this._onRenderHandler) {
       this.$.diffHost.removeEventListener('render', this._onRenderHandler);
     }
+    super.disconnectedCallback();
   }
 
   _getLoggedIn() {
-    return this.$.restAPI.getLoggedIn();
+    return this.restApiService.getLoggedIn();
   }
 
   @observe('_change.project')
   _getProjectConfig(project?: RepoName) {
     if (!project) return;
-    return this.$.restAPI.getProjectConfig(project).then(config => {
+    return this.restApiService.getProjectConfig(project).then(config => {
       this._projectConfig = config;
     });
   }
 
   _getChangeDetail(changeNum: NumericChangeId) {
-    return this.$.restAPI.getDiffChangeDetail(changeNum).then(change => {
+    return this.restApiService.getDiffChangeDetail(changeNum).then(change => {
       if (!change) throw new Error('Missing "change" in API response.');
       this._change = change;
       return change;
@@ -379,8 +366,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
   }
 
   _getChangeEdit() {
-    if (!this._changeNum) throw new Error('Missing this._changeNum');
-    return this.$.restAPI.getChangeEdit(this._changeNum);
+    assertIsDefined(this._changeNum, '_changeNum');
+    return this.restApiService.getChangeEdit(this._changeNum);
   }
 
   _getSortedFileList(files?: Files) {
@@ -418,7 +405,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     }
 
     const patchRange = patchRangeRecord.base;
-    return this.$.restAPI
+    return this.restApiService
       .getChangeFiles(changeNum, patchRange)
       .then(changeFiles => {
         if (!changeFiles) return;
@@ -433,13 +420,13 @@ export class GrDiffView extends KeyboardShortcutMixin(
   }
 
   _getDiffPreferences() {
-    return this.$.restAPI.getDiffPreferences().then(prefs => {
+    return this.restApiService.getDiffPreferences().then(prefs => {
       this._prefs = prefs;
     });
   }
 
   _getPreferences() {
-    return this.$.restAPI.getPreferences();
+    return this.restApiService.getPreferences();
   }
 
   _getWindowWidth() {
@@ -457,13 +444,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     this.$.reviewed.checked = reviewed;
     if (!this._patchRange?.patchNum) return;
     this._saveReviewedState(reviewed).catch(err => {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {message: ERR_REVIEW_STATUS},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, ERR_REVIEW_STATUS);
       throw err;
     });
   }
@@ -472,7 +453,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!this._changeNum) return Promise.resolve(undefined);
     if (!this._patchRange?.patchNum) return Promise.resolve(undefined);
     if (!this._path) return Promise.resolve(undefined);
-    return this.$.restAPI.saveFileReviewed(
+    return this.restApiService.saveFileReviewed(
       this._changeNum,
       this._patchRange?.patchNum,
       this._path,
@@ -605,6 +586,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (this.modifierPressed(e)) return;
 
     e.preventDefault();
+    this.classList.remove('hideComments');
     this.$.cursor.createCommentInPlace();
   }
 
@@ -654,18 +636,24 @@ export class GrDiffView extends KeyboardShortcutMixin(
       this.$.cursor.moveToPreviousCommentThread();
     } else {
       if (this.modifierPressed(e)) return;
-      this.$.cursor.moveToPreviousChunk();
+      this.$.cursor.moveToPreviousChunk(!e.detail.keyboardEvent?.repeat);
     }
   }
 
+  // Similar to gr-change-view._handleOpenReplyDialog
   _handleOpenReplyDialog(e: CustomKeyboardEvent) {
     if (this.shouldSuppressKeyboardShortcut(e)) return;
     if (this.modifierPressed(e)) return;
-    if (!this._loggedIn) return;
+    this._getLoggedIn().then(isLoggedIn => {
+      if (!isLoggedIn) {
+        fireEvent(this, 'show-auth-required');
+        return;
+      }
 
-    this.set('changeViewState.showReplyDialog', true);
-    e.preventDefault();
-    this._navToChangeView();
+      this.set('changeViewState.showReplyDialog', true);
+      e.preventDefault();
+      this._navToChangeView();
+    });
   }
 
   _handleToggleLeftPane(e: CustomKeyboardEvent) {
@@ -725,7 +713,12 @@ export class GrDiffView extends KeyboardShortcutMixin(
     );
   }
 
-  _navToFile(path: string, fileList: string[], direction: -1 | 1) {
+  _navToFile(
+    path: string,
+    fileList: string[],
+    direction: -1 | 1,
+    navigateToFirstComment?: boolean
+  ) {
     const newPath = this._getNavLinkPath(path, fileList, direction);
     if (!newPath) return;
     if (!this._change) return;
@@ -741,11 +734,18 @@ export class GrDiffView extends KeyboardShortcutMixin(
     }
 
     if (!newPath.path) return;
+    let lineNum;
+    if (navigateToFirstComment)
+      lineNum = this._changeComments?.getCommentsForPath(
+        newPath.path,
+        this._patchRange
+      )?.[0].line;
     GerritNav.navigateToDiff(
       this._change,
       newPath.path,
       this._patchRange.patchNum,
-      this._patchRange.basePatchNum
+      this._patchRange.basePatchNum,
+      lineNum
     );
   }
 
@@ -754,8 +754,6 @@ export class GrDiffView extends KeyboardShortcutMixin(
    * @param fileList The list of files in this change and
    * patch range.
    * @param direction Either 1 (next file) or -1 (prev file).
-   * @param opt_noUp Whether to return to the change view
-   * when advancing the file goes outside the bounds of fileList.
    * @return The next URL when proceeding in the specified
    * direction.
    */
@@ -763,15 +761,14 @@ export class GrDiffView extends KeyboardShortcutMixin(
     change?: ChangeInfo,
     path?: string,
     fileList?: string[],
-    direction?: -1 | 1,
-    opt_noUp?: boolean
+    direction?: -1 | 1
   ) {
     if (!change) return null;
     if (!path) return null;
     if (!fileList) return null;
     if (!direction) return null;
 
-    const newPath = this._getNavLinkPath(path, fileList, direction, opt_noUp);
+    const newPath = this._getNavLinkPath(path, fileList, direction);
     if (!newPath) {
       return null;
     }
@@ -816,15 +813,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
    * @param fileList The list of files in this change and
    * patch range.
    * @param direction Either 1 (next file) or -1 (prev file).
-   * @param opt_noUp Whether to return to the change view
-   * when advancing the file goes outside the bounds of fileList.
    */
-  _getNavLinkPath(
-    path: string,
-    fileList: string[],
-    direction: -1 | 1,
-    opt_noUp?: boolean
-  ) {
+  _getNavLinkPath(path: string, fileList: string[], direction: -1 | 1) {
     if (!path || !fileList || fileList.length === 0) {
       return null;
     }
@@ -839,9 +829,6 @@ export class GrDiffView extends KeyboardShortcutMixin(
     // Redirect to the change view if opt_noUp isn’t truthy and idx falls
     // outside the bounds of [0, fileList.length).
     if (idx < 0 || idx > fileList.length - 1) {
-      if (opt_noUp) {
-        return null;
-      }
       return {up: true};
     }
 
@@ -853,10 +840,12 @@ export class GrDiffView extends KeyboardShortcutMixin(
     patchNum?: PatchSetNum
   ): Promise<Set<string>> {
     if (!changeNum || !patchNum) return Promise.resolve(new Set<string>());
-    return this.$.restAPI.getReviewedFiles(changeNum, patchNum).then(files => {
-      this._reviewedFiles = new Set(files);
-      return this._reviewedFiles;
-    });
+    return this.restApiService
+      .getReviewedFiles(changeNum, patchNum)
+      .then(files => {
+        this._reviewedFiles = new Set(files);
+        return this._reviewedFiles;
+      });
   }
 
   _getReviewedStatus(
@@ -880,51 +869,36 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   _displayDiffBaseAgainstLeftToast() {
     if (!this._patchRange) return;
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {
-          // \u2190 = ←
-          message:
-            `Patchset ${this._patchRange.basePatchNum} vs ` +
-            `${this._patchRange.patchNum} selected. Press v + \u2190 to view ` +
-            `Base vs ${this._patchRange.basePatchNum}`,
-        },
-        composed: true,
-        bubbles: true,
-      })
+    fireAlert(
+      this,
+      `Patchset ${this._patchRange.basePatchNum} vs ` +
+        `${this._patchRange.patchNum} selected. Press v + \u2190 to view ` +
+        `Base vs ${this._patchRange.basePatchNum}`
     );
   }
 
   _displayDiffAgainstLatestToast(latestPatchNum?: PatchSetNum) {
     if (!this._patchRange) return;
-    const leftPatchset = patchNumEquals(
-      this._patchRange.basePatchNum,
-      ParentPatchSetNum
-    )
-      ? 'Base'
-      : `Patchset ${this._patchRange.basePatchNum}`;
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {
-          // \u2191 = ↑
-          message: `${leftPatchset} vs
+    const leftPatchset =
+      this._patchRange.basePatchNum === ParentPatchSetNum
+        ? 'Base'
+        : `Patchset ${this._patchRange.basePatchNum}`;
+    fireAlert(
+      this,
+      `${leftPatchset} vs
             ${this._patchRange.patchNum} selected\n. Press v + \u2191 to view
-            ${leftPatchset} vs Patchset ${latestPatchNum}`,
-        },
-        composed: true,
-        bubbles: true,
-      })
+            ${leftPatchset} vs Patchset ${latestPatchNum}`
     );
   }
 
   _displayToasts() {
     if (!this._patchRange) return;
-    if (!patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)) {
+    if (this._patchRange.basePatchNum !== ParentPatchSetNum) {
       this._displayDiffBaseAgainstLeftToast();
       return;
     }
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
-    if (!patchNumEquals(this._patchRange.patchNum, latestPatchNum)) {
+    if (this._patchRange.patchNum !== latestPatchNum) {
       this._displayDiffAgainstLatestToast(latestPatchNum);
       return;
     }
@@ -935,25 +909,41 @@ export class GrDiffView extends KeyboardShortcutMixin(
     let baseCommit: CommitId | undefined;
     if (!this._change) return;
     if (!this._patchRange || !this._patchRange.patchNum) return;
-    for (const commitSha in this._change.revisions) {
-      if (!hasOwnProperty(this._change.revisions, commitSha)) continue;
-      const revision = this._change.revisions[commitSha];
+    const revisions = this._change.revisions ?? {};
+    for (const [commitSha, revision] of Object.entries(revisions)) {
       const patchNum = revision._number;
-      if (patchNumEquals(patchNum, this._patchRange.patchNum)) {
+      if (patchNum === this._patchRange.patchNum) {
         commit = commitSha as CommitId;
         const commitObj = revision.commit;
         const parents = commitObj?.parents || [];
         if (
-          patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum) &&
+          this._patchRange.basePatchNum === ParentPatchSetNum &&
           parents.length
         ) {
           baseCommit = parents[parents.length - 1].commit;
         }
-      } else if (patchNumEquals(patchNum, this._patchRange.basePatchNum)) {
+      } else if (patchNum === this._patchRange.basePatchNum) {
         baseCommit = commitSha as CommitId;
       }
     }
     this._commitRange = commit && baseCommit ? {commit, baseCommit} : undefined;
+  }
+
+  _updateUrlToDiffUrl(lineNum?: number, leftSide?: boolean) {
+    if (!this._change) return;
+    if (!this._patchRange) return;
+    if (!this._changeNum) return;
+    if (!this._path) return;
+    const url = GerritNav.getUrlForDiffById(
+      this._changeNum,
+      this._change.project,
+      this._path,
+      this._patchRange.patchNum,
+      this._patchRange.basePatchNum,
+      lineNum,
+      leftSide
+    );
+    history.replaceState(null, '', url);
   }
 
   _initPatchRange() {
@@ -965,37 +955,17 @@ export class GrDiffView extends KeyboardShortcutMixin(
         this.params.commentId
       );
       if (!comment) {
-        this.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {
-              message: 'comment not found',
-            },
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireAlert(this, 'comment not found');
         GerritNav.navigateToChange(this._change);
         return;
       }
       this._path = comment.path;
+
       const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
-      if (!comment.patch_set) throw new Error('Missing comment.patch_set');
       if (!latestPatchNum) throw new Error('Missing _allPatchSets');
-      if (patchNumEquals(latestPatchNum, comment.patch_set)) {
-        this._patchRange = {
-          patchNum: latestPatchNum,
-          basePatchNum: ParentPatchSetNum,
-        };
-        leftSide = comment.__commentSide === 'left';
-      } else {
-        this._patchRange = {
-          patchNum: latestPatchNum,
-          basePatchNum: comment.patch_set,
-        };
-        // comment is now on the left side since we are showing
-        // comment.patch_set vs latest
-        leftSide = true;
-      }
+      this._patchRange = getPatchRangeForCommentUrl(comment, latestPatchNum);
+      leftSide = isInBaseOfPatchRange(comment, this._patchRange);
+
       this._focusLineNum = comment.line;
     } else {
       if (this.params.path) {
@@ -1012,15 +982,15 @@ export class GrDiffView extends KeyboardShortcutMixin(
         leftSide = !!this.params.leftSide;
       }
     }
-    if (!this._patchRange) throw new Error('Failed to initialize patchRange.');
+    assertIsDefined(this._patchRange, '_patchRange');
     this._initLineOfInterestAndCursor(leftSide);
-    this._commentMap = this._getPaths(this._patchRange);
 
-    this._commentsForDiff = this._getCommentsForPath(
-      this._path,
-      this._patchRange,
-      this._projectConfig
-    );
+    if (this.params?.commentId) {
+      // url is of type /comment/{commentId} which isn't meaningful
+      this._updateUrlToDiffUrl(this._focusLineNum, leftSide);
+    }
+
+    this._commentMap = this._getPaths(this._patchRange);
   }
 
   _isFileUnchanged(diff: DiffInfo) {
@@ -1045,7 +1015,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     this._focusLineNum = undefined;
 
     if (value.changeNum && value.project) {
-      this.$.restAPI.setInProjectLookup(value.changeNum, value.project);
+      this.restApiService.setInProjectLookup(value.changeNum, value.project);
     }
 
     this._changeNum = value.changeNum;
@@ -1071,7 +1041,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     );
 
     promises.push(this._getChangeDetail(this._changeNum));
-    promises.push(this._loadComments());
+    promises.push(this._loadComments(value.patchNum));
 
     promises.push(this._getChangeEdit());
 
@@ -1083,7 +1053,18 @@ export class GrDiffView extends KeyboardShortcutMixin(
         this._loading = false;
         this._initPatchRange();
         this._initCommitRange();
-        this.$.diffHost.comments = this._commentsForDiff;
+
+        assertIsDefined(this._path, '_path');
+        if (!this._changeComments)
+          throw new Error('change comments must be defined');
+        assertIsDefined(this._patchRange, '_patchRange');
+
+        // TODO(dhruvsri): check if basePath should be set here
+        this.$.diffHost.threads = this._changeComments.getThreadsBySideForFile(
+          {path: this._path},
+          this._patchRange
+        );
+
         const edit = r[4] as EditInfo | undefined;
         if (edit) {
           this.set(`_change.revisions.${edit.commit.commit}`, {
@@ -1103,9 +1084,9 @@ export class GrDiffView extends KeyboardShortcutMixin(
         if (!this._diff) throw new Error('Missing this._diff');
         const fileUnchanged = this._isFileUnchanged(this._diff);
         if (fileUnchanged && value.commentLink) {
-          if (!this._change) throw new Error('Missing this._change');
-          if (!this._path) throw new Error('Missing this._path');
-          if (!this._patchRange) throw new Error('Missing this._patchRange');
+          assertIsDefined(this._change, '_change');
+          assertIsDefined(this._path, '_path');
+          assertIsDefined(this._patchRange, '_patchRange');
 
           if (this._patchRange.basePatchNum === ParentPatchSetNum) {
             // file is unchanged between Base vs X
@@ -1113,17 +1094,12 @@ export class GrDiffView extends KeyboardShortcutMixin(
             return;
           }
 
-          this.dispatchEvent(
-            new CustomEvent('show-alert', {
-              detail: {
-                message: `File is unchanged between Patchset
+          fireAlert(
+            this,
+            `File is unchanged between Patchset
                   ${this._patchRange.basePatchNum} and
                   ${this._patchRange.patchNum}. Showing diff of Base vs
-                  ${this._patchRange.basePatchNum}`,
-              },
-              composed: true,
-              bubbles: true,
-            })
+                  ${this._patchRange.basePatchNum}`
           );
           GerritNav.navigateToDiff(
             this._change,
@@ -1146,7 +1122,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
   _changeViewStateChanged(changeViewState: Partial<ChangeViewState>) {
     if (changeViewState.diffMode === null) {
       // If screen size is small, always default to unified view.
-      this.$.restAPI.getPreferences().then(prefs => {
+      this.restApiService.getPreferences().then(prefs => {
         if (prefs) {
           this.set('changeViewState.diffMode', prefs.default_diff_view);
         }
@@ -1221,13 +1197,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   _pathChanged(path: string) {
     if (path) {
-      this.dispatchEvent(
-        new CustomEvent('title-change', {
-          detail: {title: computeTruncatedPath(path)},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireTitleChange(this, computeTruncatedPath(path));
     }
 
     if (!this._fileList || this._fileList.length === 0) return;
@@ -1276,7 +1246,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!patchRange) return {patchNum, basePatchNum};
     if (
       patchRange.basePatchNum !== ParentPatchSetNum ||
-      !patchNumEquals(patchRange.patchNum, latestPatchNum as PatchSetNum)
+      patchRange.patchNum !== latestPatchNum
     ) {
       patchNum = patchRange.patchNum;
       basePatchNum = patchRange.basePatchNum;
@@ -1321,11 +1291,11 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   _formatFilesForDropdown(
     files?: Files,
-    patchNum?: PatchSetNum,
+    patchRange?: PatchRange,
     changeComments?: ChangeComments
   ): DropdownItem[] {
     if (!files) return [];
-    if (!patchNum) return [];
+    if (!patchRange) return [];
     if (!changeComments) return [];
 
     const dropdownContent: DropdownItem[] = [];
@@ -1334,49 +1304,16 @@ export class GrDiffView extends KeyboardShortcutMixin(
         text: computeDisplayPath(path),
         mobileText: computeTruncatedPath(path),
         value: path,
-        bottomText: this._computeCommentString(
-          changeComments,
-          patchNum,
+        bottomText: changeComments.computeCommentsString(
+          patchRange,
           path,
-          files.changeFilesByPath[path]
+          files.changeFilesByPath[path],
+          /* includeUnmodified= */ true
         ),
+        file: {...files.changeFilesByPath[path], __path: path},
       });
     }
     return dropdownContent;
-  }
-
-  _computeCommentString(
-    changeComments?: ChangeComments,
-    patchNum?: PatchSetNum,
-    path?: string,
-    changeFileInfo?: FileInfo
-  ) {
-    if (!changeComments) return '';
-    if (!path) return '';
-    if (!changeFileInfo) return '';
-
-    const unresolvedCount = changeComments.computeUnresolvedNum({
-      patchNum,
-      path,
-    });
-    const commentThreadCount = changeComments.computeCommentThreadCount({
-      patchNum,
-      path,
-    });
-    const commentThreadString = GrCountStringFormatter.computePluralString(
-      commentThreadCount,
-      'comment'
-    );
-    const unresolvedString = GrCountStringFormatter.computeString(
-      unresolvedCount,
-      'unresolved'
-    );
-
-    const unmodifiedString = changeFileInfo.status === 'U' ? 'no changes' : '';
-
-    return [unmodifiedString, commentThreadString, unresolvedString]
-      .filter(v => v && v.length > 0)
-      .join(', ');
   }
 
   _computePrefsButtonHidden(
@@ -1411,8 +1348,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
     const {basePatchNum, patchNum} = e.detail;
     if (
-      patchNumEquals(basePatchNum, this._patchRange.basePatchNum) &&
-      patchNumEquals(patchNum, this._patchRange.patchNum)
+      basePatchNum === this._patchRange.basePatchNum &&
+      patchNum === this._patchRange.patchNum
     ) {
       return;
     }
@@ -1455,26 +1392,12 @@ export class GrDiffView extends KeyboardShortcutMixin(
     _: Event,
     detail: {side: Side | CommentSide; number: number}
   ) {
-    if (!this._change) return;
-    if (!this._path) return;
-    if (!this._changeNum) return;
-    if (!this._patchRange) return;
-
-    const number = detail.number;
     // for on-comment-anchor-tap side can be PARENT/REVISIONS
     // for on-line-selected side can be left/right
-    const leftSide =
-      detail.side === Side.LEFT || detail.side === CommentSide.PARENT;
-    const url = GerritNav.getUrlForDiffById(
-      this._changeNum,
-      this._change.project,
-      this._path,
-      this._patchRange.patchNum,
-      this._patchRange.basePatchNum,
-      number,
-      leftSide
+    this._updateUrlToDiffUrl(
+      detail.number,
+      detail.side === Side.LEFT || detail.side === CommentSide.PARENT
     );
-    history.replaceState(null, '', url);
   }
 
   _computeDownloadDropdownLinks(
@@ -1543,17 +1466,17 @@ export class GrDiffView extends KeyboardShortcutMixin(
   ) {
     let patchNum = patchRange.patchNum;
 
-    const comparedAgainsParent = patchRange.basePatchNum === 'PARENT';
+    const comparedAgainstParent = patchRange.basePatchNum === 'PARENT';
 
-    if (isBase && !comparedAgainsParent) {
-      patchNum = patchRange.basePatchNum;
+    if (isBase && !comparedAgainstParent) {
+      patchNum = patchRange.basePatchNum as RevisionPatchSetNum;
     }
 
     let url =
       changeBaseURL(project, changeNum, patchNum) +
       `/files/${encodeURIComponent(path)}/download`;
 
-    if (isBase && comparedAgainsParent) {
+    if (isBase && comparedAgainstParent) {
       url += '?parent=1';
     }
 
@@ -1571,11 +1494,13 @@ export class GrDiffView extends KeyboardShortcutMixin(
     return url;
   }
 
-  _loadComments() {
-    if (!this._changeNum) throw new Error('Missing this._changeNum');
-    return this.$.commentAPI.loadAll(this._changeNum).then(comments => {
-      this._changeComments = comments;
-    });
+  _loadComments(patchSet?: PatchSetNum) {
+    assertIsDefined(this._changeNum, '_changeNum');
+    return this.$.commentAPI
+      .loadAll(this._changeNum, patchSet)
+      .then(comments => {
+        this._changeComments = comments;
+      });
   }
 
   @observe('_files.changeFilesByPath', '_path', '_patchRange', '_projectConfig')
@@ -1593,13 +1518,10 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
     const file = files[path];
     if (file && file.old_path) {
-      this._commentsForDiff = this._changeComments.getCommentsBySideForFile(
+      this.$.diffHost.threads = this._changeComments.getThreadsBySideForFile(
         {path, basePath: file.old_path},
-        patchRange,
-        projectConfig
+        patchRange
       );
-
-      this.$.diffHost.comments = this._commentsForDiff;
     }
   }
 
@@ -1608,26 +1530,10 @@ export class GrDiffView extends KeyboardShortcutMixin(
     return this._changeComments.getPaths(patchRange);
   }
 
-  _getCommentsForPath(
-    path?: string,
-    patchRange?: PatchRange,
-    projectConfig?: ConfigInfo
-  ) {
-    if (!path) return undefined;
-    if (!patchRange) return undefined;
-    if (!this._changeComments) return undefined;
-
-    return this._changeComments.getCommentsBySideForPath(
-      path,
-      patchRange,
-      projectConfig
-    );
-  }
-
   _getDiffDrafts() {
-    if (!this._changeNum) throw new Error('Missing this._changeNum');
+    assertIsDefined(this._changeNum, '_changeNum');
 
-    return this.$.restAPI.getDiffDrafts(this._changeNum);
+    return this.restApiService.getDiffDrafts(this._changeNum);
   }
 
   _computeCommentSkips(
@@ -1672,7 +1578,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     patchRangeRecord: PolymerDeepPropertyChange<PatchRange, PatchRange>
   ) {
     const patchRange = patchRangeRecord.base || {};
-    return patchNumEquals(patchRange.patchNum, EditPatchSetNum);
+    return patchRange.patchNum === EditPatchSetNum;
   }
 
   _computeBlameToggleLabel(loaded?: boolean, loading?: boolean) {
@@ -1681,24 +1587,12 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
   _loadBlame() {
     this._isBlameLoading = true;
-    this.dispatchEvent(
-      new CustomEvent('show-alert', {
-        detail: {message: MSG_LOADING_BLAME},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireAlert(this, MSG_LOADING_BLAME);
     this.$.diffHost
       .loadBlame()
       .then(() => {
         this._isBlameLoading = false;
-        this.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {message: MSG_LOADED_BLAME},
-            composed: true,
-            bubbles: true,
-          })
-        );
+        fireAlert(this, MSG_LOADED_BLAME);
       })
       .catch(() => {
         this._isBlameLoading = false;
@@ -1728,7 +1622,7 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (this.shouldSuppressKeyboardShortcut(e)) return;
     if (this.modifierPressed(e)) return;
 
-    this.toggleClass('hideComments');
+    toggleClass(this, 'hideComments');
   }
 
   _handleOpenFileList(e: CustomKeyboardEvent) {
@@ -1743,16 +1637,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!this._path) return;
     if (!this._patchRange) return;
 
-    if (patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Base is already selected.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.basePatchNum === ParentPatchSetNum) {
+      fireAlert(this, 'Base is already selected.');
       return;
     }
     GerritNav.navigateToDiff(
@@ -1768,23 +1654,15 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!this._path) return;
     if (!this._patchRange) return;
 
-    if (patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Left is already base.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.basePatchNum === ParentPatchSetNum) {
+      fireAlert(this, 'Left is already base.');
       return;
     }
     GerritNav.navigateToDiff(
       this._change,
       this._path,
       this._patchRange.basePatchNum,
-      'PARENT' as PatchSetNum,
+      'PARENT' as BasePatchSetNum,
       this.params?.view === GerritView.DIFF && this.params?.commentLink
         ? this._focusLineNum
         : undefined
@@ -1798,16 +1676,8 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!this._patchRange) return;
 
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
-    if (patchNumEquals(this._patchRange.patchNum, latestPatchNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Latest is already selected.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.patchNum === latestPatchNum) {
+      fireAlert(this, 'Latest is already selected.');
       return;
     }
 
@@ -1826,23 +1696,15 @@ export class GrDiffView extends KeyboardShortcutMixin(
     if (!this._patchRange) return;
 
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
-    if (patchNumEquals(this._patchRange.patchNum, latestPatchNum)) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Right is already latest.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+    if (this._patchRange.patchNum === latestPatchNum) {
+      fireAlert(this, 'Right is already latest.');
       return;
     }
     GerritNav.navigateToDiff(
       this._change,
       this._path,
       latestPatchNum,
-      this._patchRange.patchNum
+      this._patchRange.patchNum as BasePatchSetNum
     );
   }
 
@@ -1854,18 +1716,10 @@ export class GrDiffView extends KeyboardShortcutMixin(
 
     const latestPatchNum = computeLatestPatchNum(this._allPatchSets);
     if (
-      patchNumEquals(this._patchRange.patchNum, latestPatchNum) &&
-      patchNumEquals(this._patchRange.basePatchNum, ParentPatchSetNum)
+      this._patchRange.patchNum === latestPatchNum &&
+      this._patchRange.basePatchNum === ParentPatchSetNum
     ) {
-      this.dispatchEvent(
-        new CustomEvent('show-alert', {
-          detail: {
-            message: 'Already diffing base against latest.',
-          },
-          composed: true,
-          bubbles: true,
-        })
-      );
+      fireAlert(this, 'Already diffing base against latest.');
       return;
     }
     GerritNav.navigateToDiff(this._change, this._path, latestPatchNum);
@@ -1892,29 +1746,58 @@ export class GrDiffView extends KeyboardShortcutMixin(
     return '';
   }
 
-  _handleExpandAllDiffContext(e: CustomKeyboardEvent) {
+  _handleToggleAllDiffContext(e: CustomKeyboardEvent) {
     if (this.shouldSuppressKeyboardShortcut(e)) return;
 
-    this.$.diffHost.expandAllContext();
+    this.$.diffHost.toggleAllContext();
   }
 
   _computeDiffPrefsDisabled(disableDiffPrefs?: boolean, loggedIn?: boolean) {
     return disableDiffPrefs || !loggedIn;
   }
 
-  _handleNextUnreviewedFile(e: CustomKeyboardEvent) {
-    if (this.shouldSuppressKeyboardShortcut(e)) return;
+  _navigateToNextUnreviewedFile() {
     if (!this._path) return;
     if (!this._fileList) return;
     if (!this._reviewedFiles) return;
-
-    this._setReviewed(true);
     // Ensure that the currently viewed file always appears in unreviewedFiles
     // so we resolve the right "next" file.
     const unreviewedFiles = this._fileList.filter(
       file => file === this._path || !this._reviewedFiles.has(file)
     );
     this._navToFile(this._path, unreviewedFiles, 1);
+  }
+
+  _navigateToPreviousUnreviewedFile() {
+    if (!this._path) return;
+    if (!this._fileList) return;
+    if (!this._reviewedFiles) return;
+    // Ensure that the currently viewed file always appears in unreviewedFiles
+    // so we resolve the right "next" file.
+    const unreviewedFiles = this._fileList.filter(
+      file => file === this._path || !this._reviewedFiles.has(file)
+    );
+    this._navToFile(this._path, unreviewedFiles, -1);
+  }
+
+  _handleNextUnreviewedFile(e: CustomKeyboardEvent) {
+    if (this.shouldSuppressKeyboardShortcut(e)) return;
+    this._setReviewed(true);
+    this._navigateToNextUnreviewedFile();
+  }
+
+  _navigateToNextFileWithCommentThread() {
+    if (!this._path) return;
+    if (!this._fileList) return;
+    if (!this._patchRange) return;
+    if (!this._change) return;
+    const hasComment = (path: string) =>
+      this._changeComments?.getCommentsForPath(path, this._patchRange!)
+        ?.length ?? 0 > 0;
+    const filesWithComments = this._fileList.filter(
+      file => file === this._path || hasComment(file)
+    );
+    this._navToFile(this._path, filesWithComments, 1, true);
   }
 
   _handleReloadingDiffPreference() {

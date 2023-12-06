@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {
   page,
@@ -24,9 +21,9 @@ import {
   PageNextCallback,
 } from '../../../utils/page-wrapper-utils';
 import {htmlTemplate} from './gr-router_html';
-import {encodeURL, getBaseUrl} from '../../../utils/url-util';
 import {
   DashboardSection,
+  GeneratedWebLink,
   GenerateUrlChangeViewParameters,
   GenerateUrlDashboardViewParameters,
   GenerateUrlDiffViewParameters,
@@ -39,22 +36,18 @@ import {
   GenerateWebLinksFileParameters,
   GenerateWebLinksParameters,
   GenerateWebLinksPatchsetParameters,
-  GerritView,
+  GerritNav,
+  GroupDetailView,
   isGenerateUrlDiffViewParameters,
   RepoDetailView,
   WeblinkType,
-  GroupDetailView,
-  GerritNav,
-  GeneratedWebLink,
 } from '../gr-navigation/gr-navigation';
 import {appContext} from '../../../services/app-context';
-import {
-  patchNumEquals,
-  convertToPatchSetNum,
-} from '../../../utils/patch-set-util';
+import {convertToPatchSetNum} from '../../../utils/patch-set-util';
 import {customElement, property} from '@polymer/decorators';
 import {assertNever} from '../../../utils/common-util';
 import {
+  BasePatchSetNum,
   DashboardId,
   GroupId,
   NumericChangeId,
@@ -63,13 +56,24 @@ import {
   ServerInfo,
   UrlEncodedCommentId,
 } from '../../../types/common';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   AppElement,
-  AppElementParams,
   AppElementAgreementParam,
+  AppElementParams,
 } from '../../gr-app-types';
 import {LocationChangeEventDetail} from '../../../types/events';
+import {GerritView, updateState} from '../../../services/router/router-model';
+import {firePageError} from '../../../utils/event-util';
+import {addQuotesWhen} from '../../../utils/string-util';
+import {windowLocationReload} from '../../../utils/dom-util';
+import {
+  encodeURL,
+  getBaseUrl,
+  toPath,
+  toPathname,
+  toSearchParams,
+} from '../../../utils/url-util';
+import {Execution, LifeCycle, Timing} from '../../../constants/reporting';
 
 const RoutePattern = {
   ROOT: '/',
@@ -263,15 +267,9 @@ if (!app) {
 // Setup listeners outside of the router component initialization.
 (function () {
   window.addEventListener('WebComponentsReady', () => {
-    appContext.reportingService.timeEnd('WebComponentsReady');
+    appContext.reportingService.timeEnd(Timing.WEB_COMPONENTS_READY);
   });
 })();
-
-export interface GrRouter {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 
 export interface PageContextWithQueryMap extends PageContext {
   queryMap: Map<string, string> | URLSearchParams;
@@ -290,13 +288,11 @@ type GenerateUrlLegacyDiffViewParameters = Omit<
 
 interface PatchRangeParams {
   patchNum?: PatchSetNum | null;
-  basePatchNum?: PatchSetNum | null;
+  basePatchNum?: BasePatchSetNum | null;
 }
 
 @customElement('gr-router')
-export class GrRouter extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRouter extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -314,9 +310,7 @@ export class GrRouter extends GestureEventListeners(
 
   private readonly reporting = appContext.reportingService;
 
-  constructor() {
-    super();
-  }
+  private readonly restApiService = appContext.restApiService;
 
   start() {
     if (!this._app) {
@@ -326,6 +320,11 @@ export class GrRouter extends GestureEventListeners(
   }
 
   _setParams(params: AppElementParams | GenerateUrlParameters) {
+    updateState(
+      params.view,
+      'changeNum' in params ? params.changeNum : undefined,
+      'patchNum' in params ? params.patchNum ?? undefined : undefined
+    );
     this._appElement().params = params;
   }
 
@@ -390,9 +389,8 @@ export class GrRouter extends GestureEventListeners(
       case WeblinkType.PATCHSET:
         return this._getPatchSetWeblink(params);
       default:
-        console.warn(`Unsupported weblink ${(params as any).type}!`);
-        // TODO(TS): use assertNever(params.type)
-        return [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        assertNever(params, `Unsupported weblink ${(params as any).type}!`);
     }
   }
 
@@ -484,11 +482,18 @@ export class GrRouter extends GestureEventListeners(
       operators.push('branch:' + encodeURL(params.branch, false));
     }
     if (params.topic) {
-      operators.push('topic:"' + encodeURL(params.topic, false) + '"');
+      operators.push(
+        'topic:' +
+          addQuotesWhen(encodeURL(params.topic, false), /\s/.test(params.topic))
+      );
     }
     if (params.hashtag) {
       operators.push(
-        'hashtag:"' + encodeURL(params.hashtag.toLowerCase(), false) + '"'
+        'hashtag:' +
+          addQuotesWhen(
+            encodeURL(params.hashtag.toLowerCase(), false),
+            /\s/.test(params.hashtag)
+          )
       );
     }
     if (params.statuses) {
@@ -658,7 +663,7 @@ export class GrRouter extends GestureEventListeners(
       return Promise.resolve();
     }
 
-    return this.$.restAPI
+    return this.restApiService
       .getFromProjectLookup(params.changeNum)
       .then(project => {
         // Show a 404 and terminate if the lookup request failed. Attempting
@@ -690,10 +695,7 @@ export class GrRouter extends GestureEventListeners(
 
     // Diffing a patch against itself is invalid, so if the base and revision
     // patches are equal clear the base.
-    if (
-      params.patchNum &&
-      patchNumEquals(params.basePatchNum, params.patchNum)
-    ) {
+    if (params.patchNum && params.basePatchNum === params.patchNum) {
       needsRedirect = true;
       params.basePatchNum = null;
     } else if (!hasPatchNum) {
@@ -745,7 +747,7 @@ export class GrRouter extends GestureEventListeners(
    * (if it resolves).
    */
   _redirectIfNotLoggedIn(data: PageContext) {
-    return this.$.restAPI.getLoggedIn().then(loggedIn => {
+    return this.restApiService.getLoggedIn().then(loggedIn => {
       if (loggedIn) {
         return Promise.resolve();
       } else {
@@ -757,24 +759,30 @@ export class GrRouter extends GestureEventListeners(
 
   /**  Page.js middleware that warms the REST API's logged-in cache line. */
   _loadUserMiddleware(_: PageContext, next: PageNextCallback) {
-    this.$.restAPI.getLoggedIn().then(() => {
+    this.restApiService.getLoggedIn().then(() => {
       next();
     });
   }
 
   /**  Page.js middleware that try parse the querystring into queryMap. */
   _queryStringMiddleware(ctx: PageContext, next: PageNextCallback) {
-    let queryMap: Map<string, string> | URLSearchParams = new Map();
+    (ctx as PageContextWithQueryMap).queryMap = this.createQueryMap(ctx);
+    next();
+  }
+
+  private createQueryMap(ctx: PageContext) {
     if (ctx.querystring) {
       // https://caniuse.com/#search=URLSearchParams
       if (window.URLSearchParams) {
-        queryMap = new URLSearchParams(ctx.querystring);
+        return new URLSearchParams(ctx.querystring);
       } else {
-        queryMap = new Map(this._parseQueryString(ctx.querystring));
+        this.reporting.reportExecution(Execution.REACHABLE_CODE, {
+          id: 'noURLSearchParams',
+        });
+        return new Map(this._parseQueryString(ctx.querystring));
       }
     }
-    (ctx as PageContextWithQueryMap).queryMap = queryMap;
-    next();
+    return new Map<string, string>();
   }
 
   /**
@@ -796,20 +804,22 @@ export class GrRouter extends GestureEventListeners(
     authRedirect?: boolean
   ) {
     if (!this[handlerName]) {
-      console.error('Attempted to map route to unknown method: ', handlerName);
+      this.reporting.error(
+        new Error(`Attempted to map route to unknown method: ${handlerName}`)
+      );
       return;
     }
     page(
       pattern,
       (ctx, next) => this._loadUserMiddleware(ctx, next),
       (ctx, next) => this._queryStringMiddleware(ctx, next),
-      data => {
+      ctx => {
         this.reporting.locationChanged(handlerName);
         const promise = authRedirect
-          ? this._redirectIfNotLoggedIn(data)
+          ? this._redirectIfNotLoggedIn(ctx)
           : Promise.resolve();
         promise.then(() => {
-          this[handlerName](data as PageContextWithQueryMap);
+          this[handlerName](ctx as PageContextWithQueryMap);
         });
       }
     );
@@ -843,6 +853,23 @@ export class GrRouter extends GestureEventListeners(
       next();
     });
 
+    // Remove the tracking param 'usp' (User Source Parameter) from the URL,
+    // just to have users look at cleaner URLs.
+    page((ctx, next) => {
+      if (window.URLSearchParams) {
+        const pathname = toPathname(ctx.canonicalPath);
+        const searchParams = toSearchParams(ctx.canonicalPath);
+        if (searchParams.has('usp')) {
+          const usp = searchParams.get('usp');
+          this.reporting.reportLifeCycle(LifeCycle.USER_REFERRED_FROM, {usp});
+          searchParams.delete('usp');
+          this._redirect(toPath(pathname, searchParams));
+          return;
+        }
+      }
+      next();
+    });
+
     // Middleware
     page((ctx, next) => {
       document.body.scrollTop = 0;
@@ -857,7 +884,7 @@ export class GrRouter extends GestureEventListeners(
 
       // Fire asynchronously so that the URL is changed by the time the event
       // is processed.
-      this.async(() => {
+      setTimeout(() => {
         const detail: LocationChangeEventDetail = {
           hash: window.location.hash,
           pathname: window.location.pathname,
@@ -1125,7 +1152,7 @@ export class GrRouter extends GestureEventListeners(
       this._redirect(newUrl);
       return null;
     }
-    return this.$.restAPI.getLoggedIn().then(loggedIn => {
+    return this.restApiService.getLoggedIn().then(loggedIn => {
       if (loggedIn) {
         this._redirect('/dashboard/self');
       } else {
@@ -1183,7 +1210,7 @@ export class GrRouter extends GestureEventListeners(
     // User dashboard. We require viewing user to be logged in, else we
     // redirect to login for self dashboard or simple owner search for
     // other user dashboard.
-    return this.$.restAPI.getLoggedIn().then(loggedIn => {
+    return this.restApiService.getLoggedIn().then(loggedIn => {
       if (!loggedIn) {
         if (data.params[0].toLowerCase() === 'self') {
           this._redirectToLogin(data.canonicalPath);
@@ -1538,38 +1565,42 @@ export class GrRouter extends GestureEventListeners(
 
   _handleChangeRoute(ctx: PageContextWithQueryMap) {
     // Parameter order is based on the regex group number matched.
+    const changeNum = Number(ctx.params[1]) as NumericChangeId;
     const params: GenerateUrlChangeViewParameters = {
       project: ctx.params[0] as RepoName,
-      // TODO(TS): remove as unknown
-      changeNum: (ctx.params[1] as unknown) as NumericChangeId,
-      basePatchNum: convertToPatchSetNum(ctx.params[4]),
+      changeNum,
+      basePatchNum: convertToPatchSetNum(ctx.params[4]) as BasePatchSetNum,
       patchNum: convertToPatchSetNum(ctx.params[6]),
       view: GerritView.CHANGE,
       queryMap: ctx.queryMap,
     };
 
     this.reporting.setRepoName(params.project);
+    this.reporting.setChangeId(changeNum);
     this._redirectOrNavigate(params);
   }
 
   _handleCommentRoute(ctx: PageContextWithQueryMap) {
+    const changeNum = Number(ctx.params[1]) as NumericChangeId;
     const params: GenerateUrlDiffViewParameters = {
       project: ctx.params[0] as RepoName,
-      changeNum: (ctx.params[1] as unknown) as NumericChangeId,
+      changeNum,
       commentId: ctx.params[2] as UrlEncodedCommentId,
       view: GerritView.DIFF,
       commentLink: true,
     };
     this.reporting.setRepoName(params.project);
+    this.reporting.setChangeId(changeNum);
     this._redirectOrNavigate(params);
   }
 
   _handleDiffRoute(ctx: PageContextWithQueryMap) {
+    const changeNum = Number(ctx.params[1]) as NumericChangeId;
     // Parameter order is based on the regex group number matched.
     const params: GenerateUrlDiffViewParameters = {
       project: ctx.params[0] as RepoName,
-      changeNum: (ctx.params[1] as unknown) as NumericChangeId,
-      basePatchNum: convertToPatchSetNum(ctx.params[4]),
+      changeNum,
+      basePatchNum: convertToPatchSetNum(ctx.params[4]) as BasePatchSetNum,
       patchNum: convertToPatchSetNum(ctx.params[6]),
       path: ctx.params[8],
       view: GerritView.DIFF,
@@ -1580,14 +1611,15 @@ export class GrRouter extends GestureEventListeners(
       params.lineNum = address.lineNum;
     }
     this.reporting.setRepoName(params.project);
+    this.reporting.setChangeId(changeNum);
     this._redirectOrNavigate(params);
   }
 
   _handleChangeLegacyRoute(ctx: PageContextWithQueryMap) {
     // Parameter order is based on the regex group number matched.
     const params: GenerateUrlLegacyChangeViewParameters = {
-      changeNum: (ctx.params[0] as unknown) as NumericChangeId,
-      basePatchNum: convertToPatchSetNum(ctx.params[3]),
+      changeNum: Number(ctx.params[0]) as NumericChangeId,
+      basePatchNum: convertToPatchSetNum(ctx.params[3]) as BasePatchSetNum,
       patchNum: convertToPatchSetNum(ctx.params[5]),
       view: GerritView.CHANGE,
       querystring: ctx.querystring,
@@ -1603,9 +1635,8 @@ export class GrRouter extends GestureEventListeners(
   _handleDiffLegacyRoute(ctx: PageContextWithQueryMap) {
     // Parameter order is based on the regex group number matched.
     const params: GenerateUrlLegacyDiffViewParameters = {
-      // TODO(TS): remove "as unknown"
-      changeNum: (ctx.params[0] as unknown) as NumericChangeId,
-      basePatchNum: convertToPatchSetNum(ctx.params[2]),
+      changeNum: Number(ctx.params[0]) as NumericChangeId,
+      basePatchNum: convertToPatchSetNum(ctx.params[2]) as BasePatchSetNum,
       patchNum: convertToPatchSetNum(ctx.params[4]),
       path: ctx.params[5],
       view: GerritView.DIFF,
@@ -1623,9 +1654,10 @@ export class GrRouter extends GestureEventListeners(
   _handleDiffEditRoute(ctx: PageContextWithQueryMap) {
     // Parameter order is based on the regex group number matched.
     const project = ctx.params[0] as RepoName;
+    const changeNum = Number(ctx.params[1]) as NumericChangeId;
     this._redirectOrNavigate({
       project,
-      changeNum: (ctx.params[1] as unknown) as NumericChangeId,
+      changeNum,
       // for edit view params, patchNum cannot be undefined
       patchNum: convertToPatchSetNum(ctx.params[2])!,
       path: ctx.params[3],
@@ -1633,20 +1665,22 @@ export class GrRouter extends GestureEventListeners(
       view: GerritView.EDIT,
     });
     this.reporting.setRepoName(project);
+    this.reporting.setChangeId(changeNum);
   }
 
   _handleChangeEditRoute(ctx: PageContextWithQueryMap) {
     // Parameter order is based on the regex group number matched.
     const project = ctx.params[0] as RepoName;
+    const changeNum = Number(ctx.params[1]) as NumericChangeId;
     this._redirectOrNavigate({
       project,
-      // TODO(TS): remove "as unknown"
-      changeNum: (ctx.params[1] as unknown) as NumericChangeId,
+      changeNum,
       patchNum: convertToPatchSetNum(ctx.params[3]),
       view: GerritView.CHANGE,
       edit: true,
     });
     this.reporting.setRepoName(project);
+    this.reporting.setChangeId(changeNum);
   }
 
   /**
@@ -1707,7 +1741,7 @@ export class GrRouter extends GestureEventListeners(
    * by the catchall _handleDefaultRoute handler.
    */
   _handlePassThroughRoute() {
-    location.reload();
+    windowLocationReload();
   }
 
   /**
@@ -1744,7 +1778,7 @@ export class GrRouter extends GestureEventListeners(
 
   _handleDocumentationRedirectRoute(data: PageContextWithQueryMap) {
     if (data.params[1]) {
-      location.reload();
+      windowLocationReload();
     } else {
       // Redirect /Documentation to /Documentation/index.html
       this._redirect('/Documentation/index.html');
@@ -1768,9 +1802,7 @@ export class GrRouter extends GestureEventListeners(
     // Note: the app's 404 display is tightly-coupled with catching 404
     // network responses, so we simulate a 404 response status to display it.
     // TODO: Decouple the gr-app error view from network responses.
-    this._appElement().dispatchEvent(
-      new CustomEvent('page-error', {detail: {response: {status: 404}}})
-    );
+    firePageError(new Response('', {status: 404}));
   }
 }
 

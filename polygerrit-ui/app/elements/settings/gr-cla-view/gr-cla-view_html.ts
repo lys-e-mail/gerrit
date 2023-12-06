@@ -25,7 +25,7 @@ export const htmlTemplate = html`
       margin-bottom: var(--spacing-m);
     }
     .agreementsUrl {
-      border: 1px solid #b0bdcc;
+      border: 1px solid var(--border-color);
       margin-bottom: var(--spacing-xl);
       margin-left: var(--spacing-xl);
       margin-right: var(--spacing-xl);
@@ -84,9 +84,7 @@ export const htmlTemplate = html`
       >
         Agreement already submitted.
       </div>
-      <div class="agreementsUrl">
-        [[item.description]]
-      </div>
+      <div class="agreementsUrl">[[item.description]]</div>
     </template>
     <div
       id="claNewAgreement"
@@ -122,5 +120,4 @@ export const htmlTemplate = html`
       </div>
     </div>
   </main>
-  <gr-rest-api-interface id="restAPI"></gr-rest-api-interface>
 `;

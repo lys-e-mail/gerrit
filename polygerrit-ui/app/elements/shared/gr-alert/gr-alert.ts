@@ -16,8 +16,6 @@
  */
 import '../gr-button/gr-button';
 import '../../../styles/shared-styles';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-alert_html';
 import {getRootElement} from '../../../scripts/rootElement';
@@ -31,9 +29,7 @@ declare global {
 }
 
 @customElement('gr-alert')
-export class GrAlert extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrAlert extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -62,6 +58,9 @@ export class GrAlert extends GestureEventListeners(
   @property({type: Boolean})
   _hideActionButton?: boolean;
 
+  @property({type: Boolean})
+  showDismiss = false;
+
   @property()
   _boundTransitionEndHandler?: (
     this: HTMLElement,
@@ -72,21 +71,21 @@ export class GrAlert extends GestureEventListeners(
   _actionCallback?: () => void;
 
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._boundTransitionEndHandler = () => this._handleTransitionEnd();
     this.addEventListener('transitionend', this._boundTransitionEndHandler);
   }
 
   /** @override */
-  detached() {
-    super.detached();
+  disconnectedCallback() {
     if (this._boundTransitionEndHandler) {
       this.removeEventListener(
         'transitionend',
         this._boundTransitionEndHandler
       );
     }
+    super.disconnectedCallback();
   }
 
   show(text: string, actionText?: string, actionCallback?: () => void) {
@@ -103,6 +102,10 @@ export class GrAlert extends GestureEventListeners(
     if (this._hasZeroTransitionDuration()) {
       getRootElement().removeChild(this);
     }
+  }
+
+  _handleDismissTap() {
+    this.hide();
   }
 
   _hasZeroTransitionDuration() {

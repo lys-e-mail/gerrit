@@ -17,9 +17,6 @@
 import '../../../styles/gr-table-styles';
 import '../../../styles/shared-styles';
 import '../../shared/gr-list-view/gr-list-view';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-plugin-list_html';
 import {
@@ -27,22 +24,16 @@ import {
   ListViewParams,
 } from '../../../mixins/gr-list-view-mixin/gr-list-view-mixin';
 import {customElement, property} from '@polymer/decorators';
-import {RestApiService} from '../../../services/services/gr-rest-api/gr-rest-api';
-import {ErrorCallback} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {PluginInfo} from '../../../types/common';
+import {firePageError, fireTitleChange} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 interface PluginInfoWithName extends PluginInfo {
   name: string;
 }
-export interface GrPluginList {
-  $: {
-    restAPI: RestApiService & Element;
-  };
-}
 @customElement('gr-plugin-list')
-export class GrPluginList extends ListViewMixin(
-  GestureEventListeners(LegacyElementMixin(PolymerElement))
-) {
+export class GrPluginList extends ListViewMixin(PolymerElement) {
   static get template() {
     return htmlTemplate;
   }
@@ -81,16 +72,12 @@ export class GrPluginList extends ListViewMixin(
   @property({type: String})
   _filter = '';
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Plugins'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+  connectedCallback() {
+    super.connectedCallback();
+    fireTitleChange(this, 'Plugins');
   }
 
   _paramsChanged(params: ListViewParams) {
@@ -103,15 +90,9 @@ export class GrPluginList extends ListViewMixin(
 
   _getPlugins(filter: string, pluginsPerPage: number, offset?: number) {
     const errFn: ErrorCallback = response => {
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
-    return this.$.restAPI
+    return this.restApiService
       .getPlugins(filter, pluginsPerPage, offset, errFn)
       .then(plugins => {
         if (!plugins) {

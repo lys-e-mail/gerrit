@@ -18,10 +18,9 @@ import '../../../styles/shared-styles';
 import {GrTooltip} from '../../shared/gr-tooltip/gr-tooltip';
 import {customElement, property} from '@polymer/decorators';
 import {flush} from '@polymer/polymer/lib/legacy/polymer.dom';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-selection-action-box_html';
+import {fireEvent} from '../../../utils/event-util';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -36,9 +35,7 @@ export interface GrSelectionActionBox {
 }
 
 @customElement('gr-selection-action-box')
-export class GrSelectionActionBox extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrSelectionActionBox extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -50,15 +47,13 @@ export class GrSelectionActionBox extends GestureEventListeners(
    */
 
   @property({type: Object})
-  keyEventTarget: Record<string, any> = document.body;
+  keyEventTarget = document.body;
 
   @property({type: Boolean})
   positionBelow = false;
 
-  /** @override */
-  created() {
-    super.created();
-
+  constructor() {
+    super();
     // See https://crbug.com/gerrit/4767
     this.addEventListener('mousedown', e => this._handleMouseDown(e));
   }
@@ -122,11 +117,6 @@ export class GrSelectionActionBox extends GestureEventListeners(
     } // 0 = main button
     e.preventDefault();
     e.stopPropagation();
-    this.dispatchEvent(
-      new CustomEvent('create-comment-requested', {
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireEvent(this, 'create-comment-requested');
   }
 }

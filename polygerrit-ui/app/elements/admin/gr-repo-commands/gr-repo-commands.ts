@@ -22,18 +22,11 @@ import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
 import '../../shared/gr-dialog/gr-dialog';
 import '../../shared/gr-overlay/gr-overlay';
-import '../../shared/gr-rest-api-interface/gr-rest-api-interface';
 import '../gr-create-change-dialog/gr-create-change-dialog';
-import {GestureEventListeners} from '@polymer/polymer/lib/mixins/gesture-event-listeners';
-import {LegacyElementMixin} from '@polymer/polymer/lib/legacy/legacy-element-mixin';
 import {PolymerElement} from '@polymer/polymer/polymer-element';
 import {htmlTemplate} from './gr-repo-commands_html';
 import {GerritNav} from '../../core/gr-navigation/gr-navigation';
 import {customElement, property} from '@polymer/decorators';
-import {
-  ErrorCallback,
-  RestApiService,
-} from '../../../services/services/gr-rest-api/gr-rest-api';
 import {
   BranchName,
   ConfigInfo,
@@ -42,6 +35,13 @@ import {
 } from '../../../types/common';
 import {GrOverlay} from '../../shared/gr-overlay/gr-overlay';
 import {GrCreateChangeDialog} from '../gr-create-change-dialog/gr-create-change-dialog';
+import {
+  fireAlert,
+  firePageError,
+  fireTitleChange,
+} from '../../../utils/event-util';
+import {appContext} from '../../../services/app-context';
+import {ErrorCallback} from '../../../api/rest';
 
 const GC_MESSAGE = 'Garbage collection completed successfully.';
 const CONFIG_BRANCH = 'refs/meta/config' as BranchName;
@@ -53,16 +53,13 @@ const CREATE_CHANGE_SUCCEEDED_MESSAGE = 'Navigating to change';
 
 export interface GrRepoCommands {
   $: {
-    restAPI: RestApiService & Element;
     createChangeOverlay: GrOverlay;
     createNewChangeModal: GrCreateChangeDialog;
   };
 }
 
 @customElement('gr-repo-commands')
-export class GrRepoCommands extends GestureEventListeners(
-  LegacyElementMixin(PolymerElement)
-) {
+export class GrRepoCommands extends PolymerElement {
   static get template() {
     return htmlTemplate;
   }
@@ -90,18 +87,14 @@ export class GrRepoCommands extends GestureEventListeners(
   @property({type: Boolean})
   _runningGC = false;
 
+  private readonly restApiService = appContext.restApiService;
+
   /** @override */
-  attached() {
-    super.attached();
+  connectedCallback() {
+    super.connectedCallback();
     this._loadRepo();
 
-    this.dispatchEvent(
-      new CustomEvent('title-change', {
-        detail: {title: 'Repo Commands'},
-        composed: true,
-        bubbles: true,
-      })
-    );
+    fireTitleChange(this, 'Repo Commands');
   }
 
   _loadRepo() {
@@ -109,16 +102,10 @@ export class GrRepoCommands extends GestureEventListeners(
       // Do not process the error, if the component is not attached to the DOM
       // anymore, which at least in tests can happen.
       if (!this.isConnected) return;
-      this.dispatchEvent(
-        new CustomEvent('page-error', {
-          detail: {response},
-          composed: true,
-          bubbles: true,
-        })
-      );
+      firePageError(response);
     };
 
-    this.$.restAPI.getProjectConfig(this.repo, errFn).then(config => {
+    this.restApiService.getProjectConfig(this.repo, errFn).then(config => {
       if (!config) return;
       // Do not process the response, if the component is not attached to the
       // DOM anymore, which at least in tests can happen.
@@ -137,18 +124,13 @@ export class GrRepoCommands extends GestureEventListeners(
   }
 
   _handleRunningGC() {
+    if (!this.repo) return;
     this._runningGC = true;
-    return this.$.restAPI
+    return this.restApiService
       .runRepoGC(this.repo)
       .then(response => {
         if (response?.status === 200) {
-          this.dispatchEvent(
-            new CustomEvent('show-alert', {
-              detail: {message: GC_MESSAGE},
-              bubbles: true,
-              composed: true,
-            })
-          );
+          fireAlert(this, GC_MESSAGE);
         }
       })
       .finally(() => {
@@ -177,7 +159,7 @@ export class GrRepoCommands extends GestureEventListeners(
    */
   _handleEditRepoConfig() {
     this._editingConfig = true;
-    return this.$.restAPI
+    return this.restApiService
       .createChange(
         this.repo,
         CONFIG_BRANCH,
@@ -190,13 +172,7 @@ export class GrRepoCommands extends GestureEventListeners(
         const message = change
           ? CREATE_CHANGE_SUCCEEDED_MESSAGE
           : CREATE_CHANGE_FAILED_MESSAGE;
-        this.dispatchEvent(
-          new CustomEvent('show-alert', {
-            detail: {message},
-            bubbles: true,
-            composed: true,
-          })
-        );
+        fireAlert(this, message);
         if (!change) {
           return;
         }

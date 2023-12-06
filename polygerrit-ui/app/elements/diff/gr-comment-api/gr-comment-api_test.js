@@ -18,6 +18,10 @@
 import '../../../test/common-test-setup-karma.js';
 import './gr-comment-api.js';
 import {ChangeComments} from './gr-comment-api.js';
+import {isInRevisionOfPatchRange, isInBaseOfPatchRange, isDraftThread, isUnresolved, createCommentThreads} from '../../../utils/comment-util.js';
+import {createDraft, createComment, createChangeComments, createCommentThread} from '../../../test/test-data-generators.js';
+import {CommentSide, Side} from '../../../constants/constants.js';
+import {stubRestApi} from '../../../test/test-utils.js';
 
 const basicFixture = fixtureFromElement('gr-comment-api');
 
@@ -33,24 +37,20 @@ suite('gr-comment-api tests', () => {
   test('loads logged-out', () => {
     const changeNum = 1234;
 
-    sinon.stub(element.$.restAPI, 'getLoggedIn')
-        .returns(Promise.resolve(false));
-    sinon.stub(element.$.restAPI, 'getDiffComments')
-        .returns(Promise.resolve({
+    stubRestApi('getLoggedIn').returns(Promise.resolve(false));
+    const diffCommentsSpy = stubRestApi('getDiffComments').returns(
+        Promise.resolve({
           'foo.c': [{id: '123', message: 'foo bar', in_reply_to: '321'}],
         }));
-    sinon.stub(element.$.restAPI, 'getDiffRobotComments')
-        .returns(Promise.resolve({'foo.c': [{id: '321', message: 'done'}]}));
-    sinon.stub(element.$.restAPI, 'getDiffDrafts')
-        .returns(Promise.resolve({}));
+    const diffRobotCommentsSpy = stubRestApi('getDiffRobotComments').returns(
+        Promise.resolve({'foo.c': [{id: '321', message: 'done'}]}));
+    const diffDraftsSpy = stubRestApi('getDiffDrafts').returns(
+        Promise.resolve({}));
 
     return element.loadAll(changeNum).then(() => {
-      assert.isTrue(element.$.restAPI.getDiffComments.calledWithExactly(
-          changeNum));
-      assert.isTrue(element.$.restAPI.getDiffRobotComments.calledWithExactly(
-          changeNum));
-      assert.isTrue(element.$.restAPI.getDiffDrafts.calledWithExactly(
-          changeNum));
+      assert.isTrue(diffCommentsSpy.calledWithExactly(changeNum));
+      assert.isTrue(diffRobotCommentsSpy.calledWithExactly(changeNum));
+      assert.isTrue(diffDraftsSpy.calledWithExactly(changeNum));
       assert.isOk(element._changeComments._comments);
       assert.isOk(element._changeComments._robotComments);
       assert.deepEqual(element._changeComments._drafts, {});
@@ -60,24 +60,20 @@ suite('gr-comment-api tests', () => {
   test('loads logged-in', () => {
     const changeNum = 1234;
 
-    sinon.stub(element.$.restAPI, 'getLoggedIn')
-        .returns(Promise.resolve(true));
-    sinon.stub(element.$.restAPI, 'getDiffComments')
-        .returns(Promise.resolve({
+    const getCommentsStub = stubRestApi('getDiffComments').returns(
+        Promise.resolve({
           'foo.c': [{id: '123', message: 'foo bar', in_reply_to: '321'}],
-        }));
-    sinon.stub(element.$.restAPI, 'getDiffRobotComments')
+        })
+    );
+    const getRobotCommentsStub = stubRestApi('getDiffRobotComments')
         .returns(Promise.resolve({'foo.c': [{id: '321', message: 'done'}]}));
-    sinon.stub(element.$.restAPI, 'getDiffDrafts')
+    const getDraftsStub = stubRestApi('getDiffDrafts')
         .returns(Promise.resolve({'foo.c': [{id: '555', message: 'ack'}]}));
 
     return element.loadAll(changeNum).then(() => {
-      assert.isTrue(element.$.restAPI.getDiffComments.calledWithExactly(
-          changeNum));
-      assert.isTrue(element.$.restAPI.getDiffRobotComments.calledWithExactly(
-          changeNum));
-      assert.isTrue(element.$.restAPI.getDiffDrafts.calledWithExactly(
-          changeNum));
+      assert.isTrue(getCommentsStub.calledWithExactly(changeNum));
+      assert.isTrue(getRobotCommentsStub.calledWithExactly(changeNum));
+      assert.isTrue(getDraftsStub.calledWithExactly(changeNum));
       assert.isOk(element._changeComments._comments);
       assert.isOk(element._changeComments._robotComments);
       assert.notDeepEqual(element._changeComments._drafts, {});
@@ -89,11 +85,11 @@ suite('gr-comment-api tests', () => {
     let robotCommentStub;
     let draftStub;
     setup(() => {
-      commentStub = sinon.stub(element.$.restAPI, 'getDiffComments')
+      commentStub = stubRestApi('getDiffComments')
           .returns(Promise.resolve({}));
-      robotCommentStub = sinon.stub(element.$.restAPI,
+      robotCommentStub = stubRestApi(
           'getDiffRobotComments').returns(Promise.resolve({}));
-      draftStub = sinon.stub(element.$.restAPI, 'getDiffDrafts')
+      draftStub = stubRestApi('getDiffDrafts')
           .returns(Promise.resolve({}));
     });
 
@@ -133,190 +129,488 @@ suite('gr-comment-api tests', () => {
   suite('_changeComment methods', () => {
     setup(done => {
       const changeNum = 1234;
-      stub('gr-rest-api-interface', {
-        getDiffComments() { return Promise.resolve({}); },
-        getDiffRobotComments() { return Promise.resolve({}); },
-        getDiffDrafts() { return Promise.resolve({}); },
-      });
+      stubRestApi('getDiffComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffRobotComments').returns(Promise.resolve({}));
+      stubRestApi('getDiffDrafts').returns(Promise.resolve({}));
       element.loadAll(changeNum).then(() => {
         done();
+      });
+    });
+
+    suite('ported comments', () => {
+      let portedComments;
+      let changeComments;
+      const comment1 = {
+        ...createComment(),
+        unresolved: true,
+        id: '1',
+        line: 136,
+        patch_set: 2,
+        range: {
+          start_line: 1,
+          start_character: 1,
+          end_line: 1,
+          end_character: 1,
+        },
+      };
+
+      const comment2 = {
+        ...createComment(),
+        patch_set: 2,
+        id: '2',
+        line: 5,
+      };
+
+      const comment3 = {
+        ...createComment(),
+        side: CommentSide.PARENT,
+        line: 10,
+        unresolved: true,
+      };
+
+      const comment4 = {
+        ...comment3,
+        parent: -2,
+      };
+
+      const draft1 = {
+        ...createDraft(),
+        id: 'db977012_e1f13828',
+        line: 4,
+        patch_set: 2,
+      };
+      const draft2 = {
+        ...createDraft(),
+        id: '503008e2_0ab203ee',
+        line: 11,
+        unresolved: true,
+        // slightly larger timestamp so it's sorted higher
+        updated: '2018-02-13 22:49:48.018000001',
+        patch_set: 2,
+      };
+
+      setup(() => {
+        portedComments = {
+          'karma.conf.js': [{
+            ...comment1,
+            patch_set: 4,
+            range: {
+              start_line: 136,
+              start_character: 16,
+              end_line: 136,
+              end_character: 29,
+            },
+          }],
+        };
+
+        changeComments = new ChangeComments(
+            {/* comments */
+              'karma.conf.js': [
+                // resolved comment that will not be ported over
+                comment2,
+                // original comment that will be ported over to patchset 4
+                comment1,
+              ],
+            },
+            {}/* robot comments */,
+            {}/* drafts */,
+            portedComments,
+            {}/* ported drafts */
+        );
+      });
+
+      test('threads containing ported comment are returned', () => {
+        assert.equal(changeComments.getAllThreadsForChange().length,
+            2);
+
+        const portedThreads = changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 'PARENT'});
+
+        assert.equal(portedThreads.length, 1);
+        // check range of thread is from the ported comment and not the original
+        assert.deepEqual(portedThreads[0].range, {
+          start_line: 136,
+          start_character: 16,
+          end_line: 136,
+          end_character: 29,
+        });
+
+        // thread ported over if comparing patchset 1 vs patchset 4
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 1}
+        ).length, 1);
+
+        // verify ported thread is not returned if original thread will be
+        // shown
+        // original thread attached to right side
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 2, basePatchNum: 'PARENT'}
+        ).length, 0);
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 2, basePatchNum: 1}
+        ).length, 0);
+
+        // original thread attached to left side
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 3, basePatchNum: 2}
+        ).length, 0);
+      });
+
+      test('threads without any ported comment are filtered out', () => {
+        changeComments = new ChangeComments(
+            {/* comments */
+              // comment that is not ported over
+              'karma.conf.js': [comment2],
+            },
+            {}/* robot comments */,
+            {/* drafts */
+              'karma.conf.js': [draft2],
+            },
+            // comment1 that is ported over but does not have any thread
+            // that has a comment that matches it
+            portedComments,
+            {}/* ported drafts */
+        );
+
+        assert.equal(createCommentThreads(changeComments
+            .getAllCommentsForPath('karma.conf.js')).length, 1);
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 'PARENT'}
+        ).length, 0);
+      });
+
+      test('comments with side=PARENT are ported over', () => {
+        changeComments = new ChangeComments(
+            {/* comments */
+              // comment left on Base
+              'karma.conf.js': [comment3],
+            },
+            {}/* robot comments */,
+            {/* drafts */
+              'karma.conf.js': [draft2],
+            },
+            {/* ported comments */
+              'karma.conf.js': [{
+                ...comment3,
+                line: 31,
+                patch_set: 4,
+              }],
+            },
+            {}/* ported drafts */
+        );
+
+        const portedThreads = changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 'PARENT'});
+        assert.equal(portedThreads.length, 1);
+        assert.equal(portedThreads[0].line, 31);
+        assert.equal(portedThreads[0].diffSide, Side.LEFT);
+
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: -2}
+        ).length, 0);
+
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 2}
+        ).length, 0);
+      });
+
+      test('comments left on merge parent is not ported over', () => {
+        changeComments = new ChangeComments(
+            {/* comments */
+              // comment left on Base
+              'karma.conf.js': [comment4],
+            },
+            {}/* robot comments */,
+            {/* drafts */
+              'karma.conf.js': [draft2],
+            },
+            {/* ported comments */
+              'karma.conf.js': [{
+                ...comment4,
+                line: 31,
+                patch_set: 4,
+              }],
+            },
+            {}/* ported drafts */
+        );
+
+        const portedThreads = changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 'PARENT'});
+        assert.equal(portedThreads.length, 0);
+
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: -2}
+        ).length, 0);
+
+        assert.equal(changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 2}
+        ).length, 0);
+      });
+
+      test('ported comments contribute to comment count', () => {
+        assert.equal(changeComments.computeCommentsString(
+            {basePatchNum: 'PARENT', patchNum: 2}, 'karma.conf.js',
+            {__path: 'karma.conf.js'}), '2 comments (1 unresolved)');
+
+        // comment1 is ported over to patchset 4
+        assert.equal(changeComments.computeCommentsString(
+            {basePatchNum: 'PARENT', patchNum: 4}, 'karma.conf.js',
+            {__path: 'karma.conf.js'}), '1 comment (1 unresolved)');
+      });
+
+      test('drafts are ported over', () => {
+        changeComments = new ChangeComments(
+            {}/* comments */,
+            {}/* robotComments */,
+            {/* drafts */
+              // draft1: resolved draft that will be ported over to ps 4
+              // draft2: unresolved draft that will be ported over to ps 4
+              'karma.conf.js': [draft1, draft2],
+            },
+            {}/* ported comments */,
+            {/* ported drafts */
+              'karma.conf.js': [
+                {
+                  ...draft1,
+                  line: 5,
+                  patch_set: 4,
+                },
+                {
+                  ...draft2,
+                  line: 31,
+                  patch_set: 4,
+                },
+              ],
+            }
+        );
+
+        const portedThreads = changeComments._getPortedCommentThreads(
+            {path: 'karma.conf.js'}, {patchNum: 4, basePatchNum: 'PARENT'});
+
+        // resolved draft is ported over
+        assert.equal(portedThreads.length, 2);
+        assert.equal(portedThreads[0].line, 5);
+        assert.isTrue(isDraftThread(portedThreads[0]));
+        assert.isFalse(isUnresolved(portedThreads[0]));
+
+        // unresolved draft is ported over
+        assert.equal(portedThreads[1].line, 31);
+        assert.isTrue(isDraftThread(portedThreads[1]));
+        assert.isTrue(isUnresolved(portedThreads[1]));
+
+        assert.equal(createCommentThreads(
+            changeComments.getAllCommentsForPath('karma.conf.js'),
+            {patchNum: 4, basePatchNum: 'PARENT'}).length, 0);
       });
     });
 
     test('_isInBaseOfPatchRange', () => {
       const comment = {patch_set: 1};
       const patchRange = {basePatchNum: 1, patchNum: 2};
-      assert.isTrue(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isTrue(isInBaseOfPatchRange(comment,
           patchRange));
 
       patchRange.basePatchNum = PARENT;
-      assert.isFalse(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isFalse(isInBaseOfPatchRange(comment,
           patchRange));
 
       comment.side = PARENT;
-      assert.isFalse(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isFalse(isInBaseOfPatchRange(comment,
           patchRange));
 
       comment.patch_set = 2;
-      assert.isTrue(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isTrue(isInBaseOfPatchRange(comment,
           patchRange));
 
       patchRange.basePatchNum = -2;
       comment.side = PARENT;
       comment.parent = 1;
-      assert.isFalse(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isFalse(isInBaseOfPatchRange(comment,
           patchRange));
 
       comment.parent = 2;
-      assert.isTrue(element._changeComments._isInBaseOfPatchRange(comment,
+      assert.isTrue(isInBaseOfPatchRange(comment,
           patchRange));
     });
 
-    test('_isInRevisionOfPatchRange', () => {
+    test('isInRevisionOfPatchRange', () => {
       const comment = {patch_set: 123};
       const patchRange = {basePatchNum: 122, patchNum: 124};
-      assert.isFalse(element._changeComments._isInRevisionOfPatchRange(
+      assert.isFalse(isInRevisionOfPatchRange(
           comment, patchRange));
 
       patchRange.patchNum = 123;
-      assert.isTrue(element._changeComments._isInRevisionOfPatchRange(
+      assert.isTrue(isInRevisionOfPatchRange(
           comment, patchRange));
 
       comment.side = PARENT;
-      assert.isFalse(element._changeComments._isInRevisionOfPatchRange(
+      assert.isFalse(isInRevisionOfPatchRange(
           comment, patchRange));
     });
 
-    test('_isInPatchRange', () => {
-      const patchRange1 = {basePatchNum: 122, patchNum: 124};
-      const patchRange2 = {basePatchNum: 123, patchNum: 125};
-      const patchRange3 = {basePatchNum: 124, patchNum: 125};
-
-      const isInBasePatchStub = sinon.stub(element._changeComments,
-          '_isInBaseOfPatchRange');
-      const isInRevisionPatchStub = sinon.stub(element._changeComments,
-          '_isInRevisionOfPatchRange');
-
-      isInBasePatchStub.withArgs({}, patchRange1).returns(true);
-      isInBasePatchStub.withArgs({}, patchRange2).returns(false);
-      isInBasePatchStub.withArgs({}, patchRange3).returns(false);
-
-      isInRevisionPatchStub.withArgs({}, patchRange1).returns(false);
-      isInRevisionPatchStub.withArgs({}, patchRange2).returns(true);
-      isInRevisionPatchStub.withArgs({}, patchRange3).returns(false);
-
-      assert.isTrue(element._changeComments._isInPatchRange({}, patchRange1));
-      assert.isTrue(element._changeComments._isInPatchRange({}, patchRange2));
-      assert.isFalse(element._changeComments._isInPatchRange({},
-          patchRange3));
-    });
-
     suite('comment ranges and paths', () => {
+      const commentObjs = {};
       function makeTime(mins) {
         return `2013-02-26 15:0${mins}:43.986000000`;
       }
 
       setup(() => {
+        commentObjs['01'] = {
+          ...createComment(),
+          id: '01',
+          patch_set: 2,
+          side: PARENT,
+          line: 1,
+          updated: makeTime(1),
+          range: {
+            start_line: 1,
+            start_character: 2,
+            end_line: 2,
+            end_character: 2,
+          },
+        };
+
+        commentObjs['02'] = {
+          ...createComment(),
+          id: '02',
+          in_reply_to: '04',
+          patch_set: 2,
+          unresolved: true,
+          line: 1,
+          updated: makeTime(3),
+        };
+
+        commentObjs['03'] = {
+          ...createComment(),
+          id: '03',
+          patch_set: 2,
+          side: PARENT,
+          line: 2,
+          updated: makeTime(1),
+        };
+
+        commentObjs['04'] = {
+          ...createComment(),
+          id: '04',
+          patch_set: 2,
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['05'] = {
+          ...createComment(),
+          id: '05',
+          patch_set: 2,
+          line: 2,
+          updated: makeTime(1),
+        };
+
+        commentObjs['06'] = {
+          ...createComment(),
+          id: '06',
+          patch_set: 3,
+          line: 2,
+          updated: makeTime(1),
+        };
+
+        commentObjs['07'] = {
+          ...createComment(),
+          id: '07',
+          patch_set: 2,
+          side: PARENT,
+          unresolved: false,
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['08'] = {
+          ...createComment(),
+          id: '08',
+          patch_set: 2,
+          side: PARENT,
+          unresolved: true,
+          in_reply_to: '07',
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['09'] = {
+          ...createComment(),
+          id: '09',
+          patch_set: 3,
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['10'] = {
+          ...createComment(),
+          id: '10',
+          patch_set: 5,
+          side: PARENT,
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['11'] = {
+          ...createComment(),
+          id: '11',
+          patch_set: 5,
+          line: 1,
+          updated: makeTime(1),
+        };
+
+        commentObjs['12'] = {
+          ...createDraft(),
+          id: '12',
+          patch_set: 2,
+          side: PARENT,
+          line: 1,
+          updated: makeTime(3),
+        };
+
+        commentObjs['13'] = {
+          ...createDraft(),
+          id: '13',
+          in_reply_to: '04',
+          patch_set: 2,
+          line: 1,
+          // Draft gets lower timestamp than published comment, because we
+          // want to test that the draft still gets sorted to the end.
+          updated: makeTime(2),
+        };
+
+        commentObjs['14'] = {
+          ...createDraft(),
+          id: '14',
+          patch_set: 3,
+          line: 1,
+          path: 'file/two',
+          updated: makeTime(3),
+        };
+
         const drafts = {
           'file/one': [
-            {
-              id: '12',
-              patch_set: 2,
-              side: PARENT,
-              line: 1,
-              updated: makeTime(3),
-            },
-            {
-              id: '13',
-              in_reply_to: '04',
-              patch_set: 2,
-              line: 1,
-              // Draft gets lower timestamp than published comment, because we
-              // want to test that the draft still gets sorted to the end.
-              updated: makeTime(2),
-            },
+            commentObjs['12'],
+            commentObjs['13'],
           ],
           'file/two': [
-            {
-              id: '05',
-              patch_set: 3,
-              line: 1,
-              updated: makeTime(3),
-            },
+            commentObjs['14'],
           ],
         };
         const robotComments = {
           'file/one': [
-            {
-              id: '01',
-              patch_set: 2,
-              side: PARENT,
-              line: 1,
-              updated: makeTime(1),
-              range: {
-                start_line: 1,
-                start_character: 2,
-                end_line: 2,
-                end_character: 2,
-              },
-            }, {
-              id: '02',
-              in_reply_to: '04',
-              patch_set: 2,
-              unresolved: true,
-              line: 1,
-              updated: makeTime(3),
-            },
+            commentObjs['01'], commentObjs['02'],
           ],
         };
         const comments = {
-          'file/one': [
-            {
-              id: '03',
-              patch_set: 2,
-              side: PARENT,
-              line: 2,
-              updated: makeTime(1),
-            },
-            {id: '04', patch_set: 2, line: 1, updated: makeTime(1)},
-          ],
-          'file/two': [
-            {id: '05', patch_set: 2, line: 2, updated: makeTime(1)},
-            {id: '06', patch_set: 3, line: 2, updated: makeTime(1)},
-          ],
-          'file/three': [
-            {
-              id: '07',
-              patch_set: 2,
-              side: PARENT,
-              unresolved: false,
-              line: 1,
-              updated: makeTime(1),
-            },
-            {
-              id: '08',
-              patch_set: 2,
-              side: PARENT,
-              unresolved: true,
-              in_reply_to: '07',
-              line: 1,
-              updated: makeTime(1),
-            },
-            {id: '09', patch_set: 3, line: 1, updated: makeTime(1)},
-          ],
-          'file/four': [
-            {
-              id: '10',
-              patch_set: 5,
-              side: PARENT,
-              line: 1,
-              updated: makeTime(1),
-            },
-            {id: '11', patch_set: 5, line: 1, updated: makeTime(1)},
-          ],
+          'file/one': [commentObjs['03'], commentObjs['04']],
+          'file/two': [commentObjs['05'], commentObjs['06']],
+          'file/three': [commentObjs['07'], commentObjs['08'],
+            commentObjs['09']],
+          'file/four': [commentObjs['10'], commentObjs['11']],
         };
         element._changeComments =
-            new ChangeComments(comments, robotComments, drafts, 1234);
+            new ChangeComments(comments, robotComments, drafts, {}, {});
       });
 
       test('getPaths', () => {
@@ -346,33 +640,40 @@ suite('gr-comment-api tests', () => {
         assert.property(paths, 'file/four');
       });
 
-      test('getCommentsBySideForPath', () => {
+      test('getCommentsForPath', () => {
         const patchRange = {basePatchNum: 1, patchNum: 3};
         let path = 'file/one';
-        let comments = element._changeComments.getCommentsBySideForPath(path,
+        let comments = element._changeComments.getCommentsForPath(path,
             patchRange);
-        assert.equal(comments.meta.changeNum, 1234);
-        assert.equal(comments.left.length, 0);
-        assert.equal(comments.right.length, 0);
+        assert.equal(comments.filter(c => isInBaseOfPatchRange(c, patchRange))
+            .length, 0);
+        assert.equal(comments.filter(c => isInRevisionOfPatchRange(c,
+            patchRange)).length, 0);
 
         path = 'file/two';
-        comments = element._changeComments.getCommentsBySideForPath(path,
+        comments = element._changeComments.getCommentsForPath(path,
             patchRange);
-        assert.equal(comments.left.length, 0);
-        assert.equal(comments.right.length, 2);
+        assert.equal(comments.filter(c => isInBaseOfPatchRange(c, patchRange))
+            .length, 0);
+        assert.equal(comments.filter(c => isInRevisionOfPatchRange(c,
+            patchRange)).length, 2);
 
         patchRange.basePatchNum = 2;
-        comments = element._changeComments.getCommentsBySideForPath(path,
+        comments = element._changeComments.getCommentsForPath(path,
             patchRange);
-        assert.equal(comments.left.length, 1);
-        assert.equal(comments.right.length, 2);
+        assert.equal(comments.filter(c => isInBaseOfPatchRange(c,
+            patchRange)).length, 1);
+        assert.equal(comments.filter(c => isInRevisionOfPatchRange(c,
+            patchRange)).length, 2);
 
         patchRange.basePatchNum = PARENT;
         path = 'file/three';
-        comments = element._changeComments.getCommentsBySideForPath(path,
+        comments = element._changeComments.getCommentsForPath(path,
             patchRange);
-        assert.equal(comments.left.length, 0);
-        assert.equal(comments.right.length, 1);
+        assert.equal(comments.filter(c => isInBaseOfPatchRange(c, patchRange))
+            .length, 0);
+        assert.equal(comments.filter(c => isInRevisionOfPatchRange(c,
+            patchRange)).length, 1);
       });
 
       test('getAllCommentsForPath', () => {
@@ -448,6 +749,78 @@ suite('gr-comment-api tests', () => {
             element._changeComments.computeUnresolvedNum(1, 'path'), 0);
       });
 
+      test('computeCommentsString', () => {
+        const changeComments = createChangeComments();
+        const parentTo1 = {
+          basePatchNum: 'PARENT',
+          patchNum: 1,
+        };
+        const parentTo2 = {
+          basePatchNum: 'PARENT',
+          patchNum: 2,
+        };
+        const _1To2 = {
+          basePatchNum: 1,
+          patchNum: 2,
+        };
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo1, '/COMMIT_MSG',
+                {__path: '/COMMIT_MSG'}), '2 comments (1 unresolved)');
+        assert.equal(
+            changeComments.computeCommentsString(parentTo1, '/COMMIT_MSG',
+                {__path: '/COMMIT_MSG', status: 'U'}, true),
+            '2 comments (1 unresolved)(no changes)');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2, '/COMMIT_MSG',
+                {__path: '/COMMIT_MSG'}), '3 comments (1 unresolved)');
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo1, 'myfile.txt',
+                {__path: 'myfile.txt'}), '1 comment');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2, 'myfile.txt',
+                {__path: 'myfile.txt'}), '3 comments');
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo1,
+                'file_added_in_rev2.txt',
+                {__path: 'file_added_in_rev2.txt'}), '');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2,
+                'file_added_in_rev2.txt',
+                {__path: 'file_added_in_rev2.txt'}), '');
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo2, '/COMMIT_MSG',
+                {__path: '/COMMIT_MSG'}), '1 comment');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2, '/COMMIT_MSG',
+                {__path: '/COMMIT_MSG'}), '3 comments (1 unresolved)');
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo2, 'myfile.txt',
+                {__path: 'myfile.txt'}), '2 comments');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2, 'myfile.txt',
+                {__path: 'myfile.txt'}), '3 comments');
+
+        assert.equal(
+            changeComments.computeCommentsString(parentTo2,
+                'file_added_in_rev2.txt',
+                {__path: 'file_added_in_rev2.txt'}), '');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2,
+                'file_added_in_rev2.txt',
+                {__path: 'file_added_in_rev2.txt'}), '');
+        assert.equal(
+            changeComments.computeCommentsString(parentTo2, 'unresolved.file',
+                {__path: 'unresolved.file'}), '2 comments (1 unresolved)');
+        assert.equal(
+            changeComments.computeCommentsString(_1To2, 'unresolved.file',
+                {__path: 'unresolved.file'}), '2 comments (1 unresolved)');
+      });
+
       test('computeCommentThreadCount', () => {
         assert.equal(element._changeComments
             .computeCommentThreadCount({
@@ -521,220 +894,31 @@ suite('gr-comment-api tests', () => {
       test('computeAllThreads', () => {
         const expectedThreads = [
           {
-            comments: [
-              {
-                id: '01',
-                patch_set: 2,
-                side: 'PARENT',
-                line: 1,
-                updated: '2013-02-26 15:01:43.986000000',
-                range: {
-                  start_line: 1,
-                  start_character: 2,
-                  end_line: 2,
-                  end_character: 2,
-                },
-                path: 'file/one',
-                __path: 'file/one',
-              },
-            ],
-            commentSide: 'PARENT',
-            patchNum: 2,
-            path: 'file/one',
-            line: 1,
-            rootId: '01',
+            ...createCommentThread([{...commentObjs['01'], path: 'file/one'}]),
           }, {
-            comments: [
-              {
-                id: '03',
-                patch_set: 2,
-                side: 'PARENT',
-                line: 2,
-                path: 'file/one',
-                __path: 'file/one',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            commentSide: 'PARENT',
-            patchNum: 2,
-            path: 'file/one',
-            line: 2,
-            rootId: '03',
+            ...createCommentThread([{...commentObjs['03'], path: 'file/one'}]),
           }, {
-            comments: [
-              {
-                id: '04',
-                patch_set: 2,
-                line: 1,
-                path: 'file/one',
-                __path: 'file/one',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-              {
-                id: '02',
-                in_reply_to: '04',
-                patch_set: 2,
-                unresolved: true,
-                line: 1,
-                path: 'file/one',
-                __path: 'file/one',
-                updated: '2013-02-26 15:03:43.986000000',
-              },
-              {
-                id: '13',
-                in_reply_to: '04',
-                patch_set: 2,
-                line: 1,
-                path: 'file/one',
-                __path: 'file/one',
-                __draft: true,
-                updated: '2013-02-26 15:02:43.986000000',
-              },
-            ],
-            patchNum: 2,
-            path: 'file/one',
-            line: 1,
-            rootId: '04',
+            ...createCommentThread([{...commentObjs['04'], path: 'file/one'},
+              {...commentObjs['02'], path: 'file/one'},
+              {...commentObjs['13'], path: 'file/one'}]),
           }, {
-            comments: [
-              {
-                id: '05',
-                patch_set: 2,
-                line: 2,
-                path: 'file/two',
-                __path: 'file/two',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            patchNum: 2,
-            path: 'file/two',
-            line: 2,
-            rootId: '05',
+            ...createCommentThread([{...commentObjs['05'], path: 'file/two'}]),
           }, {
-            comments: [
-              {
-                id: '06',
-                patch_set: 3,
-                line: 2,
-                path: 'file/two',
-                __path: 'file/two',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            patchNum: 3,
-            path: 'file/two',
-            line: 2,
-            rootId: '06',
+            ...createCommentThread([{...commentObjs['06'], path: 'file/two'}]),
           }, {
-            comments: [
-              {
-                id: '07',
-                patch_set: 2,
-                side: 'PARENT',
-                unresolved: false,
-                line: 1,
-                path: 'file/three',
-                __path: 'file/three',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-              {
-                id: '08',
-                in_reply_to: '07',
-                patch_set: 2,
-                side: 'PARENT',
-                unresolved: true,
-                line: 1,
-                path: 'file/three',
-                __path: 'file/three',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            commentSide: 'PARENT',
-            patchNum: 2,
-            path: 'file/three',
-            line: 1,
-            rootId: '07',
+            ...createCommentThread([{...commentObjs['07'], path: 'file/three'},
+              {...commentObjs['08'], path: 'file/three'}]),
           }, {
-            comments: [
-              {
-                id: '09',
-                patch_set: 3,
-                line: 1,
-                path: 'file/three',
-                __path: 'file/three',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            patchNum: 3,
-            path: 'file/three',
-            line: 1,
-            rootId: '09',
+            ...createCommentThread([{...commentObjs['09'], path: 'file/three'}]
+            ),
           }, {
-            comments: [
-              {
-                id: '10',
-                patch_set: 5,
-                side: 'PARENT',
-                line: 1,
-                path: 'file/four',
-                __path: 'file/four',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            commentSide: 'PARENT',
-            patchNum: 5,
-            path: 'file/four',
-            line: 1,
-            rootId: '10',
+            ...createCommentThread([{...commentObjs['10'], path: 'file/four'}]),
           }, {
-            comments: [
-              {
-                id: '11',
-                patch_set: 5,
-                line: 1,
-                path: 'file/four',
-                __path: 'file/four',
-                updated: '2013-02-26 15:01:43.986000000',
-              },
-            ],
-            rootId: '11',
-            patchNum: 5,
-            path: 'file/four',
-            line: 1,
+            ...createCommentThread([{...commentObjs['11'], path: 'file/four'}]),
           }, {
-            comments: [
-              {
-                id: '05',
-                patch_set: 3,
-                line: 1,
-                path: 'file/two',
-                __path: 'file/two',
-                __draft: true,
-                updated: '2013-02-26 15:03:43.986000000',
-              },
-            ],
-            rootId: '05',
-            patchNum: 3,
-            path: 'file/two',
-            line: 1,
+            ...createCommentThread([{...commentObjs['12'], path: 'file/one'}]),
           }, {
-            comments: [
-              {
-                id: '12',
-                patch_set: 2,
-                side: 'PARENT',
-                line: 1,
-                path: 'file/one',
-                __path: 'file/one',
-                __draft: true,
-                updated: '2013-02-26 15:03:43.986000000',
-              },
-            ],
-            rootId: '12',
-            commentSide: 'PARENT',
-            patchNum: 2,
-            path: 'file/one',
-            line: 1,
+            ...createCommentThread([{...commentObjs['14'], path: 'file/two'}]),
           },
         ];
         const threads = element._changeComments.getAllThreadsForChange();
@@ -743,48 +927,14 @@ suite('gr-comment-api tests', () => {
 
       test('getCommentsForThreadGroup', () => {
         let expectedComments = [
-          {
-            __path: 'file/one',
-            path: 'file/one',
-            id: '04',
-            patch_set: 2,
-            line: 1,
-            updated: '2013-02-26 15:01:43.986000000',
-          },
-          {
-            __path: 'file/one',
-            path: 'file/one',
-            id: '02',
-            in_reply_to: '04',
-            patch_set: 2,
-            unresolved: true,
-            line: 1,
-            updated: '2013-02-26 15:03:43.986000000',
-          },
-          {
-            __path: 'file/one',
-            path: 'file/one',
-            __draft: true,
-            id: '13',
-            in_reply_to: '04',
-            patch_set: 2,
-            line: 1,
-            updated: '2013-02-26 15:02:43.986000000',
-          },
+          {...commentObjs['04'], path: 'file/one'},
+          {...commentObjs['02'], path: 'file/one'},
+          {...commentObjs['13'], path: 'file/one'},
         ];
         assert.deepEqual(element._changeComments.getCommentsForThread('04'),
             expectedComments);
 
-        expectedComments = [{
-          id: '12',
-          patch_set: 2,
-          side: 'PARENT',
-          line: 1,
-          path: 'file/one',
-          __path: 'file/one',
-          __draft: true,
-          updated: '2013-02-26 15:03:43.986000000',
-        }];
+        expectedComments = [{...commentObjs['12'], path: 'file/one'}];
 
         assert.deepEqual(element._changeComments.getCommentsForThread('12'),
             expectedComments);
