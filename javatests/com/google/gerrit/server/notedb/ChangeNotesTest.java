@@ -2062,7 +2062,7 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     ChangeUpdate update2 = newUpdate(c, otherUser);
     update2.putApproval(LabelId.CODE_REVIEW, (short) 2);
 
-    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project)) {
+    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project, otherUser)) {
       updateManager.add(update1);
       updateManager.add(update2);
       testRefAction(() -> updateManager.execute());
@@ -2091,7 +2091,7 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     Instant time1 = TimeUtil.now();
     PatchSet.Id psId = c.currentPatchSetId();
     RevCommit tipCommit;
-    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project)) {
+    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project, otherUser)) {
       HumanComment comment1 =
           newComment(
               psId,
@@ -2171,7 +2171,7 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     Ref initial2 = repo.exactRef(update2.getRefName());
     assertThat(initial2).isNotNull();
 
-    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project)) {
+    try (NoteDbUpdateManager updateManager = updateManagerFactory.create(project, otherUser)) {
       updateManager.add(update1);
       updateManager.add(update2);
       testRefAction(() -> updateManager.execute());
@@ -3473,11 +3473,21 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     // Re-add draft version of comment2 back to draft ref without updating
     // change ref. Simulates the case where deleting the draft failed
     // non-atomically after adding the published comment succeeded.
+<<<<<<< HEAD   (1cc64b Enable CheckReturnValue for more com.google.gerrit.server pa)
     ChangeDraftUpdate draftUpdate = newUpdate(c, otherUser).createDraftUpdateIfNull();
     if (draftUpdate != null) {
       draftUpdate.putDraftComment(comment2);
       try (NoteDbUpdateManager manager = updateManagerFactory.create(c.getProject())) {
         manager.add(draftUpdate);
+=======
+    Optional<ChangeDraftNotesUpdate> draftUpdate =
+        ChangeDraftNotesUpdate.asChangeDraftNotesUpdate(
+            newUpdate(c, otherUser).createDraftUpdateIfNull());
+    if (draftUpdate.isPresent()) {
+      draftUpdate.get().putDraftComment(comment2);
+      try (NoteDbUpdateManager manager = updateManagerFactory.create(c.getProject(), otherUser)) {
+        manager.add(draftUpdate.get());
+>>>>>>> BRANCH (93d31d Merge branch 'stable-3.8' into stable-3.9)
         testRefAction(() -> manager.execute());
       }
     }
@@ -3540,7 +3550,7 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
             false);
     update2.putComment(HumanComment.Status.PUBLISHED, comment2);
 
-    try (NoteDbUpdateManager manager = updateManagerFactory.create(project)) {
+    try (NoteDbUpdateManager manager = updateManagerFactory.create(project, otherUser)) {
       manager.add(update1);
       manager.add(update2);
       testRefAction(() -> manager.execute());
