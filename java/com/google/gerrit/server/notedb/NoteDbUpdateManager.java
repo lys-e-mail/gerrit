@@ -33,8 +33,13 @@ import com.google.gerrit.entities.ProjectChangeKey;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.exceptions.StorageException;
 import com.google.gerrit.metrics.Timer0;
+<<<<<<< HEAD   (1cc64b Enable CheckReturnValue for more com.google.gerrit.server pa)
 import com.google.gerrit.server.ChangeDraftUpdate;
 import com.google.gerrit.server.ChangeDraftUpdateExecutor;
+=======
+import com.google.gerrit.server.CurrentUser;
+import com.google.gerrit.server.GerritPersonIdent;
+>>>>>>> BRANCH (93d31d Merge branch 'stable-3.8' into stable-3.9)
 import com.google.gerrit.server.cancellation.RequestStateContext;
 import com.google.gerrit.server.cancellation.RequestStateContext.NonCancellableOperationContext;
 import com.google.gerrit.server.config.AllUsersName;
@@ -78,7 +83,7 @@ public class NoteDbUpdateManager implements AutoCloseable {
   private static final int MAX_PATCH_SETS_DEFAULT = 1000;
 
   public interface Factory {
-    NoteDbUpdateManager create(Project.NameKey projectName);
+    NoteDbUpdateManager create(Project.NameKey projectName, CurrentUser currentUser);
   }
 
   private final GitRepositoryManager repoManager;
@@ -87,6 +92,7 @@ public class NoteDbUpdateManager implements AutoCloseable {
   private final Project.NameKey projectName;
   private final int maxUpdates;
   private final int maxPatchSets;
+  private final CurrentUser currentUser;
   private final ListMultimap<String, ChangeUpdate> changeUpdates;
   private final ListMultimap<String, ChangeDraftUpdate> draftUpdates;
   private final NoteDbUpdateExecutor noteDbUpdateExecutor;
@@ -109,9 +115,16 @@ public class NoteDbUpdateManager implements AutoCloseable {
       GitRepositoryManager repoManager,
       AllUsersName allUsersName,
       NoteDbMetrics metrics,
+<<<<<<< HEAD   (1cc64b Enable CheckReturnValue for more com.google.gerrit.server pa)
       @Assisted Project.NameKey projectName,
       NoteDbUpdateExecutor noteDbUpdateExecutor,
       ChangeDraftUpdateExecutor.AbstractFactory draftUpdatesExecutorFactory) {
+=======
+      AllUsersAsyncUpdate updateAllUsersAsync,
+      @Assisted Project.NameKey projectName,
+      @Assisted CurrentUser currentUser) {
+    this.serverIdent = serverIdent;
+>>>>>>> BRANCH (93d31d Merge branch 'stable-3.8' into stable-3.9)
     this.repoManager = repoManager;
     this.allUsersName = allUsersName;
     this.metrics = metrics;
@@ -120,6 +133,7 @@ public class NoteDbUpdateManager implements AutoCloseable {
     this.draftUpdatesExecutorFactory = draftUpdatesExecutorFactory;
     maxUpdates = cfg.getInt("change", null, "maxUpdates", MAX_UPDATES_DEFAULT);
     maxPatchSets = cfg.getInt("change", null, "maxPatchSets", MAX_PATCH_SETS_DEFAULT);
+    this.currentUser = currentUser;
     changeUpdates = MultimapBuilder.hashKeys().arrayListValues().build();
     draftUpdates = MultimapBuilder.hashKeys().arrayListValues().build();
     robotCommentUpdates = MultimapBuilder.hashKeys().arrayListValues().build();
@@ -322,6 +336,7 @@ public class NoteDbUpdateManager implements AutoCloseable {
           newTimer("NoteDbUpdateManager#updateRepo", Metadata.empty())) {
         execute(changeRepo, dryrun, pushCert).ifPresent(bru -> resultBuilder.put(projectName, bru));
       }
+<<<<<<< HEAD   (1cc64b Enable CheckReturnValue for more com.google.gerrit.server pa)
 
       if (draftUpdatesExecutor != null) {
         draftUpdatesExecutor
@@ -334,6 +349,18 @@ public class NoteDbUpdateManager implements AutoCloseable {
           // skipping the dry run altogether.
           draftUpdatesExecutor.executeAllAsyncUpdates(refLogIdent, refLogMessage, pushCert);
         }
+=======
+      try (TraceContext.TraceTimer ignored =
+          newTimer("NoteDbUpdateManager#updateAllUsersSync", Metadata.empty())) {
+        execute(allUsersRepo, dryrun, null).ifPresent(bru -> resultBuilder.put(allUsersName, bru));
+      }
+      if (!dryrun) {
+        // Only execute the asynchronous operation if we are not in dry-run mode: The dry run would
+        // have to run synchronous to be of any value at all. For the removal of draft comments from
+        // All-Users we don't care much of the operation succeeds, so we are skipping the dry run
+        // altogether.
+        updateAllUsersAsync.execute(refLogIdent, refLogMessage, pushCert, currentUser);
+>>>>>>> BRANCH (93d31d Merge branch 'stable-3.8' into stable-3.9)
       }
       executed = true;
       return resultBuilder.build();
