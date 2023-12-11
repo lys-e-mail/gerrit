@@ -2,7 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-acceptance-framework</artifactId>
+<<<<<<< HEAD   (1cc64b Enable CheckReturnValue for more com.google.gerrit.server pa)
   <version>3.9.1-SNAPSHOT</version>
+=======
+  <version>3.9.2-SNAPSHOT</version>
+>>>>>>> BRANCH (93d31d Merge branch 'stable-3.8' into stable-3.9)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Acceptance Test Framework</name>
   <description>Framework for Gerrit's acceptance tests</description>
