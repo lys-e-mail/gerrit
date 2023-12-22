@@ -25,8 +25,13 @@ default_java_toolchain(
     package_configuration = [
         ":error_prone",
     ],
+<<<<<<< HEAD   (1edd10 Merge "Fix formatting issue in submit requirements documenta)
     source_version = VERSION,
     target_version = VERSION,
+=======
+    source_version = "11",
+    target_version = "17",
+>>>>>>> BRANCH (fc9da8 Merge branch 'stable-3.8' into stable-3.9)
     visibility = ["//visibility:public"],
 ) for VERSION in [
     "17",
