@@ -1,7 +1,7 @@
 /**
  * @license
  * Copyright 2015 Google LLC
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Apache-2.0aa
  */
 import '../../../styles/shared-styles';
 import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
@@ -79,7 +79,6 @@ import {Suggestion, SuggestionsProvider} from '../../../api/suggestions';
 import {when} from 'lit/directives/when.js';
 import {getDocUrl} from '../../../utils/url-util';
 import {configModelToken} from '../../../models/config/config-model';
-import {getFileExtension} from '../../../utils/file-util';
 import {storageServiceToken} from '../../../services/storage/gr-storage_impl';
 
 // visible for testing
@@ -984,7 +983,7 @@ export class GrComment extends LitElement {
       this.comment.path !== SpecialFilePath.COMMIT_MESSAGE &&
       (!this.suggestionsProvider.supportedFileExtensions ||
         this.suggestionsProvider.supportedFileExtensions.includes(
-          getFileExtension(this.comment.path)
+          this.comment.path.substring(this.comment.path.lastIndexOf('.') + 1)
         )) &&
       this.comment === this.comments?.[0] && // Is first comment
       (this.comment.range || this.comment.line) && // Disabled for File comments
