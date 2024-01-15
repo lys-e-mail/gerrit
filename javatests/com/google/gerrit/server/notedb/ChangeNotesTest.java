@@ -25,10 +25,15 @@ import static com.google.gerrit.server.notedb.ReviewerStateInternal.CC;
 import static com.google.gerrit.server.notedb.ReviewerStateInternal.REMOVED;
 import static com.google.gerrit.server.notedb.ReviewerStateInternal.REVIEWER;
 import static com.google.gerrit.testing.GerritJUnit.assertThrows;
+<<<<<<< HEAD   (df935f Merge branch 'stable-3.7' into stable-3.8)
 import static com.google.gerrit.testing.TestActionRefUpdateContext.testRefAction;
 import static java.nio.charset.StandardCharsets.UTF_8;
+||||||| BASE
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
-import static org.eclipse.jgit.lib.Constants.OBJ_BLOB;
+=======
+>>>>>>> BRANCH (068b77 Do not use cached ChangeNote when building the next one)
+import static java.util.Comparator.comparing;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
@@ -1882,7 +1887,6 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     update.commit();
 
     ChangeNotes notes = newNotes(c);
-    readNote(notes, commit);
 
     Map<PatchSet.Id, PatchSet> patchSets = notes.getPatchSets();
     assertThat(patchSets.get(psId1).pushCertificate()).isEmpty();
@@ -3860,12 +3864,96 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     assertThat(newNotes(c).getChange().currentPatchSetId().get()).isEqualTo(2);
   }
 
+<<<<<<< HEAD   (df935f Merge branch 'stable-3.7' into stable-3.8)
   private String readNote(ChangeNotes notes, ObjectId noteId) throws Exception {
     ObjectId dataId = notes.revisionNoteMap.noteMap.getNote(noteId).getData();
     return new String(rw.getObjectReader().open(dataId, OBJ_BLOB).getCachedBytes(), UTF_8);
   }
 
   @Nullable
+||||||| BASE
+    update.setRevertOf(newChange().getId().get());
+    StorageException thrown = assertThrows(StorageException.class, () -> update.commit());
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("Given ChangeUpdate is only allowed on initial commit");
+  }
+
+  @Test
+  public void resetCherryPickOf() throws Exception {
+    Change destinationChange = newChange();
+    Change cherryPickChange = newChange();
+    assertThat(newNotes(destinationChange).getChange().getCherryPickOf()).isNull();
+
+    ChangeUpdate update = newUpdate(destinationChange, changeOwner);
+    update.setCherryPickOf(
+        cherryPickChange.currentPatchSetId().getCommaSeparatedChangeAndPatchSetId());
+    update.commit();
+    assertThat(newNotes(destinationChange).getChange().getCherryPickOf())
+        .isEqualTo(cherryPickChange.currentPatchSetId());
+
+    update = newUpdate(destinationChange, changeOwner);
+    update.resetCherryPickOf();
+    update.commit();
+    assertThat(newNotes(destinationChange).getChange().getCherryPickOf()).isNull();
+
+    // Can set again after reset.
+    cherryPickChange = newChange();
+    update = newUpdate(destinationChange, changeOwner);
+    update.setCherryPickOf(
+        cherryPickChange.currentPatchSetId().getCommaSeparatedChangeAndPatchSetId());
+    update.commit();
+    assertThat(newNotes(destinationChange).getChange().getCherryPickOf())
+        .isEqualTo(cherryPickChange.currentPatchSetId());
+  }
+
+  @Test
+  public void updateCount() throws Exception {
+    Change c = newChange();
+    assertThat(newNotes(c).getUpdateCount()).isEqualTo(1);
+
+    ChangeUpdate update = newUpdate(c, changeOwner);
+    update.putApproval(LabelId.CODE_REVIEW, (short) -1);
+    update.commit();
+    assertThat(newNotes(c).getUpdateCount()).isEqualTo(2);
+
+    update = newUpdate(c, changeOwner);
+    update.putApproval(LabelId.CODE_REVIEW, (short) 1);
+    update.commit();
+    assertThat(newNotes(c).getUpdateCount()).isEqualTo(3);
+  }
+
+  @Test
+  public void createPatchSetAfterPatchSetDeletion() throws Exception {
+    Change c = newChange();
+    assertThat(newNotes(c).getChange().currentPatchSetId().get()).isEqualTo(1);
+
+    // Create PS2.
+    incrementCurrentPatchSetFieldOnly(c);
+    RevCommit commit = tr.commit().message("PS" + c.currentPatchSetId().get()).create();
+    ChangeUpdate update = newUpdate(c, changeOwner);
+    update.setCommit(rw, commit);
+    update.setGroups(ImmutableList.of(commit.name()));
+    update.commit();
+    assertThat(newNotes(c).getChange().currentPatchSetId().get()).isEqualTo(2);
+
+    // Delete PS2.
+    update = newUpdate(c, changeOwner);
+    update.setPatchSetState(PatchSetState.DELETED);
+    update.commit();
+    c = newNotes(c).getChange();
+    assertThat(c.currentPatchSetId().get()).isEqualTo(1);
+
+    // Create another PS2
+    incrementCurrentPatchSetFieldOnly(c);
+    commit = tr.commit().message("PS" + c.currentPatchSetId().get()).create();
+    update = newUpdate(c, changeOwner);
+    update.setPatchSetState(PatchSetState.PUBLISHED);
+    update.setCommit(rw, commit);
+    update.setGroups(ImmutableList.of(commit.name()));
+    update.commit();
+=======
+>>>>>>> BRANCH (068b77 Do not use cached ChangeNote when building the next one)
   private ObjectId exactRefAllUsers(String refName) throws Exception {
     try (Repository allUsersRepo = repoManager.openRepository(allUsers)) {
       Ref ref = allUsersRepo.exactRef(refName);
