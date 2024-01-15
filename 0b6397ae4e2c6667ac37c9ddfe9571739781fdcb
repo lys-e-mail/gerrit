@@ -2,10 +2,10 @@
   "checks": {
     "gerritforge-bb:bb-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "RUNNING",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/19%252F388219%252F7/1/console",
-      "started": "2024-01-15T15:09:30Z",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/19%252F388219%252F7/2/console",
+      "started": "2024-01-15T15:38:51Z",
       "created": "2024-01-15T15:09:31Z",
-      "updated": "2024-01-15T15:09:31Z"
+      "updated": "2024-01-15T15:38:51Z"
     },
     "gerritforge:codestyle-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "SUCCESSFUL",
