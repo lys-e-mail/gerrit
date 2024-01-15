@@ -4,9 +4,9 @@
       "state": "SUCCESSFUL",
       "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-chrome-latest/151/console",
       "started": "2024-01-15T16:15:02Z",
-      "finished": "2024-01-15T16:28:56Z",
+      "finished": "2024-01-15T16:29:01Z",
       "created": "2024-01-15T15:23:56Z",
-      "updated": "2024-01-15T16:28:57Z"
+      "updated": "2024-01-15T16:29:02Z"
     },
     "gerritforge:codestyle-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "SUCCESSFUL",
