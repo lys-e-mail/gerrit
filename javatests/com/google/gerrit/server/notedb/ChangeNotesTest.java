@@ -2009,6 +2009,13 @@ public class ChangeNotesTest extends AbstractChangeNotesTest {
     update.commit();
 
     ChangeNotes notes = newNotes(c);
+<<<<<<< HEAD   (aa3251 IncludedIn: Support filtering branches/tags in plugins)
+||||||| BASE
+
+    ChangeNotes notes = newNotes(c);
+=======
+
+>>>>>>> BRANCH (19bacc Merge commit 'stable-3.8' into stable-3.9)
     Map<PatchSet.Id, PatchSet> patchSets = notes.getPatchSets();
     assertThat(patchSets.get(psId1).pushCertificate()).isEmpty();
     assertThat(patchSets.get(psId2).pushCertificate()).hasValue(pushCert);
