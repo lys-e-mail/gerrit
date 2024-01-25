@@ -1056,7 +1056,50 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
   /**
    * Construct the uri to get list of changes.
    *
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
    * If options is undefined then default options (see getListChangesOptionsHex) is
+||||||| BASE
+    offset?: 'n,z' | number,
+    options?: string
+  ) {
+    options = options || this._getChangesOptionsHex();
+    if (offset === 'n,z') {
+      offset = 0;
+    }
+    const params: QueryChangesParams = {
+      O: options,
+      S: offset || 0,
+    };
+    if (changesPerPage) {
+      params.n = changesPerPage;
+    }
+    if (query && query.length > 0) {
+      params.q = query;
+    }
+    const request = {
+      url: '/changes/',
+      params,
+      reportUrlAsIs: true,
+    };
+    return request;
+  }
+
+  getChangesForMultipleQueries(
+    changesPerPage?: number,
+    query?: string[],
+    offset?: 'n,z' | number,
+    options?: string
+  ): Promise<ChangeInfo[][] | undefined> {
+    if (!query) return Promise.resolve(undefined);
+
+    const request = this.getRequestForGetChanges(
+      changesPerPage,
+      query,
+      offset,
+      options
+=======
+   * If options is undefined then default options (see _getChangesOptionsHex) is
+>>>>>>> BRANCH (b14a64 Merge branch 'stable-3.7' into stable-3.8)
    * used.
    */
   getRequestForGetChanges(
@@ -1090,7 +1133,50 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
   /**
    * For every query fetches the matching changes.
    *
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
    * If options is undefined then default options (see getListChangesOptionsHex) is
+||||||| BASE
+      changesPerPage,
+      query,
+      offset,
+      options
+    );
+
+    return Promise.resolve(
+      this._restApiHelper.fetchJSON(request, true) as Promise<
+        ChangeInfo[] | ChangeInfo[][] | undefined
+      >
+    ).then(response => {
+      if (!response) {
+        return;
+      }
+      const iterateOverChanges = (arr: ChangeInfo[]) => {
+        for (const change of arr) {
+          this._maybeInsertInLookup(change);
+        }
+      };
+      // Normalize the response to look like a multi-query response
+      // when there is only one query.
+      const responseArray: Array<ChangeInfo[]> =
+        query.length === 1
+          ? [response as ChangeInfo[]]
+          : (response as ChangeInfo[][]);
+      for (const arr of responseArray) {
+        iterateOverChanges(arr);
+      }
+      return responseArray;
+    });
+  }
+
+  getChanges(
+    changesPerPage?: number,
+    query?: string,
+    offset?: 'n,z' | number,
+    options?: string,
+    errFn?: ErrorCallback
+=======
+   * If options is undefined then default options (see _getChangesOptionsHex) is
+>>>>>>> BRANCH (b14a64 Merge branch 'stable-3.7' into stable-3.8)
    * used.
    */
   getChangesForMultipleQueries(
@@ -1137,7 +1223,50 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
   /**
    * Fetches changes that match the query.
    *
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
    * If options is undefined then default options (see getListChangesOptionsHex) is
+||||||| BASE
+      this._restApiHelper.fetchJSON(
+        {
+          ...request,
+          errFn,
+        },
+        true
+      ) as Promise<ChangeInfo[] | undefined>
+    ).then(response => {
+      if (!response) {
+        return;
+      }
+      const iterateOverChanges = (arr: ChangeInfo[]) => {
+        for (const change of arr) {
+          this._maybeInsertInLookup(change);
+        }
+      };
+      iterateOverChanges(response);
+      return response;
+    });
+  }
+
+  async getDetailedChangesWithActions(changeNums: NumericChangeId[]) {
+    const query = changeNums.map(num => `change:${num}`).join(' OR ');
+    const changeDetails = await this.getChanges(
+      undefined,
+      query,
+      undefined,
+      listChangesOptionsToHex(
+        ListChangesOption.CHANGE_ACTIONS,
+        ListChangesOption.CURRENT_REVISION,
+        ListChangesOption.DETAILED_LABELS,
+        // TODO: remove this option and merge requirements from dashboard req
+        ListChangesOption.SUBMIT_REQUIREMENTS
+      )
+    );
+    return changeDetails;
+  }
+
+=======
+   * If options is undefined then default options (see _getChangesOptionsHex) is
+>>>>>>> BRANCH (b14a64 Merge branch 'stable-3.7' into stable-3.8)
    * used.
    */
   getChanges(
