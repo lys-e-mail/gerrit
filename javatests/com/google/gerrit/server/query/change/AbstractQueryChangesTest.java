@@ -83,6 +83,7 @@ import com.google.gerrit.extensions.api.groups.GroupInput;
 import com.google.gerrit.extensions.api.projects.ConfigInput;
 import com.google.gerrit.extensions.api.projects.ProjectInput;
 import com.google.gerrit.extensions.client.InheritableBoolean;
+import com.google.gerrit.extensions.client.ListChangesOption;
 import com.google.gerrit.extensions.client.ProjectWatchInfo;
 import com.google.gerrit.extensions.client.ReviewerState;
 import com.google.gerrit.extensions.common.AccountInfo;
@@ -2889,9 +2890,13 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   }
 
   @Test
+<<<<<<< HEAD   (7393f6 Merge branch 'stable-3.7' into stable-3.8)
   public void byStar() throws Exception {
     repo = createAndOpenProject("repo");
     Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+||||||| BASE
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChangeWithStatus(repo, Change.Status.MERGED));
 
     Account.Id user2 =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
@@ -2902,6 +2907,203 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     // check default star
     assertQuery("has:star", change1);
     assertQuery("is:starred", change1);
+  }
+
+  @Test
+  public void byStarWithManyStars() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert(repo, newChange(repo));
+
+      // star the change
+      gApi.accounts()
+          .self()
+          .starChange(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().toString());
+    }
+
+    // all changes are both starred and ignored.
+    assertQuery("is:starred", changesWithDrafts);
+  }
+
+  @Test
+  public void byFrom() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChange(repo));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change2 = insert(repo, newChange(repo), user2);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("from:" + userId.get(), change2, change1);
+    assertQuery("from:" + user2, change2);
+  }
+
+  @Test
+  public void conflicts() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(
+            repo.commit()
+                .add("file1", "contents1")
+                .add("dir/file2", "contents2")
+                .add("dir/file3", "contents3")
+                .create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().add("dir/file2", "contents2 different").create());
+    RevCommit commit4 = repo.parseBody(repo.commit().add("file4", "contents4").create());
+    Change change1 = insert(repo, newChangeForCommit(repo, commit1));
+    Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+    Change change3 = insert(repo, newChangeForCommit(repo, commit3));
+    Change change4 = insert(repo, newChangeForCommit(repo, commit4));
+
+    assertQuery("conflicts:" + change1.getId().get(), change3);
+    assertQuery("conflicts:" + change2.getId().get());
+    assertQuery("conflicts:" + change3.getId().get(), change1);
+    assertQuery("conflicts:" + change4.getId().get());
+  }
+
+  @Test
+  @GerritConfig(
+      name = "change.mergeabilityComputationBehavior",
+      value = "API_REF_UPDATED_AND_CHANGE_REINDEX")
+  public void mergeable() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    Change change1 = insert(repo, newChangeForCommit(repo, commit1));
+    Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+
+    assertQuery("conflicts:" + change1.getId().get(), change2);
+    assertQuery("conflicts:" + change2.getId().get(), change1);
+    assertQuery("is:mergeable", change2, change1);
+
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+
+    // If a change gets submitted, the remaining open changes get reindexed asynchronously to update
+    // their mergeability information. If the further assertions in this test are done before the
+    // asynchronous reindex completed they fail because the mergeability information in the index
+    // was not updated yet. To avoid this flakiness indexing mergeable is switched off for the
+    // tests and we index change2 synchronously here.
+    gApi.changes().id(change2.getChangeId()).index();
+
+    assertQuery("status:open conflicts:" + change2.getId().get());
+    assertQuery("status:open is:mergeable");
+    assertQuery("status:open -is:mergeable", change2);
+  }
+
+  @Test
+  public void cherrypick() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CHERRY_PICK)).isTrue();
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChange(repo));
+    Change change2 = insert(repo, newCherryPickChange(repo, "foo", change1.currentPatchSetId()));
+
+    assertQuery("is:cherrypick", change2);
+    assertQuery("-is:cherrypick", change1);
+  }
+
+  @Test
+  public void merge() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE)).isTrue();
+    TestRepository<Repo> repo = createProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().parent(commit2).add("file1", "contents3").create());
+    Change change1 = insert(repo, newChangeForCommit(repo, commit1));
+    Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+    Change change3 = insert(repo, newChangeForCommit(repo, commit3));
+    RevCommit mergeCommit =
+        repo.branch("master")
+            .commit()
+            .message("Merge commit")
+            .parent(commit1)
+            .parent(commit3)
+            .insertChangeId()
+            .create();
+    Change mergeChange = insert(repo, newChangeForCommit(repo, mergeCommit));
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    TestRepository<Repo> repo = createProject("repo");
+=======
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChangeWithStatus(repo, Change.Status.MERGED));
+>>>>>>> BRANCH (4350b3 Ensure proper canonical web url in Git over HTTP)
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+    List<ChangeInfo> changeInfos = gApi.changes().query("has:star").get();
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStar_withStarOptionSet_notPopulatedForAnonymousUsers() throws Exception {
+    // Create a random change and star it as some user
+    TestRepository<Repo> repo = createProject("repo");
+    Change change1 = insert(repo, newChangeWithStatus(repo, Change.Status.NEW));
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // Request a change query for all open changes. The star field is not set on the single change.
+    requestContext.setContext(anonymousUserProvider::get);
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("is:open").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0)._number).isEqualTo(change1.getId().get());
+    assertThat(changeInfos.get(0).starred).isNull();
   }
 
   @Test
