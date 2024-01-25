@@ -232,7 +232,14 @@ public class ChangeJson {
   private final AccountLoader.Factory accountLoaderFactory;
   private final ImmutableSet<ListChangesOption> options;
   private final ChangeMessagesUtil cmUtil;
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
   private final StarredChangesReader starredChangesreader;
+||||||| BASE
+  private final Metrics metrics;
+  private final RevisionJson revisionJson;
+=======
+  private final StarredChangesUtil starredChangesUtil;
+>>>>>>> BRANCH (5bbd5c Merge branch 'stable-3.7' into stable-3.8)
   private final Provider<ConsistencyChecker> checkerProvider;
   private final ActionJson actionJson;
   private final ChangeNotes.Factory notesFactory;
@@ -258,7 +265,14 @@ public class ChangeJson {
       ChangeData.Factory cdf,
       AccountLoader.Factory ailf,
       ChangeMessagesUtil cmUtil,
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
       StarredChangesReader starredChangesreader,
+||||||| BASE
+      @Assisted Iterable<ListChangesOption> options,
+      @Assisted Optional<PluginDefinedInfosFactory> pluginDefinedInfosFactory) {
+=======
+      StarredChangesUtil starredChangesUtil,
+>>>>>>> BRANCH (5bbd5c Merge branch 'stable-3.7' into stable-3.8)
       Provider<ConsistencyChecker> checkerProvider,
       ActionJson actionJson,
       ChangeNotes.Factory notesFactory,
@@ -277,7 +291,14 @@ public class ChangeJson {
     this.permissionBackend = permissionBackend;
     this.accountLoaderFactory = ailf;
     this.cmUtil = cmUtil;
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
     this.starredChangesreader = starredChangesreader;
+||||||| BASE
+    this.cacheQueryResultsByChangeNum =
+        cfg.getBoolean("index", "cacheQueryResultsByChangeNum", true);
+=======
+    this.starredChangesUtil = starredChangesUtil;
+>>>>>>> BRANCH (5bbd5c Merge branch 'stable-3.7' into stable-3.8)
     this.checkerProvider = checkerProvider;
     this.actionJson = actionJson;
     this.notesFactory = notesFactory;
@@ -974,7 +995,12 @@ public class ChangeJson {
       List<Change.Id> changeIds =
           changeInfos.stream().map(c -> Change.id(c._number)).collect(Collectors.toList());
       Set<Change.Id> starredChanges =
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
           starredChangesreader.areStarred(
+||||||| BASE
+=======
+          starredChangesUtil.areStarred(
+>>>>>>> BRANCH (5bbd5c Merge branch 'stable-3.7' into stable-3.8)
               allUsersRepo, changeIds, userProvider.get().asIdentifiedUser().getAccountId());
       if (starredChanges.isEmpty()) {
         return;

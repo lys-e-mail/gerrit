@@ -90,6 +90,7 @@ public enum ListChangesOption implements ListOption {
   /** Include the evaluated submit requirements for the caller. */
   SUBMIT_REQUIREMENTS(24),
 
+<<<<<<< HEAD   (0765eb Merge branch 'stable-3.8' into stable-3.9)
   /** Include custom keyed values. */
   CUSTOM_KEYED_VALUES(25),
 
@@ -101,6 +102,22 @@ public enum ListChangesOption implements ListOption {
    * whether it points to a patch-set of another change.
    */
   PARENTS(27);
+||||||| BASE
+  private final int value;
+
+  ListChangesOption(int v) {
+    this.value = v;
+  }
+
+  @Override
+  public int getValue() {
+    return value;
+  }
+}
+=======
+  /** Include the 'starred' field, that is if the change is starred by the current user . */
+  STAR(25);
+>>>>>>> BRANCH (5bbd5c Merge branch 'stable-3.7' into stable-3.8)
 
   private final int value;
 
