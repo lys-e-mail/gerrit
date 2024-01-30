@@ -140,7 +140,43 @@ import {ShortcutController} from '../../lit/shortcut-controller';
 import {FilesExpandedState} from '../gr-file-list-constants';
 import {subscribe} from '../../lit/subscription-controller';
 import {configModelToken} from '../../../models/config/config-model';
+<<<<<<< HEAD   (b14a64 Merge branch 'stable-3.7' into stable-3.8)
 import {getBaseUrl, prependOrigin} from '../../../utils/url-util';
+||||||| BASE
+import {Interaction, Timing, Execution} from '../../../constants/reporting';
+import {ChangeStates} from '../../shared/gr-change-status/gr-change-status';
+import {getRevertCreatedChangeIds} from '../../../utils/message-util';
+import {
+  getAddedByReason,
+  getRemovedByReason,
+  hasAttention,
+} from '../../../utils/attention-set-util';
+import {
+  Shortcut,
+  ShortcutSection,
+  shortcutsServiceToken,
+} from '../../../services/shortcuts/shortcuts-service';
+import {LoadingStatus} from '../../../models/change/change-model';
+import {commentsModelToken} from '../../../models/comments/comments-model';
+import {resolve} from '../../../models/dependency';
+import {checksModelToken} from '../../../models/checks/checks-model';
+import {changeModelToken} from '../../../models/change/change-model';
+import {css, html, LitElement, nothing, PropertyValues} from 'lit';
+import {a11yStyles} from '../../../styles/gr-a11y-styles';
+import {paperStyles} from '../../../styles/gr-paper-styles';
+import {sharedStyles} from '../../../styles/shared-styles';
+import {ifDefined} from 'lit/directives/if-defined.js';
+import {when} from 'lit/directives/when.js';
+import {ShortcutController} from '../../lit/shortcut-controller';
+import {FilesExpandedState} from '../gr-file-list-constants';
+import {subscribe} from '../../lit/subscription-controller';
+import {configModelToken} from '../../../models/config/config-model';
+import {filesModelToken} from '../../../models/change/files-model';
+import {getBaseUrl, prependOrigin} from '../../../utils/url-util';
+=======
+import {filesModelToken} from '../../../models/change/files-model';
+import {prependOrigin} from '../../../utils/url-util';
+>>>>>>> BRANCH (8bd8ce Remove extra base URL prefix in gr-copy-links)
 import {CopyLink, GrCopyLinks} from '../gr-copy-links/gr-copy-links';
 import {
   ChangeChildView,
@@ -1240,7 +1276,7 @@ export class GrChangeView extends LitElement {
   private renderCopyLinksDropdown() {
     const url = this.computeChangeUrl();
     if (!url) return;
-    const changeURL = prependOrigin(getBaseUrl() + url);
+    const changeURL = prependOrigin(url);
     const links: CopyLink[] = [
       {
         label: 'Change Number',
