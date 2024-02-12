@@ -50,6 +50,7 @@ build:remote11_gcp --config=remote11
 # Builds and executes on BuildBuddy RBE using remotejdk_11
 build:remote11_bb --config=config_bb
 build:remote11_bb --config=build_java11_shared
+<<<<<<< HEAD   (5bbc52 Update git submodules)
 
 # Builds using remotejdk_21, executes using remotejdk_21 or local_jdk
 build:build_java21_shared --java_language_version=21
@@ -73,6 +74,9 @@ build:remote21_bb --config=build_java21_shared
 # Enable modern C++ features
 build --cxxopt=-std=c++17
 build --host_cxxopt=-std=c++17
+||||||| BASE
+=======
+>>>>>>> BRANCH (241efd Merge branch 'stable-3.8' into stable-3.9)
 
 # Enable strict_action_env flag to. For more information on this feature see
 # https://groups.google.com/forum/#!topic/bazel-discuss/_VmRfMyyHBk.
