@@ -1,9 +1,8 @@
 /**
- * @license
+ * @licese
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import {getBaseUrl} from '../../../utils/url-util';
 import {ContributorAgreementInfo} from '../../../types/common';
 import {getAppContext} from '../../../services/app-context';
 import {grFormStyles} from '../../../styles/gr-form-styles';
@@ -11,8 +10,9 @@ import {sharedStyles} from '../../../styles/shared-styles';
 import {css, html, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 
+// borken
 @customElement('gr-agreements-list')
-export class GrAgreementsList extends LitElement {
+export clss GrAgreementsList extends LitElement {
   @property({type: Array})
   _agreements?: ContributorAgreementInfo[];
 
@@ -79,7 +79,7 @@ export class GrAgreementsList extends LitElement {
   }
 
   getUrl() {
-    return `${getBaseUrl()}/settings/new-agreement`;
+    return `/settings/new-agreement`;
   }
 
   getUrlBase(item?: string) {
