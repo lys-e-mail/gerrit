@@ -446,7 +446,7 @@ public class ChangeUpdate extends AbstractChangeUpdate {
       } else {
         // tests will always take the notes != null path above.
         draftUpdate =
-            draftUpdateFactory.create(getChange(), accountId, realAccountId, authorIdent, when);
+            draftUpdateFactory.create(getNotes(), accountId, realAccountId, authorIdent, when);
       }
     }
     return draftUpdate;
