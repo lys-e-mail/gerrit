@@ -15,7 +15,6 @@
 package com.google.gerrit.server;
 
 import com.google.gerrit.entities.Account;
-import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.Comment;
 import com.google.gerrit.entities.HumanComment;
 import com.google.gerrit.server.notedb.ChangeNotes;
@@ -30,13 +29,6 @@ public interface ChangeDraftUpdate {
   interface ChangeDraftUpdateFactory {
     ChangeDraftUpdate create(
         ChangeNotes notes,
-        Account.Id accountId,
-        Account.Id realAccountId,
-        PersonIdent authorIdent,
-        Instant when);
-
-    ChangeDraftUpdate create(
-        Change change,
         Account.Id accountId,
         Account.Id realAccountId,
         PersonIdent authorIdent,
@@ -77,6 +69,7 @@ public interface ChangeDraftUpdate {
    * Converts this update to the given subtype if possible. Returns {@link Optional#empty()}
    * otherwise.
    */
+  @SuppressWarnings("unchecked")
   default <UpdateT extends ChangeDraftUpdate> Optional<UpdateT> toOptionalChangeDraftUpdateSubtype(
       Class<UpdateT> subtype) {
     if (this.getClass().isAssignableFrom(subtype)) {
