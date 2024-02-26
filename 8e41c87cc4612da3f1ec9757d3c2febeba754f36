@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d171420b_08c07da6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-02-26T11:49:46Z",
+      "side": 1,
+      "message": "Similar to change 409277 that disabled support for named destination, this disables support for named queries. Once approved, I\u0027ll abandon this change and apply it as an internal patch.",
+      "revId": "8e41c87cc4612da3f1ec9757d3c2febeba754f36",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
