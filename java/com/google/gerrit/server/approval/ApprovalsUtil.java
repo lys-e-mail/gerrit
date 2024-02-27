@@ -98,6 +98,16 @@ public class ApprovalsUtil {
   private final ApprovalCopier approvalInference;
   private final PermissionBackend permissionBackend;
   private final ProjectCache projectCache;
+<<<<<<< HEAD   (e9543f Merge branch 'stable-3.5' into stable-3.6)
+||||||| BASE
+  private final ApprovalInference approvalInference;
+  private final PermissionBackend permissionBackend;
+  private final ProjectCache projectCache;
+  private final ApprovalCache approvalCache;
+
+=======
+  private final ApprovalCache approvalCache;
+>>>>>>> BRANCH (55b952 Consistently normalize PatchSetApprovals when persisting)
   private final LabelNormalizer labelNormalizer;
 
   @VisibleForTesting
@@ -106,10 +116,33 @@ public class ApprovalsUtil {
       ApprovalCopier approvalInference,
       PermissionBackend permissionBackend,
       ProjectCache projectCache,
+<<<<<<< HEAD   (e9543f Merge branch 'stable-3.5' into stable-3.6)
+||||||| BASE
+      ApprovalInference approvalInference,
+      PermissionBackend permissionBackend,
+      ProjectCache projectCache,
+      ApprovalCache approvalCache) {
+    this.approvalInference = approvalInference;
+    this.permissionBackend = permissionBackend;
+=======
+      ApprovalCache approvalCache,
+>>>>>>> BRANCH (55b952 Consistently normalize PatchSetApprovals when persisting)
       LabelNormalizer labelNormalizer) {
     this.approvalInference = approvalInference;
     this.permissionBackend = permissionBackend;
     this.projectCache = projectCache;
+<<<<<<< HEAD   (e9543f Merge branch 'stable-3.5' into stable-3.6)
+||||||| BASE
+    this.approvalInference = approvalInference;
+    this.permissionBackend = permissionBackend;
+    this.projectCache = projectCache;
+    this.approvalCache = approvalCache;
+  }
+
+  /**
+=======
+    this.approvalCache = approvalCache;
+>>>>>>> BRANCH (55b952 Consistently normalize PatchSetApprovals when persisting)
     this.labelNormalizer = labelNormalizer;
   }
 
@@ -357,9 +390,87 @@ public class ApprovalsUtil {
       RevWalk revWalk,
       Config repoConfig,
       ChangeUpdate changeUpdate) {
+<<<<<<< HEAD   (e9543f Merge branch 'stable-3.5' into stable-3.6)
     approvalInference
         .forPatchSet(notes, patchSet, revWalk, repoConfig)
         .forEach(a -> changeUpdate.putCopiedApproval(a));
+||||||| BASE
+  }
+
+  /**
+   * This method should only be used when we want to dynamically compute the approvals. Generally,
+   * the copied approvals are available in {@link ChangeNotes}. However, if the patch-set is just
+   * being created, we need to dynamically compute the approvals so that we can persist them in
+   * storage. The {@link RevWalk} and {@link Config} objects that are being used to create the new
+   * patch-set are required for this method. Here we also add those votes to the provided {@link
+   * ChangeUpdate} object.
+   */
+  public void persistCopiedApprovals(
+      ChangeNotes notes,
+      PatchSet patchSet,
+      RevWalk revWalk,
+      Config repoConfig,
+      ChangeUpdate changeUpdate) {
+    Set<PatchSetApproval> current =
+        ImmutableSet.copyOf(notes.getApprovalsWithCopied().get(notes.getCurrentPatchSet().id()));
+    Set<PatchSetApproval> inferred =
+        ImmutableSet.copyOf(approvalInference.forPatchSet(notes, patchSet, revWalk, repoConfig));
+
+    // Exempt granted timestamp from comparisson, otherwise, we would persist the copied
+    // labels every time this method is called.
+    Table<LabelId, Account.Id, Short> approvalTable = HashBasedTable.create();
+    for (PatchSetApproval psa : current) {
+      Account.Id id = psa.accountId();
+      approvalTable.put(psa.labelId(), id, psa.value());
+    }
+
+    for (PatchSetApproval psa : inferred) {
+      if (psa.value() != 0) {
+        if (approvalTable.contains(psa.labelId(), psa.accountId())) {
+          Short v = approvalTable.get(psa.labelId(), psa.accountId());
+          if (v.shortValue() != psa.value()) {
+            changeUpdate.putCopiedApproval(psa);
+          }
+        } else {
+          changeUpdate.putCopiedApproval(psa);
+        }
+      }
+    }
+  }
+
+  public Iterable<PatchSetApproval> byPatchSet(ChangeNotes notes, PatchSet.Id psId) {
+    return approvalCache.get(notes, psId);
+  }
+
+=======
+    Set<PatchSetApproval> current =
+        ImmutableSet.copyOf(notes.getApprovalsWithCopied().get(notes.getCurrentPatchSet().id()));
+    Iterable<PatchSetApproval> currentNormalized =
+        labelNormalizer.normalize(notes, current).getNormalized();
+    Set<PatchSetApproval> inferred =
+        ImmutableSet.copyOf(approvalInference.forPatchSet(notes, patchSet, revWalk, repoConfig));
+
+    // Exempt granted timestamp from comparisson, otherwise, we would persist the copied
+    // labels every time this method is called.
+    Table<LabelId, Account.Id, Short> approvalTable = HashBasedTable.create();
+    for (PatchSetApproval psa : currentNormalized) {
+      Account.Id id = psa.accountId();
+      approvalTable.put(psa.labelId(), id, psa.value());
+    }
+
+    for (PatchSetApproval psa : inferred) {
+      if (psa.value() != 0) {
+        if (approvalTable.contains(psa.labelId(), psa.accountId())) {
+          Short v = approvalTable.get(psa.labelId(), psa.accountId());
+          if (v.shortValue() != psa.value()) {
+            changeUpdate.putCopiedApproval(psa);
+          }
+        } else {
+          changeUpdate.putCopiedApproval(psa);
+        }
+      }
+    }
+>>>>>>> BRANCH (55b952 Consistently normalize PatchSetApprovals when persisting)
   }
 
   /**
