@@ -490,7 +490,24 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("is:open", change2, change1);
     assertQuery("is:private");
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setPrivate(true, null);
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setPrivate(true, null);
+
+    // Change1 is private, but should be still visible to its owner.
+    assertQuery("is:open", change1, change2);
+    assertQuery("is:private", change1);
+
+    // Switch request context to user2.
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("is:open", change2);
+    assertQuery("is:private");
+  }
+
+=======
+    getChangeApi(change1).setPrivate(true, null);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     // Change1 is private, but should be still visible to its owner.
     assertQuery("is:open", change1, change2);
@@ -511,11 +528,47 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("is:open", change1);
     assertQuery("is:wip");
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setWorkInProgress();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setWorkInProgress();
 
     assertQuery("is:wip", change1);
 
+    gApi.changes().id(change1.getChangeId()).setReadyForReview();
+
+    assertQuery("is:wip");
+  }
+
+  @Test
+  public void excludeWipChangeFromReviewersDashboards() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+=======
+    getChangeApi(change1).setWorkInProgress();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("is:wip", change1);
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setReadyForReview();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setReadyForReview();
+
+    assertQuery("is:wip");
+  }
+
+  @Test
+  public void excludeWipChangeFromReviewersDashboards() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWorkInProgress(repo), userId);
+
+    assertQuery("is:wip", change1);
+    assertQuery("reviewer:" + user1);
+=======
+    getChangeApi(change1).setReadyForReview();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("is:wip");
   }
@@ -530,11 +583,49 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("is:wip", change1);
     assertQuery("reviewer:" + user1);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setReadyForReview();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setReadyForReview();
     assertQuery("is:wip");
     assertQuery("reviewer:" + user1);
 
+    gApi.changes().id(change1.getChangeId()).setWorkInProgress();
+    assertQuery("is:wip", change1);
+    assertQuery("reviewer:" + user1);
+  }
+
+  @Test
+  public void byStarted() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWorkInProgress(repo));
+
+=======
+    getChangeApi(change1).setReadyForReview();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    assertQuery("is:wip");
+    assertQuery("reviewer:" + user1);
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setWorkInProgress();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setWorkInProgress();
+    assertQuery("is:wip", change1);
+    assertQuery("reviewer:" + user1);
+  }
+
+  @Test
+  public void byStarted() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWorkInProgress(repo));
+
+    assertQuery("is:started");
+
+    gApi.changes().id(change1.getChangeId()).setReadyForReview();
+    assertQuery("is:started", change1);
+=======
+    getChangeApi(change1).setWorkInProgress();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("is:wip", change1);
     assertQuery("reviewer:" + user1);
   }
@@ -547,10 +638,50 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
     assertQuery("is:started");
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setReadyForReview();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setReadyForReview();
     assertQuery("is:started", change1);
 
+    gApi.changes().id(change1.getChangeId()).setWorkInProgress();
+    assertQuery("is:started", change1);
+  }
+
+  private void assertReviewers(Collection<AccountInfo> reviewers, Object... expected)
+      throws Exception {
+    if (expected.length == 0) {
+      assertThat(reviewers).isNull();
+      return;
+    }
+
+    // Convert AccountInfos to strings, either account ID or email.
+=======
+    getChangeApi(change1).setReadyForReview();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    assertQuery("is:started", change1);
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setWorkInProgress();
+||||||| BASE
+    gApi.changes().id(change1.getChangeId()).setWorkInProgress();
+    assertQuery("is:started", change1);
+  }
+
+  private void assertReviewers(Collection<AccountInfo> reviewers, Object... expected)
+      throws Exception {
+    if (expected.length == 0) {
+      assertThat(reviewers).isNull();
+      return;
+    }
+
+    // Convert AccountInfos to strings, either account ID or email.
+    List<String> reviewerIds =
+        reviewers.stream()
+            .map(
+=======
+    getChangeApi(change1).setWorkInProgress();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("is:started", change1);
   }
 
@@ -594,7 +725,27 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
             .reviewer(user2.toString(), ReviewerState.CC, false)
             .reviewer(email1)
             .reviewer(email2, ReviewerState.CC, false);
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).current().review(in);
+||||||| BASE
+    gApi.changes().id(change1.getId().get()).current().review(in);
+
+    List<ChangeInfo> changeInfos =
+        assertQuery(newQuery("is:wip").withOption(DETAILED_LABELS), change1);
+    assertThat(changeInfos).isNotEmpty();
+
+    Map<ReviewerState, Collection<AccountInfo>> pendingReviewers =
+        changeInfos.get(0).pendingReviewers;
+    assertThat(pendingReviewers).isNotNull();
+
+    assertReviewers(pendingReviewers.get(ReviewerState.REVIEWER), user1.toString(), email1);
+    assertReviewers(pendingReviewers.get(ReviewerState.CC), user2.toString(), email2);
+    assertReviewers(pendingReviewers.get(ReviewerState.REMOVED));
+
+    // Pending reviewers may also be presented in the REMOVED state. Toggle the
+=======
+    getChangeApi(change1).current().review(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     List<ChangeInfo> changeInfos =
         assertQuery(newQuery("is:wip").withOption(DETAILED_LABELS), change1);
@@ -611,12 +762,42 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     // Pending reviewers may also be presented in the REMOVED state. Toggle the
     // change to ready and then back to WIP and remove reviewers to produce.
     assertThat(pendingReviewers.get(ReviewerState.REMOVED)).isNull();
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).setReadyForReview();
     gApi.changes().id(project.get(), change1.getId().get()).setWorkInProgress();
     gApi.changes().id(project.get(), change1.getId().get()).reviewer(user1.toString()).remove();
     gApi.changes().id(project.get(), change1.getId().get()).reviewer(user2.toString()).remove();
     gApi.changes().id(project.get(), change1.getId().get()).reviewer(email1).remove();
     gApi.changes().id(project.get(), change1.getId().get()).reviewer(email2).remove();
+||||||| BASE
+    gApi.changes().id(change1.getId().get()).setReadyForReview();
+    gApi.changes().id(change1.getId().get()).setWorkInProgress();
+    gApi.changes().id(change1.getId().get()).reviewer(user1.toString()).remove();
+    gApi.changes().id(change1.getId().get()).reviewer(user2.toString()).remove();
+    gApi.changes().id(change1.getId().get()).reviewer(email1).remove();
+    gApi.changes().id(change1.getId().get()).reviewer(email2).remove();
+
+    changeInfos = assertQuery(newQuery("is:wip").withOption(DETAILED_LABELS), change1);
+    assertThat(changeInfos).isNotEmpty();
+
+    pendingReviewers = changeInfos.get(0).pendingReviewers;
+    assertThat(pendingReviewers).isNotNull();
+    assertReviewers(pendingReviewers.get(ReviewerState.REVIEWER));
+    assertReviewers(pendingReviewers.get(ReviewerState.CC));
+    assertReviewers(
+        pendingReviewers.get(ReviewerState.REMOVED),
+        user1.toString(),
+        user2.toString(),
+        email1,
+        email2);
+=======
+    getChangeApi(change1).setReadyForReview();
+    getChangeApi(change1).setWorkInProgress();
+    getChangeApi(change1).reviewer(user1.toString()).remove();
+    getChangeApi(change1).reviewer(user2.toString()).remove();
+    getChangeApi(change1).reviewer(email1).remove();
+    getChangeApi(change1).reviewer(email2).remove();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     changeInfos = assertQuery(newQuery("is:wip").withOption(DETAILED_LABELS), change1);
     assertThat(changeInfos).isNotEmpty();
@@ -812,10 +993,42 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(project, newChange(repo), userId);
     Account.Id user2 =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change change2 = insert(project, newChange(repo), user2);
     Change change3 = insert(project, newChange(repo), user2);
     gApi.changes().id(project.get(), change3.getId().get()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), change3.getId().get()).current().submit();
+||||||| BASE
+    Change change2 = insert("repo", newChange(repo), user2);
+    Change change3 = insert("repo", newChange(repo), user2);
+    gApi.changes().id(change3.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change3.getId().get()).current().submit();
+
+    assertQuery("ownerin:Administrators", change1);
+    assertQuery("ownerin:\"Registered Users\"", change3, change2, change1);
+    assertQuery("ownerin:\"Registered Users\" project:repo", change3, change2, change1);
+    assertQuery("ownerin:\"Registered Users\" status:merged", change3);
+
+    GroupDescription.Basic externalGroup = testGroupBackend.create("External Group");
+    try {
+      testGroupBackend.setMembershipsOf(
+          user2, new ListGroupMembership(ImmutableList.of(externalGroup.getGroupUUID())));
+
+      assertQuery(
+          "ownerin:\"" + TestGroupBackend.PREFIX + externalGroup.getName() + "\"",
+          change3,
+          change2);
+
+      String nameOfGroupThatContainsExternalGroupAsSubgroup = "test-group-1";
+      AccountGroup.UUID uuidOfGroupThatContainsExternalGroupAsSubgroup =
+          groupOperations
+              .newGroup()
+=======
+    Change change2 = insert("repo", newChange(repo), user2);
+    Change change3 = insert("repo", newChange(repo), user2);
+    getChangeApi(change3).current().review(ReviewInput.approve());
+    getChangeApi(change3).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("ownerin:Administrators", change1);
     assertQuery("ownerin:\"Registered Users\"", change3, change2, change1);
@@ -1390,26 +1603,222 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ChangeInserter ins5 = newChange(repo);
     ChangeInserter ins6 = newChange(repo);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewMinus2Change = insert(project, ins);
     gApi.changes()
         .id(project.get(), reviewMinus2Change.getId().get())
         .current()
         .review(ReviewInput.reject());
+||||||| BASE
+    Change reviewMinus2Change = insert("repo", ins);
+    gApi.changes().id(reviewMinus2Change.getId().get()).current().review(ReviewInput.reject());
 
+    Change reviewMinus1Change = insert("repo", ins2);
+    gApi.changes().id(reviewMinus1Change.getId().get()).current().review(ReviewInput.dislike());
+
+    Change noLabelChange = insert("repo", ins3);
+
+    Change reviewPlus1Change = insert("repo", ins4);
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    Change reviewTwoPlus1Change = insert("repo", ins5);
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(createAccount("user1")));
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(userId));
+
+    Change reviewPlus2Change = insert("repo", ins6);
+    gApi.changes().id(reviewPlus2Change.getId().get()).current().review(ReviewInput.approve());
+
+    Map<String, Short> m =
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+=======
+    Change reviewMinus2Change = insert("repo", ins);
+    getChangeApi(reviewMinus2Change).current().review(ReviewInput.reject());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewMinus1Change = insert(project, ins2);
     gApi.changes()
         .id(project.get(), reviewMinus1Change.getId().get())
         .current()
         .review(ReviewInput.dislike());
+||||||| BASE
+    Change reviewMinus1Change = insert("repo", ins2);
+    gApi.changes().id(reviewMinus1Change.getId().get()).current().review(ReviewInput.dislike());
+
+    Change noLabelChange = insert("repo", ins3);
+
+    Change reviewPlus1Change = insert("repo", ins4);
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    Change reviewTwoPlus1Change = insert("repo", ins5);
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(createAccount("user1")));
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(userId));
+
+    Change reviewPlus2Change = insert("repo", ins6);
+    gApi.changes().id(reviewPlus2Change.getId().get()).current().review(ReviewInput.approve());
+
+    Map<String, Short> m =
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+        reviewMinus2Change);
+
+    assertQuery("label:Code-Review>-3", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>=-2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>-2", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>=-1", codeReviewInRange(changes, -1, 2));
+=======
+    Change reviewMinus1Change = insert("repo", ins2);
+    getChangeApi(reviewMinus1Change).current().review(ReviewInput.dislike());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     Change noLabelChange = insert(project, ins3);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewPlus1Change = insert(project, ins4);
     gApi.changes()
         .id(project.get(), reviewPlus1Change.getId().get())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    Change reviewPlus1Change = insert("repo", ins4);
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
 
+    Change reviewTwoPlus1Change = insert("repo", ins5);
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(createAccount("user1")));
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(userId));
+
+    Change reviewPlus2Change = insert("repo", ins6);
+    gApi.changes().id(reviewPlus2Change.getId().get()).current().review(ReviewInput.approve());
+
+    Map<String, Short> m =
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+        reviewMinus2Change);
+
+    assertQuery("label:Code-Review>-3", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>=-2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>-2", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>=-1", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>-1", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>=0", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>0", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>=1", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>1", reviewPlus2Change);
+    assertQuery("label:Code-Review>=2", reviewPlus2Change);
+    assertQuery("label:Code-Review>2");
+
+=======
+    Change reviewPlus1Change = insert("repo", ins4);
+    getChangeApi(reviewPlus1Change).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewTwoPlus1Change = insert(project, ins5);
     gApi.changes()
         .id(project.get(), reviewTwoPlus1Change.getId().get())
@@ -1421,18 +1830,252 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .current()
         .review(ReviewInput.recommend());
     setRequestContextForUser(userId);
+||||||| BASE
+    Change reviewTwoPlus1Change = insert("repo", ins5);
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(createAccount("user1")));
+    gApi.changes().id(reviewTwoPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(userId));
 
+    Change reviewPlus2Change = insert("repo", ins6);
+    gApi.changes().id(reviewPlus2Change.getId().get()).current().review(ReviewInput.approve());
+
+    Map<String, Short> m =
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+        reviewMinus2Change);
+
+    assertQuery("label:Code-Review>-3", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>=-2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>-2", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>=-1", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>-1", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>=0", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>0", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>=1", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>1", reviewPlus2Change);
+    assertQuery("label:Code-Review>=2", reviewPlus2Change);
+    assertQuery("label:Code-Review>2");
+
+    assertQuery("label:Code-Review<=2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review<2", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<=1", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<1", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<=0", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<0", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<=-1", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<-1", reviewMinus2Change);
+    assertQuery("label:Code-Review<=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review<-2");
+
+    assertQuery("label:Code-Review=+1," + anotherUser);
+=======
+    Change reviewTwoPlus1Change = insert("repo", ins5);
+    getChangeApi(reviewTwoPlus1Change).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(createAccount("user1")));
+    getChangeApi(reviewTwoPlus1Change).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(userId));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewPlus2Change = insert(project, ins6);
     gApi.changes()
         .id(project.get(), reviewPlus2Change.getId().get())
         .current()
         .review(ReviewInput.approve());
+||||||| BASE
+    Change reviewPlus2Change = insert("repo", ins6);
+    gApi.changes().id(reviewPlus2Change.getId().get()).current().review(ReviewInput.approve());
 
     Map<String, Short> m =
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+        reviewMinus2Change);
+
+    assertQuery("label:Code-Review>-3", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>=-2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>-2", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>=-1", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>-1", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>=0", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>0", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>=1", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>1", reviewPlus2Change);
+    assertQuery("label:Code-Review>=2", reviewPlus2Change);
+    assertQuery("label:Code-Review>2");
+
+    assertQuery("label:Code-Review<=2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review<2", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<=1", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<1", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<=0", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<0", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<=-1", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<-1", reviewMinus2Change);
+    assertQuery("label:Code-Review<=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review<-2");
+
+    assertQuery("label:Code-Review=+1," + anotherUser);
+    assertQuery(
+        String.format("label:Code-Review=+1,%s", userAccount.preferredEmail()),
+        reviewTwoPlus1Change,
+        reviewPlus1Change);
+    assertQuery(
+        String.format("label:Code-Review=+1,user=%s", userAccount.preferredEmail()),
+=======
+    Change reviewPlus2Change = insert("repo", ins6);
+    getChangeApi(reviewPlus2Change).current().review(ReviewInput.approve());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    Map<String, Short> m =
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
         gApi.changes()
             .id(project.get(), reviewPlus1Change.getId().get())
             .reviewer(user.getAccountId().toString())
             .votes();
+||||||| BASE
+        gApi.changes()
+            .id(reviewPlus1Change.getId().get())
+            .reviewer(user.getAccountId().toString())
+            .votes();
+    assertThat(m).hasSize(1);
+    assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
+
+    Multimap<Integer, Change> changes =
+        Multimaps.newListMultimap(Maps.newLinkedHashMap(), () -> Lists.newArrayList());
+    changes.put(2, reviewPlus2Change);
+    changes.put(1, reviewTwoPlus1Change);
+    changes.put(1, reviewPlus1Change);
+    changes.put(0, noLabelChange);
+    changes.put(-1, reviewMinus1Change);
+    changes.put(-2, reviewMinus2Change);
+
+    assertQuery("label:Code-Review=MIN", reviewMinus2Change);
+    assertQuery("label:Code-Review=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review-2", reviewMinus2Change);
+    assertQuery("label:Code-Review=-1", reviewMinus1Change);
+    assertQuery("label:Code-Review-1", reviewMinus1Change);
+    assertQuery("label:Code-Review=0", noLabelChange);
+    assertQuery("label:Code-Review=+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review+1", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=2", reviewPlus2Change);
+    assertQuery("label:Code-Review+2", reviewPlus2Change);
+    assertQuery("label:Code-Review=MAX", reviewPlus2Change);
+    assertQuery(
+        "label:Code-Review=ANY",
+        reviewPlus2Change,
+        reviewTwoPlus1Change,
+        reviewPlus1Change,
+        reviewMinus1Change,
+        reviewMinus2Change);
+
+    assertQuery("label:Code-Review>-3", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>=-2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review>-2", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>=-1", codeReviewInRange(changes, -1, 2));
+    assertQuery("label:Code-Review>-1", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>=0", codeReviewInRange(changes, 0, 2));
+    assertQuery("label:Code-Review>0", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>=1", codeReviewInRange(changes, 1, 2));
+    assertQuery("label:Code-Review>1", reviewPlus2Change);
+    assertQuery("label:Code-Review>=2", reviewPlus2Change);
+    assertQuery("label:Code-Review>2");
+
+    assertQuery("label:Code-Review<=2", codeReviewInRange(changes, -2, 2));
+    assertQuery("label:Code-Review<2", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<=1", codeReviewInRange(changes, -2, 1));
+    assertQuery("label:Code-Review<1", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<=0", codeReviewInRange(changes, -2, 0));
+    assertQuery("label:Code-Review<0", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<=-1", codeReviewInRange(changes, -2, -1));
+    assertQuery("label:Code-Review<-1", reviewMinus2Change);
+    assertQuery("label:Code-Review<=-2", reviewMinus2Change);
+    assertQuery("label:Code-Review<-2");
+
+    assertQuery("label:Code-Review=+1," + anotherUser);
+    assertQuery(
+        String.format("label:Code-Review=+1,%s", userAccount.preferredEmail()),
+        reviewTwoPlus1Change,
+        reviewPlus1Change);
+    assertQuery(
+        String.format("label:Code-Review=+1,user=%s", userAccount.preferredEmail()),
+        reviewTwoPlus1Change,
+        reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,Administrators", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery(
+        "label:Code-Review=+1,group=Administrators", reviewTwoPlus1Change, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,user=owner", reviewTwoPlus1Change, reviewPlus1Change);
+=======
+        getChangeApi(reviewPlus1Change).reviewer(user.getAccountId().toString()).votes();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertThat(m).hasSize(1);
     assertThat(m).containsEntry("Code-Review", Short.valueOf((short) 1));
 
@@ -1601,20 +2244,190 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ChangeInserter ins5 = newChange(repo);
 
     // CR+1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewCRplus1 = insert(project, ins);
     gApi.changes()
         .id(project.get(), reviewCRplus1.getId().get())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    ChangeInserter ins5 = newChange(repo);
+
+    // CR+1
+    Change reviewCRplus1 = insert(project.get(), ins);
+    gApi.changes().id(reviewCRplus1.getId().get()).current().review(ReviewInput.recommend());
 
     // CR+2
+    Change reviewCRplus2 = insert(project.get(), ins2);
+    gApi.changes().id(reviewCRplus2.getId().get()).current().review(ReviewInput.approve());
+
+    // CR+1 VR+1
+    Change reviewCRplus1VRplus1 = insert(project.get(), ins3);
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(ReviewInput.recommend());
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(reviewVerified);
+
+    // CR+2 VR+1
+    Change reviewCRplus2VRplus1 = insert(project.get(), ins4);
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(reviewVerified);
+
+    // VR+1
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    gApi.changes().id(reviewVRplus1.getId().get()).current().review(reviewVerified);
+
+    assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
+    assertQuery(
+        "label:Code-Review>=+1",
+        reviewCRplus2VRplus1,
+        reviewCRplus1VRplus1,
+        reviewCRplus2,
+        reviewCRplus1);
+    assertQuery("label:Code-Review>=+2", reviewCRplus2VRplus1, reviewCRplus2);
+
+    assertQuery(
+        "label:Code-Review>=+1 label:Verified=+1", reviewCRplus2VRplus1, reviewCRplus1VRplus1);
+    assertQuery("label:Code-Review>=+2 label:Verified=+1", reviewCRplus2VRplus1);
+  }
+
+  @Test
+  public void byLabelNotOwner() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+=======
+    Change reviewCRplus1 = insert(project.get(), ins);
+    getChangeApi(reviewCRplus1).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    // CR+2
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewCRplus2 = insert(project, ins2);
     gApi.changes()
         .id(project.get(), reviewCRplus2.getId().get())
         .current()
         .review(ReviewInput.approve());
+||||||| BASE
+    gApi.changes().id(reviewCRplus1.getId().get()).current().review(ReviewInput.recommend());
+
+    // CR+2
+    Change reviewCRplus2 = insert(project.get(), ins2);
+    gApi.changes().id(reviewCRplus2.getId().get()).current().review(ReviewInput.approve());
 
     // CR+1 VR+1
+    Change reviewCRplus1VRplus1 = insert(project.get(), ins3);
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(ReviewInput.recommend());
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(reviewVerified);
+
+    // CR+2 VR+1
+    Change reviewCRplus2VRplus1 = insert(project.get(), ins4);
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(reviewVerified);
+
+    // VR+1
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    gApi.changes().id(reviewVRplus1.getId().get()).current().review(reviewVerified);
+
+    assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
+    assertQuery(
+        "label:Code-Review>=+1",
+        reviewCRplus2VRplus1,
+        reviewCRplus1VRplus1,
+        reviewCRplus2,
+        reviewCRplus1);
+    assertQuery("label:Code-Review>=+2", reviewCRplus2VRplus1, reviewCRplus2);
+
+    assertQuery(
+        "label:Code-Review>=+1 label:Verified=+1", reviewCRplus2VRplus1, reviewCRplus1VRplus1);
+    assertQuery("label:Code-Review>=+2 label:Verified=+1", reviewCRplus2VRplus1);
+  }
+
+  @Test
+  public void byLabelNotOwner() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+=======
+    Change reviewCRplus2 = insert(project.get(), ins2);
+    getChangeApi(reviewCRplus2).current().review(ReviewInput.approve());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    // CR+1 VR+1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewCRplus1VRplus1 = insert(project, ins3);
     gApi.changes()
         .id(project.get(), reviewCRplus1VRplus1.getId().get())
@@ -1624,8 +2437,102 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .id(project.get(), reviewCRplus1VRplus1.getId().get())
         .current()
         .review(reviewVerified);
+||||||| BASE
+    gApi.changes().id(reviewCRplus2.getId().get()).current().review(ReviewInput.approve());
+
+    // CR+1 VR+1
+    Change reviewCRplus1VRplus1 = insert(project.get(), ins3);
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(ReviewInput.recommend());
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(reviewVerified);
 
     // CR+2 VR+1
+    Change reviewCRplus2VRplus1 = insert(project.get(), ins4);
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(reviewVerified);
+
+    // VR+1
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    gApi.changes().id(reviewVRplus1.getId().get()).current().review(reviewVerified);
+
+    assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
+    assertQuery(
+        "label:Code-Review>=+1",
+        reviewCRplus2VRplus1,
+        reviewCRplus1VRplus1,
+        reviewCRplus2,
+        reviewCRplus1);
+    assertQuery("label:Code-Review>=+2", reviewCRplus2VRplus1, reviewCRplus2);
+
+    assertQuery(
+        "label:Code-Review>=+1 label:Verified=+1", reviewCRplus2VRplus1, reviewCRplus1VRplus1);
+    assertQuery("label:Code-Review>=+2 label:Verified=+1", reviewCRplus2VRplus1);
+  }
+
+  @Test
+  public void byLabelNotOwner() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+=======
+    Change reviewCRplus1VRplus1 = insert(project.get(), ins3);
+    getChangeApi(reviewCRplus1VRplus1).current().review(ReviewInput.recommend());
+    getChangeApi(reviewCRplus1VRplus1).current().review(reviewVerified);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    // CR+2 VR+1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewCRplus2VRplus1 = insert(project, ins4);
     gApi.changes()
         .id(project.get(), reviewCRplus2VRplus1.getId().get())
@@ -1635,10 +2542,207 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .id(project.get(), reviewCRplus2VRplus1.getId().get())
         .current()
         .review(reviewVerified);
+||||||| BASE
+    gApi.changes().id(reviewCRplus1VRplus1.getId().get()).current().review(reviewVerified);
+
+    // CR+2 VR+1
+    Change reviewCRplus2VRplus1 = insert(project.get(), ins4);
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(reviewVerified);
 
     // VR+1
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    gApi.changes().id(reviewVRplus1.getId().get()).current().review(reviewVerified);
+
+    assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
+    assertQuery(
+        "label:Code-Review>=+1",
+        reviewCRplus2VRplus1,
+        reviewCRplus1VRplus1,
+        reviewCRplus2,
+        reviewCRplus1);
+    assertQuery("label:Code-Review>=+2", reviewCRplus2VRplus1, reviewCRplus2);
+
+    assertQuery(
+        "label:Code-Review>=+1 label:Verified=+1", reviewCRplus2VRplus1, reviewCRplus1VRplus1);
+    assertQuery("label:Code-Review>=+2 label:Verified=+1", reviewCRplus2VRplus1);
+  }
+
+  @Test
+  public void byLabelNotOwner() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+  }
+
+  @Test
+  public void byLabelGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    String g1 = createGroup("group1", "Administrators");
+    String g2 = createGroup("group2", "Administrators");
+=======
+    Change reviewCRplus2VRplus1 = insert(project.get(), ins4);
+    getChangeApi(reviewCRplus2VRplus1).current().review(ReviewInput.approve());
+    getChangeApi(reviewCRplus2VRplus1).current().review(reviewVerified);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    // VR+1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change reviewVRplus1 = insert(project, ins5);
     gApi.changes().id(project.get(), reviewVRplus1.getId().get()).current().review(reviewVerified);
+||||||| BASE
+    gApi.changes().id(reviewCRplus2VRplus1.getId().get()).current().review(reviewVerified);
+
+    // VR+1
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    gApi.changes().id(reviewVRplus1.getId().get()).current().review(reviewVerified);
+
+    assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
+    assertQuery(
+        "label:Code-Review>=+1",
+        reviewCRplus2VRplus1,
+        reviewCRplus1VRplus1,
+        reviewCRplus2,
+        reviewCRplus1);
+    assertQuery("label:Code-Review>=+2", reviewCRplus2VRplus1, reviewCRplus2);
+
+    assertQuery(
+        "label:Code-Review>=+1 label:Verified=+1", reviewCRplus2VRplus1, reviewCRplus1VRplus1);
+    assertQuery("label:Code-Review>=+2 label:Verified=+1", reviewCRplus2VRplus1);
+  }
+
+  @Test
+  public void byLabelNotOwner() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+  }
+
+  @Test
+  public void byLabelGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    String g1 = createGroup("group1", "Administrators");
+    String g2 = createGroup("group2", "Administrators");
+    gApi.groups().id(g1).addMembers("user1");
+    gApi.groups().id(g2).addMembers("user2");
+
+    // create a change
+=======
+    Change reviewVRplus1 = insert(project.get(), ins5);
+    getChangeApi(reviewVRplus1).current().review(reviewVerified);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("label:Code-Review=+1", reviewCRplus1VRplus1, reviewCRplus1);
     assertQuery(
@@ -1664,11 +2768,113 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change reviewPlus1Change = insert(project, ins);
 
     // post a review with user1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     setRequestContextForUser(user1);
     gApi.changes()
         .id(project.get(), reviewPlus1Change.getId().get())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+
+    assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,owner");
+  }
+
+  @Test
+  public void byLabelNonUploader() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Account.Id user1 = createAccount("user1");
+
+    // create a change with "user"
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+  }
+
+  @Test
+  public void byLabelGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    String g1 = createGroup("group1", "Administrators");
+    String g2 = createGroup("group2", "Administrators");
+    gApi.groups().id(g1).addMembers("user1");
+    gApi.groups().id(g2).addMembers("user2");
+
+    // create a change
+    Change change1 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    // verify that query with user1 will return results.
+    requestContext.setContext(newRequestContext(userId));
+    assertQuery("label:Code-Review=+1,group1", change1);
+    assertQuery("label:Code-Review=+1,group=group1", change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=group2");
+  }
+
+  @Test
+  public void byLabelExternalGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    AccountGroup.UUID external_group1 = AccountGroup.uuid("testbackend:group1");
+    AccountGroup.UUID external_group2 = AccountGroup.uuid("testbackend:group2");
+    String nameOfGroupThatContainsExternalGroupAsSubgroup = "test-group-1";
+    String nameOfGroupThatContainsExternalGroupAsSubSubgroup = "test-group-2";
+    testGroupBackend.create(external_group1);
+=======
+    requestContext.setContext(newRequestContext(user1));
+    getChangeApi(reviewPlus1Change).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("label:Code-Review=+1,user=" + user1, reviewPlus1Change);
     assertQuery("label:Code-Review=+1,owner");
@@ -1685,18 +2891,231 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change reviewPlus1Change = insert(project, ins);
 
     // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes()
         .id(project.get(), reviewPlus1Change.getId().get())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    Change reviewPlus1Change = insert("repo", ins);
+
+    // add a +1 vote with "user". Query doesn't match since voter is the uploader.
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
     assertQuery("label:Code-Review=+1,user=non_uploader");
 
     // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+  }
+
+  @Test
+  public void byLabelGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    String g1 = createGroup("group1", "Administrators");
+    String g2 = createGroup("group2", "Administrators");
+    gApi.groups().id(g1).addMembers("user1");
+    gApi.groups().id(g2).addMembers("user2");
+
+    // create a change
+    Change change1 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    // verify that query with user1 will return results.
+    requestContext.setContext(newRequestContext(userId));
+    assertQuery("label:Code-Review=+1,group1", change1);
+    assertQuery("label:Code-Review=+1,group=group1", change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=group2");
+  }
+
+  @Test
+  public void byLabelExternalGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    AccountGroup.UUID external_group1 = AccountGroup.uuid("testbackend:group1");
+    AccountGroup.UUID external_group2 = AccountGroup.uuid("testbackend:group2");
+    String nameOfGroupThatContainsExternalGroupAsSubgroup = "test-group-1";
+    String nameOfGroupThatContainsExternalGroupAsSubSubgroup = "test-group-2";
+    testGroupBackend.create(external_group1);
+    testGroupBackend.create(external_group2);
+    testGroupBackend.setMembershipsOf(
+        user1, new ListGroupMembership(ImmutableList.of(external_group1)));
+    testGroupBackend.setMembershipsOf(
+        user2, new ListGroupMembership(ImmutableList.of(external_group2)));
+    AccountGroup.UUID uuidOfGroupThatContainsExternalGroupAsSubgroup =
+        groupOperations
+            .newGroup()
+            .name(nameOfGroupThatContainsExternalGroupAsSubgroup)
+            .addSubgroup(external_group1)
+            .create();
+    groupOperations
+        .newGroup()
+        .name(nameOfGroupThatContainsExternalGroupAsSubSubgroup)
+        .addSubgroup(uuidOfGroupThatContainsExternalGroupAsSubgroup)
+        .create();
+
+    Change change1 = insert("repo", newChange(repo), user1);
+    Change change2 = insert("repo", newChange(repo), user1);
+
+=======
+    getChangeApi(reviewPlus1Change).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     setRequestContextForUser(user1);
     gApi.changes()
         .id(project.get(), reviewPlus1Change.getId().get())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    assertQuery("label:Code-Review=+1,user=non_uploader");
+
+    // add a +1 vote with "user1". Query will match since voter is a non-uploader.
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(reviewPlus1Change.getId().get()).current().review(ReviewInput.recommend());
+    assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
+    assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
+  }
+
+  private Change[] codeReviewInRange(Multimap<Integer, Change> changes, int start, int end) {
+    List<Change> range = new ArrayList<>();
+    for (Map.Entry<Integer, Change> entry : changes.entries()) {
+      int i = entry.getKey();
+      if (i >= start && i <= end) {
+        range.add(entry.getValue());
+      }
+    }
+    return range.toArray(new Change[0]);
+  }
+
+  private String createGroup(String name, String owner) throws Exception {
+    GroupInput in = new GroupInput();
+    in.name = name;
+    in.ownerId = owner;
+    gApi.groups().create(in);
+    return name;
+  }
+
+  private Account.Id createAccount(String name) throws Exception {
+    return accountManager.authenticate(authRequestFactory.createForUser(name)).getAccountId();
+  }
+
+  @Test
+  public void byLabelGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    String g1 = createGroup("group1", "Administrators");
+    String g2 = createGroup("group2", "Administrators");
+    gApi.groups().id(g1).addMembers("user1");
+    gApi.groups().id(g2).addMembers("user2");
+
+    // create a change
+    Change change1 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    // verify that query with user1 will return results.
+    requestContext.setContext(newRequestContext(userId));
+    assertQuery("label:Code-Review=+1,group1", change1);
+    assertQuery("label:Code-Review=+1,group=group1", change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=group2");
+  }
+
+  @Test
+  public void byLabelExternalGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    AccountGroup.UUID external_group1 = AccountGroup.uuid("testbackend:group1");
+    AccountGroup.UUID external_group2 = AccountGroup.uuid("testbackend:group2");
+    String nameOfGroupThatContainsExternalGroupAsSubgroup = "test-group-1";
+    String nameOfGroupThatContainsExternalGroupAsSubSubgroup = "test-group-2";
+    testGroupBackend.create(external_group1);
+    testGroupBackend.create(external_group2);
+    testGroupBackend.setMembershipsOf(
+        user1, new ListGroupMembership(ImmutableList.of(external_group1)));
+    testGroupBackend.setMembershipsOf(
+        user2, new ListGroupMembership(ImmutableList.of(external_group2)));
+    AccountGroup.UUID uuidOfGroupThatContainsExternalGroupAsSubgroup =
+        groupOperations
+            .newGroup()
+            .name(nameOfGroupThatContainsExternalGroupAsSubgroup)
+            .addSubgroup(external_group1)
+            .create();
+    groupOperations
+        .newGroup()
+        .name(nameOfGroupThatContainsExternalGroupAsSubSubgroup)
+        .addSubgroup(uuidOfGroupThatContainsExternalGroupAsSubgroup)
+        .create();
+
+    Change change1 = insert("repo", newChange(repo), user1);
+    Change change2 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1 and other_user
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+    requestContext.setContext(newRequestContext(userId));
+    gApi.changes()
+=======
+    requestContext.setContext(newRequestContext(user1));
+    getChangeApi(reviewPlus1Change).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("label:Code-Review=+1,user=non_uploader", reviewPlus1Change);
     assertQuery("label:Code-Review=+1,non_uploader", reviewPlus1Change);
   }
@@ -1742,11 +3161,125 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(project, newChange(repo), user1);
 
     // post a review with user1
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     setRequestContextForUser(user1);
     gApi.changes()
         .id(project.get(), change1.getId().get())
         .current()
         .review(new ReviewInput().label("Code-Review", 1));
+||||||| BASE
+    Change change1 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    // verify that query with user1 will return results.
+    requestContext.setContext(newRequestContext(userId));
+    assertQuery("label:Code-Review=+1,group1", change1);
+    assertQuery("label:Code-Review=+1,group=group1", change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=group2");
+  }
+
+  @Test
+  public void byLabelExternalGroup() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+
+    // create group and add users
+    AccountGroup.UUID external_group1 = AccountGroup.uuid("testbackend:group1");
+    AccountGroup.UUID external_group2 = AccountGroup.uuid("testbackend:group2");
+    String nameOfGroupThatContainsExternalGroupAsSubgroup = "test-group-1";
+    String nameOfGroupThatContainsExternalGroupAsSubSubgroup = "test-group-2";
+    testGroupBackend.create(external_group1);
+    testGroupBackend.create(external_group2);
+    testGroupBackend.setMembershipsOf(
+        user1, new ListGroupMembership(ImmutableList.of(external_group1)));
+    testGroupBackend.setMembershipsOf(
+        user2, new ListGroupMembership(ImmutableList.of(external_group2)));
+    AccountGroup.UUID uuidOfGroupThatContainsExternalGroupAsSubgroup =
+        groupOperations
+            .newGroup()
+            .name(nameOfGroupThatContainsExternalGroupAsSubgroup)
+            .addSubgroup(external_group1)
+            .create();
+    groupOperations
+        .newGroup()
+        .name(nameOfGroupThatContainsExternalGroupAsSubSubgroup)
+        .addSubgroup(uuidOfGroupThatContainsExternalGroupAsSubgroup)
+        .create();
+
+    Change change1 = insert("repo", newChange(repo), user1);
+    Change change2 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1 and other_user
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+    requestContext.setContext(newRequestContext(userId));
+    gApi.changes()
+        .id(change2.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    assertQuery("label:Code-Review=+1," + external_group1.get(), change1);
+    assertQuery("label:Code-Review=+1,group=" + external_group1.get(), change1);
+    assertQuery(
+        "label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubgroup, change1);
+    assertQuery(
+        "label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubSubgroup, change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=" + external_group2.get());
+
+    // Negated operator tests
+    assertQuery("-label:Code-Review=+1," + external_group1.get(), change2);
+    assertQuery("-label:Code-Review=+1,group=" + external_group1.get(), change2);
+    assertQuery(
+        "-label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubgroup, change2);
+    assertQuery(
+        "-label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubSubgroup,
+        change2);
+    assertQuery("-label:Code-Review=+1,user=" + user1, change2);
+    assertQuery("-label:Code-Review=+1,group=" + external_group2.get(), change2, change1);
+    assertQuery("-label:Code-Review=+1,user=" + user2, change2, change1);
+  }
+
+  @Test
+  public void limit() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change last = null;
+    int n = 5;
+    for (int i = 0; i < n; i++) {
+      last = insert("repo", newChange(repo));
+    }
+
+    for (int i = 1; i <= n + 2; i++) {
+      int expectedSize;
+      Boolean expectedMoreChanges;
+      if (i < n) {
+        expectedSize = i;
+        expectedMoreChanges = true;
+      } else {
+        expectedSize = n;
+        expectedMoreChanges = null;
+      }
+      String q = "status:new limit:" + i;
+      List<ChangeInfo> results = newQuery(q).get();
+      assertWithMessage(q).that(results).hasSize(expectedSize);
+      assertWithMessage(q)
+=======
+    requestContext.setContext(newRequestContext(user1));
+    getChangeApi(change1).current().review(new ReviewInput().label("Code-Review", 1));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     // verify that query with user1 will return results.
     setRequestContextForUser(userId);
@@ -1791,6 +3324,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change2 = insert(project, newChange(repo), user1);
 
     // post a review with user1 and other_user
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     setRequestContextForUser(user1);
     gApi.changes()
         .id(project.get(), change1.getId().get())
@@ -1801,6 +3335,130 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
         .id(project.get(), change2.getId().get())
         .current()
         .review(new ReviewInput().label("Code-Review", 1));
+||||||| BASE
+        .create();
+
+    Change change1 = insert("repo", newChange(repo), user1);
+    Change change2 = insert("repo", newChange(repo), user1);
+
+    // post a review with user1 and other_user
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes()
+        .id(change1.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+    requestContext.setContext(newRequestContext(userId));
+    gApi.changes()
+        .id(change2.getId().get())
+        .current()
+        .review(new ReviewInput().label("Code-Review", 1));
+
+    assertQuery("label:Code-Review=+1," + external_group1.get(), change1);
+    assertQuery("label:Code-Review=+1,group=" + external_group1.get(), change1);
+    assertQuery(
+        "label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubgroup, change1);
+    assertQuery(
+        "label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubSubgroup, change1);
+    assertQuery("label:Code-Review=+1,user=" + user1, change1);
+    assertQuery("label:Code-Review=+1,user=" + user2);
+    assertQuery("label:Code-Review=+1,group=" + external_group2.get());
+
+    // Negated operator tests
+    assertQuery("-label:Code-Review=+1," + external_group1.get(), change2);
+    assertQuery("-label:Code-Review=+1,group=" + external_group1.get(), change2);
+    assertQuery(
+        "-label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubgroup, change2);
+    assertQuery(
+        "-label:Code-Review=+1,group=" + nameOfGroupThatContainsExternalGroupAsSubSubgroup,
+        change2);
+    assertQuery("-label:Code-Review=+1,user=" + user1, change2);
+    assertQuery("-label:Code-Review=+1,group=" + external_group2.get(), change2, change1);
+    assertQuery("-label:Code-Review=+1,user=" + user2, change2, change1);
+  }
+
+  @Test
+  public void limit() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change last = null;
+    int n = 5;
+    for (int i = 0; i < n; i++) {
+      last = insert("repo", newChange(repo));
+    }
+
+    for (int i = 1; i <= n + 2; i++) {
+      int expectedSize;
+      Boolean expectedMoreChanges;
+      if (i < n) {
+        expectedSize = i;
+        expectedMoreChanges = true;
+      } else {
+        expectedSize = n;
+        expectedMoreChanges = null;
+      }
+      String q = "status:new limit:" + i;
+      List<ChangeInfo> results = newQuery(q).get();
+      assertWithMessage(q).that(results).hasSize(expectedSize);
+      assertWithMessage(q)
+          .that(results.get(results.size() - 1)._moreChanges)
+          .isEqualTo(expectedMoreChanges);
+      assertThat(results.get(0)._number).isEqualTo(last.getId().get());
+    }
+  }
+
+  @Test
+  public void start() throws Exception {
+    repo = createAndOpenProject("repo");
+    List<Change> changes = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      changes.add(insert("repo", newChange(repo)));
+    }
+
+    assertQuery("status:new", changes.get(1), changes.get(0));
+    assertQuery(newQuery("status:new").withStart(1), changes.get(0));
+    assertQuery(newQuery("status:new").withStart(2));
+    assertQuery(newQuery("status:new").withStart(3));
+  }
+
+  @Test
+  public void startCannotBeLessThanZero() throws Exception {
+    assertFailingQuery(
+        newQuery("owner:self").withStart(-1), "'start' parameter cannot be less than zero");
+  }
+
+  @Test
+  public void startWithLimit() throws Exception {
+    repo = createAndOpenProject("repo");
+    List<Change> changes = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      changes.add(insert("repo", newChange(repo)));
+    }
+
+    assertQuery("status:new limit:2", changes.get(2), changes.get(1));
+    assertQuery(newQuery("status:new limit:2").withStart(1), changes.get(1), changes.get(0));
+    assertQuery(newQuery("status:new limit:2").withStart(2), changes.get(0));
+    assertQuery(newQuery("status:new limit:2").withStart(3));
+  }
+
+  @Test
+  public void maxPages() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    QueryRequest query = newQuery("status:new").withLimit(10);
+    assertQuery(query, change);
+    assertQuery(query.withStart(1));
+    assertQuery(query.withStart(99));
+    assertThatQueryException(query.withStart(100))
+        .hasMessageThat()
+        .isEqualTo("Cannot go beyond page 10 of results");
+    assertQuery(query.withLimit(100).withStart(100));
+  }
+=======
+    requestContext.setContext(newRequestContext(user1));
+    getChangeApi(change1).current().review(new ReviewInput().label("Code-Review", 1));
+    requestContext.setContext(newRequestContext(userId));
+    getChangeApi(change2).current().review(new ReviewInput().label("Code-Review", 1));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("label:Code-Review=+1," + external_group1.get(), change1);
     assertQuery("label:Code-Review=+1,group=" + external_group1.get(), change1);
@@ -1920,10 +3578,137 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     }
 
     for (int i : ImmutableList.of(2, 0, 1, 4, 3)) {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
       gApi.changes()
           .id(project.get(), changes.get(i).getId().get())
           .current()
           .review(new ReviewInput().message("modifying " + i));
+||||||| BASE
+  @Test
+  public void updateOrder() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    List<ChangeInserter> inserters = new ArrayList<>();
+    List<Change> changes = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      inserters.add(newChange(repo));
+      changes.add(insert("repo", inserters.get(i)));
+    }
+
+    for (int i : ImmutableList.of(2, 0, 1, 4, 3)) {
+      gApi.changes()
+          .id(changes.get(i).getId().get())
+          .current()
+          .review(new ReviewInput().message("modifying " + i));
+    }
+
+    assertQuery(
+        "status:new",
+        changes.get(3),
+        changes.get(4),
+        changes.get(1),
+        changes.get(0),
+        changes.get(2));
+  }
+
+  @Test
+  public void updatedOrder() throws Exception {
+    resetTimeWithClockStep(1, SECONDS);
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins1 = newChange(repo);
+    Change change1 = insert("repo", ins1);
+    Change change2 = insert("repo", newChange(repo));
+
+    assertThat(lastUpdatedMs(change1)).isLessThan(lastUpdatedMs(change2));
+    assertQuery("status:new", change2, change1);
+
+    gApi.changes().id(change1.getId().get()).topic("new-topic");
+    change1 = notesFactory.create(change1.getProject(), change1.getId()).getChange();
+
+    assertThat(lastUpdatedMs(change1)).isGreaterThan(lastUpdatedMs(change2));
+    assertThat(lastUpdatedMs(change1) - lastUpdatedMs(change2))
+        .isAtLeast(MILLISECONDS.convert(1, SECONDS));
+
+    // change1 moved to the top.
+    assertQuery("status:new", change1, change2);
+  }
+
+  @Test
+  public void filterOutMoreThanOnePageOfResults() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo), userId);
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    for (int i = 0; i < 5; i++) {
+      insert("repo", newChange(repo), user2);
+    }
+
+    assertQuery("status:new ownerin:Administrators", change);
+    assertQuery("status:new ownerin:Administrators limit:2", change);
+  }
+
+  @Test
+  public void filterOutAllResults() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    for (int i = 0; i < 5; i++) {
+      insert("repo", newChange(repo), user2);
+    }
+
+    assertQuery("status:new ownerin:Administrators");
+    assertQuery("status:new ownerin:Administrators limit:2");
+  }
+
+  @Test
+  public void byFileExact() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("file:file");
+    assertQuery("file:dir", change);
+    assertQuery("file:file1", change);
+    assertQuery("file:file2", change);
+    assertQuery("file:dir/file1", change);
+    assertQuery("file:dir/file2", change);
+  }
+
+  @Test
+  public void byFileRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("file:.*file.*");
+    assertQuery("file:^file.*"); // Whole path only.
+    assertQuery("file:^dir.file.*", change);
+  }
+
+  @Test
+  public void byPathExact() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("path:file");
+    assertQuery("path:dir");
+    assertQuery("path:file1");
+    assertQuery("path:file2");
+    assertQuery("path:dir/file1", change);
+    assertQuery("path:dir/file2", change);
+  }
+
+  @Test
+  public void byPathRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("path:.*file.*");
+    assertQuery("path:^dir.file.*", change);
+  }
+
+  @Test
+=======
+      getChangeApi(changes.get(i)).current().review(new ReviewInput().message("modifying " + i));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     }
 
     assertQuery(
@@ -1947,7 +3732,135 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertThat(lastUpdatedMs(change1)).isLessThan(lastUpdatedMs(change2));
     assertQuery("status:new", change2, change1);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).topic("new-topic");
+||||||| BASE
+        changes.get(0),
+        changes.get(2));
+  }
+
+  @Test
+  public void updatedOrder() throws Exception {
+    resetTimeWithClockStep(1, SECONDS);
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins1 = newChange(repo);
+    Change change1 = insert("repo", ins1);
+    Change change2 = insert("repo", newChange(repo));
+
+    assertThat(lastUpdatedMs(change1)).isLessThan(lastUpdatedMs(change2));
+    assertQuery("status:new", change2, change1);
+
+    gApi.changes().id(change1.getId().get()).topic("new-topic");
+    change1 = notesFactory.create(change1.getProject(), change1.getId()).getChange();
+
+    assertThat(lastUpdatedMs(change1)).isGreaterThan(lastUpdatedMs(change2));
+    assertThat(lastUpdatedMs(change1) - lastUpdatedMs(change2))
+        .isAtLeast(MILLISECONDS.convert(1, SECONDS));
+
+    // change1 moved to the top.
+    assertQuery("status:new", change1, change2);
+  }
+
+  @Test
+  public void filterOutMoreThanOnePageOfResults() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo), userId);
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    for (int i = 0; i < 5; i++) {
+      insert("repo", newChange(repo), user2);
+    }
+
+    assertQuery("status:new ownerin:Administrators", change);
+    assertQuery("status:new ownerin:Administrators limit:2", change);
+  }
+
+  @Test
+  public void filterOutAllResults() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    for (int i = 0; i < 5; i++) {
+      insert("repo", newChange(repo), user2);
+    }
+
+    assertQuery("status:new ownerin:Administrators");
+    assertQuery("status:new ownerin:Administrators limit:2");
+  }
+
+  @Test
+  public void byFileExact() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("file:file");
+    assertQuery("file:dir", change);
+    assertQuery("file:file1", change);
+    assertQuery("file:file2", change);
+    assertQuery("file:dir/file1", change);
+    assertQuery("file:dir/file2", change);
+  }
+
+  @Test
+  public void byFileRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("file:.*file.*");
+    assertQuery("file:^file.*"); // Whole path only.
+    assertQuery("file:^dir.file.*", change);
+  }
+
+  @Test
+  public void byPathExact() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("path:file");
+    assertQuery("path:dir");
+    assertQuery("path:file1");
+    assertQuery("path:file2");
+    assertQuery("path:dir/file1", change);
+    assertQuery("path:dir/file2", change);
+  }
+
+  @Test
+  public void byPathRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChangeWithFiles(repo, "dir/file1", "dir/file2"));
+
+    assertQuery("path:.*file.*");
+    assertQuery("path:^dir.file.*", change);
+  }
+
+  @Test
+  public void byExtension() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithFiles(repo, "foo.h", "foo.cc"));
+    Change change2 = insert("repo", newChangeWithFiles(repo, "bar.H", "bar.CC"));
+    Change change3 = insert("repo", newChangeWithFiles(repo, "dir/baz.h", "dir/baz.cc"));
+    Change change4 = insert("repo", newChangeWithFiles(repo, "Quux.java", "foo"));
+    Change change5 = insert("repo", newChangeWithFiles(repo, "foo"));
+
+    assertQuery("extension:java", change4);
+    assertQuery("ext:java", change4);
+    assertQuery("ext:.java", change4);
+    assertQuery("ext:jAvA", change4);
+    assertQuery("ext:.jAvA", change4);
+    assertQuery("ext:cc", change3, change2, change1);
+
+    // matching changes with files that have no extension is possible
+    assertQuery("ext:\"\"", change5, change4);
+    assertFailingQuery("ext:");
+  }
+
+  @Test
+  public void byOnlyExtensions() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithFiles(repo, "foo.h", "foo.cc", "bar.cc"));
+=======
+    getChangeApi(change1).topic("new-topic");
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     change1 = notesFactory.create(change1.getProject(), change1.getId()).getChange();
 
     assertThat(lastUpdatedMs(change1)).isGreaterThan(lastUpdatedMs(change2));
@@ -2276,16 +4189,449 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     commentInput.line = 1;
     commentInput.message = "inline";
     input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(commentInput));
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change.getId().get()).current().review(input);
+||||||| BASE
+    assertQuery("directory:^train.*", change2);
+  }
+
+  @Test
+  public void byComment() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Change change = insert("repo", ins);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput commentInput = new ReviewInput.CommentInput();
+    commentInput.line = 1;
+    commentInput.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(commentInput));
+    gApi.changes().id(change.getId().get()).current().review(input);
 
     Map<String, List<CommentInfo>> comments =
-        gApi.changes().id(project.get(), change.getId().get()).current().comments();
+        gApi.changes().id(change.getId().get()).current().comments();
     assertThat(comments).hasSize(1);
     CommentInfo comment = Iterables.getOnlyElement(comments.get(Patch.COMMIT_MSG));
     assertThat(comment.message).isEqualTo(commentInput.message);
     ChangeMessageInfo lastMsg =
+        Iterables.getLast(gApi.changes().id(change.getId().get()).get().messages, null);
+    assertThat(lastMsg.message).isEqualTo("Patch Set 1:\n\n(1 comment)\n\n" + input.message);
+
+    assertQuery("comment:foo");
+    assertQuery("comment:toplevel", change);
+    assertQuery("comment:inline", change);
+  }
+
+  @Test
+  public void byAge() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+
+    // Stop time so age queries use the same endpoint.
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    long nowMs = TimeUtil.nowMs();
+
+    assertThat(lastUpdatedMs(change2) - lastUpdatedMs(change1)).isEqualTo(thirtyHoursInMs);
+    assertThat(nowMs - lastUpdatedMs(change2)).isEqualTo(thirtyHoursInMs);
+    assertThat(TimeUtil.nowMs()).isEqualTo(nowMs);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    // The endpoint is 2009-10-03 09:00:00 -0000
+
+    assertQuery("-age:1d");
+    assertQuery("-age:" + (30 * 60 - 1) + "m");
+    assertQuery("-age:2d", change2);
+    assertQuery("-age:3d", change2, change1);
+    assertQuery("age:3d");
+    assertQuery("age:2d", change1);
+    assertQuery("age:1d", change2, change1);
+
+    // Same test as above, but using filter code path.
+    assertQuery(makeIndexedPredicateFilterQuery("-age:1d"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:" + (30 * 60 - 1) + "m"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:2d"), change2);
+    assertQuery(makeIndexedPredicateFilterQuery("-age:3d"), change2, change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:3d"));
+    assertQuery(makeIndexedPredicateFilterQuery("age:2d"), change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:1d"), change2, change1);
+  }
+
+  @Test
+  public void byBeforeUntil() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(predicate + "2009-09-29");
+      assertQuery(predicate + "2009-09-30");
+      assertQuery(predicate + "\"2009-09-30 16:59:00 -0400\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00 -0000\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00\"");
+      assertQuery(predicate + "\"2009-09-30 17:02:00 -0400\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00\"", change1);
+      assertQuery(predicate + "2009-10-01", change1);
+      assertQuery(predicate + "2009-10-03", change2, change1);
+      assertQuery(predicate + "\"2009-09-30 21:00:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-02 03:00:00 -0000\"", change2, change1);
+    }
+
+    // Same test as above, but using filter code path.
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-29"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-30"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 16:59:00 -0400\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00 -0000\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00\""));
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 17:02:00 -0400\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00 -0000\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-01"), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-03"), change2, change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 21:00:00 -0000\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-02 03:00:00 -0000\""),
+          change2,
+          change1);
+    }
+  }
+
+  @Test
+  public void byAfterSince() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    for (String predicate : Lists.newArrayList("after:", "since:")) {
+=======
+    getChangeApi(change).current().review(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    Map<String, List<CommentInfo>> comments =
+        gApi.changes().id(project.get(), change.getId().get()).current().comments();
+||||||| BASE
+
+  @Test
+  public void byComment() throws Exception {
+    repo = createAndOpenProject("repo");
+    ChangeInserter ins = newChange(repo);
+    Change change = insert("repo", ins);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput commentInput = new ReviewInput.CommentInput();
+    commentInput.line = 1;
+    commentInput.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(commentInput));
+    gApi.changes().id(change.getId().get()).current().review(input);
+
+    Map<String, List<CommentInfo>> comments =
+        gApi.changes().id(change.getId().get()).current().comments();
+    assertThat(comments).hasSize(1);
+    CommentInfo comment = Iterables.getOnlyElement(comments.get(Patch.COMMIT_MSG));
+    assertThat(comment.message).isEqualTo(commentInput.message);
+    ChangeMessageInfo lastMsg =
+        Iterables.getLast(gApi.changes().id(change.getId().get()).get().messages, null);
+    assertThat(lastMsg.message).isEqualTo("Patch Set 1:\n\n(1 comment)\n\n" + input.message);
+
+    assertQuery("comment:foo");
+    assertQuery("comment:toplevel", change);
+    assertQuery("comment:inline", change);
+  }
+
+  @Test
+  public void byAge() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+
+    // Stop time so age queries use the same endpoint.
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    long nowMs = TimeUtil.nowMs();
+
+    assertThat(lastUpdatedMs(change2) - lastUpdatedMs(change1)).isEqualTo(thirtyHoursInMs);
+    assertThat(nowMs - lastUpdatedMs(change2)).isEqualTo(thirtyHoursInMs);
+    assertThat(TimeUtil.nowMs()).isEqualTo(nowMs);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    // The endpoint is 2009-10-03 09:00:00 -0000
+
+    assertQuery("-age:1d");
+    assertQuery("-age:" + (30 * 60 - 1) + "m");
+    assertQuery("-age:2d", change2);
+    assertQuery("-age:3d", change2, change1);
+    assertQuery("age:3d");
+    assertQuery("age:2d", change1);
+    assertQuery("age:1d", change2, change1);
+
+    // Same test as above, but using filter code path.
+    assertQuery(makeIndexedPredicateFilterQuery("-age:1d"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:" + (30 * 60 - 1) + "m"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:2d"), change2);
+    assertQuery(makeIndexedPredicateFilterQuery("-age:3d"), change2, change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:3d"));
+    assertQuery(makeIndexedPredicateFilterQuery("age:2d"), change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:1d"), change2, change1);
+  }
+
+  @Test
+  public void byBeforeUntil() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(predicate + "2009-09-29");
+      assertQuery(predicate + "2009-09-30");
+      assertQuery(predicate + "\"2009-09-30 16:59:00 -0400\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00 -0000\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00\"");
+      assertQuery(predicate + "\"2009-09-30 17:02:00 -0400\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00\"", change1);
+      assertQuery(predicate + "2009-10-01", change1);
+      assertQuery(predicate + "2009-10-03", change2, change1);
+      assertQuery(predicate + "\"2009-09-30 21:00:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-02 03:00:00 -0000\"", change2, change1);
+    }
+
+    // Same test as above, but using filter code path.
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-29"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-30"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 16:59:00 -0400\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00 -0000\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00\""));
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 17:02:00 -0400\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00 -0000\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-01"), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-03"), change2, change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 21:00:00 -0000\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-02 03:00:00 -0000\""),
+          change2,
+          change1);
+    }
+  }
+
+  @Test
+  public void byAfterSince() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    for (String predicate : Lists.newArrayList("after:", "since:")) {
+      assertQuery(predicate + "2009-10-03");
+      assertQuery(predicate + "\"2009-10-01 20:59:59 -0400\"", change2);
+      assertQuery(predicate + "\"2009-10-01 20:59:59 -0000\"", change2);
+=======
+    Map<String, List<CommentInfo>> comments = getChangeApi(change).current().comments();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    assertThat(comments).hasSize(1);
+    CommentInfo comment = Iterables.getOnlyElement(comments.get(Patch.COMMIT_MSG));
+    assertThat(comment.message).isEqualTo(commentInput.message);
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    ChangeMessageInfo lastMsg =
         Iterables.getLast(
             gApi.changes().id(project.get(), change.getId().get()).get().messages, null);
+||||||| BASE
+    ChangeInserter ins = newChange(repo);
+    Change change = insert("repo", ins);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput commentInput = new ReviewInput.CommentInput();
+    commentInput.line = 1;
+    commentInput.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(commentInput));
+    gApi.changes().id(change.getId().get()).current().review(input);
+
+    Map<String, List<CommentInfo>> comments =
+        gApi.changes().id(change.getId().get()).current().comments();
+    assertThat(comments).hasSize(1);
+    CommentInfo comment = Iterables.getOnlyElement(comments.get(Patch.COMMIT_MSG));
+    assertThat(comment.message).isEqualTo(commentInput.message);
+    ChangeMessageInfo lastMsg =
+        Iterables.getLast(gApi.changes().id(change.getId().get()).get().messages, null);
+    assertThat(lastMsg.message).isEqualTo("Patch Set 1:\n\n(1 comment)\n\n" + input.message);
+
+    assertQuery("comment:foo");
+    assertQuery("comment:toplevel", change);
+    assertQuery("comment:inline", change);
+  }
+
+  @Test
+  public void byAge() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+
+    // Stop time so age queries use the same endpoint.
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+    TestTimeUtil.setClock(new Timestamp(startMs + 2 * thirtyHoursInMs));
+    long nowMs = TimeUtil.nowMs();
+
+    assertThat(lastUpdatedMs(change2) - lastUpdatedMs(change1)).isEqualTo(thirtyHoursInMs);
+    assertThat(nowMs - lastUpdatedMs(change2)).isEqualTo(thirtyHoursInMs);
+    assertThat(TimeUtil.nowMs()).isEqualTo(nowMs);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    // The endpoint is 2009-10-03 09:00:00 -0000
+
+    assertQuery("-age:1d");
+    assertQuery("-age:" + (30 * 60 - 1) + "m");
+    assertQuery("-age:2d", change2);
+    assertQuery("-age:3d", change2, change1);
+    assertQuery("age:3d");
+    assertQuery("age:2d", change1);
+    assertQuery("age:1d", change2, change1);
+
+    // Same test as above, but using filter code path.
+    assertQuery(makeIndexedPredicateFilterQuery("-age:1d"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:" + (30 * 60 - 1) + "m"));
+    assertQuery(makeIndexedPredicateFilterQuery("-age:2d"), change2);
+    assertQuery(makeIndexedPredicateFilterQuery("-age:3d"), change2, change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:3d"));
+    assertQuery(makeIndexedPredicateFilterQuery("age:2d"), change1);
+    assertQuery(makeIndexedPredicateFilterQuery("age:1d"), change2, change1);
+  }
+
+  @Test
+  public void byBeforeUntil() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(predicate + "2009-09-29");
+      assertQuery(predicate + "2009-09-30");
+      assertQuery(predicate + "\"2009-09-30 16:59:00 -0400\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00 -0000\"");
+      assertQuery(predicate + "\"2009-09-30 20:59:00\"");
+      assertQuery(predicate + "\"2009-09-30 17:02:00 -0400\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-01 21:02:00\"", change1);
+      assertQuery(predicate + "2009-10-01", change1);
+      assertQuery(predicate + "2009-10-03", change2, change1);
+      assertQuery(predicate + "\"2009-09-30 21:00:00 -0000\"", change1);
+      assertQuery(predicate + "\"2009-10-02 03:00:00 -0000\"", change2, change1);
+    }
+
+    // Same test as above, but using filter code path.
+    for (String predicate : Lists.newArrayList("before:", "until:")) {
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-29"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-09-30"));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 16:59:00 -0400\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00 -0000\""));
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 20:59:00\""));
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 17:02:00 -0400\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00 -0000\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "\"2009-10-01 21:02:00\""), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-01"), change1);
+      assertQuery(makeIndexedPredicateFilterQuery(predicate + "2009-10-03"), change2, change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-09-30 21:00:00 -0000\""), change1);
+      assertQuery(
+          makeIndexedPredicateFilterQuery(predicate + "\"2009-10-02 03:00:00 -0000\""),
+          change2,
+          change1);
+    }
+  }
+
+  @Test
+  public void byAfterSince() throws Exception {
+    long thirtyHoursInMs = MILLISECONDS.convert(30, HOURS);
+    resetTimeWithClockStep(thirtyHoursInMs, MILLISECONDS);
+    repo = createAndOpenProject("repo");
+    long startMs = TestTimeUtil.START.toEpochMilli();
+    Change change1 = insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs));
+    Change change2 =
+        insert("repo", newChange(repo), null, Instant.ofEpochMilli(startMs + thirtyHoursInMs));
+    TestTimeUtil.setClockStep(0, MILLISECONDS);
+
+    // Change1 was last updated on 2009-09-30 21:00:00 -0000
+    // Change2 was last updated on 2009-10-02 03:00:00 -0000
+    for (String predicate : Lists.newArrayList("after:", "since:")) {
+      assertQuery(predicate + "2009-10-03");
+      assertQuery(predicate + "\"2009-10-01 20:59:59 -0400\"", change2);
+      assertQuery(predicate + "\"2009-10-01 20:59:59 -0000\"", change2);
+      assertQuery(predicate + "2009-10-01", change2);
+      assertQuery(predicate + "2009-09-30", change2, change1);
+      assertQuery(predicate + "\"2009-09-30 21:00:00 -0000\"", change2, change1);
+      assertQuery(predicate + "\"2009-10-02 03:00:00 -0000\"", change2);
+    }
+
+=======
+    ChangeMessageInfo lastMsg = Iterables.getLast(getChangeApi(change).get().messages, null);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertThat(lastMsg.message).isEqualTo("Patch Set 1:\n\n(1 comment)\n\n" + input.message);
 
     assertQuery("comment:foo");
@@ -2665,16 +5011,482 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(project, newChange(repo));
     Change change2 = insert(project, newChange(repo));
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     addHashtags(project, change1.getId(), "foo", "aaa-bbb-ccc");
     addHashtags(project, change2.getId(), "foo", "bar", "a tag", "ACamelCaseTag");
+||||||| BASE
+    assertQuery("deleted:<=0", change1);
+
+    for (String str : Lists.newArrayList("delta:", "size:")) {
+      assertQuery(str + "<2");
+      assertQuery(str + "3", change1);
+      assertQuery(str + ">2", change1);
+      assertQuery(str + ">=3", change1);
+      assertQuery(str + "<3", change2);
+      assertQuery(str + "<=2", change2);
+    }
+  }
+
+  private List<Change> setUpHashtagChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    addHashtags(change1.getId(), "foo", "aaa-bbb-ccc");
+    addHashtags(change2.getId(), "foo", "bar", "a tag", "ACamelCaseTag");
     return ImmutableList.of(change1, change2);
   }
 
-  private void addHashtags(Project.NameKey project, Change.Id changeId, String... hashtags)
-      throws Exception {
+  private void addHashtags(Change.Id changeId, String... hashtags) throws Exception {
     HashtagsInput in = new HashtagsInput();
     in.add = ImmutableSet.copyOf(hashtags);
+    gApi.changes().id(changeId.get()).setHashtags(in);
+  }
+
+  @Test
+  public void byHashtag() throws Exception {
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("hashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("hashtag:bar", changes.get(1));
+    assertQuery("hashtag:\"a tag\"", changes.get(1));
+    assertQuery("hashtag:\"a tag \"", changes.get(1));
+    assertQuery("hashtag:\" a tag \"", changes.get(1));
+    assertQuery("hashtag:\"#a tag\"", changes.get(1));
+    assertQuery("hashtag:\"# #a tag\"", changes.get(1));
+    assertQuery("hashtag:acamelcasetag", changes.get(1));
+    assertQuery("hashtag:ACamelCaseTAg", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagFullText() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.FUZZY_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("inhashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("inhashtag:bbb", changes.get(0));
+    assertQuery("inhashtag:tag", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagPrefix() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.PREFIX_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("prefixhashtag:a", changes.get(1), changes.get(0));
+    assertQuery("prefixhashtag:aa", changes.get(0));
+    assertQuery("prefixhashtag:bar", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    addHashtags(change1.getId(), "feature1");
+    addHashtags(change1.getId(), "trending");
+    addHashtags(change2.getId(), "Cherrypick-feature1");
+    addHashtags(change3.getId(), "feature1-fixup");
+
+    assertQuery("inhashtag:^feature1.*", change3, change1);
+    assertQuery("inhashtag:{^.*feature1$}", change2, change1);
+    assertQuery("inhashtag:^trending.*", change1);
+  }
+
+  @Test
+  public void byDefault() throws Exception {
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+
+    RevCommit commit2 = repo.parseBody(repo.commit().message("foosubject").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 = repo.parseBody(repo.commit().add("Foo.java", "foo contents").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    ChangeInserter ins4 = newChange(repo);
+    Change change4 = insert("repo", ins4);
+    ReviewInput ri4 = new ReviewInput();
+    ri4.message = "toplevel";
+    ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+    gApi.changes().id(change4.getId().get()).current().review(ri4);
+
+    ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
+    Change change5 = insert("repo", ins5);
+
+    Change change6 = insert("repo", newChangeForBranch(repo, "branch6"));
+
+    assertQuery(change1.getId().get(), change1);
+    assertQuery(ChangeTriplet.format(change1), change1);
+    assertQuery("foosubject", change2);
+    assertQuery("Foo.java", change3);
+    assertQuery("Code-Review+1", change4);
+    assertQuery("toplevel", change4);
+    assertQuery("feature5", change5);
+    assertQuery("branch6", change6);
+    assertQuery("refs/heads/branch6", change6);
+
+    Change[] expected = new Change[] {change6, change5, change4, change3, change2, change1};
+    assertQuery("user@example.com", expected);
+    assertQuery("repo", expected);
+
+    assertQuery("Code-Review=+1", change4);
+  }
+
+  @Test
+  public void byDefaultWithCommitPrefix() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit = repo.parseBody(repo.commit().message("message").create());
+    Change change = insert("repo", newChangeForCommit(repo, commit));
+
+    assertQuery(commit.getId().getName().substring(0, 6), change);
+  }
+
+  @Test
+  public void visible() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangePrivate(repo));
+
+    String q = "project:repo";
+
+    // Bad request for query with non-existent user
+    assertThatQueryException(q + " visibleto:notexisting");
+
+    // Current user can see all changes
+    assertQuery(q, change2, change1);
+    assertQuery(q + " visibleto:self", change2, change1);
+
+    // Second user cannot see first user's private change
+    Account.Id user2 = createAccount("user2");
+    assertQuery(q + " visibleto:" + user2.get(), change1);
+    assertQuery(q + " visibleto:user2", change1);
+
+    String g1 = createGroup("group1", "Administrators");
+    gApi.groups().id(g1).addMembers("user2");
+
+    // By default when a group is created without any permission granted,
+=======
+    addHashtags(change1, "foo", "aaa-bbb-ccc");
+    addHashtags(change2, "foo", "bar", "a tag", "ACamelCaseTag");
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    return ImmutableList.of(change1, change2);
+  }
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+  private void addHashtags(Project.NameKey project, Change.Id changeId, String... hashtags)
+      throws Exception {
+||||||| BASE
+      assertQuery(str + ">2", change1);
+      assertQuery(str + ">=3", change1);
+      assertQuery(str + "<3", change2);
+      assertQuery(str + "<=2", change2);
+    }
+  }
+
+  private List<Change> setUpHashtagChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    addHashtags(change1.getId(), "foo", "aaa-bbb-ccc");
+    addHashtags(change2.getId(), "foo", "bar", "a tag", "ACamelCaseTag");
+    return ImmutableList.of(change1, change2);
+  }
+
+  private void addHashtags(Change.Id changeId, String... hashtags) throws Exception {
+    HashtagsInput in = new HashtagsInput();
+    in.add = ImmutableSet.copyOf(hashtags);
+    gApi.changes().id(changeId.get()).setHashtags(in);
+  }
+
+  @Test
+  public void byHashtag() throws Exception {
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("hashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("hashtag:bar", changes.get(1));
+    assertQuery("hashtag:\"a tag\"", changes.get(1));
+    assertQuery("hashtag:\"a tag \"", changes.get(1));
+    assertQuery("hashtag:\" a tag \"", changes.get(1));
+    assertQuery("hashtag:\"#a tag\"", changes.get(1));
+    assertQuery("hashtag:\"# #a tag\"", changes.get(1));
+    assertQuery("hashtag:acamelcasetag", changes.get(1));
+    assertQuery("hashtag:ACamelCaseTAg", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagFullText() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.FUZZY_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("inhashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("inhashtag:bbb", changes.get(0));
+    assertQuery("inhashtag:tag", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagPrefix() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.PREFIX_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("prefixhashtag:a", changes.get(1), changes.get(0));
+    assertQuery("prefixhashtag:aa", changes.get(0));
+    assertQuery("prefixhashtag:bar", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    addHashtags(change1.getId(), "feature1");
+    addHashtags(change1.getId(), "trending");
+    addHashtags(change2.getId(), "Cherrypick-feature1");
+    addHashtags(change3.getId(), "feature1-fixup");
+
+    assertQuery("inhashtag:^feature1.*", change3, change1);
+    assertQuery("inhashtag:{^.*feature1$}", change2, change1);
+    assertQuery("inhashtag:^trending.*", change1);
+  }
+
+  @Test
+  public void byDefault() throws Exception {
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+
+    RevCommit commit2 = repo.parseBody(repo.commit().message("foosubject").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 = repo.parseBody(repo.commit().add("Foo.java", "foo contents").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    ChangeInserter ins4 = newChange(repo);
+    Change change4 = insert("repo", ins4);
+    ReviewInput ri4 = new ReviewInput();
+    ri4.message = "toplevel";
+    ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+    gApi.changes().id(change4.getId().get()).current().review(ri4);
+
+    ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
+    Change change5 = insert("repo", ins5);
+
+    Change change6 = insert("repo", newChangeForBranch(repo, "branch6"));
+
+    assertQuery(change1.getId().get(), change1);
+    assertQuery(ChangeTriplet.format(change1), change1);
+    assertQuery("foosubject", change2);
+    assertQuery("Foo.java", change3);
+    assertQuery("Code-Review+1", change4);
+    assertQuery("toplevel", change4);
+    assertQuery("feature5", change5);
+    assertQuery("branch6", change6);
+    assertQuery("refs/heads/branch6", change6);
+
+    Change[] expected = new Change[] {change6, change5, change4, change3, change2, change1};
+    assertQuery("user@example.com", expected);
+    assertQuery("repo", expected);
+
+    assertQuery("Code-Review=+1", change4);
+  }
+
+  @Test
+  public void byDefaultWithCommitPrefix() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit = repo.parseBody(repo.commit().message("message").create());
+    Change change = insert("repo", newChangeForCommit(repo, commit));
+
+    assertQuery(commit.getId().getName().substring(0, 6), change);
+  }
+
+  @Test
+  public void visible() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangePrivate(repo));
+
+    String q = "project:repo";
+
+    // Bad request for query with non-existent user
+    assertThatQueryException(q + " visibleto:notexisting");
+
+    // Current user can see all changes
+    assertQuery(q, change2, change1);
+    assertQuery(q + " visibleto:self", change2, change1);
+
+    // Second user cannot see first user's private change
+    Account.Id user2 = createAccount("user2");
+    assertQuery(q + " visibleto:" + user2.get(), change1);
+    assertQuery(q + " visibleto:user2", change1);
+
+    String g1 = createGroup("group1", "Administrators");
+    gApi.groups().id(g1).addMembers("user2");
+
+    // By default when a group is created without any permission granted,
+    // nothing is visible to it; having members or not has nothing to do with it
+    assertQuery(q + " visibleto:" + g1);
+
+    // change is visible to group ONLY when access is granted
+    grant(
+=======
+  private void addHashtags(Change change, String... hashtags) throws Exception {
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    HashtagsInput in = new HashtagsInput();
+    in.add = ImmutableSet.copyOf(hashtags);
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), changeId.get()).setHashtags(in);
+||||||| BASE
+      assertQuery(str + "<=2", change2);
+    }
+  }
+
+  private List<Change> setUpHashtagChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    addHashtags(change1.getId(), "foo", "aaa-bbb-ccc");
+    addHashtags(change2.getId(), "foo", "bar", "a tag", "ACamelCaseTag");
+    return ImmutableList.of(change1, change2);
+  }
+
+  private void addHashtags(Change.Id changeId, String... hashtags) throws Exception {
+    HashtagsInput in = new HashtagsInput();
+    in.add = ImmutableSet.copyOf(hashtags);
+    gApi.changes().id(changeId.get()).setHashtags(in);
+  }
+
+  @Test
+  public void byHashtag() throws Exception {
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("hashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("hashtag:bar", changes.get(1));
+    assertQuery("hashtag:\"a tag\"", changes.get(1));
+    assertQuery("hashtag:\"a tag \"", changes.get(1));
+    assertQuery("hashtag:\" a tag \"", changes.get(1));
+    assertQuery("hashtag:\"#a tag\"", changes.get(1));
+    assertQuery("hashtag:\"# #a tag\"", changes.get(1));
+    assertQuery("hashtag:acamelcasetag", changes.get(1));
+    assertQuery("hashtag:ACamelCaseTAg", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagFullText() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.FUZZY_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("inhashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("inhashtag:bbb", changes.get(0));
+    assertQuery("inhashtag:tag", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagPrefix() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.PREFIX_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("prefixhashtag:a", changes.get(1), changes.get(0));
+    assertQuery("prefixhashtag:aa", changes.get(0));
+    assertQuery("prefixhashtag:bar", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    addHashtags(change1.getId(), "feature1");
+    addHashtags(change1.getId(), "trending");
+    addHashtags(change2.getId(), "Cherrypick-feature1");
+    addHashtags(change3.getId(), "feature1-fixup");
+
+    assertQuery("inhashtag:^feature1.*", change3, change1);
+    assertQuery("inhashtag:{^.*feature1$}", change2, change1);
+    assertQuery("inhashtag:^trending.*", change1);
+  }
+
+  @Test
+  public void byDefault() throws Exception {
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+
+    RevCommit commit2 = repo.parseBody(repo.commit().message("foosubject").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 = repo.parseBody(repo.commit().add("Foo.java", "foo contents").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    ChangeInserter ins4 = newChange(repo);
+    Change change4 = insert("repo", ins4);
+    ReviewInput ri4 = new ReviewInput();
+    ri4.message = "toplevel";
+    ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+    gApi.changes().id(change4.getId().get()).current().review(ri4);
+
+    ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
+    Change change5 = insert("repo", ins5);
+
+    Change change6 = insert("repo", newChangeForBranch(repo, "branch6"));
+
+    assertQuery(change1.getId().get(), change1);
+    assertQuery(ChangeTriplet.format(change1), change1);
+    assertQuery("foosubject", change2);
+    assertQuery("Foo.java", change3);
+    assertQuery("Code-Review+1", change4);
+    assertQuery("toplevel", change4);
+    assertQuery("feature5", change5);
+    assertQuery("branch6", change6);
+    assertQuery("refs/heads/branch6", change6);
+
+    Change[] expected = new Change[] {change6, change5, change4, change3, change2, change1};
+    assertQuery("user@example.com", expected);
+    assertQuery("repo", expected);
+
+    assertQuery("Code-Review=+1", change4);
+  }
+
+  @Test
+  public void byDefaultWithCommitPrefix() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit = repo.parseBody(repo.commit().message("message").create());
+    Change change = insert("repo", newChangeForCommit(repo, commit));
+
+    assertQuery(commit.getId().getName().substring(0, 6), change);
+  }
+
+  @Test
+  public void visible() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangePrivate(repo));
+
+    String q = "project:repo";
+
+    // Bad request for query with non-existent user
+    assertThatQueryException(q + " visibleto:notexisting");
+
+    // Current user can see all changes
+    assertQuery(q, change2, change1);
+    assertQuery(q + " visibleto:self", change2, change1);
+
+    // Second user cannot see first user's private change
+    Account.Id user2 = createAccount("user2");
+    assertQuery(q + " visibleto:" + user2.get(), change1);
+    assertQuery(q + " visibleto:user2", change1);
+
+    String g1 = createGroup("group1", "Administrators");
+    gApi.groups().id(g1).addMembers("user2");
+
+    // By default when a group is created without any permission granted,
+    // nothing is visible to it; having members or not has nothing to do with it
+    assertQuery(q + " visibleto:" + g1);
+
+    // change is visible to group ONLY when access is granted
+    grant(
+        Project.nameKey("repo"),
+        "refs/*",
+        Permission.READ,
+=======
+    getChangeApi(change).setHashtags(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
   }
 
   @Test
@@ -2711,6 +5523,7 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
   @Test
   public void byHashtagRegex() throws Exception {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Project.NameKey project = Project.nameKey("repo");
     repo = createAndOpenProject(project);
     Change change1 = insert(project, newChange(repo));
@@ -2720,6 +5533,175 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     addHashtags(project, change1.getId(), "trending");
     addHashtags(project, change2.getId(), "Cherrypick-feature1");
     addHashtags(project, change3.getId(), "feature1-fixup");
+||||||| BASE
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("inhashtag:foo", changes.get(1), changes.get(0));
+    assertQuery("inhashtag:bbb", changes.get(0));
+    assertQuery("inhashtag:tag", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagPrefix() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.PREFIX_HASHTAG)).isTrue();
+    List<Change> changes = setUpHashtagChanges();
+    assertQuery("prefixhashtag:a", changes.get(1), changes.get(0));
+    assertQuery("prefixhashtag:aa", changes.get(0));
+    assertQuery("prefixhashtag:bar", changes.get(1));
+  }
+
+  @Test
+  public void byHashtagRegex() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    addHashtags(change1.getId(), "feature1");
+    addHashtags(change1.getId(), "trending");
+    addHashtags(change2.getId(), "Cherrypick-feature1");
+    addHashtags(change3.getId(), "feature1-fixup");
+
+    assertQuery("inhashtag:^feature1.*", change3, change1);
+    assertQuery("inhashtag:{^.*feature1$}", change2, change1);
+    assertQuery("inhashtag:^trending.*", change1);
+  }
+
+  @Test
+  public void byDefault() throws Exception {
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+
+    RevCommit commit2 = repo.parseBody(repo.commit().message("foosubject").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 = repo.parseBody(repo.commit().add("Foo.java", "foo contents").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    ChangeInserter ins4 = newChange(repo);
+    Change change4 = insert("repo", ins4);
+    ReviewInput ri4 = new ReviewInput();
+    ri4.message = "toplevel";
+    ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+    gApi.changes().id(change4.getId().get()).current().review(ri4);
+
+    ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
+    Change change5 = insert("repo", ins5);
+
+    Change change6 = insert("repo", newChangeForBranch(repo, "branch6"));
+
+    assertQuery(change1.getId().get(), change1);
+    assertQuery(ChangeTriplet.format(change1), change1);
+    assertQuery("foosubject", change2);
+    assertQuery("Foo.java", change3);
+    assertQuery("Code-Review+1", change4);
+    assertQuery("toplevel", change4);
+    assertQuery("feature5", change5);
+    assertQuery("branch6", change6);
+    assertQuery("refs/heads/branch6", change6);
+
+    Change[] expected = new Change[] {change6, change5, change4, change3, change2, change1};
+    assertQuery("user@example.com", expected);
+    assertQuery("repo", expected);
+
+    assertQuery("Code-Review=+1", change4);
+  }
+
+  @Test
+  public void byDefaultWithCommitPrefix() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit = repo.parseBody(repo.commit().message("message").create());
+    Change change = insert("repo", newChangeForCommit(repo, commit));
+
+    assertQuery(commit.getId().getName().substring(0, 6), change);
+  }
+
+  @Test
+  public void visible() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangePrivate(repo));
+
+    String q = "project:repo";
+
+    // Bad request for query with non-existent user
+    assertThatQueryException(q + " visibleto:notexisting");
+
+    // Current user can see all changes
+    assertQuery(q, change2, change1);
+    assertQuery(q + " visibleto:self", change2, change1);
+
+    // Second user cannot see first user's private change
+    Account.Id user2 = createAccount("user2");
+    assertQuery(q + " visibleto:" + user2.get(), change1);
+    assertQuery(q + " visibleto:user2", change1);
+
+    String g1 = createGroup("group1", "Administrators");
+    gApi.groups().id(g1).addMembers("user2");
+
+    // By default when a group is created without any permission granted,
+    // nothing is visible to it; having members or not has nothing to do with it
+    assertQuery(q + " visibleto:" + g1);
+
+    // change is visible to group ONLY when access is granted
+    grant(
+        Project.nameKey("repo"),
+        "refs/*",
+        Permission.READ,
+        false,
+        AccountGroup.uuid(gApi.groups().id(g1).get().id));
+    assertQuery(q + " visibleto:" + g1, change1);
+
+    // Both changes are visible to InternalUser
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      assertQuery(q, change2, change1);
+    }
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("is:visible", change1);
+
+    Account.Id user3 = createAccount("user3");
+
+    // Explicitly authenticate user2 and user3 so that display name gets set
+    AuthRequest authRequest = authRequestFactory.createForUser("user2");
+    authRequest.setDisplayName("Another User");
+    authRequest.setEmailAddress("user2@example.com");
+    accountManager.authenticate(authRequest);
+    authRequest = authRequestFactory.createForUser("user3");
+    authRequest.setDisplayName("Another User");
+    authRequest.setEmailAddress("user3@example.com");
+    accountManager.authenticate(authRequest);
+
+    // Switch to user3
+    requestContext.setContext(newRequestContext(user3));
+    Change change3 = insert("repo", newChange(repo), user3);
+    Change change4 = insert("repo", newChangePrivate(repo), user3);
+
+    // User3 can see both their changes and the first user's change
+    assertQuery(q + " visibleto:" + user3.get(), change4, change3, change1);
+
+    // User2 cannot see user3's private change
+    assertQuery(q + " visibleto:" + user2.get(), change3, change1);
+
+    // Query as user3 by display name matching user2 and user3; bad request
+    assertFailingQuery(
+        q + " visibleto:\"Another User\"", "\"Another User\" resolves to multiple accounts");
+  }
+
+  protected void grant(
+      Project.NameKey project,
+      String ref,
+      String permission,
+      boolean force,
+=======
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    addHashtags(change1, "feature1");
+    addHashtags(change1, "trending");
+    addHashtags(change2, "Cherrypick-feature1");
+    addHashtags(change3, "feature1-fixup");
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("inhashtag:^feature1.*", change3, change1);
     assertQuery("inhashtag:{^.*feature1$}", change2, change1);
@@ -2744,7 +5726,164 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewInput ri4 = new ReviewInput();
     ri4.message = "toplevel";
     ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change4.getId().get()).current().review(ri4);
+||||||| BASE
+  @Test
+  public void byDefault() throws Exception {
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+
+    RevCommit commit2 = repo.parseBody(repo.commit().message("foosubject").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 = repo.parseBody(repo.commit().add("Foo.java", "foo contents").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    ChangeInserter ins4 = newChange(repo);
+    Change change4 = insert("repo", ins4);
+    ReviewInput ri4 = new ReviewInput();
+    ri4.message = "toplevel";
+    ri4.labels = ImmutableMap.of("Code-Review", (short) 1);
+    gApi.changes().id(change4.getId().get()).current().review(ri4);
+
+    ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
+    Change change5 = insert("repo", ins5);
+
+    Change change6 = insert("repo", newChangeForBranch(repo, "branch6"));
+
+    assertQuery(change1.getId().get(), change1);
+    assertQuery(ChangeTriplet.format(change1), change1);
+    assertQuery("foosubject", change2);
+    assertQuery("Foo.java", change3);
+    assertQuery("Code-Review+1", change4);
+    assertQuery("toplevel", change4);
+    assertQuery("feature5", change5);
+    assertQuery("branch6", change6);
+    assertQuery("refs/heads/branch6", change6);
+
+    Change[] expected = new Change[] {change6, change5, change4, change3, change2, change1};
+    assertQuery("user@example.com", expected);
+    assertQuery("repo", expected);
+
+    assertQuery("Code-Review=+1", change4);
+  }
+
+  @Test
+  public void byDefaultWithCommitPrefix() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit = repo.parseBody(repo.commit().message("message").create());
+    Change change = insert("repo", newChangeForCommit(repo, commit));
+
+    assertQuery(commit.getId().getName().substring(0, 6), change);
+  }
+
+  @Test
+  public void visible() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangePrivate(repo));
+
+    String q = "project:repo";
+
+    // Bad request for query with non-existent user
+    assertThatQueryException(q + " visibleto:notexisting");
+
+    // Current user can see all changes
+    assertQuery(q, change2, change1);
+    assertQuery(q + " visibleto:self", change2, change1);
+
+    // Second user cannot see first user's private change
+    Account.Id user2 = createAccount("user2");
+    assertQuery(q + " visibleto:" + user2.get(), change1);
+    assertQuery(q + " visibleto:user2", change1);
+
+    String g1 = createGroup("group1", "Administrators");
+    gApi.groups().id(g1).addMembers("user2");
+
+    // By default when a group is created without any permission granted,
+    // nothing is visible to it; having members or not has nothing to do with it
+    assertQuery(q + " visibleto:" + g1);
+
+    // change is visible to group ONLY when access is granted
+    grant(
+        Project.nameKey("repo"),
+        "refs/*",
+        Permission.READ,
+        false,
+        AccountGroup.uuid(gApi.groups().id(g1).get().id));
+    assertQuery(q + " visibleto:" + g1, change1);
+
+    // Both changes are visible to InternalUser
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      assertQuery(q, change2, change1);
+    }
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("is:visible", change1);
+
+    Account.Id user3 = createAccount("user3");
+
+    // Explicitly authenticate user2 and user3 so that display name gets set
+    AuthRequest authRequest = authRequestFactory.createForUser("user2");
+    authRequest.setDisplayName("Another User");
+    authRequest.setEmailAddress("user2@example.com");
+    accountManager.authenticate(authRequest);
+    authRequest = authRequestFactory.createForUser("user3");
+    authRequest.setDisplayName("Another User");
+    authRequest.setEmailAddress("user3@example.com");
+    accountManager.authenticate(authRequest);
+
+    // Switch to user3
+    requestContext.setContext(newRequestContext(user3));
+    Change change3 = insert("repo", newChange(repo), user3);
+    Change change4 = insert("repo", newChangePrivate(repo), user3);
+
+    // User3 can see both their changes and the first user's change
+    assertQuery(q + " visibleto:" + user3.get(), change4, change3, change1);
+
+    // User2 cannot see user3's private change
+    assertQuery(q + " visibleto:" + user2.get(), change3, change1);
+
+    // Query as user3 by display name matching user2 and user3; bad request
+    assertFailingQuery(
+        q + " visibleto:\"Another User\"", "\"Another User\" resolves to multiple accounts");
+  }
+
+  protected void grant(
+      Project.NameKey project,
+      String ref,
+      String permission,
+      boolean force,
+      AccountGroup.UUID groupUUID)
+      throws RepositoryNotFoundException, IOException, ConfigInvalidException {
+    try (MetaDataUpdate md = metaDataUpdateFactory.create(project)) {
+      md.setMessage(String.format("Grant %s on %s", permission, ref));
+      ProjectConfig config = projectConfigFactory.read(md);
+      config.upsertAccessSection(
+          ref,
+          s -> {
+            Permission.Builder p = s.upsertPermission(permission);
+            PermissionRule.Builder rule =
+                PermissionRule.builder(GroupReference.create(groupUUID, groupUUID.get()))
+                    .setForce(force);
+            p.add(rule);
+          });
+
+      config.commit(md);
+      projectCache.evictAndReindex(config.getProject());
+    }
+  }
+
+  @Test
+  public void visibleToSelf() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+=======
+    getChangeApi(change4).current().review(ri4);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     ChangeInserter ins5 = newChangeWithTopic(repo, "feature5");
     Change change5 = insert(project, ins5);
@@ -2885,7 +6024,169 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(project, newChange(repo));
     Change change2 = insert(project, newChange(repo));
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getChangeId()).setPrivate(true, "private");
+||||||| BASE
+            PermissionRule.Builder rule =
+                PermissionRule.builder(GroupReference.create(groupUUID, groupUUID.get()))
+                    .setForce(force);
+            p.add(rule);
+          });
+
+      config.commit(md);
+      projectCache.evictAndReindex(config.getProject());
+    }
+  }
+
+  @Test
+  public void visibleToSelf() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change2.getChangeId()).setPrivate(true, "private");
+
+    String q = "project:repo";
+    assertQuery(q + " visibleto:self", change2, change1);
+    assertQuery(q + " visibleto:me", change2, change1);
+
+    // Anonymous user cannot see first user's private change.
+    requestContext.setContext(anonymousUserProvider::get);
+    assertQuery(q + " visibleto:self", change1);
+    assertQuery(q + " visibleto:me", change1);
+  }
+
+  @Test
+  public void byCommentBy() throws Exception {
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    Account.Id user2 = createAccount("anotheruser");
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change1.getId().get()).current().review(input);
+
+    input = new ReviewInput();
+    input.message = "toplevel";
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("commentby:" + userId.get(), change2, change1);
+    assertQuery("commentby:" + user2);
+  }
+
+  @Test
+  public void bySubmitRuleResult() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      Change change = insert("repo", newChange(repo));
+      // The fake submit rule exports its ruleName as "FakeSubmitRule"
+      assertQuery("rule:FakeSubmitRule");
+
+      // FakeSubmitRule returns true if change has one or more hashtags.
+      HashtagsInput hashtag = new HashtagsInput();
+      hashtag.add = ImmutableSet.of("Tag1");
+      gApi.changes().id(change.getId().get()).setHashtags(hashtag);
+
+      assertQuery("rule:FakeSubmitRule", change);
+      assertQuery("rule:FakeSubmitRule=OK", change);
+      assertQuery("rule:FakeSubmitRule=NOT_READY");
+    }
+  }
+
+  @Test
+  public void byNonExistingSubmitRule_returnsEmpty() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      insert("repo", newChange(repo));
+      assertQuery("rule:non-existent-rule");
+    }
+  }
+
+  @Test
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+=======
+    getChangeApi(change2).setPrivate(true, "private");
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     String q = "project:repo";
     assertQuery(q + " visibleto:self", change2, change1);
@@ -2913,11 +6214,339 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     comment.line = 1;
     comment.message = "inline";
     input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).current().review(input);
+||||||| BASE
+    assertQuery(q + " visibleto:me", change1);
+  }
+
+  @Test
+  public void byCommentBy() throws Exception {
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    Account.Id user2 = createAccount("anotheruser");
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change1.getId().get()).current().review(input);
 
     input = new ReviewInput();
     input.message = "toplevel";
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("commentby:" + userId.get(), change2, change1);
+    assertQuery("commentby:" + user2);
+  }
+
+  @Test
+  public void bySubmitRuleResult() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      Change change = insert("repo", newChange(repo));
+      // The fake submit rule exports its ruleName as "FakeSubmitRule"
+      assertQuery("rule:FakeSubmitRule");
+
+      // FakeSubmitRule returns true if change has one or more hashtags.
+      HashtagsInput hashtag = new HashtagsInput();
+      hashtag.add = ImmutableSet.of("Tag1");
+      gApi.changes().id(change.getId().get()).setHashtags(hashtag);
+
+      assertQuery("rule:FakeSubmitRule", change);
+      assertQuery("rule:FakeSubmitRule=OK", change);
+      assertQuery("rule:FakeSubmitRule=NOT_READY");
+    }
+  }
+
+  @Test
+  public void byNonExistingSubmitRule_returnsEmpty() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      insert("repo", newChange(repo));
+      assertQuery("rule:non-existent-rule");
+    }
+  }
+
+  @Test
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+=======
+    getChangeApi(change1).current().review(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    input = new ReviewInput();
+    input.message = "toplevel";
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getId().get()).current().review(input);
+||||||| BASE
+  public void byCommentBy() throws Exception {
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    Account.Id user2 = createAccount("anotheruser");
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change1.getId().get()).current().review(input);
+
+    input = new ReviewInput();
+    input.message = "toplevel";
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("commentby:" + userId.get(), change2, change1);
+    assertQuery("commentby:" + user2);
+  }
+
+  @Test
+  public void bySubmitRuleResult() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      Change change = insert("repo", newChange(repo));
+      // The fake submit rule exports its ruleName as "FakeSubmitRule"
+      assertQuery("rule:FakeSubmitRule");
+
+      // FakeSubmitRule returns true if change has one or more hashtags.
+      HashtagsInput hashtag = new HashtagsInput();
+      hashtag.add = ImmutableSet.of("Tag1");
+      gApi.changes().id(change.getId().get()).setHashtags(hashtag);
+
+      assertQuery("rule:FakeSubmitRule", change);
+      assertQuery("rule:FakeSubmitRule=OK", change);
+      assertQuery("rule:FakeSubmitRule=NOT_READY");
+    }
+  }
+
+  @Test
+  public void byNonExistingSubmitRule_returnsEmpty() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      insert("repo", newChange(repo));
+      assertQuery("rule:non-existent-rule");
+    }
+  }
+
+  @Test
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+=======
+    getChangeApi(change2).current().review(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("commentby:" + userId.get(), change2, change1);
     assertQuery("commentby:" + user2);
@@ -2936,7 +6565,172 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       // FakeSubmitRule returns true if change has one or more hashtags.
       HashtagsInput hashtag = new HashtagsInput();
       hashtag.add = ImmutableSet.of("Tag1");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
       gApi.changes().id(project.get(), change.getId().get()).setHashtags(hashtag);
+||||||| BASE
+
+    assertQuery("commentby:" + userId.get(), change2, change1);
+    assertQuery("commentby:" + user2);
+  }
+
+  @Test
+  public void bySubmitRuleResult() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      Change change = insert("repo", newChange(repo));
+      // The fake submit rule exports its ruleName as "FakeSubmitRule"
+      assertQuery("rule:FakeSubmitRule");
+
+      // FakeSubmitRule returns true if change has one or more hashtags.
+      HashtagsInput hashtag = new HashtagsInput();
+      hashtag.add = ImmutableSet.of("Tag1");
+      gApi.changes().id(change.getId().get()).setHashtags(hashtag);
+
+      assertQuery("rule:FakeSubmitRule", change);
+      assertQuery("rule:FakeSubmitRule=OK", change);
+      assertQuery("rule:FakeSubmitRule=NOT_READY");
+    }
+  }
+
+  @Test
+  public void byNonExistingSubmitRule_returnsEmpty() throws Exception {
+    try (Registration registration =
+        extensionRegistry.newRegistration().add(new FakeSubmitRule())) {
+      repo = createAndOpenProject("repo");
+      insert("repo", newChange(repo));
+      assertQuery("rule:non-existent-rule");
+    }
+  }
+
+  @Test
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+=======
+      getChangeApi(change).setHashtags(hashtag);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
       assertQuery("rule:FakeSubmitRule", change);
       assertQuery("rule:FakeSubmitRule=OK", change);
@@ -2968,13 +6762,347 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     in.line = 1;
     in.message = "nit: trailing whitespace";
     in.path = Patch.COMMIT_MSG;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).current().createDraft(in);
+||||||| BASE
+      insert("repo", newChange(repo));
+      assertQuery("rule:non-existent-rule");
+    }
+  }
+
+  @Test
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
 
     in = new DraftInput();
     in.line = 2;
     in.message = "nit: point in the end of the statement";
     in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+=======
+    getChangeApi(change1).current().createDraft(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getId().get()).current().createDraft(in);
+||||||| BASE
+  public void byHasDraft() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("has:draft");
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change1.getId().get()).current().createDraft(in);
+
+    in = new DraftInput();
+    in.line = 2;
+    in.message = "nit: point in the end of the statement";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(change2.getId().get()).current().createDraft(in);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:draft", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+    List<ChangeInfo> changeInfos = gApi.changes().query("has:star").get();
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStar_withStarOptionSet_notPopulatedForAnonymousUsers() throws Exception {
+=======
+    getChangeApi(change2).current().createDraft(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     Account.Id user2 =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
@@ -3000,7 +7128,27 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     in.line = 1;
     in.message = "nit: trailing whitespace";
     in.path = Patch.COMMIT_MSG;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), id.get()).current().createDraft(in);
+||||||| BASE
+  }
+
+  /**
+   * This test does not have a test about drafts computed from All-Users Repository because zombie
+   * drafts can't be filtered when computing from All-Users repository. TODO(paiking): During
+   * rollout, we should find a way to fix zombie drafts.
+   */
+  public void byHasDraftExcludesZombieDrafts() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    Change.Id id = change.getId();
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
 
     assertQuery("has:draft", change);
     assertQuery("commentby:" + userId);
@@ -3012,7 +7160,321 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
       ReviewInput rin = ReviewInput.dislike();
       rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+    List<ChangeInfo> changeInfos = gApi.changes().query("has:star").get();
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStar_withStarOptionSet_notPopulatedForAnonymousUsers() throws Exception {
+    // Create a random change and star it as some user
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.NEW));
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // Request a change query for all open changes. The star field is not set on the single change.
+    requestContext.setContext(anonymousUserProvider::get);
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("is:open").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0)._number).isEqualTo(change1.getId().get());
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStarWithManyStars() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+
+      // star the change
+      gApi.accounts()
+=======
+    getChangeApi(change).current().createDraft(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
       gApi.changes().id(project.get(), id.get()).current().review(rin);
+||||||| BASE
+
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(id.get()).current().createDraft(in);
+
+    assertQuery("has:draft", change);
+    assertQuery("commentby:" + userId);
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      Ref draftsRef = allUsers.getRepository().exactRef(RefNames.refsDraftComments(id, userId));
+      assertThat(draftsRef).isNotNull();
+
+      ReviewInput rin = ReviewInput.dislike();
+      rin.drafts = DraftHandling.PUBLISH_ALL_REVISIONS;
+      gApi.changes().id(id.get()).current().review(rin);
+
+      assertQuery("has:draft");
+      assertQuery("commentby:" + userId, change);
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNull();
+
+      // Re-add drafts ref and ensure it gets filtered out during indexing.
+      allUsers.update(draftsRef.getName(), draftsRef.getObjectId());
+      assertThat(allUsers.getRepository().exactRef(draftsRef.getName())).isNotNull();
+    }
+
+    indexer.index(project, id);
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+    List<ChangeInfo> changeInfos = gApi.changes().query("has:star").get();
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStar_withStarOptionSet_notPopulatedForAnonymousUsers() throws Exception {
+    // Create a random change and star it as some user
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.NEW));
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // Request a change query for all open changes. The star field is not set on the single change.
+    requestContext.setContext(anonymousUserProvider::get);
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("is:open").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0)._number).isEqualTo(change1.getId().get());
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStarWithManyStars() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+
+      // star the change
+      gApi.accounts()
+          .self()
+          .starChange(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().toString());
+    }
+
+    // all changes are both starred and ignored.
+    assertQuery("is:starred", changesWithDrafts);
+  }
+
+  @Test
+  public void byFrom() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+=======
+      getChangeApi(change).current().review(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
       assertQuery("has:draft");
       assertQuery("commentby:" + userId, change);
@@ -3043,10 +7505,181 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       in.line = 1;
       in.message = "nit: trailing whitespace";
       in.path = Patch.COMMIT_MSG;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
       gApi.changes()
           .id(project.get(), changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
           .current()
           .createDraft(in);
+||||||| BASE
+  }
+
+  @Test
+  public void byHasDraftWithManyDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+
+    // unrelated change not shown in the result.
+    insert("repo", newChange(repo));
+
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+      DraftInput in = new DraftInput();
+      in.line = 1;
+      in.message = "nit: trailing whitespace";
+      in.path = Patch.COMMIT_MSG;
+      gApi.changes()
+          .id(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().get())
+          .current()
+          .createDraft(in);
+    }
+    assertQuery("has:draft", changesWithDrafts);
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:draft");
+  }
+
+  @Test
+  public void byStarredBy() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+    gApi.accounts().self().starChange(change2.getId().toString());
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    assertQuery("has:star", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:star");
+  }
+
+  @Test
+  public void byStar_withStarOptionSet() throws Exception {
+    // When star option is set, the 'starred' field is set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is also set correctly
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("has:star").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0).starred).isTrue();
+  }
+
+  @Test
+  public void byStar_withStarOptionNotSet() throws Exception {
+    // When star option is not set, the 'starred' field is not set in the change infos in response.
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.MERGED));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // check default star
+    assertQuery("has:star", change1);
+    assertQuery("is:starred", change1);
+
+    // The 'Star' bit in the change data is not set if the backfilling option is not set
+    List<ChangeInfo> changeInfos = gApi.changes().query("has:star").get();
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStar_withStarOptionSet_notPopulatedForAnonymousUsers() throws Exception {
+    // Create a random change and star it as some user
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChangeWithStatus(repo, Change.Status.NEW));
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+    gApi.accounts().self().starChange(change1.getId().toString());
+
+    // Request a change query for all open changes. The star field is not set on the single change.
+    requestContext.setContext(anonymousUserProvider::get);
+    List<ChangeInfo> changeInfos =
+        gApi.changes().query("is:open").withOptions(ListChangesOption.STAR).get();
+    assertThat(changeInfos.get(0)._number).isEqualTo(change1.getId().get());
+    assertThat(changeInfos.get(0).starred).isNull();
+  }
+
+  @Test
+  public void byStarWithManyStars() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change[] changesWithDrafts = new Change[30];
+    for (int i = 0; i < changesWithDrafts.length; i++) {
+      // put the changes in reverse order since this is the order we receive them from the index.
+      changesWithDrafts[changesWithDrafts.length - 1 - i] = insert("repo", newChange(repo));
+
+      // star the change
+      gApi.accounts()
+          .self()
+          .starChange(changesWithDrafts[changesWithDrafts.length - 1 - i].getId().toString());
+    }
+
+    // all changes are both starred and ignored.
+    assertQuery("is:starred", changesWithDrafts);
+  }
+
+  @Test
+  public void byFrom() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change2 = insert("repo", newChange(repo), user2);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("from:" + userId.get(), change2, change1);
+    assertQuery("from:" + user2, change2);
+  }
+
+  @Test
+  public void conflicts() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(
+            repo.commit()
+                .add("file1", "contents1")
+                .add("dir/file2", "contents2")
+                .add("dir/file3", "contents3")
+                .create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().add("dir/file2", "contents2 different").create());
+    RevCommit commit4 = repo.parseBody(repo.commit().add("file4", "contents4").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+=======
+      getChangeApi(changesWithDrafts[changesWithDrafts.length - 1 - i]).current().createDraft(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     }
     assertQuery("has:draft", changesWithDrafts);
 
@@ -3178,7 +7811,187 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     comment.line = 1;
     comment.message = "inline";
     input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getId().get()).current().review(input);
+||||||| BASE
+
+    // all changes are both starred and ignored.
+    assertQuery("is:starred", changesWithDrafts);
+  }
+
+  @Test
+  public void byFrom() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change2 = insert("repo", newChange(repo), user2);
+
+    ReviewInput input = new ReviewInput();
+    input.message = "toplevel";
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = "inline";
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(change2.getId().get()).current().review(input);
+
+    assertQuery("from:" + userId.get(), change2, change1);
+    assertQuery("from:" + user2, change2);
+  }
+
+  @Test
+  public void conflicts() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(
+            repo.commit()
+                .add("file1", "contents1")
+                .add("dir/file2", "contents2")
+                .add("dir/file3", "contents3")
+                .create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().add("dir/file2", "contents2 different").create());
+    RevCommit commit4 = repo.parseBody(repo.commit().add("file4", "contents4").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+    Change change4 = insert("repo", newChangeForCommit(repo, commit4));
+
+    assertQuery("conflicts:" + change1.getId().get(), change3);
+    assertQuery("conflicts:" + change2.getId().get());
+    assertQuery("conflicts:" + change3.getId().get(), change1);
+    assertQuery("conflicts:" + change4.getId().get());
+  }
+
+  @Test
+  @GerritConfig(
+      name = "change.mergeabilityComputationBehavior",
+      value = "API_REF_UPDATED_AND_CHANGE_REINDEX")
+  public void mergeable() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGEABLE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    assertQuery("conflicts:" + change1.getId().get(), change2);
+    assertQuery("conflicts:" + change2.getId().get(), change1);
+    assertQuery("is:mergeable", change2, change1);
+
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+
+    // If a change gets submitted, the remaining open changes get reindexed asynchronously to update
+    // their mergeability information. If the further assertions in this test are done before the
+    // asynchronous reindex completed they fail because the mergeability information in the index
+    // was not updated yet. To avoid this flakiness indexing mergeable is switched off for the
+    // tests and we index change2 synchronously here.
+    gApi.changes().id(change2.getChangeId()).index();
+
+    assertQuery("status:open conflicts:" + change2.getId().get());
+    assertQuery("status:open is:mergeable");
+    assertQuery("status:open -is:mergeable", change2);
+  }
+
+  @Test
+  public void cherrypick() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CHERRY_PICK_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newCherryPickChange(repo, "foo", change1.currentPatchSetId()));
+
+    assertQuery("is:cherrypick", change2);
+    assertQuery("-is:cherrypick", change1);
+  }
+
+  @Test
+  public void merge() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().parent(commit2).add("file1", "contents3").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+    RevCommit mergeCommit =
+        repo.branch("master")
+            .commit()
+            .message("Merge commit")
+            .parent(commit1)
+            .parent(commit3)
+            .insertChangeId()
+            .create();
+    Change mergeChange = insert("repo", newChangeForCommit(repo, mergeCommit));
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+=======
+    getChangeApi(change2).current().review(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("from:" + userId.get(), change2, change1);
     assertQuery("from:" + user2, change2);
@@ -3227,15 +8040,381 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("conflicts:" + change2.getId().get(), change1);
     assertQuery("is:mergeable", change2, change1);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), change1.getChangeId()).current().submit();
+||||||| BASE
+    assertQuery("conflicts:" + change3.getId().get(), change1);
+    assertQuery("conflicts:" + change4.getId().get());
+  }
+
+  @Test
+  @GerritConfig(
+      name = "change.mergeabilityComputationBehavior",
+      value = "API_REF_UPDATED_AND_CHANGE_REINDEX")
+  public void mergeable() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGEABLE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    assertQuery("conflicts:" + change1.getId().get(), change2);
+    assertQuery("conflicts:" + change2.getId().get(), change1);
+    assertQuery("is:mergeable", change2, change1);
+
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
 
     // If a change gets submitted, the remaining open changes get reindexed asynchronously to update
     // their mergeability information. If the further assertions in this test are done before the
     // asynchronous reindex completed they fail because the mergeability information in the index
     // was not updated yet. To avoid this flakiness indexing mergeable is switched off for the
     // tests and we index change2 synchronously here.
+    gApi.changes().id(change2.getChangeId()).index();
+
+    assertQuery("status:open conflicts:" + change2.getId().get());
+    assertQuery("status:open is:mergeable");
+    assertQuery("status:open -is:mergeable", change2);
+  }
+
+  @Test
+  public void cherrypick() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CHERRY_PICK_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newCherryPickChange(repo, "foo", change1.currentPatchSetId()));
+
+    assertQuery("is:cherrypick", change2);
+    assertQuery("-is:cherrypick", change1);
+  }
+
+  @Test
+  public void merge() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().parent(commit2).add("file1", "contents3").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+    RevCommit mergeCommit =
+        repo.branch("master")
+            .commit()
+            .message("Merge commit")
+            .parent(commit1)
+            .parent(commit3)
+            .insertChangeId()
+            .create();
+    Change mergeChange = insert("repo", newChangeForCommit(repo, mergeCommit));
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+=======
+    getChangeApi(change1).current().review(ReviewInput.approve());
+    getChangeApi(change1).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    // If a change gets submitted, the remaining open changes get reindexed asynchronously to update
+    // their mergeability information. If the further assertions in this test are done before the
+    // asynchronous reindex completed they fail because the mergeability information in the index
+    // was not updated yet. To avoid this flakiness indexing mergeable is switched off for the
+    // tests and we index change2 synchronously here.
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getChangeId()).index();
+||||||| BASE
+  public void mergeable() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGEABLE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    assertQuery("conflicts:" + change1.getId().get(), change2);
+    assertQuery("conflicts:" + change2.getId().get(), change1);
+    assertQuery("is:mergeable", change2, change1);
+
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+
+    // If a change gets submitted, the remaining open changes get reindexed asynchronously to update
+    // their mergeability information. If the further assertions in this test are done before the
+    // asynchronous reindex completed they fail because the mergeability information in the index
+    // was not updated yet. To avoid this flakiness indexing mergeable is switched off for the
+    // tests and we index change2 synchronously here.
+    gApi.changes().id(change2.getChangeId()).index();
+
+    assertQuery("status:open conflicts:" + change2.getId().get());
+    assertQuery("status:open is:mergeable");
+    assertQuery("status:open -is:mergeable", change2);
+  }
+
+  @Test
+  public void cherrypick() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CHERRY_PICK_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newCherryPickChange(repo, "foo", change1.currentPatchSetId()));
+
+    assertQuery("is:cherrypick", change2);
+    assertQuery("-is:cherrypick", change1);
+  }
+
+  @Test
+  public void merge() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    RevCommit commit2 = repo.parseBody(repo.commit().add("file1", "contents2").create());
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().parent(commit2).add("file1", "contents3").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+    RevCommit mergeCommit =
+        repo.branch("master")
+            .commit()
+            .message("Merge commit")
+            .parent(commit1)
+            .parent(commit3)
+            .insertChangeId()
+            .create();
+    Change mergeChange = insert("repo", newChangeForCommit(repo, mergeCommit));
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+=======
+    getChangeApi(change2).index();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("status:open conflicts:" + change2.getId().get());
     assertQuery("status:open is:mergeable");
@@ -3290,28 +8469,601 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change2 = insert(project, newChange(repo));
     Change change3 = insert(project, newChange(repo));
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes()
         .id(project.get(), change1.getId().get())
         .current()
         .review(new ReviewInput().message("comment"));
+||||||| BASE
+            .message("Merge commit")
+            .parent(commit1)
+            .parent(commit3)
+            .insertChangeId()
+            .create();
+    Change mergeChange = insert("repo", newChangeForCommit(repo, mergeCommit));
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+=======
+    getChangeApi(change1).current().review(new ReviewInput().message("comment"));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     Account.Id user2 =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
     setRequestContextForUser(user2);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes()
         .id(project.get(), change2.getId().get())
         .current()
         .review(new ReviewInput().message("comment"));
+||||||| BASE
+
+    assertQuery("status:open is:merge", mergeChange);
+    assertQuery("status:open -is:merge", change3, change2, change1);
+    assertQuery("status:open", mergeChange, change3, change2, change1);
+  }
+
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+=======
+    getChangeApi(change2).current().review(new ReviewInput().message("comment"));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     PatchSet.Id ps3_1 = change3.currentPatchSetId();
     change3 = newPatchSet(project, change3, user, /* message= */ Optional.empty());
     assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
     // Response to previous patch set still counts as reviewing.
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes()
         .id(project.get(), change3.getId().get())
         .revision(ps3_1.get())
         .review(new ReviewInput().message("comment"));
+||||||| BASE
+  @Test
+  public void reviewedBy() throws Exception {
+    resetTimeWithClockStep(2, MINUTES);
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    requestContext.setContext(newRequestContext(user2));
+
+    gApi.changes().id(change2.getId().get()).current().review(new ReviewInput().message("comment"));
+
+    PatchSet.Id ps3_1 = change3.currentPatchSetId();
+    change3 = newPatchSet("repo", change3, user, /* message= */ Optional.empty());
+    assertThat(change3.currentPatchSetId()).isNotEqualTo(ps3_1);
+    // Response to previous patch set still counts as reviewing.
+    gApi.changes()
+        .id(change3.getId().get())
+        .revision(ps3_1.get())
+        .review(new ReviewInput().message("comment"));
+
+    List<ChangeInfo> actual;
+    actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+=======
+    getChangeApi(change3).revision(ps3_1.get()).review(new ReviewInput().message("comment"));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     List<ChangeInfo> actual;
     actual = assertQuery(newQuery("is:reviewed").withOption(REVIEWED), change3, change2);
@@ -3342,19 +9094,607 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewerInput rin = new ReviewerInput();
     rin.reviewer = user1.toString();
     rin.state = ReviewerState.REVIEWER;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).addReviewer(rin);
+||||||| BASE
+    actual = assertQuery(newQuery("-is:reviewed").withOption(REVIEWED), change1);
+    assertThat(actual.get(0).reviewed).isNull();
+
+    assertQuery("reviewedby:" + userId.get());
+
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
 
     rin = new ReviewerInput();
     rin.reviewer = user1.toString();
     rin.state = ReviewerState.CC;
-    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
 
     assertQuery("is:reviewer");
     assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+=======
+    getChangeApi(change1).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+||||||| BASE
+    actual =
+        assertQuery(newQuery("reviewedby:" + user2.get()).withOption(REVIEWED), change3, change2);
+    assertThat(actual.get(0).reviewed).isTrue();
+    assertThat(actual.get(1).reviewed).isTrue();
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+=======
+    getChangeApi(change2).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes()
         .id(project.get(), change3.getChangeId())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+  }
+
+  @Test
+  public void reviewerAndCc() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("is:reviewer");
+    assertQuery("reviewer:self");
+    gApi.changes().id(change3.getChangeId()).current().review(ReviewInput.recommend());
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+=======
+    getChangeApi(change3).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("is:reviewer", change3);
     assertQuery("reviewer:self", change3);
 
@@ -3379,11 +9719,215 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("-is:reviewed", change2, change1);
     assertQuery("-status:reviewed", change2, change1);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     setRequestContextForUser(otherUser);
     gApi.changes()
         .id(project.get(), change1.getChangeId())
         .current()
         .review(ReviewInput.recommend());
+||||||| BASE
+    assertQuery("is:reviewer", change3);
+    assertQuery("reviewer:self", change3);
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("reviewer:" + user1, change1);
+    assertQuery("cc:" + user1, change2);
+    assertQuery("is:cc", change2);
+    assertQuery("cc:self", change2);
+  }
+
+  @Test
+  public void byReviewed() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherUser =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    assertQuery("is:reviewed");
+    assertQuery("status:reviewed");
+    assertQuery("-is:reviewed", change2, change1);
+    assertQuery("-status:reviewed", change2, change1);
+
+    requestContext.setContext(newRequestContext(otherUser));
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.recommend());
+
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+=======
+    requestContext.setContext(newRequestContext(otherUser));
+    getChangeApi(change1).current().review(ReviewInput.recommend());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("is:reviewed", change1);
     assertQuery("status:reviewed", change1);
@@ -3409,17 +9953,43 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewerInput rin = new ReviewerInput();
     rin.reviewer = user1.toString();
     rin.state = ReviewerState.REVIEWER;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).addReviewer(rin);
+||||||| BASE
+    assertQuery("is:reviewed", change1);
+    assertQuery("status:reviewed", change1);
+    assertQuery("-is:reviewed", change2);
+    assertQuery("-status:reviewed", change2);
+  }
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
 
     rin = new ReviewerInput();
     rin.reviewer = user2.toString();
     rin.state = ReviewerState.REVIEWER;
-    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
 
     rin = new ReviewerInput();
     rin.reviewer = user3.toString();
     rin.state = ReviewerState.CC;
-    gApi.changes().id(project.get(), change3.getId().get()).addReviewer(rin);
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
 
     String group = gApi.groups().create("foo").get().name;
     gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
@@ -3433,8 +10003,796 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("reviewerin:\"Registered Users\"", change2, change1);
     assertQuery("reviewerin:" + group, change2);
 
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+=======
+    getChangeApi(change1).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+||||||| BASE
+
+  @Test
+  public void reviewerin() throws Exception {
+    Account.Id user1 =
+        accountManager.authenticate(authRequestFactory.createForUser("user1")).getAccountId();
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+=======
+    getChangeApi(change2).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change3.getId().get()).addReviewer(rin);
+||||||| BASE
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("user2")).getAccountId();
+    Account.Id user3 =
+        accountManager.authenticate(authRequestFactory.createForUser("user3")).getAccountId();
+    repo = createAndOpenProject("repo");
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = user1.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+=======
+    getChangeApi(change3).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getId().get()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), change2.getId().get()).current().submit();
+||||||| BASE
+
+    rin = new ReviewerInput();
+    rin.reviewer = user2.toString();
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = user3.toString();
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change3.getId().get()).addReviewer(rin);
+
+    String group = gApi.groups().create("foo").get().name;
+    gApi.groups().id(group).addMembers(user2.toString(), user3.toString());
+
+    List<String> members =
+        gApi.groups().id(group).members().stream()
+            .map(a -> a._accountId.toString())
+            .collect(toList());
+    assertThat(members).contains(user2.toString());
+
+    assertQuery("reviewerin:\"Registered Users\"", change2, change1);
+    assertQuery("reviewerin:" + group, change2);
+
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.approve());
+    gApi.changes().id(change2.getId().get()).current().submit();
+
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+=======
+    getChangeApi(change2).current().review(ReviewInput.approve());
+    getChangeApi(change2).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("reviewerin:" + group, change2);
     assertQuery("project:repo reviewerin:" + group, change2);
@@ -3459,12 +10817,418 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewerInput rin = new ReviewerInput();
     rin.reviewer = userByEmailWithName;
     rin.state = ReviewerState.REVIEWER;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).addReviewer(rin);
+||||||| BASE
+    assertQuery("reviewerin:" + group, change2);
+    assertQuery("project:repo reviewerin:" + group, change2);
+    assertQuery("status:merged reviewerin:" + group, change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
 
     rin = new ReviewerInput();
     rin.reviewer = userByEmailWithName;
     rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+=======
+    getChangeApi(change1).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+||||||| BASE
+  @Test
+  public void reviewerAndCcByEmail() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "un.registered@reviewer.com";
+    String userByEmailWithName = "John Doe <" + userByEmail + ">";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmailWithName;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
+    assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+=======
+    getChangeApi(change2).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("reviewer:\"" + userByEmailWithName + "\"", change1);
     assertQuery("cc:\"" + userByEmailWithName + "\"", change2);
@@ -3491,12 +11255,38 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewerInput rin = new ReviewerInput();
     rin.reviewer = userByEmail;
     rin.state = ReviewerState.REVIEWER;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).addReviewer(rin);
+||||||| BASE
+
+    // Omitting the name:
+    assertQuery("reviewer:\"" + userByEmail + "\"", change1);
+    assertQuery("cc:\"" + userByEmail + "\"", change2);
+  }
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
 
     rin = new ReviewerInput();
     rin.reviewer = userByEmail;
     rin.state = ReviewerState.CC;
-    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
 
     assertQuery("reviewer:\"someone@example.com\"");
     assertQuery("cc:\"someone@example.com\"");
@@ -3505,19 +11295,14 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
   @Test
   public void submitRecords() throws Exception {
     Account.Id user1 = createAccount("user1");
-    Project.NameKey project = Project.nameKey("repo");
-    repo = createAndOpenProject(project);
-    Change change1 = insert(project, newChange(repo));
-    Change change2 = insert(project, newChange(repo));
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
 
-    gApi.changes().id(project.get(), change1.getId().get()).current().review(ReviewInput.approve());
-    setRequestContextForUser(user1);
-
-    gApi.changes()
-        .id(project.get(), change2.getId().get())
-        .current()
-        .review(ReviewInput.recommend());
-    setRequestContextForUser(user.getAccountId());
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
 
     assertQuery("is:submittable", change1);
     assertQuery("-is:submittable", change2);
@@ -3533,7 +11318,814 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("label:CodE-RevieW=need,user1");
     assertQuery("label:CodE-RevieW=need,user");
 
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+
+  @Test
+  public void reindexIfStale() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    String changeId = change.getKey().get();
+
+    Account.Id anotherUser = createAccount("another-user");
+    requestContext.setContext(newRequestContext(anotherUser));
+    gApi.changes().id(changeId).addReviewer(anotherUser.toString());
+
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+
+    // Remove reviewer behind index's back.
+    ChangeUpdate update = newUpdate(change);
+    update.removeReviewer(anotherUser);
+    update.commit();
+
+    // Index is stale.
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+    assertQuery("reviewer:self");
+  }
+
+  @Test
+=======
+    getChangeApi(change1).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change2.getId().get()).addReviewer(rin);
+||||||| BASE
+
+  @Test
+  public void reviewerAndCcByEmailWithQueryForDifferentUser() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    ConfigInput conf = new ConfigInput();
+    conf.enableReviewerByEmail = InheritableBoolean.TRUE;
+    gApi.projects().name(project.get()).config(conf);
+
+    String userByEmail = "John Doe <un.registered@reviewer.com>";
+
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+
+  @Test
+  public void reindexIfStale() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    String changeId = change.getKey().get();
+
+    Account.Id anotherUser = createAccount("another-user");
+    requestContext.setContext(newRequestContext(anotherUser));
+    gApi.changes().id(changeId).addReviewer(anotherUser.toString());
+
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+
+    // Remove reviewer behind index's back.
+    ChangeUpdate update = newUpdate(change);
+    update.removeReviewer(anotherUser);
+    update.commit();
+
+    // Index is stale.
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+    assertQuery("reviewer:self");
+  }
+
+  @Test
+  public void watched() throws Exception {
+    createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus("repo", Change.Status.NEW);
+    Change change1 = insert("repo", ins1);
+
+=======
+    getChangeApi(change2).addReviewer(rin);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project);
+    Change change1 = insert(project, newChange(repo));
+    Change change2 = insert(project, newChange(repo));
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change1.getId().get()).current().review(ReviewInput.approve());
+    setRequestContextForUser(user1);
+
+    gApi.changes()
+        .id(project.get(), change2.getId().get())
+        .current()
+        .review(ReviewInput.recommend());
+    setRequestContextForUser(user.getAccountId());
+||||||| BASE
+    insert("repo", newChange(repo));
+
+    ReviewerInput rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.REVIEWER;
+    gApi.changes().id(change1.getId().get()).addReviewer(rin);
+
+    rin = new ReviewerInput();
+    rin.reviewer = userByEmail;
+    rin.state = ReviewerState.CC;
+    gApi.changes().id(change2.getId().get()).addReviewer(rin);
+
+    assertQuery("reviewer:\"someone@example.com\"");
+    assertQuery("cc:\"someone@example.com\"");
+  }
+
+  @Test
+  public void submitRecords() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+
+  @Test
+  public void reindexIfStale() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    String changeId = change.getKey().get();
+
+    Account.Id anotherUser = createAccount("another-user");
+    requestContext.setContext(newRequestContext(anotherUser));
+    gApi.changes().id(changeId).addReviewer(anotherUser.toString());
+
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+
+    // Remove reviewer behind index's back.
+    ChangeUpdate update = newUpdate(change);
+    update.removeReviewer(anotherUser);
+    update.commit();
+
+    // Index is stale.
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+    assertQuery("reviewer:self");
+  }
+
+  @Test
+  public void watched() throws Exception {
+    createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus("repo", Change.Status.NEW);
+    Change change1 = insert("repo", ins1);
+
+    createProject("repo2");
+
+    ChangeInserter ins2 = newChangeWithStatus("repo2", Change.Status.NEW);
+    insert("repo2", ins2);
+
+    assertQuery("is:watched");
+
+    List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
+    ProjectWatchInfo pwi = new ProjectWatchInfo();
+    pwi.project = "repo";
+    pwi.filter = null;
+    pwi.notifyAbandonedChanges = true;
+    pwi.notifyNewChanges = true;
+    pwi.notifyAllComments = true;
+    projectsToWatch.add(pwi);
+    gApi.accounts().self().setWatchedProjects(projectsToWatch);
+    resetUser();
+
+    assertQuery("is:watched", change1);
+  }
+
+=======
+    getChangeApi(change1).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    getChangeApi(change2).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getId().get()).current().submit();
+||||||| BASE
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    gApi.changes().id(change1.getId().get()).current().review(ReviewInput.approve());
+    requestContext.setContext(newRequestContext(user1));
+    gApi.changes().id(change2.getId().get()).current().review(ReviewInput.recommend());
+    requestContext.setContext(newRequestContext(user.getAccountId()));
+
+    assertQuery("is:submittable", change1);
+    assertQuery("-is:submittable", change2);
+
+    assertQuery("label:CodE-RevieW=ok", change1);
+    assertQuery("label:CodE-RevieW=ok,user=" + userAccount.preferredEmail(), change1);
+    assertQuery("label:CodE-RevieW=ok,Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,group=Administrators", change1);
+    assertQuery("label:CodE-RevieW=ok,owner", change1);
+    assertQuery("label:CodE-RevieW=ok,user1");
+    assertQuery("label:CodE-RevieW=need", change2);
+    // NEED records don't have associated users.
+    assertQuery("label:CodE-RevieW=need,user1");
+    assertQuery("label:CodE-RevieW=need,user");
+
+    gApi.changes().id(change1.getId().get()).current().submit();
+    assertQuery("is:submittable");
+    assertQuery("-is:submittable", change1, change2);
+  }
+
+  @Test
+  public void hasEdit() throws Exception {
+    Account.Id user1 = createAccount("user1");
+    Account.Id user2 = createAccount("user2");
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    String changeId1 = change1.getKey().get();
+    Change change2 = insert("repo", newChange(repo));
+    String changeId2 = change2.getKey().get();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId1).edit().create();
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+
+  @Test
+  public void reindexIfStale() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    String changeId = change.getKey().get();
+
+    Account.Id anotherUser = createAccount("another-user");
+    requestContext.setContext(newRequestContext(anotherUser));
+    gApi.changes().id(changeId).addReviewer(anotherUser.toString());
+
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+
+    // Remove reviewer behind index's back.
+    ChangeUpdate update = newUpdate(change);
+    update.removeReviewer(anotherUser);
+    update.commit();
+
+    // Index is stale.
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+    assertQuery("reviewer:self");
+  }
+
+  @Test
+  public void watched() throws Exception {
+    createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus("repo", Change.Status.NEW);
+    Change change1 = insert("repo", ins1);
+
+    createProject("repo2");
+
+    ChangeInserter ins2 = newChangeWithStatus("repo2", Change.Status.NEW);
+    insert("repo2", ins2);
+
+    assertQuery("is:watched");
+
+    List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
+    ProjectWatchInfo pwi = new ProjectWatchInfo();
+    pwi.project = "repo";
+    pwi.filter = null;
+    pwi.notifyAbandonedChanges = true;
+    pwi.notifyNewChanges = true;
+    pwi.notifyAllComments = true;
+    projectsToWatch.add(pwi);
+    gApi.accounts().self().setWatchedProjects(projectsToWatch);
+    resetUser();
+
+    assertQuery("is:watched", change1);
+  }
+
+  @Test
+  public void trackingid() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(repo.commit().message("Change one\n\nBug:QUERY123").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    RevCommit commit2 =
+        repo.parseBody(repo.commit().message("Change two\n\nIssue: Issue 16038\n").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().message("Change two\n\nGoogle-Bug-Id: b/16039\n").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    assertQuery("tr:QUERY123", change1);
+    assertQuery("bug:QUERY123", change1);
+=======
+    getChangeApi(change1).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("is:submittable");
     assertQuery("-is:submittable", change1, change2);
   }
@@ -3576,10 +12168,226 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     // Change1 has one resolved comment (unresolvedcount = 0)
     // Change2 has one unresolved comment (unresolvedcount = 1)
     // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     addComment(project, change1.getChangeId(), "comment 1", false);
     addComment(project, change2.getChangeId(), "comment 2", true);
     addComment(project, change3.getChangeId(), "comment 3", false);
     addComment(project, change3.getChangeId(), "comment 4", true);
+||||||| BASE
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit");
+    gApi.changes().id(changeId2).edit().create();
+
+    requestContext.setContext(newRequestContext(user1));
+    assertQuery("has:edit", change2, change1);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("has:edit", change2);
+  }
+
+  @Test
+  public void byUnresolved() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+    Change change3 = insert("repo", newChange(repo));
+
+    // Change1 has one resolved comment (unresolvedcount = 0)
+    // Change2 has one unresolved comment (unresolvedcount = 1)
+    // Change3 has one resolved comment and one unresolved comment (unresolvedcount = 1)
+    addComment(change1.getChangeId(), "comment 1", false);
+    addComment(change2.getChangeId(), "comment 2", true);
+    addComment(change3.getChangeId(), "comment 3", false);
+    addComment(change3.getChangeId(), "comment 4", true);
+
+    assertQuery("has:unresolved", change3, change2);
+
+    assertQuery("unresolved:0", change1);
+    List<ChangeInfo> changeInfos = assertQuery("unresolved:>=0", change3, change2, change1);
+    assertThat(changeInfos.get(0).unresolvedCommentCount).isEqualTo(1); // Change3
+    assertThat(changeInfos.get(1).unresolvedCommentCount).isEqualTo(1); // Change2
+    assertThat(changeInfos.get(2).unresolvedCommentCount).isEqualTo(0); // Change1
+    assertQuery("unresolved:>0", change3, change2);
+
+    assertQuery("unresolved:<1", change1);
+    assertQuery("unresolved:<=1", change3, change2, change1);
+    assertQuery("unresolved:1", change3, change2);
+    assertQuery("unresolved:>1");
+    assertQuery("unresolved:>=1", change3, change2);
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMerged() throws Exception {
+    createProject("repo");
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of());
+  }
+
+  @Test
+  public void byCommitsOnBranchNotMergedSkipsMissingChanges() throws Exception {
+    repo = createAndOpenProject("repo");
+    ObjectId missing =
+        repo.branch(PatchSet.id(Change.id(987654), 1).toRefName())
+            .commit()
+            .message("No change for this commit")
+            .insertChangeId()
+            .create()
+            .copy();
+    testByCommitsOnBranchNotMerged("repo", ImmutableSet.of(missing));
+  }
+
+  private void testByCommitsOnBranchNotMerged(String repo, Collection<ObjectId> extra)
+      throws Exception {
+    int n = 10;
+    List<String> shas = new ArrayList<>(n + extra.size());
+    extra.forEach(i -> shas.add(i.name()));
+    List<Integer> expectedIds = new ArrayList<>(n);
+    BranchNameKey dest = null;
+    try (TestRepository<Repository> repository =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repo)))) {
+      for (int i = 0; i < n; i++) {
+        ChangeInserter ins = newChange(repository);
+        insert("repo", ins);
+        if (dest == null) {
+          dest = ins.getChange().getDest();
+        }
+        shas.add(ins.getCommitId().name());
+        expectedIds.add(ins.getChange().getId().get());
+      }
+    }
+    try (Repository repository = repoManager.openRepository(Project.nameKey(repo))) {
+      for (int i = 1; i <= 11; i++) {
+        Iterable<ChangeData> cds =
+            queryProvider.get().byCommitsOnBranchNotMerged(repository, dest, shas, i);
+        Iterable<Integer> ids = FluentIterable.from(cds).transform(in -> in.getId().get());
+        String name = "limit " + i;
+        assertWithMessage(name).that(ids).hasSize(n);
+        assertWithMessage(name).that(ids).containsExactlyElementsIn(expectedIds);
+      }
+    }
+  }
+
+  @Test
+  public void reindexIfStale() throws Exception {
+    Project.NameKey project = Project.nameKey("repo");
+    repo = createAndOpenProject(project.get());
+    Change change = insert("repo", newChange(repo));
+    String changeId = change.getKey().get();
+
+    Account.Id anotherUser = createAccount("another-user");
+    requestContext.setContext(newRequestContext(anotherUser));
+    gApi.changes().id(changeId).addReviewer(anotherUser.toString());
+
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+
+    // Remove reviewer behind index's back.
+    ChangeUpdate update = newUpdate(change);
+    update.removeReviewer(anotherUser);
+    update.commit();
+
+    // Index is stale.
+    assertQuery("reviewer:self", change);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+    assertQuery("reviewer:self");
+  }
+
+  @Test
+  public void watched() throws Exception {
+    createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus("repo", Change.Status.NEW);
+    Change change1 = insert("repo", ins1);
+
+    createProject("repo2");
+
+    ChangeInserter ins2 = newChangeWithStatus("repo2", Change.Status.NEW);
+    insert("repo2", ins2);
+
+    assertQuery("is:watched");
+
+    List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
+    ProjectWatchInfo pwi = new ProjectWatchInfo();
+    pwi.project = "repo";
+    pwi.filter = null;
+    pwi.notifyAbandonedChanges = true;
+    pwi.notifyNewChanges = true;
+    pwi.notifyAllComments = true;
+    projectsToWatch.add(pwi);
+    gApi.accounts().self().setWatchedProjects(projectsToWatch);
+    resetUser();
+
+    assertQuery("is:watched", change1);
+  }
+
+  @Test
+  public void trackingid() throws Exception {
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(repo.commit().message("Change one\n\nBug:QUERY123").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    RevCommit commit2 =
+        repo.parseBody(repo.commit().message("Change two\n\nIssue: Issue 16038\n").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().message("Change two\n\nGoogle-Bug-Id: b/16039\n").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    assertQuery("tr:QUERY123", change1);
+    assertQuery("bug:QUERY123", change1);
+    assertQuery("tr:16038", change2);
+    assertQuery("bug:16038", change2);
+    assertQuery("tr:16039", change3);
+    assertQuery("bug:16039", change3);
+    assertQuery("tr:QUERY-123");
+    assertQuery("bug:QUERY-123");
+    assertQuery("tr:QUERY12");
+    assertQuery("bug:QUERY12");
+    assertQuery("tr:QUERY789");
+    assertQuery("bug:QUERY789");
+  }
+
+  @Test
+  public void defaultFieldWithManyUsers() throws Exception {
+    for (int i = 0; i < ChangeQueryBuilder.MAX_ACCOUNTS_PER_DEFAULT_FIELD * 2; i++) {
+      createAccount("user" + i, "User " + i, "user" + i + "@example.com", true);
+    }
+    assertQuery("us");
+  }
+
+  @Test
+  public void revertOf() throws Exception {
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    assertQueryByIds("revertof:" + changeToRevert._number, Change.id(changeThatReverts._number));
+  }
+
+  @Test
+  public void submissionId() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    // create irrelevant change
+    insert("repo", newChange(repo));
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change.getChangeId()).current().submit();
+    String submissionId = gApi.changes().id(change.getChangeId()).get().submissionId;
+=======
+    addComment(change1, "comment 1", false);
+    addComment(change2, "comment 2", true);
+    addComment(change3, "comment 3", false);
+    addComment(change3, "comment 4", true);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQuery("has:unresolved", change3, change2);
 
@@ -3745,9 +12553,229 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Project.NameKey project = Project.nameKey("repo");
     repo = createAndOpenProject(project);
     // Create two commits and revert second commit (initial commit can't be reverted)
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change initial = insert(project, newChange(repo));
     gApi.changes().id(project.get(), initial.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), initial.getChangeId()).current().submit();
+||||||| BASE
+    assertQuery("bug:16038", change2);
+    assertQuery("tr:16039", change3);
+    assertQuery("bug:16039", change3);
+    assertQuery("tr:QUERY-123");
+    assertQuery("bug:QUERY-123");
+    assertQuery("tr:QUERY12");
+    assertQuery("bug:QUERY12");
+    assertQuery("tr:QUERY789");
+    assertQuery("bug:QUERY789");
+  }
+
+  @Test
+  public void defaultFieldWithManyUsers() throws Exception {
+    for (int i = 0; i < ChangeQueryBuilder.MAX_ACCOUNTS_PER_DEFAULT_FIELD * 2; i++) {
+      createAccount("user" + i, "User " + i, "user" + i + "@example.com", true);
+    }
+    assertQuery("us");
+  }
+
+  @Test
+  public void revertOf() throws Exception {
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    assertQueryByIds("revertof:" + changeToRevert._number, Change.id(changeThatReverts._number));
+  }
+
+  @Test
+  public void submissionId() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    // create irrelevant change
+    insert("repo", newChange(repo));
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change.getChangeId()).current().submit();
+    String submissionId = gApi.changes().id(change.getChangeId()).get().submissionId;
+
+    assertQueryByIds("submissionid:" + submissionId, change.getId());
+  }
+
+  /** Change builder for helping in tests for dashboard sections. */
+  protected class DashboardChangeState {
+    private final Account.Id ownerId;
+    private final List<Account.Id> reviewedBy;
+    private final List<Account.Id> cced;
+    private final List<Account.Id> draftCommentBy;
+    private final List<Account.Id> deleteDraftCommentBy;
+    private boolean wip;
+    private boolean abandoned;
+    @Nullable private Account.Id mergedBy;
+
+    @Nullable Change.Id id;
+
+    DashboardChangeState(Account.Id ownerId) {
+      this.ownerId = ownerId;
+      reviewedBy = new ArrayList<>();
+      cced = new ArrayList<>();
+      draftCommentBy = new ArrayList<>();
+      deleteDraftCommentBy = new ArrayList<>();
+    }
+
+    DashboardChangeState wip() {
+      wip = true;
+      return this;
+    }
+
+    DashboardChangeState abandon() {
+      abandoned = true;
+      return this;
+    }
+
+    DashboardChangeState mergeBy(Account.Id mergedBy) {
+      this.mergedBy = mergedBy;
+      return this;
+    }
+
+    DashboardChangeState addReviewer(Account.Id reviewerId) {
+      reviewedBy.add(reviewerId);
+      return this;
+    }
+
+    DashboardChangeState addCc(Account.Id ccId) {
+      cced.add(ccId);
+      return this;
+    }
+
+    DashboardChangeState draftCommentBy(Account.Id commenterId) {
+      draftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState draftAndDeleteCommentBy(Account.Id commenterId) {
+      deleteDraftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState create(TestRepository<Repository> repo) throws Exception {
+      requestContext.setContext(newRequestContext(ownerId));
+      Change change = insert("repo", newChange(repo), ownerId);
+      id = change.getId();
+      ChangeApi cApi = gApi.changes().id(change.getChangeId());
+      if (wip) {
+        cApi.setWorkInProgress();
+      }
+      if (abandoned) {
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
+      }
+      if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+=======
+    Change initial = insert("repo", newChange(repo));
+    getChangeApi(initial).current().review(ReviewInput.approve());
+    getChangeApi(initial).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     ChangeInfo changeToRevert =
         gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
@@ -3764,10 +12792,233 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     repo = createAndOpenProject(project);
     Change change = insert(project, newChange(repo));
     // create irrelevant change
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     insert(project, newChange(repo));
     gApi.changes().id(project.get(), change.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), change.getChangeId()).current().submit();
     String submissionId = gApi.changes().id(project.get(), change.getChangeId()).get().submissionId;
+||||||| BASE
+
+  @Test
+  public void revertOf() throws Exception {
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    assertQueryByIds("revertof:" + changeToRevert._number, Change.id(changeThatReverts._number));
+  }
+
+  @Test
+  public void submissionId() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    // create irrelevant change
+    insert("repo", newChange(repo));
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change.getChangeId()).current().submit();
+    String submissionId = gApi.changes().id(change.getChangeId()).get().submissionId;
+
+    assertQueryByIds("submissionid:" + submissionId, change.getId());
+  }
+
+  /** Change builder for helping in tests for dashboard sections. */
+  protected class DashboardChangeState {
+    private final Account.Id ownerId;
+    private final List<Account.Id> reviewedBy;
+    private final List<Account.Id> cced;
+    private final List<Account.Id> draftCommentBy;
+    private final List<Account.Id> deleteDraftCommentBy;
+    private boolean wip;
+    private boolean abandoned;
+    @Nullable private Account.Id mergedBy;
+
+    @Nullable Change.Id id;
+
+    DashboardChangeState(Account.Id ownerId) {
+      this.ownerId = ownerId;
+      reviewedBy = new ArrayList<>();
+      cced = new ArrayList<>();
+      draftCommentBy = new ArrayList<>();
+      deleteDraftCommentBy = new ArrayList<>();
+    }
+
+    DashboardChangeState wip() {
+      wip = true;
+      return this;
+    }
+
+    DashboardChangeState abandon() {
+      abandoned = true;
+      return this;
+    }
+
+    DashboardChangeState mergeBy(Account.Id mergedBy) {
+      this.mergedBy = mergedBy;
+      return this;
+    }
+
+    DashboardChangeState addReviewer(Account.Id reviewerId) {
+      reviewedBy.add(reviewerId);
+      return this;
+    }
+
+    DashboardChangeState addCc(Account.Id ccId) {
+      cced.add(ccId);
+      return this;
+    }
+
+    DashboardChangeState draftCommentBy(Account.Id commenterId) {
+      draftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState draftAndDeleteCommentBy(Account.Id commenterId) {
+      deleteDraftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState create(TestRepository<Repository> repo) throws Exception {
+      requestContext.setContext(newRequestContext(ownerId));
+      Change change = insert("repo", newChange(repo), ownerId);
+      id = change.getId();
+      ChangeApi cApi = gApi.changes().id(change.getChangeId());
+      if (wip) {
+        cApi.setWorkInProgress();
+      }
+      if (abandoned) {
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
+      }
+      if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+  }
+
+  @Test
+  public void dashboardIncomingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState reviewingReviewable =
+        new DashboardChangeState(otherAccountId).addReviewer(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId).wip().addReviewer(user.getAccountId()).create(repo);
+    new DashboardChangeState(otherAccountId).addReviewer(otherAccountId).create(repo);
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+=======
+    insert("repo", newChange(repo));
+    getChangeApi(change).current().review(ReviewInput.approve());
+    getChangeApi(change).current().submit();
+    String submissionId = getChangeApi(change).get().submissionId;
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     assertQueryByIds("submissionid:" + submissionId, change.getId());
   }
@@ -3834,7 +13085,33 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       setRequestContextForUser(ownerId);
       Change change = insert(project, newChange(repo), ownerId);
       id = change.getId();
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
       ChangeApi cApi = gApi.changes().id(project.get(), change.getChangeId());
+||||||| BASE
+      reviewedBy.add(reviewerId);
+      return this;
+    }
+
+    DashboardChangeState addCc(Account.Id ccId) {
+      cced.add(ccId);
+      return this;
+    }
+
+    DashboardChangeState draftCommentBy(Account.Id commenterId) {
+      draftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState draftAndDeleteCommentBy(Account.Id commenterId) {
+      deleteDraftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState create(TestRepository<Repository> repo) throws Exception {
+      requestContext.setContext(newRequestContext(ownerId));
+      Change change = insert("repo", newChange(repo), ownerId);
+      id = change.getId();
+      ChangeApi cApi = gApi.changes().id(change.getChangeId());
       if (wip) {
         cApi.setWorkInProgress();
       }
@@ -3854,16 +13131,872 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
       in.path = Patch.COMMIT_MSG;
       in.message = "message";
       for (Account.Id commenterId : draftCommentBy) {
-        setRequestContextForUser(commenterId);
-        gApi.changes().id(project.get(), change.getChangeId()).current().createDraft(in);
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
       }
       for (Account.Id commenterId : deleteDraftCommentBy) {
-        setRequestContextForUser(commenterId);
-        gApi.changes().id(project.get(), change.getChangeId()).current().createDraft(in).delete();
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
       }
       if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+  }
+
+  @Test
+  public void dashboardIncomingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState reviewingReviewable =
+        new DashboardChangeState(otherAccountId).addReviewer(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId).wip().addReviewer(user.getAccountId()).create(repo);
+    new DashboardChangeState(otherAccountId).addReviewer(otherAccountId).create(repo);
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .mergeBy(user.getAccountId())
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+  }
+
+  @Test
+  public void dashboardRecentlyClosedReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState mergedOwned =
+        new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    DashboardChangeState mergedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState mergedCced =
+        new DashboardChangeState(otherAccountId)
+            .addCc(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState abandonedOwned =
+        new DashboardChangeState(user.getAccountId()).abandon().create(repo);
+    DashboardChangeState abandonedOwnedWip =
+        new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    DashboardChangeState abandonedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .abandon()
+            .create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .wip()
+        .abandon()
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery(
+        "self",
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwnedWip,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(),
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+=======
+      ChangeApi cApi = getChangeApi(change);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+      if (wip) {
+        cApi.setWorkInProgress();
+      }
+      if (abandoned) {
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+        setRequestContextForUser(commenterId);
+        gApi.changes().id(project.get(), change.getChangeId()).current().createDraft(in);
+||||||| BASE
+      requestContext.setContext(newRequestContext(ownerId));
+      Change change = insert("repo", newChange(repo), ownerId);
+      id = change.getId();
+      ChangeApi cApi = gApi.changes().id(change.getChangeId());
+      if (wip) {
+        cApi.setWorkInProgress();
+      }
+      if (abandoned) {
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
+      }
+      if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+  }
+
+  @Test
+  public void dashboardIncomingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState reviewingReviewable =
+        new DashboardChangeState(otherAccountId).addReviewer(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId).wip().addReviewer(user.getAccountId()).create(repo);
+    new DashboardChangeState(otherAccountId).addReviewer(otherAccountId).create(repo);
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .mergeBy(user.getAccountId())
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+  }
+
+  @Test
+  public void dashboardRecentlyClosedReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState mergedOwned =
+        new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    DashboardChangeState mergedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState mergedCced =
+        new DashboardChangeState(otherAccountId)
+            .addCc(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState abandonedOwned =
+        new DashboardChangeState(user.getAccountId()).abandon().create(repo);
+    DashboardChangeState abandonedOwnedWip =
+        new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    DashboardChangeState abandonedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .abandon()
+            .create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .wip()
+        .abandon()
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery(
+        "self",
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwnedWip,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(),
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+
+  @Test
+  public void attentionSetIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS_COUNT)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+    gApi.changes()
+        .id(change1.getChangeId())
+=======
+        requestContext.setContext(newRequestContext(commenterId));
+        getChangeApi(change).current().createDraft(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+        setRequestContextForUser(commenterId);
+        gApi.changes().id(project.get(), change.getChangeId()).current().createDraft(in).delete();
+||||||| BASE
+      if (wip) {
+        cApi.setWorkInProgress();
+      }
+      if (abandoned) {
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
+      }
+      if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+  }
+
+  @Test
+  public void dashboardIncomingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState reviewingReviewable =
+        new DashboardChangeState(otherAccountId).addReviewer(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId).wip().addReviewer(user.getAccountId()).create(repo);
+    new DashboardChangeState(otherAccountId).addReviewer(otherAccountId).create(repo);
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .mergeBy(user.getAccountId())
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+  }
+
+  @Test
+  public void dashboardRecentlyClosedReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState mergedOwned =
+        new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    DashboardChangeState mergedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState mergedCced =
+        new DashboardChangeState(otherAccountId)
+            .addCc(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState abandonedOwned =
+        new DashboardChangeState(user.getAccountId()).abandon().create(repo);
+    DashboardChangeState abandonedOwnedWip =
+        new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    DashboardChangeState abandonedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .abandon()
+            .create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .wip()
+        .abandon()
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery(
+        "self",
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwnedWip,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(),
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+
+  @Test
+  public void attentionSetIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS_COUNT)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+    gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+=======
+        requestContext.setContext(newRequestContext(commenterId));
+        getChangeApi(change).current().createDraft(in).delete();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+      }
+      if (mergedBy != null) {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
         setRequestContextForUser(mergedBy);
         cApi = gApi.changes().id(project.get(), change.getChangeId());
+||||||| BASE
+        cApi.abandon();
+      }
+      for (Account.Id reviewerId : reviewedBy) {
+        cApi.addReviewer("" + reviewerId);
+      }
+      for (Account.Id reviewerId : cced) {
+        ReviewerInput in = new ReviewerInput();
+        in.reviewer = reviewerId.toString();
+        in.state = ReviewerState.CC;
+        cApi.addReviewer(in);
+      }
+      DraftInput in = new DraftInput();
+      in.path = Patch.COMMIT_MSG;
+      in.message = "message";
+      for (Account.Id commenterId : draftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in);
+      }
+      for (Account.Id commenterId : deleteDraftCommentBy) {
+        requestContext.setContext(newRequestContext(commenterId));
+        gApi.changes().id(change.getChangeId()).current().createDraft(in).delete();
+      }
+      if (mergedBy != null) {
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = gApi.changes().id(change.getChangeId());
+        cApi.current().review(ReviewInput.approve());
+        cApi.current().submit();
+      }
+      requestContext.setContext(newRequestContext(user.getAccountId()));
+      return this;
+    }
+  }
+
+  protected List<ChangeInfo> assertDashboardQuery(
+      String viewedUser, String query, DashboardChangeState... expected) throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    return assertQueryByIds(query.replaceAll("\\$\\{user}", viewedUser), ids);
+  }
+
+  protected List<ChangeInfo> assertDashboardQueryWithStart(
+      String viewedUser, String query, int start, DashboardChangeState... expected)
+      throws Exception {
+    Change.Id[] ids = new Change.Id[expected.length];
+    for (int i = 0; i < expected.length; i++) {
+      ids[i] = expected[i].id;
+    }
+    QueryRequest queryRequest = newQuery(query.replaceAll("\\$\\{user}", viewedUser));
+    queryRequest.withStart(start);
+    return assertQueryByIds(queryRequest, ids);
+  }
+
+  @Test
+  public void dashboardHasUnpublishedDrafts() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState hasUnpublishedDraft =
+        new DashboardChangeState(otherAccountId).draftCommentBy(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).create(repo);
+    new DashboardChangeState(user.getAccountId()).draftCommentBy(otherAccountId).create(repo);
+    new DashboardChangeState(user.getAccountId())
+        .draftAndDeleteCommentBy(user.getAccountId())
+        .create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_HAS_UNPUBLISHED_DRAFTS_QUERY, hasUnpublishedDraft);
+  }
+
+  @Test
+  public void dashboardWorkInProgressReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    DashboardChangeState ownedOpenWip =
+        new DashboardChangeState(user.getAccountId()).wip().create(repo);
+
+    // Create changes that should not be returned by query.
+    new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    new DashboardChangeState(createAccount("other")).wip().create(repo);
+
+    assertDashboardQuery(
+        "self", IndexPreloadingUtil.DASHBOARD_WORK_IN_PROGRESS_QUERY, ownedOpenWip);
+  }
+
+  @Test
+  public void dashboardOutgoingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState ownedOpenReviewable =
+        new DashboardChangeState(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(user.getAccountId()).wip().create(repo);
+    new DashboardChangeState(otherAccountId).create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_OUTGOING_QUERY, ownedOpenReviewable);
+  }
+
+  @Test
+  public void dashboardIncomingReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState reviewingReviewable =
+        new DashboardChangeState(otherAccountId).addReviewer(user.getAccountId()).create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId).wip().addReviewer(user.getAccountId()).create(repo);
+    new DashboardChangeState(otherAccountId).addReviewer(otherAccountId).create(repo);
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .mergeBy(user.getAccountId())
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery("self", IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(), IndexPreloadingUtil.DASHBOARD_INCOMING_QUERY, reviewingReviewable);
+  }
+
+  @Test
+  public void dashboardRecentlyClosedReviews() throws Exception {
+    repo = createAndOpenProject("repo");
+    Account.Id otherAccountId = createAccount("other");
+    DashboardChangeState mergedOwned =
+        new DashboardChangeState(user.getAccountId()).mergeBy(user.getAccountId()).create(repo);
+    DashboardChangeState mergedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState mergedCced =
+        new DashboardChangeState(otherAccountId)
+            .addCc(user.getAccountId())
+            .mergeBy(user.getAccountId())
+            .create(repo);
+    DashboardChangeState abandonedOwned =
+        new DashboardChangeState(user.getAccountId()).abandon().create(repo);
+    DashboardChangeState abandonedOwnedWip =
+        new DashboardChangeState(user.getAccountId()).wip().abandon().create(repo);
+    DashboardChangeState abandonedReviewing =
+        new DashboardChangeState(otherAccountId)
+            .addReviewer(user.getAccountId())
+            .abandon()
+            .create(repo);
+
+    // Create changes that should not be returned by any queries in this test.
+    new DashboardChangeState(otherAccountId)
+        .addReviewer(user.getAccountId())
+        .wip()
+        .abandon()
+        .create(repo);
+
+    // Viewing one's own dashboard.
+    assertDashboardQuery(
+        "self",
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwnedWip,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(),
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+
+  @Test
+  public void attentionSetIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS_COUNT)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+    gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+=======
+        requestContext.setContext(newRequestContext(mergedBy));
+        cApi = getChangeApi(change);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
         cApi.current().review(ReviewInput.approve());
         cApi.current().submit();
       }
@@ -4056,7 +14189,33 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change2 = insert(project, newChange(repo));
 
     AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).addToAttentionSet(input);
+||||||| BASE
+        mergedOwned);
+
+    // Viewing another user's dashboard.
+    requestContext.setContext(newRequestContext(otherAccountId));
+    assertDashboardQuery(
+        userId.toString(),
+        IndexPreloadingUtil.DASHBOARD_RECENTLY_CLOSED_QUERY,
+        abandonedReviewing,
+        abandonedOwned,
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+
+  @Test
+  public void attentionSetIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS_COUNT)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
 
     assertQuery("is:attention", change1);
     assertQuery("-is:attention", change2);
@@ -4066,7 +14225,462 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("-attention:" + userId.toString(), change2);
 
     gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+    Account.Id user2Id =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    ReviewerInput reviewerInput = new ReviewerInput();
+    reviewerInput.reviewer = user2Id.toString();
+    reviewerInput.state = ReviewerState.CC;
+    gApi.changes().id(change.getChangeId()).addReviewer(reviewerInput);
+
+    input = new AttentionSetInput(user2Id.toString(), "reason 2");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+
+    List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
+    assertThat(result).hasSize(1);
+    ChangeInfo changeInfo = Iterables.getOnlyElement(result);
+    assertThat(changeInfo.attentionSet).isNotNull();
+    assertThat(changeInfo.attentionSet.keySet()).containsExactly(userId.get(), user2Id.get());
+    assertThat(changeInfo.attentionSet.get(userId.get()).reason).isEqualTo("reason 1");
+    assertThat(changeInfo.attentionSet.get(user2Id.get()).reason).isEqualTo("reason 2");
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedDestination() throws Exception {
+    createProject("repo1");
+    Change change1 = insert("repo1", newChange("repo1"));
+    createProject("repo2");
+    Change change2 = insert("repo2", newChange("repo2"));
+
+    assertThatQueryException("destination:foo")
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: foo");
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    String destination1 = "refs/heads/master\trepo1";
+    String destination2 = "refs/heads/master\trepo2";
+    String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
+    String destination4 = "refs/heads/master\trepo3";
+    String destination5 = "refs/heads/other\trepo1";
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
+      assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
+
+      String groupRef = RefNames.refsGroups(groupId);
+      allUsers.branch(groupRef).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination4", destination4).create();
+      assertThat(allUsers.getRepository().exactRef(groupRef)).isNotNull();
+    }
+
+    assertQuery("destination:destination1", change1);
+    assertQuery("destination:destination2", change2);
+    assertQuery("destination:destination3", change2, change1);
+    assertQuery("destination:destination4");
+    assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account userId is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+
+    // Group destinations
+    requestContext.setContext(newRequestContext(userId));
+    assertThatQueryException("destination:non-existent-dest,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: non-existent-dest");
+    assertThatQueryException("destination:destination1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("destination:destination1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("destination:destination1,group=" + group, change1);
+    assertQuery("destination:name=destination1,group=" + group, change1);
+    assertQuery("destination:group=" + group + ",destination2", change2);
+    assertQuery("destination:group=" + group + ",name=destination3", change2, change1);
+    assertQuery("destination:destination4,group=" + group);
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedQuery() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangeForBranch(repo, "stable"));
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId = createAccount("anotheruser");
+    String queryListText =
+        "query1\tproject:repo\n"
+            + "query2\tproject:repo status:open\n"
+            + "query3\tproject:repo branch:stable\n"
+            + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
+
+    try (TestRepository<Repository> allUsers =
+            new TestRepository<>(repoManager.openRepository(allUsersName));
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
+      VersionedAccountQueries queries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(userId)));
+      queries.load(md);
+      queries.setQueryList(queryListText);
+      queries.commit(md);
+      VersionedAccountQueries anotherQueries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(anotherUserId)));
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+=======
+    getChangeApi(change1).addToAttentionSet(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes()
         .id(project.get(), change1.getChangeId())
+||||||| BASE
+        mergedCced,
+        mergedReviewing,
+        mergedOwned);
+  }
+
+  @Test
+  public void attentionSetIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS_COUNT)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+    gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+    Account.Id user2Id =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    ReviewerInput reviewerInput = new ReviewerInput();
+    reviewerInput.reviewer = user2Id.toString();
+    reviewerInput.state = ReviewerState.CC;
+    gApi.changes().id(change.getChangeId()).addReviewer(reviewerInput);
+
+    input = new AttentionSetInput(user2Id.toString(), "reason 2");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+
+    List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
+    assertThat(result).hasSize(1);
+    ChangeInfo changeInfo = Iterables.getOnlyElement(result);
+    assertThat(changeInfo.attentionSet).isNotNull();
+    assertThat(changeInfo.attentionSet.keySet()).containsExactly(userId.get(), user2Id.get());
+    assertThat(changeInfo.attentionSet.get(userId.get()).reason).isEqualTo("reason 1");
+    assertThat(changeInfo.attentionSet.get(user2Id.get()).reason).isEqualTo("reason 2");
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedDestination() throws Exception {
+    createProject("repo1");
+    Change change1 = insert("repo1", newChange("repo1"));
+    createProject("repo2");
+    Change change2 = insert("repo2", newChange("repo2"));
+
+    assertThatQueryException("destination:foo")
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: foo");
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    String destination1 = "refs/heads/master\trepo1";
+    String destination2 = "refs/heads/master\trepo2";
+    String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
+    String destination4 = "refs/heads/master\trepo3";
+    String destination5 = "refs/heads/other\trepo1";
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
+      assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
+
+      String groupRef = RefNames.refsGroups(groupId);
+      allUsers.branch(groupRef).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination4", destination4).create();
+      assertThat(allUsers.getRepository().exactRef(groupRef)).isNotNull();
+    }
+
+    assertQuery("destination:destination1", change1);
+    assertQuery("destination:destination2", change2);
+    assertQuery("destination:destination3", change2, change1);
+    assertQuery("destination:destination4");
+    assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account userId is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+
+    // Group destinations
+    requestContext.setContext(newRequestContext(userId));
+    assertThatQueryException("destination:non-existent-dest,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: non-existent-dest");
+    assertThatQueryException("destination:destination1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("destination:destination1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("destination:destination1,group=" + group, change1);
+    assertQuery("destination:name=destination1,group=" + group, change1);
+    assertQuery("destination:group=" + group + ",destination2", change2);
+    assertQuery("destination:group=" + group + ",name=destination3", change2, change1);
+    assertQuery("destination:destination4,group=" + group);
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedQuery() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangeForBranch(repo, "stable"));
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId = createAccount("anotheruser");
+    String queryListText =
+        "query1\tproject:repo\n"
+            + "query2\tproject:repo status:open\n"
+            + "query3\tproject:repo branch:stable\n"
+            + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
+
+    try (TestRepository<Repository> allUsers =
+            new TestRepository<>(repoManager.openRepository(allUsersName));
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
+      VersionedAccountQueries queries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(userId)));
+      queries.load(md);
+      queries.setQueryList(queryListText);
+      queries.commit(md);
+      VersionedAccountQueries anotherQueries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(anotherUserId)));
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+    assertQuery("query:query1", change2, change1);
+    assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+    assertQuery("query:query2", change2);
+    assertQuery("query:query3", change2);
+    assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+=======
+    getChangeApi(change1)
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
         .attention(userId.toString())
         .remove(new AttentionSetInput("removed again"));
     assertQuery("-is:attention", change1, change2);
@@ -4080,7 +14694,34 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change = insert(project, newChange(repo));
 
     AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change.getChangeId()).addToAttentionSet(input);
+||||||| BASE
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "some reason");
+    gApi.changes().id(change1.getChangeId()).addToAttentionSet(input);
+
+    assertQuery("is:attention", change1);
+    assertQuery("-is:attention", change2);
+    assertQuery("has:attention", change1);
+    assertQuery("-has:attention", change2);
+    assertQuery("attention:" + userAccount.preferredEmail(), change1);
+    assertQuery("-attention:" + userId.toString(), change2);
+
+    gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
     Account.Id user2Id =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
 
@@ -4089,10 +14730,709 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     ReviewerInput reviewerInput = new ReviewerInput();
     reviewerInput.reviewer = user2Id.toString();
     reviewerInput.state = ReviewerState.CC;
-    gApi.changes().id(project.get(), change.getChangeId()).addReviewer(reviewerInput);
+    gApi.changes().id(change.getChangeId()).addReviewer(reviewerInput);
 
     input = new AttentionSetInput(user2Id.toString(), "reason 2");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+
+    List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
+    assertThat(result).hasSize(1);
+    ChangeInfo changeInfo = Iterables.getOnlyElement(result);
+    assertThat(changeInfo.attentionSet).isNotNull();
+    assertThat(changeInfo.attentionSet.keySet()).containsExactly(userId.get(), user2Id.get());
+    assertThat(changeInfo.attentionSet.get(userId.get()).reason).isEqualTo("reason 1");
+    assertThat(changeInfo.attentionSet.get(user2Id.get()).reason).isEqualTo("reason 2");
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedDestination() throws Exception {
+    createProject("repo1");
+    Change change1 = insert("repo1", newChange("repo1"));
+    createProject("repo2");
+    Change change2 = insert("repo2", newChange("repo2"));
+
+    assertThatQueryException("destination:foo")
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: foo");
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    String destination1 = "refs/heads/master\trepo1";
+    String destination2 = "refs/heads/master\trepo2";
+    String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
+    String destination4 = "refs/heads/master\trepo3";
+    String destination5 = "refs/heads/other\trepo1";
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
+      assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
+
+      String groupRef = RefNames.refsGroups(groupId);
+      allUsers.branch(groupRef).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination4", destination4).create();
+      assertThat(allUsers.getRepository().exactRef(groupRef)).isNotNull();
+    }
+
+    assertQuery("destination:destination1", change1);
+    assertQuery("destination:destination2", change2);
+    assertQuery("destination:destination3", change2, change1);
+    assertQuery("destination:destination4");
+    assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account userId is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+
+    // Group destinations
+    requestContext.setContext(newRequestContext(userId));
+    assertThatQueryException("destination:non-existent-dest,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: non-existent-dest");
+    assertThatQueryException("destination:destination1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("destination:destination1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("destination:destination1,group=" + group, change1);
+    assertQuery("destination:name=destination1,group=" + group, change1);
+    assertQuery("destination:group=" + group + ",destination2", change2);
+    assertQuery("destination:group=" + group + ",name=destination3", change2, change1);
+    assertQuery("destination:destination4,group=" + group);
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedQuery() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangeForBranch(repo, "stable"));
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId = createAccount("anotheruser");
+    String queryListText =
+        "query1\tproject:repo\n"
+            + "query2\tproject:repo status:open\n"
+            + "query3\tproject:repo branch:stable\n"
+            + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
+
+    try (TestRepository<Repository> allUsers =
+            new TestRepository<>(repoManager.openRepository(allUsersName));
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
+      VersionedAccountQueries queries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(userId)));
+      queries.load(md);
+      queries.setQueryList(queryListText);
+      queries.commit(md);
+      VersionedAccountQueries anotherQueries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(anotherUserId)));
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+    assertQuery("query:query1", change2, change1);
+    assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+    assertQuery("query:query2", change2);
+    assertQuery("query:query3", change2);
+    assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+    assertQuery("query:user=" + anotherUserId + ",query7", change2);
+    assertQuery("query:query8,user=" + anotherUserId);
+
+    // Group queries
+    assertThatQueryException("query:non-existent,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: non-existent");
+    assertThatQueryException("query:query1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("query:query1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+=======
+    getChangeApi(change).addToAttentionSet(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    Account.Id user2Id =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    ReviewerInput reviewerInput = new ReviewerInput();
+    reviewerInput.reviewer = user2Id.toString();
+    reviewerInput.state = ReviewerState.CC;
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(project.get(), change.getChangeId()).addReviewer(reviewerInput);
+||||||| BASE
+
+    gApi.changes()
+        .id(change1.getChangeId())
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+    Account.Id user2Id =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    ReviewerInput reviewerInput = new ReviewerInput();
+    reviewerInput.reviewer = user2Id.toString();
+    reviewerInput.state = ReviewerState.CC;
+    gApi.changes().id(change.getChangeId()).addReviewer(reviewerInput);
+
+    input = new AttentionSetInput(user2Id.toString(), "reason 2");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+
+    List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
+    assertThat(result).hasSize(1);
+    ChangeInfo changeInfo = Iterables.getOnlyElement(result);
+    assertThat(changeInfo.attentionSet).isNotNull();
+    assertThat(changeInfo.attentionSet.keySet()).containsExactly(userId.get(), user2Id.get());
+    assertThat(changeInfo.attentionSet.get(userId.get()).reason).isEqualTo("reason 1");
+    assertThat(changeInfo.attentionSet.get(user2Id.get()).reason).isEqualTo("reason 2");
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedDestination() throws Exception {
+    createProject("repo1");
+    Change change1 = insert("repo1", newChange("repo1"));
+    createProject("repo2");
+    Change change2 = insert("repo2", newChange("repo2"));
+
+    assertThatQueryException("destination:foo")
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: foo");
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    String destination1 = "refs/heads/master\trepo1";
+    String destination2 = "refs/heads/master\trepo2";
+    String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
+    String destination4 = "refs/heads/master\trepo3";
+    String destination5 = "refs/heads/other\trepo1";
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
+      assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
+
+      String groupRef = RefNames.refsGroups(groupId);
+      allUsers.branch(groupRef).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination4", destination4).create();
+      assertThat(allUsers.getRepository().exactRef(groupRef)).isNotNull();
+    }
+
+    assertQuery("destination:destination1", change1);
+    assertQuery("destination:destination2", change2);
+    assertQuery("destination:destination3", change2, change1);
+    assertQuery("destination:destination4");
+    assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account userId is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+
+    // Group destinations
+    requestContext.setContext(newRequestContext(userId));
+    assertThatQueryException("destination:non-existent-dest,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: non-existent-dest");
+    assertThatQueryException("destination:destination1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("destination:destination1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("destination:destination1,group=" + group, change1);
+    assertQuery("destination:name=destination1,group=" + group, change1);
+    assertQuery("destination:group=" + group + ",destination2", change2);
+    assertQuery("destination:group=" + group + ",name=destination3", change2, change1);
+    assertQuery("destination:destination4,group=" + group);
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedQuery() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangeForBranch(repo, "stable"));
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId = createAccount("anotheruser");
+    String queryListText =
+        "query1\tproject:repo\n"
+            + "query2\tproject:repo status:open\n"
+            + "query3\tproject:repo branch:stable\n"
+            + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
+
+    try (TestRepository<Repository> allUsers =
+            new TestRepository<>(repoManager.openRepository(allUsersName));
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
+      VersionedAccountQueries queries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(userId)));
+      queries.load(md);
+      queries.setQueryList(queryListText);
+      queries.commit(md);
+      VersionedAccountQueries anotherQueries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(anotherUserId)));
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+    assertQuery("query:query1", change2, change1);
+    assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+    assertQuery("query:query2", change2);
+    assertQuery("query:query3", change2);
+    assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+    assertQuery("query:user=" + anotherUserId + ",query7", change2);
+    assertQuery("query:query8,user=" + anotherUserId);
+
+    // Group queries
+    assertThatQueryException("query:non-existent,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: non-existent");
+    assertThatQueryException("query:query1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("query:query1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("query:name=query1,group=" + group, change1, change2);
+    assertQuery("query:query1,group=" + group, change1, change2);
+    assertQuery("query:group=" + group + ",name=query2", change2);
+    assertQuery("query:group=" + group + ",query4");
+    assertQuery("query:name=query4,group=" + group);
+  }
+
+  @Test
+  public void byDeletedChange() throws Exception {
+=======
+    getChangeApi(change).addReviewer(reviewerInput);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+
+    input = new AttentionSetInput(user2Id.toString(), "reason 2");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change.getChangeId()).addToAttentionSet(input);
+||||||| BASE
+        .attention(userId.toString())
+        .remove(new AttentionSetInput("removed again"));
+    assertQuery("-is:attention", change1, change2);
+  }
+
+  @Test
+  public void attentionSetStored() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.ATTENTION_SET_USERS)).isTrue();
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    AttentionSetInput input = new AttentionSetInput(userId.toString(), "reason 1");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+    Account.Id user2Id =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    // Add the second user as cc to ensure that user took part of the change and can be added to the
+    // attention set.
+    ReviewerInput reviewerInput = new ReviewerInput();
+    reviewerInput.reviewer = user2Id.toString();
+    reviewerInput.state = ReviewerState.CC;
+    gApi.changes().id(change.getChangeId()).addReviewer(reviewerInput);
+
+    input = new AttentionSetInput(user2Id.toString(), "reason 2");
+    gApi.changes().id(change.getChangeId()).addToAttentionSet(input);
+
+    List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
+    assertThat(result).hasSize(1);
+    ChangeInfo changeInfo = Iterables.getOnlyElement(result);
+    assertThat(changeInfo.attentionSet).isNotNull();
+    assertThat(changeInfo.attentionSet.keySet()).containsExactly(userId.get(), user2Id.get());
+    assertThat(changeInfo.attentionSet.get(userId.get()).reason).isEqualTo("reason 1");
+    assertThat(changeInfo.attentionSet.get(user2Id.get()).reason).isEqualTo("reason 2");
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedDestination() throws Exception {
+    createProject("repo1");
+    Change change1 = insert("repo1", newChange("repo1"));
+    createProject("repo2");
+    Change change2 = insert("repo2", newChange("repo2"));
+
+    assertThatQueryException("destination:foo")
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: foo");
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+    String destination1 = "refs/heads/master\trepo1";
+    String destination2 = "refs/heads/master\trepo2";
+    String destination3 = "refs/heads/master\trepo1\nrefs/heads/master\trepo2";
+    String destination4 = "refs/heads/master\trepo3";
+    String destination5 = "refs/heads/other\trepo1";
+
+    try (TestRepository<Repository> allUsers =
+        new TestRepository<>(repoManager.openRepository(allUsersName))) {
+      String refsUsers = RefNames.refsUsers(userId);
+      allUsers.branch(refsUsers).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination4", destination4).create();
+      allUsers.branch(refsUsers).commit().add("destinations/destination5", destination5).create();
+
+      String anotherRefsUsers = RefNames.refsUsers(anotherUserId);
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination6", destination1)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination7", destination2)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination8", destination3)
+          .create();
+      allUsers
+          .branch(anotherRefsUsers)
+          .commit()
+          .add("destinations/destination9", destination4)
+          .create();
+
+      Ref userRef = allUsers.getRepository().exactRef(refsUsers);
+      Ref anotherUserRef = allUsers.getRepository().exactRef(anotherRefsUsers);
+      assertThat(userRef).isNotNull();
+      assertThat(anotherUserRef).isNotNull();
+
+      String groupRef = RefNames.refsGroups(groupId);
+      allUsers.branch(groupRef).commit().add("destinations/destination1", destination1).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination2", destination2).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination3", destination3).create();
+      allUsers.branch(groupRef).commit().add("destinations/destination4", destination4).create();
+      assertThat(allUsers.getRepository().exactRef(groupRef)).isNotNull();
+    }
+
+    assertQuery("destination:destination1", change1);
+    assertQuery("destination:destination2", change2);
+    assertQuery("destination:destination3", change2, change1);
+    assertQuery("destination:destination4");
+    assertQuery("destination:destination5");
+    assertQuery("destination:destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:name=destination6,user=" + anotherUserId, change1);
+    assertQuery("destination:user=" + anotherUserId + ",destination7", change2);
+    assertQuery("destination:user=" + anotherUserId + ",name=destination8", change2, change1);
+    assertQuery("destination:destination9,user=" + anotherUserId);
+
+    assertThatQueryException("destination:destination3,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: destination3");
+    assertThatQueryException("destination:destination3,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account userId is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("destination:destination3,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+
+    // Group destinations
+    requestContext.setContext(newRequestContext(userId));
+    assertThatQueryException("destination:non-existent-dest,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named destination: non-existent-dest");
+    assertThatQueryException("destination:destination1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("destination:destination1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("destination:destination1,group=" + group, change1);
+    assertQuery("destination:name=destination1,group=" + group, change1);
+    assertQuery("destination:group=" + group + ",destination2", change2);
+    assertQuery("destination:group=" + group + ",name=destination3", change2, change1);
+    assertQuery("destination:destination4,group=" + group);
+  }
+
+  @GerritConfig(name = "accounts.visibility", value = "NONE")
+  @Test
+  public void namedQuery() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    Change change2 = insert("repo", newChangeForBranch(repo, "stable"));
+
+    String group = "test-group";
+    AccountGroup.UUID groupId = groupOperations.newGroup().name(group).create();
+    Account.Id anotherUserId = createAccount("anotheruser");
+    String queryListText =
+        "query1\tproject:repo\n"
+            + "query2\tproject:repo status:open\n"
+            + "query3\tproject:repo branch:stable\n"
+            + "query4\tproject:repo branch:other";
+    String anotherQueryListText =
+        "query5\tproject:repo\n"
+            + "query6\tproject:repo status:merged\n"
+            + "query7\tproject:repo branch:stable\n"
+            + "query8\tproject:repo branch:other";
+
+    try (TestRepository<Repository> allUsers =
+            new TestRepository<>(repoManager.openRepository(allUsersName));
+        MetaDataUpdate md = metaDataUpdateFactory.create(allUsersName);
+        MetaDataUpdate anotherMd = metaDataUpdateFactory.create(allUsersName)) {
+      VersionedAccountQueries queries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(userId)));
+      queries.load(md);
+      queries.setQueryList(queryListText);
+      queries.commit(md);
+      VersionedAccountQueries anotherQueries =
+          VersionedAccountQueries.forBranch(
+              BranchNameKey.create(allUsersName, RefNames.refsUsers(anotherUserId)));
+      anotherQueries.load(anotherMd);
+      anotherQueries.setQueryList(anotherQueryListText);
+      anotherQueries.commit(anotherMd);
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+    assertQuery("query:query1", change2, change1);
+    assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+    assertQuery("query:query2", change2);
+    assertQuery("query:query3", change2);
+    assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+    assertQuery("query:user=" + anotherUserId + ",query7", change2);
+    assertQuery("query:query8,user=" + anotherUserId);
+
+    // Group queries
+    assertThatQueryException("query:non-existent,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: non-existent");
+    assertThatQueryException("query:query1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("query:query1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("query:name=query1,group=" + group, change1, change2);
+    assertQuery("query:query1,group=" + group, change1, change2);
+    assertQuery("query:group=" + group + ",name=query2", change2);
+    assertQuery("query:group=" + group + ",query4");
+    assertQuery("query:name=query4,group=" + group);
+  }
+
+  @Test
+  public void byDeletedChange() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+=======
+    getChangeApi(change).addToAttentionSet(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     List<ChangeInfo> result = newQuery("attention:" + user2Id.toString()).get();
     assertThat(result).hasSize(1);
@@ -4276,8 +15616,255 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     assertQuery("query:query2", change2, change1);
     assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
     assertQuery("query:user=" + anotherUserId + ",name=query6");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), change1.getChangeId()).current().submit();
+||||||| BASE
+
+      allUsers.branch(RefNames.refsGroups(groupId)).commit().add("queries", queryListText).create();
+    }
+
+    assertThat(gApi.accounts().self().get()._accountId).isEqualTo(userId.get());
+    assertThatQueryException("query:foo").hasMessageThat().isEqualTo("Unknown named query: foo");
+    assertThatQueryException("query:query1,user=" + anotherUserId)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: query1");
+    assertThatQueryException("query:query1,user=non-existent")
+        .hasMessageThat()
+        .isEqualTo("Account 'non-existent' not found");
+
+    requestContext.setContext(newRequestContext(anotherUserId));
+    // account 1000000 is not visible to 'anotheruser' as they are not an admin
+    assertThatQueryException("query:query1,user=" + userId)
+        .hasMessageThat()
+        .isEqualTo(String.format("Account '%s' not found", userId));
+    requestContext.setContext(newRequestContext(userId));
+
+    assertQuery("query:query1", change2, change1);
+    assertQuery("query:query2", change2, change1);
+    assertQuery("query:name=query5,user=" + anotherUserId, change2, change1);
+    assertQuery("query:user=" + anotherUserId + ",name=query6");
+    gApi.changes().id(change1.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change1.getChangeId()).current().submit();
+    assertQuery("query:query2", change2);
+    assertQuery("query:query3", change2);
+    assertQuery("query:query4");
+    assertQuery("query:query6,user=" + anotherUserId, change1);
+    assertQuery("query:user=" + anotherUserId + ",query7", change2);
+    assertQuery("query:query8,user=" + anotherUserId);
+
+    // Group queries
+    assertThatQueryException("query:non-existent,group=" + group)
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: non-existent");
+    assertThatQueryException("query:query1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("query:query1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("query:name=query1,group=" + group, change1, change2);
+    assertQuery("query:query1,group=" + group, change1, change2);
+    assertQuery("query:group=" + group + ",name=query2", change2);
+    assertQuery("query:group=" + group + ",query4");
+    assertQuery("query:name=query4,group=" + group);
+  }
+
+  @Test
+  public void byDeletedChange() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    String query = "change:" + change.getId();
+    assertQuery(query, change);
+
+    gApi.changes().id(change.getChangeId()).delete();
+    assertQuery(query);
+  }
+
+  @Test
+  public void byUrlEncodedProject() throws Exception {
+    repo = createAndOpenProject("repo+foo");
+    Change change = insert("repo+foo", newChange(repo));
+    assertQuery("project:repo+foo", change);
+  }
+
+  @Test
+  public void bySubmitRequirement_notAllowed() throws Exception {
+    Exception thrown =
+        assertThrows(
+            QueryParseException.class,
+            () ->
+                queryProcessorProvider
+                    .get()
+                    .query(
+                        new SubmitRequirementPredicate("submit-requirement", "value") {
+                          @Override
+                          public boolean match(ChangeData object) {
+                            return false;
+                          }
+
+                          @Override
+                          public int getCost() {
+                            return 0;
+                          }
+                        }));
+
+    assertThat(thrown)
+        .hasMessageThat()
+        .isEqualTo("Operator 'submit-requirement:value' cannot be used in queries");
+  }
+
+  @Test
+  public void isPureRevert() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.IS_PURE_REVERT_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    Change.Id changeThatRevertsId = Change.id(changeThatReverts._number);
+    assertQueryByIds("is:pure-revert", changeThatRevertsId);
+
+    // Update the change that reverts such that it's not a pure revert
+    gApi.changes()
+        .id(changeThatReverts.id)
+        .edit()
+        .modifyFile("some-file.txt", RawInputUtil.create("newcontent".getBytes(UTF_8)));
+    gApi.changes().id(changeThatReverts.id).edit().publish();
+    assertQueryByIds("is:pure-revert");
+  }
+
+  @Test
+  public void selfFailsForAnonymousUser() throws Exception {
+    for (String query : ImmutableList.of("has:star", "is:starred")) {
+      assertQuery(query);
+      RequestContext oldContext = requestContext.setContext(anonymousUserProvider::get);
+
+      try {
+        requestContext.setContext(anonymousUserProvider::get);
+        assertThatAuthException(query)
+            .hasMessageThat()
+            .isEqualTo("Must be signed-in to use this operator");
+      } finally {
+        requestContext.setContext(oldContext);
+      }
+    }
+  }
+
+  @Test
+  public void selfSucceedsForInactiveAccount() throws Exception {
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    gApi.changes().id(change.getId().get()).addReviewer(user2.toString());
+
+    RequestContext adminContext = requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+
+    requestContext.setContext(adminContext);
+    gApi.accounts().id(user2.get()).setActive(false);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+  }
+
+  @Test
+  public void none() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    assertQuery(ChangeIndexPredicate.none());
+
+    for (Predicate<ChangeData> matchingOneChange :
+        ImmutableList.of(
+            // One index query, one post-filtering query.
+            queryBuilder.parse(change.getId().toString()),
+            queryBuilder.parse("ownerin:Administrators"))) {
+      assertQuery(matchingOneChange, change);
+      assertQuery(Predicate.or(ChangeIndexPredicate.none(), matchingOneChange), change);
+      assertQuery(Predicate.and(ChangeIndexPredicate.none(), matchingOneChange));
+      assertQuery(
+          Predicate.and(Predicate.not(ChangeIndexPredicate.none()), matchingOneChange), change);
+    }
+  }
+
+  @Test
+  @GerritConfig(name = "change.mergeabilityComputationBehavior", value = "NEVER")
+  public void mergeableFailsWhenNotIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+=======
+    getChangeApi(change1).current().review(ReviewInput.approve());
+    getChangeApi(change1).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery("query:query2", change2);
     assertQuery("query:query3", change2);
     assertQuery("query:query4");
@@ -4312,7 +15899,253 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     String query = "change:" + change.getId();
     assertQuery(query, change);
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change.getChangeId()).delete();
+||||||| BASE
+        .hasMessageThat()
+        .isEqualTo("Unknown named query: non-existent");
+    assertThatQueryException("query:query1,group=non-existent-group")
+        .hasMessageThat()
+        .isEqualTo("Group non-existent-group not found");
+    assertThatQueryException("query:query1,group=" + group + ",user=" + userId)
+        .hasMessageThat()
+        .isEqualTo("User and group arguments are mutually exclusive");
+
+    assertQuery("query:name=query1,group=" + group, change1, change2);
+    assertQuery("query:query1,group=" + group, change1, change2);
+    assertQuery("query:group=" + group + ",name=query2", change2);
+    assertQuery("query:group=" + group + ",query4");
+    assertQuery("query:name=query4,group=" + group);
+  }
+
+  @Test
+  public void byDeletedChange() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    String query = "change:" + change.getId();
+    assertQuery(query, change);
+
+    gApi.changes().id(change.getChangeId()).delete();
+    assertQuery(query);
+  }
+
+  @Test
+  public void byUrlEncodedProject() throws Exception {
+    repo = createAndOpenProject("repo+foo");
+    Change change = insert("repo+foo", newChange(repo));
+    assertQuery("project:repo+foo", change);
+  }
+
+  @Test
+  public void bySubmitRequirement_notAllowed() throws Exception {
+    Exception thrown =
+        assertThrows(
+            QueryParseException.class,
+            () ->
+                queryProcessorProvider
+                    .get()
+                    .query(
+                        new SubmitRequirementPredicate("submit-requirement", "value") {
+                          @Override
+                          public boolean match(ChangeData object) {
+                            return false;
+                          }
+
+                          @Override
+                          public int getCost() {
+                            return 0;
+                          }
+                        }));
+
+    assertThat(thrown)
+        .hasMessageThat()
+        .isEqualTo("Operator 'submit-requirement:value' cannot be used in queries");
+  }
+
+  @Test
+  public void isPureRevert() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.IS_PURE_REVERT_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    Change.Id changeThatRevertsId = Change.id(changeThatReverts._number);
+    assertQueryByIds("is:pure-revert", changeThatRevertsId);
+
+    // Update the change that reverts such that it's not a pure revert
+    gApi.changes()
+        .id(changeThatReverts.id)
+        .edit()
+        .modifyFile("some-file.txt", RawInputUtil.create("newcontent".getBytes(UTF_8)));
+    gApi.changes().id(changeThatReverts.id).edit().publish();
+    assertQueryByIds("is:pure-revert");
+  }
+
+  @Test
+  public void selfFailsForAnonymousUser() throws Exception {
+    for (String query : ImmutableList.of("has:star", "is:starred")) {
+      assertQuery(query);
+      RequestContext oldContext = requestContext.setContext(anonymousUserProvider::get);
+
+      try {
+        requestContext.setContext(anonymousUserProvider::get);
+        assertThatAuthException(query)
+            .hasMessageThat()
+            .isEqualTo("Must be signed-in to use this operator");
+      } finally {
+        requestContext.setContext(oldContext);
+      }
+    }
+  }
+
+  @Test
+  public void selfSucceedsForInactiveAccount() throws Exception {
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    gApi.changes().id(change.getId().get()).addReviewer(user2.toString());
+
+    RequestContext adminContext = requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+
+    requestContext.setContext(adminContext);
+    gApi.accounts().id(user2.get()).setActive(false);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+  }
+
+  @Test
+  public void none() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    assertQuery(ChangeIndexPredicate.none());
+
+    for (Predicate<ChangeData> matchingOneChange :
+        ImmutableList.of(
+            // One index query, one post-filtering query.
+            queryBuilder.parse(change.getId().toString()),
+            queryBuilder.parse("ownerin:Administrators"))) {
+      assertQuery(matchingOneChange, change);
+      assertQuery(Predicate.or(ChangeIndexPredicate.none(), matchingOneChange), change);
+      assertQuery(Predicate.and(ChangeIndexPredicate.none(), matchingOneChange));
+      assertQuery(
+          Predicate.and(Predicate.not(ChangeIndexPredicate.none()), matchingOneChange), change);
+    }
+  }
+
+  @Test
+  @GerritConfig(name = "change.mergeabilityComputationBehavior", value = "NEVER")
+  public void mergeableFailsWhenNotIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+      throws Exception {
+    return newChange(repo, null, branch, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(
+      TestRepository<Repository> repo, Change.Status status) throws Exception {
+    return newChange(repo, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(String repoName, Change.Status status)
+      throws Exception {
+    return newChange(repoName, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithTopic(TestRepository<Repository> repo, String topic)
+      throws Exception {
+    return newChange(repo, null, null, null, topic, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWorkInProgress(TestRepository<Repository> repo)
+      throws Exception {
+    return newChange(repo, null, null, null, null, null, true, false);
+  }
+
+  protected ChangeInserter newChangePrivate(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, true);
+  }
+
+  protected ChangeInserter newCherryPickChange(
+      TestRepository<Repository> repo, String branch, PatchSet.Id cherryPickOf) throws Exception {
+    return newChange(repo, null, branch, null, null, cherryPickOf, false, true);
+  }
+
+  protected ChangeInserter newChange(String repoName) throws Exception {
+    return newChange(repoName, null, null, null, null, null, false, false);
+=======
+    getChangeApi(change).delete();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
     assertQuery(query);
   }
 
@@ -4356,9 +16189,261 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Project.NameKey project = Project.nameKey("repo");
     repo = createAndOpenProject(project);
     // Create two commits and revert second commit (initial commit can't be reverted)
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Change initial = insert(project, newChange(repo));
     gApi.changes().id(project.get(), initial.getChangeId()).current().review(ReviewInput.approve());
     gApi.changes().id(project.get(), initial.getChangeId()).current().submit();
+||||||| BASE
+                    .get()
+                    .query(
+                        new SubmitRequirementPredicate("submit-requirement", "value") {
+                          @Override
+                          public boolean match(ChangeData object) {
+                            return false;
+                          }
+
+                          @Override
+                          public int getCost() {
+                            return 0;
+                          }
+                        }));
+
+    assertThat(thrown)
+        .hasMessageThat()
+        .isEqualTo("Operator 'submit-requirement:value' cannot be used in queries");
+  }
+
+  @Test
+  public void isPureRevert() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.IS_PURE_REVERT_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    Change.Id changeThatRevertsId = Change.id(changeThatReverts._number);
+    assertQueryByIds("is:pure-revert", changeThatRevertsId);
+
+    // Update the change that reverts such that it's not a pure revert
+    gApi.changes()
+        .id(changeThatReverts.id)
+        .edit()
+        .modifyFile("some-file.txt", RawInputUtil.create("newcontent".getBytes(UTF_8)));
+    gApi.changes().id(changeThatReverts.id).edit().publish();
+    assertQueryByIds("is:pure-revert");
+  }
+
+  @Test
+  public void selfFailsForAnonymousUser() throws Exception {
+    for (String query : ImmutableList.of("has:star", "is:starred")) {
+      assertQuery(query);
+      RequestContext oldContext = requestContext.setContext(anonymousUserProvider::get);
+
+      try {
+        requestContext.setContext(anonymousUserProvider::get);
+        assertThatAuthException(query)
+            .hasMessageThat()
+            .isEqualTo("Must be signed-in to use this operator");
+      } finally {
+        requestContext.setContext(oldContext);
+      }
+    }
+  }
+
+  @Test
+  public void selfSucceedsForInactiveAccount() throws Exception {
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    gApi.changes().id(change.getId().get()).addReviewer(user2.toString());
+
+    RequestContext adminContext = requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+
+    requestContext.setContext(adminContext);
+    gApi.accounts().id(user2.get()).setActive(false);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+  }
+
+  @Test
+  public void none() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    assertQuery(ChangeIndexPredicate.none());
+
+    for (Predicate<ChangeData> matchingOneChange :
+        ImmutableList.of(
+            // One index query, one post-filtering query.
+            queryBuilder.parse(change.getId().toString()),
+            queryBuilder.parse("ownerin:Administrators"))) {
+      assertQuery(matchingOneChange, change);
+      assertQuery(Predicate.or(ChangeIndexPredicate.none(), matchingOneChange), change);
+      assertQuery(Predicate.and(ChangeIndexPredicate.none(), matchingOneChange));
+      assertQuery(
+          Predicate.and(Predicate.not(ChangeIndexPredicate.none()), matchingOneChange), change);
+    }
+  }
+
+  @Test
+  @GerritConfig(name = "change.mergeabilityComputationBehavior", value = "NEVER")
+  public void mergeableFailsWhenNotIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+      throws Exception {
+    return newChange(repo, null, branch, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(
+      TestRepository<Repository> repo, Change.Status status) throws Exception {
+    return newChange(repo, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(String repoName, Change.Status status)
+      throws Exception {
+    return newChange(repoName, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithTopic(TestRepository<Repository> repo, String topic)
+      throws Exception {
+    return newChange(repo, null, null, null, topic, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWorkInProgress(TestRepository<Repository> repo)
+      throws Exception {
+    return newChange(repo, null, null, null, null, null, true, false);
+  }
+
+  protected ChangeInserter newChangePrivate(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, true);
+  }
+
+  protected ChangeInserter newCherryPickChange(
+      TestRepository<Repository> repo, String branch, PatchSet.Id cherryPickOf) throws Exception {
+    return newChange(repo, null, branch, null, null, cherryPickOf, false, true);
+  }
+
+  protected ChangeInserter newChange(String repoName) throws Exception {
+    return newChange(repoName, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      String repoName,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      return newChange(
+          repo, commit, branch, status, topic, cherryPickOf, workInProgress, isPrivate);
+    }
+  }
+
+  protected ChangeInserter newChange(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      TestRepository<Repository> repo,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    if (commit == null) {
+      commit = repo.parseBody(repo.commit().message("initial message").create());
+    }
+
+    branch = MoreObjects.firstNonNull(branch, "refs/heads/master");
+    if (!branch.startsWith("refs/heads/")) {
+      branch = "refs/heads/" + branch;
+    }
+
+    Change.Id id = Change.id(seq.nextChangeId());
+    return changeFactory
+        .create(id, commit, branch)
+        .setValidate(false)
+=======
+    Change initial = insert("repo", newChange(repo));
+    getChangeApi(initial).current().review(ReviewInput.approve());
+    getChangeApi(initial).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     ChangeInfo changeToRevert =
         gApi.changes().create(new ChangeInput(project.get(), "master", "commit to revert")).get();
@@ -4402,10 +16487,265 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Account.Id user2 =
         accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
 
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     Project.NameKey project = Project.nameKey("repo");
     repo = createAndOpenProject(project);
     Change change = insert(project, newChange(repo));
     gApi.changes().id(project.get(), change.getId().get()).addReviewer(user2.toString());
+||||||| BASE
+  }
+
+  @Test
+  public void selfFailsForAnonymousUser() throws Exception {
+    for (String query : ImmutableList.of("has:star", "is:starred")) {
+      assertQuery(query);
+      RequestContext oldContext = requestContext.setContext(anonymousUserProvider::get);
+
+      try {
+        requestContext.setContext(anonymousUserProvider::get);
+        assertThatAuthException(query)
+            .hasMessageThat()
+            .isEqualTo("Must be signed-in to use this operator");
+      } finally {
+        requestContext.setContext(oldContext);
+      }
+    }
+  }
+
+  @Test
+  public void selfSucceedsForInactiveAccount() throws Exception {
+    Account.Id user2 =
+        accountManager.authenticate(authRequestFactory.createForUser("anotheruser")).getAccountId();
+
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    gApi.changes().id(change.getId().get()).addReviewer(user2.toString());
+
+    RequestContext adminContext = requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+
+    requestContext.setContext(adminContext);
+    gApi.accounts().id(user2.get()).setActive(false);
+
+    requestContext.setContext(newRequestContext(user2));
+    assertQuery("reviewer:self", change);
+  }
+
+  @Test
+  public void none() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+
+    assertQuery(ChangeIndexPredicate.none());
+
+    for (Predicate<ChangeData> matchingOneChange :
+        ImmutableList.of(
+            // One index query, one post-filtering query.
+            queryBuilder.parse(change.getId().toString()),
+            queryBuilder.parse("ownerin:Administrators"))) {
+      assertQuery(matchingOneChange, change);
+      assertQuery(Predicate.or(ChangeIndexPredicate.none(), matchingOneChange), change);
+      assertQuery(Predicate.and(ChangeIndexPredicate.none(), matchingOneChange));
+      assertQuery(
+          Predicate.and(Predicate.not(ChangeIndexPredicate.none()), matchingOneChange), change);
+    }
+  }
+
+  @Test
+  @GerritConfig(name = "change.mergeabilityComputationBehavior", value = "NEVER")
+  public void mergeableFailsWhenNotIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+      throws Exception {
+    return newChange(repo, null, branch, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(
+      TestRepository<Repository> repo, Change.Status status) throws Exception {
+    return newChange(repo, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(String repoName, Change.Status status)
+      throws Exception {
+    return newChange(repoName, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithTopic(TestRepository<Repository> repo, String topic)
+      throws Exception {
+    return newChange(repo, null, null, null, topic, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWorkInProgress(TestRepository<Repository> repo)
+      throws Exception {
+    return newChange(repo, null, null, null, null, null, true, false);
+  }
+
+  protected ChangeInserter newChangePrivate(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, true);
+  }
+
+  protected ChangeInserter newCherryPickChange(
+      TestRepository<Repository> repo, String branch, PatchSet.Id cherryPickOf) throws Exception {
+    return newChange(repo, null, branch, null, null, cherryPickOf, false, true);
+  }
+
+  protected ChangeInserter newChange(String repoName) throws Exception {
+    return newChange(repoName, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      String repoName,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      return newChange(
+          repo, commit, branch, status, topic, cherryPickOf, workInProgress, isPrivate);
+    }
+  }
+
+  protected ChangeInserter newChange(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      TestRepository<Repository> repo,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    if (commit == null) {
+      commit = repo.parseBody(repo.commit().message("initial message").create());
+    }
+
+    branch = MoreObjects.firstNonNull(branch, "refs/heads/master");
+    if (!branch.startsWith("refs/heads/")) {
+      branch = "refs/heads/" + branch;
+    }
+
+    Change.Id id = Change.id(seq.nextChangeId());
+    return changeFactory
+        .create(id, commit, branch)
+        .setValidate(false)
+        .setStatus(status)
+        .setTopic(topic)
+        .setWorkInProgress(workInProgress)
+        .setPrivate(isPrivate)
+        .setCherryPickOf(cherryPickOf);
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins, @Nullable Account.Id owner)
+      throws Exception {
+    return insert(repoName, ins, owner, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins) throws Exception {
+    return insert(repoName, ins, null, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(
+      String repoName, ChangeInserter ins, @Nullable Account.Id owner, Instant createdOn)
+      throws Exception {
+    Project.NameKey project = Project.nameKey(repoName);
+    Account.Id ownerId = owner != null ? owner : userId;
+    IdentifiedUser user = userFactory.create(ownerId);
+    return testRefAction(
+        () -> {
+          try (BatchUpdate bu = updateFactory.create(project, user, createdOn)) {
+            bu.insertChange(ins);
+            bu.execute();
+            return ins.getChange();
+          }
+        });
+  }
+
+  protected Change newPatchSet(
+      String repoName, Change c, CurrentUser user, Optional<String> message) throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      // Add a new file so the patch set is not a trivial rebase, to avoid default
+      // Code-Review label copying.
+      int n = c.currentPatchSetId().get() + 1;
+      RevCommit commit =
+          repo.parseBody(
+              repo.commit()
+                  .message(message.orElse("updated message"))
+                  .add("file" + n, "contents " + n)
+=======
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    getChangeApi(change).addReviewer(user2.toString());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     RequestContext adminContext = requestContext.setContext(newRequestContext(user2));
     assertQuery("reviewer:self", change);
@@ -4464,13 +16804,523 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     Change change1 = insert(project, newChange(repo));
     CustomKeyedValuesInput in = new CustomKeyedValuesInput();
     in.add = ImmutableMap.of("workspace", "my-ws");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change1.getChangeId()).setCustomKeyedValues(in);
+||||||| BASE
+
+  @Test
+  @GerritConfig(name = "change.mergeabilityComputationBehavior", value = "NEVER")
+  public void mergeableFailsWhenNotIndexed() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.MERGE_SPEC)).isTrue();
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+      throws Exception {
+    return newChange(repo, null, branch, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(
+      TestRepository<Repository> repo, Change.Status status) throws Exception {
+    return newChange(repo, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(String repoName, Change.Status status)
+      throws Exception {
+    return newChange(repoName, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithTopic(TestRepository<Repository> repo, String topic)
+      throws Exception {
+    return newChange(repo, null, null, null, topic, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWorkInProgress(TestRepository<Repository> repo)
+      throws Exception {
+    return newChange(repo, null, null, null, null, null, true, false);
+  }
+
+  protected ChangeInserter newChangePrivate(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, true);
+  }
+
+  protected ChangeInserter newCherryPickChange(
+      TestRepository<Repository> repo, String branch, PatchSet.Id cherryPickOf) throws Exception {
+    return newChange(repo, null, branch, null, null, cherryPickOf, false, true);
+  }
+
+  protected ChangeInserter newChange(String repoName) throws Exception {
+    return newChange(repoName, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      String repoName,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      return newChange(
+          repo, commit, branch, status, topic, cherryPickOf, workInProgress, isPrivate);
+    }
+  }
+
+  protected ChangeInserter newChange(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      TestRepository<Repository> repo,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    if (commit == null) {
+      commit = repo.parseBody(repo.commit().message("initial message").create());
+    }
+
+    branch = MoreObjects.firstNonNull(branch, "refs/heads/master");
+    if (!branch.startsWith("refs/heads/")) {
+      branch = "refs/heads/" + branch;
+    }
+
+    Change.Id id = Change.id(seq.nextChangeId());
+    return changeFactory
+        .create(id, commit, branch)
+        .setValidate(false)
+        .setStatus(status)
+        .setTopic(topic)
+        .setWorkInProgress(workInProgress)
+        .setPrivate(isPrivate)
+        .setCherryPickOf(cherryPickOf);
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins, @Nullable Account.Id owner)
+      throws Exception {
+    return insert(repoName, ins, owner, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins) throws Exception {
+    return insert(repoName, ins, null, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(
+      String repoName, ChangeInserter ins, @Nullable Account.Id owner, Instant createdOn)
+      throws Exception {
+    Project.NameKey project = Project.nameKey(repoName);
+    Account.Id ownerId = owner != null ? owner : userId;
+    IdentifiedUser user = userFactory.create(ownerId);
+    return testRefAction(
+        () -> {
+          try (BatchUpdate bu = updateFactory.create(project, user, createdOn)) {
+            bu.insertChange(ins);
+            bu.execute();
+            return ins.getChange();
+          }
+        });
+  }
+
+  protected Change newPatchSet(
+      String repoName, Change c, CurrentUser user, Optional<String> message) throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      // Add a new file so the patch set is not a trivial rebase, to avoid default
+      // Code-Review label copying.
+      int n = c.currentPatchSetId().get() + 1;
+      RevCommit commit =
+          repo.parseBody(
+              repo.commit()
+                  .message(message.orElse("updated message"))
+                  .add("file" + n, "contents " + n)
+                  .create());
+
+      PatchSetInserter inserter =
+          patchSetFactory
+              .create(changeNotesFactory.createChecked(c), PatchSet.id(c.getId(), n), commit)
+              .setFireRevisionCreated(false)
+              .setValidate(false);
+      testRefAction(
+          () -> {
+            try (BatchUpdate bu = updateFactory.create(c.getProject(), user, TimeUtil.now());
+                ObjectInserter oi = repo.getRepository().newObjectInserter();
+                ObjectReader reader = oi.newReader();
+                RevWalk rw = new RevWalk(reader)) {
+              bu.setRepository(repo.getRepository(), rw, oi);
+              bu.setNotify(NotifyResolver.Result.none());
+              bu.addOp(c.getId(), inserter);
+              bu.execute();
+            }
+          });
+
+      return inserter.getChange();
+    }
+  }
+
+  protected ThrowableSubject assertThatQueryException(Object query) throws Exception {
+    return assertThatQueryException(newQuery(query));
+  }
+
+  protected ThrowableSubject assertThatQueryException(QueryRequest query) throws Exception {
+    try {
+      query.get();
+      throw new AssertionError("expected BadRequestException for query: " + query);
+    } catch (BadRequestException e) {
+      return assertThat(e);
+    }
+  }
+
+  protected ThrowableSubject assertThatAuthException(Object query) throws Exception {
+    try {
+      newQuery(query).get();
+      throw new AssertionError("expected AuthException for query: " + query);
+    } catch (AuthException e) {
+      return assertThat(e);
+    }
+  }
+
+  @CanIgnoreReturnValue
+  protected TestRepository<Repository> createAndOpenProject(String name) throws Exception {
+    createProject(name);
+    return new TestRepository<>(repoManager.openRepository(Project.nameKey(name)));
+  }
+
+  protected TestRepository<Repository> createAndOpenProject(String name, String parent)
+      throws Exception {
+    createProject(name, parent);
+    return new TestRepository<>(repoManager.openRepository(Project.nameKey(name)));
+  }
+
+  protected void createProject(String name) throws Exception {
+=======
+    getChangeApi(change1).setCustomKeyedValues(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     Change change2 = insert(project, newChange(repo));
 
     in = new CustomKeyedValuesInput();
     in.add = ImmutableMap.of("workspace", "123");
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), change2.getChangeId()).setCustomKeyedValues(in);
+||||||| BASE
+    RevCommit commit1 = repo.parseBody(repo.commit().add("file1", "contents1").create());
+    insert("repo", newChangeForCommit(repo, commit1));
+
+    Throwable thrown = assertThrows(Throwable.class, () -> assertQuery("status:open is:mergeable"));
+    assertThat(thrown.getCause()).isInstanceOf(QueryParseException.class);
+    assertThat(thrown)
+        .hasMessageThat()
+        .contains("'is:mergeable' operator is not supported on this gerrit host");
+  }
+
+  @Test
+  public void customKeyedValue() throws Exception {
+    assume().that(getSchema().hasField(ChangeField.CUSTOM_KEYED_VALUES_SPEC)).isTrue();
+
+    repo = createAndOpenProject("repo");
+    Change change1 = insert("repo", newChange(repo));
+    CustomKeyedValuesInput in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "my-ws");
+    gApi.changes().id(change1.getChangeId()).setCustomKeyedValues(in);
+
+    Change change2 = insert("repo", newChange(repo));
+
+    in = new CustomKeyedValuesInput();
+    in.add = ImmutableMap.of("workspace", "123");
+    gApi.changes().id(change2.getChangeId()).setCustomKeyedValues(in);
+
+    // Insert a change without a KV pair
+    insert("repo", newChange(repo));
+
+    assertThat(customKeyedValues("workspace="))
+        .containsExactly(change1.getChangeId(), change2.getChangeId());
+    assertThat(customKeyedValues("workspace=my")).containsExactly(change1.getChangeId());
+    assertThat(customKeyedValues("workspace=123")).containsExactly(change2.getChangeId());
+    assertThat(customKeyedValues("workspace=foo-bar")).isEmpty();
+  }
+
+  protected List<Integer> customKeyedValues(String query) {
+    return queryProvider.get().byCustomKeyedValue(query).stream()
+        .map(cd -> cd.getId().get())
+        .collect(toList());
+  }
+
+  protected ChangeInserter newChangeForCommit(TestRepository<Repository> repo, RevCommit commit)
+      throws Exception {
+    return newChange(repo, commit, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithFiles(TestRepository<Repository> repo, String... paths)
+      throws Exception {
+    TestRepository<?>.CommitBuilder b = repo.commit().message("Change with files");
+    for (String path : paths) {
+      b.add(path, "contents of " + path);
+    }
+    return newChangeForCommit(repo, repo.parseBody(b.create()));
+  }
+
+  protected ChangeInserter newChangeForBranch(TestRepository<Repository> repo, String branch)
+      throws Exception {
+    return newChange(repo, null, branch, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(
+      TestRepository<Repository> repo, Change.Status status) throws Exception {
+    return newChange(repo, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithStatus(String repoName, Change.Status status)
+      throws Exception {
+    return newChange(repoName, null, null, status, null, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWithTopic(TestRepository<Repository> repo, String topic)
+      throws Exception {
+    return newChange(repo, null, null, null, topic, null, false, false);
+  }
+
+  protected ChangeInserter newChangeWorkInProgress(TestRepository<Repository> repo)
+      throws Exception {
+    return newChange(repo, null, null, null, null, null, true, false);
+  }
+
+  protected ChangeInserter newChangePrivate(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, true);
+  }
+
+  protected ChangeInserter newCherryPickChange(
+      TestRepository<Repository> repo, String branch, PatchSet.Id cherryPickOf) throws Exception {
+    return newChange(repo, null, branch, null, null, cherryPickOf, false, true);
+  }
+
+  protected ChangeInserter newChange(String repoName) throws Exception {
+    return newChange(repoName, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      String repoName,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      return newChange(
+          repo, commit, branch, status, topic, cherryPickOf, workInProgress, isPrivate);
+    }
+  }
+
+  protected ChangeInserter newChange(TestRepository<Repository> repo) throws Exception {
+    return newChange(repo, null, null, null, null, null, false, false);
+  }
+
+  protected ChangeInserter newChange(
+      TestRepository<Repository> repo,
+      @Nullable RevCommit commit,
+      @Nullable String branch,
+      @Nullable Change.Status status,
+      @Nullable String topic,
+      @Nullable PatchSet.Id cherryPickOf,
+      boolean workInProgress,
+      boolean isPrivate)
+      throws Exception {
+    if (commit == null) {
+      commit = repo.parseBody(repo.commit().message("initial message").create());
+    }
+
+    branch = MoreObjects.firstNonNull(branch, "refs/heads/master");
+    if (!branch.startsWith("refs/heads/")) {
+      branch = "refs/heads/" + branch;
+    }
+
+    Change.Id id = Change.id(seq.nextChangeId());
+    return changeFactory
+        .create(id, commit, branch)
+        .setValidate(false)
+        .setStatus(status)
+        .setTopic(topic)
+        .setWorkInProgress(workInProgress)
+        .setPrivate(isPrivate)
+        .setCherryPickOf(cherryPickOf);
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins, @Nullable Account.Id owner)
+      throws Exception {
+    return insert(repoName, ins, owner, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(String repoName, ChangeInserter ins) throws Exception {
+    return insert(repoName, ins, null, TimeUtil.now());
+  }
+
+  @CanIgnoreReturnValue
+  protected Change insert(
+      String repoName, ChangeInserter ins, @Nullable Account.Id owner, Instant createdOn)
+      throws Exception {
+    Project.NameKey project = Project.nameKey(repoName);
+    Account.Id ownerId = owner != null ? owner : userId;
+    IdentifiedUser user = userFactory.create(ownerId);
+    return testRefAction(
+        () -> {
+          try (BatchUpdate bu = updateFactory.create(project, user, createdOn)) {
+            bu.insertChange(ins);
+            bu.execute();
+            return ins.getChange();
+          }
+        });
+  }
+
+  protected Change newPatchSet(
+      String repoName, Change c, CurrentUser user, Optional<String> message) throws Exception {
+    try (TestRepository<Repository> repo =
+        new TestRepository<>(repoManager.openRepository(Project.nameKey(repoName)))) {
+      // Add a new file so the patch set is not a trivial rebase, to avoid default
+      // Code-Review label copying.
+      int n = c.currentPatchSetId().get() + 1;
+      RevCommit commit =
+          repo.parseBody(
+              repo.commit()
+                  .message(message.orElse("updated message"))
+                  .add("file" + n, "contents " + n)
+                  .create());
+
+      PatchSetInserter inserter =
+          patchSetFactory
+              .create(changeNotesFactory.createChecked(c), PatchSet.id(c.getId(), n), commit)
+              .setFireRevisionCreated(false)
+              .setValidate(false);
+      testRefAction(
+          () -> {
+            try (BatchUpdate bu = updateFactory.create(c.getProject(), user, TimeUtil.now());
+                ObjectInserter oi = repo.getRepository().newObjectInserter();
+                ObjectReader reader = oi.newReader();
+                RevWalk rw = new RevWalk(reader)) {
+              bu.setRepository(repo.getRepository(), rw, oi);
+              bu.setNotify(NotifyResolver.Result.none());
+              bu.addOp(c.getId(), inserter);
+              bu.execute();
+            }
+          });
+
+      return inserter.getChange();
+    }
+  }
+
+  protected ThrowableSubject assertThatQueryException(Object query) throws Exception {
+    return assertThatQueryException(newQuery(query));
+  }
+
+  protected ThrowableSubject assertThatQueryException(QueryRequest query) throws Exception {
+    try {
+      query.get();
+      throw new AssertionError("expected BadRequestException for query: " + query);
+    } catch (BadRequestException e) {
+      return assertThat(e);
+    }
+  }
+
+  protected ThrowableSubject assertThatAuthException(Object query) throws Exception {
+    try {
+      newQuery(query).get();
+      throw new AssertionError("expected AuthException for query: " + query);
+    } catch (AuthException e) {
+      return assertThat(e);
+    }
+  }
+
+  @CanIgnoreReturnValue
+  protected TestRepository<Repository> createAndOpenProject(String name) throws Exception {
+    createProject(name);
+    return new TestRepository<>(repoManager.openRepository(Project.nameKey(name)));
+  }
+
+  protected TestRepository<Repository> createAndOpenProject(String name, String parent)
+      throws Exception {
+    createProject(name, parent);
+    return new TestRepository<>(repoManager.openRepository(Project.nameKey(name)));
+  }
+
+  protected void createProject(String name) throws Exception {
+    gApi.projects().create(name).get();
+  }
+
+  protected void createProject(String name, String parent) throws Exception {
+    ProjectInput input = new ProjectInput();
+    input.name = name;
+=======
+    getChangeApi(change2).setCustomKeyedValues(in);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
 
     // Insert a change without a KV pair
     insert(project, newChange(repo));
@@ -4800,19 +17650,43 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
   // Get the last  updated time from ChangeApi
   protected long lastUpdatedMsApi(Change c) throws Exception {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     return gApi.changes().id(c.getProject().get(), c.getChangeId()).get().updated.getTime();
+||||||| BASE
+          .append(c.updated.getTime())
+          .append("}");
+      if (changeIds.hasNext()) {
+        b.append(", ");
+      }
+    }
+    b.append("]");
+    return b.toString();
+  }
+
+  protected static Iterable<Change.Id> ids(Change... changes) {
+    return Arrays.stream(changes).map(Change::getId).collect(toList());
+  }
+
+  protected static Iterable<Change.Id> ids(Iterable<ChangeInfo> changes) {
+    return Streams.stream(changes).map(c -> Change.id(c._number)).collect(toList());
+  }
+
+  protected static long lastUpdatedMs(Change c) {
+    return c.getLastUpdatedOn().toEpochMilli();
+  }
+
+  // Get the last  updated time from ChangeApi
+  protected long lastUpdatedMsApi(Change c) throws Exception {
+    return gApi.changes().id(c.getChangeId()).get().updated.getTime();
   }
 
   protected void approve(Change change) throws Exception {
-    gApi.changes()
-        .id(change.getProject().get(), change.getChangeId())
-        .current()
-        .review(ReviewInput.approve());
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
   }
 
   protected void submit(Change change) throws Exception {
     approve(change);
-    gApi.changes().id(change.getProject().get(), change.getChangeId()).current().submit();
+    gApi.changes().id(change.getChangeId()).current().submit();
   }
 
   /**
@@ -4857,15 +17731,633 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     return String.format(queryPattern, emptyGroupName, searchTerm);
   }
 
-  private void addComment(Project.NameKey project, int changeId, String message, Boolean unresolved)
-      throws Exception {
+  private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
     ReviewInput input = new ReviewInput();
     ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
     comment.line = 1;
     comment.message = message;
     comment.unresolved = unresolved;
     input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(changeId).current().review(input);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      Account.Id id =
+          accountManager.authenticate(authRequestFactory.createForUser(username)).getAccountId();
+      if (email != null) {
+        accountManager.link(id, authRequestFactory.createForEmail(email));
+      }
+      accountsUpdate
+          .get()
+          .update(
+              "Update Test Account",
+              id,
+              u -> {
+                u.setFullName(fullName).setPreferredEmail(email).setActive(active);
+              });
+      return id;
+    }
+  }
+
+  protected void assertFailingQuery(String query) throws Exception {
+    assertFailingQuery(query, null);
+  }
+
+  protected void assertFailingQuery(QueryRequest query, String expectedMessage) throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      assertThat(e.getMessage()).isEqualTo(expectedMessage);
+    }
+  }
+
+  protected void assertFailingQuery(String query, @Nullable String expectedMessage)
+      throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      if (expectedMessage != null) {
+        assertThat(e.getMessage()).isEqualTo(expectedMessage);
+      }
+    }
+  }
+
+  protected Schema<ChangeData> getSchema() {
+    return indexes.getSearchIndex().getSchema();
+  }
+
+  protected ChangeUpdate newUpdate(Change c) throws Exception {
+    ChangeUpdate update =
+        TestChanges.newUpdate(injector, c, Optional.empty(), /* shouldExist= */ true);
+    update.setPatchSetId(c.currentPatchSetId());
+    update.setAllowWriteToNewRef(true);
+    return update;
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+}
+=======
+    return getChangeApi(c).get().updated.getTime();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+  }
+
+  protected void approve(Change change) throws Exception {
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes()
+        .id(change.getProject().get(), change.getChangeId())
+        .current()
+        .review(ReviewInput.approve());
+||||||| BASE
+      }
+    }
+    b.append("]");
+    return b.toString();
+  }
+
+  protected static Iterable<Change.Id> ids(Change... changes) {
+    return Arrays.stream(changes).map(Change::getId).collect(toList());
+  }
+
+  protected static Iterable<Change.Id> ids(Iterable<ChangeInfo> changes) {
+    return Streams.stream(changes).map(c -> Change.id(c._number)).collect(toList());
+  }
+
+  protected static long lastUpdatedMs(Change c) {
+    return c.getLastUpdatedOn().toEpochMilli();
+  }
+
+  // Get the last  updated time from ChangeApi
+  protected long lastUpdatedMsApi(Change c) throws Exception {
+    return gApi.changes().id(c.getChangeId()).get().updated.getTime();
+  }
+
+  protected void approve(Change change) throws Exception {
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+  }
+
+  protected void submit(Change change) throws Exception {
+    approve(change);
+    gApi.changes().id(change.getChangeId()).current().submit();
+  }
+
+  /**
+   * Generates a search query to test {@link com.google.gerrit.index.query.Matchable} implementation
+   * of change {@link IndexPredicate}
+   *
+   * <p>This code path requires triggering the condition, when
+   *
+   * <ol>
+   *   <li>The query is rewritten into multiple {@link IndexedChangeQuery} by {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriter#rewrite}
+   *   <li>The changes are returned from the index by the first {@link IndexedChangeQuery}
+   *   <li>Then constrained in {@link com.google.gerrit.index.query.AndSource#match} by applying all
+   *       parsed predicates from the search query
+   *   <li>Thus, the rest of {@link IndexedChangeQuery} work as filters on the index results, see
+   *       {@link IndexedChangeQuery#match}
+   * </ol>
+   *
+   * The constructed query only constrains by the passed searchTerm for the operator that is being
+   * tested (for all changes without a reviewer):
+   *
+   * <ul>
+   *   <li>The search term 'status:new OR status:merged OR status:abandoned' is used to return all
+   *       changes from the search index.
+   *   <li>The non-indexed search term 'reviewerin:"Empty Group"' is only used to make the right AND
+   *       operand work as a filter (not a data source).
+   *   <li>See how it is rewritten in {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
+  private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
+    ReviewInput input = new ReviewInput();
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = message;
+    comment.unresolved = unresolved;
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(changeId).current().review(input);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      Account.Id id =
+          accountManager.authenticate(authRequestFactory.createForUser(username)).getAccountId();
+      if (email != null) {
+        accountManager.link(id, authRequestFactory.createForEmail(email));
+      }
+      accountsUpdate
+          .get()
+          .update(
+              "Update Test Account",
+              id,
+              u -> {
+                u.setFullName(fullName).setPreferredEmail(email).setActive(active);
+              });
+      return id;
+    }
+  }
+
+  protected void assertFailingQuery(String query) throws Exception {
+    assertFailingQuery(query, null);
+  }
+
+  protected void assertFailingQuery(QueryRequest query, String expectedMessage) throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      assertThat(e.getMessage()).isEqualTo(expectedMessage);
+    }
+  }
+
+  protected void assertFailingQuery(String query, @Nullable String expectedMessage)
+      throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      if (expectedMessage != null) {
+        assertThat(e.getMessage()).isEqualTo(expectedMessage);
+      }
+    }
+  }
+
+  protected Schema<ChangeData> getSchema() {
+    return indexes.getSearchIndex().getSchema();
+  }
+
+  protected ChangeUpdate newUpdate(Change c) throws Exception {
+    ChangeUpdate update =
+        TestChanges.newUpdate(injector, c, Optional.empty(), /* shouldExist= */ true);
+    update.setPatchSetId(c.currentPatchSetId());
+    update.setAllowWriteToNewRef(true);
+    return update;
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+}
+=======
+    getChangeApi(change).current().review(ReviewInput.approve());
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+  }
+
+  protected void submit(Change change) throws Exception {
+    approve(change);
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+    gApi.changes().id(change.getProject().get(), change.getChangeId()).current().submit();
+||||||| BASE
+
+  protected static Iterable<Change.Id> ids(Change... changes) {
+    return Arrays.stream(changes).map(Change::getId).collect(toList());
+  }
+
+  protected static Iterable<Change.Id> ids(Iterable<ChangeInfo> changes) {
+    return Streams.stream(changes).map(c -> Change.id(c._number)).collect(toList());
+  }
+
+  protected static long lastUpdatedMs(Change c) {
+    return c.getLastUpdatedOn().toEpochMilli();
+  }
+
+  // Get the last  updated time from ChangeApi
+  protected long lastUpdatedMsApi(Change c) throws Exception {
+    return gApi.changes().id(c.getChangeId()).get().updated.getTime();
+  }
+
+  protected void approve(Change change) throws Exception {
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+  }
+
+  protected void submit(Change change) throws Exception {
+    approve(change);
+    gApi.changes().id(change.getChangeId()).current().submit();
+  }
+
+  /**
+   * Generates a search query to test {@link com.google.gerrit.index.query.Matchable} implementation
+   * of change {@link IndexPredicate}
+   *
+   * <p>This code path requires triggering the condition, when
+   *
+   * <ol>
+   *   <li>The query is rewritten into multiple {@link IndexedChangeQuery} by {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriter#rewrite}
+   *   <li>The changes are returned from the index by the first {@link IndexedChangeQuery}
+   *   <li>Then constrained in {@link com.google.gerrit.index.query.AndSource#match} by applying all
+   *       parsed predicates from the search query
+   *   <li>Thus, the rest of {@link IndexedChangeQuery} work as filters on the index results, see
+   *       {@link IndexedChangeQuery#match}
+   * </ol>
+   *
+   * The constructed query only constrains by the passed searchTerm for the operator that is being
+   * tested (for all changes without a reviewer):
+   *
+   * <ul>
+   *   <li>The search term 'status:new OR status:merged OR status:abandoned' is used to return all
+   *       changes from the search index.
+   *   <li>The non-indexed search term 'reviewerin:"Empty Group"' is only used to make the right AND
+   *       operand work as a filter (not a data source).
+   *   <li>See how it is rewritten in {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
+  private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
+    ReviewInput input = new ReviewInput();
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = message;
+    comment.unresolved = unresolved;
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(changeId).current().review(input);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      Account.Id id =
+          accountManager.authenticate(authRequestFactory.createForUser(username)).getAccountId();
+      if (email != null) {
+        accountManager.link(id, authRequestFactory.createForEmail(email));
+      }
+      accountsUpdate
+          .get()
+          .update(
+              "Update Test Account",
+              id,
+              u -> {
+                u.setFullName(fullName).setPreferredEmail(email).setActive(active);
+              });
+      return id;
+    }
+  }
+
+  protected void assertFailingQuery(String query) throws Exception {
+    assertFailingQuery(query, null);
+  }
+
+  protected void assertFailingQuery(QueryRequest query, String expectedMessage) throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      assertThat(e.getMessage()).isEqualTo(expectedMessage);
+    }
+  }
+
+  protected void assertFailingQuery(String query, @Nullable String expectedMessage)
+      throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      if (expectedMessage != null) {
+        assertThat(e.getMessage()).isEqualTo(expectedMessage);
+      }
+    }
+  }
+
+  protected Schema<ChangeData> getSchema() {
+    return indexes.getSearchIndex().getSchema();
+  }
+
+  protected ChangeUpdate newUpdate(Change c) throws Exception {
+    ChangeUpdate update =
+        TestChanges.newUpdate(injector, c, Optional.empty(), /* shouldExist= */ true);
+    update.setPatchSetId(c.currentPatchSetId());
+    update.setAllowWriteToNewRef(true);
+    return update;
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+}
+=======
+    getChangeApi(change).current().submit();
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+  }
+
+  /**
+   * Generates a search query to test {@link com.google.gerrit.index.query.Matchable} implementation
+   * of change {@link IndexPredicate}
+   *
+   * <p>This code path requires triggering the condition, when
+   *
+   * <ol>
+   *   <li>The query is rewritten into multiple {@link IndexedChangeQuery} by {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriter#rewrite}
+   *   <li>The changes are returned from the index by the first {@link IndexedChangeQuery}
+   *   <li>Then constrained in {@link com.google.gerrit.index.query.AndSource#match} by applying all
+   *       parsed predicates from the search query
+   *   <li>Thus, the rest of {@link IndexedChangeQuery} work as filters on the index results, see
+   *       {@link IndexedChangeQuery#match}
+   * </ol>
+   *
+   * The constructed query only constrains by the passed searchTerm for the operator that is being
+   * tested (for all changes without a reviewer):
+   *
+   * <ul>
+   *   <li>The search term 'status:new OR status:merged OR status:abandoned' is used to return all
+   *       changes from the search index.
+   *   <li>The non-indexed search term 'reviewerin:"Empty Group"' is only used to make the right AND
+   *       operand work as a filter (not a data source).
+   *   <li>See how it is rewritten in {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
+  private void addComment(Project.NameKey project, int changeId, String message, Boolean unresolved)
+      throws Exception {
+||||||| BASE
+   *
+   * <ul>
+   *   <li>The search term 'status:new OR status:merged OR status:abandoned' is used to return all
+   *       changes from the search index.
+   *   <li>The non-indexed search term 'reviewerin:"Empty Group"' is only used to make the right AND
+   *       operand work as a filter (not a data source).
+   *   <li>See how it is rewritten in {@link
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
+  private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
+    ReviewInput input = new ReviewInput();
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = message;
+    comment.unresolved = unresolved;
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(changeId).current().review(input);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      Account.Id id =
+          accountManager.authenticate(authRequestFactory.createForUser(username)).getAccountId();
+      if (email != null) {
+        accountManager.link(id, authRequestFactory.createForEmail(email));
+      }
+      accountsUpdate
+          .get()
+          .update(
+              "Update Test Account",
+              id,
+              u -> {
+                u.setFullName(fullName).setPreferredEmail(email).setActive(active);
+              });
+      return id;
+    }
+  }
+
+  protected void assertFailingQuery(String query) throws Exception {
+    assertFailingQuery(query, null);
+  }
+
+  protected void assertFailingQuery(QueryRequest query, String expectedMessage) throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      assertThat(e.getMessage()).isEqualTo(expectedMessage);
+    }
+  }
+
+  protected void assertFailingQuery(String query, @Nullable String expectedMessage)
+      throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      if (expectedMessage != null) {
+        assertThat(e.getMessage()).isEqualTo(expectedMessage);
+      }
+    }
+  }
+
+  protected Schema<ChangeData> getSchema() {
+    return indexes.getSearchIndex().getSchema();
+  }
+
+  protected ChangeUpdate newUpdate(Change c) throws Exception {
+    ChangeUpdate update =
+        TestChanges.newUpdate(injector, c, Optional.empty(), /* shouldExist= */ true);
+    update.setPatchSetId(c.currentPatchSetId());
+    update.setAllowWriteToNewRef(true);
+    return update;
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+}
+=======
+  private void addComment(Change change, String message, Boolean unresolved) throws Exception {
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
+    ReviewInput input = new ReviewInput();
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = message;
+    comment.unresolved = unresolved;
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+<<<<<<< HEAD   (10322e Merge changes I8e7352c9,Ica48efc7,I7607fd3a,I0c0a97f3,Ic2226)
     gApi.changes().id(project.get(), changeId).current().review(input);
+||||||| BASE
+   *       com.google.gerrit.server.index.change.ChangeIndexRewriterTest#threeLevelTreeWithMultipleSources}
+   * </ul>
+   *
+   * @param searchTerm change search term that maps to {@link IndexPredicate} and needs to be tested
+   *     as filter
+   * @return a search query that allows to test the {@code searchTerm} as a filter.
+   */
+  protected String makeIndexedPredicateFilterQuery(String searchTerm) throws Exception {
+    String emptyGroupName = "Empty Group";
+    if (gApi.groups().query(emptyGroupName).get().isEmpty()) {
+      createGroup(emptyGroupName, "Administrators");
+    }
+    String queryPattern =
+        "(status:new OR status:merged OR status:abandoned) AND (reviewerin:\"%s\" OR %s)";
+    return String.format(queryPattern, emptyGroupName, searchTerm);
+  }
+
+  private void addComment(int changeId, String message, Boolean unresolved) throws Exception {
+    ReviewInput input = new ReviewInput();
+    ReviewInput.CommentInput comment = new ReviewInput.CommentInput();
+    comment.line = 1;
+    comment.message = message;
+    comment.unresolved = unresolved;
+    input.comments = ImmutableMap.of(Patch.COMMIT_MSG, ImmutableList.of(comment));
+    gApi.changes().id(changeId).current().review(input);
+  }
+
+  private Account.Id createAccount(String username, String fullName, String email, boolean active)
+      throws Exception {
+    try (ManualRequestContext ctx = oneOffRequestContext.open()) {
+      Account.Id id =
+          accountManager.authenticate(authRequestFactory.createForUser(username)).getAccountId();
+      if (email != null) {
+        accountManager.link(id, authRequestFactory.createForEmail(email));
+      }
+      accountsUpdate
+          .get()
+          .update(
+              "Update Test Account",
+              id,
+              u -> {
+                u.setFullName(fullName).setPreferredEmail(email).setActive(active);
+              });
+      return id;
+    }
+  }
+
+  protected void assertFailingQuery(String query) throws Exception {
+    assertFailingQuery(query, null);
+  }
+
+  protected void assertFailingQuery(QueryRequest query, String expectedMessage) throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      assertThat(e.getMessage()).isEqualTo(expectedMessage);
+    }
+  }
+
+  protected void assertFailingQuery(String query, @Nullable String expectedMessage)
+      throws Exception {
+    try {
+      assertQuery(query);
+      fail("expected BadRequestException for query '" + query + "'");
+    } catch (BadRequestException e) {
+      if (expectedMessage != null) {
+        assertThat(e.getMessage()).isEqualTo(expectedMessage);
+      }
+    }
+  }
+
+  protected Schema<ChangeData> getSchema() {
+    return indexes.getSearchIndex().getSchema();
+  }
+
+  protected ChangeUpdate newUpdate(Change c) throws Exception {
+    ChangeUpdate update =
+        TestChanges.newUpdate(injector, c, Optional.empty(), /* shouldExist= */ true);
+    update.setPatchSetId(c.currentPatchSetId());
+    update.setAllowWriteToNewRef(true);
+    return update;
+  }
+
+  PaginationType getCurrentPaginationType() {
+    return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+}
+=======
+    getChangeApi(change).current().review(input);
+>>>>>>> BRANCH (587b4e Merge branch 'stable-3.8' into stable-3.9)
   }
 
   @CanIgnoreReturnValue
@@ -4933,5 +18425,9 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
   PaginationType getCurrentPaginationType() {
     return config.getEnum("index", null, "paginationType", PaginationType.OFFSET);
+  }
+
+  private ChangeApi getChangeApi(Change change) throws RestApiException {
+    return gApi.changes().id(change.getProject().get(), change.getChangeId());
   }
 }
