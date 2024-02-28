@@ -76,7 +76,7 @@ java_package_configuration(
         "-Xep:BadImport:ERROR",
         "-Xep:BadInstanceof:ERROR",
         "-Xep:BadShiftAmount:ERROR",
-        "-Xep:BanJNDI:WARN",
+        "-Xep:BanJNDI:OFF",
         "-Xep:BanSerializableRead:ERROR",
         "-Xep:BigDecimalEquals:ERROR",
         "-Xep:BigDecimalLiteralDouble:ERROR",
@@ -127,7 +127,15 @@ java_package_configuration(
         "-Xep:DoNotCallSuggester:ERROR",
         "-Xep:DoNotClaimAnnotations:ERROR",
         "-Xep:DoNotMock:ERROR",
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
         "-Xep:DoNotMockAutoValue:ERROR",
+||||||| BASE
+        "-Xep:DoNotMockAutoValue:WARN",
+        "-Xep:DoubleBraceInitialization:ERROR",
+        "-Xep:DoubleCheckedLocking:ERROR",
+=======
+        "-Xep:DoNotMockAutoValue:OFF",
+>>>>>>> BRANCH (3c871a build: Disable ErrorProne warnings)
         "-Xep:DoubleBraceInitialization:ERROR",
         "-Xep:DoubleCheckedLocking:ERROR",
         "-Xep:DuplicateMapKeys:ERROR",
@@ -148,7 +156,15 @@ java_package_configuration(
         "-Xep:EqualsUsingHashCode:ERROR",
         "-Xep:EqualsWrongThing:ERROR",
         "-Xep:ErroneousThreadPoolConstructorChecker:ERROR",
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
         "-Xep:EscapedEntity:ERROR",
+||||||| BASE
+        "-Xep:EscapedEntity:WARN",
+        "-Xep:ExpectedExceptionChecker:ERROR",
+        "-Xep:ExtendingJUnitAssert:ERROR",
+=======
+        "-Xep:EscapedEntity:OFF",
+>>>>>>> BRANCH (3c871a build: Disable ErrorProne warnings)
         "-Xep:ExpectedExceptionChecker:ERROR",
         "-Xep:ExtendingJUnitAssert:ERROR",
         "-Xep:ExtendsAutoValue:ERROR",
@@ -159,7 +175,7 @@ java_package_configuration(
         "-Xep:FloatingPointLiteralPrecision:ERROR",
         "-Xep:FloggerArgumentToString:ERROR",
         "-Xep:FloggerFormatString:ERROR",
-        "-Xep:FloggerLogString:WARN",
+        "-Xep:FloggerLogString:OFF",
         "-Xep:FloggerLogVarargs:ERROR",
         "-Xep:FloggerSplitLogStatement:ERROR",
         "-Xep:FloggerStringConcatenation:ERROR",
@@ -189,7 +205,7 @@ java_package_configuration(
         "-Xep:ImmutableAnnotationChecker:ERROR",
         "-Xep:ImmutableEnumChecker:ERROR",
         "-Xep:ImmutableModification:ERROR",
-        "-Xep:ImpossibleNullComparison:WARN",
+        "-Xep:ImpossibleNullComparison:OFF",
         "-Xep:Incomparable:ERROR",
         "-Xep:IncompatibleArgumentType:ERROR",
         "-Xep:IncompatibleModifiers:ERROR",
@@ -245,7 +261,15 @@ java_package_configuration(
         "-Xep:JavaLocalTimeGetNano:ERROR",
         "-Xep:JavaPeriodGetDays:ERROR",
         "-Xep:JavaTimeDefaultTimeZone:ERROR",
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
         "-Xep:JavaUtilDate:ERROR",
+||||||| BASE
+        "-Xep:JavaUtilDate:WARN",
+        "-Xep:JdkObsolete:ERROR",
+        "-Xep:JodaConstructors:ERROR",
+=======
+        "-Xep:JavaUtilDate:OFF",
+>>>>>>> BRANCH (3c871a build: Disable ErrorProne warnings)
         "-Xep:JdkObsolete:ERROR",
         "-Xep:JodaConstructors:ERROR",
         "-Xep:JodaDateTimeConstants:ERROR",
@@ -258,7 +282,7 @@ java_package_configuration(
         "-Xep:JodaWithDurationAddedLong:ERROR",
         "-Xep:LiteByteStringUtf8:ERROR",
         "-Xep:LiteEnumValueOf:ERROR",
-        "-Xep:LiteProtoToString:WARN",
+        "-Xep:LiteProtoToString:OFF",
         "-Xep:LocalDateTemporalAmount:ERROR",
         "-Xep:LockNotBeforeTry:ERROR",
         "-Xep:LockOnBoxedPrimitive:ERROR",
@@ -290,7 +314,7 @@ java_package_configuration(
         "-Xep:MultipleParallelOrSequentialCalls:ERROR",
         "-Xep:MultipleUnaryOperatorsInMethodCall:ERROR",
         "-Xep:MustBeClosedChecker:ERROR",
-        "-Xep:MutableConstantField:WARN",
+        "-Xep:MutableConstantField:OFF",
         "-Xep:MutablePublicArray:ERROR",
         "-Xep:NCopiesOfChar:ERROR",
         "-Xep:NarrowingCompoundAssignment:ERROR",
@@ -343,7 +367,7 @@ java_package_configuration(
         "-Xep:ProtoTimestampGetSecondsGetNano:ERROR",
         "-Xep:ProtoTruthMixedDescriptors:ERROR",
         "-Xep:ProtocolBufferOrdinal:ERROR",
-        "-Xep:ProvidesMethodOutsideOfModule:WARN",
+        "-Xep:ProvidesMethodOutsideOfModule:OFF",
         "-Xep:RandomCast:ERROR",
         "-Xep:RandomModInteger:ERROR",
         "-Xep:ReachabilityFenceUsage:ERROR",
