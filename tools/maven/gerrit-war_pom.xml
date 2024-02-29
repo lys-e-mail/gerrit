@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
   <version>3.8.5-SNAPSHOT</version>
+||||||| BASE
+  <version>3.7.7-SNAPSHOT</version>
+=======
+  <version>3.7.8-SNAPSHOT</version>
+>>>>>>> BRANCH (7196d6 Remove drafts and stars from the ref_state_pattern index fie)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
