@@ -3447,7 +3447,172 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
     // Index is stale.
     assertQuery("reviewer:self", change);
     assertThat(indexer.reindexIfStale(project, change.getId()).get()).isTrue();
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
     assertQuery("reviewer:self");
+||||||| BASE
+    assertQuery("has:edit");
+  }
+
+  @Test
+  public void watched() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    ChangeInserter ins1 = newChangeWithStatus(repo, Change.Status.NEW);
+    Change change1 = insert(repo, ins1);
+
+    TestRepository<Repo> repo2 = createProject("repo2");
+
+    ChangeInserter ins2 = newChangeWithStatus(repo2, Change.Status.NEW);
+    insert(repo2, ins2);
+
+    assertQuery("is:watched");
+
+    List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
+    ProjectWatchInfo pwi = new ProjectWatchInfo();
+    pwi.project = "repo";
+    pwi.filter = null;
+    pwi.notifyAbandonedChanges = true;
+    pwi.notifyNewChanges = true;
+    pwi.notifyAllComments = true;
+    projectsToWatch.add(pwi);
+    gApi.accounts().self().setWatchedProjects(projectsToWatch);
+    resetUser();
+
+    assertQuery("is:watched", change1);
+  }
+
+  @Test
+  public void trackingid() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(repo.commit().message("Change one\n\nBug:QUERY123").create());
+    Change change1 = insert(repo, newChangeForCommit(repo, commit1));
+    RevCommit commit2 =
+        repo.parseBody(repo.commit().message("Change two\n\nIssue: Issue 16038\n").create());
+    Change change2 = insert(repo, newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().message("Change two\n\nGoogle-Bug-Id: b/16039\n").create());
+    Change change3 = insert(repo, newChangeForCommit(repo, commit3));
+
+    assertQuery("tr:QUERY123", change1);
+    assertQuery("bug:QUERY123", change1);
+    assertQuery("tr:16038", change2);
+    assertQuery("bug:16038", change2);
+    assertQuery("tr:16039", change3);
+    assertQuery("bug:16039", change3);
+    assertQuery("tr:QUERY-123");
+    assertQuery("bug:QUERY-123");
+    assertQuery("tr:QUERY12");
+    assertQuery("bug:QUERY12");
+    assertQuery("tr:QUERY789");
+    assertQuery("bug:QUERY789");
+  }
+
+  @Test
+  public void defaultFieldWithManyUsers() throws Exception {
+    for (int i = 0; i < ChangeQueryBuilder.MAX_ACCOUNTS_PER_DEFAULT_FIELD * 2; i++) {
+      createAccount("user" + i, "User " + i, "user" + i + "@example.com", true);
+    }
+    assertQuery("us");
+  }
+
+  @Test
+  public void revertOf() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert(repo, newChange(repo));
+    gApi.changes().id(initial.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(initial.getChangeId()).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    assertQueryByIds("revertof:" + changeToRevert._number, Change.id(changeThatReverts._number));
+  }
+
+  @Test
+  public void submissionId() throws Exception {
+    TestRepository<Repo> repo = createProject("repo");
+    Change change = insert(repo, newChange(repo));
+    // create irrelevant change
+    insert(repo, newChange(repo));
+    gApi.changes().id(change.getChangeId()).current().review(ReviewInput.approve());
+    gApi.changes().id(change.getChangeId()).current().submit();
+    String submissionId = gApi.changes().id(change.getChangeId()).get().submissionId;
+
+    assertQueryByIds("submissionid:" + submissionId, change.getId());
+  }
+
+  /** Change builder for helping in tests for dashboard sections. */
+  protected class DashboardChangeState {
+    private final Account.Id ownerId;
+    private final List<Account.Id> reviewedBy;
+    private final List<Account.Id> cced;
+    private final List<Account.Id> draftCommentBy;
+    private final List<Account.Id> deleteDraftCommentBy;
+    private boolean wip;
+    private boolean abandoned;
+    @Nullable private Account.Id mergedBy;
+    @Nullable private Account.Id assigneeId;
+
+    @Nullable Change.Id id;
+
+    DashboardChangeState(Account.Id ownerId) {
+      this.ownerId = ownerId;
+      reviewedBy = new ArrayList<>();
+      cced = new ArrayList<>();
+      draftCommentBy = new ArrayList<>();
+      deleteDraftCommentBy = new ArrayList<>();
+    }
+
+    DashboardChangeState assignTo(Account.Id assigneeId) {
+      this.assigneeId = assigneeId;
+      return this;
+    }
+
+    DashboardChangeState wip() {
+      wip = true;
+      return this;
+    }
+
+    DashboardChangeState abandon() {
+      abandoned = true;
+      return this;
+    }
+
+    DashboardChangeState mergeBy(Account.Id mergedBy) {
+      this.mergedBy = mergedBy;
+      return this;
+    }
+
+    DashboardChangeState addReviewer(Account.Id reviewerId) {
+      reviewedBy.add(reviewerId);
+      return this;
+    }
+
+    DashboardChangeState addCc(Account.Id ccId) {
+      cced.add(ccId);
+      return this;
+    }
+
+    DashboardChangeState draftCommentBy(Account.Id commenterId) {
+      draftCommentBy.add(commenterId);
+      return this;
+    }
+=======
+    assertQuery("has:edit");
+
+    // Index is not stale when a draft comment exists
+    DraftInput in = new DraftInput();
+    in.line = 1;
+    in.message = "nit: trailing whitespace";
+    in.path = Patch.COMMIT_MSG;
+    gApi.changes().id(project.get(), change.getId().get()).current().createDraft(in);
+    assertThat(indexer.reindexIfStale(project, change.getId()).get()).isFalse();
+>>>>>>> BRANCH (7196d6 Remove drafts and stars from the ref_state_pattern index fie)
   }
 
   @Test

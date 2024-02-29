@@ -64,8 +64,18 @@ import com.google.gerrit.proto.Entities;
 import com.google.gerrit.server.ReviewerByEmailSet;
 import com.google.gerrit.server.ReviewerSet;
 import com.google.gerrit.server.StarredChangesUtil;
+<<<<<<< HEAD   (cffab2 Set version to 3.8.5-SNAPSHOT)
 import com.google.gerrit.server.cache.proto.Cache;
 import com.google.gerrit.server.config.AllUsersName;
+||||||| BASE
+import com.google.gerrit.index.SchemaUtil;
+import com.google.gerrit.json.OutputFormat;
+import com.google.gerrit.proto.Protos;
+import com.google.gerrit.server.ReviewerByEmailSet;
+import com.google.gerrit.server.ReviewerSet;
+import com.google.gerrit.server.StarredChangesUtil;
+=======
+>>>>>>> BRANCH (7196d6 Remove drafts and stars from the ref_state_pattern index fie)
 import com.google.gerrit.server.index.change.StalenessChecker.RefStatePattern;
 import com.google.gerrit.server.notedb.ReviewerStateInternal;
 import com.google.gerrit.server.notedb.SubmitRequirementProtoConverter;
@@ -1697,12 +1707,6 @@ public class ChangeField {
                     RefStatePattern.create(
                             RefNames.REFS_USERS + "*/" + RefNames.EDIT_PREFIX + id + "/*")
                         .toByteArray(project));
-                result.add(
-                    RefStatePattern.create(RefNames.refsStarredChangesPrefix(id) + "*")
-                        .toByteArray(allUsers(cd)));
-                result.add(
-                    RefStatePattern.create(RefNames.refsDraftCommentsPrefix(id) + "*")
-                        .toByteArray(allUsers(cd)));
                 return result;
               },
               (cd, field) -> cd.setRefStatePatterns(field));
@@ -1745,10 +1749,6 @@ public class ChangeField {
 
   private static <T> SchemaFieldDefs.Getter<ChangeData, T> changeGetter(Function<Change, T> func) {
     return in -> in.change() != null ? func.apply(in.change()) : null;
-  }
-
-  private static AllUsersName allUsers(ChangeData cd) {
-    return cd.getAllUsersNameForIndexing();
   }
 
   private static String truncateStringValueToMaxTermLength(String str) {
