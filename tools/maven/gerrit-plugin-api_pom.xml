@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (d556fe Update git submodules)
   <version>3.9.2-SNAPSHOT</version>
+||||||| BASE
+  <version>3.8.4-SNAPSHOT</version>
+=======
+  <version>3.8.5-SNAPSHOT</version>
+>>>>>>> BRANCH (89244c Merge branch 'stable-3.7' into stable-3.8)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
