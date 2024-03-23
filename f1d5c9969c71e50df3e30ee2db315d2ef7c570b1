@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "229d5266_47580323",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "Can you point to the issue number here?",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c43d9f79_e2004e46",
+        "filename": "java/com/google/gerrit/lucene/LuceneChangeIndex.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "The comment at L540 says _\"Either change or the ID\"_ so I am assuming if cd is not null, then id is null. What\u0027s the point of passing it here?",
+      "range": {
+        "startLine": 549,
+        "startChar": 88,
+        "endLine": 549,
+        "endChar": 92
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "413d030c_e349d03c",
+        "filename": "java/com/google/gerrit/lucene/LuceneChangeIndex.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "We are sure that the document id exists: do we need to rely on an Optional at all?\nAlso, here we call a direct `get()` therefore we assume that the Optional is always there.\n\nWhy not just moving the L542 to L544 inside this else block instead?",
+      "range": {
+        "startLine": 553,
+        "startChar": 76,
+        "endLine": 553,
+        "endChar": 84
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa4f3338_df40bff8",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "Align with the other parameters and consider replacing `Optional` with `@Nullable`.",
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0f6f2f6_ae70be19",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "Replace `Optional\u003cChange.Id\u003e` with `@Nullable Change.Id` so that becomes consistent with the other parameters.",
+      "range": {
+        "startLine": 476,
+        "startChar": 16,
+        "endLine": 476,
+        "endChar": 35
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95e620b3_56c438a6",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-23T02:42:40Z",
+      "side": 1,
+      "message": "do we want to use the same pattern as the other methods?\n\n- getVirtualId() \u003d\u003e virtualId()\n- if (virtualId \u003d\u003d null) { }",
+      "range": {
+        "startLine": 649,
+        "startChar": 0,
+        "endLine": 650,
+        "endChar": 96
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
