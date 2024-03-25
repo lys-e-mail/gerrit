@@ -127,7 +127,10 @@ import {
 import {commentsModelToken} from '../../../models/comments/comments-model';
 import {resolve} from '../../../models/dependency';
 import {checksModelToken} from '../../../models/checks/checks-model';
-import {changeModelToken} from '../../../models/change/change-model';
+import {
+  changeModelToken,
+  updateRevisionsWithCommitShas,
+} from '../../../models/change/change-model';
 import {css, html, LitElement, nothing} from 'lit';
 import {a11yStyles} from '../../../styles/gr-a11y-styles';
 import {paperStyles} from '../../../styles/gr-paper-styles';
@@ -2067,7 +2070,9 @@ export class GrChangeView extends LitElement {
           fire(this, 'hide-alert', {});
         });
     }
-    this.change = newChange;
+    this.getChangeModel().updateStateChange(
+      updateRevisionsWithCommitShas(newChange)
+    );
   }
 
   // Private but used in tests.
