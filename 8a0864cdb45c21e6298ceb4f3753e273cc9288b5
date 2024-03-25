@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc42f479_19d34548",
+        "filename": "polygerrit-ui/app/elements/change/gr-change-view/gr-change-view.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 2074,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-03-25T14:25:19Z",
+      "side": 1,
+      "message": "Calling `updateRevisionsWithCommitShas()` should not be required, because of\n```\nconst newChange \u003d {...this.change};\n```\nin line 2039.",
+      "range": {
+        "startLine": 2074,
+        "startChar": 6,
+        "endLine": 2074,
+        "endChar": 35
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "d6890475_e9721dc9",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/elements/change/gr-change-view/gr-change-view.ts",
+              "range": {
+                "startLine": 132,
+                "startChar": 0,
+                "endLine": 133,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "polygerrit-ui/app/elements/change/gr-change-view/gr-change-view.ts",
+              "range": {
+                "startLine": 2073,
+                "startChar": 0,
+                "endLine": 2076,
+                "endChar": 0
+              },
+              "replacement": "    this.getChangeModel().updateStateChange(newChange);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "8a0864cdb45c21e6298ceb4f3753e273cc9288b5",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
