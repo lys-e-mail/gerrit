@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15d5b5ad_14ac5a37",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "229d5266_47580323",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 38
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c43d9f79_e2004e46",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-03-23T02:42:40Z",
       "side": 1,
       "message": "The comment at L540 says _\"Either change or the ID\"_ so I am assuming if cd is not null, then id is null. What\u0027s the point of passing it here?",
+      "range": {
+        "startLine": 549,
+        "startChar": 88,
+        "endLine": 549,
+        "endChar": 92
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e96c5d87_16721fc6",
+        "filename": "java/com/google/gerrit/lucene/LuceneChangeIndex.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "The opposite, although not guaranteed, it is sometimes `true` (this is the actual fix that for the _list changes_ screen that ensures that correct change state is present) too IOW _if_ doc id is present then pass it.",
+      "parentUuid": "c43d9f79_e2004e46",
       "range": {
         "startLine": 549,
         "startChar": 88,
@@ -70,6 +118,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22287ce1_afe4fe31",
+        "filename": "java/com/google/gerrit/lucene/LuceneChangeIndex.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "The idea was to not have the get line twice, but I have reworked it to not rely on `Optional` hence the change is gone.",
+      "parentUuid": "413d030c_e349d03c",
+      "range": {
+        "startLine": 553,
+        "startChar": 76,
+        "endLine": 553,
+        "endChar": 84
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa4f3338_df40bff8",
@@ -83,6 +155,24 @@
       "writtenOn": "2024-03-23T02:42:40Z",
       "side": 1,
       "message": "Align with the other parameters and consider replacing `Optional` with `@Nullable`.",
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30f8358a_dc810843",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa4f3338_df40bff8",
       "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -110,6 +200,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b4768fd_95cfd59b",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0f6f2f6_ae70be19",
+      "range": {
+        "startLine": 476,
+        "startChar": 16,
+        "endLine": 476,
+        "endChar": 35
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95e620b3_56c438a6",
@@ -123,6 +237,30 @@
       "writtenOn": "2024-03-23T02:42:40Z",
       "side": 1,
       "message": "do we want to use the same pattern as the other methods?\n\n- getVirtualId() \u003d\u003e virtualId()\n- if (virtualId \u003d\u003d null) { }",
+      "range": {
+        "startLine": 649,
+        "startChar": 0,
+        "endLine": 650,
+        "endChar": 96
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84bb5d66_914c8926",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-25T07:46:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95e620b3_56c438a6",
       "range": {
         "startLine": 649,
         "startChar": 0,
