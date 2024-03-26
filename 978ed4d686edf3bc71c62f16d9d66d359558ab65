@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b86d64fc_686b5a63",
+        "filename": "javatests/com/google/gerrit/acceptance/api/accounts/AccountIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-03-26T08:08:58Z",
+      "side": 0,
+      "message": "Can the isRefSequenceSupported() method be removed now? I think you removed the only callers in this change.",
+      "range": {
+        "startLine": 332,
+        "startChar": 61,
+        "endLine": 332,
+        "endChar": 92
+      },
+      "revId": "978ed4d686edf3bc71c62f16d9d66d359558ab65",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
