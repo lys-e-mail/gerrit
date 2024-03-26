@@ -95,6 +95,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e031a635_15e771dd",
+        "filename": "java/com/google/gerrit/lucene/LuceneChangeIndex.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-26T13:06:18Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "e96c5d87_16721fc6",
+      "range": {
+        "startLine": 549,
+        "startChar": 88,
+        "endLine": 549,
+        "endChar": 92
+      },
+      "revId": "f1d5c9969c71e50df3e30ee2db315d2ef7c570b1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "413d030c_e349d03c",
