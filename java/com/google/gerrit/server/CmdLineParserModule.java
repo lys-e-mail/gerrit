@@ -17,6 +17,7 @@ package com.google.gerrit.server;
 import com.google.gerrit.entities.Account;
 import com.google.gerrit.entities.AccountGroup;
 import com.google.gerrit.entities.Change;
+import com.google.gerrit.extensions.common.ListTagSortOption;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.extensions.config.FactoryModule;
 import com.google.gerrit.server.args4j.AccountGroupIdHandler;
@@ -28,6 +29,7 @@ import com.google.gerrit.server.args4j.ObjectIdHandler;
 import com.google.gerrit.server.args4j.PatchSetIdHandler;
 import com.google.gerrit.server.args4j.ProjectHandler;
 import com.google.gerrit.server.args4j.SocketAddressHandler;
+import com.google.gerrit.server.args4j.ListTagSortOptionHandler;
 import com.google.gerrit.server.project.ProjectState;
 import com.google.gerrit.util.cli.CmdLineParser;
 import com.google.gerrit.util.cli.OptionHandlerUtil;
@@ -54,6 +56,7 @@ public class CmdLineParserModule extends FactoryModule {
     registerOptionHandler(PatchSet.Id.class, PatchSetIdHandler.class);
     registerOptionHandler(ProjectState.class, ProjectHandler.class);
     registerOptionHandler(SocketAddress.class, SocketAddressHandler.class);
+    registerOptionHandler(ListTagSortOption.class, ListTagSortOptionHandler.class);
   }
 
   private <T> void registerOptionHandler(Class<T> type, Class<? extends OptionHandler<T>> impl) {
