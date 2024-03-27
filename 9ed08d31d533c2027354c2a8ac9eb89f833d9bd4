@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87486f11_b3a33238",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-03-27T22:54:19Z",
+      "side": 1,
+      "message": "Missing `Forward-Compatible: checked`",
+      "revId": "9ed08d31d533c2027354c2a8ac9eb89f833d9bd4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
