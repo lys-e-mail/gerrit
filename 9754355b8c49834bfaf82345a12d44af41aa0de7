@@ -8,11 +8,12 @@
       "updated": "2024-03-27T16:45:23Z"
     },
     "gerritforge:codestyle-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "RUNNING",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/17%252F416617%252F2/1/console",
+      "state": "FAILED",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-codestyle/106451/console",
       "started": "2024-03-27T16:45:12Z",
+      "finished": "2024-03-27T16:48:54Z",
       "created": "2024-03-27T16:45:12Z",
-      "updated": "2024-03-27T16:45:12Z"
+      "updated": "2024-03-27T16:48:55Z"
     },
     "gerritforge:notedb-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "RUNNING",
