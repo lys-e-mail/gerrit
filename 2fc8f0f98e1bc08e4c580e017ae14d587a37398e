@@ -328,6 +328,30 @@
       },
       "revId": "2fc8f0f98e1bc08e4c580e017ae14d587a37398e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18407331_2159c084",
+        "filename": "java/com/google/gerrit/server/change/DeleteChangeOp.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-03-27T07:00:15Z",
+      "side": 1,
+      "message": "I have created I27899f76f80 to address it.",
+      "parentUuid": "88aa446d_9438d82f",
+      "range": {
+        "startLine": 128,
+        "startChar": 4,
+        "endLine": 128,
+        "endChar": 66
+      },
+      "revId": "2fc8f0f98e1bc08e4c580e017ae14d587a37398e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
