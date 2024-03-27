@@ -178,22 +178,33 @@ public class StarredChangesUtil {
     this.serverIdent = serverIdent;
   }
 
-  public NavigableSet<String> getLabels(Account.Id accountId, Change.Id changeId) {
+  public NavigableSet<String> getLabels(Account.Id accountId, Change.Id virtualId) {
     try (Repository repo = repoManager.openRepository(allUsers)) {
-      return readLabels(repo, RefNames.refsStarredChanges(changeId, accountId)).labels();
+      return readLabels(repo, RefNames.refsStarredChanges(virtualId, accountId)).labels();
     } catch (IOException e) {
       throw new StorageException(
           String.format(
               "Reading stars from change %d for account %d failed",
+              virtualId.get(), accountId.get()),
+          e);
+    }
+  }
+
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
+  public void star(Account.Id accountId, Change.Id changeId, Operation op)
+||||||| BASE
               changeId.get(), accountId.get()),
           e);
     }
   }
 
-  public void star(Account.Id accountId, Change.Id changeId, Operation op)
+  public void star(Account.Id accountId, Project.NameKey project, Change.Id changeId, Operation op)
+=======
+  public void star(Account.Id accountId, Project.NameKey project, Change.Id virtualId, Operation op)
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
       throws IllegalLabelException {
     try (Repository repo = repoManager.openRepository(allUsers)) {
-      String refName = RefNames.refsStarredChanges(changeId, accountId);
+      String refName = RefNames.refsStarredChanges(virtualId, accountId);
       StarRef old = readLabels(repo, refName);
 
       NavigableSet<String> labels = new TreeSet<>(old.labels());
@@ -213,19 +224,19 @@ public class StarredChangesUtil {
       }
     } catch (IOException e) {
       throw new StorageException(
-          String.format("Star change %d for account %d failed", changeId.get(), accountId.get()),
+          String.format("Star change %d for account %d failed", virtualId.get(), accountId.get()),
           e);
     }
   }
 
   /**
-   * Returns a subset of change IDs among the input {@code changeIds} list that are starred by the
+   * Returns a subset of change IDs among the input {@code virtualIds} list that are starred by the
    * {@code caller} user.
    */
   public Set<Change.Id> areStarred(
-      Repository allUsersRepo, List<Change.Id> changeIds, Account.Id caller) {
+      Repository allUsersRepo, List<Change.Id> virtualIds, Account.Id caller) {
     List<String> starRefs =
-        changeIds.stream()
+        virtualIds.stream()
             .map(c -> RefNames.refsStarredChanges(c, caller))
             .collect(Collectors.toList());
     try {
@@ -236,7 +247,7 @@ public class StarredChangesUtil {
     } catch (IOException e) {
       logger.atWarning().withCause(e).log(
           "Failed getting starred changes for account %d within changes: %s",
-          caller.get(), Joiner.on(", ").join(changeIds));
+          caller.get(), Joiner.on(", ").join(virtualIds));
       return ImmutableSet.of();
     }
   }
@@ -247,18 +258,33 @@ public class StarredChangesUtil {
    * <p>Intended for use only when we're about to delete a change. For that reason, the change is
    * not reindexed.
    *
-   * @param changeId change ID.
+   * @param virtualId change ID.
    * @throws IOException if an error occurred.
    */
-  public void unstarAllForChangeDeletion(Change.Id changeId) throws IOException {
+  public void unstarAllForChangeDeletion(Change.Id virtualId) throws IOException {
+    try (Repository repo = repoManager.openRepository(allUsers);
+        RevWalk rw = new RevWalk(repo)) {
+      BatchRefUpdate batchUpdate = repo.getRefDatabase().newBatchUpdate();
+      batchUpdate.setAllowNonFastForwards(true);
+      batchUpdate.setRefLogIdent(serverIdent.get());
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
+      batchUpdate.setRefLogMessage("Unstar change " + changeId.get(), true);
+      for (Account.Id accountId : getStars(repo, changeId)) {
+        String refName = RefNames.refsStarredChanges(changeId, accountId);
+||||||| BASE
     try (Repository repo = repoManager.openRepository(allUsers);
         RevWalk rw = new RevWalk(repo)) {
       BatchRefUpdate batchUpdate = repo.getRefDatabase().newBatchUpdate();
       batchUpdate.setAllowNonFastForwards(true);
       batchUpdate.setRefLogIdent(serverIdent.get());
       batchUpdate.setRefLogMessage("Unstar change " + changeId.get(), true);
-      for (Account.Id accountId : getStars(repo, changeId)) {
+      for (Account.Id accountId : byChangeFromIndex(changeId).keySet()) {
         String refName = RefNames.refsStarredChanges(changeId, accountId);
+=======
+      batchUpdate.setRefLogMessage("Unstar change " + virtualId.get(), true);
+      for (Account.Id accountId : byChangeFromIndex(virtualId).keySet()) {
+        String refName = RefNames.refsStarredChanges(virtualId, accountId);
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
         Ref ref = repo.getRefDatabase().exactRef(refName);
         if (ref != null) {
           batchUpdate.addCommand(new ReceiveCommand(ref.getObjectId(), ObjectId.zeroId(), refName));
@@ -270,7 +296,7 @@ public class StarredChangesUtil {
           String message =
               String.format(
                   "Unstar change %d failed, ref %s could not be deleted: %s",
-                  changeId.get(), command.getRefName(), command.getResult());
+                  virtualId.get(), command.getRefName(), command.getResult());
           if (command.getResult() == ReceiveCommand.Result.LOCK_FAILURE) {
             throw new LockFailureException(message, batchUpdate);
           }
@@ -280,16 +306,39 @@ public class StarredChangesUtil {
     }
   }
 
+  public ImmutableMap<Account.Id, StarRef> byChange(Change.Id virtualId) {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      ImmutableMap.Builder<Account.Id, StarRef> builder = ImmutableMap.builder();
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
+      for (Account.Id accountId : getStars(repo, changeId)) {
+        builder.put(accountId, readLabels(repo, RefNames.refsStarredChanges(changeId, accountId)));
+||||||| BASE
+  }
+
   public ImmutableMap<Account.Id, StarRef> byChange(Change.Id changeId) {
     try (Repository repo = repoManager.openRepository(allUsers)) {
       ImmutableMap.Builder<Account.Id, StarRef> builder = ImmutableMap.builder();
-      for (Account.Id accountId : getStars(repo, changeId)) {
+      for (String refPart : getRefNames(repo, RefNames.refsStarredChangesPrefix(changeId))) {
+        Integer id = Ints.tryParse(refPart);
+        if (id == null) {
+          continue;
+        }
+        Account.Id accountId = Account.id(id);
         builder.put(accountId, readLabels(repo, RefNames.refsStarredChanges(changeId, accountId)));
+=======
+      for (String refPart : getRefNames(repo, RefNames.refsStarredChangesPrefix(virtualId))) {
+        Integer id = Ints.tryParse(refPart);
+        if (id == null) {
+          continue;
+        }
+        Account.Id accountId = Account.id(id);
+        builder.put(accountId, readLabels(repo, RefNames.refsStarredChanges(virtualId, accountId)));
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
       }
       return builder.build();
     } catch (IOException e) {
       throw new StorageException(
-          String.format("Get accounts that starred change %d failed", changeId.get()), e);
+          String.format("Get accounts that starred change %d failed", virtualId.get()), e);
     }
   }
 
@@ -322,10 +371,52 @@ public class StarredChangesUtil {
     }
   }
 
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
   private static Set<Account.Id> getStars(Repository allUsers, Change.Id changeId)
       throws IOException {
     String prefix = RefNames.refsStarredChangesPrefix(changeId);
     RefDatabase refDb = allUsers.getRefDatabase();
+||||||| BASE
+        }
+        builder.add(changeId);
+      }
+      return builder.build();
+    } catch (IOException e) {
+      throw new StorageException(
+          String.format("Get starred changes for account %d failed", accountId.get()), e);
+    }
+  }
+
+  public ImmutableListMultimap<Account.Id, String> byChangeFromIndex(Change.Id changeId) {
+    List<ChangeData> changeData =
+        queryProvider
+            .get()
+            .setRequestedFields(ChangeField.ID, ChangeField.STAR)
+            .byLegacyChangeId(changeId);
+    if (changeData.size() != 1) {
+      throw new NoSuchChangeException(changeId);
+    }
+    return changeData.get(0).stars();
+  }
+
+  private static Set<String> getRefNames(Repository repo, String prefix) throws IOException {
+    RefDatabase refDb = repo.getRefDatabase();
+=======
+  public ImmutableListMultimap<Account.Id, String> byChangeFromIndex(Change.Id virtualId) {
+    List<ChangeData> changeData =
+        queryProvider
+            .get()
+            .setRequestedFields(ChangeField.ID, ChangeField.STAR)
+            .byLegacyChangeId(virtualId);
+    if (changeData.size() != 1) {
+      throw new NoSuchChangeException(virtualId);
+    }
+    return changeData.get(0).stars();
+  }
+
+  private static Set<String> getRefNames(Repository repo, String prefix) throws IOException {
+    RefDatabase refDb = repo.getRefDatabase();
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
     return refDb.getRefsByPrefix(prefix).stream()
         .map(r -> r.getName().substring(prefix.length()))
         .map(refPart -> Ints.tryParse(refPart))
@@ -334,14 +425,14 @@ public class StarredChangesUtil {
         .collect(toSet());
   }
 
-  public ObjectId getObjectId(Account.Id accountId, Change.Id changeId) {
+  public ObjectId getObjectId(Account.Id accountId, Change.Id virtualId) {
     try (Repository repo = repoManager.openRepository(allUsers)) {
-      Ref ref = repo.exactRef(RefNames.refsStarredChanges(changeId, accountId));
+      Ref ref = repo.exactRef(RefNames.refsStarredChanges(virtualId, accountId));
       return ref != null ? ref.getObjectId() : ObjectId.zeroId();
     } catch (IOException e) {
       logger.atSevere().withCause(e).log(
           "Getting star object ID for account %d on change %d failed",
-          accountId.get(), changeId.get());
+          accountId.get(), virtualId.get());
       return ObjectId.zeroId();
     }
   }

@@ -73,7 +73,7 @@ public class StarredChanges
     IdentifiedUser user = parent.getUser();
     ChangeResource change = changes.parse(TopLevelResource.INSTANCE, id);
     if (starredChangesUtil
-        .getLabels(user.getAccountId(), change.getId())
+        .getLabels(user.getAccountId(), change.getVirtualId())
         .contains(StarredChangesUtil.DEFAULT_LABEL)) {
       return new AccountResource.StarredChange(user, change);
     }
@@ -131,7 +131,19 @@ public class StarredChanges
 
       try {
         starredChangesUtil.star(
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
             self.get().getAccountId(), change.getId(), StarredChangesUtil.Operation.ADD);
+||||||| BASE
+            self.get().getAccountId(),
+            change.getProject(),
+            change.getId(),
+            StarredChangesUtil.Operation.ADD);
+=======
+            self.get().getAccountId(),
+            change.getProject(),
+            change.getVirtualId(),
+            StarredChangesUtil.Operation.ADD);
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
       } catch (MutuallyExclusiveLabelsException e) {
         throw new ResourceConflictException(e.getMessage());
       } catch (IllegalLabelException e) {
@@ -179,7 +191,22 @@ public class StarredChanges
         throw new AuthException("not allowed remove starred change");
       }
       starredChangesUtil.star(
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
           self.get().getAccountId(), rsrc.getChange().getId(), StarredChangesUtil.Operation.REMOVE);
+||||||| BASE
+        throw new AuthException("not allowed remove starred change");
+      }
+      starredChangesUtil.star(
+          self.get().getAccountId(),
+          rsrc.getChange().getProject(),
+          rsrc.getChange().getId(),
+          StarredChangesUtil.Operation.REMOVE);
+=======
+          self.get().getAccountId(),
+          rsrc.getChange().getProject(),
+          rsrc.getVirtualId(),
+          StarredChangesUtil.Operation.REMOVE);
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
       return Response.none();
     }
   }
