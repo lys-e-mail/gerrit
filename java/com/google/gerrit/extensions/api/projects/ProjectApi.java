@@ -15,6 +15,7 @@
 package com.google.gerrit.extensions.api.projects;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.gerrit.extensions.common.ListTagSortOption;
 import com.google.gerrit.extensions.api.access.ProjectAccessInfo;
 import com.google.gerrit.extensions.api.access.ProjectAccessInput;
 import com.google.gerrit.extensions.api.config.AccessCheckInfo;
@@ -76,6 +77,7 @@ public interface ProjectApi {
     protected String substring;
     protected String regex;
     protected String nextPageToken;
+    protected ListTagSortOption sortBy = ListTagSortOption.REF;
 
     public abstract List<T> get() throws RestApiException;
 
@@ -91,6 +93,11 @@ public interface ProjectApi {
 
     public ListRefsRequest<T> withDescendingOrder(boolean descendingOrder) {
       this.descendingOrder = descendingOrder;
+      return this;
+    }
+
+    public ListRefsRequest<T> withSortBy(ListTagSortOption sortBy) {
+      this.sortBy = sortBy;
       return this;
     }
 
@@ -119,6 +126,10 @@ public interface ProjectApi {
 
     public boolean getDescendingOrder() {
       return descendingOrder;
+    }
+
+    public ListTagSortOption getSortBy() {
+      return sortBy;
     }
 
     public String getNextPageToken() {
