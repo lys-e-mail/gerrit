@@ -158,17 +158,34 @@ public class ChangeFieldTest {
   public void tolerateNullValuesForInsertion() {
     Project.NameKey project = Project.nameKey("project");
     ChangeData cd =
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
         ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null, null);
     assertThat(ChangeField.ADDED_LINES_SPEC.setIfPossible(cd, new FakeStoredValue(null))).isTrue();
+||||||| BASE
+        ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null, null);
+    assertThat(ChangeField.ADDED.setIfPossible(cd, new FakeStoredValue(null))).isTrue();
+=======
+        ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null);
+    assertThat(ChangeField.ADDED.setIfPossible(cd, new FakeStoredValue(null))).isTrue();
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
   }
 
   @Test
   public void tolerateNullValuesForDeletion() {
     Project.NameKey project = Project.nameKey("project");
     ChangeData cd =
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
         ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null, null);
     assertThat(ChangeField.DELETED_LINES_SPEC.setIfPossible(cd, new FakeStoredValue(null)))
         .isTrue();
+||||||| BASE
+        ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null, null);
+    assertThat(ChangeField.DELETED.setIfPossible(cd, new FakeStoredValue(null))).isTrue();
+  }
+=======
+        ChangeData.createForTest(project, Change.id(1), 1, ObjectId.zeroId(), null, null);
+    assertThat(ChangeField.DELETED.setIfPossible(cd, new FakeStoredValue(null))).isTrue();
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
   }
 
   @Test

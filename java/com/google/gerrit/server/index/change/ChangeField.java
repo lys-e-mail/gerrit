@@ -121,6 +121,7 @@ public class ChangeField {
 
   // TODO: Rename LEGACY_ID to NUMERIC_ID
   /** Legacy change ID. */
+<<<<<<< HEAD   (a4c0c5 Merge branch 'stable-3.7' into stable-3.8)
   public static final IndexedField<ChangeData, String> NUMERIC_ID_STR_FIELD =
       IndexedField.<ChangeData>stringBuilder("NumericIdStr")
           .stored()
@@ -131,6 +132,21 @@ public class ChangeField {
 
   public static final IndexedField<ChangeData, String>.SearchSpec NUMERIC_ID_STR_SPEC =
       NUMERIC_ID_STR_FIELD.exact("legacy_id_str");
+||||||| BASE
+   */
+  public static final int MAX_TERM_LENGTH = (1 << 15) - 2;
+
+  // TODO: Rename LEGACY_ID to NUMERIC_ID
+  /** Legacy change ID. */
+  public static final FieldDef<ChangeData, String> LEGACY_ID_STR =
+      exact("legacy_id_str").stored().build(cd -> String.valueOf(cd.getVirtualId().get()));
+
+  /** Newer style Change-Id key. */
+  public static final FieldDef<ChangeData, String> ID =
+=======
+  public static final FieldDef<ChangeData, String> LEGACY_ID_STR =
+      exact("legacy_id_str").stored().build(cd -> String.valueOf(cd.virtualId().get()));
+>>>>>>> BRANCH (e02812 Fix starred changes clash after repo import from another sit)
 
   /** Newer style Change-Id key. */
   public static final IndexedField<ChangeData, String> CHANGE_ID_FIELD =
