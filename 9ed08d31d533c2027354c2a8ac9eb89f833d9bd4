@@ -16,6 +16,24 @@
       "message": "Missing `Forward-Compatible: checked`",
       "revId": "9ed08d31d533c2027354c2a8ac9eb89f833d9bd4",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "720e4cc0_93e129f3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-03-28T08:31:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87486f11_b3a33238",
+      "revId": "9ed08d31d533c2027354c2a8ac9eb89f833d9bd4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
