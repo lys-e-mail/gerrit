@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 const runUnderBazel = !!process.env["RUNFILES_DIR"];
 const path = require("path");
 
