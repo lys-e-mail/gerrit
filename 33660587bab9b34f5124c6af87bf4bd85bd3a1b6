@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39d2024e_1e2ed0f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-03-28T10:18:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7297c9e9_aee25e6e",
+      "range": {
+        "startLine": 11,
+        "startChar": 7,
+        "endLine": 11,
+        "endChar": 14
+      },
+      "revId": "33660587bab9b34f5124c6af87bf4bd85bd3a1b6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7487f8bb_dad63445",
@@ -65,6 +89,24 @@
           ]
         }
       ],
+      "revId": "33660587bab9b34f5124c6af87bf4bd85bd3a1b6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f7e5d2c_f48333f4",
+        "filename": "polygerrit-ui/app/models/comments/comments-model.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-03-28T10:18:07Z",
+      "side": 1,
+      "message": "Well, the reloadAllComments() comment says that it explicitly doesn\u0027t update ported comments. I am not entirely sure why, I guess because it\u0027s only usecase is reply-dialog, and it doesn\u0027t add a new patchset, so porting doesn\u0027t need to be updated.\n\nSo I left it as it was initially, but if you want, I can include ported comments as well.\n\nNB: I did remove reloadAllPortedComments method, because it had no usages, and it\u0027s contents was duplicated into the subscription",
+      "parentUuid": "7487f8bb_dad63445",
       "revId": "33660587bab9b34f5124c6af87bf4bd85bd3a1b6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
