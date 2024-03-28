@@ -549,12 +549,56 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
     return Optional.ofNullable(state.mergedOn());
   }
 
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
   public ImmutableList<HumanComment> getDraftComments(Account.Id author) {
+    return getDraftComments(author, null);
+||||||| BASE
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(Account.Id author) {
     return getDraftComments(author, null);
   }
 
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(
+      Account.Id author, @Nullable Ref ref) {
+    loadDraftComments(author, ref);
+    // Filter out any zombie draft comments. These are drafts that are also in
+    // the published map, and arise when the update to All-Users to delete them
+    // during the publish operation failed.
+    return ImmutableListMultimap.copyOf(
+        Multimaps.filterEntries(
+            draftCommentNotes.getComments(), e -> !getCommentKeys().contains(e.getValue().key)));
+=======
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(Account.Id author) {
+    return getDraftComments(author, null, null);
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
+  }
+
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
   ImmutableList<HumanComment> getDraftComments(Account.Id author, @Nullable Ref ref) {
     loadDraftComments(author, ref);
+||||||| BASE
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(
+      Account.Id author, @Nullable Ref ref) {
+    loadDraftComments(author, ref);
+    // Filter out any zombie draft comments. These are drafts that are also in
+    // the published map, and arise when the update to All-Users to delete them
+    // during the publish operation failed.
+    return ImmutableListMultimap.copyOf(
+        Multimaps.filterEntries(
+            draftCommentNotes.getComments(), e -> !getCommentKeys().contains(e.getValue().key)));
+  }
+
+  public ImmutableListMultimap<ObjectId, RobotComment> getRobotComments() {
+    loadRobotComments();
+=======
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(
+      Account.Id author, @Nullable Change.Id virtualId) {
+    return getDraftComments(author, virtualId, null);
+  }
+
+  public ImmutableListMultimap<ObjectId, HumanComment> getDraftComments(
+      Account.Id author, @Nullable Change.Id virtualId, @Nullable Ref ref) {
+    loadDraftComments(author, virtualId, ref);
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
     // Filter out any zombie draft comments. These are drafts that are also in
     // the published map, and arise when the update to All-Users to delete them
     // during the publish operation failed.
@@ -573,9 +617,10 @@ public class ChangeNotes extends AbstractChangeNotes<ChangeNotes> {
    * However, this method will load the comments if no draft comments have been loaded or if the
    * caller would like the drafts for another author.
    */
-  private void loadDraftComments(Account.Id author, @Nullable Ref ref) {
+  private void loadDraftComments(
+      Account.Id author, @Nullable Change.Id virtualId, @Nullable Ref ref) {
     if (draftCommentNotes == null || !author.equals(draftCommentNotes.getAuthor()) || ref != null) {
-      draftCommentNotes = new DraftCommentNotes(args, getChangeId(), author, ref);
+      draftCommentNotes = new DraftCommentNotes(args, getChangeId(), virtualId, author, ref);
       draftCommentNotes.load();
     }
   }
