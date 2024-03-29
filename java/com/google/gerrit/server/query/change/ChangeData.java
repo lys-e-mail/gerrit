@@ -76,8 +76,15 @@ import com.google.gerrit.server.change.CommentThreads;
 import com.google.gerrit.server.change.MergeabilityCache;
 import com.google.gerrit.server.change.PureRevert;
 import com.google.gerrit.server.config.AllUsersName;
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
 import com.google.gerrit.server.config.GerritServerConfig;
 import com.google.gerrit.server.config.GerritServerId;
+||||||| BASE
+import com.google.gerrit.server.config.GerritServerId;
+import com.google.gerrit.server.config.SkipCurrentRulesEvaluationOnClosedChanges;
+import com.google.gerrit.server.config.TrackingFooters;
+=======
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
 import com.google.gerrit.server.config.SkipCurrentRulesEvaluationOnClosedChanges;
 import com.google.gerrit.server.config.TrackingFooters;
 import com.google.gerrit.server.git.GitRepositoryManager;
@@ -109,6 +116,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -241,11 +249,11 @@ public class ChangeData {
     }
 
     public ChangeData create(Project.NameKey project, Change.Id id) {
-      return assistedFactory.create(project, id, null, null);
+      return assistedFactory.create(project, id, null, null, null);
     }
 
     public ChangeData create(Project.NameKey project, Change.Id id, ObjectId metaRevision) {
-      ChangeData cd = assistedFactory.create(project, id, null, null);
+      ChangeData cd = assistedFactory.create(project, id, null, null, null);
       cd.setMetaRevision(metaRevision);
       return cd;
     }
@@ -258,19 +266,29 @@ public class ChangeData {
     }
 
     public ChangeData create(Change change) {
-      return assistedFactory.create(change.getProject(), change.getId(), change, null);
+      return create(change, null);
+    }
+
+    public ChangeData create(Change change, Change.Id virtualId) {
+      return assistedFactory.create(
+          change.getProject(),
+          change.getId(),
+          !Objects.equals(virtualId, change.getId()) ? virtualId : null,
+          change,
+          null);
     }
 
     public ChangeData create(ChangeNotes notes) {
       return assistedFactory.create(
-          notes.getChange().getProject(), notes.getChangeId(), notes.getChange(), notes);
+          notes.getChange().getProject(), notes.getChangeId(), null, notes.getChange(), notes);
     }
   }
 
   public interface AssistedFactory {
     ChangeData create(
         Project.NameKey project,
-        Change.Id id,
+        @Assisted("changeId") Change.Id id,
+        @Assisted("virtualId") @Nullable Change.Id virtualId,
         @Nullable Change change,
         @Nullable ChangeNotes notes);
   }
@@ -289,7 +307,7 @@ public class ChangeData {
    */
   public static ChangeData createForTest(
       Project.NameKey project, Change.Id id, int currentPatchSetId, ObjectId commitId) {
-    return createForTest(project, id, currentPatchSetId, commitId, null, null, null);
+    return createForTest(project, id, currentPatchSetId, commitId, null, null);
   }
 
   /**
@@ -302,7 +320,6 @@ public class ChangeData {
    * @param id change ID
    * @param currentPatchSetId current patchset number
    * @param commitId commit SHA1 of the current patchset
-   * @param serverId Gerrit server id
    * @param virtualIdAlgo algorithm for virtualising the Change number
    * @param changeNotes notes associated with the Change
    * @return instance for testing.
@@ -312,7 +329,6 @@ public class ChangeData {
       Change.Id id,
       int currentPatchSetId,
       ObjectId commitId,
-      @Nullable String serverId,
       @Nullable ChangeNumberVirtualIdAlgorithm virtualIdAlgo,
       @Nullable ChangeNotes changeNotes) {
     ChangeData cd =
@@ -334,13 +350,23 @@ public class ChangeData {
             null,
             null,
             null,
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
             null,
             null,
             serverId,
+||||||| BASE
+            project,
+            id,
+            null,
+            changeNotes);
+    cd.currentPatchSet =
+=======
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
             virtualIdAlgo,
             false,
             project,
             id,
+            null,
             null,
             changeNotes);
     cd.currentPatchSet =
@@ -445,10 +471,18 @@ public class ChangeData {
   private Optional<Instant> mergedOn;
   private ImmutableSetMultimap<NameKey, RefState> refStates;
   private ImmutableList<byte[]> refStatePatterns;
-  private String gerritServerId;
   private String changeServerId;
   private ChangeNumberVirtualIdAlgorithm virtualIdFunc;
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
   private Boolean failedParsingFromIndex = false;
+||||||| BASE
+      ChangeNotes.Factory notesFactory,
+      CommentsUtil commentsUtil,
+      GitRepositoryManager repoManager,
+      MergeUtilFactory mergeUtilFactory,
+=======
+  private Change.Id virtualId;
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
 
   @Inject
   private ChangeData(
@@ -471,11 +505,11 @@ public class ChangeData {
       SubmitRequirementsEvaluator submitRequirementsEvaluator,
       SubmitRequirementsUtil submitRequirementsUtil,
       SubmitRuleEvaluator.Factory submitRuleEvaluatorFactory,
-      @GerritServerId String gerritServerId,
       ChangeNumberVirtualIdAlgorithm virtualIdFunc,
       @SkipCurrentRulesEvaluationOnClosedChanges Boolean skipCurrentRulesEvaluationOnClosedChange,
       @Assisted Project.NameKey project,
-      @Assisted Change.Id id,
+      @Assisted("changeId") Change.Id id,
+      @Assisted("virtualId") @Nullable Change.Id virtualId,
       @Assisted @Nullable Change change,
       @Assisted @Nullable ChangeNotes notes) {
     this.approvalsUtil = approvalsUtil;
@@ -509,8 +543,8 @@ public class ChangeData {
     this.notes = notes;
 
     this.changeServerId = notes == null ? null : notes.getServerId();
-    this.gerritServerId = gerritServerId;
     this.virtualIdFunc = virtualIdFunc;
+    this.virtualId = virtualId;
   }
 
   /**
@@ -640,12 +674,33 @@ public class ChangeData {
     return legacyId;
   }
 
-  public Change.Id getVirtualId() {
-    if (virtualIdFunc == null || changeServerId == null || changeServerId.equals(gerritServerId)) {
-      return legacyId;
+  public static void ensureChangeServerId(Iterable<ChangeData> changes) {
+    ChangeData first = Iterables.getFirst(changes, null);
+    if (first == null) {
+      return;
     }
 
-    return Change.id(virtualIdFunc.apply(changeServerId, legacyId.get()));
+    for (ChangeData cd : changes) {
+      cd.changeServerId();
+    }
+  }
+
+  @Nullable
+  public String changeServerId() {
+    if (changeServerId == null) {
+      if (!lazyload()) {
+        return null;
+      }
+      changeServerId = notes().getServerId();
+    }
+    return changeServerId;
+  }
+
+  public Change.Id virtualId() {
+    if (virtualId == null) {
+      return virtualIdFunc == null ? legacyId : virtualIdFunc.apply(changeServerId, legacyId);
+    }
+    return virtualId;
   }
 
   public Project.NameKey project() {
@@ -1417,7 +1472,37 @@ public class ChangeData {
       if (!lazyload()) {
         return ImmutableMap.of();
       }
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
       starRefs = requireNonNull(starredChangesReader).byChange(legacyId);
+||||||| BASE
+  public Boolean isPureRevert() {
+    if (change().getRevertOf() == null) {
+      return null;
+    }
+    try {
+      return pureRevert.get(notes(), Optional.empty());
+    } catch (IOException | BadRequestException | ResourceConflictException e) {
+      throw new StorageException("could not compute pure revert", e);
+    }
+  }
+
+  @Override
+  public String toString() {
+    MoreObjects.ToStringHelper h = MoreObjects.toStringHelper(this);
+    if (change != null) {
+      h.addValue(change);
+    } else {
+      h.addValue(legacyId);
+    }
+    return h.toString();
+  }
+
+  public static class ChangedLines {
+    public final int insertions;
+    public final int deletions;
+=======
+      starRefs = requireNonNull(starredChangesUtil).byChange(virtualId());
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
     }
     return starRefs;
   }
@@ -1435,9 +1520,41 @@ public class ChangeData {
         if (!lazyload()) {
           return false;
         }
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
         if (starredChangesReader.isStarred(accountId, legacyId)) {
           starredBy = accountId;
         }
+||||||| BASE
+    }
+    return h.toString();
+  }
+
+  public static class ChangedLines {
+    public final int insertions;
+    public final int deletions;
+
+    public ChangedLines(int insertions, int deletions) {
+      this.insertions = insertions;
+      this.deletions = deletions;
+    }
+  }
+
+  public SetMultimap<NameKey, RefState> getRefStates() {
+    if (refStates == null) {
+      if (!lazyload()) {
+        return ImmutableSetMultimap.of();
+      }
+
+      ImmutableSetMultimap.Builder<NameKey, RefState> result = ImmutableSetMultimap.builder();
+      for (Table.Cell<Account.Id, PatchSet.Id, Ref> edit : editRefs().cellSet()) {
+        result.put(
+            project,
+            RefState.create(
+                RefNames.refsEdit(
+                    edit.getRowKey(), edit.getColumnKey().changeId(), edit.getColumnKey()),
+=======
+        starsOf = StarsOf.create(accountId, starredChangesUtil.getLabels(accountId, virtualId()));
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
       }
     }
     return starredBy != null;
@@ -1551,4 +1668,58 @@ public class ChangeData {
 
     public abstract Instant ts();
   }
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
+||||||| BASE
+            // this is suboptimal, but is ok for the purposes of
+            // draftsByUser(), and easier than trying to rebuild the change at
+            // this point.
+            && !notes().getDraftComments(account, ref).isEmpty()) {
+          draftsByUser.put(account, ref.getObjectId());
+        }
+      }
+    }
+    return draftsByUser;
+  }
+}
+=======
+
+  @AutoValue
+  abstract static class StarsOf {
+    private static StarsOf create(Account.Id accountId, Iterable<String> stars) {
+      return new AutoValue_ChangeData_StarsOf(accountId, ImmutableSortedSet.copyOf(stars));
+    }
+
+    public abstract Account.Id accountId();
+
+    public abstract ImmutableSortedSet<String> stars();
+  }
+
+  private Map<Account.Id, ObjectId> draftRefs() {
+    if (draftsByUser == null) {
+      if (!lazyload()) {
+        return Collections.emptyMap();
+      }
+      Change c = change();
+      if (c == null) {
+        return Collections.emptyMap();
+      }
+
+      draftsByUser = new HashMap<>();
+      for (Ref ref : commentsUtil.getDraftRefs(notes().getChangeId())) {
+        Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+        if (account != null
+            // Double-check that any drafts exist for this user after
+            // filtering out zombies. If some but not all drafts in the ref
+            // were zombies, the returned Ref still includes those zombies;
+            // this is suboptimal, but is ok for the purposes of
+            // draftsByUser(), and easier than trying to rebuild the change at
+            // this point.
+            && !notes().getDraftComments(account, virtualId(), ref).isEmpty()) {
+          draftsByUser.put(account, ref.getObjectId());
+        }
+      }
+    }
+    return draftsByUser;
+  }
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
 }

@@ -69,7 +69,20 @@ public class StarredChanges
       throws RestApiException, PermissionBackendException, IOException {
     IdentifiedUser user = parent.getUser();
     ChangeResource change = changes.parse(TopLevelResource.INSTANCE, id);
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
     if (starredChangesReader.isStarred(user.getAccountId(), change.getId())) {
+||||||| BASE
+      throws RestApiException, PermissionBackendException, IOException {
+    IdentifiedUser user = parent.getUser();
+    ChangeResource change = changes.parse(TopLevelResource.INSTANCE, id);
+    if (starredChangesUtil
+        .getLabels(user.getAccountId(), change.getId())
+        .contains(StarredChangesUtil.DEFAULT_LABEL)) {
+=======
+    if (starredChangesUtil
+        .getLabels(user.getAccountId(), change.getVirtualId())
+        .contains(StarredChangesUtil.DEFAULT_LABEL)) {
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
       return new AccountResource.StarredChange(user, change);
     }
     throw new ResourceNotFoundException(id);
@@ -125,7 +138,28 @@ public class StarredChanges
       }
 
       try {
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
         starredChangesWriter.star(self.get().getAccountId(), change.getId());
+||||||| BASE
+        logger.atSevere().withCause(e).log("cannot resolve change");
+        throw new UnprocessableEntityException("internal server error", e);
+      }
+
+      try {
+        starredChangesUtil.star(
+            self.get().getAccountId(), change.getId(), StarredChangesUtil.Operation.ADD);
+      } catch (MutuallyExclusiveLabelsException e) {
+        throw new ResourceConflictException(e.getMessage());
+      } catch (IllegalLabelException e) {
+        throw new BadRequestException(e.getMessage());
+=======
+        starredChangesUtil.star(
+            self.get().getAccountId(), change.getVirtualId(), StarredChangesUtil.Operation.ADD);
+      } catch (MutuallyExclusiveLabelsException e) {
+        throw new ResourceConflictException(e.getMessage());
+      } catch (IllegalLabelException e) {
+        throw new BadRequestException(e.getMessage());
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
       } catch (DuplicateKeyException e) {
         return Response.none();
       }
@@ -168,7 +202,25 @@ public class StarredChanges
       if (!self.get().hasSameAccountId(rsrc.getUser())) {
         throw new AuthException("not allowed remove starred change");
       }
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
       starredChangesWriter.unstar(self.get().getAccountId(), rsrc.getChange().getId());
+||||||| BASE
+      this.self = self;
+      this.starredChangesUtil = starredChangesUtil;
+    }
+
+    @Override
+    public Response<?> apply(AccountResource.StarredChange rsrc, Input in)
+        throws AuthException, IOException, IllegalLabelException {
+      if (!self.get().hasSameAccountId(rsrc.getUser())) {
+        throw new AuthException("not allowed remove starred change");
+      }
+      starredChangesUtil.star(
+          self.get().getAccountId(), rsrc.getChange().getId(), StarredChangesUtil.Operation.REMOVE);
+=======
+      starredChangesUtil.star(
+          self.get().getAccountId(), rsrc.getVirtualId(), StarredChangesUtil.Operation.REMOVE);
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
       return Response.none();
     }
   }

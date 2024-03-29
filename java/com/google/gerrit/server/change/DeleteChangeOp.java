@@ -80,7 +80,8 @@ public class DeleteChangeOp implements BatchUpdateOp {
     ensureDeletable(ctx, id, patchSets);
     // Cleaning up is only possible as long as the change and its elements are
     // still part of the database.
-    cleanUpReferences(id);
+    ChangeData cd = changeDataFactory.create(ctx.getChange());
+    cleanUpReferences(cd);
 
     logger.atFine().log(
         "Deleting change %s, current patch set %d is commit %s",
@@ -94,7 +95,7 @@ public class DeleteChangeOp implements BatchUpdateOp {
                     .map(p -> p.commitId().name())
                     .orElse("n/a")));
     ctx.deleteChange();
-    changeDeleted.fire(changeDataFactory.create(ctx.getChange()), ctx.getAccount(), ctx.getWhen());
+    changeDeleted.fire(cd, ctx.getAccount(), ctx.getWhen());
     return true;
   }
 
@@ -123,11 +124,18 @@ public class DeleteChangeOp implements BatchUpdateOp {
         revWalk.parseCommit(patchSet.commitId()), revWalk.parseCommit(destId.get()));
   }
 
-  private void cleanUpReferences(Change.Id id) throws IOException {
-    accountPatchReviewStore.run(s -> s.clearReviewed(id));
+  private void cleanUpReferences(ChangeData cd) throws IOException {
+    accountPatchReviewStore.run(s -> s.clearReviewed(cd.getId()));
 
     // Non-atomic operation on All-Users refs; not much we can do to make it atomic.
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
     starredChangesWriter.unstarAllForChangeDeletion(id);
+||||||| BASE
+    starredChangesUtil.unstarAllForChangeDeletion(id);
+  }
+=======
+    starredChangesUtil.unstarAllForChangeDeletion(cd.virtualId());
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
   }
 
   @Override
