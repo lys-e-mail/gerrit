@@ -161,6 +161,10 @@ public class ChangeResource implements RestResource, HasETag {
     return changeData;
   }
 
+  public Change.Id getVirtualId() {
+    return getChangeData().virtualId();
+  }
+
   // This includes all information relevant for ETag computation
   // unrelated to the UI.
   public void prepareETag(Hasher h, CurrentUser user) {
@@ -237,7 +241,19 @@ public class ChangeResource implements RestResource, HasETag {
                 .build())) {
       Hasher h = Hashing.murmur3_128().newHasher();
       if (user.isIdentifiedUser()) {
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
         h.putBoolean(starredChangesReader.isStarred(user.getAccountId(), getId()));
+||||||| BASE
+        h.putString(starredChangesUtil.getObjectId(user.getAccountId(), getId()).name(), UTF_8);
+      }
+      prepareETag(h, user);
+      return h.hash().toString();
+    }
+  }
+=======
+        h.putString(
+            starredChangesUtil.getObjectId(user.getAccountId(), getVirtualId()).name(), UTF_8);
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
       }
       prepareETag(h, user);
       return h.hash().toString();

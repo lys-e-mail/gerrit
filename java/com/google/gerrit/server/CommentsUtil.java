@@ -43,6 +43,7 @@ import com.google.gerrit.server.patch.DiffNotAvailableException;
 import com.google.gerrit.server.patch.DiffOperations;
 import com.google.gerrit.server.patch.DiffOptions;
 import com.google.gerrit.server.patch.filediff.FileDiffOutput;
+import com.google.gerrit.server.query.change.ChangeNumberVirtualIdAlgorithm;
 import com.google.gerrit.server.update.ChangeContext;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -112,15 +113,35 @@ public class CommentsUtil {
   private final DiffOperations diffOperations;
   private final GitRepositoryManager repoManager;
   private final String serverId;
+  private final ChangeNumberVirtualIdAlgorithm virtualIdAlgorithm;
 
   @Inject
   CommentsUtil(
       DiffOperations diffOperations,
       GitRepositoryManager repoManager,
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
+      @GerritServerId String serverId) {
+||||||| BASE
+  private final String serverId;
+
+  @Inject
+  CommentsUtil(
+      DiffOperations diffOperations,
+      GitRepositoryManager repoManager,
+      AllUsersName allUsers,
       @GerritServerId String serverId) {
     this.diffOperations = diffOperations;
     this.repoManager = repoManager;
+    this.allUsers = allUsers;
+=======
+      AllUsersName allUsers,
+      @GerritServerId String serverId,
+      @Nullable ChangeNumberVirtualIdAlgorithm virtualIdAlgorithm) {
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
+    this.diffOperations = diffOperations;
+    this.repoManager = repoManager;
     this.serverId = serverId;
+    this.virtualIdAlgorithm = virtualIdAlgorithm;
   }
 
   public HumanComment newHumanComment(
@@ -209,6 +230,76 @@ public class CommentsUtil {
     return robotCommentsByChange(notes).stream().filter(c -> c.key.uuid.equals(uuid)).findFirst();
   }
 
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
+||||||| BASE
+  public List<HumanComment> publishedHumanCommentsByChange(ChangeNotes notes) {
+    notes.load();
+    return sort(Lists.newArrayList(notes.getHumanComments().values()));
+  }
+
+  public List<RobotComment> robotCommentsByChange(ChangeNotes notes) {
+    notes.load();
+    return sort(Lists.newArrayList(notes.getRobotComments().values()));
+  }
+
+  public Optional<RobotComment> getRobotComment(ChangeNotes notes, String uuid) {
+    return robotCommentsByChange(notes).stream().filter(c -> c.key.uuid.equals(uuid)).findFirst();
+  }
+
+  public List<HumanComment> draftByChange(ChangeNotes notes) {
+    List<HumanComment> comments = new ArrayList<>();
+    for (Ref ref : getDraftRefs(notes.getChangeId())) {
+      Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+      if (account != null) {
+        comments.addAll(draftByChangeAuthor(notes, account));
+      }
+    }
+    return sort(comments);
+  }
+
+  public List<HumanComment> byPatchSet(ChangeNotes notes, PatchSet.Id psId) {
+    List<HumanComment> comments = new ArrayList<>();
+    comments.addAll(publishedByPatchSet(notes, psId));
+
+    for (Ref ref : getDraftRefs(notes.getChangeId())) {
+      Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+      if (account != null) {
+        comments.addAll(draftByPatchSetAuthor(psId, account, notes));
+      }
+    }
+    return sort(comments);
+  }
+
+  public List<HumanComment> publishedByChangeFile(ChangeNotes notes, String file) {
+    return commentsOnFile(notes.load().getHumanComments().values(), file);
+  }
+
+=======
+  public List<HumanComment> draftByChange(ChangeNotes notes) {
+    List<HumanComment> comments = new ArrayList<>();
+    for (Ref ref : getDraftRefs(getVirtualId(notes))) {
+      Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+      if (account != null) {
+        comments.addAll(draftByChangeAuthor(notes, account));
+      }
+    }
+    return sort(comments);
+  }
+
+  public List<HumanComment> byPatchSet(ChangeNotes notes, PatchSet.Id psId) {
+    List<HumanComment> comments = new ArrayList<>();
+    comments.addAll(publishedByPatchSet(notes, psId));
+
+    for (Ref ref : getDraftRefs(notes.getChangeId())) {
+      Account.Id account = Account.Id.fromRefSuffix(ref.getName());
+      if (account != null) {
+        comments.addAll(draftByPatchSetAuthor(psId, account, notes));
+      }
+    }
+    return sort(comments);
+  }
+
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
   public List<HumanComment> publishedByChangeFile(ChangeNotes notes, String file) {
     return commentsOnFile(notes.load().getHumanComments().values(), file);
   }
@@ -311,6 +402,61 @@ public class CommentsUtil {
         .collect(toList());
   }
 
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
+||||||| BASE
+   * ancestor is done, so there can't be any comments on this ancestor. However earlier we showed
+   * the auto-merge commit message on side A when for a merge commit a comparison against the
+   * auto-merge was done. From that time there may still be comments on the auto-merge commit
+   * message and those we want to filter out.
+   */
+  private List<HumanComment> removeCommentsOnAncestorOfCommitMessage(List<HumanComment> list) {
+    return list.stream()
+        .filter(c -> c.side != 0 || !Patch.COMMIT_MSG.equals(c.key.filename))
+        .collect(toList());
+  }
+
+  public List<HumanComment> draftByPatchSetAuthor(
+      PatchSet.Id psId, Account.Id author, ChangeNotes notes) {
+    return commentsOnPatchSet(notes.load().getDraftComments(author).values(), psId);
+  }
+
+  public List<HumanComment> draftByChangeFileAuthor(
+      ChangeNotes notes, String file, Account.Id author) {
+    return commentsOnFile(notes.load().getDraftComments(author).values(), file);
+  }
+
+  public List<HumanComment> draftByChangeAuthor(ChangeNotes notes, Account.Id author) {
+    List<HumanComment> comments = new ArrayList<>();
+    comments.addAll(notes.getDraftComments(author).values());
+    return sort(comments);
+  }
+
+  public void putHumanComments(
+      ChangeUpdate update, Comment.Status status, Iterable<HumanComment> comments) {
+    for (HumanComment c : comments) {
+      update.putComment(status, c);
+    }
+  }
+=======
+  public List<HumanComment> draftByPatchSetAuthor(
+      PatchSet.Id psId, Account.Id author, ChangeNotes notes) {
+    return commentsOnPatchSet(
+        notes.load().getDraftComments(author, getVirtualId(notes)).values(), psId);
+  }
+
+  public List<HumanComment> draftByChangeFileAuthor(
+      ChangeNotes notes, String file, Account.Id author) {
+    return commentsOnFile(
+        notes.load().getDraftComments(author, getVirtualId(notes)).values(), file);
+  }
+
+  public List<HumanComment> draftByChangeAuthor(ChangeNotes notes, Account.Id author) {
+    List<HumanComment> comments = new ArrayList<>();
+    comments.addAll(notes.getDraftComments(author, getVirtualId(notes)).values());
+    return sort(comments);
+  }
+
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
   public void putHumanComments(
       ChangeUpdate update, Comment.Status status, Iterable<HumanComment> comments) {
     for (HumanComment c : comments) {
@@ -425,8 +571,144 @@ public class CommentsUtil {
     }
   }
 
+<<<<<<< HEAD   (fb3882 gr-change-view: use change-model to update change object)
   public static <T extends Comment> List<T> sort(List<T> comments) {
+||||||| BASE
+      RevCommit commit = repository.parseCommit(patchset.commitId());
+      if (commit.getParentCount() < parentNumber) {
+        return Optional.empty();
+      }
+      return Optional.of(commit.getParent(parentNumber - 1));
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  @Nullable
+  private ObjectId resolveAutoMergeCommit(Change change, PatchSet patchset) {
+    try {
+      // TODO(ghareeb): Adjust after the auto-merge code was moved out of the diff caches. Also
+      // unignore the test in PortedCommentsIT.
+      Map<String, FileDiffOutput> modifiedFiles =
+          diffOperations.listModifiedFilesAgainstParent(
+              change.getProject(), patchset.commitId(), /* parentNum= */ 0, DiffOptions.DEFAULTS);
+      return modifiedFiles.isEmpty()
+          ? null
+          : modifiedFiles.values().iterator().next().oldCommitId();
+    } catch (DiffNotAvailableException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  /**
+   * Get NoteDb draft refs for a change.
+   *
+   * <p>This is just a simple ref scan, so the results may potentially include refs for zombie draft
+   * comments. A zombie draft is one which has been published but the write to delete the draft ref
+   * from All-Users failed.
+   *
+   * @param changeId change ID.
+   * @return raw refs from All-Users repo.
+   */
+  public Collection<Ref> getDraftRefs(Change.Id changeId) {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getDraftRefs(repo, changeId);
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  /** returns all changes that contain draft comments of {@code accountId}. */
+  public Collection<Change.Id> getChangesWithDrafts(Account.Id accountId) {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getChangesWithDrafts(repo, accountId);
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  private Collection<Ref> getDraftRefs(Repository repo, Change.Id changeId) throws IOException {
+    return repo.getRefDatabase().getRefsByPrefix(RefNames.refsDraftCommentsPrefix(changeId));
+  }
+
+  private Collection<Change.Id> getChangesWithDrafts(Repository repo, Account.Id accountId)
+      throws IOException {
+    Set<Change.Id> changes = new HashSet<>();
+    for (Ref ref : repo.getRefDatabase().getRefsByPrefix(RefNames.REFS_DRAFT_COMMENTS)) {
+      Integer accountIdFromRef = RefNames.parseRefSuffix(ref.getName());
+      if (accountIdFromRef != null && accountIdFromRef == accountId.get()) {
+        Change.Id changeId = Change.Id.fromAllUsersRef(ref.getName());
+        if (changeId == null) {
+          continue;
+        }
+        changes.add(changeId);
+      }
+    }
+    return changes;
+  }
+
+  private static <T extends Comment> List<T> sort(List<T> comments) {
     comments.sort(COMMENT_ORDER);
     return comments;
+  }
+}
+=======
+  /**
+   * Get NoteDb draft refs for a change.
+   *
+   * <p>This is just a simple ref scan, so the results may potentially include refs for zombie draft
+   * comments. A zombie draft is one which has been published but the write to delete the draft ref
+   * from All-Users failed.
+   *
+   * @param changeId change ID.
+   * @return raw refs from All-Users repo.
+   */
+  public Collection<Ref> getDraftRefs(Change.Id changeId) {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getDraftRefs(repo, changeId);
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  /** returns all changes that contain draft comments of {@code accountId}. */
+  public Collection<Change.Id> getChangesWithDrafts(Account.Id accountId) {
+    try (Repository repo = repoManager.openRepository(allUsers)) {
+      return getChangesWithDrafts(repo, accountId);
+    } catch (IOException e) {
+      throw new StorageException(e);
+    }
+  }
+
+  private Collection<Ref> getDraftRefs(Repository repo, Change.Id virtualId) throws IOException {
+    return repo.getRefDatabase().getRefsByPrefix(RefNames.refsDraftCommentsPrefix(virtualId));
+  }
+
+  private Collection<Change.Id> getChangesWithDrafts(Repository repo, Account.Id accountId)
+      throws IOException {
+    Set<Change.Id> changes = new HashSet<>();
+    for (Ref ref : repo.getRefDatabase().getRefsByPrefix(RefNames.REFS_DRAFT_COMMENTS)) {
+      Integer accountIdFromRef = RefNames.parseRefSuffix(ref.getName());
+      if (accountIdFromRef != null && accountIdFromRef == accountId.get()) {
+        Change.Id changeId = Change.Id.fromAllUsersRef(ref.getName());
+        if (changeId == null) {
+          continue;
+        }
+        changes.add(changeId);
+      }
+    }
+    return changes;
+  }
+
+  private static <T extends Comment> List<T> sort(List<T> comments) {
+>>>>>>> BRANCH (9a5497 Revert urelated changes to external_plugin_deps.bzl)
+    comments.sort(COMMENT_ORDER);
+    return comments;
+  }
+
+  private Change.Id getVirtualId(ChangeNotes notes) {
+    return virtualIdAlgorithm == null
+        ? notes.getChangeId()
+        : virtualIdAlgorithm.apply(notes.getServerId(), notes.getChangeId());
   }
 }
