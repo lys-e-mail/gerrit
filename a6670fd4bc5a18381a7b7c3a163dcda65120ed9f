@@ -161,6 +161,47 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ead4bc1b_72999602",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-03-30T14:16:04Z",
+      "side": 1,
+      "message": "I guess Luca\u0027s request for adding a test was overlooked. Thus, unresolving this comment.",
+      "parentUuid": "435b7fed_12e3b9fc",
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94157bdb_47a716e2",
+        "filename": "Documentation/rest-api-config.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1740,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-03-30T14:16:04Z",
+      "side": 1,
+      "message": "nit: quote consistently",
+      "range": {
+        "startLine": 1740,
+        "startChar": 23,
+        "endLine": 1740,
+        "endChar": 28
+      },
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4b595678_942e5ad7",
         "filename": "java/com/google/gerrit/index/SiteIndexer.java",
         "patchSetId": 1
