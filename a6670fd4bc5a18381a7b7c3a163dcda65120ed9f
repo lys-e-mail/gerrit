@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa1ea8b3_f8091757",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-03-30T10:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e360075e_1a35743a",
+      "range": {
+        "startLine": 7,
+        "startChar": 9,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8bd3f4db_e10c88ee",
@@ -47,6 +71,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3a7959d_29390daa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-03-30T10:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bd3f4db_e10c88ee",
+      "range": {
+        "startLine": 16,
+        "startChar": 40,
+        "endLine": 16,
+        "endChar": 57
+      },
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "70da7f23_50d65d4f",
@@ -60,6 +108,30 @@
       "writtenOn": "2024-03-28T17:48:56Z",
       "side": 1,
       "message": "multiple",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 7
+      },
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e670b617_c19c0075",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-03-30T10:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70da7f23_50d65d4f",
       "range": {
         "startLine": 17,
         "startChar": 0,
@@ -100,6 +172,30 @@
       "writtenOn": "2024-03-28T16:21:38Z",
       "side": 1,
       "message": "```suggestion\n  /** Indexes all entities for the provided index.\n  \n      NOTE: This method does not implement the \u0027notifyListeners\u0027 logic\n      which is effectively ignored and all listeners are always notified. */\n```",
+      "range": {
+        "startLine": 79,
+        "startChar": 44,
+        "endLine": 79,
+        "endChar": 49
+      },
+      "revId": "a6670fd4bc5a18381a7b7c3a163dcda65120ed9f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f639192_55a2e68e",
+        "filename": "java/com/google/gerrit/index/SiteIndexer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-03-30T10:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b595678_942e5ad7",
       "range": {
         "startLine": 79,
         "startChar": 44,
