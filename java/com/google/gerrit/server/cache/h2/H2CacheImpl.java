@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.cache.h2;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
 import com.google.common.cache.AbstractLoadingCache;
 import com.google.common.cache.Cache;
@@ -419,6 +420,7 @@ public class H2CacheImpl<K, V> extends AbstractLoadingCache<K, V> implements Per
     @Nullable
     private BloomFilter<K> buildBloomFilter() {
       SqlHandle c = null;
+      Stopwatch sw = Stopwatch.createStarted();
       try {
         c = acquire();
         if (estimatedSize <= 0) {
@@ -456,6 +458,7 @@ public class H2CacheImpl<K, V> extends AbstractLoadingCache<K, V> implements Per
             throw e;
           }
         }
+        logger.atFine().log("Building bloom filter for %s took %.3f seconds", url, sw.elapsed().toMillis()/1000.0);
         return b;
       } catch (IOException | SQLException e) {
         logger.atWarning().log("Cannot build BloomFilter for %s: %s", url, e.getMessage());
