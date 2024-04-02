@@ -1,0 +1,69 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8be5f0d9_0030d9e1",
+        "filename": "java/com/google/gerrit/server/account/AccountCache.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-02T12:34:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14ca9e5e_54daa013",
+      "range": {
+        "startLine": 11,
+        "startChar": 17,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "a785581df52c206504e5d7814676fdf62135ed20",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38c39f58_20b7d70e",
+        "filename": "java/com/google/gerrit/server/account/AccountCache.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-02T12:34:08Z",
+      "side": 1,
+      "message": "rename to private",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 6
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "c859b757_4a948d17",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/account/AccountCache.java",
+              "range": {
+                "startLine": 20,
+                "startChar": 0,
+                "endLine": 21,
+                "endChar": 0
+              },
+              "replacement": "interface AccountSupport {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "a785581df52c206504e5d7814676fdf62135ed20",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
