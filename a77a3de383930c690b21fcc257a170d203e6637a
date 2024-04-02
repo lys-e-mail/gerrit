@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14a987a7_cf7cf967",
+        "filename": "Documentation/rest-api-config.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 1739,
+      "author": {
+        "id": 1003873
+      },
+      "writtenOn": "2024-04-02T12:37:21Z",
+      "side": 1,
+      "message": "I test it and quoted booleans in json are OK.",
+      "parentUuid": "b9d67af6_784a3a82",
+      "revId": "a77a3de383930c690b21fcc257a170d203e6637a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3ed3fcf_1f011672",
         "filename": "java/com/google/gerrit/index/SiteIndexer.java",
         "patchSetId": 5
@@ -31,6 +49,30 @@
       "writtenOn": "2024-04-01T23:32:30Z",
       "side": 1,
       "message": "```suggestion\n  public Result indexAll(I index, @SuppressWarnings(\"unused\") boolean notifyListeners) {\n```",
+      "range": {
+        "startLine": 85,
+        "startChar": 34,
+        "endLine": 85,
+        "endChar": 58
+      },
+      "revId": "a77a3de383930c690b21fcc257a170d203e6637a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a90e0e29_43cc9219",
+        "filename": "java/com/google/gerrit/index/SiteIndexer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1003873
+      },
+      "writtenOn": "2024-04-02T12:37:21Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "e3ed3fcf_1f011672",
       "range": {
         "startLine": 85,
         "startChar": 34,
