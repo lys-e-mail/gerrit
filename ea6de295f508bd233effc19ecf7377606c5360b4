@@ -1,0 +1,59 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "985fe955_5451760d",
+        "filename": "java/com/google/gerrit/server/cache/h2/H2CacheImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-02T10:30:49Z",
+      "side": 1,
+      "message": "Maybe just use TraceTimer instead?\n\ntry (TraceTimer ignored \u003d\n            TraceContext.newTimer(\n                \"Build bloom filter\",\n                Metadata.empty());",
+      "fixSuggestions": [
+        {
+          "fixId": "40fc5208_04dd1725",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/cache/h2/H2CacheImpl.java",
+              "range": {
+                "startLine": 17,
+                "startChar": 0,
+                "endLine": 18,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "java/com/google/gerrit/server/cache/h2/H2CacheImpl.java",
+              "range": {
+                "startLine": 423,
+                "startChar": 0,
+                "endLine": 425,
+                "endChar": 0
+              },
+              "replacement": "      try (TraceTimer ignored \u003d\n          TraceContext.newTimer(\n              \"Build bloom filter\",\n              Metadata.empty())) {\n"
+            },
+            {
+              "path": "java/com/google/gerrit/server/cache/h2/H2CacheImpl.java",
+              "range": {
+                "startLine": 461,
+                "startChar": 0,
+                "endLine": 462,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "ea6de295f508bd233effc19ecf7377606c5360b4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
