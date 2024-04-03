@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27a31a9e_a80fc32f",
+        "filename": "java/com/google/gerrit/extensions/common/ListTagSortOption.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-03T11:43:07Z",
+      "side": 1,
+      "message": "Please add a license header to all newly added files:\n\n```\n// Copyright (C) 2024 The Android Open Source Project\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n// http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n```",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b52b4bf_3b064a50",
+        "filename": "java/com/google/gerrit/server/args4j/ListTagSortOptionHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-03T11:43:07Z",
+      "side": 1,
+      "message": "IIUC this should return a name for the option and not be a list of the possible values. I think changing this to something like \"SORT\" would be fine (I think this is the string that will be shown as option name when printing the usage screen for the command, so the actual string is not that important).",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcc9f103_af6568d1",
+        "filename": "java/com/google/gerrit/server/restapi/project/ListTags.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-03T11:43:07Z",
+      "side": 1,
+      "message": "Please document this new option in rest-api-projects.txt",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ebadae0_bf4f3df1",
+        "filename": "java/com/google/gerrit/server/restapi/project/ListTags.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-03T11:43:07Z",
+      "side": 1,
+      "message": "I think we use \u0027-\u0027 in option names rather than \u0027_\u0027 (e.g. see \u0027--next-page-token\u0027 option in ListBranches). So far consistency this should be \"--sort-by\".",
+      "range": {
+        "startLine": 109,
+        "startChar": 16,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
