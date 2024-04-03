@@ -577,7 +577,20 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     PushOneCommit.Result parent = pushTo("refs/for/master%wip");
     PushOneCommit.Result change = createChange();
     Change.Id num = parent.getChange().getId();
+<<<<<<< HEAD   (f96478 Merge branch 'stable-3.8' into stable-3.9)
     if (getSubmitType() == CHERRY_PICK) {
+||||||| BASE
+
+    createBranch(BranchNameKey.create(project, "hidden"));
+    PushOneCommit.Result hidden = createChange("refs/for/hidden%topic=" + name("topic"));
+    approve(hidden.getChangeId());
+    projectOperations
+        .project(project)
+        .forUpdate()
+        .add(block(Permission.READ).ref("refs/heads/hidden").group(REGISTERED_USERS))
+=======
+    if (getSubmitType() == SubmitType.CHERRY_PICK) {
+>>>>>>> BRANCH (799d42 Merge branch 'stable-3.7' into stable-3.8)
       submit(change.getChangeId());
     } else {
       submitWithConflict(
