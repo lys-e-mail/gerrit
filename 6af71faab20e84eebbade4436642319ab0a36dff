@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07dfc2f7_2fd56943",
+        "filename": "java/com/google/gerrit/extensions/common/ListTagSortOption.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3328695
+      },
+      "writtenOn": "2024-04-03T12:43:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27a31a9e_a80fc32f",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b52b4bf_3b064a50",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-04-03T11:43:07Z",
       "side": 1,
       "message": "IIUC this should return a name for the option and not be a list of the possible values. I think changing this to something like \"SORT\" would be fine (I think this is the string that will be shown as option name when printing the usage screen for the command, so the actual string is not that important).",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca8751f_244e081f",
+        "filename": "java/com/google/gerrit/server/args4j/ListTagSortOptionHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3328695
+      },
+      "writtenOn": "2024-04-03T12:43:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b52b4bf_3b064a50",
       "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -65,6 +101,48 @@
       "writtenOn": "2024-04-03T11:43:07Z",
       "side": 1,
       "message": "I think we use \u0027-\u0027 in option names rather than \u0027_\u0027 (e.g. see \u0027--next-page-token\u0027 option in ListBranches). So far consistency this should be \"--sort-by\".",
+      "range": {
+        "startLine": 109,
+        "startChar": 16,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba4dadd6_331ed61e",
+        "filename": "java/com/google/gerrit/server/restapi/project/ListTags.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 3328695
+      },
+      "writtenOn": "2024-04-03T12:43:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcc9f103_af6568d1",
+      "revId": "6af71faab20e84eebbade4436642319ab0a36dff",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65755897_a116dda7",
+        "filename": "java/com/google/gerrit/server/restapi/project/ListTags.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 3328695
+      },
+      "writtenOn": "2024-04-03T12:43:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ebadae0_bf4f3df1",
       "range": {
         "startLine": 109,
         "startChar": 16,
