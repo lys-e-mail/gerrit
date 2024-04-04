@@ -40,6 +40,30 @@
       ],
       "revId": "92949f256d5ebdea70c56483713622dd2d2cea3f",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a119bf5_94a296f4",
+        "filename": "java/com/google/gerrit/server/edit/ChangeEditModifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-04T12:46:41Z",
+      "side": 1,
+      "message": "- From reading the backend code, I surmise that rebase target (in the argument of the method) is always patchset, but I can\u0027t tell that it\u0027s always newer. This seems clear enough, without accidently being wrong sometimes.\n- Done\n- Done",
+      "parentUuid": "d1883191_840d139b",
+      "range": {
+        "startLine": 569,
+        "startChar": 37,
+        "endLine": 569,
+        "endChar": 44
+      },
+      "revId": "92949f256d5ebdea70c56483713622dd2d2cea3f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
