@@ -54,6 +54,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c33c55cd_5fafb7d8",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-04-04T14:31:54Z",
+      "side": 1,
+      "message": "Yes, I think this would be OK since notes() doesn\u0027t do anything if notes !\u003d null, but I find the current code a bit more readable since it\u0027s more clear that the change notes are only loaded if notes \u003d\u003d null and lazy loading is allowed. WDYT?",
+      "parentUuid": "0a41f259_68bbcf01",
+      "range": {
+        "startLine": 712,
+        "startChar": 10,
+        "endLine": 713,
+        "endChar": 27
+      },
+      "revId": "43c7af86c79a03a22d364cf4710f7abc11814146",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "db80f86e_e5f2bdae",
         "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
         "patchSetId": 1
