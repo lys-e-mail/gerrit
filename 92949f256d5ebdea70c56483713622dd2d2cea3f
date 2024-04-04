@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1883191_840d139b",
+        "filename": "java/com/google/gerrit/server/edit/ChangeEditModifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-04T12:39:25Z",
+      "side": 1,
+      "message": "- maybe `newer` patchset\n- maybe `results in` instead of leads to\n- second sentence maybe \"Download the edit patchset and rebase manually to preserve changes\"",
+      "range": {
+        "startLine": 569,
+        "startChar": 37,
+        "endLine": 569,
+        "endChar": 44
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "47761c61_4d8e6dee",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/edit/ChangeEditModifier.java",
+              "range": {
+                "startLine": 569,
+                "startChar": 0,
+                "endLine": 571,
+                "endChar": 0
+              },
+              "replacement": "          \"Rebasing change edit onto newer patchset results in merge conflicts. Download the edit\"\n              + \" patchset and rebase manually to preserve changes.\");\n"
+            }
+          ]
+        }
+      ],
+      "revId": "92949f256d5ebdea70c56483713622dd2d2cea3f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
