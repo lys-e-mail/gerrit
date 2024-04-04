@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db80f86e_e5f2bdae",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 1026112
+      },
+      "writtenOn": "2024-04-04T14:21:14Z",
+      "side": 1,
+      "message": "notes.getRevision() just returns the field from there, so caching it here seems to not provide any extra value?",
+      "range": {
+        "startLine": 715,
+        "startChar": 4,
+        "endLine": 715,
+        "endChar": 35
+      },
+      "revId": "43c7af86c79a03a22d364cf4710f7abc11814146",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
