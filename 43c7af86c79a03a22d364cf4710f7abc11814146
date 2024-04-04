@@ -3,6 +3,57 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0a41f259_68bbcf01",
+        "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 1026112
+      },
+      "writtenOn": "2024-04-04T14:25:01Z",
+      "side": 1,
+      "message": "Could we just use `notes()` instead of `notes` down below in l.715 ?",
+      "range": {
+        "startLine": 712,
+        "startChar": 10,
+        "endLine": 713,
+        "endChar": 27
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "830d7fca_951a1c3a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/query/change/ChangeData.java",
+              "range": {
+                "startLine": 712,
+                "startChar": 0,
+                "endLine": 714,
+                "endChar": 0
+              },
+              "replacement": "      notes \u003d notes();\n"
+            },
+            {
+              "path": "java/com/google/gerrit/server/query/change/ChangeData.java",
+              "range": {
+                "startLine": 715,
+                "startChar": 0,
+                "endLine": 716,
+                "endChar": 0
+              },
+              "replacement": "    metaRevision \u003d notes().getRevision();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "43c7af86c79a03a22d364cf4710f7abc11814146",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "db80f86e_e5f2bdae",
         "filename": "java/com/google/gerrit/server/query/change/ChangeData.java",
         "patchSetId": 1
