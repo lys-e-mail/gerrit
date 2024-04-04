@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8278b25f_208b586c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3380648
+      },
+      "writtenOn": "2024-04-04T02:02:14Z",
+      "side": 1,
+      "message": "rebuild analysing views and reports on my core software and hardware updating malfunction",
+      "revId": "44671f5c6929a8f05223dd359182610286ceb98a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
