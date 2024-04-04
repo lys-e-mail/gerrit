@@ -712,7 +712,8 @@ public class ChangeData {
       @SuppressWarnings("unused")
       var unused = notes();
     }
-    return notes.getRevision();
+    metaRevision = notes.getRevision();
+    return metaRevision;
   }
 
   boolean fastIsVisibleTo(CurrentUser user) {
@@ -1504,7 +1505,8 @@ public class ChangeData {
         return ImmutableSetMultimap.of();
       }
 
-      ImmutableSetMultimap.Builder<Project.NameKey, RefState> result = ImmutableSetMultimap.builder();
+      ImmutableSetMultimap.Builder<Project.NameKey, RefState> result =
+          ImmutableSetMultimap.builder();
       for (Table.Cell<Account.Id, PatchSet.Id, Ref> edit : editRefs().cellSet()) {
         result.put(
             project,
