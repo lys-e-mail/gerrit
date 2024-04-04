@@ -109,7 +109,16 @@ public class OnlineReindexer<K, V, I extends Index<K, V>> {
         "Starting online reindex of %s from schema version %s to %s",
         name, version(indexes.getSearchIndex()), version(index));
 
+<<<<<<< HEAD   (645d3a Update git submodules)
     if (!reuseExistingDocuments && oldVersion != newVersion) {
+||||||| BASE
+    SiteIndexer.Result result = batchIndexer.indexAll(index);
+    if (!result.success()) {
+      logger.atSevere().log(
+          "Online reindex of %s schema version %s failed. Successfully"
+=======
+    if (oldVersion != newVersion) {
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
       index.deleteAll();
     }
     SiteIndexer.Result result = batchIndexer.indexAll(index);

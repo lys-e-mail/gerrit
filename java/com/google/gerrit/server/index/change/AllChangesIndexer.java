@@ -265,16 +265,114 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
     private final ProjectSlice projectSlice;
     private final ProgressMonitor done;
     private final ProgressMonitor failed;
+<<<<<<< HEAD   (645d3a Update git submodules)
     private final Consumer<ChangeData> indexAction;
+||||||| BASE
+
+  private class ProjectSliceIndexer implements Callable<Void> {
+    private final ChangeIndexer indexer;
+    private final ProjectSlice projectSlice;
+    private final ProgressMonitor done;
+    private final ProgressMonitor failed;
+    private final boolean forceReindex;
+
+    private ProjectSliceIndexer(
+        ChangeIndexer indexer,
+        ProjectSlice projectSlice,
+        ProgressMonitor done,
+        ProgressMonitor failed,
+        boolean forceReindex) {
+      this.indexer = indexer;
+      this.projectSlice = projectSlice;
+      this.done = done;
+      this.failed = failed;
+      this.forceReindex = forceReindex;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      String oldThreadName = Thread.currentThread().getName();
+      try {
+        Thread.currentThread()
+            .setName(
+                oldThreadName
+                    + "["
+                    + projectSlice.name().toString()
+                    + "-"
+                    + projectSlice.slice()
+                    + "]");
+        OnlineReindexMode.begin();
+        Optional<ChangeIndex> newestIndex = indexer.getNewestIndex();
+        if (newestIndex.isEmpty()) {
+          logger.atWarning().log("No change index available yet");
+        }
+        // Order of scanning changes is undefined. This is ok if we assume that packfile locality is
+        // not important for indexing, since sites should have a fully populated DiffSummary cache.
+        // It does mean that reindexing after invalidating the DiffSummary cache will be expensive,
+        // but the goal is to invalidate that cache as infrequently as we possibly can. And besides,
+        // we don't have concrete proof that improving packfile locality would help.
+        notesFactory
+=======
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
 
     private ProjectSliceIndexer(
         ChangeIndexer indexer,
         ProjectSlice projectSlice,
         ProgressMonitor done,
         ProgressMonitor failed) {
+<<<<<<< HEAD   (645d3a Update git submodules)
+||||||| BASE
+    private final boolean forceReindex;
+
+    private ProjectSliceIndexer(
+        ChangeIndexer indexer,
+        ProjectSlice projectSlice,
+        ProgressMonitor done,
+        ProgressMonitor failed,
+        boolean forceReindex) {
+      this.indexer = indexer;
       this.projectSlice = projectSlice;
       this.done = done;
       this.failed = failed;
+      this.forceReindex = forceReindex;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      String oldThreadName = Thread.currentThread().getName();
+      try {
+        Thread.currentThread()
+            .setName(
+                oldThreadName
+                    + "["
+                    + projectSlice.name().toString()
+                    + "-"
+                    + projectSlice.slice()
+                    + "]");
+        OnlineReindexMode.begin();
+        Optional<ChangeIndex> newestIndex = indexer.getNewestIndex();
+        if (newestIndex.isEmpty()) {
+          logger.atWarning().log("No change index available yet");
+        }
+        // Order of scanning changes is undefined. This is ok if we assume that packfile locality is
+        // not important for indexing, since sites should have a fully populated DiffSummary cache.
+        // It does mean that reindexing after invalidating the DiffSummary cache will be expensive,
+        // but the goal is to invalidate that cache as infrequently as we possibly can. And besides,
+        // we don't have concrete proof that improving packfile locality would help.
+        notesFactory
+            .scan(
+                projectSlice.metaIdByChange(),
+                projectSlice.name(),
+                id -> (id.get() % projectSlice.slices()) == projectSlice.slice())
+            .forEach(r -> index(r, newestIndex));
+        OnlineReindexMode.end();
+=======
+      this.indexer = indexer;
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
+      this.projectSlice = projectSlice;
+      this.done = done;
+      this.failed = failed;
+<<<<<<< HEAD   (645d3a Update git submodules)
       if (reuseExistingDocuments) {
         indexAction =
             cd -> {
@@ -283,6 +381,60 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
       } else {
         indexAction = cd -> indexer.index(cd);
       }
+||||||| BASE
+        ProjectSlice projectSlice,
+        ProgressMonitor done,
+        ProgressMonitor failed,
+        boolean forceReindex) {
+      this.indexer = indexer;
+      this.projectSlice = projectSlice;
+      this.done = done;
+      this.failed = failed;
+      this.forceReindex = forceReindex;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      String oldThreadName = Thread.currentThread().getName();
+      try {
+        Thread.currentThread()
+            .setName(
+                oldThreadName
+                    + "["
+                    + projectSlice.name().toString()
+                    + "-"
+                    + projectSlice.slice()
+                    + "]");
+        OnlineReindexMode.begin();
+        Optional<ChangeIndex> newestIndex = indexer.getNewestIndex();
+        if (newestIndex.isEmpty()) {
+          logger.atWarning().log("No change index available yet");
+        }
+        // Order of scanning changes is undefined. This is ok if we assume that packfile locality is
+        // not important for indexing, since sites should have a fully populated DiffSummary cache.
+        // It does mean that reindexing after invalidating the DiffSummary cache will be expensive,
+        // but the goal is to invalidate that cache as infrequently as we possibly can. And besides,
+        // we don't have concrete proof that improving packfile locality would help.
+        notesFactory
+            .scan(
+                projectSlice.metaIdByChange(),
+                projectSlice.name(),
+                id -> (id.get() % projectSlice.slices()) == projectSlice.slice())
+            .forEach(r -> index(r, newestIndex));
+        OnlineReindexMode.end();
+      } finally {
+        Thread.currentThread().setName(oldThreadName);
+      }
+      return null;
+    }
+
+    private void index(ChangeNotesResult r, Optional<ChangeIndex> newestIndex) {
+      if (r.error().isPresent()) {
+        fail("Failed to read change " + r.id() + " for indexing", true, r.error().get());
+        return;
+      }
+=======
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
     }
 
     @Override
@@ -322,7 +474,64 @@ public class AllChangesIndexer extends SiteIndexer<Change.Id, ChangeData, Change
         return;
       }
       try {
+<<<<<<< HEAD   (645d3a Update git submodules)
         indexAction.accept(changeDataFactory.create(r.notes()));
+||||||| BASE
+        OnlineReindexMode.end();
+      } finally {
+        Thread.currentThread().setName(oldThreadName);
+      }
+      return null;
+    }
+
+    private void index(ChangeNotesResult r, Optional<ChangeIndex> newestIndex) {
+      if (r.error().isPresent()) {
+        fail("Failed to read change " + r.id() + " for indexing", true, r.error().get());
+        return;
+      }
+      try {
+        if (forceReindex || !indexer.isChangeAlreadyIndexed(r.id(), newestIndex)) {
+          indexer.index(changeDataFactory.create(r.notes()));
+          verboseWriter.format(
+              "Reindexed change %d (project: %s)\n",
+              r.id().get(), r.notes().getProjectName().get());
+
+        } else {
+          verboseWriter.format(
+              "Skipped change %d (project: %s)\n", r.id().get(), r.notes().getProjectName().get());
+        }
+        done.update(1);
+      } catch (RejectedExecutionException e) {
+        // Server shutdown, don't spam the logs.
+        failSilently();
+      } catch (Exception e) {
+        fail("Failed to index change " + r.id(), true, e);
+      }
+    }
+
+    private void fail(String error, boolean failed, Throwable e) {
+      if (failed) {
+        this.failed.update(1);
+      }
+
+      logger.atWarning().withCause(e).log("%s", error);
+      verboseWriter.println(error);
+    }
+
+    private void failSilently() {
+      this.failed.update(1);
+    }
+
+    @Override
+    public String toString() {
+      if (projectSlice.slices() == 1) {
+        return "Index all changes of project " + projectSlice.name();
+      }
+      return "Index changes slice "
+          + projectSlice.slice()
+=======
+        indexer.index(changeDataFactory.create(r.notes()));
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
         done.update(1);
         verboseWriter.format(
             "Reindexed change %d (project: %s)\n", r.id().get(), r.notes().getProjectName().get());
