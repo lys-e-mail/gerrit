@@ -740,17 +740,13 @@ export class ChangeModel extends Model<ChangeState> {
    *     meantime. The promise is rejected on network error.
    */
   fetchChangeUpdates(change: ChangeInfo | ParsedChangeInfo) {
-    const knownLatest = computeLatestPatchNum(computeAllPatchSets(change));
+    const knownLatest = change.current_revision_number;
     return this.restApiService.getChangeDetail(change._number).then(detail => {
       if (!detail) {
         const error = new Error('Change detail not found.');
         return Promise.reject(error);
       }
-      const actualLatest = computeLatestPatchNum(computeAllPatchSets(detail));
-      if (!actualLatest || !knownLatest) {
-        const error = new Error('Unable to check for latest patchset.');
-        return Promise.reject(error);
-      }
+      const actualLatest = detail.current_revision_number;
       return {
         isLatest: actualLatest <= knownLatest,
         newStatus: change.status !== detail.status ? detail.status : null,
