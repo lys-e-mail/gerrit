@@ -48,6 +48,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff4a92dd_b782caa3",
+        "filename": "java/com/google/gerrit/server/ChangeDraftUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-05T13:28:34Z",
+      "side": 0,
+      "message": "Now this is used again. Thank you @luca.milanesio@gmail.com for spotting this out!",
+      "parentUuid": "72685763_ef0733f6",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "63751a46b0de2652917dd2118650f5a2cfd601af",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62cb49fd_ec85432b",
@@ -85,6 +109,30 @@
       "side": 0,
       "message": "I think this is not used anymore, as all factory usages now provide `ChangeNotes` instead of `Change`, that\u0027s why it\u0027s now removed",
       "parentUuid": "62cb49fd_ec85432b",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 22
+      },
+      "revId": "63751a46b0de2652917dd2118650f5a2cfd601af",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c233c4fd_b5e8fc71",
+        "filename": "java/com/google/gerrit/server/notedb/ChangeDraftNotesUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-05T13:28:34Z",
+      "side": 0,
+      "message": "Now this is used again. Thank you @luca.milanesio@gmail.com for spotting this out!",
+      "parentUuid": "55db3def_eaab48ea",
       "range": {
         "startLine": 84,
         "startChar": 0,

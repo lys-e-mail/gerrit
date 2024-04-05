@@ -163,6 +163,30 @@
       },
       "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "736a037e_ec2d8262",
+        "filename": "java/com/google/gerrit/server/notedb/ChangeUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-05T13:28:34Z",
+      "side": 1,
+      "message": "this should be fixed in the latest PS. I\u0027ve verified the fix locally and it still holds.",
+      "parentUuid": "f5a0e8c4_5a4bcea2",
+      "range": {
+        "startLine": 449,
+        "startChar": 38,
+        "endLine": 449,
+        "endChar": 48
+      },
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
