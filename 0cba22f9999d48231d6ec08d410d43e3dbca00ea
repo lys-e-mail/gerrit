@@ -22,6 +22,30 @@
       },
       "revId": "0cba22f9999d48231d6ec08d410d43e3dbca00ea",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00921c61_3948fbd5",
+        "filename": "java/com/google/gerrit/server/notedb/ChangeNotes.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-05T15:38:27Z",
+      "side": 0,
+      "message": "Revert created: 418077: Revert \"Remove unused method to create change notes based on index lookup\" | https://gerrit-review.googlesource.com/c/gerrit/+/418077",
+      "parentUuid": "64bf452c_76547193",
+      "range": {
+        "startLine": 222,
+        "startChar": 29,
+        "endLine": 222,
+        "endChar": 51
+      },
+      "revId": "0cba22f9999d48231d6ec08d410d43e3dbca00ea",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
