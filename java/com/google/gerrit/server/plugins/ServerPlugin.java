@@ -51,7 +51,7 @@ public class ServerPlugin extends Plugin {
   protected Class<? extends Module> batchModule;
   protected Class<? extends Module> sshModule;
   protected Class<? extends Module> httpModule;
-  private Class<? extends Module> apiModuleClass;
+  protected Class<? extends Module> apiModuleClass;
 
   private Injector apiInjector;
   private Injector sysInjector;
@@ -284,9 +284,10 @@ public class ServerPlugin extends Plugin {
       }
     }
     modules.add(new ServerPluginInfoModule(this, env.getServerMetrics()));
-    return apiInjector
-        .map(injector -> injector.createChildInjector(modules))
-        .orElse(Guice.createInjector(modules));
+    if (apiInjector.isPresent()) {
+      return apiInjector.get().createChildInjector(modules);
+    }
+    return Guice.createInjector(modules);
   }
 
   private Injector newRootInjectorWithApiModule(
