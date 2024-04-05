@@ -16,6 +16,23 @@
       "message": "I\u0027ve tested this locally with an imported change (that had the same numerical change ID as the existing change) by adding draft comments on the commit message.\n\nWith this re-applied fix, creating a draft comment on the imported change resulted in the draft commit being shown only to the imported change. Same for the _local_ change, creating a draft on it only resulted in that draft being shown on that very change.\n\nWithout the fix, adding a draft on one of the changes resulted in the same draft being shown on both changes.",
       "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6eede81d_0abd0380",
+        "filename": "java/com/google/gerrit/server/ChangeDraftUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-05T09:02:28Z",
+      "side": 1,
+      "message": "Is this related?",
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
