@@ -86,6 +86,24 @@
       "parentUuid": "6eede81d_0abd0380",
       "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2a5a28b_126dce5b",
+        "filename": "java/com/google/gerrit/server/ChangeDraftUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-05T10:03:33Z",
+      "side": 1,
+      "message": "Can you extra this into a separate change and rebase on top of it?\nThe master build on the CI is green, I\u0027ve built it locally as well and it works without errors, but I do see the warning which doesn\u0027t make the build fail.\n\nThis is warning I see:\n\n```\njava/com/google/gerrit/server/ChangeDraftUpdate.java:83: warning: [unchecked] unchecked cast\n      return Optional.of((UpdateT) this);\n                                   ^\n  required: UpdateT\n  found:    ChangeDraftUpdate\n  where UpdateT is a type-variable:\n    UpdateT extends ChangeDraftUpdate declared in method \u003cUpdateT\u003etoOptionalChangeDraftUpdateSubtype(Class\u003cUpdateT\u003e)\n```\n\nIt is worth fixing anyway, agreed, but isn\u0027t related to this change.",
+      "parentUuid": "660c326c_1393afb6",
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
