@@ -88,6 +88,7 @@ import {
   fireNoBubble,
   fireIronAnnounce,
   fireServerError,
+  fireReload,
 } from '../../../utils/event-util';
 import {ErrorCallback} from '../../../api/rest';
 import {DelayedTask} from '../../../utils/async-util';
@@ -98,10 +99,7 @@ import {
 } from '../../../utils/attention-set-util';
 import {RestApiService} from '../../../services/gr-rest-api/gr-rest-api';
 import {resolve} from '../../../models/dependency';
-import {
-  changeModelToken,
-  updateRevisionsWithCommitShas,
-} from '../../../models/change/change-model';
+import {changeModelToken} from '../../../models/change/change-model';
 import {LabelNameToValuesMap, PatchSetNumber} from '../../../api/rest-api';
 import {css, html, PropertyValues, LitElement, nothing} from 'lit';
 import {sharedStyles} from '../../../styles/shared-styles';
@@ -1461,12 +1459,22 @@ export class GrReplyDialog extends LitElement {
     this.getNavigation().blockNavigation('sending review');
     return this.saveReview(reviewInput, errFn)
       .then(result => {
+        // saveReview response don't contain revision information, if the newer
+        // patchset was uploaded in the meantime, we should reload.
+        const reloadRequired =
+          !!result?.change_info &&
+          result?.change_info?.current_revision_number !==
+            this.change?.current_revision_number;
+        // Update the state right away to update comments, even if the full
+        // reload is scheduled right after.
+        const updatedChange = result?.change_info && {
+          ...result?.change_info,
+          revisions: this.change?.revisions,
+          current_revision: this.change?.current_revision,
+          current_revision_number: this.change?.current_revision_number,
+        };
         this.getChangeModel().updateStateChange(
-          updateRevisionsWithCommitShas(
-            GrReviewerUpdatesParser.parse(
-              result?.change_info as ChangeViewChangeInfo
-            )
-          )
+          GrReviewerUpdatesParser.parse(updatedChange as ChangeViewChangeInfo)
         );
 
         this.patchsetLevelDraftMessage = '';
@@ -1474,16 +1482,18 @@ export class GrReplyDialog extends LitElement {
         fireNoBubble(this, 'send', {});
         fireIronAnnounce(this, 'Reply sent');
         this.getPluginLoader().jsApiService.handleReplySent();
-        return;
+        if (reloadRequired) {
+          fireReload(this);
+        }
       })
-      .then(result => result)
       .finally(() => {
         this.getNavigation().releaseNavigation('sending review');
         this.disabled = false;
         if (this.patchsetLevelGrComment) {
           this.patchsetLevelGrComment.disableAutoSaving = false;
         }
-        // By this point in time the change has loaded, we're only waiting for the comments.
+        // The request finished and reloads if necessary are asynchronously
+        // scheduled.
         this.reporting.timeEnd(Timing.SEND_REPLY);
       });
   }
@@ -1914,7 +1924,7 @@ export class GrReplyDialog extends LitElement {
       this.latestPatchNum,
       review,
       errFn,
-      true
+      /* fetchDetail=*/ true
     );
   }
 
