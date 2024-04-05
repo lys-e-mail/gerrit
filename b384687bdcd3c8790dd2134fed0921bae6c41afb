@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a7bfcfc5_94fe7416",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-05T09:16:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "974440bf_c00d3cdb",
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "93de3dbd_3d3389b1",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "writtenOn": "2024-04-05T09:02:28Z",
       "side": 1,
       "message": "Is this related?",
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "660c326c_1393afb6",
+        "filename": "java/com/google/gerrit/server/ChangeDraftUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-05T09:16:28Z",
+      "side": 1,
+      "message": "this is added due to a build error from the erorrprone.\n\nI\u0027m surprised that this didn\u0027t fail on the merge commit. For sure without it the build was failing on this change for me locally.",
+      "parentUuid": "6eede81d_0abd0380",
       "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
