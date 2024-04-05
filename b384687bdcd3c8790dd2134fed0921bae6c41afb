@@ -124,6 +124,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd4ef383_8f2ef025",
+        "filename": "java/com/google/gerrit/server/ChangeDraftUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-05T13:00:10Z",
+      "side": 1,
+      "message": "😎 +2 already",
+      "parentUuid": "f5904c76_22af0a10",
+      "revId": "b384687bdcd3c8790dd2134fed0921bae6c41afb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5a0e8c4_5a4bcea2",
