@@ -513,6 +513,55 @@ public class ChangeJson {
         }
         ChangeData.ensureCurrentApprovalsLoaded(all);
       }
+<<<<<<< HEAD   (645d3a Update git submodules)
+||||||| BASE
+      ChangeData.ensureChangeLoaded(all);
+      if (has(ALL_REVISIONS)) {
+        ChangeData.ensureAllPatchSetsLoaded(all);
+      } else if (has(CURRENT_REVISION) || has(MESSAGES)) {
+        ChangeData.ensureCurrentPatchSetLoaded(all);
+      }
+      if (has(REVIEWED) && userProvider.get().isIdentifiedUser()) {
+        ChangeData.ensureReviewedByLoadedForOpenChanges(all);
+      }
+      ChangeData.ensureCurrentApprovalsLoaded(all);
+    } else {
+      for (ChangeData cd : all) {
+        // Mark all ChangeDatas as coming from the index. Disallow using NoteDb
+        cd.setStorageConstraint(ChangeData.StorageConstraint.INDEX_ONLY);
+      }
+    }
+  }
+
+  private boolean has(ListChangesOption option) {
+    return options.contains(option);
+  }
+
+  private List<ChangeInfo> toChangeInfos(
+      List<ChangeData> changes,
+      Map<Change.Id, ChangeInfo> cache,
+      ImmutableListMultimap<Change.Id, PluginDefinedInfo> pluginInfosByChange) {
+    try (Timer0.Context ignored = metrics.toChangeInfosLatency.start()) {
+      List<ChangeInfo> changeInfos = new ArrayList<>(changes.size());
+      for (int i = 0; i < changes.size(); i++) {
+        // We can only cache and re-use an entity if it's not the last in the list. The last entity
+        // may later get _moreChanges set. If it was cached or re-used, that setting would propagate
+        // to the original entity yielding wrong results.
+=======
+      ChangeData.ensureChangeLoaded(all);
+      if (has(ALL_REVISIONS)) {
+        ChangeData.ensureAllPatchSetsLoaded(all);
+      } else if (has(CURRENT_REVISION) || has(MESSAGES)) {
+        ChangeData.ensureCurrentPatchSetLoaded(all);
+      }
+      if (has(REVIEWED) && userProvider.get().isIdentifiedUser()) {
+        ChangeData.ensureReviewedByLoadedForOpenChanges(all);
+      }
+      if (has(STAR) && userProvider.get().isIdentifiedUser()) {
+        ChangeData.ensureChangeServerId(all);
+      }
+      ChangeData.ensureCurrentApprovalsLoaded(all);
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
     } else {
       for (ChangeData cd : all) {
         // Mark all ChangeDatas as coming from the index. Disallow using NoteDb
@@ -800,6 +849,8 @@ public class ChangeJson {
       }
     }
 
+    out._virtualIdNumber = cd.virtualId().get();
+
     return out;
   }
 
@@ -1063,14 +1114,15 @@ public class ChangeJson {
     // repository only once
     try (Repository allUsersRepo = repoManager.openRepository(allUsers)) {
       List<Change.Id> changeIds =
-          changeInfos.stream().map(c -> Change.id(c._number)).collect(Collectors.toList());
+          changeInfos.stream().map(c -> Change.id(c._virtualIdNumber)).collect(Collectors.toList());
       Set<Change.Id> starredChanges =
           starredChangesreader.areStarred(
               allUsersRepo, changeIds, userProvider.get().asIdentifiedUser().getAccountId());
       if (starredChanges.isEmpty()) {
         return;
       }
-      changeInfos.stream().forEach(c -> c.starred = starredChanges.contains(Change.id(c._number)));
+      changeInfos.stream()
+          .forEach(c -> c.starred = starredChanges.contains(Change.id(c._virtualIdNumber)));
     } catch (IOException e) {
       logger.atWarning().withCause(e).log("Failed to open All-Users repo.");
     }

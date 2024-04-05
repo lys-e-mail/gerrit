@@ -154,7 +154,13 @@ public class SshKeyCacheImpl implements SshKeyCache {
         } else {
           markInvalid(k);
         }
+<<<<<<< HEAD   (645d3a Update git submodules)
       } catch (Exception e) {
+||||||| BASE
+        logger.atSevere().withCause(e).log(
+=======
+      } catch (Throwable e) {
+>>>>>>> BRANCH (19b662 Merge branch 'stable-3.8' into stable-3.9)
         markInvalid(k);
       }
     }
