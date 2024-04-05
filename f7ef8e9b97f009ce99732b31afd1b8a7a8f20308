@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f0c01ff_6efaa555",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1757,
+      "author": {
+        "id": 1139611
+      },
+      "writtenOn": "2024-04-05T14:41:06Z",
+      "side": 1,
+      "message": "I don\u0027t understand why you\u0027re using the `??` operator here.",
+      "fixSuggestions": [
+        {
+          "fixId": "5b5111c9_8f32bbe1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+              "range": {
+                "startLine": 1757,
+                "startChar": 0,
+                "endLine": 1758,
+                "endChar": 0
+              },
+              "replacement": "      this.messageText.includes(USER_SUGGESTION_START_PATTERN);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "f7ef8e9b97f009ce99732b31afd1b8a7a8f20308",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
