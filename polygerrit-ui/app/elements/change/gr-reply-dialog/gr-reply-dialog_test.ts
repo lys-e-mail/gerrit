@@ -15,6 +15,7 @@ import {
   queryAndAssert,
   stubReporting,
   stubRestApi,
+  waitEventLoop,
   waitUntilVisible,
 } from '../../../test/test-utils';
 import {
@@ -30,6 +31,7 @@ import {
   createComment,
   createCommentThread,
   createDraft,
+  createLabelInfo,
   createRevision,
   createServiceUserWithId,
 } from '../../../test/test-data-generators';
@@ -37,6 +39,7 @@ import {GrReplyDialog} from './gr-reply-dialog';
 import {
   AccountId,
   AccountInfo,
+  ChangeInfo,
   CommentThread,
   CommitId,
   DetailedLabelInfo,
@@ -71,6 +74,8 @@ import {
 import {isOwner} from '../../../utils/change-util';
 import {createNewPatchsetLevel} from '../../../utils/comment-util';
 import {Timing} from '../../../constants/reporting';
+import {ParsedChangeInfo} from '../../../types/types';
+import {changeModelToken} from '../../../models/change/change-model';
 
 function cloneableResponse(status: number, text: string) {
   return {
@@ -97,6 +102,7 @@ suite('gr-reply-dialog tests', () => {
   let changeNum: NumericChangeId;
   let latestPatchNum: PatchSetNumber;
   let commentsModel: CommentsModel;
+  let change: ParsedChangeInfo;
 
   let lastId = 1;
   const makeAccount = function () {
@@ -112,15 +118,13 @@ suite('gr-reply-dialog tests', () => {
   setup(async () => {
     changeNum = 42 as NumericChangeId;
     latestPatchNum = 1 as PatchSetNumber;
+    const owner: AccountInfo = {
+      _account_id: 999 as AccountId,
+      display_name: 'Kermit',
+      email: 'abcd' as EmailAddress,
+    };
 
-    stubRestApi('getChange').returns(Promise.resolve({...createChange()}));
-    stubRestApi('getChangeSuggestedReviewers').returns(Promise.resolve([]));
-
-    element = await fixture<GrReplyDialog>(html`
-      <gr-reply-dialog></gr-reply-dialog>
-    `);
-
-    element.change = {
+    change = {
       ...createChange(),
       _number: changeNum,
       owner: {
@@ -148,7 +152,19 @@ suite('gr-reply-dialog tests', () => {
           default_value: 0,
         },
       },
+      revisions: {'commit-id': {...createRevision(), uploader: owner}},
+      current_revision: 'commit-id' as CommitId,
+      current_revision_number: 1 as PatchSetNumber,
     };
+
+    stubRestApi('getChange').returns(Promise.resolve(change as ChangeInfo));
+    stubRestApi('getChangeSuggestedReviewers').returns(Promise.resolve([]));
+
+    element = await fixture<GrReplyDialog>(html`
+      <gr-reply-dialog></gr-reply-dialog>
+    `);
+
+    element.change = change;
     element.latestPatchNum = latestPatchNum;
     element.permittedLabels = {
       'Code-Review': ['-1', ' 0', '+1'],
@@ -2614,6 +2630,92 @@ suite('gr-reply-dialog tests', () => {
       [...element.newAttentionSet],
       [1 as AccountId, 2 as AccountId, 3 as AccountId, 999 as AccountId]
     );
+  });
+
+  test('reload change if patchset updated', async () => {
+    // Async tick is needed because iron-selector content is distributed and
+    // distributed content requires an observer to be set up.
+    await element.updateComplete;
+    const changeModel = testResolver(changeModelToken);
+    const changeStateUpdateSpy = sinon.spy(changeModel, 'updateStateChange');
+    const responseChange = {
+      ...change,
+      labels: {Verified: createLabelInfo(-1)},
+      revisions: undefined,
+      current_revision: undefined,
+      current_revision_number: (change.current_revision_number +
+        1) as PatchSetNumber,
+    };
+    stubSaveReview(() => {
+      return {
+        change_info: responseChange as ChangeInfo,
+      };
+    });
+    const reloadPromise = mockPromise();
+    let reloadTriggered = false;
+    document.addEventListener('reload', () => {
+      reloadTriggered = true;
+      reloadPromise.resolve();
+    });
+
+    // Set a different label value
+    const el = queryAndAssert<GrLabelScoreRow>(
+      queryAndAssert(element, 'gr-label-scores'),
+      'gr-label-score-row[name="Verified"]'
+    );
+    el.setSelectedValue('-1');
+    await element.updateComplete;
+
+    queryAndAssert<GrButton>(element, '.send').click();
+    await element.updateComplete;
+
+    await reloadPromise;
+    assert.isTrue(reloadTriggered);
+
+    // All revision information is old, but all other information is new.
+    const expectedChange = {...change, labels: {Verified: createLabelInfo(-1)}};
+    assert.deepEqual(changeStateUpdateSpy.firstCall.args[0], expectedChange);
+  });
+
+  test('no reload if patchset is the same', async () => {
+    // Async tick is needed because iron-selector content is distributed and
+    // distributed content requires an observer to be set up.
+    await element.updateComplete;
+    const changeModel = testResolver(changeModelToken);
+    const changeStateUpdateSpy = sinon.spy(changeModel, 'updateStateChange');
+    const responseChange = {
+      ...change,
+      labels: {Verified: createLabelInfo(-1)},
+      revisions: undefined,
+      current_revision: undefined,
+      current_revision_number: change.current_revision_number,
+    };
+    stubSaveReview(() => {
+      return {
+        change_info: responseChange as ChangeInfo,
+      };
+    });
+    let reloadTriggered = false;
+    document.addEventListener('reload', () => {
+      reloadTriggered = true;
+    });
+
+    // Set a different label value
+    const el = queryAndAssert<GrLabelScoreRow>(
+      queryAndAssert(element, 'gr-label-scores'),
+      'gr-label-score-row[name="Verified"]'
+    );
+    el.setSelectedValue('-1');
+    await element.updateComplete;
+
+    queryAndAssert<GrButton>(element, '.send').click();
+    await element.updateComplete;
+
+    await waitEventLoop();
+    assert.isFalse(reloadTriggered);
+    // All revision information is old, but all other information is new.
+    const expectedChange = {...change, labels: {Verified: createLabelInfo(-1)}};
+    assert.deepEqual(changeStateUpdateSpy.firstCall.args[0], expectedChange);
   });
 
   suite('mention users', () => {
