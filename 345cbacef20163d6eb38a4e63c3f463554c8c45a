@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8da96bac_5ef26238",
+        "filename": "polygerrit-ui/app/elements/change/gr-reply-dialog/gr-reply-dialog.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 1465,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-08T09:17:10Z",
+      "side": 1,
+      "message": "Maybe write more explicit code about what you want to do when `result?.change_info` is not set.",
+      "revId": "345cbacef20163d6eb38a4e63c3f463554c8c45a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89d31002_d07fc5a6",
+        "filename": "polygerrit-ui/app/elements/change/gr-reply-dialog/gr-reply-dialog.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-08T09:17:10Z",
+      "side": 1,
+      "message": "Are you 100% sure that the below 3 properties are the only properties that are affected by requesting a lot less details in the change request? No web links and download commands anywhere else in the Change Info? If you are sure, then feel free to just ack. :-)",
+      "revId": "345cbacef20163d6eb38a4e63c3f463554c8c45a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
