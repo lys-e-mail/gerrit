@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f848b5de_61e3a039",
+        "filename": "polygerrit-ui/app/elements/change/gr-reply-dialog/gr-reply-dialog.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 1465,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-08T10:02:34Z",
+      "side": 1,
+      "message": "I took another look at this. \n\nchange_info is a required field of the response. Which means it only is undefined if the request was returned with an error. (In which case result itself is also undefined).\n\nWe pass in errFn to handle400Error, but that errFn is non-throwing. Meaning the rest-api promise will resolve with undefined (as opposed to rejecting) on server error.\n\nIn light of this, it doesn\u0027t make sense to me to do any actions in this `then()` if change_info is present. ie. We shouldn\u0027t be updating patchsetLevelDraftMessage or sending out any events.\n\nSo I\u0027ve added a `if (!result?.change_info) return;` to the top. So that on error we show error message, but don\u0027t do anything else.\n\nSide-note: I\u0027ve also removed `fireNoBubble(this, \u0027send\u0027)`. As far as I can tell it\u0027s only used in tests. I\u0027ve updated the relevant tests to not depend on it. Please, let me know if you think that\u0027s wrong.",
+      "parentUuid": "8da96bac_5ef26238",
+      "revId": "345cbacef20163d6eb38a4e63c3f463554c8c45a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89d31002_d07fc5a6",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-04-08T09:17:10Z",
       "side": 1,
       "message": "Are you 100% sure that the below 3 properties are the only properties that are affected by requesting a lot less details in the change request? No web links and download commands anywhere else in the Change Info? If you are sure, then feel free to just ack. :-)",
+      "revId": "345cbacef20163d6eb38a4e63c3f463554c8c45a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21637d39_23bbc9f4",
+        "filename": "polygerrit-ui/app/elements/change/gr-reply-dialog/gr-reply-dialog.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-08T10:02:34Z",
+      "side": 1,
+      "message": "As far as I can see (and cs x-ref can tell me), all those fields are set on parts of RevisionInfo.",
+      "parentUuid": "89d31002_d07fc5a6",
       "revId": "345cbacef20163d6eb38a4e63c3f463554c8c45a",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
