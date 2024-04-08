@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44f10492_c2baa547",
+        "filename": "plugins/replication",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-08T08:21:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cf9acb6_bce5ccea",
+      "revId": "d9d01c45ff7e08dd8eb2e652be27ab4c2526de7c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b36ac7e5_e74cf39f",
@@ -31,6 +49,30 @@
       "writtenOn": "2024-04-05T15:09:40Z",
       "side": 1,
       "message": "Requires updateRevisionsWithCommitShas.",
+      "range": {
+        "startLine": 1479,
+        "startChar": 40,
+        "endLine": 1479,
+        "endChar": 53
+      },
+      "revId": "d9d01c45ff7e08dd8eb2e652be27ab4c2526de7c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6027f246_57faaedb",
+        "filename": "polygerrit-ui/app/elements/change/gr-reply-dialog/gr-reply-dialog.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 1479,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-08T08:21:57Z",
+      "side": 1,
+      "message": "It doesn\u0027t, I moved the updateRevisionsWithCommitShas into updateStateChange in https://gerrit-review.git.corp.google.com/c/gerrit/+/416998 , but the line here got reverted by https://gerrit-review.git.corp.google.com/c/gerrit/+/416839",
+      "parentUuid": "b36ac7e5_e74cf39f",
       "range": {
         "startLine": 1479,
         "startChar": 40,
