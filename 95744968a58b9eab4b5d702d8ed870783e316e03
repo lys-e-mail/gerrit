@@ -16,6 +16,24 @@
       "message": "`Release-Notes: skip`",
       "revId": "95744968a58b9eab4b5d702d8ed870783e316e03",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "529b0eca_43d58159",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-04-09T21:06:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f4e3971_a9f35c54",
+      "revId": "95744968a58b9eab4b5d702d8ed870783e316e03",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
