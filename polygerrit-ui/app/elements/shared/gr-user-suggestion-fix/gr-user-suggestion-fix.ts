@@ -153,7 +153,6 @@ export class GrUserSuggestionsFix extends LitElement {
 
   private isApplyEditDisabled() {
     if (this.comment?.patch_set === undefined) return true;
-    if (isDraft(this.comment)) return true;
     return this.comment.patch_set !== this.latestPatchNum;
   }
 
