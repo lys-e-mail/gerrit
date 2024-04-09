@@ -16,6 +16,24 @@
       "message": "This causes a failure for plugins injecting `@GerritIsReplica boolean` in their Module.",
       "revId": "d1f9e6e5c29057b05a4660cab5db1e571d3f3332",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "041e84af_eb069249",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-09T00:16:27Z",
+      "side": 1,
+      "message": "Fixed in PS4.",
+      "parentUuid": "19b2c02c_3ed225f1",
+      "revId": "d1f9e6e5c29057b05a4660cab5db1e571d3f3332",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
