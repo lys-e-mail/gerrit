@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ea287cd_bfecb7f2",
+        "filename": "java/com/google/gerrit/server/plugins/ServerPlugin.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-09T18:38:24Z",
+      "side": 1,
+      "message": "We have to use `orElseGet()` here otherwise we always try to create the new injector. Using `orElse()` with an argument that creates an object likely should be some kind of errorprone check (it\u0027s not yet, I checked). I\u0027ll push another change to fix the other potentially problematic usages of `orElse()` in Gerrit.",
+      "range": {
+        "startLine": 289,
+        "startChar": 9,
+        "endLine": 289,
+        "endChar": 18
+      },
+      "revId": "22145cb21b9346c2a60bf4e8dd97f4a44606de4e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
