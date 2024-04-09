@@ -16,6 +16,24 @@
       "message": "This broke the reply dialog.",
       "revId": "47b268cc12787be9fedfc8484747265749d02a14",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "935eacad_ef647d70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-09T07:53:08Z",
+      "side": 1,
+      "message": "Thanks for pointing it out. Fix is in https://gerrit-review.git.corp.google.com/c/gerrit/+/418599",
+      "parentUuid": "4146764c_c10cda3b",
+      "revId": "47b268cc12787be9fedfc8484747265749d02a14",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
