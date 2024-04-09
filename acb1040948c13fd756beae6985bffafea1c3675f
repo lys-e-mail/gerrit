@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26023aaf_53eb0f8b",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+        "patchSetId": 8
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-09T08:00:00Z",
+      "side": 1,
+      "message": "Comment removed by: Milutin Kristofic; Reason: test",
+      "range": {
+        "startLine": 986,
+        "startChar": 28,
+        "endLine": 986,
+        "endChar": 37
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "2d0e95b6_c6dafed6",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+              "range": {
+                "startLine": 61,
+                "startChar": 0,
+                "endLine": 62,
+                "endChar": 0
+              },
+              "replacement": "import {FILE, LineNumber, getFileExtension} from \u0027../../../api/diff\u0027;\n"
+            },
+            {
+              "path": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+              "range": {
+                "startLine": 986,
+                "startChar": 0,
+                "endLine": 987,
+                "endChar": 0
+              },
+              "replacement": "          getFileExtension(this.comment.path)\n"
+            }
+          ]
+        }
+      ],
+      "revId": "acb1040948c13fd756beae6985bffafea1c3675f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aae005b2_0d0c6bec",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+        "patchSetId": 8
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-09T08:00:00Z",
+      "side": 1,
+      "message": "rename to renderPreview",
+      "range": {
+        "startLine": 995,
+        "startChar": 10,
+        "endLine": 995,
+        "endChar": 42
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "45d080a7_7067d82b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+              "range": {
+                "startLine": 639,
+                "startChar": 0,
+                "endLine": 639,
+                "endChar": 0
+              },
+              "replacement": "          ${this.renderGeneratedSuggestionInfo()}\n"
+            },
+            {
+              "path": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+              "range": {
+                "startLine": 995,
+                "startChar": 0,
+                "endLine": 996,
+                "endChar": 0
+              },
+              "replacement": "  private renderGeneratedSuggestionInfo() {\n    if (\n      !this.showGeneratedSuggestion() ||\n      !this.generateSuggestion ||\n      !this.generatedSuggestion\n    )\n      return nothing;\n\n    if (this.generatedSuggestion.newRange) {\n      return this.renderGeneratedSuggestionOutOfRange();\n    } else {\n      return nothing;\n    }\n  }\n\n  private renderPreview() {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "acb1040948c13fd756beae6985bffafea1c3675f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
