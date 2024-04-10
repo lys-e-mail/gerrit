@@ -1478,7 +1478,34 @@ export class GrReplyDialog extends LitElement {
           current_revision_number: this.change?.current_revision_number,
         };
         this.getChangeModel().updateStateChange(
+<<<<<<< HEAD   (219fe2 Merge "docs: Update listTags#sort-by example")
           GrReviewerUpdatesParser.parse(updatedChange as ChangeViewChangeInfo)
+||||||| BASE
+    return this.saveReview(reviewInput, errFn)
+      .then(result => {
+        this.getChangeModel().updateStateChange(
+          updateRevisionsWithCommitShas(
+            GrReviewerUpdatesParser.parse(
+              result?.change_info as ChangeViewChangeInfo
+            )
+          )
+        );
+
+        this.patchsetLevelDraftMessage = '';
+        this.includeComments = true;
+        fireNoBubble(this, 'send', {});
+        fireIronAnnounce(this, 'Reply sent');
+        this.getPluginLoader().jsApiService.handleReplySent();
+        return;
+      })
+      .then(result => result)
+      .finally(() => {
+        this.getNavigation().releaseNavigation('sending review');
+=======
+          GrReviewerUpdatesParser.parse(
+            result?.change_info as ChangeViewChangeInfo
+          )
+>>>>>>> BRANCH (1fb501 Avoid work in Optional.orElse() calls)
         );
         if (reloadRequired) {
           fireReload(this);
