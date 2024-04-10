@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3203faa7_244f0370",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-04-10T23:06:12Z",
+      "side": 1,
+      "message": "Probably want to redo the merge so it uses https://gerrit-review.googlesource.com/c/gerrit/+/418907",
+      "revId": "02518adb73222839b03ff7c92cddc94f6540d0cd",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
