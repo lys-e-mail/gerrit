@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02ae464d_1d048aa9",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-12T15:55:33Z",
+      "side": 1,
+      "message": "nit: use better name ?",
+      "range": {
+        "startLine": 567,
+        "startChar": 24,
+        "endLine": 567,
+        "endChar": 31
+      },
+      "revId": "2ee5dfc0d549f57bfa495d8326f3f6d5130b6cad",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
