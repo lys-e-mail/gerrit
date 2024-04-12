@@ -444,7 +444,13 @@ class RefControl {
                   pr.getGroup().getUUID().get(),
                   pr);
           LoggingContext.getInstance().addAclLogRecord(logMessage);
+<<<<<<< HEAD   (a84527 Merge "Set Chris Poucet as Google contact for escalations")
           logger.atFine().log("%s", logMessage);
+||||||| BASE
+              String.format(
+=======
+          logger.atFine().log(logMessage);
+>>>>>>> BRANCH (247478 Set version to 3.10.0-SNAPSHOT)
         }
         return true;
       }
@@ -460,7 +466,13 @@ class RefControl {
               projectControl.getProject().getName(),
               refName);
       LoggingContext.getInstance().addAclLogRecord(logMessage);
+<<<<<<< HEAD   (a84527 Merge "Set Chris Poucet as Google contact for escalations")
       logger.atFine().log("%s", logMessage);
+||||||| BASE
+
+=======
+      logger.atFine().log(logMessage);
+>>>>>>> BRANCH (247478 Set version to 3.10.0-SNAPSHOT)
     }
     return false;
   }
