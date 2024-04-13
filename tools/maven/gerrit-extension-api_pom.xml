@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-extension-api</artifactId>
+<<<<<<< HEAD   (247478 Set version to 3.10.0-SNAPSHOT)
   <version>3.10.0-SNAPSHOT</version>
+||||||| BASE
+  <version>3.9.3-SNAPSHOT</version>
+=======
+  <version>3.9.4-SNAPSHOT</version>
+>>>>>>> BRANCH (4e82fd Revert "Ensure plugin modules are bound in the baseInjector")
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Extension API</name>
   <description>API for Gerrit Extensions</description>

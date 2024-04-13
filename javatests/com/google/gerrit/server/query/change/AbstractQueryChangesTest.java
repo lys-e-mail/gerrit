@@ -3628,9 +3628,141 @@ public abstract class AbstractQueryChangesTest extends GerritServerTests {
 
   @Test
   public void watched_projectWatchThatUsesIsWatchedIsIgnored() throws Exception {
+<<<<<<< HEAD   (247478 Set version to 3.10.0-SNAPSHOT)
     Project.NameKey project = Project.nameKey("repo");
     createProject(project);
     insert(project, newChangeWithStatus(project, Change.Status.NEW));
+||||||| BASE
+    repo = createAndOpenProject("repo");
+    RevCommit commit1 =
+        repo.parseBody(repo.commit().message("Change one\n\nBug:QUERY123").create());
+    Change change1 = insert("repo", newChangeForCommit(repo, commit1));
+    RevCommit commit2 =
+        repo.parseBody(repo.commit().message("Change two\n\nIssue: Issue 16038\n").create());
+    Change change2 = insert("repo", newChangeForCommit(repo, commit2));
+
+    RevCommit commit3 =
+        repo.parseBody(repo.commit().message("Change two\n\nGoogle-Bug-Id: b/16039\n").create());
+    Change change3 = insert("repo", newChangeForCommit(repo, commit3));
+
+    assertQuery("tr:QUERY123", change1);
+    assertQuery("bug:QUERY123", change1);
+    assertQuery("tr:16038", change2);
+    assertQuery("bug:16038", change2);
+    assertQuery("tr:16039", change3);
+    assertQuery("bug:16039", change3);
+    assertQuery("tr:QUERY-123");
+    assertQuery("bug:QUERY-123");
+    assertQuery("tr:QUERY12");
+    assertQuery("bug:QUERY12");
+    assertQuery("tr:QUERY789");
+    assertQuery("bug:QUERY789");
+  }
+
+  @Test
+  public void defaultFieldWithManyUsers() throws Exception {
+    for (int i = 0; i < ChangeQueryBuilder.MAX_ACCOUNTS_PER_DEFAULT_FIELD * 2; i++) {
+      createAccount("user" + i, "User " + i, "user" + i + "@example.com", true);
+    }
+    assertQuery("us");
+  }
+
+  @Test
+  public void revertOf() throws Exception {
+    repo = createAndOpenProject("repo");
+    // Create two commits and revert second commit (initial commit can't be reverted)
+    Change initial = insert("repo", newChange(repo));
+    getChangeApi(initial).current().review(ReviewInput.approve());
+    getChangeApi(initial).current().submit();
+
+    ChangeInfo changeToRevert =
+        gApi.changes().create(new ChangeInput("repo", "master", "commit to revert")).get();
+    gApi.changes().id(changeToRevert.id).current().review(ReviewInput.approve());
+    gApi.changes().id(changeToRevert.id).current().submit();
+
+    ChangeInfo changeThatReverts = gApi.changes().id(changeToRevert.id).revert().get();
+    assertQueryByIds("revertof:" + changeToRevert._number, Change.id(changeThatReverts._number));
+  }
+
+  @Test
+  public void submissionId() throws Exception {
+    repo = createAndOpenProject("repo");
+    Change change = insert("repo", newChange(repo));
+    // create irrelevant change
+    insert("repo", newChange(repo));
+    getChangeApi(change).current().review(ReviewInput.approve());
+    getChangeApi(change).current().submit();
+    String submissionId = getChangeApi(change).get().submissionId;
+
+    assertQueryByIds("submissionid:" + submissionId, change.getId());
+  }
+
+  /** Change builder for helping in tests for dashboard sections. */
+  protected class DashboardChangeState {
+    private final Account.Id ownerId;
+    private final List<Account.Id> reviewedBy;
+    private final List<Account.Id> cced;
+    private final List<Account.Id> draftCommentBy;
+    private final List<Account.Id> deleteDraftCommentBy;
+    private boolean wip;
+    private boolean abandoned;
+    @Nullable private Account.Id mergedBy;
+
+    @Nullable Change.Id id;
+
+    DashboardChangeState(Account.Id ownerId) {
+      this.ownerId = ownerId;
+      reviewedBy = new ArrayList<>();
+      cced = new ArrayList<>();
+      draftCommentBy = new ArrayList<>();
+      deleteDraftCommentBy = new ArrayList<>();
+    }
+
+    DashboardChangeState wip() {
+      wip = true;
+      return this;
+    }
+
+    DashboardChangeState abandon() {
+      abandoned = true;
+      return this;
+    }
+
+    DashboardChangeState mergeBy(Account.Id mergedBy) {
+      this.mergedBy = mergedBy;
+      return this;
+    }
+
+    DashboardChangeState addReviewer(Account.Id reviewerId) {
+      reviewedBy.add(reviewerId);
+      return this;
+    }
+
+    DashboardChangeState addCc(Account.Id ccId) {
+      cced.add(ccId);
+      return this;
+    }
+
+    DashboardChangeState draftCommentBy(Account.Id commenterId) {
+      draftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState draftAndDeleteCommentBy(Account.Id commenterId) {
+      deleteDraftCommentBy.add(commenterId);
+      return this;
+    }
+
+    DashboardChangeState create(TestRepository<Repository> repo) throws Exception {
+      requestContext.setContext(newRequestContext(ownerId));
+      Change change = insert("repo", newChange(repo), ownerId);
+      id = change.getId();
+      ChangeApi cApi = getChangeApi(change);
+      if (wip) {
+=======
+    createProject("repo");
+    insert("repo", newChangeWithStatus("repo", Change.Status.NEW));
+>>>>>>> BRANCH (4e82fd Revert "Ensure plugin modules are bound in the baseInjector")
 
     List<ProjectWatchInfo> projectsToWatch = new ArrayList<>();
     ProjectWatchInfo pwi = new ProjectWatchInfo();
