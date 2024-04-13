@@ -444,7 +444,13 @@ class RefControl {
                   pr.getGroup().getUUID().get(),
                   pr);
           LoggingContext.getInstance().addAclLogRecord(logMessage);
+<<<<<<< HEAD   (55be31 Revert "Decrease Generate Suggestion Debounce Delay to 500ms)
           logger.atFine().log("%s", logMessage);
+||||||| BASE
+              String.format(
+=======
+          logger.atFine().log(logMessage);
+>>>>>>> BRANCH (2da13d Set version to 3.10.0-SNAPSHOT)
         }
         return true;
       }
@@ -460,7 +466,13 @@ class RefControl {
               projectControl.getProject().getName(),
               refName);
       LoggingContext.getInstance().addAclLogRecord(logMessage);
+<<<<<<< HEAD   (55be31 Revert "Decrease Generate Suggestion Debounce Delay to 500ms)
       logger.atFine().log("%s", logMessage);
+||||||| BASE
+
+=======
+      logger.atFine().log(logMessage);
+>>>>>>> BRANCH (2da13d Set version to 3.10.0-SNAPSHOT)
     }
     return false;
   }
