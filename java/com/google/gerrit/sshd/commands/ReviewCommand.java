@@ -253,6 +253,7 @@ public class ReviewCommand extends SshCommand {
   }
 
   private void applyReview(PatchSet patchSet, ReviewInput review) throws Exception {
+<<<<<<< HEAD   (247478 Set version to 3.10.0-SNAPSHOT)
     Changes changesApi = gApi.changes();
     int changeNumber = patchSet.id().changeId().get();
     String projectName;
@@ -287,6 +288,56 @@ public class ReviewCommand extends SshCommand {
                   return null;
                 })
             .call();
+||||||| BASE
+    retryHelper
+        .action(
+            ActionType.CHANGE_UPDATE,
+            "applyReview",
+            () -> {
+              gApi.changes()
+                  .id(patchSet.id().changeId().get())
+                  .revision(patchSet.number())
+                  .review(review);
+              return null;
+            })
+        .call();
+  }
+
+  private ReviewInput reviewFromJson() throws UnloggedFailure {
+    try (InputStreamReader r = new InputStreamReader(in, UTF_8)) {
+      return OutputFormat.JSON.newGson().fromJson(CharStreams.toString(r), ReviewInput.class);
+    } catch (IOException | JsonSyntaxException e) {
+      writeError("error", e.getMessage() + '\n');
+      throw die("internal error while reading review input");
+    }
+  }
+
+  private void reviewPatchSet(PatchSet patchSet) throws Exception {
+
+    ReviewInput review = new ReviewInput();
+    review.message = Strings.emptyToNull(changeComment);
+    review.tag = Strings.emptyToNull(changeTag);
+    review.notify = notify;
+    review.labels = new TreeMap<>();
+    review.drafts = ReviewInput.DraftHandling.PUBLISH;
+    for (LabelSetter setter : optionMap.values()) {
+      setter.getValue().ifPresent(v -> review.labels.put(setter.getLabelName(), v));
+    }
+    review.labels.putAll(customLabels);
+
+    // We don't need to add the review comment when abandoning/restoring.
+    if (abandonChange || restoreChange || moveToBranch != null) {
+=======
+    retryHelper
+        .action(
+            ActionType.CHANGE_UPDATE,
+            "applyReview",
+            () -> {
+              getRevisionApi(patchSet).review(review);
+              return null;
+            })
+        .call();
+>>>>>>> BRANCH (4e82fd Revert "Ensure plugin modules are bound in the baseInjector")
   }
 
   private ReviewInput reviewFromJson() throws UnloggedFailure {
@@ -321,11 +372,11 @@ public class ReviewCommand extends SshCommand {
         AbandonInput input = new AbandonInput();
         input.message = Strings.emptyToNull(changeComment);
         applyReview(patchSet, review);
-        changeApi(patchSet).abandon(input);
+        getChangeApi(patchSet).abandon(input);
       } else if (restoreChange) {
         RestoreInput input = new RestoreInput();
         input.message = Strings.emptyToNull(changeComment);
-        changeApi(patchSet).restore(input);
+        getChangeApi(patchSet).restore(input);
         applyReview(patchSet, review);
       } else {
         applyReview(patchSet, review);
@@ -335,15 +386,15 @@ public class ReviewCommand extends SshCommand {
         MoveInput moveInput = new MoveInput();
         moveInput.destinationBranch = moveToBranch;
         moveInput.message = Strings.emptyToNull(changeComment);
-        changeApi(patchSet).move(moveInput);
+        getChangeApi(patchSet).move(moveInput);
       }
 
       if (rebaseChange) {
-        revisionApi(patchSet).rebase();
+        getRevisionApi(patchSet).rebase();
       }
 
       if (submitChange) {
-        revisionApi(patchSet).submit();
+        getRevisionApi(patchSet).submit();
       }
 
     } catch (IllegalStateException | RestApiException e) {
@@ -351,12 +402,19 @@ public class ReviewCommand extends SshCommand {
     }
   }
 
-  private ChangeApi changeApi(PatchSet patchSet) throws RestApiException {
-    return gApi.changes().id(patchSet.id().changeId().get());
+  private ChangeApi getChangeApi(PatchSet patchSet) throws RestApiException {
+    if (projectState != null) {
+      return gApi.changes().id(projectState.getName(), patchSet.id().changeId().get());
+    }
+    /* Since we didn't get a project from the CLI we have to use the ambiguous
+     * Changes#id(String) that may fail to identify one single change and throw
+     * an exception.
+     */
+    return gApi.changes().id(String.valueOf(patchSet.id().changeId().get()));
   }
 
-  private RevisionApi revisionApi(PatchSet patchSet) throws RestApiException {
-    return changeApi(patchSet).revision(patchSet.commitId().name());
+  private RevisionApi getRevisionApi(PatchSet patchSet) throws RestApiException {
+    return getChangeApi(patchSet).revision(patchSet.commitId().name());
   }
 
   @Override
