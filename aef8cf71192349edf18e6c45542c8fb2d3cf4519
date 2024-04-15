@@ -70,6 +70,29 @@
       },
       "revId": "aef8cf71192349edf18e6c45542c8fb2d3cf4519",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "364a3a1d_7d404ee8",
+        "filename": "java/com/google/gerrit/sshd/PluginCommandModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-15T19:01:16Z",
+      "side": 1,
+      "message": "This should be mentioned in the release-notes as breaking change, see I064679d1c",
+      "range": {
+        "startLine": 23,
+        "startChar": 2,
+        "endLine": 23,
+        "endChar": 47
+      },
+      "revId": "aef8cf71192349edf18e6c45542c8fb2d3cf4519",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
