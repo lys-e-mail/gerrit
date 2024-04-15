@@ -25,6 +25,7 @@ import com.google.gerrit.server.update.UpdateException;
 import com.google.gerrit.server.util.ManualRequestContext;
 import com.google.gerrit.server.util.OneOffRequestContext;
 import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 /** Runnable to enable scheduling change cleanups to run periodically */
 public class ChangeCleanupRunner implements Runnable {
@@ -37,15 +38,21 @@ public class ChangeCleanupRunner implements Runnable {
     }
   }
 
+  public interface Factory {
+    ChangeCleanupRunner create();
+
+    ChangeCleanupRunner create(long abandonAfterMillis, boolean abandonIfMergeable, String message);
+  }
+
   static class Lifecycle implements LifecycleListener {
     private final WorkQueue queue;
     private final ChangeCleanupRunner runner;
     private final ChangeCleanupConfig cfg;
 
     @Inject
-    Lifecycle(WorkQueue queue, ChangeCleanupRunner runner, ChangeCleanupConfig cfg) {
+    Lifecycle(WorkQueue queue, ChangeCleanupRunner.Factory runner, ChangeCleanupConfig cfg) {
       this.queue = queue;
-      this.runner = runner;
+      this.runner = runner.create();
       this.cfg = cfg;
     }
 
@@ -63,13 +70,38 @@ public class ChangeCleanupRunner implements Runnable {
   private final OneOffRequestContext oneOffRequestContext;
   private final AbandonUtil abandonUtil;
   private final RetryHelper retryHelper;
+  private final long abandonAfterMillis;
+  private final boolean abandonIfMergeable;
+  private final String message;
 
   @Inject
   ChangeCleanupRunner(
-      OneOffRequestContext oneOffRequestContext, AbandonUtil abandonUtil, RetryHelper retryHelper) {
+      OneOffRequestContext oneOffRequestContext,
+      AbandonUtil abandonUtil,
+      RetryHelper retryHelper,
+      @Assisted long abandonAfterMillis,
+      @Assisted boolean abandonIfMergeable,
+      @Assisted String message) {
     this.oneOffRequestContext = oneOffRequestContext;
     this.abandonUtil = abandonUtil;
     this.retryHelper = retryHelper;
+    this.abandonAfterMillis = abandonAfterMillis;
+    this.abandonIfMergeable = abandonIfMergeable;
+    this.message = message;
+  }
+
+  @Inject
+  ChangeCleanupRunner(
+      OneOffRequestContext oneOffRequestContext,
+      AbandonUtil abandonUtil,
+      RetryHelper retryHelper,
+      ChangeCleanupConfig cfg) {
+    this.oneOffRequestContext = oneOffRequestContext;
+    this.abandonUtil = abandonUtil;
+    this.retryHelper = retryHelper;
+    this.abandonAfterMillis = cfg.getAbandonAfter();
+    this.abandonIfMergeable = cfg.getAbandonIfMergeable();
+    this.message = cfg.getAbandonMessage();
   }
 
   @Override
@@ -85,7 +117,8 @@ public class ChangeCleanupRunner implements Runnable {
               .changeUpdate(
                   "abandonInactiveOpenChanges",
                   updateFactory -> {
-                    abandonUtil.abandonInactiveOpenChanges(updateFactory);
+                    abandonUtil.abandonInactiveOpenChanges(
+                        updateFactory, abandonAfterMillis, abandonIfMergeable, message);
                     return null;
                   })
               .call();
