@@ -1,0 +1,114 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05de9e9e_42840c9a",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-16T11:20:33Z",
+      "side": 1,
+      "message": "this is used in the Comments tab as well right, where the latest comment is expected to be shown at the top IIUC?\n\nHence the check of `updated` in the previous sorting algorithm.\n\nNow this sorts by path instead IIUC.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 31
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5eab4cb4_a5b44e65",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-16T11:20:33Z",
+      "side": 1,
+      "message": "can you add a comment documenting the sorting criteria followed?",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 31
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "627e66f9_fb8b7505",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/utils/comment-util.ts",
+              "range": {
+                "startLine": 86,
+                "startChar": 0,
+                "endLine": 86,
+                "endChar": 0
+              },
+              "replacement": "/**\n * Sorts comments by file, patchset, line, start line, start character, end\n * character, end line, draft status, and finally updated time.\n */\n"
+            }
+          ]
+        }
+      ],
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9625d34_e2a36866",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-16T11:20:33Z",
+      "side": 1,
+      "message": "nit: the return value of the `compareNumber` doesn\u0027t fit the variable name assigned such as `startChar` or `range`\n\nConsider adding comparison suffix to these such as `endCharComparison \u003d\u003d\u003d 0`",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 119,
+        "endChar": 33
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cea0c293_6db68f5a",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-16T11:20:33Z",
+      "side": 1,
+      "message": "how can this be possible?\n\nThe type is number so do we need this check?",
+      "range": {
+        "startLine": 159,
+        "startChar": 6,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
