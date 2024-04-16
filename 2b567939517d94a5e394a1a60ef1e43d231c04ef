@@ -65,6 +65,54 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbfa4a2c_3eaddb77",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-16T15:05:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5eab4cb4_a5b44e65",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 31
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7641dc09_4fbf2a0d",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-16T15:05:58Z",
+      "side": 1,
+      "message": "No, this is `compareThreads()` in gr-thread-list.ts. I have added a TODO to reconcile the two.",
+      "parentUuid": "05de9e9e_42840c9a",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 31
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9625d34_e2a36866",
@@ -88,6 +136,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "311f6e6b_779a3e3a",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-16T15:05:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9625d34_e2a36866",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 119,
+        "endChar": 33
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cea0c293_6db68f5a",
@@ -101,6 +173,30 @@
       "writtenOn": "2024-04-16T11:20:33Z",
       "side": 1,
       "message": "how can this be possible?\n\nThe type is number so do we need this check?",
+      "range": {
+        "startLine": 159,
+        "startChar": 6,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d7a0896_f89751c2",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-16T15:05:58Z",
+      "side": 1,
+      "message": "A number can be NaN. 😊",
+      "parentUuid": "cea0c293_6db68f5a",
       "range": {
         "startLine": 159,
         "startChar": 6,
