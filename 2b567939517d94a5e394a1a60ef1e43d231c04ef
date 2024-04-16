@@ -205,6 +205,30 @@
       },
       "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f44734d8_5f4e0349",
+        "filename": "polygerrit-ui/app/utils/comment-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-04-16T16:48:55Z",
+      "side": 1,
+      "message": "Should we be asserting this never happens?\nI don\u0027t immediately see any code flow that would pass a NaN to this function?",
+      "parentUuid": "3d7a0896_f89751c2",
+      "range": {
+        "startLine": 159,
+        "startChar": 6,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "2b567939517d94a5e394a1a60ef1e43d231c04ef",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
