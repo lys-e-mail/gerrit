@@ -22,6 +22,30 @@
       },
       "revId": "68960ed3543d11a4bc4ac3a423e9fddb43f7d95a",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "029e63d0_c45be6a4",
+        "filename": "tools/setup_gjf.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-04-16T11:02:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "401a31f2_8513e286",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 36
+      },
+      "revId": "68960ed3543d11a4bc4ac3a423e9fddb43f7d95a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
