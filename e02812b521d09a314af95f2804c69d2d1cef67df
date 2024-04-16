@@ -16,6 +16,24 @@
       "message": "It looks like this added a new field `\"_virtual_id_number\": \u003cnumber\u003e` to the JSON output for ChangeInfo but I don\u0027t see this in the docs https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#change-info.\n\nWas this an intended change? If so, we should add it into the documentation.",
       "revId": "e02812b521d09a314af95f2804c69d2d1cef67df",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4911dd0_3c775229",
+        "filename": "java/com/google/gerrit/server/change/ChangeJson.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-04-16T06:28:20Z",
+      "side": 1,
+      "message": "Addressed in Iddf5dee4",
+      "parentUuid": "aaaf7a61_d031406d",
+      "revId": "e02812b521d09a314af95f2804c69d2d1cef67df",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
