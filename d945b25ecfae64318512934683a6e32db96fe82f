@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeeb0798_8f444fb4",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 1685,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-04-17T13:07:04Z",
+      "side": 1,
+      "message": "nit: ? after `this.comment` is unnecessary",
+      "range": {
+        "startLine": 1682,
+        "startChar": 6,
+        "endLine": 1685,
+        "endChar": 73
+      },
+      "revId": "d945b25ecfae64318512934683a6e32db96fe82f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
