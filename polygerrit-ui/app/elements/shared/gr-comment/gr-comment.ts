@@ -1706,6 +1706,7 @@ export class GrComment extends LitElement {
       return undefined;
     if (!this.generateSuggestion) return undefined;
     if (!this.generatedFixSuggestion) return undefined;
+    if (this.comment && hasUserSuggestion(this.comment)) return undefined;
     return [this.generatedFixSuggestion];
   }
 
