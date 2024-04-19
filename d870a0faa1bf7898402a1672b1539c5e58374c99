@@ -59,6 +59,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3605010e_e0ef7d07",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-19T06:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee09b313_1e635e8c",
+      "range": {
+        "startLine": 23,
+        "startChar": 3,
+        "endLine": 23,
+        "endChar": 70
+      },
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a357d408_6ed51766",
@@ -72,6 +96,30 @@
       "writtenOn": "2024-04-19T04:41:34Z",
       "side": 1,
       "message": "Maybe we can remove this?",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 108
+      },
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af8a4a05_6c0d544e",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-19T06:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a357d408_6ed51766",
       "range": {
         "startLine": 136,
         "startChar": 4,
@@ -119,6 +167,30 @@
           ]
         }
       ],
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceaf9d8e_c574a9bb",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-19T06:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46d2d885_5711680b",
+      "range": {
+        "startLine": 308,
+        "startChar": 1,
+        "endLine": 308,
+        "endChar": 27
+      },
       "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
