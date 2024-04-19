@@ -1,0 +1,126 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46d0d211_a208a93e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-19T04:41:34Z",
+      "side": 1,
+      "message": "If there are some parts of code I should carefully review, let me know. I read it all, but I was commenting only on comments.",
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee09b313_1e635e8c",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-19T04:41:34Z",
+      "side": 1,
+      "message": "Whether",
+      "range": {
+        "startLine": 23,
+        "startChar": 3,
+        "endLine": 23,
+        "endChar": 70
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "ea5d0506_9784825b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/embed/gr-textarea.ts",
+              "range": {
+                "startLine": 23,
+                "startChar": 0,
+                "endLine": 24,
+                "endChar": 0
+              },
+              "replacement": " * Whether current browser supports plaintext-only for contenteditable\n"
+            }
+          ]
+        }
+      ],
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a357d408_6ed51766",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-19T04:41:34Z",
+      "side": 1,
+      "message": "Maybe we can remove this?",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 108
+      },
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46d2d885_5711680b",
+        "filename": "polygerrit-ui/app/embed/gr-textarea.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-04-19T04:41:34Z",
+      "side": 1,
+      "message": "Nit: Focuses",
+      "range": {
+        "startLine": 308,
+        "startChar": 1,
+        "endLine": 308,
+        "endChar": 27
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "a4f68dfc_037b9d71",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/embed/gr-textarea.ts",
+              "range": {
+                "startLine": 308,
+                "startChar": 0,
+                "endLine": 309,
+                "endChar": 0
+              },
+              "replacement": "   * Focuses the textarea.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "d870a0faa1bf7898402a1672b1539c5e58374c99",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
