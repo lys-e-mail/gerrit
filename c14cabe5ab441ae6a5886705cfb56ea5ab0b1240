@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fd40ffb_8bf75499",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-19T12:22:54Z",
+      "side": 1,
+      "message": "This would still create an overhead even if there are no plugins installed or using this feature.\n\nSee the method definition at L598-L623.\n\nWhat\u0027s the runtime execution slowdown introduced? Did you measure it?\nHave you explored the option of skipping this altogether if there are no listeners implementing the `TaskParker` interface?",
+      "range": {
+        "startLine": 579,
+        "startChar": 10,
+        "endLine": 579,
+        "endChar": 31
+      },
+      "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
