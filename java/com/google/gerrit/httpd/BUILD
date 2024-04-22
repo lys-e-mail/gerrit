@@ -29,6 +29,7 @@ java_library(
         "//java/com/google/gerrit/util/cli",
         "//java/com/google/gerrit/util/http",
         "//lib:args4j",
+        "//lib/commons:text",
         "//lib:gson",
         "//lib:guava",
         "//lib:jgit",

@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.commons.text.StringEscapeUtils;
 
 /** Helper for generating parts of {@code index.html}. */
 @UsedAt(Project.GOOGLE)
@@ -68,7 +69,7 @@ public class IndexHtmlUtil {
     data.putAll(
             staticTemplateData(
                 canonicalURL, cdnPath, faviconPath, urlParameterMap, urlInScriptTagOrdainer))
-        .putAll(dynamicTemplateData(gerritApi, requestedURL));
+        .putAll(dynamicTemplateData(gerritApi, requestedURL, canonicalURL));
     Set<String> enabledExperiments = new HashSet<>();
     enabledExperiments.addAll(experimentFeatures.getEnabledExperimentFeatures());
     // Add all experiments enabled through url
@@ -81,13 +82,13 @@ public class IndexHtmlUtil {
 
   /** Returns dynamic parameters of {@code index.html}. */
   public static ImmutableMap<String, Object> dynamicTemplateData(
-      GerritApi gerritApi, String requestedURL) throws RestApiException, URISyntaxException {
+      GerritApi gerritApi, String requestedURL, String canonicalURL) throws RestApiException, URISyntaxException {
     ImmutableMap.Builder<String, Object> data = ImmutableMap.builder();
     Map<String, SanitizedContent> initialData = new HashMap<>();
     Server serverApi = gerritApi.config().server();
-    initialData.put("\"/config/server/info\"", serializeObject(GSON, serverApi.getInfo()));
-    initialData.put("\"/config/server/version\"", serializeObject(GSON, serverApi.getVersion()));
-    initialData.put("\"/config/server/top-menus\"", serializeObject(GSON, serverApi.topMenus()));
+    initialData.put(addCanonicalUrl("/config/server/info", canonicalURL), serializeObject(GSON, serverApi.getInfo()));
+    initialData.put(addCanonicalUrl("/config/server/version", canonicalURL), serializeObject(GSON, serverApi.getVersion()));
+    initialData.put(addCanonicalUrl("/config/server/top-menus", canonicalURL), serializeObject(GSON, serverApi.topMenus()));
 
     String requestedPath = IndexPreloadingUtil.getPath(requestedURL);
     IndexPreloadingUtil.RequestedPage page = IndexPreloadingUtil.parseRequestedPage(requestedPath);
@@ -110,14 +111,14 @@ public class IndexHtmlUtil {
 
     try {
       AccountApi accountApi = gerritApi.accounts().self();
-      initialData.put("\"/accounts/self/detail\"", serializeObject(GSON, accountApi.get()));
+      initialData.put(addCanonicalUrl("/accounts/self/detail", canonicalURL), serializeObject(GSON, accountApi.get()));
       initialData.put(
-          "\"/accounts/self/preferences\"", serializeObject(GSON, accountApi.getPreferences()));
+          addCanonicalUrl("/accounts/self/preferences", canonicalURL), serializeObject(GSON, accountApi.getPreferences()));
       initialData.put(
-          "\"/accounts/self/preferences.diff\"",
+          addCanonicalUrl("/accounts/self/preferences.diff", canonicalURL),
           serializeObject(GSON, accountApi.getDiffPreferences()));
       initialData.put(
-          "\"/accounts/self/preferences.edit\"",
+          addCanonicalUrl("/accounts/self/preferences.edit", canonicalURL),
           serializeObject(GSON, accountApi.getEditPreferences()));
       data.put("userIsAuthenticated", true);
       if (page == RequestedPage.DASHBOARD) {
@@ -131,6 +132,16 @@ public class IndexHtmlUtil {
 
     data.put("gerritInitialData", initialData);
     return data.build();
+  }
+
+  private static String addCanonicalUrl(String key, String canonicalURL) throws URISyntaxException{
+    String canonicalPath = computeCanonicalPath(canonicalURL);
+
+    if (canonicalPath != null) {
+      return StringEscapeUtils.escapeJson(canonicalPath + key);
+    }
+
+    return StringEscapeUtils.escapeJson(key);
   }
 
   /** Returns experimentData to be used in {@code index.html}. */
