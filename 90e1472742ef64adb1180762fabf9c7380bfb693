@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9089579b_e699c96f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-04-22T12:32:49Z",
+      "side": 1,
+      "message": "tests don\u0027t compile:\n\n```\n12:30:49 javatests/com/google/gerrit/acceptance/api/change/AbandonIT.java:143: error: method abandonInactiveOpenChanges in class AbandonUtil cannot be applied to given types;\n12:30:49     abandonUtil.abandonInactiveOpenChanges(batchUpdateFactory);\n12:30:49                ^\n12:30:49   required: Factory,long,boolean,String\n12:30:49   found:    Factory\n12:30:49   reason: actual and formal argument lists differ in length\n12:30:49 javatests/com/google/gerrit/acceptance/api/change/AbandonIT.java:185: error: method abandonInactiveOpenChanges in class AbandonUtil cannot be applied to given types;\n12:30:49     abandonUtil.abandonInactiveOpenChanges(batchUpdateFactory);\n12:30:49                ^\n12:30:49   required: Factory,long,boolean,String\n12:30:49   found:    Factory\n12:30:49   reason: actual and formal argument lists differ in length\n12:30:49 javatests/com/google/gerrit/acceptance/api/change/AbandonIT.java:232: error: method abandonInactiveOpenChanges in class AbandonUtil cannot be applied to given types;\n12:30:49     abandonUtil.abandonInactiveOpenChanges(batchUpdateFactory);\n12:30:49                ^\n12:30:49   required: Factory,long,boolean,String\n12:30:49   found:    Factory\n12:30:49   reason: actual and formal argument lists differ in length\n```",
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
