@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "576e0da6_2f916c0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3402322
+      },
+      "writtenOn": "2024-04-22T10:05:35Z",
+      "side": 1,
+      "message": "Akash Singh",
+      "revId": "9911f1929c7a4906b5832174f57499e89d53ac2b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
