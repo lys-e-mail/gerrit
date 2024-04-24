@@ -41,6 +41,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd923783_1c429460",
+        "filename": "Documentation/rest-api-config.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 1776,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-04-24T09:38:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75276f4e_323f69b6",
+      "range": {
+        "startLine": 1776,
+        "startChar": 35,
+        "endLine": 1776,
+        "endChar": 46
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1dea1dab_e3f11942",
@@ -54,6 +78,30 @@
       "writtenOn": "2024-04-22T12:41:43Z",
       "side": 1,
       "message": "Do we need this with a precision of milliseconds?",
+      "range": {
+        "startLine": 47,
+        "startChar": 36,
+        "endLine": 47,
+        "endChar": 54
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09711eca_04fc6037",
+        "filename": "java/com/google/gerrit/server/change/ChangeCleanupRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-04-24T09:38:19Z",
+      "side": 1,
+      "message": "No. In AbandonUtil, it is anyway rounded to minutes. This is more because millis were used before and what the existing `cfg.getAbandonAfter()` provides. I agree that this could be done better, but that should not be part of this change.",
+      "parentUuid": "1dea1dab_e3f11942",
       "range": {
         "startLine": 47,
         "startChar": 36,
@@ -87,6 +135,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97dd6278_50333644",
+        "filename": "java/com/google/gerrit/server/restapi/config/CleanChanges.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-04-24T09:38:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2926204a_f0b23fa1",
+      "range": {
+        "startLine": 34,
+        "startChar": 13,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6687ab28_37f4034f",
@@ -110,6 +182,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b6dea92_964cbd87",
+        "filename": "java/com/google/gerrit/server/restapi/config/ConfigRestApiModule.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-04-24T09:38:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6687ab28_37f4034f",
+      "range": {
+        "startLine": 57,
+        "startChar": 23,
+        "endLine": 57,
+        "endChar": 28
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0bf420fe_389efadb",
@@ -123,6 +219,30 @@
       "writtenOn": "2024-04-22T12:41:43Z",
       "side": 1,
       "message": "cleanup ?",
+      "range": {
+        "startLine": 70,
+        "startChar": 40,
+        "endLine": 70,
+        "endChar": 45
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a867576_a9ff3f2d",
+        "filename": "javatests/com/google/gerrit/acceptance/rest/binding/ConfigRestApiBindingsIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1065256
+      },
+      "writtenOn": "2024-04-24T09:38:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bf420fe_389efadb",
       "range": {
         "startLine": 70,
         "startChar": 40,
