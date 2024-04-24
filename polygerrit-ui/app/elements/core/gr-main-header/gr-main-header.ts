@@ -226,7 +226,7 @@ export class GrMainHeader extends LitElement {
           height: var(--icon-height);
           /* If size or height are set, then use 'spacing-m', 0px otherwise. */
           margin-right: clamp(0px, var(--icon-height), var(--spacing-m));
-          vertical-align: text-bottom;
+          vertical-align: middle;
           width: var(--icon-width);
         }
         .titleText::after {
