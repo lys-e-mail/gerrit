@@ -112,6 +112,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4902b17_ed723138",
+        "filename": "java/com/google/gerrit/server/change/ChangeCleanupRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-04-24T10:57:09Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "09711eca_04fc6037",
+      "range": {
+        "startLine": 47,
+        "startChar": 36,
+        "endLine": 47,
+        "endChar": 54
+      },
+      "revId": "90e1472742ef64adb1180762fabf9c7380bfb693",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2926204a_f0b23fa1",
