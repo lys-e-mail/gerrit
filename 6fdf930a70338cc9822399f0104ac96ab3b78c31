@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f6aeb05_ca01d517",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T15:11:37Z",
+      "side": 1,
+      "message": "You\u0027re a hero for fixing this, thank you! 🎉",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 10
+      },
+      "revId": "6fdf930a70338cc9822399f0104ac96ab3b78c31",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b961862e_aa8e3d0b",
+        "filename": "java/com/google/gerrit/metrics/Timer0.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T15:11:37Z",
+      "side": 1,
+      "message": "Was changing this log level intended? I don\u0027t think you mentioned it in the commit message.",
+      "range": {
+        "startLine": 79,
+        "startChar": 11,
+        "endLine": 79,
+        "endChar": 17
+      },
+      "revId": "6fdf930a70338cc9822399f0104ac96ab3b78c31",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5de8a42_13bf0e05",
+        "filename": "java/com/google/gerrit/server/logging/PerformanceLogRecord.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T15:11:37Z",
+      "side": 1,
+      "message": "Just for my info, why do we use a `long` here instead of `Duration`? My guesses are that it\u0027s either due to the extra `int` stored in a `Duration` or because there\u0027s no way to indicate the recorded resolution with a `Duration`. Is it one of those, both, or something else?",
+      "range": {
+        "startLine": 57,
+        "startChar": 18,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "6fdf930a70338cc9822399f0104ac96ab3b78c31",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
