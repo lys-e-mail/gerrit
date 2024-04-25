@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eff5ed34_6c7b5c5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-25T07:36:56Z",
+      "side": 1,
+      "message": "Thanks for the contribution! Unfortunately, we cannot just approve and merge this change for two reasons:\n\n1. `vertical-align: middle` does not do what you would typically expect it to. It does NOT have equal distance from top and bottom. From https://developer.mozilla.org/en-US/docs/Web/CSS/vertical-align#middle:\n\n`Aligns the middle of the element with the baseline plus half the x-height of the parent.`\n\nIf you really want to fix the vertical alignment, then you have to dig deeper and use `display: flex` with its more detailed control over positioning. But this is not easy, because\n\n(A) \u003ca\u003e is magically display:block being a direct child of \u003cnav\u003e, which is display:flex.\n(B) There is an API DOM endpoint in the DOM hiearchy.\n(C) We are using ::before for allowing css control over the content.\n\n2. There are hundreds of Gerrit installations that already have an icon and a header title. Most likely most of them have already adapted to the somewhat broken setup using their own workarounds (css styling or adapted images). We would like to not just break them without notice. That makes this a larger effort and thus I would prefer to dig deeper (see 1), *if* we decide to tackle it.\n\n@poucet@google.com FYI and for potential prioritization or ESC discussion",
+      "revId": "3015d10de50a0c0e845f6e322866a7dba53b03c5",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
