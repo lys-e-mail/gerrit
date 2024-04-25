@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e242bade_818af914",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T22:45:14Z",
+      "side": 1,
+      "message": "nit: s/QCS/QOS/ ?",
+      "range": {
+        "startLine": 11,
+        "startChar": 26,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df895f13_4b990e85",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T22:45:14Z",
+      "side": 1,
+      "message": "nit: this fits on the line above",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "471a4f1d_220ac864",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-25T22:45:14Z",
+      "side": 1,
+      "message": "The docs say this should be `TaskListener` and that\u0027s what the tests do too. Which is correct?",
+      "range": {
+        "startLine": 101,
+        "startChar": 13,
+        "endLine": 101,
+        "endChar": 23
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
