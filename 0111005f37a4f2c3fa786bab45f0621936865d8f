@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e85710b1_7be2ae3d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e242bade_818af914",
+      "range": {
+        "startLine": 11,
+        "startChar": 26,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df895f13_4b990e85",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-04-25T22:45:14Z",
       "side": 1,
       "message": "nit: this fits on the line above",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2ec691f_210845d3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df895f13_4b990e85",
       "range": {
         "startLine": 12,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b142b0a_dce7b5d1",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "471a4f1d_220ac864",
+      "range": {
+        "startLine": 101,
+        "startChar": 13,
+        "endLine": 101,
+        "endChar": 23
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b45bb13_26ca3936",
@@ -83,6 +155,30 @@
       "writtenOn": "2024-04-26T19:37:42Z",
       "side": 1,
       "message": "follow up: These can be simplified to only `.get()`. Do that in a parent change?\n```suggestion\n      listeners.runEach(extension -\u003e extension.get().onStart(task));\n```",
+      "range": {
+        "startLine": 590,
+        "startChar": 46,
+        "endLine": 590,
+        "endChar": 66
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d0132ec_19f6b667",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b45bb13_26ca3936",
       "range": {
         "startLine": 590,
         "startChar": 46,
@@ -116,6 +212,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "629bea36_8d33fb78",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58fd5f55_b6b8833c",
+      "range": {
+        "startLine": 600,
+        "startChar": 6,
+        "endLine": 613,
+        "endChar": 13
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c7b0b85d_b410d163",
@@ -139,6 +259,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5dc0ca6_de9a9ae9",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "`Set` does not have a `get()`, so I can\u0027t really use these suggestions. I did cleanup a bit on the existing code.",
+      "parentUuid": "c7b0b85d_b410d163",
+      "range": {
+        "startLine": 616,
+        "startChar": 8,
+        "endLine": 621,
+        "endChar": 15
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fded1bfb_c8edf073",
@@ -152,6 +296,30 @@
       "writtenOn": "2024-04-26T19:37:42Z",
       "side": 1,
       "message": "We can add a shortcut here for when there\u0027s nothing parked:\n```suggestion\n      ParkedTask ready \u003d parked.poll();\n      if (ready \u003d\u003d null) {\n         return;\n      }\n      List\u003cParkedTask\u003e notReady \u003d new ArrayList\u003c\u003e();\n```\n\nThat only really saves creation of the ArrayList, but maybe that\u0027s worth it.",
+      "range": {
+        "startLine": 627,
+        "startChar": 0,
+        "endLine": 628,
+        "endChar": 39
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f347a3f0_87b13e2d",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fded1bfb_c8edf073",
       "range": {
         "startLine": 627,
         "startChar": 0,

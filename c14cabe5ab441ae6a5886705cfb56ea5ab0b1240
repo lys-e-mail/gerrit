@@ -94,6 +94,30 @@
       },
       "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c04eee86_46fc19b7",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T21:05:53Z",
+      "side": 1,
+      "message": "\u003e We can add an emptiness check here too:\n\u003e \n\u003e ```suggestion\n\u003e       if (!listeners.isEmpty() \u0026\u0026 !isReadyToStart(task)) {\n\u003e ```\n\u003e \n\nI have added it now. `isEmpty()` does not specifically check if we have empty `TaskParkers`, but empty `TaskListeners` and `TaskParkers` combined. That is still a worthwhile check to have as folks who don\u0027t have any registered listeners will skip these new methods.\n\n\u003e \u003e How many times the onStart() is called per minute in your production system? Can you count them somehow?\n\u003e \n\u003e We don\u0027t have a good way to count that in production today. I can think of some nice ways to do it, but it would take us a few weeks (sadly) to get that into production.",
+      "parentUuid": "3ec7f033_2e0a7ad6",
+      "range": {
+        "startLine": 579,
+        "startChar": 10,
+        "endLine": 579,
+        "endChar": 31
+      },
+      "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
