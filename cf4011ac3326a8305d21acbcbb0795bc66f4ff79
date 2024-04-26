@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ace17344_b50779d4",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T22:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b112f718_dad6f6f9",
+      "range": {
+        "startLine": 594,
+        "startChar": 0,
+        "endLine": 596,
+        "endChar": 7
+      },
+      "revId": "cf4011ac3326a8305d21acbcbb0795bc66f4ff79",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "647d9633_81c894ee",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-04-26T21:08:17Z",
       "side": 1,
       "message": "Can you rename this `e` to `readyParker` and use `contains()`?\n```suggestion\n              if (readyParkers.contains(listener)) {\n```",
+      "range": {
+        "startLine": 621,
+        "startChar": 49,
+        "endLine": 621,
+        "endChar": 50
+      },
+      "revId": "cf4011ac3326a8305d21acbcbb0795bc66f4ff79",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "855e6739_93a020d2",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-04-26T22:53:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "647d9633_81c894ee",
       "range": {
         "startLine": 621,
         "startChar": 49,
