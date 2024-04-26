@@ -52,6 +52,24 @@
       "parentUuid": "c4a08d55_e39a15ea",
       "revId": "3015d10de50a0c0e845f6e322866a7dba53b03c5",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ec3a377_244c236f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-04-26T10:13:06Z",
+      "side": 1,
+      "message": "I have sent 422524: Fix vertical alignment of header icon and text | https://gerrit-review.git.corp.google.com/c/gerrit/+/422524",
+      "parentUuid": "d1a91651_d60e7c2e",
+      "revId": "3015d10de50a0c0e845f6e322866a7dba53b03c5",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
