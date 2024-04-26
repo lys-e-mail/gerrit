@@ -68,6 +68,98 @@
       },
       "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b45bb13_26ca3936",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-26T19:37:42Z",
+      "side": 1,
+      "message": "follow up: These can be simplified to only `.get()`. Do that in a parent change?\n```suggestion\n      listeners.runEach(extension -\u003e extension.get().onStart(task));\n```",
+      "range": {
+        "startLine": 590,
+        "startChar": 46,
+        "endLine": 590,
+        "endChar": 66
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58fd5f55_b6b8833c",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-26T19:37:42Z",
+      "side": 1,
+      "message": "Make this a `Set\u003cTaskParker\u003e readyParkers` to simplify the isFalse() block below\n```suggestion\n      Set\u003cTaskParker\u003e readyParkers \u003d new HashSet\u003c\u003e();\n      listeners.runEach(\n          extension -\u003e {\n            if (isReady.isTrue()) {\n              TaskListener listener \u003d extension.get();\n              if (listener instanceof TaskParker) {\n                TaskParker parker \u003d (TaskParker) listener;\n                if (parker.isReadyToStart(task)) {\n                  readyParkers.add(parker);\n                } else {\n                  isReady.setFalse();\n                }\n              }\n            }\n          });\n```",
+      "range": {
+        "startLine": 600,
+        "startChar": 6,
+        "endLine": 613,
+        "endChar": 13
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7b0b85d_b410d163",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-26T19:37:42Z",
+      "side": 1,
+      "message": "We can simplify the code a bit:\n\n```suggestion\n        listeners.runEach(\n            extension -\u003e {\n              TaskParker readyParker \u003d readyParkers.get((TaskParker) extension.get());\n              if (readyParker !\u003d null) {\n                readyParker.onNotReadyToStart(task);\n              }\n            });\n```\n\nor using an Optional:\n\n```suggestion\n        listeners.runEach(\n            extension -\u003e {\n              Optional\u003cTaskParker\u003e readyParker \u003d Optional.ofNullable(readyParkers.get((TaskParker) extension.get()));\n              readyParker.ifPresent(p -\u003e p.onNotReadyToStart(task));\n\n              // or as a oneliner\n              Optional.ofNullable(readyParkers.get((TaskParker) extension.get())).ifPresent(p -\u003e p.onNotReadyToStart(task));\n            });\n```",
+      "range": {
+        "startLine": 616,
+        "startChar": 8,
+        "endLine": 621,
+        "endChar": 15
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fded1bfb_c8edf073",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-26T19:37:42Z",
+      "side": 1,
+      "message": "We can add a shortcut here for when there\u0027s nothing parked:\n```suggestion\n      ParkedTask ready \u003d parked.poll();\n      if (ready \u003d\u003d null) {\n         return;\n      }\n      List\u003cParkedTask\u003e notReady \u003d new ArrayList\u003c\u003e();\n```\n\nThat only really saves creation of the ArrayList, but maybe that\u0027s worth it.",
+      "range": {
+        "startLine": 627,
+        "startChar": 0,
+        "endLine": 628,
+        "endChar": 39
+      },
+      "revId": "0111005f37a4f2c3fa786bab45f0621936865d8f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }

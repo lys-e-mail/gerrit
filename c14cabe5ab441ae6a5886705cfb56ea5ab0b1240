@@ -70,6 +70,30 @@
       },
       "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ec7f033_2e0a7ad6",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-26T19:37:42Z",
+      "side": 1,
+      "message": "We can add an emptiness check here too:\n\n```suggestion\n      if (!listeners.isEmpty() \u0026\u0026 !isReadyToStart(task)) {\n```\n\n\u003e How many times the onStart() is called per minute in your production system? Can you count them somehow?\n\nWe don\u0027t have a good way to count that in production today. I can think of some nice ways to do it, but it would take us a few weeks (sadly) to get that into production.",
+      "parentUuid": "0996ceb1_c6b51737",
+      "range": {
+        "startLine": 579,
+        "startChar": 10,
+        "endLine": 579,
+        "endChar": 31
+      },
+      "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
