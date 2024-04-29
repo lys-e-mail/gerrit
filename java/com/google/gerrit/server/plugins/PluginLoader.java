@@ -90,6 +90,7 @@ public class PluginLoader implements LifecycleListener {
   private final MandatoryPluginsCollection mandatoryPlugins;
   private final UniversalServerPluginProvider serverPluginFactory;
   private final GerritRuntime gerritRuntime;
+  private final ImmutableList<String> pluginOrderOverrides;
 
   @Inject
   public PluginLoader(
@@ -116,6 +117,7 @@ public class PluginLoader implements LifecycleListener {
     serverPluginFactory = pluginFactory;
 
     remoteAdmin = cfg.getBoolean("plugins", null, "allowRemoteAdmin", false);
+    pluginOrderOverrides = ImmutableList.copyOf(cfg.getStringList("plugins", null, "loadPriority"));
     mandatoryPlugins = mpc;
     this.gerritRuntime = gerritRuntime;
 
@@ -470,7 +472,8 @@ public class PluginLoader implements LifecycleListener {
 
   private TreeSet<Map.Entry<String, Path>> jarsApiFirstSortedPluginsSet(
       Map<String, Path> activePlugins) {
-    TreeSet<Map.Entry<String, Path>> sortedPlugins = Sets.newTreeSet(new PluginOrderComparator());
+    TreeSet<Map.Entry<String, Path>> sortedPlugins =
+        Sets.newTreeSet(new PluginOrderComparator(pluginOrderOverrides));
 
     addAllEntries(activePlugins, sortedPlugins);
     return sortedPlugins;
