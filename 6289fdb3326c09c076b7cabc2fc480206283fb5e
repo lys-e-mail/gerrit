@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "90650c53_a3d70869",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "80e2c594_ad9ac7de",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b2dc6f2c_24ecc414",
         "filename": "Documentation/dev-plugins.txt",
         "patchSetId": 11
@@ -87,6 +105,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "582f198d_ad5920fd",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "If for example you have a SSHD max thread count of 5 and want to limit user A to only consume 1 thread at a time, when user A runs 2 commands, you still want 4 threads available for other users\u0027 commands.",
+      "parentUuid": "768c1786_5cd6d4b4",
+      "range": {
+        "startLine": 641,
+        "startChar": 57,
+        "endLine": 644,
+        "endChar": 50
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cde39787_fbfe69a5",
@@ -129,6 +171,189 @@
         "endLine": 699,
         "endChar": 73
       },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fa31140_4465461e",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "No, `true` is correct. It\u0027s the Parkers that previously indicated they were ready to start that we need to call back to and inform them that the task won\u0027t start and they should release resources they had reserved for it.",
+      "parentUuid": "bb6a96f3_f84d3a44",
+      "range": {
+        "startLine": 699,
+        "startChar": 67,
+        "endLine": 699,
+        "endChar": 73
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97b0c970_1dc3c074",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "@kaushik.lingarkar@linaro.org is it possible to add a test that covers this case?",
+      "range": {
+        "startLine": 586,
+        "startChar": 0,
+        "endLine": 587,
+        "endChar": 38
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "579198e5_eebe827e",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "I was thinking this would be a new LatchedParker class, like `TaskNameLatchedParker` that could extend LatchParker and override isReadyToStart. It should do something like only allow one Task running at a time based on the task name given to its constructor. `new TaskNameLatchedParker(\"expensive-task\");`\n\nHowever, that might require changes to the Forwarder to support multiple Tasks, but I think you can do it with the existing `resetDelegate()` support.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ef44b75_a98f6382",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "Use `assertQueueSize(0)` from TaskListener? (same below for the other queue size assertions)",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f19493c5_5d3dab2c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "It would be nice to have the State assertions that you add in the child change (other than PARKED) added in this change. In addition to providing test coverage, they help document the test flow.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e05f9a5_6e510595",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "Shouldn\u0027t you be calling `parker.isReadyToStart.complete()` after this? It might also help to have a comment here like `// park runnable1`.\n\nThere was a `supply()` method in `TaskListener.LatchedMethod` back in PS7. Maybe we should re-add that and use it here and in similar places?\n\n```\n    public void supply(T val) {\n      set(val);\n      complete();\n    }\n```\n\nThough maybe naming it `setAndComplete(T val)` would be clearer?",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10cedef0_2fd87fd3",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "Move this to just before line 223.\n\nOr if you go with the suggestion above of adding `LatchedMethod.supply()` then you can remove this line and replace line 223 with `parker.isReadyToStart.supply(true);`",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25d7611f_bc5eddd2",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "Shouldn\u0027t the pool size reduce as soon as parker.isReadyToStart completes? We probably also want to assert it here at the end, so I would copy it up to just below line 223.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fa379b2_0c747a24",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "We should probably have a nice shorthand for this, since I think you\u0027re also missing a `parker.isReadyToStart.complete()` at the end. In addition to `supply()`, PS7 had a `assertAwaitAndSupply()` that I think combines the 3 calls.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "902c9d3c_ba32db66",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "Do you need two runnables for this test case?",
       "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }

@@ -118,6 +118,30 @@
       },
       "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02e2b75b_b44e8664",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-04-29T18:43:31Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e How many times the onStart() is called per minute in your production system? Can you count them somehow?\n\u003e \u003e \n\u003e \u003e We don\u0027t have a good way to count that in production today. I can think of some nice ways to do it, but it would take us a few weeks (sadly) to get that into production.\n\nMartin pinged me on the side and suggested writing some quick benchmark code to see if no-op task throughput is affected by this change. Kaushik is going to give that a try and post the results.",
+      "parentUuid": "c04eee86_46fc19b7",
+      "range": {
+        "startLine": 579,
+        "startChar": 10,
+        "endLine": 579,
+        "endChar": 31
+      },
+      "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
