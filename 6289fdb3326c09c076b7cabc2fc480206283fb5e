@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80e2c594_ad9ac7de",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "```suggestion\nthe current thread from being used by any Task makes sense. However,\n```",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2dc6f2c_24ecc414",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "```suggestion\nIt is possible to park instances of `com.google.gerrit.server.git.WorkQueue$Task`\n```",
+      "range": {
+        "startLine": 638,
+        "startChar": 23,
+        "endLine": 638,
+        "endChar": 69
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "beabcd28_d0bd355e",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "Is this a reference to `com.google.gerrit.server.git.WorkQueue$Task` ? If not maybe use lowercase, if yes enclose in backticks ?\n\nSame for all the references below.",
+      "range": {
+        "startLine": 639,
+        "startChar": 40,
+        "endLine": 639,
+        "endChar": 45
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "768c1786_5cd6d4b4",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "I am not able to understand this example. Can you elaborate this further ?",
+      "range": {
+        "startLine": 641,
+        "startChar": 57,
+        "endLine": 644,
+        "endChar": 50
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cde39787_fbfe69a5",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "nit:Surround with backticks\n\nSame for below usages",
+      "range": {
+        "startLine": 689,
+        "startChar": 52,
+        "endLine": 689,
+        "endChar": 62
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb6a96f3_f84d3a44",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 1152670
+      },
+      "writtenOn": "2024-04-29T10:46:54Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be false ?",
+      "range": {
+        "startLine": 699,
+        "startChar": 67,
+        "endLine": 699,
+        "endChar": 73
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
