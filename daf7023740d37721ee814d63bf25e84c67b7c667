@@ -1,12 +1,9 @@
 {
   "checks": {
     "gerritforge:codestyle-a6a0e4682515f3521897c5f950d1394f4619d928": {
-      "state": "FAILED",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-codestyle/502/console",
-      "started": "2024-04-24T20:50:32Z",
-      "finished": "2024-04-24T20:51:39Z",
+      "state": "NOT_STARTED",
       "created": "2024-04-24T20:50:32Z",
-      "updated": "2024-04-24T20:51:39Z"
+      "updated": "2024-04-29T23:33:39Z"
     },
     "gerritforge:polygerrit-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "FAILED",
