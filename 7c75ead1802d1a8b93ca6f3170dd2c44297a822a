@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87a9f8ef_f613b5d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1011323
+      },
+      "writtenOn": "2024-04-29T10:40:12Z",
+      "side": 1,
+      "message": "Should this change 392294 be reverted first so that this change 327739 has effect again?",
+      "revId": "7c75ead1802d1a8b93ca6f3170dd2c44297a822a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
