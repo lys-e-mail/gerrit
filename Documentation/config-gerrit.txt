@@ -4648,6 +4648,20 @@ options even if they are not registered by any plugin(e.g. "myplugin~foo").
 This config can be used when gerrit migrates from a deprecated plugin to the new one. The new plugin
 can (temporary) accept push options of the old plugin without registering such options.
 
+[[plugins.loadPriority]]plugins.loadPriority::
++
+List of `pluginName`s to be loaded in given order during Gerrit startup.
++
+Each entry should contain a plugin name defined in the `MANIFEST.MF` under
+`Gerrit-PluginName` or a plugin JAR file name. During the Gerrit startup
+order of `loadPriority` will in which order plugins will be loaded.
++
+Gerrit will always load plugins defining `Gerrit-ApiModule` in their
+`MANIFEST.MF` first. Then will load other plugins according to:
+
+ * the order of `plugins.loadPriority` in `gerrit.config`,
+ * the natural order of plugin JAR file names in `plugins/` directory.
+
 [[receive]]
 === Section receive
 
