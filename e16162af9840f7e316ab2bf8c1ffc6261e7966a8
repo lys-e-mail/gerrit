@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4249a150_a672fc86",
+        "filename": ".bazelproject",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-29T11:47:38Z",
+      "side": 1,
+      "message": "@matthias.sohn@gmail.com This is where the IntelliJ language level is bumped to Java 17",
+      "revId": "e16162af9840f7e316ab2bf8c1ffc6261e7966a8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5ce1a7ae_77f8a0ef",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -14,6 +31,30 @@
       "writtenOn": "2024-04-29T11:30:22Z",
       "side": 1,
       "message": "where is that ? I only see a change in the `tools/eclipse/project.py` and there it seems it\u0027s only changing a help text",
+      "range": {
+        "startLine": 14,
+        "startChar": 13,
+        "endLine": 14,
+        "endChar": 36
+      },
+      "revId": "e16162af9840f7e316ab2bf8c1ffc6261e7966a8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc705271_9739e989",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-29T11:47:38Z",
+      "side": 1,
+      "message": "\u003e where is that ? I only see a change in the `tools/eclipse/project.py` and there it seems it\u0027s only changing a help text\n\nSee `.bazelproject:19`",
+      "parentUuid": "5ce1a7ae_77f8a0ef",
       "range": {
         "startLine": 14,
         "startChar": 13,
