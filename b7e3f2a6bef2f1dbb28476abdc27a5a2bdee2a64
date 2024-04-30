@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cca1f9e4_1c88345b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-04-30T12:40:44Z",
+      "side": 1,
+      "message": "As you mention in the comment, annotation is better (e.g. it is not automatically inherited when a class is extended).\nIs it possible to add a test (for converters) which will check that source class has annotation?\nWith ConvertiblaToProto interface there is an uncertainty about extended classes:\nclass A implements ConvertibleToProto {\n}\n\nclass B extends A {\n}\n\nShould the reader expect that B also has its own proto representation (i.e. with additional fields from B)?\n\nAnd for the following code linters can complain that \"implements\" is not needed and must be removed:\nclass B extends A implements ConvertibleToProto{\n}",
+      "revId": "b7e3f2a6bef2f1dbb28476abdc27a5a2bdee2a64",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
