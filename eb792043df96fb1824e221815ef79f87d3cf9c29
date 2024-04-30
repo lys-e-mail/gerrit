@@ -39,6 +39,53 @@
       },
       "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daf3819d_916b28ed",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-04-30T15:40:15Z",
+      "side": 1,
+      "message": "+1\n\nI think explaining _why_ one might want to alter the loading order of the plugins is crucial to understanding when this config should be used.",
+      "parentUuid": "b71f490c_95fb8ea5",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 70
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "027873b2_616bf665",
+        "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-04-30T15:40:15Z",
+      "side": 1,
+      "message": "Does it make sense for the plugin overrides to have duplicates?\n\nIf so, we should probably document their behaviour (which one would it take precedence and so on), if not (as it is probably the case) you could consider modelling this as an ordered set.\n\nWDYT?",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 24
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
