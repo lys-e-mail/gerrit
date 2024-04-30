@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d0d99bc4_6c575b79",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4650,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-30T21:23:47Z",
+      "side": 1,
+      "message": "I\u0027m not sure how link to `plugins.html#installtion` could improve this part of docs. The mentioned page doesn\u0027t say anything about the order in which plugins are loaded (at least as of now).\n\nI\u0027m open for suggestions how it could be incorporated here.",
+      "parentUuid": "3cecdc09_cae8223e",
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b71f490c_95fb8ea5",
         "filename": "Documentation/config-gerrit.txt",
         "patchSetId": 1
@@ -67,6 +85,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e4f2540_3fec9115",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-30T21:23:47Z",
+      "side": 1,
+      "message": "IMO the \"why\" belong to the documentation of plugins, where the order would matter. As this depends on the implementation details and could change in the future versions of the plugins and therefore should not be included in the main Gerrit docs.\n\nFor the clarity I can add the example, but will skip the explanation \"why\" or even uses names of the actual plugins.",
+      "parentUuid": "daf3819d_916b28ed",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 70
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "027873b2_616bf665",
         "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
         "patchSetId": 1
@@ -78,6 +120,30 @@
       "writtenOn": "2024-04-30T15:40:15Z",
       "side": 1,
       "message": "Does it make sense for the plugin overrides to have duplicates?\n\nIf so, we should probably document their behaviour (which one would it take precedence and so on), if not (as it is probably the case) you could consider modelling this as an ordered set.\n\nWDYT?",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 24
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0a55e6e_9c38d303",
+        "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-04-30T21:23:47Z",
+      "side": 1,
+      "message": "It doesn\u0027t makes sense to have duplicates in the `loadPriority`, after all the plugins have unique names and can be loaded only once.\n\nBut the `Set` (nor the `TreeSet` or `LinkedHashSet`) have nothing like `indexOf()` to get the position of the element.\n\nWe can potentially do `ImmutableList.copyOf(Sets.newTreeSet(cfg.getStringList(...)))`, but it feels bit odd. Additinonally, in that case we need to document which entry takes precedence, the first or the last.\n\nI get your concern @syntonyze@gmail.com, initially I\u0027ve tried using `Set`, but for the reasons above, I\u0027ve decided to use `ImmutableList` instead.\n\nWDYT?",
+      "parentUuid": "027873b2_616bf665",
       "range": {
         "startLine": 120,
         "startChar": 4,
