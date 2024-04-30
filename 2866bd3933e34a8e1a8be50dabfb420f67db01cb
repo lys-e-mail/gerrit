@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb64d5a7_9a36d5ad",
+        "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-30T21:59:40Z",
+      "side": 1,
+      "message": "Can be created only once as singleton and then reused: it is stateless therefore should not have issues in being used across invocations.",
+      "range": {
+        "startLine": 473,
+        "startChar": 69,
+        "endLine": 473,
+        "endChar": 96
+      },
+      "revId": "2866bd3933e34a8e1a8be50dabfb420f67db01cb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e12b699a_381630f4",
+        "filename": "javatests/com/google/gerrit/server/plugins/PluginOrderComparatorTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-30T21:59:40Z",
+      "side": 1,
+      "message": "Need GJF reformat.",
+      "revId": "2866bd3933e34a8e1a8be50dabfb420f67db01cb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
