@@ -1310,6 +1310,7 @@ export class GrComment extends LitElement {
       // Error is ok in some cases like quick save by user.
       console.warn(error);
     }
+<<<<<<< HEAD   (14b349 gr-main-header: fix header to wrap the better)
   }
 
   private async autocompleteComment() {
@@ -1343,6 +1344,9 @@ export class GrComment extends LitElement {
     if (this.messageText !== commentText) return;
     if (!response?.completion) return;
     this.autocompleteHint = response.completion;
+||||||| BASE
+=======
+>>>>>>> BRANCH (6f4d74 Merge "WorkQueue: Refactor to call get() directly on Extensi)
   }
 
   private renderRobotActions() {
