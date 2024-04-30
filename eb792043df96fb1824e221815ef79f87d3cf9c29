@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b71f490c_95fb8ea5",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-04-30T05:42:47Z",
+      "side": 1,
+      "message": "nit: I believe that it would benefit from a few examples, perhaps with `download-commands`, `multi-site` and `replication` explaining what would be the default order and how it could be affected with this configuration option, WDYT?",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 70
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
