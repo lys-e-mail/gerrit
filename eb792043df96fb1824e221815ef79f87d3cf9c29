@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3cecdc09_cae8223e",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4650,
+      "author": {
+        "id": 1090261
+      },
+      "writtenOn": "2024-04-30T08:47:24Z",
+      "side": 1,
+      "message": "I think it also may be needed to add a mention to this on /Documentation/config-plugins.html#installation, since this will affect it directly. Probably a link should be enough",
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b71f490c_95fb8ea5",
         "filename": "Documentation/config-gerrit.txt",
         "patchSetId": 1
