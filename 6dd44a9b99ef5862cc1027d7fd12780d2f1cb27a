@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "435aef8f_63e08900",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-30T22:11:04Z",
+      "side": 1,
+      "message": "This change could still make it to stable-3.10, can we move its target branch?",
+      "revId": "6dd44a9b99ef5862cc1027d7fd12780d2f1cb27a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e69bf34a_43392b66",
