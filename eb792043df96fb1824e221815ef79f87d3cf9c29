@@ -109,6 +109,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "530dfb43_980abda2",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-30T22:10:31Z",
+      "side": 1,
+      "message": "Agreed, the why is more for us in the commit message of this change. In the documentation though we should put an example, including:\n- ApiModule\n- Java plugins mentioned in the `loadPriority`\n- Java plugins NOT mentioned in the `loadPriority`\n- Scripting plugins\n- PolyGerrit plugins (JavaScript)",
+      "parentUuid": "3e4f2540_3fec9115",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 70
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "027873b2_616bf665",
         "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
         "patchSetId": 1
@@ -144,6 +168,30 @@
       "side": 1,
       "message": "It doesn\u0027t makes sense to have duplicates in the `loadPriority`, after all the plugins have unique names and can be loaded only once.\n\nBut the `Set` (nor the `TreeSet` or `LinkedHashSet`) have nothing like `indexOf()` to get the position of the element.\n\nWe can potentially do `ImmutableList.copyOf(Sets.newTreeSet(cfg.getStringList(...)))`, but it feels bit odd. Additinonally, in that case we need to document which entry takes precedence, the first or the last.\n\nI get your concern @syntonyze@gmail.com, initially I\u0027ve tried using `Set`, but for the reasons above, I\u0027ve decided to use `ImmutableList` instead.\n\nWDYT?",
       "parentUuid": "027873b2_616bf665",
+      "range": {
+        "startLine": 120,
+        "startChar": 4,
+        "endLine": 120,
+        "endChar": 24
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9147152e_3729cedd",
+        "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-04-30T22:10:31Z",
+      "side": 1,
+      "message": "I believe that an ImmutableList is good enough here, I won\u0027t bother about duplicates here which would still work as expected anyway.",
+      "parentUuid": "d0a55e6e_9c38d303",
       "range": {
         "startLine": 120,
         "startChar": 4,
