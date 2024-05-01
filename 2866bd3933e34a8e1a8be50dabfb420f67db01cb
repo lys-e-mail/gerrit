@@ -63,6 +63,24 @@
       "message": "Need GJF reformat.",
       "revId": "2866bd3933e34a8e1a8be50dabfb420f67db01cb",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1471d04_d005886c",
+        "filename": "javatests/com/google/gerrit/server/plugins/PluginOrderComparatorTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-05-01T08:27:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e12b699a_381630f4",
+      "revId": "2866bd3933e34a8e1a8be50dabfb420f67db01cb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
