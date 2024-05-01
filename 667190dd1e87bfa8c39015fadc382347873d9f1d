@@ -34,6 +34,29 @@
       "parentUuid": "3bc60db1_9d44d84b",
       "revId": "667190dd1e87bfa8c39015fadc382347873d9f1d",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f45d8085_a3e07239",
+        "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-01T12:50:35Z",
+      "side": 1,
+      "message": "Can be created only once as singleton and then reused: it is stateless therefore should not have issues in being used across invocations.\n\n@dariusz.luksza@gmail.com answered:\n\u003e Yes, but it\u0027s also used only once when Gerrit starts and plugins are loaded, so why keep that instance in the memory if it\u0027s not going to be used?\n\u003e That\u0027s was the reason why I opted to create the instance on spot, when it\u0027s required.\n\nI\u0027ve replied:\n\n\u003e I\u0027ve added a println() on the creation of the PluginOrderComparator() and it is called multiple times.",
+      "range": {
+        "startLine": 473,
+        "startChar": 69,
+        "endLine": 473,
+        "endChar": 96
+      },
+      "revId": "667190dd1e87bfa8c39015fadc382347873d9f1d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
