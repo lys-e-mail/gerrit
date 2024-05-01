@@ -35,6 +35,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f458f139_798f82ff",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4650,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-01T22:29:20Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7b3760c9_3c96f017",
+      "revId": "4c2e9f220d13208cf3e241ddcb6dcda7d31e3a8d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e17240b4_fb82758d",
@@ -48,6 +66,30 @@
       "writtenOn": "2024-05-01T12:57:37Z",
       "side": 1,
       "message": "@geminica.programs@gmail.com commented:\n\u003e nit: I believe that it would benefit from a few examples, perhaps with download-commands, multi-site and replication explaining what would be the default order and how it could be affected with this configuration option, WDYT?\n\n@syntonyze@gmail.com answered:\n\u003e I think explaining why one might want to alter the loading order of the plugins is crucial to understanding when this config should be used.\n\n@dariusz.luksza@gmail.com followed up with:\n\u003e IMO the \"why\" belong to the documentation of plugins, where the order would matter. As this depends on the implementation details and could change in the future versions of the plugins and therefore should not be included in the main Gerrit docs.\n\u003e For the clarity I can add the example, but will skip the explanation \"why\" or even uses names of the actual plugins.\n\nI commented with:\n\u003e Agreed, the why is more for us in the commit message of this change. In the documentation though we should put an example, including:\n\u003e ApiModule\n\u003e Java plugins mentioned in the loadPriority\n\u003e Java plugins NOT mentioned in the loadPriority\n\u003e Scripting plugins\n\u003e PolyGerrit plugins (JavaScript)\n\n@dariusz.luksza@gmail.com answered:\n\u003e IMO with the adde Note and the current Example we should be good. I don\u0027t want to complicate things too much here.\n\u003e Propbably with those change the plugin loading order deserves a separate documentation page.",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 63
+      },
+      "revId": "4c2e9f220d13208cf3e241ddcb6dcda7d31e3a8d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e947bff4_9778404f",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-01T22:29:20Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "e17240b4_fb82758d",
       "range": {
         "startLine": 4651,
         "startChar": 0,
