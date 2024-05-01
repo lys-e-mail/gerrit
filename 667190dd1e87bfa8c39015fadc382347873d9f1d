@@ -36,6 +36,23 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1393563b_52675571",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-01T12:58:46Z",
+      "side": 1,
+      "message": "Approving as the extra instance created isn\u0027t a critical problem. Ideally I\u0027d like to get it fixed as I\u0027m against creating the same object in the same way with the same content all the times if there isn\u0027t a reason for doing it.",
+      "revId": "667190dd1e87bfa8c39015fadc382347873d9f1d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f45d8085_a3e07239",
