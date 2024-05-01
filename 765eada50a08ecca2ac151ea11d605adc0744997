@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5daa7413_2480469d",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "We\u0027ll need to handle parked tasks being cancelled. Let me attempt doing that.",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edd8e425_903cb1e1",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Rename to `interruptingParkedTaskDecrementsCorePoolSize`",
+      "range": {
+        "startLine": 415,
+        "startChar": 14,
+        "endLine": 415,
+        "endChar": 56
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}

@@ -36,6 +36,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3815d846_d057dad3",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90650c53_a3d70869",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b2dc6f2c_24ecc414",
@@ -59,6 +77,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f7a399e_3664e15c",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Adding \u0027instances of\u0027 is redundant I think as it is implied.",
+      "parentUuid": "b2dc6f2c_24ecc414",
+      "range": {
+        "startLine": 638,
+        "startChar": 23,
+        "endLine": 638,
+        "endChar": 69
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "beabcd28_d0bd355e",
@@ -72,6 +114,30 @@
       "writtenOn": "2024-04-29T10:46:54Z",
       "side": 1,
       "message": "Is this a reference to `com.google.gerrit.server.git.WorkQueue$Task` ? If not maybe use lowercase, if yes enclose in backticks ?\n\nSame for all the references below.",
+      "range": {
+        "startLine": 639,
+        "startChar": 40,
+        "endLine": 639,
+        "endChar": 45
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "939c2f44_2614fbc8",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "beabcd28_d0bd355e",
       "range": {
         "startLine": 639,
         "startChar": 40,
@@ -142,6 +208,30 @@
       "writtenOn": "2024-04-29T10:46:54Z",
       "side": 1,
       "message": "nit:Surround with backticks\n\nSame for below usages",
+      "range": {
+        "startLine": 689,
+        "startChar": 52,
+        "endLine": 689,
+        "endChar": 62
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52bc6d68_4912091c",
+        "filename": "Documentation/dev-plugins.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cde39787_fbfe69a5",
       "range": {
         "startLine": 689,
         "startChar": 52,
@@ -246,6 +336,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10ed7f62_97c9b38f",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97b0c970_1dc3c074",
+      "range": {
+        "startLine": 586,
+        "startChar": 0,
+        "endLine": 587,
+        "endChar": 38
+      },
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "579198e5_eebe827e",
@@ -259,6 +373,24 @@
       "writtenOn": "2024-04-29T18:43:31Z",
       "side": 1,
       "message": "I was thinking this would be a new LatchedParker class, like `TaskNameLatchedParker` that could extend LatchParker and override isReadyToStart. It should do something like only allow one Task running at a time based on the task name given to its constructor. `new TaskNameLatchedParker(\"expensive-task\");`\n\nHowever, that might require changes to the Forwarder to support multiple Tasks, but I think you can do it with the existing `resetDelegate()` support.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4ad874d_7c34aa10",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "The test framework currently does not support scenarios where multiple tasks are run at the same time. We probably need a new suite if support for multiple tasks running concurrently is needed. In all of our current test cases, we park a task first and then run another.",
+      "parentUuid": "579198e5_eebe827e",
       "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -280,6 +412,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b36237bb_e7b9567b",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ef44b75_a98f6382",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f19493c5_5d3dab2c",
@@ -293,6 +443,24 @@
       "writtenOn": "2024-04-29T18:43:31Z",
       "side": 1,
       "message": "It would be nice to have the State assertions that you add in the child change (other than PARKED) added in this change. In addition to providing test coverage, they help document the test flow.",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4d05b9d_c3950000",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f19493c5_5d3dab2c",
       "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -314,6 +482,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "978ac6c6_615c39bc",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "\u003e Shouldn\u0027t you be calling `parker.isReadyToStart.complete()` after this?\n\nIt is not mandatory to call it for the purposes of this test, as we have an \u0027eventually\u0027 assert in the next line which ensures that the state of the tasks is where we want it to be.\n\n\u003e It might also help to have a comment here like `// park runnable1`.\n\u003e \n\nDone.\n\n\u003e There was a `supply()` method in `TaskListener.LatchedMethod` back in PS7. Maybe we should re-add that and use it here and in similar places?\n\u003e \n\u003e ```\n\u003e     public void supply(T val) {\n\u003e       set(val);\n\u003e       complete();\n\u003e     }\n\u003e ```\n\u003e \n\u003e Though maybe naming it `setAndComplete(T val)` would be clearer?\n\nDone",
+      "parentUuid": "6e05f9a5_6e510595",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10cedef0_2fd87fd3",
@@ -327,6 +513,24 @@
       "writtenOn": "2024-04-29T18:43:31Z",
       "side": 1,
       "message": "Move this to just before line 223.\n\nOr if you go with the suggestion above of adding `LatchedMethod.supply()` then you can remove this line and replace line 223 with `parker.isReadyToStart.supply(true);`",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e938356_bbb1a175",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10cedef0_2fd87fd3",
       "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -348,6 +552,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e099d17_f881e161",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "It is actually reduced in onStop, so I can move it a couple of lines above after `parker.onStop.complete()`",
+      "parentUuid": "25d7611f_bc5eddd2",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7fa379b2_0c747a24",
@@ -365,6 +587,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb5bf3bc_4f3a34b0",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fa379b2_0c747a24",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "902c9d3c_ba32db66",
@@ -378,6 +618,24 @@
       "writtenOn": "2024-04-29T18:43:31Z",
       "side": 1,
       "message": "Do you need two runnables for this test case?",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7107875_c6ed5c3c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-01T17:03:12Z",
+      "side": 1,
+      "message": "I wanted `runnable-2` so that it polls for parked tasks in its `onStop()` and un-parks `runnable-1` to finish the test. We can shutdown the executor after we do the assert on L332, but completing both tasks in the test is probably better.",
+      "parentUuid": "902c9d3c_ba32db66",
       "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
