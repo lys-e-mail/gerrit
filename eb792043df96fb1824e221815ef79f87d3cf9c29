@@ -133,6 +133,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a3797e3_8cf8b1b7",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4663,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-05-01T08:33:58Z",
+      "side": 1,
+      "message": "IMO with the adde _Note_ and the current _Example_ we should be good. I don\u0027t want to complicate things too much here.\n\nPropbably with those change the plugin loading order deserves a separate documentation page.",
+      "parentUuid": "530dfb43_980abda2",
+      "range": {
+        "startLine": 4651,
+        "startChar": 0,
+        "endLine": 4663,
+        "endChar": 70
+      },
+      "revId": "eb792043df96fb1824e221815ef79f87d3cf9c29",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "027873b2_616bf665",
         "filename": "java/com/google/gerrit/server/plugins/PluginLoader.java",
         "patchSetId": 1
