@@ -35,6 +35,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e66ce568_603b5e81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-05-01T08:36:04Z",
+      "side": 1,
+      "message": "Sure just pushed for the review in `stable-3.10`:\nhttps://gerrit-review.googlesource.com/c/gerrit/+/424018\nhttps://gerrit-review.googlesource.com/c/gerrit/+/424019",
+      "parentUuid": "435aef8f_63e08900",
+      "revId": "6dd44a9b99ef5862cc1027d7fd12780d2f1cb27a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e69bf34a_43392b66",
