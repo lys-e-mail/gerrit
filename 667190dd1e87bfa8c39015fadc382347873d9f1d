@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bc60db1_9d44d84b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-01T12:47:04Z",
+      "side": 1,
+      "message": "Please push as new PS onto Change 422520 so that we can keep the review conversation",
+      "revId": "667190dd1e87bfa8c39015fadc382347873d9f1d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
