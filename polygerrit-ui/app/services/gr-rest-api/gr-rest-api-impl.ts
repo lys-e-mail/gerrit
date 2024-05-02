@@ -2118,7 +2118,7 @@ export class GrRestApiServiceImpl implements RestApiService, Finalizable {
         : this._getFileInRevision(changeNum, path, patchNum, suppress404s);
 
     return promise.then(res => {
-      if (!res.ok) {
+      if (!res.ok || res.status === 204) {
         return res;
       }
 
