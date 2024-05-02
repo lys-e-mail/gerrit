@@ -1339,6 +1339,7 @@ export class GrComment extends LitElement {
       // Error is ok in some cases like quick save by user.
       console.warn(error);
     }
+<<<<<<< HEAD   (a66885 Merge "Add basic caching for comment autocompletion")
   }
 
   private async autocompleteComment() {
@@ -1372,6 +1373,9 @@ export class GrComment extends LitElement {
     if (this.messageText !== commentText) return;
     if (!response?.completion) return;
     this.autocompleteHint = response.completion;
+||||||| BASE
+=======
+>>>>>>> BRANCH (5c104f Allow influence plugin load order from gerrit.config)
   }
 
   private renderRobotActions() {
