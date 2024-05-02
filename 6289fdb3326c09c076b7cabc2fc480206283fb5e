@@ -395,6 +395,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d4c53df_9fddf62e",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "Ack.",
+      "parentUuid": "e4ad874d_7c34aa10",
+      "revId": "6289fdb3326c09c076b7cabc2fc480206283fb5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ef44b75_a98f6382",

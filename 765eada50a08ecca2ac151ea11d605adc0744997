@@ -20,6 +20,109 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e84fe8c7_a0f1f673",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "This should probably either get fixed to match the reality that `call()` will timeout when blocking or we should stop timing out and fix any tests that fail because of missing `complete()` calls.",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 90
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a3605b8_91e768be",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "Possible naming improvement?\n\n```suggestion\n    public void assertCalledEventually() {\n```",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bce4fc7_064e32b1",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "I realized this doesn\u0027t match our renamed `awaitAndAssertCalled()` 😞\n\n`awaitAndAssertCalledAndSetAndComplete()` is not very readable. Is the (even longer) `awaitAndAssertCalledThenSetAndComplete()` understandable? Can we think of a higher level descriptor for these combined actions?\n\nTaking some naming inspiration from [1], we can rename `setAndComplete()` to `complete(T val)` and then we\u0027re down to `awaitAndAssertCalledThenComplete(T val)`. I really would like better naming than that, but I\u0027m not coming up with anything yet.\n\n[1] https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/CompletableFuture.html#complete(T)",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 44
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19c59313_9ed2a3bb",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "If you copy it to this class, you can use `TaskListenerIT.assertStateIs(Task.State state)`:\n\n```suggestion\n    assertStateIs(State.STARTING);\n```",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4037767_22ffac4c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-02T00:13:48Z",
+      "side": 1,
+      "message": "Hmm, so the reduction happens in `onStop()`, but it specifically happens in `updatedParked()` which is sometime after the parker\u0027s `onStop()` completes and not instant, so this could be racy. You should probably use `assertCorePoolSizeIsEventually(1)` instead.\n```suggestion\n    assertCorePoolSizeIsEventually(1);\n```",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "edd8e425_903cb1e1",
         "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
         "patchSetId": 12
