@@ -32,11 +32,11 @@ export async function readJSONResponsePayload(
   response: Response
 ): Promise<ResponsePayload> {
   const text = await response.text();
-  let result: ParsedJSON;
+  let result: ParsedJSON | null;
   try {
     result = parsePrefixedJSON(text);
   } catch (_) {
-    throw new Error(`Response payload is not prefixed json. Payload: ${text}`);
+    result = null;
   }
   return {parsed: result!, raw: text};
 }
