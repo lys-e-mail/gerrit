@@ -35,6 +35,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b454a9b_4ba753a9",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5daa7413_2480469d",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e84fe8c7_a0f1f673",
@@ -48,6 +66,30 @@
       "writtenOn": "2024-05-02T00:13:48Z",
       "side": 1,
       "message": "This should probably either get fixed to match the reality that `call()` will timeout when blocking or we should stop timing out and fix any tests that fail because of missing `complete()` calls.",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 90
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d13e9664_1c502d46",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Updated the doc. Blocking on complete will probably make the tests too long and hard to read. It might be even racy when multiple tasks are run in a test.",
+      "parentUuid": "e84fe8c7_a0f1f673",
       "range": {
         "startLine": 37,
         "startChar": 13,
@@ -81,6 +123,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0797720a_4c85dde3",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a3605b8_91e768be",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9bce4fc7_064e32b1",
@@ -94,6 +160,30 @@
       "writtenOn": "2024-05-02T00:13:48Z",
       "side": 1,
       "message": "I realized this doesn\u0027t match our renamed `awaitAndAssertCalled()` 😞\n\n`awaitAndAssertCalledAndSetAndComplete()` is not very readable. Is the (even longer) `awaitAndAssertCalledThenSetAndComplete()` understandable? Can we think of a higher level descriptor for these combined actions?\n\nTaking some naming inspiration from [1], we can rename `setAndComplete()` to `complete(T val)` and then we\u0027re down to `awaitAndAssertCalledThenComplete(T val)`. I really would like better naming than that, but I\u0027m not coming up with anything yet.\n\n[1] https://docs.oracle.com/en/java/javase/19/docs/api/java.base/java/util/concurrent/CompletableFuture.html#complete(T)",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 44
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "900376b5_190920a4",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskListenerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Renamed to `assertCalledEventuallyThenComplete(T val)`",
+      "parentUuid": "9bce4fc7_064e32b1",
       "range": {
         "startLine": 82,
         "startChar": 16,
@@ -121,6 +211,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d53a912_9b625556",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19c59313_9ed2a3bb",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4037767_22ffac4c",
@@ -138,6 +246,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4269add7_b494b410",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4037767_22ffac4c",
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edd8e425_903cb1e1",
@@ -151,6 +277,30 @@
       "writtenOn": "2024-05-01T17:03:12Z",
       "side": 1,
       "message": "Rename to `interruptingParkedTaskDecrementsCorePoolSize`",
+      "range": {
+        "startLine": 415,
+        "startChar": 14,
+        "endLine": 415,
+        "endChar": 56
+      },
+      "revId": "765eada50a08ecca2ac151ea11d605adc0744997",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb8c0d17_77f0924c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-02T16:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd8e425_903cb1e1",
       "range": {
         "startLine": 415,
         "startChar": 14,
