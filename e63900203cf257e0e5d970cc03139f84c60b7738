@@ -45,6 +45,54 @@
       },
       "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f11a3ac_da4eb7d7",
+        "filename": "polygerrit-ui/app/services/gr-rest-api/gr-rest-api-impl.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 2121,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-05-02T13:24:22Z",
+      "side": 1,
+      "message": "Thanks, done.",
+      "parentUuid": "24f0691d_e0a6a38e",
+      "range": {
+        "startLine": 2121,
+        "startChar": 6,
+        "endLine": 2121,
+        "endChar": 42
+      },
+      "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "836cabc8_0b918581",
+        "filename": "polygerrit-ui/app/services/gr-rest-api/gr-rest-api-impl.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 2121,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-05-02T13:24:22Z",
+      "side": 1,
+      "message": "We already do that here https://github.com/GerritCodeReview/gerrit/blob/master/polygerrit-ui/app/elements/edit/gr-editor-view/gr-editor-view.ts#L392",
+      "parentUuid": "d3fb32f7_4cd9e62c",
+      "range": {
+        "startLine": 2121,
+        "startChar": 18,
+        "endLine": 2121,
+        "endChar": 39
+      },
+      "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
