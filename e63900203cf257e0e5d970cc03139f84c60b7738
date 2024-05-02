@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3fb32f7_4cd9e62c",
+        "filename": "polygerrit-ui/app/services/gr-rest-api/gr-rest-api-impl.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 2121,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-05-02T13:08:39Z",
+      "side": 1,
+      "message": "I think it makes more sense to construct Base64FileContent with empty content, rather than return a response object in this case",
+      "range": {
+        "startLine": 2121,
+        "startChar": 18,
+        "endLine": 2121,
+        "endChar": 39
+      },
+      "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
