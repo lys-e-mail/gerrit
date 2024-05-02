@@ -22,6 +22,29 @@
       },
       "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24f0691d_e0a6a38e",
+        "filename": "polygerrit-ui/app/services/gr-rest-api/gr-rest-api-impl.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 2121,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-05-02T13:09:30Z",
+      "side": 1,
+      "message": "Nit: can you add a comment that 204 is returned if the file is empty",
+      "range": {
+        "startLine": 2121,
+        "startChar": 6,
+        "endLine": 2121,
+        "endChar": 42
+      },
+      "revId": "e63900203cf257e0e5d970cc03139f84c60b7738",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
