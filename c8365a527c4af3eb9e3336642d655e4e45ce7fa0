@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17963441_896da74d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-05-02T12:18:26Z",
+      "side": 1,
+      "message": "I think this broke the inline editor.\n\nChanging https://github.com/GerritCodeReview/gerrit/blob/a6688543eab17ef81859a391d99131d034161fec/polygerrit-ui/app/elements/shared/gr-rest-api-interface/gr-rest-apis/gr-rest-api-helper.ts#L39 to match https://github.com/GerritCodeReview/gerrit/blob/c8365a527c4af3eb9e3336642d655e4e45ce7fa0/polygerrit-ui/app/elements/shared/gr-rest-api-interface/gr-rest-apis/gr-rest-api-helper-old.ts#L43C7-L43C21 fixed it.",
+      "revId": "c8365a527c4af3eb9e3336642d655e4e45ce7fa0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
