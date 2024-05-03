@@ -150,14 +150,17 @@ _pkg_war = rule(
     implementation = _war_impl,
 )
 
-def pkg_war(name, ui = "polygerrit", context = [], doc = False, **kwargs):
+def pkg_war(name, ui = "polygerrit", context = [], doc = False, doc_webfont = True, **kwargs):
     doc_ctx = []
     doc_lib = []
     ui_deps = []
     if ui == "polygerrit":
         ui_deps.append("//polygerrit-ui/app:polygerrit_ui")
     if doc:
-        doc_ctx.append("//Documentation:html")
+        if doc_webfont:
+            doc_ctx.append("//Documentation:html")
+        else:
+            doc_ctx.append("//Documentation:html_webfont_free")
         doc_lib.append("//Documentation:index")
 
     _pkg_war(

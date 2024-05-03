@@ -42,6 +42,13 @@ pkg_war(
 )
 
 pkg_war(
+    name = "release_webfont_free",
+    context = ["//plugins:core"],
+    doc = True,
+    doc_webfont = False,
+)
+
+pkg_war(
     name = "withdocs",
     doc = True,
 )

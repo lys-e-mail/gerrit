@@ -119,6 +119,15 @@ genasciidoc_zip(
 )
 
 genasciidoc_zip(
+    name = "html_webfont_free",
+    srcs = SRCS,
+    attributes = documentation_attributes(),
+    backend = "html5",
+    directory = DOC_DIR,
+    webfonts = False,
+)
+
+genasciidoc_zip(
     name = "searchfree",
     srcs = SRCS,
     attributes = documentation_attributes(),
