@@ -2557,6 +2557,50 @@ export class GrFileList extends LitElement {
     return this.filesExpanded === FilesExpandedState.NONE;
   }
 
+<<<<<<< HEAD   (cbf658 Update @gerritcodereview/typescript-api to 3.9.1)
+||||||| BASE
+  /**
+   * Method to call via binding when each file list row is rendered. This
+   * allows approximate detection of when the dom-repeat has completed
+   * rendering.
+   *
+   * @param index The index of the row being rendered.
+   * Private but used in tests.
+   */
+  reportRenderedRow(index: number) {
+    if (index === this.shownFiles.length - 1) {
+      setTimeout(() => {
+        this.reporting.timeEnd(Timing.FILE_RENDER, {
+          count: this.reportinShownFilesIncrement,
+        });
+      }, 1);
+    }
+  }
+
+  private handleReloadingDiffPreference() {
+    this.getUserModel().getDiffPreferences();
+  }
+
+=======
+  /**
+   * Method to call via binding when each file list row is rendered. This
+   * allows approximate detection of when the dom-repeat has completed
+   * rendering.
+   *
+   * @param index The index of the row being rendered.
+   * Private but used in tests.
+   */
+  reportRenderedRow(index: number) {
+    if (index === this.shownFiles.length - 1) {
+      setTimeout(() => {
+        this.reporting.timeEnd(Timing.FILE_RENDER, {
+          count: this.reportinShownFilesIncrement,
+        });
+      }, 1);
+    }
+  }
+
+>>>>>>> BRANCH (76245a Merge branch 'stable-3.7' into stable-3.8)
   private getOldPath(file: NormalizedFileInfo) {
     // The gr-endpoint-decorator is waiting until all gr-endpoint-param
     // values are updated.
