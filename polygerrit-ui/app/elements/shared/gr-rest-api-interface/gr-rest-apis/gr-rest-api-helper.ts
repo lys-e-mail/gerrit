@@ -79,22 +79,80 @@ export class SiteBasedCache {
   }
 
   // Returns the cache for the current canonical path.
+<<<<<<< HEAD   (1f4c13 Bazel: Fix eclipse classpath generation)
   _cache(): Map<string, ParsedJSON> {
     if (!this.data.has(getBaseUrl())) {
       this.data.set(getBaseUrl(), new Map<string, ParsedJSON>());
+||||||| BASE
+  _cache(): Map<string, unknown> {
+    if (!this.data.has(window.CANONICAL_PATH)) {
+      this.data.set(
+        window.CANONICAL_PATH,
+        new Map<string, ParsedJSON | null>()
+      );
+=======
+  _cache(): Map<string, unknown> {
+    if (!this.data.has(getBaseUrl())) {
+      this.data.set(getBaseUrl(), new Map<string, ParsedJSON | null>());
+>>>>>>> BRANCH (51371f Merge branch 'stable-3.8' into stable-3.9)
     }
+<<<<<<< HEAD   (1f4c13 Bazel: Fix eclipse classpath generation)
     return this.data.get(getBaseUrl())!;
+||||||| BASE
+    return this.data.get(window.CANONICAL_PATH) as Map<
+      string,
+      ParsedJSON | null
+    >;
+=======
+    return this.data.get(getBaseUrl()) as Map<string, ParsedJSON | null>;
+>>>>>>> BRANCH (51371f Merge branch 'stable-3.8' into stable-3.9)
   }
 
   has(key: string) {
     return this._cache().has(addBaseUrl(key));
   }
 
+<<<<<<< HEAD   (1f4c13 Bazel: Fix eclipse classpath generation)
   get(key: string): ParsedJSON | undefined {
+||||||| BASE
+  get(key: '/accounts/self/emails'): EmailInfo[] | null;
+
+  get(key: '/accounts/self/detail'): AccountDetailInfo | null;
+
+  get(key: string): ParsedJSON | null;
+
+  get(key: string): unknown {
+=======
+  get(key: '/accounts/self/emails'): EmailInfo[] | null;
+
+  get(key: '/accounts/self/detail'): AccountDetailInfo | null;
+
+  get(key: string): ParsedJSON | null;
+
+  get(key: string): unknown {
+>>>>>>> BRANCH (51371f Merge branch 'stable-3.8' into stable-3.9)
     return this._cache().get(addBaseUrl(key));
   }
 
+<<<<<<< HEAD   (1f4c13 Bazel: Fix eclipse classpath generation)
   set(key: string, value: ParsedJSON) {
+||||||| BASE
+  set(key: '/accounts/self/emails', value: EmailInfo[]): void;
+
+  set(key: '/accounts/self/detail', value: AccountDetailInfo): void;
+
+  set(key: string, value: ParsedJSON | null): void;
+
+  set(key: string, value: unknown) {
+=======
+  set(key: '/accounts/self/emails', value: EmailInfo[]): void;
+
+  set(key: '/accounts/self/detail', value: AccountDetailInfo): void;
+
+  set(key: string, value: ParsedJSON | null): void;
+
+  set(key: string, value: unknown) {
+>>>>>>> BRANCH (51371f Merge branch 'stable-3.8' into stable-3.9)
     this._cache().set(addBaseUrl(key), value);
   }
 

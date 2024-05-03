@@ -1641,6 +1641,7 @@ the change.
 +
 Default is `true`.
 
+<<<<<<< HEAD   (1f4c13 Bazel: Fix eclipse classpath generation)
 [[change.showAssigneeInChangesTable]]change.showAssigneeInChangesTable::
 +
 Show assignee field in changes table. If set to `false`, assignees will
@@ -1648,6 +1649,16 @@ not be visible in changes table.
 +
 Default is `false`.
 
+||||||| BASE
+[[change.showAssigneeInChangesTable]]change.showAssigneeInChangesTable::
++
+Show assignee field in changes table. If set to false, assignees will
+not be visible in changes table.
++
+Default is false.
+
+=======
+>>>>>>> BRANCH (51371f Merge branch 'stable-3.8' into stable-3.9)
 [[change.strictLabels]]change.strictLabels::
 +
 Reject invalid label votes: invalid labels or invalid values. This
