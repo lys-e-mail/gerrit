@@ -132,14 +132,42 @@ public interface ChangeApi {
     setReadyForReview(null);
   }
 
+<<<<<<< HEAD   (c9c1b8 Set version to 3.10.0-SNAPSHOT)
   /** Create a new change that reverts this change. */
   @CanIgnoreReturnValue
+||||||| BASE
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(int)
+   */
+=======
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(String, int)
+   */
+>>>>>>> BRANCH (79a436 Merge "Merge branch 'stable-3.8' into stable-3.9" into stabl)
   default ChangeApi revert() throws RestApiException {
     return revert(new RevertInput());
   }
 
+<<<<<<< HEAD   (c9c1b8 Set version to 3.10.0-SNAPSHOT)
   /** Create a new change that reverts this change. */
   @CanIgnoreReturnValue
+||||||| BASE
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(int)
+   */
+=======
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(String, int)
+   */
+>>>>>>> BRANCH (79a436 Merge "Merge branch 'stable-3.8' into stable-3.9" into stabl)
   ChangeApi revert(RevertInput in) throws RestApiException;
 
   @CanIgnoreReturnValue
