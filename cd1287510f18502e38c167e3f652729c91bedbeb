@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e71df14c_3ba87f6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1011217
+      },
+      "writtenOn": "2024-05-03T18:12:22Z",
+      "side": 1,
+      "message": "I\u0027m not sure if this is the best approach to solving this problem. Perhaps there is a different way to invoke Bazel such that the release target resolves Documentation builds via another Doc build target? However in the community meeting yesterday it was thought this isn\u0027t the case and the suggestion was made to add a new release target instead.\n\nI\u0027m happy for feedback on how to do this better if there is a better way though.",
+      "revId": "cd1287510f18502e38c167e3f652729c91bedbeb",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
