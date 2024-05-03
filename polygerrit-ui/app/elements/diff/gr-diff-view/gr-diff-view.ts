@@ -1130,8 +1130,27 @@ export class GrDiffView extends LitElement {
   }
 
   private renderDialogs() {
+<<<<<<< HEAD   (cbf658 Update @gerritcodereview/typescript-api to 3.9.1)
     return html`
       <gr-apply-fix-dialog id="applyFixDialog"></gr-apply-fix-dialog>
+||||||| BASE
+    return html` <gr-apply-fix-dialog
+        id="applyFixDialog"
+        .change=${this.change}
+        .changeNum=${this.changeNum}
+      >
+      </gr-apply-fix-dialog>
+      <gr-diff-preferences-dialog
+        id="diffPreferencesDialog"
+        @reload-diff-preference=${this.handleReloadingDiffPreference}
+=======
+    return html` <gr-apply-fix-dialog
+        id="applyFixDialog"
+        .change=${this.change}
+        .changeNum=${this.changeNum}
+      >
+      </gr-apply-fix-dialog>
+>>>>>>> BRANCH (76245a Merge branch 'stable-3.7' into stable-3.8)
       <gr-diff-preferences-dialog id="diffPreferencesDialog">
       </gr-diff-preferences-dialog>
       <dialog id="downloadModal" tabindex="-1">
