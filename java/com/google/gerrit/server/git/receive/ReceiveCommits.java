@@ -275,6 +275,8 @@ class ReceiveCommits {
 
   public static final String DIRECT_PUSH_JUSTIFICATION_OPTION = "push-justification";
 
+  private static final boolean skipReceiveCommitsValidation = Boolean.getBoolean("ghs.gerrit.receive-commits.skip-validation");
+
   interface Factory {
     ReceiveCommits create(
         ProjectState projectState,
@@ -1543,7 +1545,7 @@ class ReceiveCommits {
           reject(cmd, "head must point to commit");
           return;
         }
-        if (validRefOperation(cmd)) {
+        if (!skipReceiveCommitsValidation && validRefOperation(cmd)) {
           validateRegularPushCommits(
               globalRevWalk,
               ins,
