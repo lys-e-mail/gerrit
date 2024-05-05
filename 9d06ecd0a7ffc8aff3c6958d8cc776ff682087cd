@@ -16,6 +16,24 @@
       "message": "I\u0027ve redone the merge.",
       "revId": "9d06ecd0a7ffc8aff3c6958d8cc776ff682087cd",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fd05fb5_acb26e48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-05-05T09:18:51Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "4ebf26ee_01848721",
+      "revId": "9d06ecd0a7ffc8aff3c6958d8cc776ff682087cd",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
