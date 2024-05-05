@@ -132,14 +132,42 @@ public interface ChangeApi {
     setReadyForReview(null);
   }
 
+<<<<<<< HEAD   (0a7283 Update plugins yarn lock file for @gerritcodereview/typescri)
   /** Create a new change that reverts this change. */
   @CanIgnoreReturnValue
+||||||| BASE
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(int)
+   */
+=======
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(String, int)
+   */
+>>>>>>> BRANCH (79a436 Merge "Merge branch 'stable-3.8' into stable-3.9" into stabl)
   default ChangeApi revert() throws RestApiException {
     return revert(new RevertInput());
   }
 
+<<<<<<< HEAD   (0a7283 Update plugins yarn lock file for @gerritcodereview/typescri)
   /** Create a new change that reverts this change. */
   @CanIgnoreReturnValue
+||||||| BASE
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(int)
+   */
+=======
+  /**
+   * Create a new change that reverts this change.
+   *
+   * @see Changes#id(String, int)
+   */
+>>>>>>> BRANCH (79a436 Merge "Merge branch 'stable-3.8' into stable-3.9" into stabl)
   ChangeApi revert(RevertInput in) throws RestApiException;
 
   @CanIgnoreReturnValue
