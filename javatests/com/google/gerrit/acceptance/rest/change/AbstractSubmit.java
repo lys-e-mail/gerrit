@@ -1022,6 +1022,53 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
   }
 
   @Test
+  public void mergeSupersetComputationSameChangeId() throws Throwable {
+    enableCreateNewChangeForAllNotInTarget();
+    BranchInput bi = new BranchInput();
+
+    PushOneCommit push0 = pushFactory.create(admin.newIdent(), testRepo);
+    PushOneCommit.Result result0 = push0.to("refs/for/master");
+    result0.assertOkStatus();
+    submit(result0.getChangeId());
+
+    bi.revision = "refs/heads/master";
+    gApi.projects().name(project.get()).branch("refs/heads/another").create(bi);
+
+    PushOneCommit push1 = pushFactory.create(admin.newIdent(), testRepo);
+    push1.setParent(result0.getCommit());
+    PushOneCommit.Result result1_1 = push1.to("refs/for/master");
+    result1_1.assertOkStatus();
+    PushOneCommit.Result result1_2 = push1.to("refs/for/another");
+    result1_2.assertOkStatus();
+
+    PushOneCommit push2 = pushFactory.create(admin.newIdent(), testRepo);
+    push2.setParent(result1_1.getCommit());
+    PushOneCommit.Result result2 = push2.to("refs/for/another");
+    result2.assertOkStatus();
+
+    PushOneCommit push3 = pushFactory.create(admin.newIdent(), testRepo);
+    push3.setParent(result0.getCommit());
+    PushOneCommit.Result result3 = push3.to("refs/for/master");
+    result3.assertOkStatus();
+    submit(result3.getChangeId());
+
+    PushOneCommit push4 = pushFactory.create(admin.newIdent(), testRepo);
+    push4.setParents(ImmutableList.of(result2.getCommit(), result3.getCommit()));
+    PushOneCommit.Result result4 = push4.to("refs/for/master");
+    result4.assertOkStatus();
+
+    submit(project.get() + "~" + "another~" + result1_2.getChangeId());
+    submit(result2.getChangeId());
+    // Question: the commit for result1_1 is already included in the second parent of the result4.
+    // Is it correct that gerrit still returns result1_1 in submittedTogether list?
+    assertThat(gApi.changes().id(result4.getChangeId()).submittedTogether().stream().map(ci -> ci.branch + "~" + ci.changeId))
+        .containsExactly("master~" + result1_1.getChangeId(), "master~" + result4.getChangeId());
+    gApi.changes().id(project.get() + "~" + "master~" + result1_1.getChangeId()).delete();
+    assertThat(gApi.changes().id(result4.getChangeId()).submittedTogether().stream().map(ci -> ci.branch + "~" + ci.changeId))
+        .isEmpty();
+  }
+
+  @Test
   public void submitChangeMissingInIndexComputeMergeSupersetRetried() throws Throwable {
     // Cherry-pick strategy does not query from index
     assume().that(getSubmitType()).isNotEqualTo(CHERRY_PICK);
@@ -1407,7 +1454,13 @@ public abstract class AbstractSubmit extends AbstractDaemonTest {
     }
     submit.run();
     ChangeInfo change = gApi.changes().id(changeId).info();
-    assertMerged(change.changeId);
+    // Some tests create several changes with the same changeId - such tests pass the
+    // full project~branch~changeId into this method. To avoid "multiple changes" exception,
+    // the assertMerged method should also be called with a full change name.
+    String mergedChangeId = changeId.contains("~") ?
+        change.project + "~" + change.branch + "~" + change.changeId
+        : change.changeId;
+    assertMerged(mergedChangeId);
   }
 
   protected void assertSubmittable(String changeId) throws Throwable {
