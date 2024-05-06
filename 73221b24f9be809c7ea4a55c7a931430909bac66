@@ -43,6 +43,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6821312a_7f7f9bac",
+        "filename": "java/com/google/gerrit/server/git/ChangesByProjectCacheImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-06T08:09:31Z",
+      "side": 1,
+      "message": "The fix is in review.",
+      "parentUuid": "fce19e9d_f082e2a9",
+      "range": {
+        "startLine": 289,
+        "startChar": 38,
+        "endLine": 289,
+        "endChar": 53
+      },
+      "revId": "73221b24f9be809c7ea4a55c7a931430909bac66",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5b9bb9d3_7480f7d6",
         "filename": "java/com/google/gerrit/server/git/ChangesByProjectCacheImpl.java",
         "patchSetId": 2
