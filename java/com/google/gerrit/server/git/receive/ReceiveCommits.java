@@ -277,6 +277,7 @@ class ReceiveCommits {
 
   private static final boolean skipReceiveCommitsValidation =
       Boolean.getBoolean("ghs.gerrit.receive-commits.skip-validation");
+  private final boolean sendEmail;
 
   interface Factory {
     ReceiveCommits create(
@@ -607,6 +608,8 @@ class ReceiveCommits {
             : ReceivePackRefCache.noCache(receivePack.getRepository().getRefDatabase());
     this.transitionalPluginOptions =
         ImmutableList.copyOf(config.getStringList("plugins", null, "transitionalPushOptions"));
+
+    this.sendEmail = config.getBoolean("sendemail", null, "enable", true);
   }
 
   void init() {
@@ -2828,7 +2831,7 @@ class ReceiveCommits {
                   .setApprovals(approvals)
                   .setMessage(msg.toString())
                   .setRequestScopePropagator(requestScopePropagator)
-                  .setSendMail(true)
+                  .setSendMail(sendEmail)
                   .setPatchSetDescription(magicBranch.message));
           if (!magicBranch.hashtags.isEmpty()) {
             // Any change owner is allowed to add hashtags when creating a change.
