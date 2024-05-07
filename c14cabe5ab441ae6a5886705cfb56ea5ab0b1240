@@ -166,6 +166,30 @@
       },
       "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce3781c2_34bf6cd3",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T23:47:16Z",
+      "side": 1,
+      "message": "\u003e I created a benchmark[1] using the acceptance test framework that executes 500k no-op tasks. An average of 10 runs took 3247ms without this change and 3265ms with it, when I ran it (using [2]) on my Macbook (Apple M1 Max with 32GB memory). The difference does not seem significant.\n\nA few more updates were done since I last ran the benchmark. Here are the numbers from a new run with the current patchset.\n\n  without change: 3273ms\n  with change  : 3326ms\n\n\u003e \n\u003e [1] https://gerrit-review.googlesource.com/c/gerrit/+/423857/1/javatests/com/google/gerrit/acceptance/server/util/WorkQueueBenchmarkIT.java\n\u003e \n\u003e [2] bazel test //javatests/com/google/gerrit/acceptance/server/util:server_util --test_output\u003dstreamed  --cache_test_results\u003dno  --test_sharding_strategy\u003ddisabled   --test_filter\u003dcom.google.gerrit.acceptance.server.util.WorkQueueBenchmarkIT#benchmark$",
+      "parentUuid": "e924a72f_ea82cdac",
+      "range": {
+        "startLine": 579,
+        "startChar": 10,
+        "endLine": 579,
+        "endChar": 31
+      },
+      "revId": "c14cabe5ab441ae6a5886705cfb56ea5ab0b1240",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
