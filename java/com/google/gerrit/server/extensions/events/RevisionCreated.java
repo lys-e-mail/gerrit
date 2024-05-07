@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.extensions.events;
 
+import com.google.common.base.Suppliers;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.exceptions.StorageException;
@@ -26,7 +27,6 @@ import com.google.gerrit.server.GpgException;
 import com.google.gerrit.server.account.AccountState;
 import com.google.gerrit.server.change.NotifyResolver;
 import com.google.gerrit.server.patch.PatchListNotAvailableException;
-import com.google.gerrit.server.patch.PatchListObjectTooLargeException;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.plugincontext.PluginSetContext;
 import com.google.gerrit.server.query.change.ChangeData;
@@ -34,6 +34,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /** Helper class to fire an event when a revision has been created for a change. */
 @Singleton
@@ -74,24 +76,31 @@ public class RevisionCreated {
     if (listeners.isEmpty()) {
       return;
     }
-    try {
-      Event event =
-          new Event(
-              util.changeInfo(changeData),
-              util.revisionInfo(changeData.project(), patchSet),
-              util.accountInfo(uploader),
-              when,
-              notify.handling());
-      listeners.runEach(l -> l.onRevisionCreated(event));
-    } catch (PatchListObjectTooLargeException e) {
-      logger.atWarning().log("Couldn't fire event: %s", e.getMessage());
-    } catch (PatchListNotAvailableException
-        | GpgException
-        | IOException
-        | StorageException
-        | PermissionBackendException e) {
-      logger.atSevere().withCause(e).log("Couldn't fire event");
-    }
+    Supplier<Optional<Event>> event =
+        Suppliers.memoize(
+            () -> {
+              try {
+                return Optional.of(
+                    new Event(
+                        util.changeInfo(changeData),
+                        util.revisionInfo(changeData.project(), patchSet),
+                        util.accountInfo(uploader),
+                        when,
+                        notify.handling()));
+              } catch (PatchListNotAvailableException
+                  | GpgException
+                  | IOException
+                  | StorageException
+                  | PermissionBackendException e) {
+                logger.atSevere().withCause(e).log("Couldn't fire event");
+                return Optional.empty();
+              }
+            });
+    listeners.runEach(
+        l -> {
+          System.out.println(String.format("Running listener %s on event", l.toString()));
+          event.get().ifPresent(l::onRevisionCreated);
+        });
   }
 
   /** Event to be fired when a revision has been created for a change. */
