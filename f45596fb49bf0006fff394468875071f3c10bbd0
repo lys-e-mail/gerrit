@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f56008_84762c90",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Used `\u003d\u003d` as `taskId` is an `int`.",
+      "parentUuid": "ff261358_24d11973",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "901b2efa_7c075d5b",
@@ -31,6 +49,30 @@
       "writtenOn": "2024-05-07T15:40:05Z",
       "side": 1,
       "message": "Use `task.taskId`?\n```suggestion\n        return Objects.hashCode(task.taskId);\n```",
+      "range": {
+        "startLine": 378,
+        "startChar": 32,
+        "endLine": 378,
+        "endChar": 36
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dce7a65_72ed41bf",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "No longer overriding `hashCode()`",
+      "parentUuid": "901b2efa_7c075d5b",
       "range": {
         "startLine": 378,
         "startChar": 32,
@@ -58,6 +100,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6584ad5_bb17a544",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cb8c73b_e67b6221",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9479c08_c063bfe0",
@@ -75,6 +135,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "60350bb9_33174442",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9479c08_c063bfe0",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b2595fee_e999975e",
@@ -88,6 +166,30 @@
       "writtenOn": "2024-05-07T15:40:05Z",
       "side": 1,
       "message": "If you want to skip creating ParkedTask objects here, you could add an `equals(Task)` method to ParkedTask instead of overriding `equals(Object)`. My main goal was to encapsulate the equality logic into ParkedTask.",
+      "range": {
+        "startLine": 618,
+        "startChar": 47,
+        "endLine": 618,
+        "endChar": 67
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3eb64755_2ff707fa",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Makes sense. Done.",
+      "parentUuid": "b2595fee_e999975e",
       "range": {
         "startLine": 618,
         "startChar": 47,
@@ -121,6 +223,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fef44442_fc324e30",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Created a new `LatchedMethod` for `onNotReadyToStart` after it is called.",
+      "parentUuid": "97823656_5ee4c715",
+      "range": {
+        "startLine": 73,
+        "startChar": 11,
+        "endLine": 73,
+        "endChar": 19
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "46ae4659_ab9abc3c",
@@ -134,6 +260,30 @@
       "writtenOn": "2024-05-07T15:40:05Z",
       "side": 1,
       "message": "nit: TaskParkers?",
+      "range": {
+        "startLine": 128,
+        "startChar": 41,
+        "endLine": 128,
+        "endChar": 54
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc674ee9_8b37130e",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46ae4659_ab9abc3c",
       "range": {
         "startLine": 128,
         "startChar": 41,
@@ -180,6 +330,30 @@
       "writtenOn": "2024-05-07T15:40:05Z",
       "side": 1,
       "message": "nit: TaskParkers?",
+      "range": {
+        "startLine": 419,
+        "startChar": 41,
+        "endLine": 419,
+        "endChar": 54
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b856b8c_4ddddcf2",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-07T19:38:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2721899_072ab583",
       "range": {
         "startLine": 419,
         "startChar": 41,
