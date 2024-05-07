@@ -80,6 +80,24 @@
       "message": "Unrelated to this change. PACTCH_SET_ID has a typo.",
       "revId": "73221b24f9be809c7ea4a55c7a931430909bac66",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49b0fc88_8929c1f7",
+        "filename": "java/com/google/gerrit/server/git/ChangesByProjectCacheImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T18:33:32Z",
+      "side": 1,
+      "message": "Fixed in https://gerrit-review.googlesource.com/c/gerrit/+/425018",
+      "parentUuid": "5b9bb9d3_7480f7d6",
+      "revId": "73221b24f9be809c7ea4a55c7a931430909bac66",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
