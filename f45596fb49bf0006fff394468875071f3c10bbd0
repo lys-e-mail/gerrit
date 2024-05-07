@@ -1,0 +1,193 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff261358_24d11973",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "Use Objects.equals?\n```suggestion\n        return Objects.equals(task.taskId, ((ParkedTask) o).task.taskId);\n```",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "901b2efa_7c075d5b",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "Use `task.taskId`?\n```suggestion\n        return Objects.hashCode(task.taskId);\n```",
+      "range": {
+        "startLine": 378,
+        "startChar": 32,
+        "endLine": 378,
+        "endChar": 36
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cb8c73b_e67b6221",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "Does this need to be `volatile`? i.e. I think it\u0027s probably different threads calling `cancel()` and `await()`?",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9479c08_c063bfe0",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "Can you add a small javadoc to this and explain the intended behavior?",
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2595fee_e999975e",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "If you want to skip creating ParkedTask objects here, you could add an `equals(Task)` method to ParkedTask instead of overriding `equals(Object)`. My main goal was to encapsulate the equality logic into ParkedTask.",
+      "range": {
+        "startLine": 618,
+        "startChar": 47,
+        "endLine": 618,
+        "endChar": 67
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97823656_5ee4c715",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "Either change `onNotReadyToStart` to not be volatile or add similar new object creation logic for it like what `isReadyToStart` has. Since it could in theory be called multiple times, it would be better to have the extra logic so that test cases could use that in the future.",
+      "range": {
+        "startLine": 73,
+        "startChar": 11,
+        "endLine": 73,
+        "endChar": 19
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46ae4659_ab9abc3c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "nit: TaskParkers?",
+      "range": {
+        "startLine": 128,
+        "startChar": 41,
+        "endLine": 128,
+        "endChar": 54
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04922c5c_465e665e",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "This test looks great now, thank you!",
+      "range": {
+        "startLine": 415,
+        "startChar": 14,
+        "endLine": 415,
+        "endChar": 45
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2721899_072ab583",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-07T15:40:05Z",
+      "side": 1,
+      "message": "nit: TaskParkers?",
+      "range": {
+        "startLine": 419,
+        "startChar": 41,
+        "endLine": 419,
+        "endChar": 54
+      },
+      "revId": "f45596fb49bf0006fff394468875071f3c10bbd0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
