@@ -112,6 +112,10 @@ public class StreamEventsApiListener
 
     @Override
     protected void configure() {
+      if(config.getBoolean("event", "stream-events", "disableAll", false)) {
+        return;
+      }
+
       DynamicSet.bind(binder(), ChangeAbandonedListener.class).to(StreamEventsApiListener.class);
       DynamicSet.bind(binder(), ChangeDeletedListener.class).to(StreamEventsApiListener.class);
       DynamicSet.bind(binder(), ChangeMergedListener.class).to(StreamEventsApiListener.class);
