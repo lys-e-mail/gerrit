@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24ccf41c_7cffbd6a",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-07T13:49:42Z",
+      "side": 1,
+      "message": "test comment\n\nadsdsd\n\n@brohlfs@google.com",
+      "range": {
+        "startLine": 13,
+        "startChar": 2,
+        "endLine": 13,
+        "endChar": 21
+      },
+      "revId": "7f671a3cc8c04ac0346f8b51ecba1a949a53c018",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "111eec50_9cee4a11",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-07T13:49:42Z",
+      "side": 1,
+      "message": "use console instead of assertNever",
+      "range": {
+        "startLine": 297,
+        "startChar": 2,
+        "endLine": 297,
+        "endChar": 13
+      },
+      "revId": "7f671a3cc8c04ac0346f8b51ecba1a949a53c018",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90dcb773_b4b32bc3",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-07T13:49:42Z",
+      "side": 1,
+      "message": "replace with assert\n```suggestion\n  throw new Error(\u0027Received an incorrect suggestion\u0027);\n```",
+      "range": {
+        "startLine": 297,
+        "startChar": 2,
+        "endLine": 297,
+        "endChar": 13
+      },
+      "revId": "7f671a3cc8c04ac0346f8b51ecba1a949a53c018",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
