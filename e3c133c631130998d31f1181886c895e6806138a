@@ -1,0 +1,175 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03cd1e17_8b9e2370",
+        "filename": "java/com/google/gerrit/entities/converter/SafeProtoConverter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-07T08:29:35Z",
+      "side": 1,
+      "message": "Please add to the comment that implementations are tested using SafeProtoConverterTest and it is not required to write tests for each converter separately.",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 35
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "639ec76c_ab4a4a1a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/entities/converter/SafeProtoConverter.java",
+              "range": {
+                "startLine": 14,
+                "startChar": 0,
+                "endLine": 14,
+                "endChar": 0
+              },
+              "replacement": " *\n * \u003cp\u003eImplementations are tested using {@link SafeProtoConverterTest} and it is not required to\n * write custom tests.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db0204de_9b5b151a",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-07T08:29:35Z",
+      "side": 1,
+      "message": "Maybe use @Ignore(\"b/... - implement\")",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 36
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9ae116a2_6fb41e08",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+              "range": {
+                "startLine": 28,
+                "startChar": 0,
+                "endLine": 28,
+                "endChar": 0
+              },
+              "replacement": "import org.junit.Ignore;\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+              "range": {
+                "startLine": 105,
+                "startChar": 0,
+                "endLine": 105,
+                "endChar": 0
+              },
+              "replacement": "  @Ignore(\"b/335372403 - implement\")\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+              "range": {
+                "startLine": 106,
+                "startChar": 0,
+                "endLine": 107,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e2ff379_8ee00253",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-07T08:29:35Z",
+      "side": 1,
+      "message": "Seems all non-gerrit autovalue classes are ignored and are always null in tests. Why they can\u0027t be created in tests in the same way? (maybe add comments to a code why this condition is required)",
+      "range": {
+        "startLine": 151,
+        "startChar": 4,
+        "endLine": 151,
+        "endChar": 42
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dedf1af6_93f1aed1",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-07T08:29:35Z",
+      "side": 1,
+      "message": "When this class can return null if clz is not null?\nIIUC, it never returns null if clz is not null.\nAlso it seems it is never called with clz\u003dnull.\nDid I miss something?",
+      "range": {
+        "startLine": 178,
+        "startChar": 1,
+        "endLine": 179,
+        "endChar": 41
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1cd200f_a3f8e14b",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-07T08:29:35Z",
+      "side": 1,
+      "message": "If construct returns null in line 114 - the c is null and method will fail.",
+      "range": {
+        "startLine": 211,
+        "startChar": 17,
+        "endLine": 211,
+        "endChar": 25
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
