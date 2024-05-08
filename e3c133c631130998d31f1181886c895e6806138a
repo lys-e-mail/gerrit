@@ -42,6 +42,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "376f55bc_3e018792",
+        "filename": "java/com/google/gerrit/entities/converter/SafeProtoConverter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-08T08:16:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03cd1e17_8b9e2370",
+      "range": {
+        "startLine": 16,
+        "startChar": 17,
+        "endLine": 16,
+        "endChar": 35
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db0204de_9b5b151a",
@@ -103,6 +127,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ddfac77_488696a0",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-08T08:16:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db0204de_9b5b151a",
+      "range": {
+        "startLine": 106,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 36
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e2ff379_8ee00253",
@@ -116,6 +164,30 @@
       "writtenOn": "2024-05-07T08:29:35Z",
       "side": 1,
       "message": "Seems all non-gerrit autovalue classes are ignored and are always null in tests. Why they can\u0027t be created in tests in the same way? (maybe add comments to a code why this condition is required)",
+      "range": {
+        "startLine": 151,
+        "startChar": 4,
+        "endLine": 151,
+        "endChar": 42
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7edec486_e3c44d21",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-08T08:16:39Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "4e2ff379_8ee00253",
       "range": {
         "startLine": 151,
         "startChar": 4,
@@ -149,6 +221,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb518828_e1814a0e",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-08T08:16:39Z",
+      "side": 1,
+      "message": "Removed. Added `@NonNull` for readability.",
+      "parentUuid": "dedf1af6_93f1aed1",
+      "range": {
+        "startLine": 178,
+        "startChar": 1,
+        "endLine": 179,
+        "endChar": 41
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c1cd200f_a3f8e14b",
@@ -162,6 +258,30 @@
       "writtenOn": "2024-05-07T08:29:35Z",
       "side": 1,
       "message": "If construct returns null in line 114 - the c is null and method will fail.",
+      "range": {
+        "startLine": 211,
+        "startChar": 17,
+        "endLine": 211,
+        "endChar": 25
+      },
+      "revId": "e3c133c631130998d31f1181886c895e6806138a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03474da0_38d1bde9",
+        "filename": "javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-08T08:16:39Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c1cd200f_a3f8e14b",
       "range": {
         "startLine": 211,
         "startChar": 17,
