@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbe402bd_425430e6",
+        "filename": "polygerrit-ui/app/elements/admin/gr-admin-view/gr-admin-view.ts",
+        "patchSetId": 30
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1152600
+      },
+      "writtenOn": "2024-05-09T11:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc0c580f_c65dfc7c",
+      "revId": "163efe80b6f1f528442d8fd23a5f0db7f261e2d8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7dc50110_adcd0715",
@@ -41,6 +59,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32e0caf2_a31df4b8",
+        "filename": "polygerrit-ui/app/elements/admin/gr-group/gr-group.ts",
+        "patchSetId": 30
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 1152600
+      },
+      "writtenOn": "2024-05-09T11:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7dc50110_adcd0715",
+      "range": {
+        "startLine": 467,
+        "startChar": 4,
+        "endLine": 467,
+        "endChar": 72
+      },
+      "revId": "163efe80b6f1f528442d8fd23a5f0db7f261e2d8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6173063_adc065d8",
@@ -54,6 +96,24 @@
       "writtenOn": "2024-05-06T20:37:34Z",
       "side": 1,
       "message": "Can we use `this.getNavigation().setUrl()` or is there a reason why we\u0027re using window.location.href?",
+      "revId": "163efe80b6f1f528442d8fd23a5f0db7f261e2d8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9e5ddbd_d87e28de",
+        "filename": "polygerrit-ui/app/elements/admin/gr-group/gr-group.ts",
+        "patchSetId": 30
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 1152600
+      },
+      "writtenOn": "2024-05-09T11:24:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6173063_adc065d8",
       "revId": "163efe80b6f1f528442d8fd23a5f0db7f261e2d8",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
