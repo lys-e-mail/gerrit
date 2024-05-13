@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11b4776c_c42e7e92",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment_test.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 1,
+      "message": "Ok, this works, because we added foo which is part of foomore.",
+      "range": {
+        "startLine": 924,
+        "startChar": 10,
+        "endLine": 924,
+        "endChar": 37
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9ce6be3_c320fc84",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 1,
+      "message": "typo: Autocompletion",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 30
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "88df2185_0d41b4f8",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+              "range": {
+                "startLine": 6,
+                "startChar": 0,
+                "endLine": 7,
+                "endChar": 0
+              },
+              "replacement": "export interface Autocompletion {\n"
+            },
+            {
+              "path": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+              "range": {
+                "startLine": 19,
+                "startChar": 0,
+                "endLine": 20,
+                "endChar": 0
+              },
+              "replacement": "  private cache: Autocompletion[] \u003d [];\n"
+            }
+          ]
+        }
+      ],
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d90aabe4_5d5b5985",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 1,
+      "message": "Why not a Map?",
+      "range": {
+        "startLine": 19,
+        "startChar": 10,
+        "endLine": 19,
+        "endChar": 15
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cee78f37_b53a47b9",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 1,
+      "message": "I would put 10 :)",
+      "range": {
+        "startLine": 21,
+        "startChar": 31,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "40c74f7c_f3c0bab1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+              "range": {
+                "startLine": 21,
+                "startChar": 0,
+                "endLine": 22,
+                "endChar": 0
+              },
+              "replacement": "  constructor(private readonly capacity \u003d 10) {}\n"
+            }
+          ]
+        }
+      ],
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10d691be_1491bbb2",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 1,
+      "message": "IMHO just filter `if (completionFull \u003d\u003d\u003d content) continue;` is just enough\n\nThis simplified version would work in cases where someone copy and paste and then do undo, or copy whole word.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 54
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}

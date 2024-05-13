@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd19b2da_931bd774",
+        "filename": "polygerrit-ui/app/elements/shared/gr-comment/gr-comment.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-13T12:21:01Z",
+      "side": 0,
+      "message": "Ok, this check is not needed because it\u0027s done on line 905",
+      "range": {
+        "startLine": 919,
+        "startChar": 4,
+        "endLine": 919,
+        "endChar": 38
+      },
+      "revId": "ad2e7c117dd6721b50653a173e1032514eca7d01",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
