@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cbd88fb_d858d164",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-13T14:28:41Z",
+      "side": 1,
+      "message": "What\u0027s the rationale behind it? If people had existing filters on incoming e-mails, this would break them.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 46
+      },
+      "revId": "b52f68edfcdbce6e15348412b6c833b1fbbd6154",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bb53f7d2_bac0ddbf",
