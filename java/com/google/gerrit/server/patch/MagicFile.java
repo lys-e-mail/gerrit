@@ -29,6 +29,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 @AutoValue
 public abstract class MagicFile {
 
+  private static final boolean skipSha1Abbreviation = Boolean.getBoolean("ghs.gerrit.patch.skip-sha1-abbreviation");
+
   public static MagicFile forCommitMessage(ObjectReader reader, AnyObjectId commitId)
       throws IOException {
     try (RevWalk rw = new RevWalk(reader)) {
@@ -109,6 +111,9 @@ public abstract class MagicFile {
   }
 
   private static String abbreviateName(RevCommit p, ObjectReader reader) throws IOException {
+    if(skipSha1Abbreviation) {
+      return p.getName();
+    }
     return ObjectIds.abbreviateName(p, 8, reader);
   }
 
