@@ -98,6 +98,54 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11894283_08585e94",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-14T15:10:55Z",
+      "side": 1,
+      "message": "Added a comment:\n\n```\n/**\n * We are using an ordered list instead of a map here, because we want to evict the oldest\n * entries, if the capacity is exceeded. And we want to prefer newer entries over older\n * entries, if both match the criteria for being reused.\n */\n```",
+      "parentUuid": "d90aabe4_5d5b5985",
+      "range": {
+        "startLine": 19,
+        "startChar": 10,
+        "endLine": 19,
+        "endChar": 15
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d5bf242_b110846a",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-14T15:10:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9ce6be3_c320fc84",
+      "range": {
+        "startLine": 19,
+        "startChar": 17,
+        "endLine": 19,
+        "endChar": 30
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cee78f37_b53a47b9",
@@ -139,6 +187,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b15d65d5_e1068767",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-14T15:10:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cee78f37_b53a47b9",
+      "range": {
+        "startLine": 21,
+        "startChar": 31,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10d691be_1491bbb2",
@@ -152,6 +224,30 @@
       "writtenOn": "2024-05-13T12:21:01Z",
       "side": 1,
       "message": "IMHO just filter `if (completionFull \u003d\u003d\u003d content) continue;` is just enough\n\nThis simplified version would work in cases where someone copy and paste and then do undo, or copy whole word.",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 54
+      },
+      "revId": "5d673227ae8db02f654ba2bfa38e4071ec835440",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80f182ae_50aa1585",
+        "filename": "polygerrit-ui/app/utils/autocomplete-cache.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-14T15:10:55Z",
+      "side": 1,
+      "message": "`if (!completionFull.startsWith(content)) continue;` is totally vital. If we don\u0027t have that check, then we would match up arbitrary content with arbitrary cache entries.\n\n`if (completionContent.length \u003e content.length) continue;` is debatable, but the rationale is that if you have very long content with a short completion, then reduce the content to just one word or so, then you don\u0027t want to get the entire blurb suggested that you just deleted.",
+      "parentUuid": "10d691be_1491bbb2",
       "range": {
         "startLine": 26,
         "startChar": 0,
