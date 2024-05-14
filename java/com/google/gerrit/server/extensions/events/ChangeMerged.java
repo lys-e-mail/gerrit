@@ -14,6 +14,7 @@
 
 package com.google.gerrit.server.extensions.events;
 
+import com.google.common.base.Suppliers;
 import com.google.common.flogger.FluentLogger;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.exceptions.StorageException;
@@ -33,6 +34,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /** Helper class to fire an event when a change has been merged. */
 @Singleton
@@ -53,24 +56,26 @@ public class ChangeMerged {
     if (listeners.isEmpty()) {
       return;
     }
-    try {
-      Event event =
-          new Event(
-              util.changeInfo(changeData),
-              util.revisionInfo(changeData.project(), ps),
-              util.accountInfo(merger),
-              newRevisionId,
-              when);
-      listeners.runEach(l -> l.onChangeMerged(event));
-    } catch (PatchListObjectTooLargeException e) {
-      logger.atWarning().log("Couldn't fire event: %s", e.getMessage());
-    } catch (PatchListNotAvailableException
-        | GpgException
-        | IOException
-        | StorageException
-        | PermissionBackendException e) {
-      logger.atSevere().withCause(e).log("Couldn't fire event");
-    }
+      Supplier<Optional<Event>> event = Suppliers.memoize(
+                          () -> {
+                            try {
+                              return Optional.of(
+                                      new Event(
+                                              util.changeInfo(changeData),
+                                              util.revisionInfo(changeData.project(), ps),
+                                              util.accountInfo(merger),
+                                              newRevisionId,
+                                              when));
+                            } catch (PatchListNotAvailableException
+                                     | GpgException
+                                     | IOException
+                                     | StorageException
+                                     | PermissionBackendException e) {
+                              logger.atSevere().withCause(e).log("Couldn't fire event");
+                              return Optional.empty();
+                            }
+                          });
+      listeners.runEach(l -> event.get().ifPresent(l::onChangeMerged));
   }
 
   /** Event to be fired when a change has been merged. */
