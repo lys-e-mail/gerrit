@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b976d8eb_cc019347",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-05-14T08:26:12Z",
+      "side": 1,
+      "message": "On our setup we have added `[Gerrit] ` as a prefix to mimic what mailing lists are doing and I believe we removed `Change in` to make the subject shorter. The subject looks like:\n```\n[Gerrit] mediawiki/core [master]: Add some magic feature\n```\n\n\nI felt it could be nice to have shorter subjects by default. Maybe for 3.10 or later to avoid breaking someone workflow?",
+      "parentUuid": "4cbd88fb_d858d164",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 46
+      },
+      "revId": "b52f68edfcdbce6e15348412b6c833b1fbbd6154",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bb53f7d2_bac0ddbf",
