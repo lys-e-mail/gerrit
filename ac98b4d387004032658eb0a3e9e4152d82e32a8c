@@ -1,5 +1,29 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e745edce_79f0919b",
+        "filename": "polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-15T11:17:08Z",
+      "side": 1,
+      "message": "here we return if this condition is true but down below we check the same condition and return if it\u0027s false?\n\nBtw this is the generic `updated` lifeycle method which should not be returning early or doing `assertIsDefined`.\n\nCan you move the specific logic to a method `computeDetailedAccount` and then mention the conditions in which we should return early?",
+      "range": {
+        "startLine": 207,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 48
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
