@@ -10,6 +10,7 @@ import '../../plugins/gr-endpoint-decorator/gr-endpoint-decorator';
 import '../../plugins/gr-endpoint-param/gr-endpoint-param';
 import {getAppContext} from '../../../services/app-context';
 import {getDisplayName} from '../../../utils/display-name-util';
+import {deepClone} from '../../../utils/deep-util';
 import {isSelf, isServiceUser} from '../../../utils/account-util';
 import {ChangeInfo, AccountInfo, ServerInfo} from '../../../types/common';
 import {assertIsDefined, hasOwnProperty} from '../../../utils/common-util';
@@ -206,7 +207,7 @@ export class GrAccountLabel extends LitElement {
     // cases where a secondary email is used as the committer or author
     // email. Therefore, only fill in the missing details to avoid
     // displaying incorrect author or committer email.
-    if (account) this.account = Object.assign(account, this.account);
+    if (account) this.account = deepClone(Object.assign(account, this.account));
   }
 
   override render() {
