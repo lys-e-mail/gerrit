@@ -15,10 +15,12 @@
 package com.google.gerrit.extensions.client;
 
 import com.google.common.base.MoreObjects;
+import com.google.gerrit.common.ConvertibleToProto;
 import java.util.List;
 import java.util.Objects;
 
 /** Preferences about a single user. */
+@ConvertibleToProto
 public class GeneralPreferencesInfo {
 
   /** Default number of items to display per page. */
@@ -143,7 +145,6 @@ public class GeneralPreferencesInfo {
   public List<String> changeTable;
   public Boolean allowBrowserNotifications;
   public Boolean allowSuggestCodeWhileCommenting;
-  public Boolean allowAutocompletingComments;
   /**
    * The sidebar section that the user prefers to have open on the diff page, or "NONE" if all
    * sidebars should be closed.
@@ -215,6 +216,8 @@ public class GeneralPreferencesInfo {
         && Objects.equals(this.my, other.my)
         && Objects.equals(this.changeTable, other.changeTable)
         && Objects.equals(this.allowBrowserNotifications, other.allowBrowserNotifications)
+        && Objects.equals(
+            this.allowSuggestCodeWhileCommenting, other.allowSuggestCodeWhileCommenting)
         && Objects.equals(this.diffPageSidebar, other.diffPageSidebar);
   }
 
@@ -243,6 +246,7 @@ public class GeneralPreferencesInfo {
         my,
         changeTable,
         allowBrowserNotifications,
+        allowSuggestCodeWhileCommenting,
         diffPageSidebar);
   }
 
@@ -271,6 +275,7 @@ public class GeneralPreferencesInfo {
         .add("my", my)
         .add("changeTable", changeTable)
         .add("allowBrowserNotifications", allowBrowserNotifications)
+        .add("allowSuggestCodeWhileCommenting", allowSuggestCodeWhileCommenting)
         .add("diffPageSidebar", diffPageSidebar)
         .toString();
   }
@@ -297,9 +302,8 @@ public class GeneralPreferencesInfo {
     p.disableTokenHighlighting = false;
     p.workInProgressByDefault = false;
     p.allowBrowserNotifications = true;
-    p.diffPageSidebar = "NONE";
     p.allowSuggestCodeWhileCommenting = true;
-    p.allowAutocompletingComments = true;
+    p.diffPageSidebar = "NONE";
     return p;
   }
 }
