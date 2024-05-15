@@ -96,7 +96,7 @@ public class UpdateSubmitRequirement
       ProjectConfig config = projectConfigFactory.read(md);
 
       SubmitRequirement submitRequirement =
-          createSubmitRequirement(config, rsrc.getSubmitRequirement().name(), input);
+          updateSubmitRequirement(config, rsrc.getSubmitRequirement().name(), input);
 
       md.setMessage(String.format("Update Submit Requirement %s", submitRequirement.name()));
       config.commit(md);
@@ -109,7 +109,7 @@ public class UpdateSubmitRequirement
     }
   }
 
-  public SubmitRequirement createSubmitRequirement(
+  public SubmitRequirement updateSubmitRequirement(
       ProjectConfig config, String name, SubmitRequirementInput input) throws BadRequestException {
     validateSRName(name);
     if (Strings.isNullOrEmpty(input.submittabilityExpression)) {
