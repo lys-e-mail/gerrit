@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2024 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.gerrit.extensions.common;
+package com.google.gerrit.server.permissions;
 
-/** Input for the REST API that describes additions, updates and deletions of label definitions. */
-public class BatchLabelInput extends AbstractBatchInput<LabelDefinitionInput> {}
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+public class RefMetaConfigControlImpl implements RefMetaConfigControl {
+  @Inject
+  public RefMetaConfigControlImpl() {}
+
+  @Override
+  public boolean allUpdatesRequireReview() {
+    return false;
+  }
+}
