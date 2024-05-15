@@ -48,6 +48,7 @@ import {createChangeUrl} from '../../../models/views/change';
 import {throwingErrorCallback} from '../../shared/gr-rest-api-interface/gr-rest-apis/gr-rest-api-helper';
 import {createRepoUrl, RepoDetailView} from '../../../models/views/repo';
 import '../../shared/gr-weblink/gr-weblink';
+import {KnownExperimentId} from "../../../services/flags/flags";
 
 const NOTHING_TO_SAVE = 'No changes to save.';
 
@@ -73,6 +74,8 @@ export class GrRepoAccess extends LitElement {
 
   // private but used in test
   @state() canUpload?: boolean = false; // restAPI can return undefined
+
+  @state() disableSaveWithoutReview: boolean = true;
 
   // private but used in test
   @state() inheritFromFilter?: RepoName;
@@ -113,6 +116,8 @@ export class GrRepoAccess extends LitElement {
   originalInheritsFrom?: ProjectInfo;
 
   private readonly query: AutocompleteQuery;
+
+  private readonly flagsService = getAppContext().flagsService;
 
   private readonly restApiService = getAppContext().restApiService;
 
@@ -238,7 +243,7 @@ export class GrRepoAccess extends LitElement {
                 ? 'invisible'
                 : ''}
               primary
-              ?disabled=${!this.modified}
+              ?disabled=${!this.modified || this.disableSaveWithoutReview}
               @click=${this.handleSave}
               >Save</gr-button
             >
@@ -343,6 +348,10 @@ export class GrRepoAccess extends LitElement {
         this.groups = res.groups;
         this.weblinks = res.config_web_links || [];
         this.canUpload = res.can_upload;
+        this.disableSaveWithoutReview =
+          this.flagsService.isEnabled(
+            KnownExperimentId.SAVE_PROJECT_CONFIG_FOR_REVIEW
+          ) && !res.can_update_config_without_review;
         this.ownerOf = res.owner_of || [];
         return toSortedPermissionsArray(this.local);
       });
