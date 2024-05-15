@@ -51,6 +51,24 @@
       "message": "Maybe abandon in favor of change 425500.",
       "revId": "a2dfa1877b8d1f09cb49de0ab8ac49fd53bcbbc4",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da8dad65_018a663c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1144862
+      },
+      "writtenOn": "2024-05-15T08:16:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "778ba667_d9402afe",
+      "revId": "a2dfa1877b8d1f09cb49de0ab8ac49fd53bcbbc4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
