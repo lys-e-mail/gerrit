@@ -69,6 +69,30 @@
       },
       "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38cc5026_b39dfdcc",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-15T11:28:22Z",
+      "side": 1,
+      "message": "I was also surprised that this logic was just relying on `email`, which I think is something that you have implemented. I was thinking that `name` is fairly to be safe to be present, well, name OR email. Would you include other fields in this OR clause?",
+      "parentUuid": "0eb38193_a90a9259",
+      "range": {
+        "startLine": 144,
+        "startChar": 5,
+        "endLine": 145,
+        "endChar": 16
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
