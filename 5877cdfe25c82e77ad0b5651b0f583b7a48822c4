@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1d12b3c_6fc35463",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-15T08:17:52Z",
+      "side": 1,
+      "message": "Maybe abandon in favor of change 425500.",
+      "revId": "5877cdfe25c82e77ad0b5651b0f583b7a48822c4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
