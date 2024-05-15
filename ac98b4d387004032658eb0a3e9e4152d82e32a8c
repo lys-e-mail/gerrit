@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6fd19304_319b1e1c",
+        "filename": "polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-15T11:47:41Z",
+      "side": 1,
+      "message": "I think it\u0027s a minor cleanup well within the scope of the CL and would have occurred if I had a chance to review it before it got submitted.\n\n\u003e but this was originally added in https://gerrit-review.git.corp.google.com/c/gerrit/+/343138/12/polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts \n\nThis was not mentioned as a comment in the original CL otherwise it would be updated as well.\n\nNow that a comment is left about it, I think it\u0027s reasonable to expect it to change within this review.",
+      "parentUuid": "94e77f23_cdc006a8",
+      "range": {
+        "startLine": 207,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 48
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0eb38193_a90a9259",
         "filename": "polygerrit-ui/app/utils/account-util.ts",
         "patchSetId": 5
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "I was also surprised that this logic was just relying on `email`, which I think is something that you have implemented. I was thinking that `name` is fairly to be safe to be present, well, name OR email. Would you include other fields in this OR clause?",
       "parentUuid": "0eb38193_a90a9259",
+      "range": {
+        "startLine": 144,
+        "startChar": 5,
+        "endLine": 145,
+        "endChar": 16
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64c0f412_8bb239dd",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-15T11:47:41Z",
+      "side": 1,
+      "message": "Yeah looks like I did not look too deeply into it as well.\n\nChecking other options does make it more robust but not worth if it\u0027s doing so I\u0027ll resolve this for now.",
+      "parentUuid": "38cc5026_b39dfdcc",
       "range": {
         "startLine": 144,
         "startChar": 5,
