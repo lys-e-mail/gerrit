@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94e77f23_cdc006a8",
+        "filename": "polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-15T11:26:32Z",
+      "side": 1,
+      "message": "\u003e here we return if this condition is true but down below we check the same condition and return if it\u0027s false?\n\nAnd that does not make sense?\n \n\u003e Btw this is the generic `updated` lifeycle method which should not be returning early or doing `assertIsDefined`. Can you move the specific logic to a method `computeDetailedAccount` and then mention the conditions in which we should return early?\n\nI agree that all of this is far from ideal, but this was originally added in https://gerrit-review.git.corp.google.com/c/gerrit/+/343138/12/polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts and I don\u0027t really feel like cleaning up even more than I did already. Sorry. :-/",
+      "parentUuid": "e745edce_79f0919b",
+      "range": {
+        "startLine": 207,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 48
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0eb38193_a90a9259",
