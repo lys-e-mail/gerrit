@@ -26,6 +26,7 @@ import {resolve} from '../../../models/dependency';
 import {configModelToken} from '../../../models/config/config-model';
 import {userModelToken} from '../../../models/user/user-model';
 import {subscribe} from '../../lit/subscription-controller';
+import {deepEqual} from '../../../utils/deep-util';
 
 @customElement('gr-account-label')
 export class GrAccountLabel extends LitElement {
@@ -204,9 +205,15 @@ export class GrAccountLabel extends LitElement {
     // AccountInfo returned by fillDetails has the email property set
     // to the primary email of the account. This poses a problem in
     // cases where a secondary email is used as the committer or author
-    // email. Therefore, only fill in the missing details to avoid
-    // displaying incorrect author or committer email.
-    if (account) this.account = Object.assign(account, this.account);
+    // email. Therefore, only fill in the *missing* properties.
+    if (
+      account &&
+      account !== this.account &&
+      account._account_id === this.account._account_id &&
+      !deepEqual(account, this.account)
+    ) {
+      this.account = {...account, ...this.account};
+    }
   }
 
   override render() {
