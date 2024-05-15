@@ -132,6 +132,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
  */
 public class ChangeData {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
+  private static final boolean skipDiffSummaryComputation = Boolean.getBoolean("ghs.gerrit.change.skip-diff-summary");
 
   public enum StorageConstraint {
     /**
@@ -583,6 +584,10 @@ public class ChangeData {
   }
 
   private Optional<DiffSummary> getDiffSummary() {
+    if (skipDiffSummaryComputation) {
+      return Optional.empty();
+    }
+
     if (diffSummary == null) {
       if (!lazyload()) {
         return Optional.empty();
