@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "526231cd_5c94f860",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1144862
+      },
+      "writtenOn": "2024-05-15T08:46:07Z",
+      "side": 1,
+      "message": "Tested against our gerrit instance and this appears to fix our problems, thanks!",
+      "revId": "6fa3e133e8af9016f549b8dc07cfb6c07b247762",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
