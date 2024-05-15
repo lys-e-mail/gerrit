@@ -11,6 +11,7 @@ import '../../shared/gr-download-commands/gr-download-commands';
 import '../../shared/gr-select/gr-select';
 import '../../shared/gr-suggestion-textarea/gr-suggestion-textarea';
 import '../gr-repo-plugin-config/gr-repo-plugin-config';
+import {navigationToken} from '../../core/gr-navigation/gr-navigation';
 import {
   ConfigInfo,
   RepoName,
@@ -39,11 +40,13 @@ import {BindValueChangeEvent} from '../../../types/events';
 import {deepClone} from '../../../utils/deep-util';
 import {LitElement, PropertyValues, css, html, nothing} from 'lit';
 import {customElement, property, state} from 'lit/decorators.js';
+import {createChangeUrl} from '../../../models/views/change';
 import {when} from 'lit/directives/when.js';
 import {subscribe} from '../../lit/subscription-controller';
 import {createSearchUrl} from '../../../models/views/search';
 import {userModelToken} from '../../../models/user/user-model';
 import {resolve} from '../../../models/dependency';
+import {GrButton} from '../../shared/gr-button/gr-button';
 
 const STATES = {
   active: {value: RepoState.ACTIVE, label: 'Active'},
@@ -117,6 +120,8 @@ export class GrRepo extends LitElement {
   private readonly getUserModel = resolve(this, userModelToken);
 
   private readonly restApiService = getAppContext().restApiService;
+
+  private readonly getNavigation = resolve(this, navigationToken);
 
   constructor() {
     super();
@@ -198,6 +203,11 @@ export class GrRepo extends LitElement {
                   ?disabled=${this.readOnly || !configChanged}
                   @click=${this.handleSaveRepoConfig}
                   >Save changes</gr-button
+                >
+                <gr-button
+                  ?disabled=${this.readOnly || !configChanged}
+                  @click=${this.handleSaveRepoConfigForReview}
+                  >Save for review</gr-button
                 >
               </fieldset>
               <gr-endpoint-decorator name="repo-config">
@@ -923,6 +933,32 @@ export class GrRepo extends LitElement {
     this.originalConfig = deepClone<ConfigInfo>(this.repoConfig);
     this.pluginConfigChanged = false;
     return;
+  }
+
+  async handleSaveRepoConfigForReview(e: Event) {
+    if (!this.repoConfig || !this.repo)
+      return Promise.reject(new Error('undefined repoConfig or repo'));
+    const button = e && (e.target as GrButton);
+    if (button) {
+      button.loading = true;
+    }
+
+    return this.restApiService
+      .saveRepoConfigForReview(
+        this.repo,
+        this.formatRepoConfigForSave(this.repoConfig)
+      )
+      .then(change => {
+        // Don't navigate on server error.
+        if (change) {
+          this.getNavigation().setUrl(createChangeUrl({change}));
+        }
+      })
+      .finally(() => {
+        if (button) {
+          button.loading = false;
+        }
+      });
   }
 
   private isEdited(
