@@ -84,6 +84,7 @@ public class ProjectRestApiModule extends RestApiModule {
 
     get(PROJECT_KIND, "config").to(GetConfig.class);
     put(PROJECT_KIND, "config").to(PutConfig.class);
+    put(PROJECT_KIND, "config:review").to(PutConfigReview.class);
 
     post(PROJECT_KIND, "create.change").to(CreateChange.class);
 
@@ -106,15 +107,18 @@ public class ProjectRestApiModule extends RestApiModule {
     get(LABEL_KIND).to(GetLabel.class);
     put(LABEL_KIND).to(SetLabel.class);
     delete(LABEL_KIND).to(DeleteLabel.class);
+    post(PROJECT_KIND, "labels:review").to(PostLabelsReview.class);
 
     get(PROJECT_KIND, "parent").to(GetParent.class);
     put(PROJECT_KIND, "parent").to(SetParent.class);
 
     child(PROJECT_KIND, "submit_requirements").to(SubmitRequirementsCollection.class);
     create(SUBMIT_REQUIREMENT_KIND).to(CreateSubmitRequirement.class);
+    postOnCollection(SUBMIT_REQUIREMENT_KIND).to(PostSubmitRequirements.class);
     put(SUBMIT_REQUIREMENT_KIND).to(UpdateSubmitRequirement.class);
     get(SUBMIT_REQUIREMENT_KIND).to(GetSubmitRequirement.class);
     delete(SUBMIT_REQUIREMENT_KIND).to(DeleteSubmitRequirement.class);
+    post(PROJECT_KIND, "submit_requirements:review").to(PostSubmitRequirementsReview.class);
 
     child(PROJECT_KIND, "tags").to(TagsCollection.class);
     create(TAG_KIND).to(CreateTag.class);
