@@ -22,6 +22,29 @@
       },
       "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0eb38193_a90a9259",
+        "filename": "polygerrit-ui/app/utils/account-util.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-15T11:21:45Z",
+      "side": 1,
+      "message": "https://gerrit-review.googlesource.com/Documentation/rest-api-accounts.html#account-info\n\nI\u0027m not sure if this is strictly true.\n\nWhat we know is that if any of the optional values are returned then it\u0027s definitely a \"Detailed\" AccountInfo.\n\nWhere is it mentioned that one of the two fields must be set?",
+      "range": {
+        "startLine": 144,
+        "startChar": 5,
+        "endLine": 145,
+        "endChar": 16
+      },
+      "revId": "ac98b4d387004032658eb0a3e9e4152d82e32a8c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
