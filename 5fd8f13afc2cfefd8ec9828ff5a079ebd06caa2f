@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da32d209_55ded908",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1155610
+      },
+      "writtenOn": "2024-05-16T10:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "494371cc_662b4369",
+      "revId": "5fd8f13afc2cfefd8ec9828ff5a079ebd06caa2f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9f25855_8320022b",
@@ -31,6 +49,30 @@
       "writtenOn": "2024-05-16T10:29:34Z",
       "side": 1,
       "message": "Conflict markers: you shoul leave 3.8.6-SNAPSHOT thre.\n\n\n\n```suggestion\nGERRIT_VERSION \u003d \"3.8.6-SNAPSHOT\"\n```",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 18
+      },
+      "revId": "5fd8f13afc2cfefd8ec9828ff5a079ebd06caa2f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba321d2c_f9bacfce",
+        "filename": "version.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1155610
+      },
+      "writtenOn": "2024-05-16T10:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9f25855_8320022b",
       "range": {
         "startLine": 5,
         "startChar": 0,
