@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (11429c H2Cache: Set a name for disk cache pruning tasks)
   <version>3.10.0-SNAPSHOT</version>
+||||||| BASE
+  <version>3.9.5-SNAPSHOT</version>
+=======
+  <version>3.9.6-SNAPSHOT</version>
+>>>>>>> BRANCH (782ac1 Merge "Merge branch 'stable-3.8' into stable-3.9" into stabl)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
