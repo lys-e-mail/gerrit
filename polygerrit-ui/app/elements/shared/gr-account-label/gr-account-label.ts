@@ -202,20 +202,24 @@ export class GrAccountLabel extends LitElement {
     ];
   }
 
-  override async updated() {
-    assertIsDefined(this.account, 'account');
+  override updated() {
+    this.computeDetailedAccount();
+  }
+
+  private async computeDetailedAccount() {
+    if (!this.account) return;
     if (isDetailedAccount(this.account)) return;
     const account = await this.getAccountsModel().fillDetails(this.account);
-    if (!isDetailedAccount(account)) return;
-    // AccountInfo returned by fillDetails has the email property set
-    // to the primary email of the account. This poses a problem in
-    // cases where a secondary email is used as the committer or author
-    // email. Therefore, only fill in the *missing* properties.
     if (
       account &&
+      isDetailedAccount(account) &&
       account !== this.account &&
       account._account_id === this.account._account_id
     ) {
+      // AccountInfo returned by fillDetails has the email property set
+      // to the primary email of the account. This poses a problem in
+      // cases where a secondary email is used as the committer or author
+      // email. Therefore, only fill in the *missing* properties.
       this.account = {...account, ...this.account};
     }
   }
