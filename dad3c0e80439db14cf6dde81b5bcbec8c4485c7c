@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d7e9937_f7d0cf26",
+        "filename": "polygerrit-ui/app/elements/shared/gr-account-label/gr-account-label.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-05-16T11:16:45Z",
+      "side": 1,
+      "message": "Thanks so much Ben!\nReally appreciate it!!",
+      "range": {
+        "startLine": 215,
+        "startChar": 6,
+        "endLine": 220,
+        "endChar": 54
+      },
+      "revId": "dad3c0e80439db14cf6dde81b5bcbec8c4485c7c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
