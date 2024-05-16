@@ -29,10 +29,22 @@ From the Linux machine on which you want to install Gerrit:
 . Download the desired Gerrit archive.
 
 To view previous archives, see
+<<<<<<< HEAD   (815d8e Fix issues with account details filling)
 link:https://gerrit-releases.storage.googleapis.com/index.html[Gerrit Code Review: Releases,role=external,window=_blank]. The steps below install Gerrit 3.9.4:
+||||||| BASE
+link:https://gerrit-releases.storage.googleapis.com/index.html[Gerrit Code Review: Releases,role=external,window=_blank]. The steps below install Gerrit 3.5.1:
+=======
+link:https://gerrit-releases.storage.googleapis.com/index.html[Gerrit Code Review: Releases,role=external,window=_blank]. The steps below install Gerrit 3.8.5:
+>>>>>>> BRANCH (112095 Set version to 3.8-SNAPSHOT)
 
 ....
+<<<<<<< HEAD   (815d8e Fix issues with account details filling)
 wget https://gerrit-releases.storage.googleapis.com/gerrit-3.9.4.war
+||||||| BASE
+wget https://gerrit-releases.storage.googleapis.com/gerrit-3.5.1.war
+=======
+wget https://gerrit-releases.storage.googleapis.com/gerrit-3.8.5.war
+>>>>>>> BRANCH (112095 Set version to 3.8-SNAPSHOT)
 ....
 
 NOTE: To build and install Gerrit from the source files, see

@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (815d8e Fix issues with account details filling)
   <version>3.9.5-SNAPSHOT</version>
+||||||| BASE
+  <version>3.8.6-SNAPSHOT</version>
+=======
+  <version>3.8-SNAPSHOT</version>
+>>>>>>> BRANCH (112095 Set version to 3.8-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
