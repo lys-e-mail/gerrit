@@ -39,6 +39,30 @@
       },
       "revId": "b387369f2e6ef9141e07b0ea4bb439814f444cd3",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "231053ab_8940b59e",
+        "filename": "polygerrit-ui/app/elements/settings/gr-preferences/gr-preferences.ts",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-16T13:28:57Z",
+      "side": 1,
+      "message": "I will add a link later, but I have to write documentation first. :-D\n\nWould like to get the opt-out submitted without waiting for the documentaiton.",
+      "parentUuid": "bf43dd7f_9a6d7709",
+      "range": {
+        "startLine": 536,
+        "startChar": 0,
+        "endLine": 540,
+        "endChar": 14
+      },
+      "revId": "b387369f2e6ef9141e07b0ea4bb439814f444cd3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
