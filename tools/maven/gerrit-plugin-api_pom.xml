@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (4985d4 Update Getting Started to Gerrit 3.8.5)
   <version>3.8.6-SNAPSHOT</version>
+||||||| BASE
+  <version>3.7.9-SNAPSHOT</version>
+=======
+  <version>3.7.10-SNAPSHOT</version>
+>>>>>>> BRANCH (2126d2 Set version to 3.7.10-SNAPSHOT)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>
