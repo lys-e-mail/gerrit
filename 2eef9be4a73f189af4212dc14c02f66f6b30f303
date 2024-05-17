@@ -1,5 +1,57 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96b61a9c_40dac85d",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-17T10:06:58Z",
+      "side": 1,
+      "message": "The tests are modifying these parkers, e.g. setting delegates.\n\nWhen running the tests on parallel threads, sharing those instances potentially causes the tests to collide.",
+      "range": {
+        "startLine": 118,
+        "startChar": 2,
+        "endLine": 119,
+        "endChar": 45
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "2480d520_88508ef7",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+              "range": {
+                "startLine": 118,
+                "startChar": 0,
+                "endLine": 120,
+                "endChar": 0
+              },
+              "replacement": "  private ForwardingParker forwarder;\n  private ForwardingParker forwarder2;\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+              "range": {
+                "startLine": 158,
+                "startChar": 0,
+                "endLine": 159,
+                "endChar": 0
+              },
+              "replacement": "        forwarder \u003d new ForwardingParker();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
