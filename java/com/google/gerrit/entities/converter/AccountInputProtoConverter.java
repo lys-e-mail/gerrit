@@ -27,7 +27,7 @@ import com.google.protobuf.Parser;
  */
 @Immutable
 public enum AccountInputProtoConverter
-    implements ProtoConverter<Entities.AccountInput, AccountInput> {
+    implements SafeProtoConverter<Entities.AccountInput, AccountInput> {
   INSTANCE;
 
   @Override
@@ -88,5 +88,15 @@ public enum AccountInputProtoConverter
   @Override
   public Parser<Entities.AccountInput> getParser() {
     return Entities.AccountInput.parser();
+  }
+
+  @Override
+  public Class<Entities.AccountInput> getProtoClass() {
+    return Entities.AccountInput.class;
+  }
+
+  @Override
+  public Class<AccountInput> getEntityClass() {
+    return AccountInput.class;
   }
 }
