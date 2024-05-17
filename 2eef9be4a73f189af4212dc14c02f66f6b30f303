@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "56093ca3_2f3befad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-17T20:58:52Z",
+      "side": 1,
+      "message": "\u003e Could you please try to create a new Executor instead of modifying the existing one which supports parking mechanism? Then you can use it instead of a default executor in upstream code, while we can continue to use the old one.\n\nYou mean create a new Executor and somehow configure Gerrit to use that one for any created queues?\n\n\u003e Otherwise, we will have to carefully review all related changes to avoid unexpected problems on our side (and probably revert some of them if they block us or suspicious).\n\nCareful review would be welcome 😊 And I think we all expect that if there\u0027s a change merged (by anyone) that\u0027s later identified as causing a regression then it\u0027s normal for that change to be reverted until the issue is fixed.\n\nI don\u0027t think this change was rushed in or anything and we spent most of the development time on trying to write good tests for it.",
+      "parentUuid": "42f2b5e7_79a2cdc1",
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bf34b829_32143da3",
         "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
         "patchSetId": 17
@@ -43,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e78a7a7e_c9ca2f80",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-17T20:58:52Z",
+      "side": 1,
+      "message": "I\u0027m happy to try and improve it, but I\u0027m not sure what you\u0027re looking for that isn\u0027t already explained in the [new dev-plugins section](https://gerrit-review.googlesource.com/c/gerrit/+/247812/17/Documentation/dev-plugins.txt).\n\n\u003e The method is called isReadyToStart and it shouldn\u0027t have side effect (acquiring resources).\n\nI\u0027m not sure why you think this shouldn\u0027t have any side effect. Are you saying that based on the naming you didn\u0027t expect it to acquire resources?",
+      "parentUuid": "bf34b829_32143da3",
+      "range": {
+        "startLine": 122,
+        "startChar": 10,
+        "endLine": 122,
+        "endChar": 98
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e9b5bffc_d48765c7",
         "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
         "patchSetId": 17
@@ -54,6 +96,30 @@
       "writtenOn": "2024-05-17T12:31:33Z",
       "side": 1,
       "message": "Could you please explain the logic with incrementCorePooSize? If the task is not ready to start, why the code wants to have more capacity in the thread pool?",
+      "range": {
+        "startLine": 639,
+        "startChar": 8,
+        "endLine": 639,
+        "endChar": 35
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20925918_c509e8b0",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-17T20:58:52Z",
+      "side": 1,
+      "message": "\u003e Could you please explain the logic with incrementCorePooSize? If the task is not ready to start, why the code wants to have more capacity in the thread pool?\n\nIt\u0027s explained briefly in the commit message. The intent is to maintain the same number of threads available to non-parked tasks. For example, if my pool has 2 threads total, 1 task running, and a new task is submitted and then parked, we want to maintain the 1 thread available for other tasks. We do that by increasing the pool size while the task is parked and then shrinking it again once the task is ready to start.",
+      "parentUuid": "e9b5bffc_d48765c7",
       "range": {
         "startLine": 639,
         "startChar": 8,
@@ -111,6 +177,30 @@
           ]
         }
       ],
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "359fe89b_23f5c73c",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-05-17T20:58:52Z",
+      "side": 1,
+      "message": "Thanks for spotting this. We\u0027ll push a change to fix it.",
+      "parentUuid": "96b61a9c_40dac85d",
+      "range": {
+        "startLine": 118,
+        "startChar": 2,
+        "endLine": 119,
+        "endChar": 45
+      },
       "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
