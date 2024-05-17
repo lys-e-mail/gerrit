@@ -26,7 +26,8 @@ import com.google.protobuf.Parser;
  * com.google.gerrit.proto.Entities.MergeInput}.
  */
 @Immutable
-public enum MergeInputProtoConverter implements ProtoConverter<Entities.MergeInput, MergeInput> {
+public enum MergeInputProtoConverter
+    implements SafeProtoConverter<Entities.MergeInput, MergeInput> {
   INSTANCE;
 
   @Override
@@ -66,5 +67,15 @@ public enum MergeInputProtoConverter implements ProtoConverter<Entities.MergeInp
   @Override
   public Parser<Entities.MergeInput> getParser() {
     return Entities.MergeInput.parser();
+  }
+
+  @Override
+  public Class<Entities.MergeInput> getProtoClass() {
+    return Entities.MergeInput.class;
+  }
+
+  @Override
+  public Class<MergeInput> getEntityClass() {
+    return MergeInput.class;
   }
 }
