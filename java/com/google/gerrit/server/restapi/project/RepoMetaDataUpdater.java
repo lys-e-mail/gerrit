@@ -155,7 +155,8 @@ public class RepoMetaDataUpdater {
   /**
    * Returns an updater for updating project config without review.
    *
-   * <p>The method checks that user has required permissions.
+   * <p>The method checks that user has required permissions and that user can update config without
+   * review.
    *
    * <p>When the update is saved (using the {@link ConfigUpdater#commitConfigUpdate} method), the
    * project cache is updated automatically.
@@ -193,8 +194,9 @@ public class RepoMetaDataUpdater {
    * Returns an updater for updating project config without review and skips some permissions
    * checks.
    *
-   * <p>The method doesn't do any permissions checks. It should be used only when standard
-   * permissions checks from {@link #configUpdater} can't be used.
+   * <p>The method only checks that user can update config without review and doesn't do any other
+   * permissions checks. It should be used only when standard permissions checks from {@link
+   * #configUpdater} can't be used.
    *
    * <p>See {@link #configUpdater} for details.
    */
@@ -202,6 +204,13 @@ public class RepoMetaDataUpdater {
   public ConfigUpdater configUpdaterWithoutPermissionsCheck(
       Project.NameKey projectName, @Nullable String message, String defaultMessage)
       throws IOException, ConfigInvalidException, BadRequestException, PermissionBackendException {
+    if (!permissionBackend
+        .currentUser()
+        .project(projectName)
+        .test(ProjectPermission.UPDATE_CONFIG_WITHOUT_REVIEW)) {
+      throw new BadRequestException(
+          "Updating project config without review are disabled. Please create a change and send it for review. Some rest API methods have alternatives for creating required changes automatically - please check gerrit documentation.");
+    }
     message = validateMessage(message, defaultMessage);
     MetaDataUpdate md = metaDataUpdateFactory.get().create(projectName);
     try {
