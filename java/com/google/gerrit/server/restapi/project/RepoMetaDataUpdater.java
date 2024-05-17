@@ -158,7 +158,8 @@ public class RepoMetaDataUpdater {
   /**
    * Returns an updater for updating project config without review.
    *
-   * <p>The method checks that user has required permissions.
+   * <p>The method checks that user has required permissions and that user can update config without
+   * review.
    *
    * <p>When the update is saved (using the {@link ConfigUpdater#commitConfigUpdate} method), the
    * project cache is updated automatically.
@@ -183,7 +184,8 @@ public class RepoMetaDataUpdater {
   @MustBeClosed
   public ConfigUpdater configUpdater(
       Project.NameKey projectName, @Nullable String message, String defaultMessage)
-      throws AuthException, PermissionBackendException, ConfigInvalidException, IOException {
+      throws AuthException, PermissionBackendException, ConfigInvalidException, IOException,
+          BadRequestException {
     if (!user.get().isIdentifiedUser()) {
       throw new AuthException("Authentication required");
     }
@@ -195,15 +197,23 @@ public class RepoMetaDataUpdater {
    * Returns an updater for updating project config without review and skips some permissions
    * checks.
    *
-   * <p>The method doesn't do any permissions checks. It should be used only when standard
-   * permissions checks from {@link #configUpdater} can't be used.
+   * <p>The method only checks that user can update config without review and doesn't do any other
+   * permissions checks. It should be used only when standard permissions checks from {@link
+   * #configUpdater} can't be used.
    *
    * <p>See {@link #configUpdater} for details.
    */
   @MustBeClosed
   public ConfigUpdater configUpdaterWithoutPermissionsCheck(
       Project.NameKey projectName, @Nullable String message, String defaultMessage)
-      throws IOException, ConfigInvalidException {
+      throws IOException, ConfigInvalidException, BadRequestException, PermissionBackendException {
+    if (!permissionBackend
+        .currentUser()
+        .project(projectName)
+        .test(ProjectPermission.UPDATE_CONFIG_WITHOUT_CREATING_CHANGE)) {
+      throw new BadRequestException(
+          "Updating project config without review is disabled. Please create a change and send it for review. Some rest API methods have alternatives for creating required changes automatically - please check gerrit documentation.");
+    }
     message = validateMessage(message, defaultMessage);
     // The MetaDataUpdate instance gets closed in the ConfigUpdater.close() method.
     MetaDataUpdate md = metaDataUpdateFactory.get().create(projectName);

@@ -174,4 +174,15 @@ public class SetParentIT extends AbstractDaemonTest {
             BadRequestException.class, () -> gApi.projects().name(allUsers.get()).parent(parent));
     assertThat(thrown).hasMessageThat().contains("All-Users must inherit from All-Projects");
   }
+
+  @Test
+  @GerritConfig(name = "gerrit.requireChangeForConfigUpdate", value = "true")
+  public void requireChangeForConfigUpdate_postParentRejected() {
+    String parent = projectOperations.newProject().create().get();
+
+    BadRequestException e =
+        assertThrows(
+            BadRequestException.class, () -> gApi.projects().name(project.get()).parent(parent));
+    assertThat(e.getMessage()).contains("Updating project config without review is disabled");
+  }
 }
