@@ -14,6 +14,10 @@
 
 package com.google.gerrit.extensions.common;
 
+import com.google.gerrit.common.ConvertibleToProto;
+import java.util.Objects;
+
+@ConvertibleToProto
 public class MergeInput {
   /**
    * {@code source} can be any Git object reference expression.
@@ -43,4 +47,21 @@ public class MergeInput {
    * to indicate the conflicts.
    */
   public boolean allowConflicts;
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof MergeInput)) {
+      return false;
+    }
+    MergeInput other = (MergeInput) o;
+    return allowConflicts == other.allowConflicts
+        && Objects.equals(source, other.source)
+        && Objects.equals(sourceBranch, other.sourceBranch)
+        && Objects.equals(strategy, other.strategy);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(source, sourceBranch, strategy, allowConflicts);
+  }
 }
