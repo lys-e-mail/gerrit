@@ -109,6 +109,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dd373476_e063b217",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-17T22:03:46Z",
+      "side": 1,
+      "message": "\u003e TBD.\n\u003e \n\u003e \"Resources needed to enforce quotas should be acquired in this method via non-blocking means...\"\n\nIgnore, this. It was a draft, I didn\u0027t mean to publish.",
+      "parentUuid": "377d7273_7d734e50",
+      "range": {
+        "startLine": 122,
+        "startChar": 10,
+        "endLine": 122,
+        "endChar": 98
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e9b5bffc_d48765c7",
         "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
         "patchSetId": 17
