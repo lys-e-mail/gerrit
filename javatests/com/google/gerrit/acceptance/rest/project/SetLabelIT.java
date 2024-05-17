@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gerrit.acceptance.AbstractDaemonTest;
 import com.google.gerrit.acceptance.NoHttpd;
+import com.google.gerrit.acceptance.config.GerritConfig;
 import com.google.gerrit.acceptance.testsuite.project.ProjectOperations;
 import com.google.gerrit.acceptance.testsuite.request.RequestScopeOperations;
 import com.google.gerrit.entities.LabelFunction;
@@ -670,5 +671,17 @@ public class SetLabelIT extends AbstractDaemonTest {
     assertThat(
             projectOperations.project(allProjects).getHead(RefNames.REFS_CONFIG).getShortMessage())
         .isEqualTo("Set NoOp function");
+  }
+
+  @Test
+  @GerritConfig(name = "gerrit.requireChangeForConfigUpdate", value = "true")
+  public void requireChangeForConfigUpdate_setLabelRejected() {
+    LabelDefinitionInput input = new LabelDefinitionInput();
+    input.function = LabelFunction.NO_OP.getFunctionName();
+    BadRequestException e =
+        assertThrows(
+            BadRequestException.class,
+            () -> gApi.projects().name(allProjects.get()).label(LabelId.CODE_REVIEW).update(input));
+    assertThat(e.getMessage()).contains("Updating project config without review is disabled");
   }
 }

@@ -393,6 +393,16 @@ public class ProjectIT extends AbstractDaemonTest {
     assertThat(info.state).isEqualTo(input.state);
   }
 
+  @Test
+  @GerritConfig(name = "gerrit.requireChangeForConfigUpdate", value = "true")
+  public void requireChangeForConfigUpdate_setConfigRejected() {
+    ConfigInput input = createTestConfigInput();
+    BadRequestException e =
+        assertThrows(
+            BadRequestException.class, () -> gApi.projects().name(project.get()).config(input));
+    assertThat(e.getMessage()).contains("Updating project config without review is disabled");
+  }
+
   @SuppressWarnings("deprecation")
   @Test
   public void setPartialConfig() throws Exception {
