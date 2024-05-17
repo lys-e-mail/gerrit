@@ -25,7 +25,6 @@ import com.google.errorprone.annotations.MustBeClosed;
 import com.google.gerrit.entities.Change;
 import com.google.gerrit.entities.PatchSet;
 import com.google.gerrit.entities.Project;
-import com.google.gerrit.entities.Project.NameKey;
 import com.google.gerrit.entities.RefNames;
 import com.google.gerrit.extensions.common.ChangeInfo;
 import com.google.gerrit.extensions.restapi.AuthException;
@@ -102,9 +101,10 @@ public class RepoMetaDataUpdater {
   /**
    * Returns a creator for creating project config changes.
    *
-   * The method checks that user has required permissions.
+   * <p>The method checks that user has required permissions.
    *
-   * Usage:
+   * <p>Usage:
+   *
    * <pre>{@code
    * try(var changeCreator =
    *  repoMetaDataUpdater.configChangeCreator(projectName, message, defaultMessage)) {
@@ -117,14 +117,13 @@ public class RepoMetaDataUpdater {
    * }</pre>
    *
    * @param projectName the name of the project whose config should be updated
-   * @param message the user-provided commit message. If it is not provided (i.e. it is null or empty) - the {@code defaultMessage} is used.
+   * @param message the user-provided commit message. If it is not provided (i.e. it is null or
+   *     empty) - the {@code defaultMessage} is used.
    * @param defaultMessage the default commit message if the user doesn't provide one.
    */
   @MustBeClosed
   public ConfigChangeCreator configChangeCreator(
-      Project.NameKey projectName,
-      @Nullable String message,
-      String defaultMessage)
+      Project.NameKey projectName, @Nullable String message, String defaultMessage)
       throws PermissionBackendException, AuthException, ResourceConflictException, IOException,
           ConfigInvalidException {
     message = validateMessage(message, defaultMessage);
@@ -153,16 +152,16 @@ public class RepoMetaDataUpdater {
     }
   }
 
-
   /**
    * Returns an updater for updating project config without review.
    *
-   * The method checks that user has required permissions.
+   * <p>The method checks that user has required permissions.
    *
-   * When the update is saved (using the {@link ConfigUpdater#commitConfigUpdate} method), the
+   * <p>When the update is saved (using the {@link ConfigUpdater#commitConfigUpdate} method), the
    * project cache is updated automatically.
    *
-   * Usage:
+   * <p>Usage:
+   *
    * <pre>{@code
    * try(var configUpdater =
    *  repoMetaDataUpdater.configUpdater(projectName, message, defaultMessage)) {
@@ -174,13 +173,15 @@ public class RepoMetaDataUpdater {
    * }</pre>
    *
    * @param projectName the name of the project whose config should be updated
-   * @param message the user-provided commit message. If it is not provided (i.e. it is null or empty) - the {@code defaultMessage} is used.
+   * @param message the user-provided commit message. If it is not provided (i.e. it is null or
+   *     empty) - the {@code defaultMessage} is used.
    * @param defaultMessage the default commit message if the user doesn't provide one.
    */
   @MustBeClosed
   public ConfigUpdater configUpdater(
       Project.NameKey projectName, @Nullable String message, String defaultMessage)
-      throws AuthException, PermissionBackendException, ConfigInvalidException, IOException, BadRequestException {
+      throws AuthException, PermissionBackendException, ConfigInvalidException, IOException,
+          BadRequestException {
     if (!user.get().isIdentifiedUser()) {
       throw new AuthException("Authentication required");
     }
@@ -188,14 +189,15 @@ public class RepoMetaDataUpdater {
     return configUpdaterWithoutPermissionsCheck(projectName, message, defaultMessage);
   }
 
-/**
- * Returns an updater for updating project config without review and skips some permissions checks.
- *
- * The method doesn't do any permissions checks. It should be used only when standard permissions checks from
- * {@link #configUpdater} can't be used.
- *
- * See {@link #configUpdater} for details.
- */
+  /**
+   * Returns an updater for updating project config without review and skips some permissions
+   * checks.
+   *
+   * <p>The method doesn't do any permissions checks. It should be used only when standard
+   * permissions checks from {@link #configUpdater} can't be used.
+   *
+   * <p>See {@link #configUpdater} for details.
+   */
   @MustBeClosed
   public ConfigUpdater configUpdaterWithoutPermissionsCheck(
       Project.NameKey projectName, @Nullable String message, String defaultMessage)
@@ -216,7 +218,7 @@ public class RepoMetaDataUpdater {
   /**
    * Updater for a project config without review.
    *
-   * See {@link #configUpdater} and {@link #configUpdaterWithoutPermissionsCheck} for details and
+   * <p>See {@link #configUpdater} and {@link #configUpdaterWithoutPermissionsCheck} for details and
    * usages.
    */
   public class ConfigUpdater implements AutoCloseable {
@@ -250,7 +252,7 @@ public class RepoMetaDataUpdater {
   /**
    * Creates a change for a project config update.
    *
-   * See {@link #createChange} for details and usages.
+   * <p>See {@link #createChange} for details and usages.
    */
   public class ConfigChangeCreator implements AutoCloseable {
     private final MetaDataUpdate md;
@@ -322,8 +324,9 @@ public class RepoMetaDataUpdater {
   }
 
   private String validateMessage(@Nullable String message, String defaultMessage) {
-    message = message.trim();
-    if (Strings.isNullOrEmpty(message)) {
+    if (!Strings.isNullOrEmpty(message)) {
+      message = message.trim();
+    } else {
       message = defaultMessage;
     }
     checkArgument(!message.isBlank(), "The message must not be empty");
