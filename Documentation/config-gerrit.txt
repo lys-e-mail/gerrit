@@ -2789,6 +2789,13 @@ Valid values are `gitweb`, `cgit`, `disabled` or `custom`.
 If not set, or set to `disabled`, there is no gitweb hyperlinking
 support.
 
+[[gerrit.requireChangeForConfigUpdate]]gerrit.requireChangeForConfigUpdate::
++
+If true, all attempts to update a project config directly using an API are rejected.
+Instead, users should always use API which creates a config change (for review).
++
+By default `false`.
+
 [[gitweb.revision]]gitweb.revision::
 +
 Optional pattern to use for constructing the gitweb URL when pointing
