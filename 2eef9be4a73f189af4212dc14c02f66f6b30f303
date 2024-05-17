@@ -85,6 +85,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "377d7273_7d734e50",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-17T22:01:09Z",
+      "side": 1,
+      "message": "TBD.\n\n\"Resources needed to enforce quotas should be acquired in this method via non-blocking means...\"",
+      "parentUuid": "bf34b829_32143da3",
+      "range": {
+        "startLine": 122,
+        "startChar": 10,
+        "endLine": 122,
+        "endChar": 98
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e9b5bffc_d48765c7",
         "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
         "patchSetId": 17
@@ -119,6 +143,30 @@
       "writtenOn": "2024-05-17T20:58:52Z",
       "side": 1,
       "message": "\u003e Could you please explain the logic with incrementCorePooSize? If the task is not ready to start, why the code wants to have more capacity in the thread pool?\n\nIt\u0027s explained briefly in the commit message. The intent is to maintain the same number of threads available to non-parked tasks. For example, if my pool has 2 threads total, 1 task running, and a new task is submitted and then parked, we want to maintain the 1 thread available for other tasks. We do that by increasing the pool size while the task is parked and then shrinking it again once the task is ready to start.",
+      "parentUuid": "e9b5bffc_d48765c7",
+      "range": {
+        "startLine": 639,
+        "startChar": 8,
+        "endLine": 639,
+        "endChar": 35
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "883ac87e_b423b3d9",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-17T22:01:09Z",
+      "side": 1,
+      "message": "A parked task causes the current thread to wait until it is un-parked, thereby reducing the pool size available for other tasks to run. So, it increments the pool size so that parked tasks don\u0027t block other tasks. The  temporary bump to pool size is un-done when the parked task is un-parked.",
       "parentUuid": "e9b5bffc_d48765c7",
       "range": {
         "startLine": 639,
@@ -195,6 +243,30 @@
       "side": 1,
       "message": "Thanks for spotting this. We\u0027ll push a change to fix it.",
       "parentUuid": "96b61a9c_40dac85d",
+      "range": {
+        "startLine": 118,
+        "startChar": 2,
+        "endLine": 119,
+        "endChar": 45
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acf12556_dba13395",
+        "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-17T22:01:09Z",
+      "side": 1,
+      "message": "@nitzan@google.com I tried applying you suggestion and ran into some NPEs. I can look at them, but it will be good to know how to reproduce the parallel threads issue. How do we run tests using bazel with parallel threads?",
+      "parentUuid": "359fe89b_23f5c73c",
       "range": {
         "startLine": 118,
         "startChar": 2,
