@@ -986,6 +986,7 @@ export interface ProjectAccessInfo {
   can_add?: boolean;
   can_add_tags?: boolean;
   config_visible?: boolean;
+  can_update_config_without_review?: boolean;
   groups: RepoAccessGroups;
   config_web_links: WebLinkInfo[];
 }
