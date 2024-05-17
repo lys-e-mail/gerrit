@@ -82,6 +82,7 @@ class ProjectControl {
   private final DefaultRefFilter.Factory refFilterFactory;
   private final ChangeData.Factory changeDataFactory;
   private final AllUsersName allUsersName;
+  private final RefMetaConfigControl refMetaConfigControl;
 
   private List<SectionMatcher> allSections;
   private Map<String, RefControl> refControls;
@@ -98,6 +99,7 @@ class ProjectControl {
       DefaultRefFilter.Factory refFilterFactory,
       ChangeData.Factory changeDataFactory,
       AllUsersName allUsersName,
+      RefMetaConfigControl refMetaConfigControl,
       @Assisted CurrentUser who,
       @Assisted ProjectState ps) {
     this.uploadGroups = uploadGroups;
@@ -109,6 +111,7 @@ class ProjectControl {
     this.refFilterFactory = refFilterFactory;
     this.changeDataFactory = changeDataFactory;
     this.allUsersName = allUsersName;
+    this.refMetaConfigControl = refMetaConfigControl;
     user = who;
     state = ps;
   }
@@ -476,6 +479,9 @@ class ProjectControl {
         case READ_REFLOG:
         case WRITE_CONFIG:
           return isOwner();
+
+        case UPDATE_CONFIG_WITHOUT_REVIEW:
+          return !refMetaConfigControl.allUpdatesRequireReview();
       }
       throw new PermissionBackendException(perm + " unsupported");
     }
