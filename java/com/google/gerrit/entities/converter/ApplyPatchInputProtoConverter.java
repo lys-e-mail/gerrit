@@ -27,7 +27,7 @@ import com.google.protobuf.Parser;
  */
 @Immutable
 public enum ApplyPatchInputProtoConverter
-    implements ProtoConverter<Entities.ApplyPatchInput, ApplyPatchInput> {
+    implements SafeProtoConverter<Entities.ApplyPatchInput, ApplyPatchInput> {
   INSTANCE;
 
   @Override
@@ -51,5 +51,15 @@ public enum ApplyPatchInputProtoConverter
   @Override
   public Parser<Entities.ApplyPatchInput> getParser() {
     return Entities.ApplyPatchInput.parser();
+  }
+
+  @Override
+  public Class<Entities.ApplyPatchInput> getProtoClass() {
+    return Entities.ApplyPatchInput.class;
+  }
+
+  @Override
+  public Class<ApplyPatchInput> getEntityClass() {
+    return ApplyPatchInput.class;
   }
 }

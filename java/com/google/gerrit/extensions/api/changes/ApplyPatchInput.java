@@ -14,7 +14,11 @@
 
 package com.google.gerrit.extensions.api.changes;
 
+import com.google.gerrit.common.ConvertibleToProto;
+import java.util.Objects;
+
 /** Information about a patch to apply. */
+@ConvertibleToProto
 public class ApplyPatchInput {
   /**
    * Required. The patch to be applied.
@@ -22,4 +26,18 @@ public class ApplyPatchInput {
    * <p>Must be compatible with `git diff` output. For example, Gerrit API `Get Patch` output.
    */
   public String patch;
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof ApplyPatchInput)) {
+      return false;
+    }
+    ApplyPatchInput other = (ApplyPatchInput) o;
+    return Objects.equals(patch, other.patch);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(patch);
+  }
 }
