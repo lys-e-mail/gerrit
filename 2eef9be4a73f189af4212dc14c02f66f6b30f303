@@ -3,6 +3,69 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "42f2b5e7_79a2cdc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-17T12:31:33Z",
+      "side": 1,
+      "message": "Could you please try to create a new Executor instead of modifying the existing one which supports parking mechanism? Then you can use it instead of a default executor in upstream code, while we can continue to use the old one.\nOtherwise, we will have to carefully review all related changes to avoid unexpected problems on our side (and probably revert some of them if they block us or suspicious).",
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf34b829_32143da3",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-17T12:31:33Z",
+      "side": 1,
+      "message": "The method is called isReadyToStart and it shouldn\u0027t have side effect (acquiring resources). Can you make this interface more clear? Or provide some context which resources and when should be allocated in isReadyToStart?",
+      "range": {
+        "startLine": 122,
+        "startChar": 10,
+        "endLine": 122,
+        "endChar": 98
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9b5bffc_d48765c7",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-17T12:31:33Z",
+      "side": 1,
+      "message": "Could you please explain the logic with incrementCorePooSize? If the task is not ready to start, why the code wants to have more capacity in the thread pool?",
+      "range": {
+        "startLine": 639,
+        "startChar": 8,
+        "endLine": 639,
+        "endChar": 35
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "96b61a9c_40dac85d",
         "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
         "patchSetId": 17
