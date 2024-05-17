@@ -324,8 +324,9 @@ public class RepoMetaDataUpdater {
   }
 
   private String validateMessage(@Nullable String message, String defaultMessage) {
-    message = message.trim();
-    if (Strings.isNullOrEmpty(message)) {
+    if (!Strings.isNullOrEmpty(message)) {
+      message = message.trim();
+    } else {
       message = defaultMessage;
     }
     checkArgument(!message.isBlank(), "The message must not be empty");
