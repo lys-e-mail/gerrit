@@ -18,7 +18,7 @@
     },
     "gerritforge:rbe-a6a0e4682515f3521897c5f950d1394f4619d928": {
       "state": "RUNNING",
-      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/05%252F425805%252F5/20/console",
+      "url": "https://gerrit-ci.gerritforge.com/job/Gerrit-verifier-pipeline/job/05%252F425805%252F5/18/console",
       "started": "2024-05-18T01:38:43Z",
       "finished": "2024-05-18T01:38:40Z",
       "created": "2024-05-17T16:54:33Z",
