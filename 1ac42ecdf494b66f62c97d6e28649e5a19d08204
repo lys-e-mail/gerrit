@@ -33,6 +33,24 @@
       "message": "Why is this \"wire wire\" person spamming dozens of people on dozens of CLs for no apparent reason? Please deal with this spam, my mailbox is already filled with these.",
       "revId": "1ac42ecdf494b66f62c97d6e28649e5a19d08204",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e83648b_7d18048a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 73
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-21T07:34:43Z",
+      "side": 1,
+      "message": "I\u0027ve blocked this \"wire wire\" person already. I agree we should do something to prevent untrusted contributors/reviewers to use gerrit-review as vehicle for spamming.",
+      "parentUuid": "8d93c5e8_9bbe924d",
+      "revId": "1ac42ecdf494b66f62c97d6e28649e5a19d08204",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ],
   "submitRequirementResults": [
