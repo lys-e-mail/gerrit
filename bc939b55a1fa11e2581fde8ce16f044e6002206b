@@ -22,6 +22,30 @@
       },
       "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ced31a1b_894b4d62",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T13:55:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c142e9cd_2659325a",
+      "range": {
+        "startLine": 207,
+        "startChar": 50,
+        "endLine": 207,
+        "endChar": 97
+      },
+      "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
