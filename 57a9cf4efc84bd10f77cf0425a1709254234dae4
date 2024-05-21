@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3de6801b_e885100e",
+        "filename": "java/com/google/gerrit/extensions/api/changes/ApplyPatchInput.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T07:11:58Z",
+      "side": 1,
+      "message": "Could you please test it or convert to AutoValue - go/java-practices/equals#test",
+      "range": {
+        "startLine": 31,
+        "startChar": 17,
+        "endLine": 31,
+        "endChar": 23
+      },
+      "revId": "57a9cf4efc84bd10f77cf0425a1709254234dae4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
