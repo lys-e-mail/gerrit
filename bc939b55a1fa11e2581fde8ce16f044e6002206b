@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ce9bb6d_bdcf3c0f",
+        "filename": "java/com/google/gerrit/server/restapi/project/CreateSubmitRequirement.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:59:16Z",
+      "side": 0,
+      "message": "FWIW, IIUC with the new code we are also triggering a reindex now, but it I don\u0027t see a problem with this, so it should be fine.\n\nSame in UpdateSubmitRequirement",
+      "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc0d803d_3d528fab",
+        "filename": "java/com/google/gerrit/server/restapi/project/PutDescription.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:59:16Z",
+      "side": 0,
+      "message": "I think the new code is no longer setting the author, is it?\n\nSetDefaultDashboard and SetParent are setting the author.",
+      "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5de9fac_c1f620fa",
+        "filename": "java/com/google/gerrit/server/restapi/project/SetParent.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:59:16Z",
+      "side": 0,
+      "message": "I think there is a plugin that is using this method [1], so we may want to keep it (but not sure if this plugin is still in use anywhere).\n\n[1] https://gerrit.googlesource.com/plugins/reparent/+/master/src/main/java/com/googlesource/gerrit/plugins/reparent/SetParent.java#83",
+      "fixSuggestions": [
+        {
+          "fixId": "22aee8a3_fb766698",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/SetParent.java",
+              "range": {
+                "startLine": 95,
+                "startChar": 0,
+                "endLine": 98,
+                "endChar": 0
+              },
+              "replacement": "            rsrc.getNameKey(), input.commitMessage)) {\n"
+            }
+          ]
+        }
+      ],
+      "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
