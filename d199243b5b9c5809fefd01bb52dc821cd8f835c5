@@ -46,6 +46,30 @@
       },
       "revId": "d199243b5b9c5809fefd01bb52dc821cd8f835c5",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b20ef7dc_9b2db14b",
+        "filename": "java/com/google/gerrit/extensions/api/accounts/AccountInput.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T07:29:13Z",
+      "side": 1,
+      "message": "IIUC, the method only checks that equals is correct using default values for fields (e.g. all strings are empty/null). It can\u0027t catch if a field is missed in equals or if equals is not correct.\nI tried the following 2 modifications:\n1) Remove `name` fields from equals and from hashcode - all SafeProtoConverterTest passed.\n2) Make equals incorrect by comparing name and username - all SafeProtoConverterTest passed:\n  @SuppressWarnings(\"EqualsWrongThing\")\n  public boolean equals(Object o) {\n    if (!(o instanceof AccountInput)) {\n      return false;\n    }\n    AccountInput other \u003d (AccountInput) o;\n    return Objects.equals(username, other.username)\n        \u0026\u0026 Objects.equals(name, other.username)\n        \u0026\u0026 Objects.equals(displayName, other.displayName)\n        \u0026\u0026 Objects.equals(email, other.email)\n        \u0026\u0026 Objects.equals(sshKey, other.sshKey)\n        \u0026\u0026 Objects.equals(httpPassword, other.httpPassword)\n        \u0026\u0026 Objects.equals(groups, other.groups);\n  }",
+      "parentUuid": "94f25283_6aa13295",
+      "range": {
+        "startLine": 33,
+        "startChar": 17,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "d199243b5b9c5809fefd01bb52dc821cd8f835c5",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
