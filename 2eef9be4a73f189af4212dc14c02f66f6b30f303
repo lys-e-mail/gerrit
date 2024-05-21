@@ -38,6 +38,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "174001b5_6224ff43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T08:27:42Z",
+      "side": 1,
+      "message": "Is it possible to rework this feature and isolate it?\nE.g. create a separate executor which support parked tasks and use the new executor based on a config value.\nThis code can affect our instances of gerrit and with the current implementation we can\u0027t disable new functionality. We have to carefully review it and can decide to rollback it until we carefully review it and we would like to avoid it.",
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bf34b829_32143da3",
         "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
         "patchSetId": 17
@@ -192,6 +209,30 @@
       "side": 1,
       "message": "A parked task causes the current thread to wait until it is un-parked, thereby reducing the pool size available for other tasks to run. So, it increments the pool size so that parked tasks don\u0027t block other tasks. The  temporary bump to pool size is un-done when the parked task is un-parked.",
       "parentUuid": "e9b5bffc_d48765c7",
+      "range": {
+        "startLine": 639,
+        "startChar": 8,
+        "endLine": 639,
+        "endChar": 35
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a414064_7dedfcfc",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T08:27:42Z",
+      "side": 1,
+      "message": "IIUC, the pool size is not decremented if await is succeed - why is it so? Am I miss something?\n\nAnother questions:\n1) if we have 100 parked tasks - each task occupies its own thread and gerrit starts 100 additional threads. If all tasks are unparked at the same time - gerrit will have 100 additional running threads.\nIf it is so - I think this is unsafe.\n\n2) Parked tasks doesn\u0027t have timeouts, so they can remain in the queue forever. Is it expected?",
+      "parentUuid": "883ac87e_b423b3d9",
       "range": {
         "startLine": 639,
         "startChar": 8,
