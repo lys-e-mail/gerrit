@@ -42,6 +42,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e6f9ea8_f130c494",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T12:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75d14c92_123251e6",
+      "range": {
+        "startLine": 130,
+        "startChar": 64,
+        "endLine": 130,
+        "endChar": 75
+      },
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "630d1217_7af95d61",
@@ -55,6 +79,24 @@
       "writtenOn": "2024-05-21T12:00:26Z",
       "side": 1,
       "message": "Maybe add a comment to explain that this MetaDataUpdate instance gets closed in the ConfigChangeCreator.close() method.",
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64740e13_dba59077",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T12:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "630d1217_7af95d61",
       "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -110,6 +152,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f58614b_7041bee8",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T12:08:14Z",
+      "side": 1,
+      "message": "This is a recommended solution: go/java-practices/closing#preserving-exceptions",
+      "parentUuid": "fc9b02f9_a26edb64",
+      "range": {
+        "startLine": 149,
+        "startChar": 6,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "646c404f_ae02bbbb",
@@ -147,6 +213,30 @@
           ]
         }
       ],
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb87aecb_1adbc280",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T12:08:14Z",
+      "side": 1,
+      "message": "It will be used in the next change - https://gerrit-review.git.corp.google.com/c/gerrit/+/425803/8/java/com/google/gerrit/server/restapi/project/PutDescription.java, line 60",
+      "parentUuid": "646c404f_ae02bbbb",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 244,
+        "endChar": 5
+      },
       "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
