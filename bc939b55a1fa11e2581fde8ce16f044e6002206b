@@ -53,6 +53,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b7dd400_ad11a738",
+        "filename": "java/com/google/gerrit/server/restapi/project/PutDescription.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T13:56:13Z",
+      "side": 0,
+      "message": "Thanks much for double-checking and covering this with tests. Much appreciated!",
+      "parentUuid": "4e25837c_d8455957",
+      "revId": "bc939b55a1fa11e2581fde8ce16f044e6002206b",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5de9fac_c1f620fa",
