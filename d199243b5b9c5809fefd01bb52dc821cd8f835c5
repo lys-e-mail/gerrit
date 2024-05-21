@@ -22,6 +22,30 @@
       },
       "revId": "d199243b5b9c5809fefd01bb52dc821cd8f835c5",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94f25283_6aa13295",
+        "filename": "java/com/google/gerrit/extensions/api/accounts/AccountInput.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1146706
+      },
+      "writtenOn": "2024-05-21T07:17:04Z",
+      "side": 1,
+      "message": "The equals method is tested for all safe converters here:\nhttp://google3/third_party/java_src/gerritcodereview/gerrit/javatests/com/google/gerrit/entities/converter/SafeProtoConverterTest.java?rcl\u003d633479488\u0026l\u003d100",
+      "parentUuid": "f82eee8a_aa17e9af",
+      "range": {
+        "startLine": 33,
+        "startChar": 17,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "d199243b5b9c5809fefd01bb52dc821cd8f835c5",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
