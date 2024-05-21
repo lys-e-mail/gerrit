@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37cfdf6a_d853fb99",
+        "filename": "java/com/google/gerrit/extensions/common/MergeInput.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-21T07:13:37Z",
+      "side": 1,
+      "message": "Could you please test it or convert to AutoValue - go/java-practices/equals#test",
+      "range": {
+        "startLine": 52,
+        "startChar": 17,
+        "endLine": 52,
+        "endChar": 34
+      },
+      "revId": "eb0472de8183fa93e3c8bcceea49a39cb0b3bd7c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
