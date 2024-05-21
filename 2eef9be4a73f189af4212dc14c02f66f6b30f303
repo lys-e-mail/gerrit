@@ -263,6 +263,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4e04eed1_7d0b5998",
+        "filename": "java/com/google/gerrit/server/git/WorkQueue.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-05-21T22:42:32Z",
+      "side": 1,
+      "message": "\u003e IIUC, the pool size is not decremented if await is succeed - why is it so? Am I miss something?\n\nIt will be decremented right before the task is un-parked. See `updateParked()` L701.\n\n\u003e \n\u003e Another questions:\n\u003e 1) if we have 100 parked tasks - each task occupies its own thread and gerrit starts 100 additional threads. If all tasks are unparked at the same time - gerrit will have 100 additional running threads.\n\nNot really, because the temporary bump to pool size is undone when a task are unparked.\n\n\n\u003e If it is so - I think this is unsafe.\n\n\u003e \n\u003e 2) Parked tasks doesn\u0027t have timeouts, so they can remain in the queue forever. Is it expected?\n\nYes, it is expected. Do you see any problems due to this?",
+      "parentUuid": "5a414064_7dedfcfc",
+      "range": {
+        "startLine": 639,
+        "startChar": 8,
+        "endLine": 639,
+        "endChar": 35
+      },
+      "revId": "2eef9be4a73f189af4212dc14c02f66f6b30f303",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "96b61a9c_40dac85d",
         "filename": "javatests/com/google/gerrit/acceptance/server/util/TaskParkerIT.java",
         "patchSetId": 17
