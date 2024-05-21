@@ -1,0 +1,85 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04c81ad9_c1bb5557",
+        "filename": "java/com/google/gerrit/server/restapi/project/PutConfig.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T13:43:25Z",
+      "side": 1,
+      "message": "Should be update.getRepository() now.",
+      "range": {
+        "startLine": 138,
+        "startChar": 6,
+        "endLine": 140,
+        "endChar": 26
+      },
+      "revId": "e0abf7b3e4604875835e833389fb8e3cc3790cf6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f28d534_3edca6a6",
+        "filename": "java/com/google/gerrit/server/restapi/project/PutConfig.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T13:43:25Z",
+      "side": 1,
+      "message": "I think read(updater.getRepository(), projectName) should work, now that updater now longer allows to get MetaDataUpdate.",
+      "range": {
+        "startLine": 144,
+        "startChar": 35,
+        "endLine": 144,
+        "endChar": 68
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "eb1c18eb_77737025",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/PutConfig.java",
+              "range": {
+                "startLine": 144,
+                "startChar": 0,
+                "endLine": 145,
+                "endChar": 0
+              },
+              "replacement": "              projectConfigFactory.read(updater.getRepository(), projectName).getCacheable());\n"
+            }
+          ]
+        }
+      ],
+      "revId": "e0abf7b3e4604875835e833389fb8e3cc3790cf6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c225a686_62ceba52",
+        "filename": "javatests/com/google/gerrit/acceptance/api/project/ConfigReviewIT.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T13:43:25Z",
+      "side": 1,
+      "message": "Instead of making a REST call here, it would be better to add a ProjectApi.configChange method, similar to ProjectApi.accessChange, and then use gApi for the tests here.",
+      "revId": "e0abf7b3e4604875835e833389fb8e3cc3790cf6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
