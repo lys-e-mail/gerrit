@@ -1,0 +1,154 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75d14c92_123251e6",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:00:26Z",
+      "side": 1,
+      "message": "Should this better use the injected user?\n\nSame in l. 188 below.",
+      "range": {
+        "startLine": 130,
+        "startChar": 64,
+        "endLine": 130,
+        "endChar": 75
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "ae668814_87a4337e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+              "range": {
+                "startLine": 130,
+                "startChar": 0,
+                "endLine": 131,
+                "endChar": 0
+              },
+              "replacement": "    PermissionBackend.ForProject forProject \u003d permissionBackend.user(user.get()).project(projectName);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "630d1217_7af95d61",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:00:26Z",
+      "side": 1,
+      "message": "Maybe add a comment to explain that this MetaDataUpdate instance gets closed in the ConfigChangeCreator.close() method.",
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc9b02f9_a26edb64",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:00:26Z",
+      "side": 1,
+      "message": "why not make this:\n\n md.close();\n throw t;\n \n?",
+      "range": {
+        "startLine": 149,
+        "startChar": 6,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "c15b7d6f_a2483a59",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+              "range": {
+                "startLine": 149,
+                "startChar": 0,
+                "endLine": 152,
+                "endChar": 0
+              },
+              "replacement": "      md.close();\n      throw t;\n"
+            },
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+              "range": {
+                "startLine": 212,
+                "startChar": 0,
+                "endLine": 215,
+                "endChar": 0
+              },
+              "replacement": "      md.close();\n      throw t;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "646c404f_ae02bbbb",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:00:26Z",
+      "side": 1,
+      "message": "This method seems to be unused. Can it be dropped?",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 244,
+        "endChar": 5
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "498e27fc_76febbdf",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+              "range": {
+                "startLine": 241,
+                "startChar": 0,
+                "endLine": 245,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
