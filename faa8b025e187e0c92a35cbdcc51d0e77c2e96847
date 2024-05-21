@@ -176,6 +176,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2acf0363_c9295cc8",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:18:59Z",
+      "side": 1,
+      "message": "Thanks, did\u0027t know about this approach yet.",
+      "parentUuid": "0f58614b_7041bee8",
+      "range": {
+        "startLine": 149,
+        "startChar": 6,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "646c404f_ae02bbbb",
@@ -231,6 +255,30 @@
       "side": 1,
       "message": "It will be used in the next change - https://gerrit-review.git.corp.google.com/c/gerrit/+/425803/8/java/com/google/gerrit/server/restapi/project/PutDescription.java, line 60",
       "parentUuid": "646c404f_ae02bbbb",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 244,
+        "endChar": 5
+      },
+      "revId": "faa8b025e187e0c92a35cbdcc51d0e77c2e96847",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b8757e0_b72c35ce",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-21T12:18:59Z",
+      "side": 1,
+      "message": "[optional] Maybe consider changing this to:\n\npublic Repository getRepository() {\n  return md.getRepository();\n}\n\nThis way callers are not tempted to do config.commit(configUpdater.getMetaDataUpdate()) rather than configUpdater.commitConfigUpdate().\n\nBut not that important, it\u0027s also fine to leave it as is.",
+      "parentUuid": "fb87aecb_1adbc280",
       "range": {
         "startLine": 242,
         "startChar": 4,
