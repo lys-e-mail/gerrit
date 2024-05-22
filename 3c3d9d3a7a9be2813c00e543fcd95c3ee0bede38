@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18c879bb_0135d827",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-22T07:07:11Z",
+      "side": 1,
+      "message": "Nice!",
+      "revId": "3c3d9d3a7a9be2813c00e543fcd95c3ee0bede38",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a437b82_8db21207",
+        "filename": "Documentation/rest-api-projects.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 3654,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-22T07:07:11Z",
+      "side": 1,
+      "message": "Should we make this POST to be consistent with \u0027Batch Update Labels\u0027 which is also POST?",
+      "range": {
+        "startLine": 3654,
+        "startChar": 1,
+        "endLine": 3654,
+        "endChar": 4
+      },
+      "revId": "3c3d9d3a7a9be2813c00e543fcd95c3ee0bede38",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf2e8dea_63425ed7",
+        "filename": "java/com/google/gerrit/server/restapi/project/PutLabelsReview.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-22T07:07:11Z",
+      "side": 1,
+      "message": "Could this be a Singleton?",
+      "revId": "3c3d9d3a7a9be2813c00e543fcd95c3ee0bede38",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "172be529_09eecc38",
+        "filename": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-05-22T07:07:11Z",
+      "side": 1,
+      "message": "[optional] Maybe only create these projects in the tests that need them.",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 67
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "1cabfffd_cdc8ff56",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 29,
+                "startChar": 0,
+                "endLine": 30,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 34,
+                "startChar": 0,
+                "endLine": 43,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 46,
+                "startChar": 0,
+                "endLine": 46,
+                "endChar": 0
+              },
+              "replacement": "    Project.NameKey project \u003d projectOperations.newProject().create();\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 52,
+                "startChar": 0,
+                "endLine": 53,
+                "endChar": 0
+              },
+              "replacement": "    ChangeInfo changeInfo \u003d gApi.projects().name(project.get()).labelsReview(input);\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 70,
+                "startChar": 0,
+                "endLine": 70,
+                "endChar": 0
+              },
+              "replacement": "    Project.NameKey project \u003d projectOperations.newProject().create();\n"
+            },
+            {
+              "path": "javatests/com/google/gerrit/acceptance/api/project/LabelsReviewIT.java",
+              "range": {
+                "startLine": 78,
+                "startChar": 0,
+                "endLine": 79,
+                "endChar": 0
+              },
+              "replacement": "    ChangeInfo changeInfo \u003d gApi.projects().name(project.get()).labelsReview(input);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3c3d9d3a7a9be2813c00e543fcd95c3ee0bede38",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
