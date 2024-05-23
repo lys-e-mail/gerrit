@@ -37,6 +37,8 @@ import com.google.gerrit.server.permissions.PermissionBackend.ForChange;
 import com.google.gerrit.server.permissions.PermissionBackend.ForRef;
 import com.google.gerrit.server.query.change.ChangeData;
 import com.google.gerrit.server.util.MagicBranch;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -47,8 +49,16 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
-/** Manages access control for Git references (aka branches, tags). */
-class RefControl {
+/**
+ * Manages access control for Git references (aka branches, tags).
+ *
+ * <p>Do not use this class directly - instead use {@link ProjectControl} class.
+ */
+public class RefControl {
+  interface Factory {
+    RefControl create(ProjectControl projectControl, String ref, PermissionCollection relevant);
+  }
+
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private final ChangeData.Factory changeDataFactory;
@@ -67,17 +77,18 @@ class RefControl {
   private Boolean canForgeCommitter;
   private Boolean hasReadPermissionOnRef;
 
+  @Inject
   RefControl(
       ChangeData.Factory changeDataFactory,
       RefVisibilityControl refVisibilityControl,
-      ProjectControl projectControl,
       GitRepositoryManager repositoryManager,
-      String ref,
-      PermissionCollection relevant) {
+      @Assisted ProjectControl projectControl,
+      @Assisted String ref,
+      @Assisted PermissionCollection relevant) {
     this.changeDataFactory = changeDataFactory;
     this.refVisibilityControl = refVisibilityControl;
-    this.projectControl = projectControl;
     this.repositoryManager = repositoryManager;
+    this.projectControl = projectControl;
     this.refName = ref;
     this.relevant = relevant;
   }
