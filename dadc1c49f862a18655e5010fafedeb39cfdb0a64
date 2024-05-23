@@ -22,6 +22,30 @@
       },
       "revId": "dadc1c49f862a18655e5010fafedeb39cfdb0a64",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fe2fec3_4cc20a3a",
+        "filename": "polygerrit-ui/app/elements/settings/gr-preferences/gr-preferences.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-05-23T09:38:18Z",
+      "side": 1,
+      "message": "I have thought about tests, but I could not think of a good way of preventing the issue of forgetting to add new settings to `hadUnsavedChanges()`. Adding a test that tries to change all values would not have prevented the issue\n\nI think what you probably want to do is to define an interface for each setting and implement that interface for each. Then \u003cgr-preferences\u003e could just have a list of all settings and that could be used in `hasUnsavedChanges()`.\n\nBut I think this goes beyond the scope of this change.",
+      "parentUuid": "dc4e1bbb_427fad0a",
+      "range": {
+        "startLine": 589,
+        "startChar": 2,
+        "endLine": 589,
+        "endChar": 19
+      },
+      "revId": "dadc1c49f862a18655e5010fafedeb39cfdb0a64",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
