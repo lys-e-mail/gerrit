@@ -457,6 +457,11 @@ export class GrComment extends LitElement {
         this,
         () => this.getUserModel().preferences$,
         prefs => {
+          console.log(
+            `${Date.now() % 100000} asdf subscribed pref in gr-comment: ${
+              prefs.allow_autocompleting_comments
+            }`
+          );
           this.autocompleteEnabled = !!prefs.allow_autocompleting_comments;
           if (
             this.generateSuggestion !==
