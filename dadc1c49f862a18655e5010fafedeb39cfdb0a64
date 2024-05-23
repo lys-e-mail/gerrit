@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc4e1bbb_427fad0a",
+        "filename": "polygerrit-ui/app/elements/settings/gr-preferences/gr-preferences.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-05-23T09:27:26Z",
+      "side": 1,
+      "message": "NIT: Do you think we could have a test that tries to change all values in prefs?",
+      "range": {
+        "startLine": 589,
+        "startChar": 2,
+        "endLine": 589,
+        "endChar": 19
+      },
+      "revId": "dadc1c49f862a18655e5010fafedeb39cfdb0a64",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
