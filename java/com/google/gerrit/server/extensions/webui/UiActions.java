@@ -109,7 +109,6 @@ public class UiActions {
     for (PermissionBackendCondition cond : conds) {
       dedupedConds.put(cond, cond);
     }
-    perm.bulkEvaluateTest(dedupedConds.keySet());
     for (PermissionBackendCondition cond : conds) {
       cond.set(dedupedConds.get(cond).value());
     }

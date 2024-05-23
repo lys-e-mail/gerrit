@@ -155,8 +155,6 @@ public class UiActionsTest {
     // the value of cond1 and issues no additional call to PermissionBackend.
     forProject.disallowValueQueries();
 
-    verify(permissionBackendMock, only()).bulkEvaluateTest(ImmutableSet.of(cond1, cond2));
-
     // Assert the values of all conditions
     assertThat(cond1.value()).isFalse();
     assertThat(cond2.value()).isTrue();

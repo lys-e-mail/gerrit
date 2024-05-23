@@ -112,20 +112,6 @@ public abstract class PermissionBackend {
    */
   public abstract WithUser absentUser(Account.Id id);
 
-  /**
-   * Bulk evaluate a set of {@link PermissionBackendCondition} for view handling.
-   *
-   * <p>Overridden implementations should call {@link PermissionBackendCondition#set(boolean)} to
-   * cache the result of {@code testOrFalse} in the condition for later evaluation. Caching the
-   * result will bypass the usual invocation of {@code testOrFalse}.
-   *
-   * @param conds conditions to consider.
-   */
-  public void bulkEvaluateTest(Set<PermissionBackendCondition> conds) {
-    // Do nothing by default. The default implementation of PermissionBackendCondition
-    // delegates to the appropriate testOrFalse method in PermissionBackend.
-  }
-
   /** PermissionBackend scoped to a specific user. */
   public abstract static class WithUser {
     /** Returns an instance scoped for the specified project. */
