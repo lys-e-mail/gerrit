@@ -119,6 +119,16 @@ public class FailedPermissionBackend {
     }
 
     @Override
+    public ForChange change(ChangeData cd) {
+      return new FailedChange(message, cause);
+    }
+
+    @Override
+    public ForChange change(ChangeNotes notes) {
+      return new FailedChange(message, cause);
+    }
+
+    @Override
     public ForRef ref(String ref) {
       return new FailedRef(message, cause);
     }
@@ -160,16 +170,6 @@ public class FailedPermissionBackend {
     public String resourcePath() {
       throw new UnsupportedOperationException(
           "FailedPermissionBackend is not scoped to a resource");
-    }
-
-    @Override
-    public ForChange change(ChangeData cd) {
-      return new FailedChange(message, cause);
-    }
-
-    @Override
-    public ForChange change(ChangeNotes notes) {
-      return new FailedChange(message, cause);
     }
 
     @Override

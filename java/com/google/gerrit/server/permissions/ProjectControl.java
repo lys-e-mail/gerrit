@@ -117,6 +117,29 @@ class ProjectControl {
     return new ForProjectImpl();
   }
 
+  /** Returns an instance scoped to change. */
+  public ForChange change(ChangeData cd) {
+    try {
+      return controlFor(cd).asForChange();
+    } catch (StorageException e) {
+      return FailedPermissionBackend.change("unavailable", e);
+    }
+  }
+
+  /** Returns an instance scoped to change. */
+  public ForChange change(ChangeNotes notes) {
+    Project.NameKey project = getProject().getNameKey();
+    Change change = notes.getChange();
+    checkArgument(
+        project.equals(change.getProject()),
+        "expected change in project %s, not %s",
+        project,
+        change.getProject());
+    // Having ChangeNotes means it's OK to load values from NoteDb if needed.
+    // ChangeData.Factory will allow lazyLoading
+    return controlFor(changeDataFactory.create(notes)).asForChange();
+  }
+
   ChangeControl controlFor(ChangeData cd) {
     return new ChangeControl(controlForRef(cd.branchOrThrow()), cd);
   }
@@ -134,7 +157,7 @@ class ProjectControl {
       PermissionCollection relevant = permissionFilter.filter(access(), refName, user);
       ctl =
           new RefControl(
-              changeDataFactory, refVisibilityControl, this, repositoryManager, refName, relevant);
+              refVisibilityControl, this, repositoryManager, refName, relevant);
       refControls.put(refName, ctl);
     }
     return ctl;
@@ -375,7 +398,7 @@ class ProjectControl {
     public ForChange change(ChangeData cd) {
       try {
         checkProject(cd);
-        return super.change(cd);
+        return ProjectControl.this.change(cd);
       } catch (StorageException e) {
         return FailedPermissionBackend.change("unavailable", e);
       }
@@ -384,7 +407,7 @@ class ProjectControl {
     @Override
     public ForChange change(ChangeNotes notes) {
       checkProject(notes.getChange());
-      return super.change(notes);
+      return ProjectControl.this.change(notes);
     }
 
     private void checkProject(ChangeData cd) {

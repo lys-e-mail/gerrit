@@ -51,7 +51,6 @@ import org.eclipse.jgit.lib.Repository;
 class RefControl {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
-  private final ChangeData.Factory changeDataFactory;
   private final RefVisibilityControl refVisibilityControl;
   private final ProjectControl projectControl;
   private final GitRepositoryManager repositoryManager;
@@ -68,13 +67,11 @@ class RefControl {
   private Boolean hasReadPermissionOnRef;
 
   RefControl(
-      ChangeData.Factory changeDataFactory,
       RefVisibilityControl refVisibilityControl,
       ProjectControl projectControl,
       GitRepositoryManager repositoryManager,
       String ref,
       PermissionCollection relevant) {
-    this.changeDataFactory = changeDataFactory;
     this.refVisibilityControl = refVisibilityControl;
     this.projectControl = projectControl;
     this.repositoryManager = repositoryManager;
@@ -476,29 +473,6 @@ class RefControl {
                 "/projects/%s/+refs/%s", getProjectControl().getProjectState().getName(), refName);
       }
       return resourcePath;
-    }
-
-    @Override
-    public ForChange change(ChangeData cd) {
-      try {
-        return getProjectControl().controlFor(cd).asForChange();
-      } catch (StorageException e) {
-        return FailedPermissionBackend.change("unavailable", e);
-      }
-    }
-
-    @Override
-    public ForChange change(ChangeNotes notes) {
-      Project.NameKey project = getProjectControl().getProject().getNameKey();
-      Change change = notes.getChange();
-      checkArgument(
-          project.equals(change.getProject()),
-          "expected change in project %s, not %s",
-          project,
-          change.getProject());
-      // Having ChangeNotes means it's OK to load values from NoteDb if needed.
-      // ChangeData.Factory will allow lazyLoading
-      return getProjectControl().controlFor(changeDataFactory.create(notes)).asForChange();
     }
 
     @Override

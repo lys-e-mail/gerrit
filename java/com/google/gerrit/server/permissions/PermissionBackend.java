@@ -162,7 +162,7 @@ public abstract class PermissionBackend {
     /** Returns an instance scoped for the change, and its destination ref and project. */
     public ForChange change(ChangeData cd) {
       try {
-        return ref(cd.change().getDest()).change(cd);
+        return project(cd.change().getDest().project()).change(cd);
       } catch (StorageException e) {
         return FailedPermissionBackend.change("unavailable", e);
       }
@@ -170,7 +170,7 @@ public abstract class PermissionBackend {
 
     /** Returns an instance scoped for the change, and its destination ref and project. */
     public ForChange change(ChangeNotes notes) {
-      return ref(notes.getChange().getDest()).change(notes);
+      return project(notes.getChange().getDest().project()).change(notes);
     }
 
     /**
@@ -272,18 +272,10 @@ public abstract class PermissionBackend {
     public abstract ForRef ref(String ref);
 
     /** Returns an instance scoped for the change, and its destination ref and project. */
-    public ForChange change(ChangeData cd) {
-      try {
-        return ref(cd.branchOrThrow().branch()).change(cd);
-      } catch (StorageException e) {
-        return FailedPermissionBackend.change("unavailable", e);
-      }
-    }
+    public abstract ForChange change(ChangeData cd);
 
     /** Returns an instance scoped for the change, and its destination ref and project. */
-    public ForChange change(ChangeNotes notes) {
-      return ref(notes.getChange().getDest().branch()).change(notes);
-    }
+    public abstract ForChange change(ChangeNotes notes);
 
     /**
      * Verify scoped user can {@code perm}, throwing if denied.
@@ -372,12 +364,6 @@ public abstract class PermissionBackend {
   public abstract static class ForRef {
     /** Returns a fully qualified resource path that this instance is scoped to. */
     public abstract String resourcePath();
-
-    /** Returns an instance scoped to change. */
-    public abstract ForChange change(ChangeData cd);
-
-    /** Returns an instance scoped to change. */
-    public abstract ForChange change(ChangeNotes notes);
 
     /**
      * Verify scoped user can {@code perm}, throwing if denied.

@@ -28,13 +28,16 @@ import com.google.gerrit.extensions.conditions.BooleanCondition;
 import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.account.GroupMembership;
+import com.google.gerrit.server.notedb.ChangeNotes;
 import com.google.gerrit.server.permissions.PermissionBackend;
+import com.google.gerrit.server.permissions.PermissionBackend.ForChange;
 import com.google.gerrit.server.permissions.PermissionBackend.ForProject;
 import com.google.gerrit.server.permissions.PermissionBackend.ForRef;
 import com.google.gerrit.server.permissions.PermissionBackend.RefFilterOptions;
 import com.google.gerrit.server.permissions.PermissionBackendCondition;
 import com.google.gerrit.server.permissions.PermissionBackendException;
 import com.google.gerrit.server.permissions.ProjectPermission;
+import com.google.gerrit.server.query.change.ChangeData;
 import java.util.Collection;
 import java.util.Set;
 import org.eclipse.jgit.lib.Ref;
@@ -55,6 +58,17 @@ public class UiActionsTest {
     public ForRef ref(String ref) {
       throw new UnsupportedOperationException("not implemented");
     }
+
+    @Override
+    public ForChange change(ChangeData cd) {
+       throw new UnsupportedOperationException("not implemented");
+    }
+
+    @Override
+    public ForChange change(ChangeNotes notes) {
+      throw new UnsupportedOperationException("not implemented");
+    }
+
 
     @Override
     public void check(CoreOrPluginProjectPermission perm)
