@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bcc4974_33716ef5",
+        "filename": "Documentation/rest-api-projects.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 3962,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-23T08:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d528a3b2_3568d4f8",
+      "range": {
+        "startLine": 3962,
+        "startChar": 4,
+        "endLine": 3962,
+        "endChar": 41
+      },
+      "revId": "12235f390b61b4870f12ff784b0a17011d495056",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3117cd0_4f551f0c",
@@ -61,6 +85,30 @@
           ]
         }
       ],
+      "revId": "12235f390b61b4870f12ff784b0a17011d495056",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "098d938e_68129af6",
+        "filename": "javatests/com/google/gerrit/acceptance/rest/project/PostSubmitRequirementsIT.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-05-23T08:42:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3117cd0_4f551f0c",
+      "range": {
+        "startLine": 1,
+        "startChar": 17,
+        "endLine": 1,
+        "endChar": 21
+      },
       "revId": "12235f390b61b4870f12ff784b0a17011d495056",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
