@@ -103,10 +103,5 @@ public class ListCapabilitiesTest {
     public WithUser absentUser(Account.Id id) {
       throw new UnsupportedOperationException();
     }
-
-    @Override
-    public boolean usesDefaultCapabilities() {
-      return true;
-    }
   }
 }

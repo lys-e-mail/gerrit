@@ -64,7 +64,6 @@ public class Capabilities implements ChildCollection<AccountResource, AccountRes
   @Override
   public Capability parse(AccountResource parent, IdString id)
       throws ResourceNotFoundException, AuthException, PermissionBackendException {
-    permissionBackend.checkUsesDefaultCapabilities();
     IdentifiedUser target = parent.getUser();
     if (!self.get().hasSameAccountId(target)) {
       permissionBackend.currentUser().check(GlobalPermission.ADMINISTRATE_SERVER);

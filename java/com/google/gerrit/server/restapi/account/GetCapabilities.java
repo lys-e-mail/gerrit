@@ -86,7 +86,6 @@ public class GetCapabilities implements RestReadView<AccountResource> {
   @Override
   public Response<Map<String, Object>> apply(AccountResource resource)
       throws RestApiException, PermissionBackendException {
-    permissionBackend.checkUsesDefaultCapabilities();
     PermissionBackend.WithUser perm = permissionBackend.currentUser();
     if (!self.get().hasSameAccountId(resource.getUser())) {
       perm.check(GlobalPermission.ADMINISTRATE_SERVER);
@@ -173,16 +172,12 @@ public class GetCapabilities implements RestReadView<AccountResource> {
    */
   @Singleton
   public static class CheckOne implements RestReadView<AccountResource.Capability> {
-    private final PermissionBackend permissionBackend;
-
     @Inject
-    CheckOne(PermissionBackend permissionBackend) {
-      this.permissionBackend = permissionBackend;
+    CheckOne() {
     }
 
     @Override
     public Response<BinaryResult> apply(Capability resource) throws ResourceNotFoundException {
-      permissionBackend.checkUsesDefaultCapabilities();
       return Response.ok(BinaryResult.create("ok\n"));
     }
   }

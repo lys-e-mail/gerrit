@@ -33,20 +33,16 @@ import java.util.Map;
 /** List capabilities visible to the calling user. */
 @Singleton
 public class ListCapabilities implements RestReadView<ConfigResource> {
-  private final PermissionBackend permissionBackend;
   private final PluginPermissionsUtil pluginPermissionsUtil;
 
   @Inject
-  public ListCapabilities(
-      PermissionBackend permissionBackend, PluginPermissionsUtil pluginPermissionsUtil) {
-    this.permissionBackend = permissionBackend;
+  public ListCapabilities(PluginPermissionsUtil pluginPermissionsUtil) {
     this.pluginPermissionsUtil = pluginPermissionsUtil;
   }
 
   @Override
   public Response<Map<String, CapabilityInfo>> apply(ConfigResource resource)
       throws ResourceNotFoundException, IllegalAccessException, NoSuchFieldException {
-    permissionBackend.checkUsesDefaultCapabilities();
     return Response.ok(
         ImmutableMap.<String, CapabilityInfo>builder()
             .putAll(collectCoreCapabilities())

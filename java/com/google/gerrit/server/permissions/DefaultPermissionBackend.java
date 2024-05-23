@@ -93,11 +93,6 @@ public class DefaultPermissionBackend extends PermissionBackend {
     return new WithUserImpl(identifiedUserFactory.create(requireNonNull(id, "user")));
   }
 
-  @Override
-  public boolean usesDefaultCapabilities() {
-    return true;
-  }
-
   /**
    * Returns the {@link com.google.gerrit.entities.Account.Id} of the current user if a user is
    * signed in. Catches exceptions so that background jobs don't get impacted.
