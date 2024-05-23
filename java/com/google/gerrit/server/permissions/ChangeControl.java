@@ -31,19 +31,28 @@ import com.google.gerrit.extensions.restapi.AuthException;
 import com.google.gerrit.server.CurrentUser;
 import com.google.gerrit.server.permissions.PermissionBackend.ForChange;
 import com.google.gerrit.server.query.change.ChangeData;
+import com.google.inject.assistedinject.Assisted;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
 
 /** Access control management for a user accessing a single change. */
-class ChangeControl {
+public class ChangeControl {
+  public interface Factory {
+    ChangeControl create(RefControl refControl, ChangeData changeData);
+  }
+
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
   private final RefControl refControl;
   private final ChangeData changeData;
 
-  ChangeControl(RefControl refControl, ChangeData changeData) {
+  private Map<String, PermissionRange> labels;
+
+  @Inject
+  protected ChangeControl(@Assisted RefControl refControl, @Assisted ChangeData changeData) {
     this.refControl = refControl;
     this.changeData = changeData;
   }
@@ -228,7 +237,6 @@ class ChangeControl {
   }
 
   private class ForChangeImpl extends ForChange {
-    private Map<String, PermissionRange> labels;
     private String resourcePath;
 
     private ForChangeImpl() {}
@@ -271,83 +279,83 @@ class ChangeControl {
     public BooleanCondition testCond(ChangePermissionOrLabel perm) {
       return new PermissionBackendCondition.ForChange(this, perm, getUser());
     }
+  }
 
-    private boolean can(ChangePermissionOrLabel perm) throws PermissionBackendException {
-      if (perm instanceof ChangePermission) {
-        return can((ChangePermission) perm);
-      } else if (perm instanceof AbstractLabelPermission) {
-        return can((AbstractLabelPermission) perm);
-      } else if (perm instanceof AbstractLabelPermission.WithValue) {
-        return can((AbstractLabelPermission.WithValue) perm);
-      }
-      throw new PermissionBackendException(perm + " unsupported");
+  private boolean can(ChangePermissionOrLabel perm) throws PermissionBackendException {
+    if (perm instanceof ChangePermission) {
+      return can((ChangePermission) perm);
+    } else if (perm instanceof AbstractLabelPermission) {
+      return can((AbstractLabelPermission) perm);
+    } else if (perm instanceof AbstractLabelPermission.WithValue) {
+      return can((AbstractLabelPermission.WithValue) perm);
     }
+    throw new PermissionBackendException(perm + " unsupported");
+  }
 
-    private boolean can(ChangePermission perm) throws PermissionBackendException {
-      try {
-        switch (perm) {
-          case READ:
-            return isVisible();
-          case ABANDON:
-            return canAbandon();
-          case DELETE:
-            return getProjectControl().isAdmin() || refControl.canDeleteChanges(isOwner());
-          case ADD_PATCH_SET:
-            return canAddPatchSet();
-          case EDIT_DESCRIPTION:
-            return canEditDescription();
-          case EDIT_HASHTAGS:
-            return canEditHashtags();
-          case EDIT_CUSTOM_KEYED_VALUES:
-            return canEditCustomKeyedValues();
-          case EDIT_TOPIC_NAME:
-            return canEditTopicName();
-          case REBASE:
-            return canRebase();
-          case REBASE_ON_BEHALF_OF_UPLOADER:
-            return canRebaseOnBehalfOfUploader();
-          case RESTORE:
-            return canRestore();
-          case REVERT:
-            return canRevert();
-          case SUBMIT:
-            return refControl.canSubmit(isOwner());
-          case TOGGLE_WORK_IN_PROGRESS_STATE:
-            return canToggleWorkInProgressState();
+  private boolean can(ChangePermission perm) throws PermissionBackendException {
+    try {
+      switch (perm) {
+        case READ:
+          return isVisible();
+        case ABANDON:
+          return canAbandon();
+        case DELETE:
+          return getProjectControl().isAdmin() || refControl.canDeleteChanges(isOwner());
+        case ADD_PATCH_SET:
+          return canAddPatchSet();
+        case EDIT_DESCRIPTION:
+          return canEditDescription();
+        case EDIT_HASHTAGS:
+          return canEditHashtags();
+        case EDIT_CUSTOM_KEYED_VALUES:
+          return canEditCustomKeyedValues();
+        case EDIT_TOPIC_NAME:
+          return canEditTopicName();
+        case REBASE:
+          return canRebase();
+        case REBASE_ON_BEHALF_OF_UPLOADER:
+          return canRebaseOnBehalfOfUploader();
+        case RESTORE:
+          return canRestore();
+        case REVERT:
+          return canRevert();
+        case SUBMIT:
+          return refControl.canSubmit(isOwner());
+        case TOGGLE_WORK_IN_PROGRESS_STATE:
+          return canToggleWorkInProgressState();
 
-          case REMOVE_REVIEWER:
-          case SUBMIT_AS:
-            return refControl.canPerform(changePermissionName(perm));
-        }
-      } catch (StorageException e) {
-        throw new PermissionBackendException("unavailable", e);
+        case REMOVE_REVIEWER:
+        case SUBMIT_AS:
+          return refControl.canPerform(changePermissionName(perm));
       }
-      throw new PermissionBackendException(perm + " unsupported");
+    } catch (StorageException e) {
+      throw new PermissionBackendException("unavailable", e);
     }
+    throw new PermissionBackendException(perm + " unsupported");
+  }
 
-    private boolean can(AbstractLabelPermission perm) {
-      return !label(labelPermissionName(perm)).isEmpty();
-    }
+  private boolean can(AbstractLabelPermission perm) {
+    return !label(labelPermissionName(perm)).isEmpty();
+  }
 
-    private boolean can(AbstractLabelPermission.WithValue perm) {
-      PermissionRange r = label(labelPermissionName(perm));
-      if (perm.forUser() == ON_BEHALF_OF && r.isEmpty()) {
-        return false;
-      }
-      return r.contains(perm.value());
+  private boolean can(AbstractLabelPermission.WithValue perm) {
+    PermissionRange r = label(labelPermissionName(perm));
+    if (perm.forUser() == ON_BEHALF_OF && r.isEmpty()) {
+      return false;
     }
+    return r.contains(perm.value());
+  }
 
-    private PermissionRange label(String permission) {
-      if (labels == null) {
-        labels = Maps.newHashMapWithExpectedSize(4);
-      }
-      PermissionRange r = labels.get(permission);
-      if (r == null) {
-        r = getRange(permission);
-        labels.put(permission, r);
-      }
-      return r;
+  private PermissionRange label(String permission) {
+    if (labels == null) {
+      labels = Maps.newHashMapWithExpectedSize(4);
     }
+    PermissionRange r = labels.get(permission);
+    if (r == null) {
+      r = getRange(permission);
+      labels.put(permission, r);
+    }
+    return r;
   }
 
   private static <T extends ChangePermissionOrLabel> Set<T> newSet(Collection<T> permSet) {
