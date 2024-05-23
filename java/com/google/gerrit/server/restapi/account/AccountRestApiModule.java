@@ -51,7 +51,6 @@ public class AccountRestApiModule extends RestApiModule {
     get(ACCOUNT_KIND, "avatar.change.url").to(GetAvatarChangeUrl.class);
 
     child(ACCOUNT_KIND, "capabilities").to(Capabilities.class);
-    get(CAPABILITY_KIND).to(GetCapabilities.CheckOne.class);
 
     put(ACCOUNT_KIND, "displayname").to(PutDisplayName.class);
     get(ACCOUNT_KIND, "detail").to(GetDetail.class);

@@ -163,22 +163,4 @@ public class GetCapabilities implements RestReadView<AccountResource> {
       return range.toString();
     }
   }
-
-  /**
-   * REST endpoint to check if a global capability is assigned to an account.
-   *
-   * <p>This REST endpoint handles {@code GET
-   * /accounts/<account-identifier>/capabilities/<capability-identifier>} requests.
-   */
-  @Singleton
-  public static class CheckOne implements RestReadView<AccountResource.Capability> {
-    @Inject
-    CheckOne() {
-    }
-
-    @Override
-    public Response<BinaryResult> apply(Capability resource) throws ResourceNotFoundException {
-      return Response.ok(BinaryResult.create("ok\n"));
-    }
-  }
 }
