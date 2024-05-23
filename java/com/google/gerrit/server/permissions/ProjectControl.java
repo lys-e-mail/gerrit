@@ -120,6 +120,7 @@ class ProjectControl {
   /** Returns an instance scoped to change. */
   public ForChange change(ChangeData cd) {
     try {
+      checkProject(cd.project());
       return controlFor(cd).asForChange();
     } catch (StorageException e) {
       return FailedPermissionBackend.change("unavailable", e);
@@ -128,16 +129,19 @@ class ProjectControl {
 
   /** Returns an instance scoped to change. */
   public ForChange change(ChangeNotes notes) {
-    Project.NameKey project = getProject().getNameKey();
-    Change change = notes.getChange();
-    checkArgument(
-        project.equals(change.getProject()),
-        "expected change in project %s, not %s",
-        project,
-        change.getProject());
+    checkProject(notes.getProjectName());
     // Having ChangeNotes means it's OK to load values from NoteDb if needed.
     // ChangeData.Factory will allow lazyLoading
     return controlFor(changeDataFactory.create(notes)).asForChange();
+  }
+
+  private void checkProject(Project.NameKey changeProject) {
+    Project.NameKey project = getProject().getNameKey();
+    checkArgument(
+        project.equals(changeProject),
+        "expected change in project %s, not %s",
+        project,
+        changeProject);
   }
 
   ChangeControl controlFor(ChangeData cd) {
@@ -397,7 +401,7 @@ class ProjectControl {
     @Override
     public ForChange change(ChangeData cd) {
       try {
-        checkProject(cd);
+        checkProject(cd.project());
         return ProjectControl.this.change(cd);
       } catch (StorageException e) {
         return FailedPermissionBackend.change("unavailable", e);
@@ -406,25 +410,8 @@ class ProjectControl {
 
     @Override
     public ForChange change(ChangeNotes notes) {
-      checkProject(notes.getChange());
+      checkProject(notes.getProjectName());
       return ProjectControl.this.change(notes);
-    }
-
-    private void checkProject(ChangeData cd) {
-      checkProject(cd.project());
-    }
-
-    private void checkProject(Change change) {
-      checkProject(change.getProject());
-    }
-
-    private void checkProject(Project.NameKey changeProject) {
-      Project.NameKey project = getProject().getNameKey();
-      checkArgument(
-          project.equals(changeProject),
-          "expected change in project %s, not %s",
-          project,
-          changeProject);
     }
 
     @Override
