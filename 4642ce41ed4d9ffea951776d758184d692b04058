@@ -1,6 +1,75 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3f03b8e_7b044474",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-05-27T07:56:23Z",
+      "side": 1,
+      "message": "typo: SubmitRequirement",
+      "range": {
+        "startLine": 40,
+        "startChar": 20,
+        "endLine": 40,
+        "endChar": 36
+      },
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80327435_543f6ea2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-05-27T07:56:23Z",
+      "side": 1,
+      "message": "Please consider adding a test to show this behaviour.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 7
+      },
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7acf0cbe_1a6c85f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-05-27T07:56:23Z",
+      "side": 1,
+      "message": "typo: SubmitRecord",
+      "range": {
+        "startLine": 66,
+        "startChar": 11,
+        "endLine": 66,
+        "endChar": 22
+      },
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4c691688_76cf2fcd",
@@ -14,6 +83,23 @@
       "writtenOn": "2024-05-27T06:57:20Z",
       "side": 1,
       "message": "@ghareeb@google.com can you please double-check, as the translation from Prolog to SubmitRequirements was implemented by you a few years ago.",
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "074a9019_8793cb97",
+        "filename": "java/com/google/gerrit/server/project/SubmitRequirementsAdapter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-05-27T07:56:23Z",
+      "side": 1,
+      "message": "The `mapStatus` function was also considering `CLOSED` `SubmitRecord`, whilst this is just considering `FORCED` and `OK`.\nIs there any scenario in which a `SubmitRecord` with status `CLOSED` might be considered in this mapping?",
       "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
