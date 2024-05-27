@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c22ac8af_3b163b46",
+        "filename": "java/com/google/gerrit/server/project/SubmitRequirementsAdapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-27T06:51:38Z",
+      "side": 1,
+      "message": "This comment is now stale",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 73
+      },
+      "revId": "3ce300d8faa94e77e9cdfb094936a57179f24f0a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
