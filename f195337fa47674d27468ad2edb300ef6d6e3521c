@@ -16,6 +16,23 @@
       "message": "testing",
       "revId": "f195337fa47674d27468ad2edb300ef6d6e3521c",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fad38c5_75760b51",
+        "filename": "polygerrit-ui/app/elements/diff/gr-diff-host/gr-diff-host.ts",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1139611
+      },
+      "writtenOn": "2024-05-27T14:16:51Z",
+      "side": 1,
+      "message": "This is a comment",
+      "revId": "f195337fa47674d27468ad2edb300ef6d6e3521c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
