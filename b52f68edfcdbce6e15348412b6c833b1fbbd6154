@@ -72,6 +72,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2245751c_31cd3654",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-05-27T11:38:10Z",
+      "side": 1,
+      "message": "Luca is right here, that people do tend to set up filters for emails. The specific of \"Change in\" wording is probably not super important, but it will definitely break someone.\n\n\u003e what\u0027s the best format for the email subjects\n\nInternally at Google many hosts override subject to put the host+repo name at the end of the subject line, since for most people they contribute to one project only, so these lines are always the same. Which in terms of preference I would say is a better subject line. But also more likely to break existing filters.\n\nExample:\n```\n{template ChangeSubject kind\u003d\"text\"}\n  {@param branch: ?}\n  {@param change: ?}\n  {@param projectName: ?}\n  Change {$change.changeNumber}: {$change.shortOriginalSubject} ({$projectName}[{$branch.shortName}])\n{/template}\n```\n\nTo the point of the thread though:\n1. It\u0027s true that email subjects have a tendency to be long, so I would view this change positively in general\n2. It will break someone, but overall, I don\u0027t this specific words to be what most email filters are setup on. For Google hosts I believe it is fine (between existing overrides and amount of changes I already made last year, I don\u0027t think it\u0027s going to be a big concern to anyone). So I am ok with this change. But I would let Luca be the final vote on if it should go through, or if it needs to be included in future releases in some special way.",
+      "parentUuid": "695499df_3ef36a91",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 46
+      },
+      "revId": "b52f68edfcdbce6e15348412b6c833b1fbbd6154",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bb53f7d2_bac0ddbf",
