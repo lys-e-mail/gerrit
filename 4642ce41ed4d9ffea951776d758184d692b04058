@@ -49,6 +49,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e29c3694_51839f2c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-05-27T08:41:10Z",
+      "side": 1,
+      "message": "AFAIU the current [source code](https://gerrit.googlesource.com/gerrit/+/refs/heads/stable-3.9/java/com/google/gerrit/server/project/SubmitRequirementsAdapter.java#259) of `mapStatus` is still correct...",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 3
+      },
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7acf0cbe_1a6c85f2",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
