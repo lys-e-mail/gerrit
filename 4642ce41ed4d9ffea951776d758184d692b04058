@@ -102,6 +102,24 @@
       "message": "The `mapStatus` function was also considering `CLOSED` `SubmitRecord`, whilst this is just considering `FORCED` and `OK`.\nIs there any scenario in which a `SubmitRecord` with status `CLOSED` might be considered in this mapping?",
       "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e7dee58_0a26e77e",
+        "filename": "java/com/google/gerrit/server/project/SubmitRequirementsAdapter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-05-27T08:38:19Z",
+      "side": 1,
+      "message": "AFAIU `forced` was meant to indicate that change was submitted with rules override. Adding `OK` status to it means that it will be skipped from conversion. Is that the expected behaviour?",
+      "parentUuid": "074a9019_8793cb97",
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
