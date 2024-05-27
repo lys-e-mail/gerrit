@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c691688_76cf2fcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-05-27T06:57:20Z",
+      "side": 1,
+      "message": "@ghareeb@google.com can you please double-check, as the translation from Prolog to SubmitRequirements was implemented by you a few years ago.",
+      "revId": "4642ce41ed4d9ffea951776d758184d692b04058",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
