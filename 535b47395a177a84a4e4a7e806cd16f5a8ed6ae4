@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49355596_dc336ac8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-05-29T23:09:18Z",
+      "side": 1,
+      "message": "this dependency was moved to nongoogle.bzl in I9c9772317afd3c266596032c8cfc681eb6b522dc",
+      "revId": "535b47395a177a84a4e4a7e806cd16f5a8ed6ae4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
