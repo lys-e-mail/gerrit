@@ -39,6 +39,30 @@
       },
       "revId": "40cbd422a84047ffd62da314892549dd64270ce9",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6f03e28_a6c0326f",
+        "filename": "polygerrit-ui/app/elements/admin/gr-repo/gr-repo.ts",
+        "patchSetId": 14
+      },
+      "lineNbr": 811,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T12:41:30Z",
+      "side": 1,
+      "message": "Yes, this is expected. The BE rest endpoint for this button has been submitted and imported already, so it is more precautions to avoid be/fe release dependencies.",
+      "parentUuid": "7ed3f76a_957d8338",
+      "range": {
+        "startLine": 807,
+        "startChar": 7,
+        "endLine": 811,
+        "endChar": 63
+      },
+      "revId": "40cbd422a84047ffd62da314892549dd64270ce9",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
