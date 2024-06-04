@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a8c8e00_065799e6",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2792,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "nit: please move this into the \u0027gerrit\u0027 section",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eed9d9d6_d97f4842",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2794,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "maybe better say \"REST API\" so that it\u0027s clearer that this doesn\u0027t impact direct updates via git push. or spell that out explicitly",
+      "range": {
+        "startLine": 2794,
+        "startChar": 67,
+        "endLine": 2794,
+        "endChar": 70
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16a1e27c_7d5c1364",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2794,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "maybe better \"any\"",
+      "range": {
+        "startLine": 2794,
+        "startChar": 64,
+        "endLine": 2794,
+        "endChar": 66
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfc53ef3_3a3ae499",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "maybe \"APIs which create\" or \"an API which creates\"",
+      "range": {
+        "startLine": 2795,
+        "startChar": 33,
+        "endLine": 2795,
+        "endChar": 50
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a891e612_47498bd6",
+        "filename": "Documentation/rest-api-access.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "Would it make more sense to return this as part of GerritInfo [1] (which represents the \"gerrit\" section in gerrit.config, where this param is being added). GerritInfo is returned with the Get Server Info REST endpoint [2]. PolyGerrit should fetch the Server Info once and then keep it cached. Since this is configured globally (and not per project) we don\u0027t need to return it for every ProjectAccessInfo.\n\n[1] https://gerrit-review.googlesource.com/Documentation/rest-api-config.html#gerrit-info\n[2] https://gerrit-review.googlesource.com/Documentation/rest-api-config.html#get-info",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cd40657_f9349503",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectPermission.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "Hmm, this is not a permission, but a config flag (e.g. project owners cannot assign this permission). So I\u0027m not sure it should be a ProjectPermission. Have you considered other approaches? E.g. just check the config flag in the places where you would check the permission.",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d22394b_041c6bff",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "I\u0027m not sure \u0027400 Bad Request\u0027 is the best response code for this. We usually return bad request to signal that \"the request is not understood by the server due to malformed syntax.\", which is not the case here. Maybe \"405 Method Not Allowed\" [2] would be better suitable?\n\n[1] https://gerrit-review.googlesource.com/Documentation/rest-api.html#_400_bad_request\n[2] https://gerrit-review.googlesource.com/Documentation/rest-api.html#_405_method_not_allowed",
+      "range": {
+        "startLine": 214,
+        "startChar": 16,
+        "endLine": 214,
+        "endChar": 35
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90392871_94c731b0",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-06-04T08:59:23Z",
+      "side": 1,
+      "message": "nit: long line, please wrap",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
