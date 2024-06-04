@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04d92eac_176b8006",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-06-04T07:47:58Z",
+      "side": 1,
+      "message": "Is it an actual log_probability (ie. term from statistics/ML) or is it control of whether or not we should \"write returned probabilities to the logs\". If the 2nd, we should come up with a different name. Also could you adjust the commit message to make this clear",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 59
+      },
+      "revId": "52b2b549c84914573f3ecfd2f5acaf5ebec2379e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
