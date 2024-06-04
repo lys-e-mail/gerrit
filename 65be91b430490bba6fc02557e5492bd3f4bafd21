@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61019e22_d37ca911",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-06-04T15:02:00Z",
+      "side": 1,
+      "message": "Interesting. Looks like our diff algorithm is not doing a great job. But I don\u0027t think there is anything on the UI side that we can do here.",
+      "revId": "65be91b430490bba6fc02557e5492bd3f4bafd21",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
