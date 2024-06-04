@@ -22,6 +22,30 @@
       },
       "revId": "52b2b549c84914573f3ecfd2f5acaf5ebec2379e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d9a1262_96dd0f1c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1085182
+      },
+      "writtenOn": "2024-06-04T08:50:37Z",
+      "side": 1,
+      "message": "Oh, it\u0027s really confusing. It\u0027s log_probability. This will be used to understand acceptance rate for each bucket of log_probability.",
+      "parentUuid": "04d92eac_176b8006",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 59
+      },
+      "revId": "52b2b549c84914573f3ecfd2f5acaf5ebec2379e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
