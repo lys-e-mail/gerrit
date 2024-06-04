@@ -18,6 +18,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b293b38_886fc7dc",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2792,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a8c8e00_065799e6",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eed9d9d6_d97f4842",
@@ -64,6 +82,54 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cda32fd_1e09d574",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2794,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eed9d9d6_d97f4842",
+      "range": {
+        "startLine": 2794,
+        "startChar": 67,
+        "endLine": 2794,
+        "endChar": 70
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "154b0977_a86edfc5",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2794,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16a1e27c_7d5c1364",
+      "range": {
+        "startLine": 2794,
+        "startChar": 64,
+        "endLine": 2794,
+        "endChar": 66
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cfc53ef3_3a3ae499",
@@ -77,6 +143,30 @@
       "writtenOn": "2024-06-04T08:59:23Z",
       "side": 1,
       "message": "maybe \"APIs which create\" or \"an API which creates\"",
+      "range": {
+        "startLine": 2795,
+        "startChar": 33,
+        "endLine": 2795,
+        "endChar": 50
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3569359e_704ca416",
+        "filename": "Documentation/config-gerrit.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfc53ef3_3a3ae499",
       "range": {
         "startLine": 2795,
         "startChar": 33,
@@ -104,6 +194,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78c3d8ad_bed464cc",
+        "filename": "Documentation/rest-api-access.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "In google it will depend on the caller and on the protection setting for a repo, so it should work similar to permission for our internal use-case. I updated change message to make it more clear why it is implemented this way.",
+      "parentUuid": "a891e612_47498bd6",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cd40657_f9349503",
@@ -117,6 +225,24 @@
       "writtenOn": "2024-06-04T08:59:23Z",
       "side": 1,
       "message": "Hmm, this is not a permission, but a config flag (e.g. project owners cannot assign this permission). So I\u0027m not sure it should be a ProjectPermission. Have you considered other approaches? E.g. just check the config flag in the places where you would check the permission.",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d05e427_f34ead67",
+        "filename": "java/com/google/gerrit/server/permissions/ProjectPermission.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Same reason as in https://gerrit-review.git.corp.google.com/c/gerrit/+/425807/comment/a891e612_47498bd6/",
+      "parentUuid": "5cd40657_f9349503",
       "revId": "21928098aed25b79165e966bef13778df86b1436",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
@@ -144,6 +270,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "abcbeb16_601cb28c",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d22394b_041c6bff",
+      "range": {
+        "startLine": 214,
+        "startChar": 16,
+        "endLine": 214,
+        "endChar": 35
+      },
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90392871_94c731b0",
@@ -157,6 +307,24 @@
       "writtenOn": "2024-06-04T08:59:23Z",
       "side": 1,
       "message": "nit: long line, please wrap",
+      "revId": "21928098aed25b79165e966bef13778df86b1436",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43b3487a_691704e4",
+        "filename": "java/com/google/gerrit/server/restapi/project/RepoMetaDataUpdater.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-04T11:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90392871_94c731b0",
       "revId": "21928098aed25b79165e966bef13778df86b1436",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
