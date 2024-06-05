@@ -202,6 +202,7 @@ export class GrAccountLabel extends LitElement {
     ];
   }
 
+<<<<<<< HEAD   (dd49d7 Merge "Add config for protecting project config from unrevie)
   override updated() {
     this.computeDetailedAccount();
   }
@@ -209,8 +210,15 @@ export class GrAccountLabel extends LitElement {
   private async computeDetailedAccount() {
     if (!this.account) return;
     // If this.account is already a detailed object, then there is no need to fill it.
+||||||| BASE
+  override async updated() {
+=======
+  override async updated() {
+    assertIsDefined(this.account, 'account');
+>>>>>>> BRANCH (bba2b0 Merge branch 'stable-3.9' into stable-3.10)
     if (isDetailedAccount(this.account)) return;
     const account = await this.getAccountsModel().fillDetails(this.account);
+<<<<<<< HEAD   (dd49d7 Merge "Add config for protecting project config from unrevie)
     if (
       account &&
       // If we were not able to get a detailed object, then there is no point in updating the
@@ -223,6 +231,23 @@ export class GrAccountLabel extends LitElement {
       // to the primary email of the account. This poses a problem in
       // cases where a secondary email is used as the committer or author
       // email. Therefore, only fill in the *missing* properties.
+||||||| BASE
+    // AccountInfo returned by fillDetails has the email property set
+    // to the primary email of the account. This poses a problem in
+    // cases where a secondary email is used as the committer or author
+    // email. Therefore, only fill in the missing details to avoid
+=======
+    if (!isDetailedAccount(account)) return;
+    // AccountInfo returned by fillDetails has the email property set
+    // to the primary email of the account. This poses a problem in
+    // cases where a secondary email is used as the committer or author
+    // email. Therefore, only fill in the *missing* properties.
+    if (
+      account &&
+      account !== this.account &&
+      account._account_id === this.account._account_id
+    ) {
+>>>>>>> BRANCH (bba2b0 Merge branch 'stable-3.9' into stable-3.10)
       this.account = {...account, ...this.account};
     }
   }
