@@ -20,6 +20,7 @@ import com.google.inject.Binding;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -97,6 +98,11 @@ public class PrivateInternals_DynamicTypes {
         DynamicItem<Object> item = (DynamicItem<Object>) e.getValue();
 
         for (Binding<Object> b : bindings(src, type)) {
+          if (type.getRawType().getAnnotation(DynamicItem.Final.class) != null) {
+            if (item.get() != null) {
+              throw new ProvisionException("Attempting to bind a @Final DynamicItem<> twice");
+            }
+          }
           handles.add(item.set(b.getKey(), b.getProvider(), pluginName));
         }
       }
