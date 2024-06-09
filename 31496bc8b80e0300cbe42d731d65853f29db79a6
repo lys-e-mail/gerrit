@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01dca69f_8914482d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-06-09T12:25:40Z",
+      "side": 1,
+      "message": "This approach doesn\u0027t guarantee that the specific implementation will be bound and it\u0027s based on the plugin load order. In a corner case this may result in the implementation being bound from another plugin. When the \"internal state\" is exposed by the plugin, the plugin should also explicitly say who can provide the implementation.\n\nSimply relaying on the plugin load order IMO will leave way to abuse of this approach.",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
