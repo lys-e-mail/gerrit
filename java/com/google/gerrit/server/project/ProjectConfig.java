@@ -92,6 +92,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Config;
@@ -661,6 +662,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
 
     rulesId = getObjectId(RULES_PL_FILE);
     Config rc = readConfig(PROJECT_CONFIG, baseConfig);
+    validateConfigRoundTrip();
     Project.Builder p = Project.builder(projectName);
     p.setDescription(Strings.nullToEmpty(rc.getString(PROJECT, null, KEY_DESCRIPTION)));
     if (revision != null) {
@@ -714,6 +716,24 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
     accountsSection =
         AccountsSection.create(
             loadPermissionRules(rc, ACCOUNTS, null, KEY_SAME_GROUP_VISIBILITY, false));
+  }
+
+  /**
+   * Check if reading the config and writing it back will give the same file on disk. If not, the
+   * config is not following Git config file format standards. Mostly, that happens if the escaping
+   * of characters is incorrect.
+   */
+  private void validateConfigRoundTrip() throws IOException, ConfigInvalidException {
+    String fromDisk = readUTF8(PROJECT_CONFIG).trim();
+    String roundTrip = readConfig(PROJECT_CONFIG, Optional.empty()).toText().trim();
+    if (!fromDisk.equals(roundTrip)) {
+      String prefix = StringUtils.getCommonPrefix(fromDisk, roundTrip);
+      error(
+          ValidationError.create(
+              PROJECT_CONFIG,
+              prefix.split("\n").length + 1,
+              "incorrect escaping: \n" + StringUtils.difference(fromDisk, roundTrip)));
+    }
   }
 
   private void loadExtensionPanelSections(Config rc) {
@@ -1778,7 +1798,7 @@ public class ProjectConfig extends VersionedMetaData implements ValidationError.
   @Override
   public void error(ValidationError error) {
     if (validationErrors == null) {
-      validationErrors = new ArrayList<>(4);
+      validationErrors = new ArrayList<>();
     }
     validationErrors.add(error);
   }

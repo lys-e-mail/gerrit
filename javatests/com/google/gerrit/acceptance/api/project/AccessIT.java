@@ -15,6 +15,7 @@
 package com.google.gerrit.acceptance.api.project;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.gerrit.acceptance.GitUtil.fetch;
 import static com.google.gerrit.acceptance.testsuite.project.TestProjectUpdate.allow;
 import static com.google.gerrit.extensions.client.ListChangesOption.MESSAGES;
 import static com.google.gerrit.server.group.SystemGroupBackend.ANONYMOUS_USERS;
@@ -1177,6 +1178,23 @@ public class AccessIT extends AbstractDaemonTest {
     assertEquals(
         rules.get(registeredUsers.getUUID().get()),
         new PermissionRuleInfo(PermissionRuleInfo.Action.DENY, false));
+  }
+
+  @Test
+  public void quotingIsCorrect() throws Exception {
+    fetch(testRepo, RefNames.REFS_CONFIG + ":" + RefNames.REFS_CONFIG);
+    testRepo.reset(RefNames.REFS_CONFIG);
+
+    String config = projectOperations.project(project).getConfig().toText();
+    // \\d wil produce \d in the file which is invalid per Git config docs as backslashes need to be
+    // escaped
+    config += "[access \"^refs/heads/(-m\\d\\d\\d)?$\"]\n\tfoo = bar";
+    PushOneCommit push =
+        pushFactory.create(
+            admin.newIdent(), testRepo, "Test Change", ProjectConfig.PROJECT_CONFIG, config);
+    PushOneCommit.Result r = push.to(RefNames.REFS_CONFIG);
+    r.assertErrorStatus("invalid project configuration");
+    assertThat(r.getMessage()).contains("project.config:6: incorrect escaping: \nddd)?$\"]");
   }
 
   private ProjectApi pApi() throws Exception {
