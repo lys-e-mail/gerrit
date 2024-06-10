@@ -49,6 +49,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "235d68a1_206831e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-10T19:39:59Z",
+      "side": 1,
+      "message": "I think either here and/or in the documentation of `DynamicItem`, it would be useful to expand a bit on _where_ this annotation should go.\n\n1. The interface? 2. The class implementation? 3. The binding variable?\n\nExplaining that it should be the `interface` being annotated (or even just providing an example) would be useful imho.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 53
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ef76cb54_51004915",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 6
@@ -122,6 +145,29 @@
         "startChar": 16,
         "endLine": 106,
         "endChar": 26
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8331778_e34762a7",
+        "filename": "java/com/google/gerrit/extensions/registration/PrivateInternals_DynamicTypes.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-10T19:39:59Z",
+      "side": 1,
+      "message": "I am thinking on whether there is any scenario for which the _same_ instance _type_ would be attempted to be bound and whether we should allow this or not.\n\nAs in, if the `DynamicItem\u003cfoo\u003e` is bound to `FooImpl`, should a subsequent attempt to register a new `FooImpl` instance be allowed?\n\nI personally think it shouldn\u0027t, but I am wondering about different `Gerrit-ReloadMode`. Is there any chance that the plugin reloading would cause a registration attempt of the same instance value/type?",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 37
       },
       "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
