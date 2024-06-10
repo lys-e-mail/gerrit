@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62a2ea39_e04412bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:53:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a1856a9_59e8f4a0",
+      "range": {
+        "startLine": 14,
+        "startChar": 50,
+        "endLine": 14,
+        "endChar": 57
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59c71491_ac1c0912",
@@ -47,6 +71,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b271c79e_820e51f6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:53:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59c71491_ac1c0912",
+      "range": {
+        "startLine": 21,
+        "startChar": 36,
+        "endLine": 21,
+        "endChar": 46
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "235d68a1_206831e1",
@@ -60,6 +108,30 @@
       "writtenOn": "2024-06-10T19:39:59Z",
       "side": 1,
       "message": "I think either here and/or in the documentation of `DynamicItem`, it would be useful to expand a bit on _where_ this annotation should go.\n\n1. The interface? 2. The class implementation? 3. The binding variable?\n\nExplaining that it should be the `interface` being annotated (or even just providing an example) would be useful imho.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 53
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dff01d2d_57bd1a68",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:53:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "235d68a1_206831e1",
       "range": {
         "startLine": 29,
         "startChar": 0,
@@ -106,6 +178,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "47cd79f3_670d5874",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:53:01Z",
+      "side": 1,
+      "message": "I have found that it doesn\u0027t work with plugin reloads, but it looks like that is a bug of the x-plugin support from the very beginning. I\u0027ve raised Issue 346350837 and a WIP fix I6cda1b3fcf.\n\nP.S. Testing plugin reloads / unloads / restart in our IT tests is basically impossible at the moment. We have to rely on manual testing I\u0027m afraid.",
+      "parentUuid": "ef76cb54_51004915",
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15ab774c_5c1bd3ef",
         "filename": "java/com/google/gerrit/extensions/registration/DynamicItem.java",
         "patchSetId": 6
@@ -117,6 +207,30 @@
       "writtenOn": "2024-06-10T17:07:42Z",
       "side": 1,
       "message": "```suggestion\n  /** Annotate a DynamicItem to be final and being bound at most once. */\n```",
+      "range": {
+        "startLine": 46,
+        "startChar": 57,
+        "endLine": 46,
+        "endChar": 67
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be0c62f9_74052fb1",
+        "filename": "java/com/google/gerrit/extensions/registration/DynamicItem.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:53:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15ab774c_5c1bd3ef",
       "range": {
         "startLine": 46,
         "startChar": 57,
