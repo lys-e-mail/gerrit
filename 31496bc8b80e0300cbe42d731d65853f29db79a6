@@ -123,6 +123,24 @@
       "parentUuid": "c32ecb63_1d833da7",
       "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a8085e6_cb020a0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:57:31Z",
+      "side": 1,
+      "message": "\u003e The main use case for `@DynamicItem.Final` now is to provide the implementation of `RemoteConfigUpdater` for the `github` plugin.\n\nWhen using the `github` plugin for importing projects, the `replication` plugin is mandatory and needs to be configured in the list of mandatory plugins.",
+      "parentUuid": "e2fc2848_0b887826",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }

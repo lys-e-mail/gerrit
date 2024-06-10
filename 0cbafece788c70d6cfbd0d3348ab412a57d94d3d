@@ -309,6 +309,54 @@
       },
       "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4d78084_cdb94bbc",
+        "filename": "java/com/google/gerrit/extensions/registration/PrivateInternals_DynamicTypes.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:57:31Z",
+      "side": 1,
+      "message": "The plugin reload is broken for the `ApiModule`, I\u0027ve raised Issue 346350837. Bottom line: at the moment won\u0027t work anyway, because reloading does not work for `ApiModule`.",
+      "parentUuid": "77e6ee78_0e2cfe8b",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 37
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13f38132_7f0b1277",
+        "filename": "java/com/google/gerrit/extensions/registration/PrivateInternals_DynamicTypes.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T22:57:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dfeb4cf_71f03493",
+      "range": {
+        "startLine": 106,
+        "startChar": 16,
+        "endLine": 106,
+        "endChar": 26
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
