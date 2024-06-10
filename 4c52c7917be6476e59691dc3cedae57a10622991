@@ -73,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b185455d_c03e78cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T23:01:03Z",
+      "side": 1,
+      "message": "That\u0027s an optional constraint though, it is specified later in the commit message.",
+      "parentUuid": "101dad26_1c6397fe",
+      "range": {
+        "startLine": 22,
+        "startChar": 48,
+        "endLine": 22,
+        "endChar": 49
+      },
+      "revId": "4c52c7917be6476e59691dc3cedae57a10622991",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c32ecd78_78d8adc0",
         "filename": "/COMMIT_MSG",
         "patchSetId": 7
