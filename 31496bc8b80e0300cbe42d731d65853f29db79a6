@@ -69,6 +69,42 @@
       "parentUuid": "01dca69f_8914482d",
       "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9aaba149_cfaedd67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T10:23:38Z",
+      "side": 1,
+      "message": "Done, you can now do something like:\n\n```java\n@DynamicItem.Final(implementedByPlugin \u003d \"foo-plugin\")\n```\n\nWith the above annotation, the interface will be bound only *ONE* implementation provided by `foo-plugin` and would fail with a `ProvisionException` otherwise.",
+      "parentUuid": "d5a77e8b_13b08ceb",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c32ecb63_1d833da7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T10:23:38Z",
+      "side": 1,
+      "message": "I don\u0027t believe we want to block plugins from being reloaded or unloaded: we must preserve existing functionality.\n\nIf any client of the plugin wanted to use the API implementation whilst the plugin isn\u0027t loaded, then it would obtain a `null` from the `DynamicItem.get()`",
+      "parentUuid": "0f4f3832_c129a2df",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
