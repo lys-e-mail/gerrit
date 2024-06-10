@@ -171,6 +171,30 @@
       },
       "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77e6ee78_0e2cfe8b",
+        "filename": "java/com/google/gerrit/extensions/registration/PrivateInternals_DynamicTypes.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-06-10T21:48:11Z",
+      "side": 1,
+      "message": "\u003e As in, if the DynamicItem\u003cfoo\u003e is bound to FooImpl, should a subsequent attempt to register a new FooImpl instance be allowed?\n\nI _think_ this should be already prohibited by Guice out of the box, as you can\u0027t bind the same type twice and with `DynamicItem` under the hood we\u0027re binding `TypeLiteral\u003cDynamicItem\u003cT\u003e\u003e` so calling `DynamicItem.bind(binder(), T).bind()` twice will result in \"type already bound exception\" thrown by Guice.",
+      "parentUuid": "e8331778_e34762a7",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 37
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
