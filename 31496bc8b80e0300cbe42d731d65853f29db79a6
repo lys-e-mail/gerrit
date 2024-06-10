@@ -33,6 +33,42 @@
       "message": "What should happen when plugin with a binding for the `DynamicItem.Final` is unloaded?",
       "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f4f3832_c129a2df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T07:53:11Z",
+      "side": 1,
+      "message": "The same thing like a plugin exposing a DynamicItem does at the moment: if the plugin isn\u0027t there, there isn\u0027t any implementation available and the DynamicItem should be null.",
+      "parentUuid": "9ffb1301_c0c3e1aa",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5a77e8b_13b08ceb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-10T07:53:11Z",
+      "side": 1,
+      "message": "\u003e This approach doesn\u0027t guarantee that the specific implementation will be bound and it\u0027s based on the plugin load order.\n\nTrue, but can be easily achieved by allowing the `Final` to specify the plugin name that is expected to implement the interface.",
+      "parentUuid": "01dca69f_8914482d",
+      "revId": "31496bc8b80e0300cbe42d731d65853f29db79a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
