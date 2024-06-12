@@ -110,6 +110,24 @@
       "message": "Good job, just a couple of nits.",
       "revId": "0c2d34fd5c15957936f6f8af79270a258f160d53",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "585d15d2_7a61111c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-12T15:57:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fa25e26_fdf4995d",
+      "revId": "0c2d34fd5c15957936f6f8af79270a258f160d53",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
