@@ -230,6 +230,24 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79863916_91ead02c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-12T20:34:05Z",
+      "side": 1,
+      "message": "I\u0027ve managed to perform a limited unit test that demonstrates the ability to re-bind standard DynamicItems but not the ones annotated with `@DynamicItem.Final` and `@DynamicItem.Final(implementedByPlugin \u003d PLUGIN_NAME)`",
+      "parentUuid": "6f3bd95d_693602e9",
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15ab774c_5c1bd3ef",
