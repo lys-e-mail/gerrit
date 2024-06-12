@@ -16,6 +16,24 @@
       "message": "I would prefer not to be involved with maintaining stable branches. I am trying to be as responsive as possible with code reviews, but if that means that I am chosen every time instead of everyone else on the team, who could all do these reviews as well as I do, then I am getting slightly annoyed. :-/ Sorry. :-( Maybe try using the standard review queues more for reviews that do not require my specific expertise.",
       "revId": "4248afde4b74cf740e646c4c9b5a8c563c9bd00e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdc39223_80742b2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-06-12T10:38:49Z",
+      "side": 1,
+      "message": "I can\u0027t use the frontend group. I haven\u0027t for many years which means that i have to manually select someone to review. I have mentioned that many times. It seems only googlers can access it now (it should be fixed). But i guess i can use some of the others to do it as well.",
+      "parentUuid": "ed2d1ce9_7ae25117",
+      "revId": "4248afde4b74cf740e646c4c9b5a8c563c9bd00e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
