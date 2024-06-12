@@ -95,6 +95,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97b15982_1aefbc65",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-12T15:46:25Z",
+      "side": 1,
+      "message": "Marking this as resolved, feel free to reopen the discussion.",
+      "parentUuid": "b185455d_c03e78cf",
+      "range": {
+        "startLine": 22,
+        "startChar": 48,
+        "endLine": 22,
+        "endChar": 49
+      },
+      "revId": "4c52c7917be6476e59691dc3cedae57a10622991",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c32ecd78_78d8adc0",

@@ -399,6 +399,30 @@
       },
       "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3433d357_c8397512",
+        "filename": "java/com/google/gerrit/extensions/registration/PrivateInternals_DynamicTypes.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-12T15:46:25Z",
+      "side": 1,
+      "message": "The `reload` issue is different and should be addressed as part of Change 429703, resolving this comment because isn\u0027t relevant to this change anymore.",
+      "parentUuid": "7de59c5b_4045c2e1",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 37
+      },
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
