@@ -214,6 +214,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6f3bd95d_693602e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010134
+      },
+      "writtenOn": "2024-06-12T19:42:21Z",
+      "side": 1,
+      "message": "I\u0027m affraid unit testing this with a _real Guice instance_ will be challenging as you need also the _magic_ from `PluginGuiceEnvironment` and `PrivateInternal_DynamicTypes` in order to \"rebind\" the dynamic item in existing Guice state.",
+      "parentUuid": "318b17f0_9d96280d",
+      "revId": "0cbafece788c70d6cfbd0d3348ab412a57d94d3d",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15ab774c_5c1bd3ef",
         "filename": "java/com/google/gerrit/extensions/registration/DynamicItem.java",
         "patchSetId": 6
