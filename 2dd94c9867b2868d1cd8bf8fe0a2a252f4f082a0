@@ -52,6 +52,24 @@
       "parentUuid": "d72b3ab1_f8ad0e05",
       "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd65f11a_bda486c9",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-13T09:53:45Z",
+      "side": 1,
+      "message": "The way I interpret that documentation is that multiple registrations of the *same* `Provider` is not allowed [1], it does not refer to the _value_ that the provider will return (which _can_ and it _does_ get overridden).\n\nBasically, you cannot have two different plugins, both doing:\n\n```\nDynamicItem.itemOf(binder(), Foo.class);\n```\n\nAs this would cause the binding of two providers, for the same class `Foo`.\n\nHaving said that, you _can_ still replace as many implementations as you want, for the same provider.\nWe do this very often, look at this example for the global-refdb.\n\n1 - We register a default `Noop` implementation for the `GlobalRefDatabase` interface [2].\n\n```\n    DynamicItem.itemOf(binder(), GlobalRefDatabase.class);\n    DynamicItem.bind(binder(), GlobalRefDatabase.class)\n        .to(NoopSharedRefDatabase.class)\n        .in(Scopes.SINGLETON);\n```\n\n2 - We simply override it in Zookeeper, without unsetting anything [3]\n\n```\n    DynamicItem.bind(binder(), GlobalRefDatabase.class)\n        .to(ZkSharedRefDatabase.class)\n        .in(Scopes.SINGLETON);\n```\n\n[1] https://gerrit.googlesource.com/gerrit/+/refs/heads/master/java/com/google/gerrit/extensions/registration/DynamicItemProvider.java#49\n\n[2] https://gerrit.googlesource.com/modules/global-refdb/+/refs/heads/master/src/main/java/com/gerritforge/gerrit/globalrefdb/validation/LibModule.java#31\n\n[3] https://gerrit.googlesource.com/plugins/zookeeper-refdb/+/refs/heads/master/src/main/java/com/googlesource/gerrit/plugins/validation/dfsrefdb/zookeeper/ZkValidationModule.java#39",
+      "parentUuid": "5db8a592_c9b3907d",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
