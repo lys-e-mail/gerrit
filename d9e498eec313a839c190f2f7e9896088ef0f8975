@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9031189c_c4b4e3b9",
+        "filename": "java/com/google/gerrit/httpd/NumericChangeIdRedirectServlet.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-06-13T20:10:49Z",
+      "side": 1,
+      "message": "I think this can\u0027t be used. See https://gerrit-review.googlesource.com/c/gerrit/+/429817 (google).",
+      "range": {
+        "startLine": 60,
+        "startChar": 68,
+        "endLine": 60,
+        "endChar": 74
+      },
+      "revId": "d9e498eec313a839c190f2f7e9896088ef0f8975",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
