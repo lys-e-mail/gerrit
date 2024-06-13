@@ -71,6 +71,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27e9e2df_15fa30a1",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-13T12:07:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50d83a9a_cf2fd883",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 80
+      },
+      "revId": "f8639b3f5e61181542d277aba253a1e4ca58be65",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce346f42_8130c4d6",
@@ -107,6 +131,30 @@
       "writtenOn": "2024-06-13T10:23:31Z",
       "side": 1,
       "message": "nit: `assertDynamicItem` is always called for the `PLUGIN_NAME` plugin. consider removing this argument until we need to make assertion for other plugins.",
+      "range": {
+        "startLine": 165,
+        "startChar": 48,
+        "endLine": 165,
+        "endChar": 65
+      },
+      "revId": "f8639b3f5e61181542d277aba253a1e4ca58be65",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4b88b89_8b86cbf4",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-13T12:07:16Z",
+      "side": 1,
+      "message": "True, let me change the plugin name across calls, so that is explicit that we also assert the pluginName to be the expected one.",
+      "parentUuid": "d44bb68e_843e13d3",
       "range": {
         "startLine": 165,
         "startChar": 48,
