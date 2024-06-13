@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dce0e87c_c564106d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1085901
+      },
+      "writtenOn": "2024-06-13T13:58:56Z",
+      "side": 1,
+      "message": "Sorry, did you upload all files? The change contains only test files.",
+      "revId": "1f84f71121a99d0afe9f0e9626c46ac520a9fb70",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
