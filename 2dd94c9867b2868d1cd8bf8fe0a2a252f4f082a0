@@ -88,6 +88,24 @@
       "parentUuid": "cd65f11a_bda486c9",
       "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46909ec4_faa82c3e",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-13T12:56:19Z",
+      "side": 1,
+      "message": "As the test shows, the same `DynamicItem` can be bound twice and as many times as you\u0027d like. I agree with @geminica.programs@gmail.com that the JavaDoc of `DynamicItem` could be considered misleading albeit formally correct.\n\nI am flagging this comment as clarified and resolved, feel free to reopen it or to raise a separate change for making `DynamicItem`\u0027s JavaDoc clearer.",
+      "parentUuid": "e4e7fddd_e9c005cc",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
