@@ -34,6 +34,24 @@
       "parentUuid": "02b9ead2_e802b29a",
       "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5db8a592_c9b3907d",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-06-13T09:13:21Z",
+      "side": 1,
+      "message": "then we have a discrepancy in the `DynamicItem` description (see [DynamicItem.java#35](https://gerrit.googlesource.com/gerrit/+/refs/heads/master/java/com/google/gerrit/extensions/registration/DynamicItem.java#35)) or I\u0027m missing its meaning 😊:\n\n\u003e If multiple plugins try to provide the same Provider, an exception is thrown.",
+      "parentUuid": "d72b3ab1_f8ad0e05",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
