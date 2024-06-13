@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02b9ead2_e802b29a",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-06-13T07:53:20Z",
+      "side": 1,
+      "message": "AFAIR one cannot attach `DynamicItem` as long as there is already existing one attached - IOW one would have to `unload` the existing one prior attaching a new one - is this reflected implicitly in this scenario? I could also remember it wrongly 😊",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
