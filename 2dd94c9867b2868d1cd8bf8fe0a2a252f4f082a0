@@ -70,6 +70,24 @@
       "parentUuid": "5db8a592_c9b3907d",
       "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4e7fddd_e9c005cc",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-06-13T10:22:58Z",
+      "side": 1,
+      "message": "So I would argue that description is wrong in this case as:\n1. `DynamicItem.itemOf` is a _declaration_ not _provision_ and it is kind of understood that it can be only one instance of it per interface\n2. plugins could be responsible for _provision_ - hence the `Provider` part is IMHO misleading in this case as it implies that only one will be accepted whereas you example states that the last one wins",
+      "parentUuid": "cd65f11a_bda486c9",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
