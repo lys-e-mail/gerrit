@@ -118,6 +118,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1f38805_106815ca",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-13T12:48:23Z",
+      "side": 1,
+      "message": "In this case, I want to assert that you can reassign a DynamicItem even made by another injector. I am using `PluginName.GERRIT` because that\u0027s the typical use-case:\n- Gerrit defines an API with a DynamicItem for plugins to override\n- Plugins define alternative implementation for a DynamicItem\n\nI\u0027ve renamed `baseInjectorRegistrations` to `gerritRegistrations` for making it more explicit.",
+      "parentUuid": "ce346f42_8130c4d6",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 29
+      },
+      "revId": "f8639b3f5e61181542d277aba253a1e4ca58be65",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d44bb68e_843e13d3",
@@ -155,6 +179,30 @@
       "side": 1,
       "message": "True, let me change the plugin name across calls, so that is explicit that we also assert the pluginName to be the expected one.",
       "parentUuid": "d44bb68e_843e13d3",
+      "range": {
+        "startLine": 165,
+        "startChar": 48,
+        "endLine": 165,
+        "endChar": 65
+      },
+      "revId": "f8639b3f5e61181542d277aba253a1e4ca58be65",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "019686ba_06e908a7",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-13T12:48:23Z",
+      "side": 1,
+      "message": "I checked and that\u0027s not the case, see below:\n\nL73:\n```\n    assertDynamicItem(bindings.get(STRING_TYPE_LITERAL), DYNAMIC_ITEM_1, PluginName.GERRIT);\n```\n\nL82:\n```\n    assertDynamicItem(bindings.get(STRING_TYPE_LITERAL), DYNAMIC_ITEM_2, PLUGIN_NAME);\n```\n\nMarking this as clarified, feel free to reopen it if that\u0027s not the case.",
+      "parentUuid": "b4b88b89_8b86cbf4",
       "range": {
         "startLine": 165,
         "startChar": 48,
