@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "527a7675_9c9369f4",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1025452
+      },
+      "writtenOn": "2024-06-13T07:33:28Z",
+      "side": 1,
+      "message": "nit: all declarations (including `INSTANCE`\u0027s) can be `private`",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 3
+      },
+      "revId": "a4f9e339385a131c1e0ef651ec9d7f1fdbc89b32",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
