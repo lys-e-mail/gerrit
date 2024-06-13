@@ -16,6 +16,24 @@
       "message": "AFAIR one cannot attach `DynamicItem` as long as there is already existing one attached - IOW one would have to `unload` the existing one prior attaching a new one - is this reflected implicitly in this scenario? I could also remember it wrongly 😊",
       "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d72b3ab1_f8ad0e05",
+        "filename": "javatests/com/google/gerrit/extensions/registration/DynamicItemTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-13T08:39:01Z",
+      "side": 1,
+      "message": "\u003e AFAIR one cannot attach `DynamicItem` as long as there is already existing one attached\n\n@geminica.programs@gmail.com, actually this is not the case, the `DynamicItem` value will be replaced by the latest value that is bound.\n\nThis means that you won\u0027t really have control on who is assigning the item and how many times this is done.\n\nThis change addresses these two points by adding two constraints:\n\n1 - Who can provide an implementation\n2 - How many times this can be bound (only once).",
+      "parentUuid": "02b9ead2_e802b29a",
+      "revId": "2dd94c9867b2868d1cd8bf8fe0a2a252f4f082a0",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
