@@ -10,8 +10,16 @@
     "@typescript-eslint/parser": "^5.62.0"
   },
   "devDependencies": {
+<<<<<<< HEAD   (c6a40b Merge "Fix <input> style for check run filter" into stable-3)
     "@koa/cors": "^3.4.3",
     "@types/page": "^1.11.9",
+||||||| BASE
+    "@koa/cors": "^3.4.3",
+    "@types/page": "^1.11.6",
+=======
+    "@koa/cors": "^5.0.0",
+    "@types/page": "^1.11.6",
+>>>>>>> BRANCH (a5025a Merge branch 'stable-3.8' into stable-3.9)
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@web/dev-server": "^0.1.38",
     "@web/dev-server-esbuild": "^0.3.6",
