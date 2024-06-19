@@ -40,6 +40,9 @@ export class GrRepoList extends LitElement {
   @property({type: Object})
   params?: AdminViewState;
 
+  @property({type: Boolean})
+  hideReadOnlyRepos?: Boolean;
+
   @state() offset = 0;
 
   @state() newRepoName = false;
@@ -100,6 +103,16 @@ export class GrRepoList extends LitElement {
         .path=${createAdminUrl({adminView: AdminChildView.REPOS})}
         @create-clicked=${() => this.handleCreateClicked()}
       >
+        <div slot="afterFilter" style="display:inline;">
+          <input
+            id="readOnlyRepos"
+            type="checkbox"
+            .checked=${this.hideReadOnlyRepos}
+            @change=${this.handleToggleReadOnlyRepos}
+          />
+          <label for="readOnlyRepos">Hide read only repositories</label>
+        </div>
+
         <table id="list" class="genericList">
           <tbody>
             <tr class="headerRow">
@@ -175,7 +188,10 @@ export class GrRepoList extends LitElement {
   }
 
   override willUpdate(changedProperties: PropertyValues) {
-    if (changedProperties.has('params')) {
+    if (
+      changedProperties.has('params') ||
+      changedProperties.has('hideReadOnlyRepos')
+    ) {
       this._paramsChanged();
     }
   }
@@ -225,7 +241,8 @@ export class GrRepoList extends LitElement {
     const repos = await this.restApiService.getRepos(
       this.filter,
       this.reposPerPage,
-      this.offset
+      this.offset,
+      this.hideReadOnlyRepos ? RepoState.ACTIVE : undefined
     );
 
     // Late response.
@@ -257,6 +274,10 @@ export class GrRepoList extends LitElement {
   handleCreateClicked() {
     this.createModal?.showModal();
     this.createNewModal?.focus();
+  }
+
+  handleToggleReadOnlyRepos() {
+    this.hideReadOnlyRepos = !this.hideReadOnlyRepos;
   }
 
   // private but used in test
