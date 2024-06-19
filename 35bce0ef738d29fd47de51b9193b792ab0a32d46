@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "331284e2_d6220151",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-06-19T19:10:51Z",
+      "side": 1,
+      "message": "This one might be tricky. I have noticed a few 404 notably for webcomponents-lite.js which sounds very scary.  It looks like the file is not available under my local workspace because the file is only moved in the document root when bundling polygerrit.  The redirect works around that.\n\nFor fonts, I remember Ben told me it was a known issue, I went ahead and fixed it by reading the files outside the document root. I have used `path.basename()` to avoid path traversal (like `/fonts/etc/shadow` would end up serving `/etc/shadow`). Then for a dev server, I don\u0027t think we have to be too paranoid :)",
+      "revId": "35bce0ef738d29fd47de51b9193b792ab0a32d46",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
