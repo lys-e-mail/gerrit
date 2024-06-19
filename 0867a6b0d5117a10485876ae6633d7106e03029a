@@ -16,6 +16,24 @@
       "message": "The `polygerrit-ui/app/api/package.json` has an outdated version in both `stable-3.10` and `master`:\n```\n{\n  \n  \"version\": \"3.9.0-SNAPSHOT\",\n...\n}\n```\n\n:)",
       "revId": "0867a6b0d5117a10485876ae6633d7106e03029a",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d54e8da_ab0877fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-06-19T19:42:35Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c74c5adb_ebc49a32",
+      "revId": "0867a6b0d5117a10485876ae6633d7106e03029a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
