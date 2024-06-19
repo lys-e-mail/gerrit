@@ -10,12 +10,28 @@
     "@typescript-eslint/parser": "^5.62.0"
   },
   "devDependencies": {
+<<<<<<< HEAD   (2e6314 Correctly redirect legacy URIs with any final segment)
     "@koa/cors": "^3.4.3",
     "@types/page": "^1.11.6",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@web/dev-server": "^0.1.38",
     "@web/dev-server-esbuild": "^0.3.6",
     "eslint": "^8.49.0",
+||||||| BASE
+    "@koa/cors": "^3.3.0",
+    "@types/page": "^1.11.5",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@web/dev-server": "^0.1.33",
+    "@web/dev-server-esbuild": "^0.3.2",
+    "eslint": "^8.16.0",
+=======
+    "@koa/cors": "^5.0.0",
+    "@types/page": "^1.11.5",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@web/dev-server": "^0.1.33",
+    "@web/dev-server-esbuild": "^0.3.2",
+    "eslint": "^8.16.0",
+>>>>>>> BRANCH (35bce0 web-dev-server: serve some missing static assets)
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-import": "^2.28.1",
