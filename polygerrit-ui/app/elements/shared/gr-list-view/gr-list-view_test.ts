@@ -29,6 +29,7 @@ suite('gr-list-view tests', () => {
             <iron-input>
               <input id="filter" type="text" />
             </iron-input>
+            <slot name="afterFilter"> </slot>
           </div>
           <div id="createNewContainer">
             <gr-button

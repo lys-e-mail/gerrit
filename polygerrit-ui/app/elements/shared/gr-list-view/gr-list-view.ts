@@ -116,6 +116,7 @@ export class GrListView extends LitElement {
           >
             <input type="text" id="filter" />
           </iron-input>
+          <slot name="afterFilter"></slot>
         </div>
         <div id="createNewContainer" class=${this.createNew ? 'show' : ''}>
           <gr-button

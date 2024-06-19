@@ -16,6 +16,7 @@ import {tableStyles} from '../../../styles/gr-table-styles';
 import {sharedStyles} from '../../../styles/shared-styles';
 import {LitElement, PropertyValues, css, html} from 'lit';
 import {customElement, property, query, state} from 'lit/decorators.js';
+import {when} from 'lit/directives/when.js';
 import {
   AdminChildView,
   AdminViewState,
@@ -40,6 +41,9 @@ export class GrRepoList extends LitElement {
   @property({type: Object})
   params?: AdminViewState;
 
+  @property({type: Boolean})
+  showOnlyActiveRepos?: Boolean;
+
   @state() offset = 0;
 
   @state() newRepoName = false;
@@ -54,11 +58,18 @@ export class GrRepoList extends LitElement {
 
   @state() filter = '';
 
+  @state() private projectStatePredicateEnabled?: boolean;
+
   private readonly restApiService = getAppContext().restApiService;
 
   override async connectedCallback() {
     super.connectedCallback();
-    await this.getCreateRepoCapability();
+
+    await Promise.all([
+      this.getCreateRepoCapability(),
+      this.getProjectStatePredicateEnabled(),
+    ]);
+
     fireTitleChange('Repos');
     this.maybeOpenCreateModal(this.params);
   }
@@ -84,6 +95,9 @@ export class GrRepoList extends LitElement {
         .readOnly {
           white-space: nowrap;
         }
+        gr-list-view div[slot='afterFilter'] {
+          display: inline;
+        }
       `,
     ];
   }
@@ -100,6 +114,23 @@ export class GrRepoList extends LitElement {
         .path=${createAdminUrl({adminView: AdminChildView.REPOS})}
         @create-clicked=${() => this.handleCreateClicked()}
       >
+        <div slot="afterFilter">
+          ${when(
+            this.computeShowReadOnlyReposFilter(),
+            () => html`
+              <input
+                id="showOnlyActiveRepos-checkbox"
+                type="checkbox"
+                .checked=${this.showOnlyActiveRepos}
+                @change=${this.handleToggleReadOnlyRepos}
+              />
+              <label for="showOnlyActiveRepos-checkbox">
+                Hide read only repositories
+              </label>
+            `
+          )}
+        </div>
+
         <table id="list" class="genericList">
           <tbody>
             <tr class="headerRow">
@@ -175,7 +206,10 @@ export class GrRepoList extends LitElement {
   }
 
   override willUpdate(changedProperties: PropertyValues) {
-    if (changedProperties.has('params')) {
+    if (
+      changedProperties.has('params') ||
+      changedProperties.has('showOnlyActiveRepos')
+    ) {
       this._paramsChanged();
     }
   }
@@ -214,6 +248,13 @@ export class GrRepoList extends LitElement {
     return account;
   }
 
+  private async getProjectStatePredicateEnabled() {
+    return this.restApiService.getConfig().then(serverConfig => {
+      this.projectStatePredicateEnabled =
+        serverConfig?.gerrit.project_state_predicate_enabled ?? true;
+    });
+  }
+
   // private but used in test
   async getRepos() {
     this.repos = [];
@@ -225,7 +266,8 @@ export class GrRepoList extends LitElement {
     const repos = await this.restApiService.getRepos(
       this.filter,
       this.reposPerPage,
-      this.offset
+      this.offset,
+      this.showOnlyActiveRepos ? RepoState.ACTIVE : undefined
     );
 
     // Late response.
@@ -259,9 +301,17 @@ export class GrRepoList extends LitElement {
     this.createNewModal?.focus();
   }
 
+  handleToggleReadOnlyRepos() {
+    this.showOnlyActiveRepos = !this.showOnlyActiveRepos;
+  }
+
   // private but used in test
   computeLoadingClass(loading: boolean) {
     return loading ? 'loading' : '';
+  }
+
+  computeShowReadOnlyReposFilter() {
+    return !!this.projectStatePredicateEnabled;
   }
 
   private handleNewRepoName() {

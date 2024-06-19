@@ -69,6 +69,10 @@ suite('gr-repo-list tests', () => {
         element,
         /* HTML */ `
           <gr-list-view>
+            <div slot="afterFilter">
+              <input id="showOnlyActiveRepos-checkbox" type="checkbox" />
+              <label for="showOnlyActiveRepos-checkbox"> Hide read only repositories </label>
+            </div>
             <table class="genericList" id="list">
               <tbody>
                 <tr class="headerRow">
@@ -497,7 +501,9 @@ suite('gr-repo-list tests', () => {
         offset: 25,
       } as AdminViewState;
       await element._paramsChanged();
-      assert.isTrue(repoStub.lastCall.calledWithExactly('test', 25, 25));
+      assert.isTrue(
+        repoStub.lastCall.calledWithExactly('test', 25, 25, undefined)
+      );
     });
 
     test('latest repos requested are always set', async () => {
@@ -544,7 +550,7 @@ suite('gr-repo-list tests', () => {
 
   suite('loading', () => {
     test('correct contents are displayed', async () => {
-      assert.isTrue(element.loading);
+      assert.isTrue(element.loading, 'element is loading');
       assert.equal(element.computeLoadingClass(element.loading), 'loading');
       assert.equal(
         getComputedStyle(
