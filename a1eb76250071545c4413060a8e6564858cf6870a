@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dae65ca3_430636a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-20T10:32:48Z",
+      "side": 1,
+      "message": "Could you add a pointer to any documentation that can back this up?\n\nA quick googling shows this [1], but I haven\u0027t searched much.\n\n[1] https://questdb.io/blog/max-open-file-limit-macos-jvm/",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 11
+      },
+      "revId": "a1eb76250071545c4413060a8e6564858cf6870a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9c6b621_19fa59ed",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1072905
+      },
+      "writtenOn": "2024-06-20T10:32:48Z",
+      "side": 1,
+      "message": "nit: you could get directly the kernel-name [1] and simplify this.\n\n```\n➜ uname -s\nDarwin\n```\n\n[1] https://man7.org/linux/man-pages/man1/uname.1.html",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 374,
+        "endChar": 40
+      },
+      "revId": "a1eb76250071545c4413060a8e6564858cf6870a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
