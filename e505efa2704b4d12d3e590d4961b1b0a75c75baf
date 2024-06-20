@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b783ca69_0fff54ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-20T10:21:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8d20262_80f494e0",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 20
+      },
+      "revId": "e505efa2704b4d12d3e590d4961b1b0a75c75baf",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0defba69_2e20cad6",
@@ -37,6 +61,24 @@
       "writtenOn": "2024-06-20T10:20:52Z",
       "side": 1,
       "message": "Missing `Release-Notes: Allows ...`",
+      "revId": "e505efa2704b4d12d3e590d4961b1b0a75c75baf",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "068986e9_e6c8f7fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-20T10:21:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0defba69_2e20cad6",
       "revId": "e505efa2704b4d12d3e590d4961b1b0a75c75baf",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
