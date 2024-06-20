@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2521aa72_de546b84",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-20T22:26:24Z",
+      "side": 1,
+      "message": "add _\"on MacOS\"_, because on Linux it was already the case.",
+      "range": {
+        "startLine": 18,
+        "startChar": 52,
+        "endLine": 18,
+        "endChar": 68
+      },
+      "revId": "71d3efef3c68ba982083f36600468d7a686cb666",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2922569e_db1c3c68",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-20T22:26:24Z",
+      "side": 1,
+      "message": "nit, remove the extra blank.\n\n```suggestion\nif test \"$(uname -s)\" \u003d\u003d \"Darwin\"; then\n```",
+      "range": {
+        "startLine": 374,
+        "startChar": 33,
+        "endLine": 374,
+        "endChar": 34
+      },
+      "revId": "71d3efef3c68ba982083f36600468d7a686cb666",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
