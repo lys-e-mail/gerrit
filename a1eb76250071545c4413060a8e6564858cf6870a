@@ -24,6 +24,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec7d55e1_7076328f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-20T20:06:03Z",
+      "side": 1,
+      "message": "Having a look around that\u0027s probably the best description of the problem I\u0027ve found too. Will link that.",
+      "parentUuid": "dae65ca3_430636a9",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 11
+      },
+      "revId": "a1eb76250071545c4413060a8e6564858cf6870a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9c6b621_19fa59ed",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-06-20T10:32:48Z",
       "side": 1,
       "message": "nit: you could get directly the kernel-name [1] and simplify this.\n\n```\n➜ uname -s\nDarwin\n```\n\n[1] https://man7.org/linux/man-pages/man1/uname.1.html",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 374,
+        "endChar": 40
+      },
+      "revId": "a1eb76250071545c4413060a8e6564858cf6870a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b160fb1_b40f50a0",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-20T20:06:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9c6b621_19fa59ed",
       "range": {
         "startLine": 374,
         "startChar": 0,

@@ -16,6 +16,24 @@
       "message": "Missing `Release-Notes: Allow ...` in the footer",
       "revId": "0f17628732852c21e803492eb3989b2d9a2b6f5e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd4dc5d3_fed17794",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-20T20:06:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59fd9bfc_2b8b7703",
+      "revId": "0f17628732852c21e803492eb3989b2d9a2b6f5e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
