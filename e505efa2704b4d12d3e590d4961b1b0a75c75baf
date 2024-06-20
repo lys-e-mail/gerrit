@@ -81,6 +81,29 @@
       "parentUuid": "0defba69_2e20cad6",
       "revId": "e505efa2704b4d12d3e590d4961b1b0a75c75baf",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26261b4f_8c81cd5f",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-20T10:21:11Z",
+      "side": 1,
+      "message": "👍",
+      "range": {
+        "startLine": 374,
+        "startChar": 0,
+        "endLine": 376,
+        "endChar": 2
+      },
+      "revId": "e505efa2704b4d12d3e590d4961b1b0a75c75baf",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
