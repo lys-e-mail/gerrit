@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da944246_f6a54ca0",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-21T20:49:53Z",
+      "side": 1,
+      "message": "Whilst this works on MacOS, it would break on Linux where `test` under `sh` won\u0027t support the `\u003d\u003d`.\n\nUse the `\u003d` which would everywhere.\n\n```suggestion\nif test \"$(uname -s)\" \u003d \"Darwin\" ; then\n```",
+      "range": {
+        "startLine": 374,
+        "startChar": 22,
+        "endLine": 374,
+        "endChar": 24
+      },
+      "revId": "55039d9749a911c5fe41c6486bedeece5c485b6c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
