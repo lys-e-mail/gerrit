@@ -93,6 +93,30 @@
       },
       "revId": "71d3efef3c68ba982083f36600468d7a686cb666",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44deded9_22d305d4",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-06-21T08:57:37Z",
+      "side": 1,
+      "message": "\u003e In every other if statement we leave a blank space before the `;`, any reason to do it differently here?\n\nI don\u0027t see a blank at L365, it\u0027s an optional comment though, just a nit 😊",
+      "parentUuid": "fc028df3_1253ec3f",
+      "range": {
+        "startLine": 374,
+        "startChar": 33,
+        "endLine": 374,
+        "endChar": 34
+      },
+      "revId": "71d3efef3c68ba982083f36600468d7a686cb666",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
