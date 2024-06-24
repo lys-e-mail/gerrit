@@ -22,6 +22,30 @@
       },
       "revId": "55039d9749a911c5fe41c6486bedeece5c485b6c",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69832469_020cc327",
+        "filename": "resources/com/google/gerrit/pgm/init/gerrit.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 1155599
+      },
+      "writtenOn": "2024-06-24T08:55:15Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "da944246_f6a54ca0",
+      "range": {
+        "startLine": 374,
+        "startChar": 22,
+        "endLine": 374,
+        "endChar": 24
+      },
+      "revId": "55039d9749a911c5fe41c6486bedeece5c485b6c",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
