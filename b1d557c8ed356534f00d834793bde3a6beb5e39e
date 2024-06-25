@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e854a33f_f6f4a33b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-06-25T21:27:07Z",
+      "side": 1,
+      "message": "I have looked a bit at it.  The filter input and the action buttons are in a div of the `\u003cgr-list-view\u003e` which does not offer a way to insert element in the top container:\n```\n\u003cdiv id\u003d\"topContainer\n  \u003cdiv class\u003dfilterContainer\"\u003e  (The input box)\n  \u003cdiv id\u003d\"createNewContainer\"\u003e  [Create New] button\n\u003c/div\u003e\n\u003cslot\u003e\u003c/slot\u003e\n\u003cnav\u003e\n...\n```\n\nEventually I found out I can add another `\u003cslot\u003e` with a given name and I have updated the screenshot https://phabricator.wikimedia.org/F55880056",
+      "parentUuid": "492ccb58_b4a0c719",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 55
+      },
+      "revId": "b1d557c8ed356534f00d834793bde3a6beb5e39e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2516cc67_6d2e9a9f",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
