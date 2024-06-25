@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08f401ab_c823f57f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-06-25T12:28:08Z",
+      "side": 1,
+      "message": "That is the same as https://gerrit-review.googlesource.com/c/gerrit/+/430723 for which you got randomly assigned as a reviewer last week. This time it is targetting `master`  and I have addressed the point you have raised in the previous change.",
+      "revId": "b1d557c8ed356534f00d834793bde3a6beb5e39e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
