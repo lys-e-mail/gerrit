@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b52644a0_63329a82",
+        "filename": "polygerrit-ui/app/elements/admin/gr-repo-list/gr-repo-list.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-06-26T09:03:31Z",
+      "side": 1,
+      "message": "we don\u0027t use inline styles in gerrit, can you move it to the `static override get styles() {` section?",
+      "range": {
+        "startLine": 106,
+        "startChar": 32,
+        "endLine": 106,
+        "endChar": 55
+      },
+      "revId": "808920b9f56407fbb6e52865c3b014a8784d9ad3",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}

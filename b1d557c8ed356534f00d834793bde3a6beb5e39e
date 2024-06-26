@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1e9833c8_c7bdd514",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-06-26T09:03:31Z",
+      "side": 1,
+      "message": "The slot solution looks good to me, and the screenshot looks much better now, thank you",
+      "parentUuid": "e854a33f_f6f4a33b",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 55
+      },
+      "revId": "b1d557c8ed356534f00d834793bde3a6beb5e39e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2516cc67_6d2e9a9f",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b58bca7_5b782e26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-06-26T09:03:31Z",
+      "side": 1,
+      "message": "I\u0027ve tested the change on gerrit.googlesource.com, and I\u0027ve realized that `state` option is disabled on `googlesource`. I\u0027ve asked internally for the reason behind it, and it seems that such requests can be quite expensive.\n\nIf this feature is important to you, you would need to implement server config variable that can control whether or not it\u0027s enabled.",
+      "revId": "ee9114e3c3c43cff421173b109c89fc7d99b4ca1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
