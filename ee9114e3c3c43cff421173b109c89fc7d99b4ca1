@@ -34,6 +34,24 @@
       "parentUuid": "2b58bca7_5b782e26",
       "revId": "ee9114e3c3c43cff421173b109c89fc7d99b4ca1",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cd4c505_912bee9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-06-26T11:27:14Z",
+      "side": 1,
+      "message": "I don\u0027t think there is any existing config value that you can directly use.\n\nYou can take a look in https://cs.opensource.google/gerrit/gerrit/gerrit/+/master:java/com/google/gerrit/server/restapi/config/GetServerInfo.java\n\nThis is the endpoint that populate ServerInfo available in the frontend.\nAFAIK all you need is to add a line, like\n\n```\nconfig.getBoolean(\u003csection-name\u003e, \u003csubsection-name\u003e, \u003cfield name\u003e, \u003cdefault value that doesn\u0027t break current usages\u003e)\n```\n\nand add a field in ServerInfo to store and propagate that to the Frontend to use in the JS code.\n\n`config` is for JGit Config instance, that is parsing git-style config files. (you will see example of these in the file I linked above)",
+      "parentUuid": "da2faef4_4f458f01",
+      "revId": "ee9114e3c3c43cff421173b109c89fc7d99b4ca1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
