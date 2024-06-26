@@ -72,6 +72,30 @@
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f82b1574_8bbf1fb2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-06-26T10:36:20Z",
+      "side": 1,
+      "message": "Great and **thank you** for the suggestion, I was a bit intimidated since I don\u0027t know much about shadow DOM / templating, but using a `\u003cslot\u003e` turned out to be reasonably to learn :)",
+      "parentUuid": "1e9833c8_c7bdd514",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 55
+      },
+      "revId": "b1d557c8ed356534f00d834793bde3a6beb5e39e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2516cc67_6d2e9a9f",
