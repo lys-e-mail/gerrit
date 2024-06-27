@@ -18,6 +18,7 @@ import {
 import {ChangeMessageId} from '../../../api/rest-api';
 import {
   getCommentAuthors,
+  getFirstComment,
   getMentionedThreads,
   hasHumanReply,
   isDraftThread,
@@ -157,6 +158,9 @@ export class GrThreadList extends LitElement {
   /** Along with `draftsOnly` is the currently selected filter. */
   @property({type: Boolean, attribute: 'unresolved-only'})
   unresolvedOnly = false;
+
+  @property({type: Boolean})
+  onlyWithSuggestions = true;
 
   @property({
     type: Boolean,
@@ -358,6 +362,8 @@ export class GrThreadList extends LitElement {
           .items=${this.getCommentsDropdownEntries()}
         >
         </gr-dropdown-list>
+        <span class="separator"></span>
+        <span class="filter-text">Only suggestions</span>
         ${this.renderAuthorChips()}
       </div>
     `;
@@ -576,6 +582,9 @@ export class GrThreadList extends LitElement {
 
     if (this.draftsOnly && !isDraftThread(thread)) return false;
     if (this.unresolvedOnly && !isUnresolved(thread)) return false;
+
+    if (this.onlyWithSuggestions && !getFirstComment(thread)?.fix_suggestions)
+      return false;
 
     return true;
   }

@@ -1400,6 +1400,7 @@ export class GrComment extends LitElement {
       fileExtension: getFileExtension(this.comment.path ?? ''),
       logProbability: suggestionResponse.fix_suggestions?.[0].log_probability,
     });
+    console.error(suggestionResponse.fix_suggestions?.[0].log_probability);
     const suggestion = suggestionResponse.fix_suggestions?.[0];
     if (!suggestion?.replacements || suggestion.replacements.length === 0) {
       return;
