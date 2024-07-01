@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3434dbbb_b23c6850",
+        "filename": "java/com/google/gerrit/server/account/AccountCache.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-07-01T08:36:52Z",
+      "side": 1,
+      "message": "test",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 11
+      },
+      "revId": "f343a30aaa3781bb8a4b81b1a2e09cd94549b6c1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
