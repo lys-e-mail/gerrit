@@ -70,6 +70,24 @@
       "parentUuid": "7cd4c505_912bee9e",
       "revId": "ee9114e3c3c43cff421173b109c89fc7d99b4ca1",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b5bac1b_5833e000",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-03T16:28:35Z",
+      "side": 1,
+      "message": "I am exposing the config with Id2eff9a9851004af89224cf5547383c2c7098e98 . I am keeping this thread un resolved since I need to adjust the frontend code to fetch the Gerrit config and hide the checkbox when the instance does not support the `state` predicate.",
+      "parentUuid": "c30f9a1e_be8ebe9d",
+      "revId": "ee9114e3c3c43cff421173b109c89fc7d99b4ca1",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
