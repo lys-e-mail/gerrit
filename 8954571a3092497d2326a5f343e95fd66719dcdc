@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2828bde3_8ae4331b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-03T16:20:46Z",
+      "side": 1,
+      "message": "That is following up your review on https://gerrit-review.googlesource.com/c/gerrit/+/431200/comments/2b58bca7_5b782e26 If that works, the Google instances would need to set `gerrit.projectStatePredicateEnabled \u003d false`.",
+      "revId": "8954571a3092497d2326a5f343e95fd66719dcdc",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
