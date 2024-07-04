@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0736c9c4_929df5c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-04T14:46:51Z",
+      "side": 1,
+      "message": "I have added the logic to hide the checkbox when `gerrit.projectStatePredicateEnabled \u003d false` which comes from parent change https://gerrit-review.googlesource.com/c/gerrit/+/432317/ . The web UI defaults it to true since in most case it is never set and the predicate is enabled.\n\nI have renamed the variable from `hideReadOnlyRepo` to `showActiveRepos` since checking it causes the project to be filtered based on `state:active` and that the mismatching semantic was annoying me.\n\nI have tested it locally with `gerrit.projectStatePredicateEnabled` not set, set to true and set to false and I got the expected behavior (it is shown in both first two cases and hidden when config is false).",
+      "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae8a9ee4_55834b39",
