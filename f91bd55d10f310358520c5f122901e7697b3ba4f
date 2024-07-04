@@ -51,6 +51,24 @@
       "parentUuid": "ae8a9ee4_55834b39",
       "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c36668d9_362ee5bf",
+        "filename": "polygerrit-ui/app/elements/admin/gr-repo-list/gr-repo-list.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-07-04T15:32:04Z",
+      "side": 1,
+      "message": "`getCreateRepoCapability` isn\u0027t in a model. `getConfig` isn\u0027t really dependent on `getCreateRepoCapability`. Putting it in the constructor and using the model, it gets executed before everything else. It\u0027s up to you if you want to do it in a seperate patch.",
+      "parentUuid": "beeeda4f_7087d560",
+      "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
