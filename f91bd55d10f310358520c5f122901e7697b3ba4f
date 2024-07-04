@@ -69,6 +69,24 @@
       "parentUuid": "beeeda4f_7087d560",
       "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fec6c81b_0532c127",
+        "filename": "polygerrit-ui/app/elements/admin/gr-repo-list/gr-repo-list.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-04T16:08:57Z",
+      "side": 1,
+      "message": "What I argue is that `getCreateRepoCapability()` above is retrieving the user account and the code you pointed to does:\n```\n    subscribe(\n      this,\n      () \u003d\u003e this.getUserModel().account$,\n      account \u003d\u003e (this.account \u003d account)\n    );\n```\n\nSo it looks like `getCreateRepoCapability` can be ported to the constructor using that subscribe() call. But that is out of the scope of this change.   Maybe I can try doing it in a new change and rebase mine on top, but not this week.",
+      "parentUuid": "c36668d9_362ee5bf",
+      "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
