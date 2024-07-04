@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae8a9ee4_55834b39",
+        "filename": "polygerrit-ui/app/elements/admin/gr-repo-list/gr-repo-list.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 1029953
+      },
+      "writtenOn": "2024-07-04T14:45:58Z",
+      "side": 1,
+      "message": "We don\u0027t do it this way anymore well for any that is in a model. You can use the mode to fetch the server config. See https://github.com/GerritCodeReview/gerrit/blob/92d127e9fc24cf44ae45a0d2ae7a5fe42b277cd4/polygerrit-ui/app/elements/change-list/gr-change-list-reviewer-flow/gr-change-list-reviewer-flow.ts#L165",
+      "revId": "f91bd55d10f310358520c5f122901e7697b3ba4f",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
