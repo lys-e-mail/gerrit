@@ -87,6 +87,30 @@
       },
       "revId": "8954571a3092497d2326a5f343e95fd66719dcdc",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f7561f3_8fe3bd38",
+        "filename": "polygerrit-ui/app/api/rest-api.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-05T13:25:19Z",
+      "side": 1,
+      "message": "\u003e I\u0027ve already updated the internal override, to account for this, no worries :)Amazing, thank you very much!",
+      "parentUuid": "4ba4d05a_aee51af9",
+      "range": {
+        "startLine": 711,
+        "startChar": 2,
+        "endLine": 711,
+        "endChar": 33
+      },
+      "revId": "8954571a3092497d2326a5f343e95fd66719dcdc",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
