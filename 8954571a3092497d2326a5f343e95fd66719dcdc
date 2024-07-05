@@ -39,6 +39,30 @@
       },
       "revId": "8954571a3092497d2326a5f343e95fd66719dcdc",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46581558_0924dc89",
+        "filename": "polygerrit-ui/app/api/rest-api.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 1010788
+      },
+      "writtenOn": "2024-07-05T12:51:20Z",
+      "side": 1,
+      "message": "Done!\n\nI imagine the decoupling of UI and backend releases is internal to Google or for people using a CDN?\n\nThe Google daemon would need `gerrit.project_state_predicate_enabled \u003d false` to be added before this UI change is deployed. I can\u0027t act on that front though :)",
+      "parentUuid": "bb9ac1a5_bbbed242",
+      "range": {
+        "startLine": 711,
+        "startChar": 2,
+        "endLine": 711,
+        "endChar": 33
+      },
+      "revId": "8954571a3092497d2326a5f343e95fd66719dcdc",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
