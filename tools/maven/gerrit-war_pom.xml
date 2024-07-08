@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-war</artifactId>
+<<<<<<< HEAD   (f2672f Merge "Avoid updating disk caches with accessed time during )
   <version>3.9.6-SNAPSHOT</version>
+||||||| BASE
+  <version>3.8-SNAPSHOT</version>
+=======
+  <version>3.8.8-SNAPSHOT</version>
+>>>>>>> BRANCH (8368ad Set version to 3.8.8-SNAPSHOT)
   <packaging>war</packaging>
   <name>Gerrit Code Review - WAR</name>
   <description>Gerrit WAR</description>
