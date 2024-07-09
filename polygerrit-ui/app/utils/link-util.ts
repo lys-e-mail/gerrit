@@ -33,6 +33,20 @@ function getRewriteResultsFromConfig(
     commentLinkInfo =>
       commentLinkInfo.enabled !== false && commentLinkInfo.link !== undefined
   );
+<<<<<<< HEAD   (8368ad Set version to 3.8.8-SNAPSHOT)
+||||||| BASE
+  // Always linkify URLs starting with https?://
+  enabledRewrites.push({
+    match: '(https?://\\S+[\\w/])',
+    link: '$1',
+  });
+=======
+  // Always linkify URLs starting with https?://
+  enabledRewrites.push({
+    match: '(https?://((?!&(gt|lt|amp|quot|apos);)\\S)+[\\w/~-])',
+    link: '$1',
+  });
+>>>>>>> BRANCH (0031d0 Clarify that comment links work on html-escaped text.)
   return enabledRewrites.flatMap(rewrite => {
     const regexp = new RegExp(rewrite.match, 'g');
     const partialResults: RewriteResult[] = [];
