@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41e857e6_48dcae33",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1006192
+      },
+      "writtenOn": "2024-07-09T18:43:21Z",
+      "side": 1,
+      "message": "I believe we should:\n\n1. Create an issue on the URL wrongly escaped (possibly that was the bug raised by Google as Google-Bug-Id: b/295554653?)\n2. Indicate in the release notes that this change fixes that problem",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "dd1f7ab7999112541f71c90131b3fbd54a2881e8",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
