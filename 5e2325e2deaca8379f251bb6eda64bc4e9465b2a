@@ -22,6 +22,30 @@
       },
       "revId": "5e2325e2deaca8379f251bb6eda64bc4e9465b2a",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a15d5c6a_db24f95f",
+        "filename": "java/com/google/gerrit/server/PerformanceMetrics.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-07-15T05:21:38Z",
+      "side": 1,
+      "message": "Thanks, but actually this file was originally created in 2021, it was restored now by reverting commit d8af41afd1f352f8e25c9f79bff705c05665934c as mentioned in the commit message. I think in this case we would like to keep the original date here.",
+      "parentUuid": "82c3dd21_97a1c831",
+      "range": {
+        "startLine": 1,
+        "startChar": 17,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "5e2325e2deaca8379f251bb6eda64bc4e9465b2a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
