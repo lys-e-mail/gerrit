@@ -22,6 +22,30 @@
       },
       "revId": "ba71d71c0b517b4e19ba151b29a7e3aac84809ab",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba95c841_ccca9ffc",
+        "filename": "java/com/google/gerrit/server/logging/PerformanceLogger.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-07-17T10:29:04Z",
+      "side": 1,
+      "message": "I would like that but the problem is that this is an extension point and that we get the PerformanceLogger instance injected, i.e. we cannot use a try-with-resources block to create and close the instance. Do you see a way to make this work?",
+      "parentUuid": "51f8ec65_bb54d27e",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 24
+      },
+      "revId": "ba71d71c0b517b4e19ba151b29a7e3aac84809ab",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
