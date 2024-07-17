@@ -70,6 +70,30 @@
       },
       "revId": "ba71d71c0b517b4e19ba151b29a7e3aac84809ab",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0be6bd47_6ff42d9f",
+        "filename": "java/com/google/gerrit/server/logging/PerformanceLogger.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1003935
+      },
+      "writtenOn": "2024-07-17T10:37:29Z",
+      "side": 1,
+      "message": "Sure we can do that but it would\u0027t change the fact that our plugin framework would instantiate the PerformanceLogger classes without a try-with-resources block, so there is no guaranteed that the PerformanceLogger\u0027s get closed, which is what people would expect from an AutoCloseable. Hence I think using AutoCloseable here would be misleading.",
+      "parentUuid": "b7742f82_1a705e88",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 24
+      },
+      "revId": "ba71d71c0b517b4e19ba151b29a7e3aac84809ab",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
