@@ -33,6 +33,24 @@
       "message": "I\u0027m not sure if this should go along with https://gerrit-review.googlesource.com/c/gerrit/+/425897 (although that change is open on 3.10) as well but +2\u0027ing",
       "revId": "4614c2a6b1fe315d6dc57afccd7258d6d5fd2744",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94c98a7b_c05f5f50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-07-18T22:17:12Z",
+      "side": 1,
+      "message": "I think change 425897 is only a refactor, so this fix should be good on its own.",
+      "parentUuid": "60b178b2_20786852",
+      "revId": "4614c2a6b1fe315d6dc57afccd7258d6d5fd2744",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
