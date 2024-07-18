@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c0b2fce_02f7deb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-07-18T21:47:11Z",
+      "side": 1,
+      "message": "I confirmed this fixes avatars in mentions on 3.9.",
+      "revId": "4614c2a6b1fe315d6dc57afccd7258d6d5fd2744",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
