@@ -52,6 +52,23 @@
       "parentUuid": "60f2822a_d71415c9",
       "revId": "6a1672fa7ab3698eaf29aab8e699cbb1e0ad2e4e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83e5890f_3ed61012",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3349743
+      },
+      "writtenOn": "2024-07-20T17:58:56Z",
+      "side": 1,
+      "message": "Cq-Include-Trybots: luci.gerrit.try:Verify gerrit CL,Verify git-repo CL,Verify luci-test CL",
+      "revId": "6a1672fa7ab3698eaf29aab8e699cbb1e0ad2e4e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
