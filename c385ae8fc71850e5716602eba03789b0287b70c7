@@ -16,6 +16,24 @@
       "message": "Could you explain more what this does. Looking at https://stackoverflow.com/questions/38683155/difference-between-interface-and-declare-interface#:~:text\u003dthere\u0027s%20no%20code%20generation%20for,bodies%2C%20properties%20values%2C%20etc. It seems for the `interface` the `declare` doesn\u0027t do anything. (And if possible add your answer to the commit message)",
       "revId": "c385ae8fc71850e5716602eba03789b0287b70c7",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d328d7bb_5a041f4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-07-29T07:59:29Z",
+      "side": 1,
+      "message": "The internal compiler does not rename the properties if you add the word `declare` before the interface.\n\nGiven these interfaces are used by plugins the compiler would rename it in our application to optimise the code but that would break other users(plugins etc) which is why I think this change is made.",
+      "parentUuid": "e296224d_94ca6b95",
+      "revId": "c385ae8fc71850e5716602eba03789b0287b70c7",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
