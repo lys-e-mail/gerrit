@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e296224d_94ca6b95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-07-29T07:31:37Z",
+      "side": 1,
+      "message": "Could you explain more what this does. Looking at https://stackoverflow.com/questions/38683155/difference-between-interface-and-declare-interface#:~:text\u003dthere\u0027s%20no%20code%20generation%20for,bodies%2C%20properties%20values%2C%20etc. It seems for the `interface` the `declare` doesn\u0027t do anything. (And if possible add your answer to the commit message)",
+      "revId": "c385ae8fc71850e5716602eba03789b0287b70c7",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
