@@ -69,6 +69,23 @@
       "message": "Cq-Include-Trybots: luci.gerrit.try:Verify gerrit CL,Verify git-repo CL,Verify luci-test CL",
       "revId": "6a1672fa7ab3698eaf29aab8e699cbb1e0ad2e4e",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37b011ff_3c8a2061",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3565901
+      },
+      "writtenOn": "2024-08-01T18:09:03Z",
+      "side": 1,
+      "message": "@aleksejpoperekoa@gmail.com\n@felberg@google.com\n@soloway@google.com\n@soloway@google.com\n@mschneider@google.com\n@tjog@google.com\n@radhanakade@google.com",
+      "revId": "6a1672fa7ab3698eaf29aab8e699cbb1e0ad2e4e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
