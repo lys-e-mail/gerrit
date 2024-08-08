@@ -1,0 +1,45 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a09c6643_137c9bfc",
+        "filename": "java/com/google/gerrit/acceptance/TestPlugin.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1145312
+      },
+      "writtenOn": "2024-08-08T12:27:46Z",
+      "side": 1,
+      "message": "Can you please add a comment to explain it?",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 34,
+        "endChar": 8
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9aad55f0_77224e52",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/acceptance/TestPlugin.java",
+              "range": {
+                "startLine": 34,
+                "startChar": 0,
+                "endLine": 34,
+                "endChar": 0
+              },
+              "replacement": "  /**\n   * The name of the module that provides the web UI for the plugin.\n   *\n   * \u003cp\u003eThe module must be installed in the {@code WebModule} of the plugin.\n   */\n"
+            }
+          ]
+        }
+      ],
+      "revId": "d0a945e16617640e7baf33337858ad93155aa765",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
