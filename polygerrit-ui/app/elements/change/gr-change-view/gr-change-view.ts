@@ -154,19 +154,6 @@ import {relatedChangesModelToken} from '../../../models/change/related-changes-m
 import {KnownExperimentId} from '../../../services/flags/flags';
 import {assign} from '../../../utils/location-util';
 
-const MIN_LINES_FOR_COMMIT_COLLAPSE = 18;
-
-const REVIEWERS_REGEX = /^(R|CC)=/gm;
-
-const MIN_CHECK_INTERVAL_SECS = 0;
-
-const ACCIDENTAL_STARRING_LIMIT_MS = 10 * 1000;
-
-const TRAILING_WHITESPACE_REGEX = /[ \t]+$/gm;
-
-const PREFIX = '#message-';
-
-const ROBOT_COMMENTS_LIMIT = 10;
 
 const ReloadToastMessage = {
   NEWER_REVISION: 'A newer patch set has been uploaded',
