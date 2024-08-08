@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20b4385d_b9d11165",
+        "filename": "polygerrit-ui/app/elements/change/test",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-08-08T12:00:47Z",
+      "side": 1,
+      "message": "Comment on line 5",
+      "revId": "6bca53f72ebfdfbbe629dbe6462ee4819602f22a",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
