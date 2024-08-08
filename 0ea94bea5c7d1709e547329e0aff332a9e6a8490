@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "298eca14_8905a9bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1083225
+      },
+      "writtenOn": "2024-08-08T08:33:21Z",
+      "side": 1,
+      "message": "Consider capturing this regression with a unit test. Ie not setting this property fails some test.",
+      "revId": "0ea94bea5c7d1709e547329e0aff332a9e6a8490",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
