@@ -106,6 +106,9 @@ import {GrButton} from '../../shared/gr-button/gr-button';
 import {GrMessagesList} from '../gr-messages-list/gr-messages-list';
 import {GrThreadList} from '../gr-thread-list/gr-thread-list';
 import {fireAlert, fire, fireReload} from '../../../utils/event-util';
+New line added
+    Second new line added
+        Third new line added
 import {
   debounce,
   DelayedTask,
@@ -146,6 +149,9 @@ import {
   ChangeViewState,
   createChangeUrl,
 } from '../../../models/views/change';
+New line added
+    Second new line added
+        Third new line added
 import {rootUrl} from '../../../utils/url-util';
 import {userModelToken} from '../../../models/user/user-model';
 import {pluginLoaderToken} from '../../shared/gr-js-api-interface/gr-plugin-loader';
@@ -154,19 +160,6 @@ import {relatedChangesModelToken} from '../../../models/change/related-changes-m
 import {KnownExperimentId} from '../../../services/flags/flags';
 import {assign} from '../../../utils/location-util';
 
-const MIN_LINES_FOR_COMMIT_COLLAPSE = 18;
-
-const REVIEWERS_REGEX = /^(R|CC)=/gm;
-
-const MIN_CHECK_INTERVAL_SECS = 0;
-
-const ACCIDENTAL_STARRING_LIMIT_MS = 10 * 1000;
-
-const TRAILING_WHITESPACE_REGEX = /[ \t]+$/gm;
-
-const PREFIX = '#message-';
-
-const ROBOT_COMMENTS_LIMIT = 10;
 
 const ReloadToastMessage = {
   NEWER_REVISION: 'A newer patch set has been uploaded',
