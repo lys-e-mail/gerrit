@@ -137,18 +137,18 @@ def declare_nongoogle_deps():
         sha1 = "cb2f351bf4463751201f43bb99865235d5ba07ca",
     )
 
-    SSHD_VERS = "2.13.1"
+    SSHD_VERS = "2.13.2"
 
     maven_jar(
         name = "sshd-osgi",
         artifact = "org.apache.sshd:sshd-osgi:" + SSHD_VERS,
-        sha1 = "50958cc44076749e790d7332021cff546707624c",
+        sha1 = "34914a5bef9ba3d04971fdec1273b47df835b038",
     )
 
     maven_jar(
         name = "sshd-sftp",
         artifact = "org.apache.sshd:sshd-sftp:" + SSHD_VERS,
-        sha1 = "e1b6da4ef604718e32cad59ef32618610da7a170",
+        sha1 = "334f42d5bbc8afb7f1149a37d10f8718cf59cc06",
     )
 
     maven_jar(
@@ -166,7 +166,7 @@ def declare_nongoogle_deps():
     maven_jar(
         name = "sshd-mina",
         artifact = "org.apache.sshd:sshd-mina:" + SSHD_VERS,
-        sha1 = "ff4a9fac41a111d806f6a058d23278b0819da7ce",
+        sha1 = "e8a7dc87f2d1f9e2f425e4cb483c488533252677",
     )
 
     maven_jar(
