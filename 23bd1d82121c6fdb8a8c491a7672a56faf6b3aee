@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e77a019_8284d95a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-08-13T23:32:10Z",
+      "side": 1,
+      "message": "I could also mention that this brings in 2 years of bug and security fixes, but I don\u0027t know that I can accurately pick out the relevant items from the bouncycastle release notes.",
+      "range": {
+        "startLine": 14,
+        "startChar": 20,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "23bd1d82121c6fdb8a8c491a7672a56faf6b3aee",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
