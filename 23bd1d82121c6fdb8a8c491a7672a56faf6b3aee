@@ -39,6 +39,24 @@
       "message": "To gain a Library-Compliance approval, please follow https://gerrit-review.googlesource.com/Documentation/dev-processes.html#upgrading-libraries",
       "revId": "23bd1d82121c6fdb8a8c491a7672a56faf6b3aee",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a47fc8c3_6d5290df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004034
+      },
+      "writtenOn": "2024-08-14T06:38:18Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "ebf45a58_0814498e",
+      "revId": "23bd1d82121c6fdb8a8c491a7672a56faf6b3aee",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
