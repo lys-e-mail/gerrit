@@ -2,7 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.gerrit</groupId>
   <artifactId>gerrit-plugin-api</artifactId>
+<<<<<<< HEAD   (7665db Merge "auth tests: Remove runtime deps to gerrit-common-prol)
   <version>3.11.0-SNAPSHOT</version>
+||||||| BASE
+  <version>3.10.1-SNAPSHOT</version>
+=======
+  <version>3.10.2-SNAPSHOT</version>
+>>>>>>> BRANCH (ab34b0 Fix broken download links for GJF < 1.22.0)
   <packaging>jar</packaging>
   <name>Gerrit Code Review - Plugin API</name>
   <description>API for Gerrit Plugins</description>

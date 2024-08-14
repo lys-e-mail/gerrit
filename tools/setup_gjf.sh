@@ -19,6 +19,8 @@ set -eu
 # Keep this version in sync with dev-contributing.txt.
 VERSION=${1:-1.7}
 
+TAG_PREFIX=google-java-format-
+
 case "$VERSION" in
 1.7)
     SHA1="b6d34a51e579b08db7c624505bdf9af4397f1702"
@@ -26,7 +28,12 @@ case "$VERSION" in
     ;;
 1.22.0)
     SHA1="693d8fd04656886a2287cfe1d7a118c4697c3a57"
+<<<<<<< HEAD   (7665db Merge "auth tests: Remove runtime deps to gerrit-common-prol)
     TAG_PREFIX="v"
+||||||| BASE
+=======
+    TAG_PREFIX=v
+>>>>>>> BRANCH (ab34b0 Fix broken download links for GJF < 1.22.0)
     ;;
 *)
     echo "unknown google-java-format version: $VERSION"
