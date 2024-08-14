@@ -16,6 +16,23 @@
       "message": "It turns out there\u0027s also a bug in MINA SSHD where the filtering logic for disabling unsupported algorithms has been inverted since 2015.\n\nhttps://github.com/apache/mina-sshd/issues/582\n\nIf there\u0027s a fix in SSHD that\u0027s released before the LC+1 happens then I\u0027ll split the SSHD bump into a new change so that it\u0027s not blocked on the LC review.",
       "revId": "b4e7258fbce67e62cc4a8b5fac30d7bf26b1ded6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b73cafd_fb5b8f60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3586277
+      },
+      "writtenOn": "2024-08-14T21:15:22Z",
+      "side": 1,
+      "message": "git push origin HEAD:refs/for/master\ngit commit\ngit commit --amend",
+      "revId": "b4e7258fbce67e62cc4a8b5fac30d7bf26b1ded6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
