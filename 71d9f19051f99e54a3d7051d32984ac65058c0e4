@@ -50,6 +50,24 @@
       "message": "@ajp@google.com Please let us know if this change looks good to you.",
       "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ff327aa_fbcd1d81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1073575
+      },
+      "writtenOn": "2024-08-20T21:42:33Z",
+      "side": 1,
+      "message": "I consulted with Sam. We generally think that the submit requirements are more important that what we\u0027re using plugin metadata for so we don\u0027t really want to universally make this change.\n\nWhat about just supporting two areas and plugins can choose whether to put items above or below submit requirements based on their importance?",
+      "parentUuid": "3d796d2c_bc49cf36",
+      "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
