@@ -68,6 +68,24 @@
       "parentUuid": "3d796d2c_bc49cf36",
       "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fde202d_ff4f34a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1013302
+      },
+      "writtenOn": "2024-08-21T06:44:18Z",
+      "side": 1,
+      "message": "OK. Makes sense.\n\n@kaushik.lingarkar@linaro.org Feel free to just create a new hook instead of moving the existing one.",
+      "parentUuid": "8ff327aa_fbcd1d81",
+      "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
