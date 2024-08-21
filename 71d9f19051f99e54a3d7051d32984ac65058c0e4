@@ -86,6 +86,24 @@
       "parentUuid": "8ff327aa_fbcd1d81",
       "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc6658f3_5a444987",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1012457
+      },
+      "writtenOn": "2024-08-21T17:45:09Z",
+      "side": 1,
+      "message": "Instead of creating a new hook, do you think we can somehow use `gr-endpoint-slot` to allow plugins to place the items above or below `submit-requirements`?\n\nIf thats not feasible or not the right use of `gr-endpoint-slot`, I\u0027ll create a new hook.",
+      "parentUuid": "3fde202d_ff4f34a8",
+      "revId": "71d9f19051f99e54a3d7051d32984ac65058c0e4",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
