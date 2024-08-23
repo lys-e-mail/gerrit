@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aacc2e4d_891d5926",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-08-23T20:47:57Z",
+      "side": 1,
+      "message": "@kaushik.lingarkar@linaro.org did you test this with plugins installed that add the default way and using the slot and see that they all appear correct together? For example, if you updated `Plugin-Item2` in your screenshot to not use the slot, does it show up below submit requirements while `Item1` and `Item3` still show up above?",
+      "revId": "ee4a9ee7c94bc79210fa0482b40603c94772fa3e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65a07c95_4fe1d88c",
+        "filename": "polygerrit-ui/app/elements/change/gr-change-metadata/gr-change-metadata_test.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 1002666
+      },
+      "writtenOn": "2024-08-23T20:47:57Z",
+      "side": 1,
+      "message": "I know this wasn\u0027t indented previously, but should it be because it\u0027s inside the `\u003cdiv\u003e`?",
+      "revId": "ee4a9ee7c94bc79210fa0482b40603c94772fa3e",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
