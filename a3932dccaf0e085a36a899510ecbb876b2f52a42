@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42ce58ea_e4f59b75",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "nit: all",
+      "range": {
+        "startLine": 19,
+        "startChar": 51,
+        "endLine": 19,
+        "endChar": 54
+      },
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49de1be8_9c9bb90d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "Sanity check: this is not addressed in this CL, but planned to be addressed by the extension point, right?",
+      "range": {
+        "startLine": 47,
+        "startChar": 53,
+        "endLine": 50,
+        "endChar": 42
+      },
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac888a5_868850dd",
+        "filename": "Documentation/rest-api-accounts.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "Should this be #account-state-info",
+      "range": {
+        "startLine": 622,
+        "startChar": 41,
+        "endLine": 622,
+        "endChar": 59
+      },
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6eb12bd4_c412385b",
+        "filename": "Documentation/rest-api-accounts.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "Maybe add a small note/pointer on how users can find out their own account id",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 626,
+        "endChar": 21
+      },
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73ad0f5c_5bbc1d19",
+        "filename": "Documentation/rest-api-accounts.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "Should we add \"inactive\" field to be part of this as well?\n\nStrangely, right now inactive is not used in either \"toString\" or \"equals\" in https://cs.opensource.google/gerrit/gerrit/gerrit/+/master:java/com/google/gerrit/extensions/common/AccountInfo.java;drc\u003d66d410bcb93eb60f7dccd8225a446fa68f9fced8;l\u003d93",
+      "range": {
+        "startLine": 641,
+        "startChar": 5,
+        "endLine": 641,
+        "endChar": 12
+      },
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e64c672a_5feae9b7",
+        "filename": "java/com/google/gerrit/server/api/accounts/AccountApiImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1148215
+      },
+      "writtenOn": "2024-08-28T08:59:34Z",
+      "side": 1,
+      "message": "nit: getState\n\nI suspect got missed in the renaming",
+      "range": {
+        "startLine": 148,
+        "startChar": 15,
+        "endLine": 148,
+        "endChar": 22
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "e246004e_37b9c63a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "java/com/google/gerrit/server/api/accounts/AccountApiImpl.java",
+              "range": {
+                "startLine": 148,
+                "startChar": 0,
+                "endLine": 149,
+                "endChar": 0
+              },
+              "replacement": "      GetState getState,\n"
+            },
+            {
+              "path": "java/com/google/gerrit/server/api/accounts/AccountApiImpl.java",
+              "range": {
+                "startLine": 190,
+                "startChar": 0,
+                "endLine": 191,
+                "endChar": 0
+              },
+              "replacement": "    this.getState \u003d getState;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "a3932dccaf0e085a36a899510ecbb876b2f52a42",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ]
+}
