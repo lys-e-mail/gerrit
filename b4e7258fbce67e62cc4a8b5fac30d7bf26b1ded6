@@ -50,6 +50,23 @@
       "message": "Sorry didn\u0027t mean to hit the Dry Run one, sorry there",
       "revId": "b4e7258fbce67e62cc4a8b5fac30d7bf26b1ded6",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a0a7e99_b539759c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1003873
+      },
+      "writtenOn": "2024-08-28T15:02:58Z",
+      "side": 1,
+      "message": "We can also revert back to 2.12.0 until this change gets approved:\nI7f0824e2bfbaf7d1514c9f90659d3803b0875559",
+      "revId": "b4e7258fbce67e62cc4a8b5fac30d7bf26b1ded6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
