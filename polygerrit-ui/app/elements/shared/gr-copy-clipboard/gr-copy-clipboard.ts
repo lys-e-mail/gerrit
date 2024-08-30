@@ -23,6 +23,7 @@ import {Timing} from '../../../constants/reporting';
 import {when} from 'lit/directives/when.js';
 import {formStyles} from '../../../styles/form-styles';
 import {fire} from '../../../utils/event-util';
+import {styleMap} from 'lit/directives/style-map.js';
 
 const COPY_TIMEOUT_MS = 1000;
 
@@ -57,6 +58,12 @@ export class GrCopyClipboard extends LitElement {
 
   @property({type: Boolean})
   multiline = false;
+
+  @property({type: String})
+  multilineMinHeight: string | undefined;
+
+  @property({type: String})
+  multilineMinWidth: string | undefined;
 
   @query('#icon')
   iconEl!: GrIcon;
@@ -137,6 +144,10 @@ export class GrCopyClipboard extends LitElement {
               readonly=""
               .value=${this.text ?? ''}
               part="text-container-style"
+              style=${styleMap({
+                "min-width": this.multilineMinWidth,
+                "min-height": this.multilineMinHeight,
+              })}
             >
             </textarea>`,
             () => html`<input

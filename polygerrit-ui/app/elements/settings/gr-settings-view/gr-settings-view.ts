@@ -201,6 +201,73 @@ export class GrSettingsView extends LitElement {
     fireTitleChange('Settings');
   }
 
+<<<<<<< Updated upstream
+=======
+  private async getAccountState() {
+    this.accountState = `
+  {
+    "account": {
+      "registered_on": "2015-07-23 07:01:09.296000000",
+      "_account_id": 1000096,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "secondary_emails": [],
+      "username": "john",
+      "display_name": "Super John"
+    },
+    "capabilities": {
+      "queryLimit": {
+        "min": 0,
+        "max": 500
+      },
+      "emailReviewers": true
+    },
+    "groups": [
+      {
+        "options": {},
+        "id": "global%3AAnonymous-Users",
+        "name": "Anonymous Users"
+      },
+      {
+        "options": {},
+        "id": "global%3ARegistered-Users",
+        "name": "Registered Users"
+      },
+      {
+        "url": "#/admin/groups/uuid-834ec36dd5e0ed21a2ff5d7e2255da082d63bbd7",
+        "options": {
+          "visible_to_all": true,
+        },
+        "description": "Users that maintain the project",
+        "group_id": 6,
+        "owner": "Administrators",
+        "owner_id": "834ec36dd5e0ed21a2ff5d7e2255da082d63bbd7"
+        "created_on": "2023-08-08 15:53:56.000000000",
+        "id": "834ec36dd5e0ed21a2ff5d7e2255da082d63bbd7",
+        "name": "Maintainers"
+      }
+    ],
+    "external_ids": [
+      {
+        "identity": "username:john",
+        "trusted": true
+      },
+      {
+        "identity": "mailto:john.doe@example.com",
+        "email_address": "john.doe@example.com",
+        "trusted": true,
+        "can_delete": true
+      }
+    ],
+    "metadata": {}
+  }
+    `;
+    // this.restApiService.getAccountState().then(async response => {
+    //   this.accountState = response;
+    // })
+  }
+
+>>>>>>> Stashed changes
   override firstUpdated() {
     const promises: Array<Promise<unknown>> = [
       this.accountInfo.loadData(),
@@ -279,6 +346,12 @@ export class GrSettingsView extends LitElement {
         .delete-account-button {
           margin-left: var(--spacing-l);
         }
+<<<<<<< Updated upstream
+=======
+        .account-state-clipboard {
+          display: inline-block;
+        }
+>>>>>>> Stashed changes
         .confirm-account-deletion-main ul {
           list-style: disc inside;
           margin-left: var(--spacing-l);
@@ -376,6 +449,35 @@ export class GrSettingsView extends LitElement {
                 </div>
               </gr-dialog>
             </dialog>
+<<<<<<< Updated upstream
+=======
+            <dialog id="dump-account-state">
+              <gr-dialog
+                cancel-label=""
+                @confirm=${() => this.dumpAccountStateConfirmationDialog?.close()}
+                confirm-label="OK"
+                confirm-on-enter=""
+                onload=${this.getAccountState()}
+              >
+                <div slot="header">Account State:</div>
+                <div slot="main">
+                  <gr-copy-clipboard
+                    .multilineMinWidth=${'400px'}
+                    .multilineMinHeight=${'400px'}
+                    class="account-state-clipboard"
+                    text=${this.accountState}
+                    copyTargetName="Account State"
+                    multiline
+                  ></gr-copy-clipboard>
+                  <p class="account-state-note">
+                    Note: The account state may contain sensitive data (e.g.
+                    deadnames). Share it with others only on a need to know
+                    basis (e.g. for debugging account or permission issues).
+                  </p>
+                </div>
+              </gr-dialog>
+            </dialog>
+>>>>>>> Stashed changes
           </fieldset>
           <gr-preferences id="preferences"></gr-preferences>
           <h2
