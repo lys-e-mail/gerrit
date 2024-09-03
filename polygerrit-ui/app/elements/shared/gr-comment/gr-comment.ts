@@ -82,7 +82,6 @@ import {formStyles} from '../../../styles/form-styles';
 import {Interaction, Timing} from '../../../constants/reporting';
 import {
   AutocompleteCommentResponse,
-  Suggestion,
   SuggestionsProvider,
 } from '../../../api/suggestions';
 import {when} from 'lit/directives/when.js';
@@ -251,11 +250,11 @@ export class GrComment extends LitElement {
   generateSuggestion = true;
 
   @state()
-  generatedSuggestion?: Suggestion;
-
-  @state()
   generatedFixSuggestion: FixSuggestionInfo | undefined =
     this.comment?.fix_suggestions?.[0];
+
+  @state()
+  wasGeneratedFixSuggestionPreviewed = !!this.comment?.fix_suggestions?.[0];
 
   @state()
   generatedSuggestionId?: string;
@@ -379,9 +378,6 @@ export class GrComment extends LitElement {
     this.addEventListener('open-user-suggest-preview', e => {
       this.handleShowFix(e.detail.code);
     });
-    this.addEventListener('add-generated-suggestion', e => {
-      this.handleAddGeneratedSuggestion(e.detail.code);
-    });
     this.messagePlaceholder = 'Mention others with @';
     subscribe(
       this,
@@ -439,10 +435,7 @@ export class GrComment extends LitElement {
         this.autocompleteComment();
       }
     );
-    if (
-      this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT) ||
-      this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT_V2)
-    ) {
+    if (this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT_V2)) {
       subscribe(
         this,
         () =>
@@ -1156,8 +1149,7 @@ export class GrComment extends LitElement {
   // private but used in test
   showGeneratedSuggestion() {
     return (
-      (this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT) ||
-        this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT_V2)) &&
+      this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT_V2) &&
       this.suggestionsProvider &&
       this.editing &&
       !this.permanentEditingMode &&
@@ -1189,12 +1181,6 @@ export class GrComment extends LitElement {
       return html`<gr-suggestion-diff-preview
         id="suggestionDiffPreview"
         .fixSuggestionInfo=${this.generatedFixSuggestion}
-      ></gr-suggestion-diff-preview>`;
-    } else if (this.generatedSuggestion) {
-      return html`<gr-suggestion-diff-preview
-        .showAddSuggestionButton=${true}
-        .suggestion=${this.generatedSuggestion?.replacement}
-        .uuid=${this.generatedSuggestionId}
       ></gr-suggestion-diff-preview>`;
     } else {
       return nothing;
@@ -1272,83 +1258,17 @@ export class GrComment extends LitElement {
     if (!this.generateSuggestion) {
       return '';
     }
-    if (this.generatedSuggestion || this.generatedFixSuggestion) {
+    if (this.generatedFixSuggestion) {
       return '(1)';
     } else {
       return '(0)';
     }
   }
 
-  private handleAddGeneratedSuggestion(code: string) {
-    const addNewLine = this.messageText.length !== 0;
-    this.addedGeneratedSuggestion = `${
-      addNewLine ? '\n' : ''
-    }${USER_SUGGESTION_START_PATTERN}${code}${'\n```'}`;
-    this.messageText += this.addedGeneratedSuggestion;
-  }
-
   private generateSuggestEdit() {
     if (this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT_V2)) {
       this.generateSuggestEdit_v2();
-    } else if (
-      this.flagsService.isEnabled(KnownExperimentId.ML_SUGGESTED_EDIT)
-    ) {
-      this.generateSuggestEdit_v1();
     }
-  }
-
-  private async generateSuggestEdit_v1() {
-    const suggestionsProvider = this.suggestionsProvider;
-    const changeInfo = this.getChangeModel().getChange();
-    if (
-      !suggestionsProvider?.suggestCode ||
-      !this.showGeneratedSuggestion() ||
-      !this.generateSuggestion ||
-      !changeInfo ||
-      !this.comment ||
-      !this.comment.patch_set ||
-      !this.comment.path ||
-      this.messageText.length === 0
-    )
-      return;
-    this.generatedSuggestionId = uuid();
-    this.reporting.reportInteraction(Interaction.GENERATE_SUGGESTION_REQUEST, {
-      uuid: this.generatedSuggestionId,
-      type: 'suggest-code',
-      commentId: this.comment.id,
-      fileExtension: getFileExtension(this.comment.path ?? ''),
-    });
-    this.suggestionLoading = true;
-    let suggestionResponse;
-    try {
-      suggestionResponse = await suggestionsProvider.suggestCode({
-        prompt: this.messageText,
-        changeInfo: changeInfo as ChangeInfo,
-        patchsetNumber: this.comment?.patch_set,
-        filePath: this.comment.path,
-        range: this.comment.range,
-        lineNumber: this.comment.line,
-      });
-    } finally {
-      this.suggestionLoading = false;
-    }
-
-    if (!suggestionResponse) return;
-    // TODO(milutin): The suggestionResponse can contain multiple suggestion
-    // options. We pick the first one for now. In future we shouldn't ignore
-    // other suggestions.
-    this.reporting.reportInteraction(Interaction.GENERATE_SUGGESTION_RESPONSE, {
-      uuid: this.generatedSuggestionId,
-      type: 'suggest-code',
-      commentId: this.comment.id,
-      response: suggestionResponse.responseCode,
-      numSuggestions: suggestionResponse.suggestions.length,
-      hasNewRange: suggestionResponse.suggestions?.[0]?.newRange !== undefined,
-      fileExtension: getFileExtension(this.comment.path ?? ''),
-    });
-    const suggestion = suggestionResponse.suggestions?.[0];
-    if (!suggestion?.replacement) return;
-    this.generatedSuggestion = suggestion;
   }
 
   private async generateSuggestEdit_v2() {
@@ -1405,6 +1325,13 @@ export class GrComment extends LitElement {
       return;
     }
     this.generatedFixSuggestion = suggestion;
+    this.wasGeneratedFixSuggestionPreviewed = false;
+
+    (async () => {
+      await waitUntil(() => this.suggestionDiffPreview?.previewed === true);
+      this.wasGeneratedFixSuggestionPreviewed = true;
+    })();
+
     try {
       await waitUntil(() => this.getFixSuggestions() !== undefined);
       this.autoSaveTrigger$.next();
@@ -1584,16 +1511,8 @@ export class GrComment extends LitElement {
         whenVisible(this, () => this.textarea?.putCursorAtEnd());
       }
     }
-    if (
-      changed.has('changeNum') ||
-      changed.has('comment') ||
-      changed.has('generatedSuggestion')
-    ) {
-      if (
-        !this.changeNum ||
-        !this.comment ||
-        (!hasUserSuggestion(this.comment) && !this.generatedSuggestion)
-      )
+    if (changed.has('changeNum') || changed.has('comment')) {
+      if (!this.changeNum || !this.comment || !hasUserSuggestion(this.comment))
         return;
       (async () => {
         this.commentedText = await this.commentModel.getCommentedCode(
@@ -1887,7 +1806,6 @@ export class GrComment extends LitElement {
     } else {
       // No need to make a backend call when nothing has changed.
       while (this.somethingToSave()) {
-        this.trackGeneratedSuggestionEdit();
         this.comment = await this.rawSave({showToast: true});
         if (isError(this.comment)) return;
       }
@@ -1932,12 +1850,7 @@ export class GrComment extends LitElement {
     // Disable fix suggestions when the comment already has a user suggestion
     if (this.comment && hasUserSuggestion(this.comment)) return undefined;
     // we ignore fixSuggestions until they are previewed.
-    if (
-      this.suggestionDiffPreview &&
-      !this.suggestionDiffPreview?.previewed &&
-      !this.suggestionLoading
-    )
-      return undefined;
+    if (!this.wasGeneratedFixSuggestionPreviewed) return undefined;
     return [this.generatedFixSuggestion];
   }
 
@@ -1982,23 +1895,6 @@ export class GrComment extends LitElement {
       this.confirmDeleteDialog.message
     );
     this.closeDeleteCommentModal();
-  }
-
-  private trackGeneratedSuggestionEdit() {
-    const hasUserSuggestion = this.messageText.includes(
-      USER_SUGGESTION_START_PATTERN
-    );
-    const wasGeneratedSuggestionEdited =
-      this.addedGeneratedSuggestion &&
-      hasUserSuggestion &&
-      !this.messageText.includes(this.addedGeneratedSuggestion);
-    if (wasGeneratedSuggestionEdited) {
-      this.reporting.reportInteraction(Interaction.GENERATE_SUGGESTION_EDITED, {
-        uuid: this.generatedSuggestionId,
-        commentId: this.comment?.id ?? '',
-      });
-      this.addedGeneratedSuggestion = undefined;
-    }
   }
 }
 

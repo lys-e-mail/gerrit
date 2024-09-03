@@ -28,21 +28,9 @@ import {createUserFixSuggestion} from '../../../utils/comment-util';
 import {commentModelToken} from '../gr-comment-model/gr-comment-model';
 import {navigationToken} from '../../core/gr-navigation/gr-navigation';
 import {fire} from '../../../utils/event-util';
-import {Interaction, Timing} from '../../../constants/reporting';
+import {Timing} from '../../../constants/reporting';
 import {createChangeUrl} from '../../../models/views/change';
 import {getFileExtension} from '../../../utils/file-util';
-
-declare global {
-  interface HTMLElementEventMap {
-    'add-generated-suggestion': AddGeneratedSuggestionEvent;
-  }
-}
-
-export type AddGeneratedSuggestionEvent =
-  CustomEvent<OpenUserSuggestionPreviewEventDetail>;
-export interface OpenUserSuggestionPreviewEventDetail {
-  code: string;
-}
 
 /**
  * Diff preview for
@@ -206,19 +194,6 @@ export class GrSuggestionDiffPreview extends LitElement {
         () => this.renderDiff(),
         () => html`<code>${code}</code>`
       )}
-      ${when(
-        this.showAddSuggestionButton,
-        () =>
-          html`<div class="buttons">
-            <gr-button
-              link
-              class="action add-suggestion"
-              @click=${this.handleAddGeneratedSuggestion}
-            >
-              Add suggestion to comment
-            </gr-button>
-          </div>`
-      )}
     `;
   }
 
@@ -228,6 +203,7 @@ export class GrSuggestionDiffPreview extends LitElement {
     if (!anyLineTooLong(diff)) {
       this.syntaxLayer.process(diff);
     }
+    this.previewed = true;
     return html`<div class="diff-container">
       <gr-diff
         .prefs=${this.overridePartialDiffPrefs()}
@@ -303,7 +279,6 @@ export class GrSuggestionDiffPreview extends LitElement {
     if (currentPreviews.length > 0) {
       this.preview = currentPreviews[0];
       this.previewLoadedFor = this.fixSuggestionInfo;
-      this.previewed = true;
     }
 
     return res;
@@ -381,15 +356,6 @@ export class GrSuggestionDiffPreview extends LitElement {
       line_length: Math.min(this.diffPrefs.line_length, 100),
       line_wrapping: true,
     };
-  }
-
-  handleAddGeneratedSuggestion() {
-    if (!this.suggestion) return;
-    this.reporting.reportInteraction(Interaction.GENERATE_SUGGESTION_ADDED, {
-      uuid: this.uuid,
-      commentId: this.comment?.id ?? '',
-    });
-    fire(this, 'add-generated-suggestion', {code: this.suggestion});
   }
 }
 
