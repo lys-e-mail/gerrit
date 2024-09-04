@@ -63,6 +63,30 @@
       },
       "revId": "244279a7675a664ca3ef5e44ce324389f91908ee",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a538b5d_4f037096",
+        "filename": "javatests/com/google/gerrit/acceptance/api/group/GroupsIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 1014252
+      },
+      "writtenOn": "2024-09-04T07:28:33Z",
+      "side": 1,
+      "message": "`deleteGroupEnabled` is [default set to false](https://gerrit-review.googlesource.com/c/gerrit/+/431917/2/java/com/google/gerrit/server/restapi/RestApiModule.java#43) and it seems to me like it\u0027s not configured in the test which would mean that `DeleteGroup` [is never bound](https://gerrit-review.googlesource.com/c/gerrit/+/431917/2/java/com/google/gerrit/server/restapi/group/GroupRestApiModule.java#48) but still deleteGroups is available in the test.\nI don\u0027t get it, am I missing something?",
+      "parentUuid": "0395b33f_01a4893f",
+      "range": {
+        "startLine": 752,
+        "startChar": 51,
+        "endLine": 752,
+        "endChar": 93
+      },
+      "revId": "244279a7675a664ca3ef5e44ce324389f91908ee",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
