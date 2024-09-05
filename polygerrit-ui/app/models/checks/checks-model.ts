@@ -478,6 +478,8 @@ export class ChecksModel extends Model<ChecksState> {
       scheduledCount: 0,
       runningCount: 0,
       completedCount: 0,
+      withFix: 0,
+      withoutFix: 0,
     };
     const providers = Object.values(state);
     for (const provider of providers) {
@@ -496,6 +498,11 @@ export class ChecksModel extends Model<ChecksState> {
           if (result.category === Category.WARNING) stats.warningCount++;
           if (result.category === Category.INFO) stats.infoCount++;
           if (result.category === Category.SUCCESS) stats.successCount++;
+          if (result.fixes?.[0]) {
+            stats.withFix++;
+          } else {
+            stats.withoutFix++;
+          }
         }
       }
     }
