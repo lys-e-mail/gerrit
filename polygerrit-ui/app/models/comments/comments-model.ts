@@ -27,6 +27,7 @@ import {
   createNewPatchsetLevel,
   getFirstComment,
   hasSuggestion,
+  hasUserSuggestion,
   id,
   isDraftThread,
   isNewThread,
@@ -533,6 +534,7 @@ export class CommentsModel extends Model<CommentState> {
         )
         .subscribe(([comments, robotComments, drafts]) => {
           this.reportRobotCommentStats(robotComments);
+          this.reportCommentStats(comments);
           this.modifyState(s => {
             s = setComments(s, comments);
             s = setRobotComments(s, robotComments);
@@ -600,6 +602,39 @@ export class CommentsModel extends Model<CommentState> {
       details,
       {deduping: Deduping.EVENT_ONCE_PER_CHANGE}
     );
+  }
+
+  private reportCommentStats(obj?: {[path: string]: CommentInfo[]}) {
+    if (!obj) return;
+    const comments = Object.values(obj).flat();
+    if (comments.length === 0) return;
+    const latestPatchset = comments.reduce(
+      (latestPs, comment) =>
+        Math.max(latestPs, (comment?.patch_set as number) ?? 0),
+      0
+    );
+    const commentsLatest = comments.filter(c => c.patch_set === latestPatchset);
+    const commentsFixes = comments
+      .map(c => c.fix_suggestions?.length ?? 0)
+      .filter(l => l > 0);
+    const commentsLatestFixes = commentsLatest
+      .map(c => c.fix_suggestions?.length ?? 0)
+      .filter(l => l > 0);
+    const commentsUserSuggestions = comments.filter(c => hasUserSuggestion(c));
+    const commentsLatestUserSuggestions = commentsLatest.filter(c =>
+      hasUserSuggestion(c)
+    );
+    const details = {
+      countAll: comments.length,
+      countLatest: commentsLatest.length,
+      countLatestWithFix: commentsLatestFixes.length,
+      countLatestWithUserFix: commentsLatestUserSuggestions.length,
+      countAllWithFix: commentsFixes.length,
+      countAllWithUserFix: commentsUserSuggestions.length,
+    };
+    this.reporting.reportInteraction(Interaction.COMMENTS_STATS, details, {
+      deduping: Deduping.EVENT_ONCE_PER_CHANGE,
+    });
   }
 
   async restoreDraft(draftId: UrlEncodedCommentId) {
