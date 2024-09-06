@@ -87,6 +87,30 @@
       },
       "revId": "244279a7675a664ca3ef5e44ce324389f91908ee",
       "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49074441_200905ad",
+        "filename": "javatests/com/google/gerrit/acceptance/api/group/GroupsIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 1083195
+      },
+      "writtenOn": "2024-09-06T21:29:29Z",
+      "side": 1,
+      "message": "Looking into classes, its a bit tough to do, gApi is bypasssing RestAPI class and calls method directly via GroupRestAPI module, we can make it explicitely to throw exception if that is the solution. Can you please hint or help with this problem?",
+      "parentUuid": "3a538b5d_4f037096",
+      "range": {
+        "startLine": 752,
+        "startChar": 51,
+        "endLine": 752,
+        "endChar": 93
+      },
+      "revId": "244279a7675a664ca3ef5e44ce324389f91908ee",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
     }
   ]
 }
