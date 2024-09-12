@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a930ba76_79dc6629",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3622708
+      },
+      "writtenOn": "2024-09-12T02:26:58Z",
+      "side": 1,
+      "message": "git clone https://chromium.googlesource.com/chromium/src",
+      "revId": "afb54afc8627f438d8206015d13fd10bdfaf16a6",
+      "serverId": "173816e5-2b9a-37c3-8a2e-48639d4f1153"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
